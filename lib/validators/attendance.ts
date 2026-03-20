@@ -8,6 +8,7 @@ export const checkInSchema = z.object({
 })
 
 export const checkOutSchema = checkInSchema
+export const moveSchema = checkInSchema
 
 export const exceptionRequestSchema = z.object({
   siteId: z.string().min(1),

@@ -31,7 +31,7 @@ export async function PATCH(
 
     const log = await prisma.attendanceLog.findUnique({
       where: { id: params.id },
-      include: { worker: { select: { name: true } }, site: { select: { name: true } } },
+      include: { worker: { select: { name: true } }, checkInSite: { select: { name: true } } },
     })
     if (!log) return notFound('출퇴근 기록을 찾을 수 없습니다.')
     if (log.status !== 'EXCEPTION') return badRequest('예외 상태의 기록이 아닙니다.')
@@ -49,7 +49,7 @@ export async function PATCH(
       actionType,
       targetType: 'AttendanceLog',
       targetId: params.id,
-      description: `예외 ${action === 'APPROVE' ? '승인' : '반려'}: ${log.worker.name} / ${log.site.name}`,
+      description: `예외 ${action === 'APPROVE' ? '승인' : '반려'}: ${log.worker.name} / ${log.checkInSite.name}`,
     })
 
     return NextResponse.json({ success: true, data: { id: updated.id, status: updated.status } })

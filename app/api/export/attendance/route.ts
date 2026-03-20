@@ -37,14 +37,14 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         worker: { select: { name: true, phone: true, company: true, jobTitle: true } },
-        site: { select: { name: true } },
+        checkInSite: { select: { name: true } },
       },
       orderBy: [{ workDate: 'asc' }, { checkInAt: 'asc' }],
     })
 
     const rows = logs.map((l) => ({
       날짜: l.workDate.toISOString().slice(0, 10),
-      현장명: l.site.name,
+      현장명: l.checkInSite.name,
       이름: l.worker.name,
       연락처: l.worker.phone,
       회사: l.worker.company,

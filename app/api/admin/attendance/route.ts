@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server'
+import { AttendanceStatus } from '@prisma/client'
 import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, unauthorized, internalError } from '@/lib/utils/response'
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
       ...(Object.keys(workDateFilter).length > 0 ? { workDate: workDateFilter } : {}),
       ...(siteId ? { siteId } : {}),
       ...(workerId ? { workerId } : {}),
-      ...(status ? { status } : {}),
+      ...(status ? { status: status as AttendanceStatus } : {}),
     }
 
     const [total, logs] = await Promise.all([
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           worker: { select: { name: true, phone: true, company: true, jobTitle: true } },
-          site: { select: { name: true } },
+          checkInSite: { select: { name: true } },
         },
         orderBy: [{ workDate: 'desc' }, { checkInAt: 'desc' }],
         skip: (page - 1) * pageSize,
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
         workerPhone: l.worker.phone,
         company: l.worker.company,
         jobTitle: l.worker.jobTitle,
-        siteName: l.site.name,
+        siteName: l.checkInSite.name,
         workDate: l.workDate.toISOString().slice(0, 10),
         checkInAt: l.checkInAt?.toISOString() ?? null,
         checkOutAt: l.checkOutAt?.toISOString() ?? null,

@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
         where: { status: 'EXCEPTION' },
         include: {
           worker: { select: { name: true, phone: true, company: true } },
-          site: { select: { name: true } },
+          checkInSite: { select: { name: true } },
         },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * pageSize,
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
         workerName: e.worker.name,
         workerPhone: e.worker.phone,
         company: e.worker.company,
-        siteName: e.site.name,
+        siteName: e.checkInSite.name,
         workDate: e.workDate.toISOString().slice(0, 10),
         checkInAt: e.checkInAt?.toISOString() ?? null,
         checkOutAt: e.checkOutAt?.toISOString() ?? null,

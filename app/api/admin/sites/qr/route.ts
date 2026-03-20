@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     const buffer = await generateQrBuffer(qrUrl)
 
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
         'Content-Type': 'image/png',

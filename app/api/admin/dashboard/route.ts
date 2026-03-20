@@ -25,7 +25,7 @@ export async function GET() {
       where: { workDate: today },
       include: {
         worker: { select: { name: true, company: true } },
-        site: { select: { name: true } },
+        checkInSite: { select: { name: true } },
       },
       orderBy: { checkInAt: 'desc' },
       take: 20,
@@ -45,7 +45,7 @@ export async function GET() {
         id: l.id,
         workerName: l.worker.name,
         company: l.worker.company,
-        siteName: l.site.name,
+        siteName: l.checkInSite.name,
         checkInAt: l.checkInAt?.toISOString() ?? null,
         checkOutAt: l.checkOutAt?.toISOString() ?? null,
         status: l.status,

@@ -21,6 +21,13 @@ enum AttendanceStatus {
   EXCEPTION         // 예외 처리 (GPS 실패 등 관리자 승인)
 }
 
+enum AttendanceEventType {
+  CHECK_IN       // 출근
+  MOVE           // 현장 이동 (이동형 근무)
+  CHECK_OUT      // 퇴근
+  AUTO_CHECK_OUT // 자동 퇴근 처리
+}
+
 enum DeviceRequestStatus {
   PENDING
   APPROVED
@@ -68,10 +75,11 @@ model Worker {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  devices             WorkerDevice[]
-  attendanceLogs      AttendanceLog[]
+  devices              WorkerDevice[]
+  attendanceLogs       AttendanceLog[]
   deviceChangeRequests DeviceChangeRequest[]
-  otpVerifications    OtpVerification[]
+  otpVerifications     OtpVerification[]
+  attendanceEvents     AttendanceEvent[]
 
   @@map("workers")
 }
@@ -89,7 +97,9 @@ model Site {
   updatedAt      DateTime @updatedAt
 
   // Relations
-  attendanceLogs AttendanceLog[]
+  checkInLogs    AttendanceLog[]  @relation("CheckInSite")
+  checkOutLogs   AttendanceLog[]  @relation("CheckOutSite")
+  events         AttendanceEvent[]
 
   @@map("sites")
 }
@@ -130,7 +140,10 @@ model OtpVerification {
 model AttendanceLog {
   id              String           @id @default(cuid())
   workerId        String
+  // 출근 현장 (체크인 기준)
   siteId          String
+  // 퇴근 현장 — 이동형 근무 시 출근 현장과 다를 수 있음 (nullable)
+  checkOutSiteId  String?
   workDate        DateTime         @db.Date // 날짜만 저장 (KST 기준)
   checkInAt       DateTime?
   checkOutAt      DateTime?
@@ -140,7 +153,7 @@ model AttendanceLog {
   checkOutLng     Float?
   checkInDistance Float?           // 현장까지 거리(m)
   checkOutDistance Float?
-  qrToken         String           // 사용된 QR 토큰 스냅샷
+  qrToken         String           // 사용된 QR 토큰 스냅샷 (체크인)
   status          AttendanceStatus @default(WORKING)
   exceptionReason String?
   adminNote       String?          // 관리자 메모
@@ -148,14 +161,44 @@ model AttendanceLog {
   updatedAt       DateTime         @updatedAt
 
   // Relations
-  worker Worker @relation(fields: [workerId], references: [id])
-  site   Site   @relation(fields: [siteId], references: [id])
+  worker        Worker  @relation(fields: [workerId], references: [id])
+  checkInSite   Site    @relation("CheckInSite", fields: [siteId], references: [id])
+  checkOutSite  Site?   @relation("CheckOutSite", fields: [checkOutSiteId], references: [id])
+
+  // 이벤트 로그 (이동형 근무)
+  events AttendanceEvent[]
 
   // 같은 근로자, 같은 현장, 같은 날짜는 1건만 허용
   @@unique([workerId, siteId, workDate])
   @@index([workDate])
   @@index([siteId, workDate])
   @@map("attendance_logs")
+}
+
+// 출근/이동/퇴근 이벤트 로그 (이동형 근무 지원)
+// 상시 GPS 추적 금지 — 버튼 누를 때만 기록
+model AttendanceEvent {
+  id               String              @id @default(cuid())
+  attendanceLogId  String
+  workerId         String
+  eventType        AttendanceEventType
+  siteId           String?             // 연결된 현장 (null 허용: 이동 중)
+  occurredAt       DateTime            @default(now())
+  latitude         Float?
+  longitude        Float?
+  accuracy         Float?              // GPS 정확도(m)
+  distanceFromSite Float?              // 현장까지 거리(m)
+  deviceId         String?             // WorkerDevice.id
+  memo             String?
+
+  // Relations
+  attendanceLog AttendanceLog @relation(fields: [attendanceLogId], references: [id], onDelete: Cascade)
+  worker        Worker        @relation(fields: [workerId], references: [id])
+  site          Site?         @relation(fields: [siteId], references: [id])
+
+  @@index([attendanceLogId])
+  @@index([workerId, occurredAt])
+  @@map("attendance_events")
 }
 
 model DeviceChangeRequest {

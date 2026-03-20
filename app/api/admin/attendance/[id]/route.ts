@@ -43,7 +43,7 @@ export async function PATCH(
         status: status ?? (checkInAt || checkOutAt ? 'ADJUSTED' : log.status),
         adminNote: adminNote ?? log.adminNote,
       },
-      include: { worker: { select: { name: true } }, site: { select: { name: true } } },
+      include: { worker: { select: { name: true } }, checkInSite: { select: { name: true } } },
     })
 
     await writeAuditLog({
@@ -51,7 +51,7 @@ export async function PATCH(
       actionType: 'ADJUST_ATTENDANCE',
       targetType: 'AttendanceLog',
       targetId: params.id,
-      description: `출퇴근 수정: ${updatedLog.worker.name} / ${updatedLog.site.name} / ${log.workDate.toISOString().slice(0, 10)}`,
+      description: `출퇴근 수정: ${updatedLog.worker.name} / ${updatedLog.checkInSite.name} / ${log.workDate.toISOString().slice(0, 10)}`,
     })
 
     return NextResponse.json({

@@ -6,15 +6,15 @@ export async function getTodayStatus(workerId: string) {
 
   const log = await prisma.attendanceLog.findFirst({
     where: { workerId, workDate },
-    include: { site: { select: { name: true, address: true } } },
+    include: { checkInSite: { select: { name: true, address: true } } },
   })
 
   if (!log) return null
 
   return {
     id: log.id,
-    siteName: log.site.name,
-    siteAddress: log.site.address,
+    siteName: log.checkInSite.name,
+    siteAddress: log.checkInSite.address,
     workDate: toKSTDateString(log.workDate),
     checkInAt: log.checkInAt?.toISOString() ?? null,
     checkOutAt: log.checkOutAt?.toISOString() ?? null,

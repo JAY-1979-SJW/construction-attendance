@@ -16,15 +16,26 @@ interface Site {
   createdAt: string
 }
 
+const emptyForm = { name: '', address: '', latitude: '', longitude: '', allowedRadius: '100' }
+
 export default function SitesPage() {
   const router = useRouter()
   const [sites, setSites] = useState<Site[]>([])
   const [loading, setLoading] = useState(true)
+
+  // 등록 모달
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ name: '', address: '', latitude: '', longitude: '', allowedRadius: '100' })
+  const [form, setForm] = useState(emptyForm)
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
   const [newQr, setNewQr] = useState<{ siteName: string; qrToken: string } | null>(null)
+
+  // 수정 모달
+  const [editTarget, setEditTarget] = useState<Site | null>(null)
+  const [editForm, setEditForm] = useState(emptyForm)
+  const [editActive, setEditActive] = useState(true)
+  const [editError, setEditError] = useState('')
+  const [editSaving, setEditSaving] = useState(false)
 
   const load = () => {
     setLoading(true)
@@ -39,6 +50,7 @@ export default function SitesPage() {
 
   useEffect(load, [router])
 
+  // ── 등록 ─────────────────────────────────────────────────────
   const handleSave = async () => {
     setSaving(true)
     setFormError('')
@@ -58,9 +70,48 @@ export default function SitesPage() {
     if (!data.success) { setFormError(data.message); setSaving(false); return }
     setShowForm(false)
     setNewQr({ siteName: form.name, qrToken: data.data.qrToken })
-    setForm({ name: '', address: '', latitude: '', longitude: '', allowedRadius: '100' })
+    setForm(emptyForm)
     load()
     setSaving(false)
+  }
+
+  // ── 수정 모달 열기 ────────────────────────────────────────────
+  const openEdit = (site: Site) => {
+    setEditTarget(site)
+    setEditForm({
+      name: site.name,
+      address: site.address,
+      latitude: String(site.latitude),
+      longitude: String(site.longitude),
+      allowedRadius: String(site.allowedRadius),
+    })
+    setEditActive(site.isActive)
+    setEditError('')
+  }
+
+  // ── 수정 저장 ─────────────────────────────────────────────────
+  const handleEdit = async () => {
+    if (!editTarget) return
+    setEditSaving(true)
+    setEditError('')
+    const payload = {
+      name: editForm.name,
+      address: editForm.address,
+      latitude: parseFloat(editForm.latitude),
+      longitude: parseFloat(editForm.longitude),
+      allowedRadius: parseInt(editForm.allowedRadius, 10),
+      isActive: editActive,
+    }
+    const res = await fetch(`/api/admin/sites/${editTarget.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    const data = await res.json()
+    if (!data.success) { setEditError(data.message); setEditSaving(false); return }
+    setEditTarget(null)
+    load()
+    setEditSaving(false)
   }
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
@@ -72,8 +123,11 @@ export default function SitesPage() {
         {[
           ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/sites', '현장 관리'],
           ['/admin/attendance', '출퇴근 조회'], ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'],
-        ].map(([href, label]) => <Link key={href} href={href} style={styles.navItem}>{label}</Link>)}
+        ].map(([href, label]) => (
+          <Link key={href} href={href} style={styles.navItem}>{label}</Link>
+        ))}
       </nav>
+
       <main style={styles.main}>
         <div style={styles.header}>
           <h1 style={styles.pageTitle}>현장 관리</h1>
@@ -83,8 +137,11 @@ export default function SitesPage() {
         {loading ? <p>로딩 중...</p> : (
           <div style={styles.grid}>
             {sites.map((site) => (
-              <div key={site.id} style={{ ...styles.siteCard, opacity: site.isActive ? 1 : 0.6 }}>
-                <div style={styles.siteName}>{site.name}</div>
+              <div key={site.id} style={{ ...styles.siteCard, opacity: site.isActive ? 1 : 0.55 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={styles.siteName}>{site.name}</div>
+                  <button onClick={() => openEdit(site)} style={styles.editBtn}>수정</button>
+                </div>
                 <div style={styles.siteAddress}>{site.address}</div>
                 <div style={styles.siteInfo}>GPS 반경: {site.allowedRadius}m</div>
                 <div style={styles.siteInfo}>위도: {site.latitude} / 경도: {site.longitude}</div>
@@ -115,17 +172,15 @@ export default function SitesPage() {
                 </div>
               </div>
             ))}
-            {sites.length === 0 && (
-              <p style={{ color: '#999' }}>등록된 현장이 없습니다.</p>
-            )}
+            {sites.length === 0 && <p style={{ color: '#999' }}>등록된 현장이 없습니다.</p>}
           </div>
         )}
 
-        {/* 등록 모달 */}
+        {/* ── 등록 모달 ─────────────────────────────────────── */}
         {showForm && (
           <div style={styles.modalOverlay}>
             <div style={styles.modal}>
-              <h3 style={{ margin: '0 0 20px' }}>현장 등록</h3>
+              <h3 style={styles.modalTitle}>현장 등록</h3>
               {[
                 { label: '현장명', key: 'name', placeholder: '해한 1호 현장' },
                 { label: '주소', key: 'address', placeholder: '서울시 강남구 ...' },
@@ -133,7 +188,7 @@ export default function SitesPage() {
                 { label: '경도', key: 'longitude', placeholder: '127.0536' },
                 { label: 'GPS 허용 반경 (m)', key: 'allowedRadius', placeholder: '100' },
               ].map(({ label, key, placeholder }) => (
-                <div key={key} style={{ marginBottom: '12px' }}>
+                <div key={key} style={styles.fieldRow}>
                   <label style={styles.label}>{label}</label>
                   <input
                     type="text"
@@ -145,18 +200,63 @@ export default function SitesPage() {
                 </div>
               ))}
               <p style={{ fontSize: '12px', color: '#888', margin: '0 0 16px' }}>
-                위도/경도는 Google Maps 등에서 확인하세요. (예: 37.5065, 127.0536)
+                위도/경도는 Google Maps에서 확인하세요. (예: 37.5065, 127.0536)
               </p>
-              {formError && <p style={{ color: '#e53935', fontSize: '13px' }}>{formError}</p>}
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={handleSave} disabled={saving} style={styles.saveBtn}>{saving ? '저장 중...' : '등록'}</button>
-                <button onClick={() => setShowForm(false)} style={styles.cancelBtn}>취소</button>
+              {formError && <p style={styles.error}>{formError}</p>}
+              <div style={styles.btnRow}>
+                <button onClick={handleSave} disabled={saving} style={styles.saveBtn}>
+                  {saving ? '저장 중...' : '등록'}
+                </button>
+                <button onClick={() => { setShowForm(false); setFormError('') }} style={styles.cancelBtn}>취소</button>
               </div>
             </div>
           </div>
         )}
 
-        {/* QR 발급 완료 모달 */}
+        {/* ── 수정 모달 ─────────────────────────────────────── */}
+        {editTarget && (
+          <div style={styles.modalOverlay}>
+            <div style={styles.modal}>
+              <h3 style={styles.modalTitle}>현장 수정 — {editTarget.name}</h3>
+              {[
+                { label: '현장명', key: 'name', placeholder: '' },
+                { label: '주소', key: 'address', placeholder: '' },
+                { label: '위도', key: 'latitude', placeholder: '' },
+                { label: '경도', key: 'longitude', placeholder: '' },
+                { label: 'GPS 허용 반경 (m)', key: 'allowedRadius', placeholder: '' },
+              ].map(({ label, key, placeholder }) => (
+                <div key={key} style={styles.fieldRow}>
+                  <label style={styles.label}>{label}</label>
+                  <input
+                    type="text"
+                    placeholder={placeholder}
+                    value={editForm[key as keyof typeof editForm]}
+                    onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
+                    style={styles.input}
+                  />
+                </div>
+              ))}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <input
+                  type="checkbox"
+                  id="editSiteActive"
+                  checked={editActive}
+                  onChange={(e) => setEditActive(e.target.checked)}
+                />
+                <label htmlFor="editSiteActive" style={{ fontSize: '14px' }}>현장 활성 상태</label>
+              </div>
+              {editError && <p style={styles.error}>{editError}</p>}
+              <div style={styles.btnRow}>
+                <button onClick={handleEdit} disabled={editSaving} style={styles.saveBtn}>
+                  {editSaving ? '저장 중...' : '저장'}
+                </button>
+                <button onClick={() => setEditTarget(null)} style={styles.cancelBtn}>취소</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── QR 발급 완료 모달 ─────────────────────────────── */}
         {newQr && (
           <div style={styles.modalOverlay}>
             <div style={styles.modal}>
@@ -200,10 +300,15 @@ const styles: Record<string, React.CSSProperties> = {
   qrLabel: { fontSize: '11px', color: '#999', marginBottom: '4px' },
   qrUrl: { fontSize: '12px', color: '#1976d2', wordBreak: 'break-all', marginBottom: '8px' },
   copyBtn: { padding: '4px 10px', fontSize: '12px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' },
+  editBtn: { padding: '4px 10px', fontSize: '12px', background: '#e3f2fd', color: '#1976d2', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer', flexShrink: 0 },
   modalOverlay: { position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 },
   modal: { background: 'white', borderRadius: '12px', padding: '32px', width: '440px', maxWidth: '90vw' },
+  modalTitle: { margin: '0 0 20px', fontSize: '18px', fontWeight: 700 },
+  fieldRow: { marginBottom: '12px' },
   label: { display: 'block', fontSize: '13px', color: '#555', marginBottom: '4px' },
   input: { width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #ddd', borderRadius: '6px', boxSizing: 'border-box' as const },
+  error: { color: '#e53935', fontSize: '13px', margin: '0 0 12px' },
+  btnRow: { display: 'flex', gap: '8px', marginTop: '16px' },
   saveBtn: { flex: 1, padding: '12px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 },
   cancelBtn: { flex: 1, padding: '12px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer' },
 }
