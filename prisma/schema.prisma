@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum AttendanceStatus {
+  WORKING    // 출근 후 미퇴근
+  COMPLETED  // 정상 출퇴근 완료
+  EXCEPTION  // 예외 처리
+}
+
+enum DeviceRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum OtpPurpose {
+  LOGIN
+  DEVICE_CHANGE
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  VIEWER
+}
+
+// ─── Models ──────────────────────────────────────────────
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         AdminRole @default(ADMIN)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  processedDeviceRequests DeviceChangeRequest[] @relation("ProcessedBy")
+  auditLogs               AdminAuditLog[]
+
+  @@map("admin_users")
+}
+
+model Worker {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String   @unique
+  company     String   // 소속 회사 / 협력업체
+  jobTitle    String   // 직종 / 역할
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  devices             WorkerDevice[]
+  attendanceLogs      AttendanceLog[]
+  deviceChangeRequests DeviceChangeRequest[]
+  otpVerifications    OtpVerification[]
+
+  @@map("workers")
+}
+
+model Site {
+  id             String   @id @default(cuid())
+  name           String
+  address        String
+  latitude       Float
+  longitude      Float
+  allowedRadius  Int      @default(100) // meters
+  qrToken        String   @unique
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  attendanceLogs AttendanceLog[]
+
+  @@map("sites")
+}
+
+model WorkerDevice {
+  id          String   @id @default(cuid())
+  workerId    String
+  deviceToken String   @unique
+  deviceName  String   // 기기명 / 표시명
+  isPrimary   Boolean  @default(false) // 기본 기기 여부
+  isActive    Boolean  @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@map("worker_devices")
+}
+
+model OtpVerification {
+  id          String     @id @default(cuid())
+  phone       String
+  code        String
+  purpose     OtpPurpose
+  expiresAt   DateTime
+  verifiedAt  DateTime?
+  createdAt   DateTime   @default(now())
+
+  // Relations (optional — phone may not yet be registered)
+  workerId String?
+  worker   Worker? @relation(fields: [workerId], references: [id], onDelete: SetNull)
+
+  @@map("otp_verifications")
+}
+
+model AttendanceLog {
+  id              String           @id @default(cuid())
+  workerId        String
+  siteId          String
+  workDate        DateTime         @db.Date // 날짜만 저장 (KST 기준)
+  checkInAt       DateTime?
+  checkOutAt      DateTime?
+  checkInLat      Float?
+  checkInLng      Float?
+  checkOutLat     Float?
+  checkOutLng     Float?
+  checkInDistance Float?           // 현장까지 거리(m)
+  checkOutDistance Float?
+  qrToken         String           // 사용된 QR 토큰 스냅샷
+  status          AttendanceStatus @default(WORKING)
+  exceptionReason String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  // Relations
+  worker Worker @relation(fields: [workerId], references: [id])
+  site   Site   @relation(fields: [siteId], references: [id])
+
+  // 같은 근로자, 같은 현장, 같은 날짜는 1건만 허용
+  @@unique([workerId, siteId, workDate])
+  @@map("attendance_logs")
+}
+
+model DeviceChangeRequest {
+  id             String              @id @default(cuid())
+  workerId       String
+  oldDeviceToken String?
+  newDeviceToken String
+  newDeviceName  String
+  reason         String
+  status         DeviceRequestStatus @default(PENDING)
+  requestedAt    DateTime            @default(now())
+  processedAt    DateTime?
+  processedBy    String?             // AdminUser.id
+
+  // Relations
+  worker    Worker     @relation(fields: [workerId], references: [id])
+  adminUser AdminUser? @relation("ProcessedBy", fields: [processedBy], references: [id])
+
+  @@map("device_change_requests")
+}
+
+model AdminAuditLog {
+  id          String   @id @default(cuid())
+  adminId     String
+  actionType  String   // e.g. APPROVE_EXCEPTION, REGISTER_WORKER, etc.
+  targetType  String?  // e.g. Worker, AttendanceLog, etc.
+  targetId    String?
+  description String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  admin AdminUser @relation(fields: [adminId], references: [id])
+
+  @@map("admin_audit_logs")
+}

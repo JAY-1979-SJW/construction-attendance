@@ -1,0 +1,50 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { prisma } from '@/lib/db/prisma'
+import { signToken } from '@/lib/auth/jwt'
+import { badRequest, unauthorized, internalError } from '@/lib/utils/response'
+import bcrypt from 'bcryptjs'
+
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+})
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) return badRequest(parsed.error.errors[0].message)
+
+    const { email, password } = parsed.data
+
+    const admin = await prisma.adminUser.findUnique({ where: { email } })
+    if (!admin || !admin.isActive) return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
+
+    const valid = await bcrypt.compare(password, admin.passwordHash)
+    if (!valid) return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
+
+    const token = await signToken({
+      sub: admin.id,
+      type: 'admin',
+      role: admin.role,
+    })
+
+    const response = NextResponse.json({
+      success: true,
+      data: { id: admin.id, name: admin.name, email: admin.email, role: admin.role },
+    })
+    response.cookies.set('admin_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/',
+    })
+
+    return response
+  } catch (err) {
+    console.error('[admin/auth/login]', err)
+    return internalError()
+  }
+}

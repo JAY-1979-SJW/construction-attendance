@@ -1,0 +1,61 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# next.js
+.next/
+out/
+build/
+dist/
+
+# env files — never commit real secrets
+.env
+.env.local
+.env.production
+.env.development
+.env*.local
+
+# prisma
+prisma/migrations/dev.db
+prisma/*.db
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+
+# runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# test coverage
+coverage/
+.nyc_output
+
+# pm2
+ecosystem.config.js.bak
+
+# uploads (if any local)
+public/uploads/
