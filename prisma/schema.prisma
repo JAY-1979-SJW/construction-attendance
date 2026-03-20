@@ -13,9 +13,12 @@ datasource db {
 // ─── Enums ───────────────────────────────────────────────
 
 enum AttendanceStatus {
-  WORKING    // 출근 후 미퇴근
-  COMPLETED  // 정상 출퇴근 완료
-  EXCEPTION  // 예외 처리
+  WORKING           // 출근 후 미퇴근 (당일)
+  COMPLETED         // 정상 출퇴근 완료
+  MISSING_CHECKOUT  // 퇴근 미기록 (익일 04:00 스케줄러 전환)
+  ADJUSTED          // 관리자가 시간 수정한 기록
+  ADMIN_MANUAL      // 관리자가 직접 생성한 기록
+  EXCEPTION         // 예외 처리 (GPS 실패 등 관리자 승인)
 }
 
 enum DeviceRequestStatus {
@@ -140,6 +143,7 @@ model AttendanceLog {
   qrToken         String           // 사용된 QR 토큰 스냅샷
   status          AttendanceStatus @default(WORKING)
   exceptionReason String?
+  adminNote       String?          // 관리자 메모
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
@@ -149,6 +153,8 @@ model AttendanceLog {
 
   // 같은 근로자, 같은 현장, 같은 날짜는 1건만 허용
   @@unique([workerId, siteId, workDate])
+  @@index([workDate])
+  @@index([siteId, workDate])
   @@map("attendance_logs")
 }
 
@@ -180,8 +186,12 @@ model AdminAuditLog {
   description String
   createdAt   DateTime @default(now())
 
+  ipAddress   String?
+
   // Relations
   admin AdminUser @relation(fields: [adminId], references: [id])
 
+  @@index([adminId])
+  @@index([createdAt])
   @@map("admin_audit_logs")
 }
