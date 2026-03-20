@@ -91,12 +91,21 @@ export default function SitesPage() {
                 <div style={styles.qrBox}>
                   <div style={styles.qrLabel}>QR URL</div>
                   <div style={styles.qrUrl}>{baseUrl}/qr/{site.qrToken}</div>
-                  <button
-                    onClick={() => navigator.clipboard.writeText(`${baseUrl}/qr/${site.qrToken}`)}
-                    style={styles.copyBtn}
-                  >
-                    복사
-                  </button>
+                  <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                    <button
+                      onClick={() => navigator.clipboard.writeText(`${baseUrl}/qr/${site.qrToken}`)}
+                      style={styles.copyBtn}
+                    >
+                      URL 복사
+                    </button>
+                    <a
+                      href={`/api/admin/sites/qr?siteId=${site.id}`}
+                      download={`QR_${site.name}.png`}
+                      style={{ ...styles.copyBtn, textDecoration: 'none', display: 'inline-block' }}
+                    >
+                      QR 다운로드
+                    </a>
+                  </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
                   <span style={{ fontSize: '12px', color: site.isActive ? '#2e7d32' : '#999', fontWeight: 600 }}>
