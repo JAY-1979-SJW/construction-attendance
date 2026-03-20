@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
-import { unauthorized, badRequest, notFound, forbidden, internalError } from '@/lib/utils/response'
+import { unauthorized, badRequest, notFound, internalError } from '@/lib/utils/response'
 
 const patchSchema = z.object({
   action: z.enum(['APPROVE', 'REJECT']),
@@ -21,7 +21,8 @@ export async function PATCH(
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
-    if (session.role === 'VIEWER') return forbidden('처리 권한이 없습니다.')
+    const deny = requireRole(session, MUTATE_ROLES)
+    if (deny) return deny
 
     const body = await request.json()
     const parsed = patchSchema.safeParse(body)

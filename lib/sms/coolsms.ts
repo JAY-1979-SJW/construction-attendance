@@ -28,11 +28,11 @@ function buildAuthHeader(apiKey: string, apiSecret: string): string {
 export async function sendViaCoolSms(to: string, message: string): Promise<void> {
   const apiKey = process.env.COOLSMS_API_KEY
   const apiSecret = process.env.COOLSMS_API_SECRET
-  const from = process.env.COOLSMS_SENDER_PHONE
+  const from = process.env.COOLSMS_SENDER
 
   if (!apiKey || !apiSecret || !from) {
     throw new Error(
-      'CoolSMS 환경변수 누락: COOLSMS_API_KEY, COOLSMS_API_SECRET, COOLSMS_SENDER_PHONE 을 확인하세요.'
+      'CoolSMS 환경변수 누락: COOLSMS_API_KEY, COOLSMS_API_SECRET, COOLSMS_SENDER 을 확인하세요.'
     )
   }
 

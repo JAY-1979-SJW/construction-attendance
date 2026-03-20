@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAdminRole } from '@/lib/hooks/useAdminRole'
 
 interface Site {
   id: string
@@ -20,6 +21,8 @@ const emptyForm = { name: '', address: '', latitude: '', longitude: '', allowedR
 
 export default function SitesPage() {
   const router = useRouter()
+  const role = useAdminRole()
+  const canMutate = role !== null && role !== 'VIEWER'
   const [sites, setSites] = useState<Site[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -131,7 +134,7 @@ export default function SitesPage() {
       <main style={styles.main}>
         <div style={styles.header}>
           <h1 style={styles.pageTitle}>현장 관리</h1>
-          <button onClick={() => setShowForm(true)} style={styles.addBtn}>+ 현장 등록</button>
+          {canMutate && <button onClick={() => setShowForm(true)} style={styles.addBtn}>+ 현장 등록</button>}
         </div>
 
         {loading ? <p>로딩 중...</p> : (
@@ -140,7 +143,7 @@ export default function SitesPage() {
               <div key={site.id} style={{ ...styles.siteCard, opacity: site.isActive ? 1 : 0.55 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div style={styles.siteName}>{site.name}</div>
-                  <button onClick={() => openEdit(site)} style={styles.editBtn}>수정</button>
+                  {canMutate && <button onClick={() => openEdit(site)} style={styles.editBtn}>수정</button>}
                 </div>
                 <div style={styles.siteAddress}>{site.address}</div>
                 <div style={styles.siteInfo}>GPS 반경: {site.allowedRadius}m</div>

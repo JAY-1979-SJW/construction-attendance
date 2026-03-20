@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAdminRole } from '@/lib/hooks/useAdminRole'
 
 interface Worker {
   id: string
@@ -19,6 +20,8 @@ const emptyForm = { name: '', phone: '', company: '', jobTitle: '' }
 
 export default function WorkersPage() {
   const router = useRouter()
+  const role = useAdminRole()
+  const canMutate = role !== null && role !== 'VIEWER'
   const [workers, setWorkers] = useState<Worker[]>([])
   const [total, setTotal] = useState(0)
   const [search, setSearch] = useState('')
@@ -128,7 +131,7 @@ export default function WorkersPage() {
       <main style={styles.main}>
         <div style={styles.header}>
           <h1 style={styles.pageTitle}>근로자 관리 ({total}명)</h1>
-          <button onClick={() => setShowForm(true)} style={styles.addBtn}>+ 근로자 등록</button>
+          {canMutate && <button onClick={() => setShowForm(true)} style={styles.addBtn}>+ 근로자 등록</button>}
         </div>
 
         <div style={styles.searchRow}>
@@ -170,8 +173,8 @@ export default function WorkersPage() {
                     </td>
                     <td style={styles.td}>{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
                     <td style={{ ...styles.td, whiteSpace: 'nowrap' }}>
-                      <button onClick={() => openEdit(w)} style={styles.editBtn}>수정</button>
-                      {w.isActive && (
+                      {canMutate && <button onClick={() => openEdit(w)} style={styles.editBtn}>수정</button>}
+                      {canMutate && w.isActive && (
                         <button
                           onClick={() => { setDeleteTarget(w); setDeleteError('') }}
                           style={styles.deleteBtn}

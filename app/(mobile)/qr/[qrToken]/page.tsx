@@ -13,7 +13,7 @@ interface SiteInfo {
   allowedRadius: number
 }
 
-type Mode = 'loading' | 'check-in' | 'check-out' | 'completed' | 'already-done' | 'error'
+type Mode = 'loading' | 'check-in' | 'move' | 'check-out' | 'completed' | 'already-done' | 'error'
 
 export default function QrPage({ params }: { params: Promise<{ qrToken: string }> }) {
   const { qrToken } = use(params)
@@ -23,6 +23,10 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
   const [message, setMessage] = useState('')
   const [processing, setProcessing] = useState(false)
   const [distance, setDistance] = useState<number | null>(null)
+  const [completedLabel, setCompletedLabel] = useState('')
+
+  // 이동 모드 전용: 현재 근무 중인 현장명
+  const [currentSiteName, setCurrentSiteName] = useState('')
 
   useEffect(() => {
     const init = async () => {
@@ -43,16 +47,33 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
           setMessage(siteData.message ?? '유효하지 않은 QR코드입니다.')
           return
         }
-        setSite(siteData.data)
+        const scannedSite: SiteInfo = siteData.data
+        setSite(scannedSite)
 
         // 3. 오늘 기록 확인
         const todayRes = await fetch('/api/attendance/today')
         const todayData = await todayRes.json()
-        if (todayData.data?.checkOutAt) {
+        const today = todayData.data
+
+        if (today?.checkOutAt) {
+          // 퇴근 완료
           setMode('already-done')
-        } else if (todayData.data?.checkInAt) {
-          setMode('check-out')
+        } else if (today?.checkInAt && today?.status === 'WORKING') {
+          // 열린 세션 있음 → 현재 현장 vs 스캔 현장 비교
+          const currentSiteId: string = today.currentSiteId
+          if (currentSiteId && scannedSite.id !== currentSiteId) {
+            // 다른 현장 → 이동 모드
+            setCurrentSiteName(today.currentSiteName ?? today.siteName)
+            setMode('move')
+          } else {
+            // 같은 현장 → 퇴근 모드
+            setMode('check-out')
+          }
+        } else if (today?.checkInAt) {
+          // 세션 있지만 WORKING이 아님 (MISSING_CHECKOUT 등)
+          setMode('already-done')
         } else {
+          // 오늘 세션 없음 → 출근 모드
           setMode('check-in')
         }
       } catch {
@@ -71,79 +92,100 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
       })
     )
 
+  const getDeviceToken = (): string | null => {
+    const token = getStoredDeviceToken()
+    if (!token) router.push('/device/register')
+    return token
+  }
+
   const handleCheckIn = async () => {
-    const deviceToken = getStoredDeviceToken()
-    if (!deviceToken) {
-      router.push('/device/register')
-      return
-    }
+    const deviceToken = getDeviceToken()
+    if (!deviceToken) return
 
     setProcessing(true)
     setMessage('')
-
     try {
       const pos = await getGpsPosition()
       const { latitude, longitude } = pos.coords
-
       const res = await fetch('/api/attendance/check-in', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ qrToken, latitude, longitude, deviceToken }),
       })
       const data = await res.json()
-
       if (data.success) {
         setDistance(data.data.distance)
+        setCompletedLabel('출근이 완료되었습니다.')
         setMode('completed')
-        setMessage('출근이 완료되었습니다.')
       } else {
         setMessage(data.message)
       }
     } catch (err: unknown) {
-      if (err instanceof GeolocationPositionError) {
-        setMessage('위치 정보를 가져올 수 없습니다. 위치 권한을 허용해주세요.')
+      setMessage(err instanceof GeolocationPositionError
+        ? '위치 정보를 가져올 수 없습니다. 위치 권한을 허용해주세요.'
+        : '처리 중 오류가 발생했습니다.')
+    } finally {
+      setProcessing(false)
+    }
+  }
+
+  const handleMove = async () => {
+    const deviceToken = getDeviceToken()
+    if (!deviceToken) return
+
+    setProcessing(true)
+    setMessage('')
+    try {
+      const pos = await getGpsPosition()
+      const { latitude, longitude } = pos.coords
+      const res = await fetch('/api/attendance/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qrToken, latitude, longitude, deviceToken }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setDistance(data.data?.distance ?? null)
+        setCompletedLabel(`${site?.name ?? ''} 현장으로 이동 완료되었습니다.`)
+        setMode('completed')
       } else {
-        setMessage('처리 중 오류가 발생했습니다.')
+        setMessage(data.message)
       }
+    } catch (err: unknown) {
+      setMessage(err instanceof GeolocationPositionError
+        ? '위치 정보를 가져올 수 없습니다. 위치 권한을 허용해주세요.'
+        : '처리 중 오류가 발생했습니다.')
     } finally {
       setProcessing(false)
     }
   }
 
   const handleCheckOut = async () => {
-    const deviceToken = getStoredDeviceToken()
-    if (!deviceToken) {
-      router.push('/device/register')
-      return
-    }
+    const deviceToken = getDeviceToken()
+    if (!deviceToken) return
 
     setProcessing(true)
     setMessage('')
-
     try {
       const pos = await getGpsPosition()
       const { latitude, longitude } = pos.coords
-
       const res = await fetch('/api/attendance/check-out', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ qrToken, latitude, longitude, deviceToken }),
       })
       const data = await res.json()
-
       if (data.success) {
         setDistance(data.data.distance)
+        setCompletedLabel('퇴근이 완료되었습니다.')
         setMode('completed')
-        setMessage('퇴근이 완료되었습니다.')
       } else {
         setMessage(data.message)
       }
     } catch (err: unknown) {
-      if (err instanceof GeolocationPositionError) {
-        setMessage('위치 정보를 가져올 수 없습니다. 위치 권한을 허용해주세요.')
-      } else {
-        setMessage('처리 중 오류가 발생했습니다.')
-      }
+      setMessage(err instanceof GeolocationPositionError
+        ? '위치 정보를 가져올 수 없습니다. 위치 권한을 허용해주세요.'
+        : '처리 중 오류가 발생했습니다.')
     } finally {
       setProcessing(false)
     }
@@ -174,7 +216,7 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
       {/* 현장 정보 */}
       {site && (
         <div style={styles.siteCard}>
-          <div style={styles.siteLabel}>현장</div>
+          <div style={styles.siteLabel}>스캔한 현장</div>
           <div style={styles.siteName}>{site.name}</div>
           <div style={styles.siteAddress}>{site.address}</div>
         </div>
@@ -198,6 +240,33 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
           </>
         )}
 
+        {mode === 'move' && (
+          <>
+            <div style={styles.actionIcon}>🚶</div>
+            <div style={styles.actionTitle}>현장 이동</div>
+            <div style={styles.statusInfo}>
+              <div style={styles.statusRow}>
+                <span style={styles.statusLabel}>현재 근무 현장</span>
+                <span style={styles.statusValue}>{currentSiteName}</span>
+              </div>
+              <div style={styles.statusArrow}>↓ 이동</div>
+              <div style={styles.statusRow}>
+                <span style={styles.statusLabel}>이동할 현장</span>
+                <span style={{ ...styles.statusValue, color: '#1565c0' }}>{site?.name}</span>
+              </div>
+            </div>
+            <div style={styles.actionDesc}>이동 처리 후 근무 현장이 변경됩니다.</div>
+            {message && <div style={styles.errorMsg}>{message}</div>}
+            <button
+              onClick={handleMove}
+              disabled={processing}
+              style={{ ...styles.moveBtn, opacity: processing ? 0.6 : 1 }}
+            >
+              {processing ? '처리 중...' : '현장 이동'}
+            </button>
+          </>
+        )}
+
         {mode === 'check-out' && (
           <>
             <div style={styles.actionIcon}>🏠</div>
@@ -217,7 +286,7 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
         {mode === 'completed' && (
           <>
             <div style={styles.actionIcon}>✅</div>
-            <div style={{ ...styles.actionTitle, color: '#2e7d32' }}>{message}</div>
+            <div style={{ ...styles.actionTitle, color: '#2e7d32' }}>{completedLabel}</div>
             {distance != null && (
               <div style={styles.actionDesc}>현장까지 거리: {distance}m</div>
             )}
@@ -240,7 +309,7 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
       </div>
 
       {/* 예외 신청 */}
-      {(mode === 'check-in' || mode === 'check-out') && (
+      {(mode === 'check-in' || mode === 'check-out' || mode === 'move') && (
         <button
           onClick={() => router.push(`/attendance?exception=1&siteId=${site?.id}`)}
           style={styles.exceptionBtn}
@@ -291,6 +360,17 @@ const styles: Record<string, React.CSSProperties> = {
   actionIcon: { fontSize: '56px', marginBottom: '16px' },
   actionTitle: { fontSize: '22px', fontWeight: 700, color: '#1a1a2e', marginBottom: '8px' },
   actionDesc: { fontSize: '14px', color: '#666', marginBottom: '24px' },
+  statusInfo: {
+    background: '#f8f9fa',
+    borderRadius: '10px',
+    padding: '16px',
+    marginBottom: '20px',
+    textAlign: 'left',
+  },
+  statusRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' },
+  statusLabel: { fontSize: '12px', color: '#999', flexShrink: 0 },
+  statusValue: { fontSize: '14px', fontWeight: 600, color: '#1a1a2e', textAlign: 'right' as const },
+  statusArrow: { textAlign: 'center' as const, color: '#bbb', fontSize: '18px', margin: '8px 0' },
   errorMsg: {
     color: '#e53935',
     fontSize: '13px',
@@ -298,6 +378,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '8px',
     padding: '12px',
     marginBottom: '16px',
+    textAlign: 'left' as const,
   },
   checkInBtn: {
     width: '100%',
@@ -305,6 +386,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '20px',
     fontWeight: 700,
     background: '#2e7d32',
+    color: 'white',
+    border: 'none',
+    borderRadius: '12px',
+    cursor: 'pointer',
+  },
+  moveBtn: {
+    width: '100%',
+    padding: '18px',
+    fontSize: '20px',
+    fontWeight: 700,
+    background: '#e65100',
     color: 'white',
     border: 'none',
     borderRadius: '12px',

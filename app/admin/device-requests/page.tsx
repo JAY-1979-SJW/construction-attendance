@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAdminRole } from '@/lib/hooks/useAdminRole'
 
 interface DeviceRequest {
   id: string
@@ -22,6 +23,8 @@ const STATUS_COLOR: Record<string, string> = { PENDING: '#e65100', APPROVED: '#2
 
 export default function DeviceRequestsPage() {
   const router = useRouter()
+  const role = useAdminRole()
+  const canMutate = role !== null && role !== 'VIEWER'
   const [items, setItems] = useState<DeviceRequest[]>([])
   const [total, setTotal] = useState(0)
   const [statusFilter, setStatusFilter] = useState('PENDING')
@@ -110,7 +113,7 @@ export default function DeviceRequestsPage() {
                       </span>
                     </td>
                     <td style={styles.td}>
-                      {item.status === 'PENDING' && (
+                      {item.status === 'PENDING' && canMutate && (
                         <div style={{ display: 'flex', gap: '6px' }}>
                           <button
                             onClick={() => handleAction(item.id, 'APPROVE')}
@@ -127,6 +130,9 @@ export default function DeviceRequestsPage() {
                             반려
                           </button>
                         </div>
+                      )}
+                      {item.status === 'PENDING' && !canMutate && (
+                        <span style={{ fontSize: '12px', color: '#bbb' }}>조회 전용</span>
                       )}
                       {item.processedAt && (
                         <span style={{ fontSize: '11px', color: '#999' }}>{formatDt(item.processedAt)}</span>

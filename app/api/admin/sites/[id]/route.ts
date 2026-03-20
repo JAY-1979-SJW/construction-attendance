@@ -1,12 +1,11 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import {
   ok,
   badRequest,
   unauthorized,
-  forbidden,
   notFound,
   internalError,
 } from '@/lib/utils/response'
@@ -30,8 +29,8 @@ export async function PATCH(
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
-
-    if (session.role === 'VIEWER') return forbidden('수정 권한이 없습니다.')
+    const deny = requireRole(session, MUTATE_ROLES)
+    if (deny) return deny
 
     const { id } = await params
 

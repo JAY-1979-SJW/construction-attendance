@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, badRequest, unauthorized, notFound, internalError } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
@@ -64,6 +64,8 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
+    const deny = requireRole(session, MUTATE_ROLES)
+    if (deny) return deny
 
     const body = await request.json()
     const parsed = approveSchema.safeParse(body)

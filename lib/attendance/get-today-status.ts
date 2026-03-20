@@ -11,8 +11,21 @@ export async function getTodayStatus(workerId: string) {
 
   if (!log) return null
 
+  // 이동형 근무: 마지막 MOVE 이벤트로 현재 근무 현장 결정
+  const lastMove = await prisma.attendanceEvent.findFirst({
+    where: { attendanceLogId: log.id, eventType: 'MOVE' },
+    orderBy: { occurredAt: 'desc' },
+    include: { site: { select: { name: true } } },
+  })
+
+  const currentSiteId = lastMove?.siteId ?? log.siteId
+  const currentSiteName = lastMove?.site?.name ?? log.checkInSite.name
+
   return {
     id: log.id,
+    siteId: log.siteId,
+    currentSiteId,
+    currentSiteName,
     siteName: log.checkInSite.name,
     siteAddress: log.checkInSite.address,
     workDate: toKSTDateString(log.workDate),

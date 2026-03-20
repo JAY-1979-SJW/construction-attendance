@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAdminRole } from '@/lib/hooks/useAdminRole'
 
 interface ExceptionRecord {
   id: string
@@ -19,6 +20,8 @@ interface ExceptionRecord {
 
 export default function ExceptionsPage() {
   const router = useRouter()
+  const role = useAdminRole()
+  const canMutate = role !== null && role !== 'VIEWER'
   const [items, setItems] = useState<ExceptionRecord[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -86,7 +89,10 @@ export default function ExceptionsPage() {
                     <td style={styles.td}><span style={{ fontSize: '12px' }}>{item.exceptionReason}</span></td>
                     <td style={styles.td}>{formatDt(item.createdAt)}</td>
                     <td style={styles.td}>
-                      <button onClick={() => { setSelected(item); setApproveData({ checkInAt: item.checkInAt?.slice(0, 16) ?? '', checkOutAt: item.checkOutAt?.slice(0, 16) ?? '', note: '' }) }} style={styles.actionBtn}>처리</button>
+                      {canMutate
+                        ? <button onClick={() => { setSelected(item); setApproveData({ checkInAt: item.checkInAt?.slice(0, 16) ?? '', checkOutAt: item.checkOutAt?.slice(0, 16) ?? '', note: '' }) }} style={styles.actionBtn}>처리</button>
+                        : <span style={{ fontSize: '12px', color: '#bbb' }}>조회 전용</span>
+                      }
                     </td>
                   </tr>
                 ))}
@@ -117,9 +123,9 @@ export default function ExceptionsPage() {
               </div>
               {msg && <p style={{ color: '#2e7d32', fontSize: '13px' }}>{msg}</p>}
               <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                <button onClick={() => handleAction('APPROVE')} disabled={processing} style={{ ...styles.approveBtn }}>승인</button>
-                <button onClick={() => handleAction('REJECT')} disabled={processing} style={{ ...styles.rejectBtn }}>반려</button>
-                <button onClick={() => setSelected(null)} style={styles.cancelBtn}>취소</button>
+                {canMutate && <button onClick={() => handleAction('APPROVE')} disabled={processing} style={{ ...styles.approveBtn }}>승인</button>}
+                {canMutate && <button onClick={() => handleAction('REJECT')} disabled={processing} style={{ ...styles.rejectBtn }}>반려</button>}
+                <button onClick={() => setSelected(null)} style={styles.cancelBtn}>닫기</button>
               </div>
             </div>
           </div>
