@@ -17,8 +17,9 @@ export async function sendSms(to: string, message: string): Promise<void> {
   const mode = process.env.SMS_MODE ?? 'mock'
 
   if (mode === 'mock') {
-    // OTP 원문을 운영 로그에 남기지 않기 위해 to만 기록
-    console.log(`[SMS MOCK] To: ${to} | 메시지 발송 완료 (개발 모드)`)
+    // 전화번호 마스킹 (뒤 4자리만 표시), OTP 원문 로그 제외
+    const masked = to.length > 4 ? `${to.slice(0, -4).replace(/./g, '*')}${to.slice(-4)}` : '****'
+    console.log(`[SMS MOCK] To: ${masked} | 메시지 발송 완료 (개발 모드)`)
     return
   }
 
