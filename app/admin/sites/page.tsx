@@ -83,8 +83,8 @@ export default function SitesPage() {
   const [editSaving, setEditSaving] = useState(false)
 
   // ── 지도 refs ───────────────────────────────────────────────────────
-  const formMapDiv  = useRef<HTMLDivElement>(null)
-  const editMapDiv  = useRef<HTMLDivElement>(null)
+  const formMapDiv  = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
+  const editMapDiv  = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formMapInst = useRef<any>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -109,7 +109,7 @@ export default function SitesPage() {
 
   // ── Leaflet 지도 초기화 헬퍼 ────────────────────────────────────────
   const initMap = useCallback((
-    divRef: React.RefObject<HTMLDivElement | null>,
+    divRef: React.RefObject<HTMLDivElement>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mapRef: React.MutableRefObject<any>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -324,7 +324,7 @@ export default function SitesPage() {
     f: typeof emptyForm,
     target: 'form' | 'edit',
     onChange: (key: string, val: string) => void,
-    mapDivRef: React.RefObject<HTMLDivElement | null>,
+    mapDivRef: React.RefObject<HTMLDivElement>,
   ) => (
     <>
       <div style={styles.fieldRow}>
