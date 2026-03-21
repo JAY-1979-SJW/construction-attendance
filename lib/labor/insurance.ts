@@ -56,7 +56,7 @@ export async function runInsuranceEligibility(opts: InsuranceRunOptions): Promis
     w.amount += r.confirmedTotalAmount
   }
 
-  for (const [wId, agg] of byWorker) {
+  for (const [wId, agg] of Array.from(byWorker.entries())) {
     try {
       result.processed++
       const snapshot = { monthKey, days: agg.days, amount: agg.amount, employmentType: agg.employmentType, incomeType: agg.incomeType }

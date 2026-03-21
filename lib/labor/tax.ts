@@ -90,7 +90,7 @@ export async function runTaxCalculation(opts: TaxRunOptions): Promise<TaxRunResu
     w.gross += r.confirmedTotalAmount
   }
 
-  for (const [wId, agg] of byWorker) {
+  for (const [wId, agg] of Array.from(byWorker.entries())) {
     try {
       result.processed++
       const totalDays = agg.days + agg.halfDays
