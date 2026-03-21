@@ -6,7 +6,7 @@ import { createFilingExport, ExportType } from '@/lib/labor/filing-export'
 
 const VALID_TYPES: ExportType[] = [
   'DAILY_WAGE_NTS', 'BUSINESS_INCOME_NTS', 'EI_DAILY_REPORT',
-  'NP_BASE', 'HI_BASE', 'RETIREMENT_MUTUAL_BASE',
+  'NP_BASE', 'HI_BASE', 'RETIREMENT_MUTUAL_BASE', 'LABOR_COST_SUMMARY',
 ]
 
 // GET /api/admin/filing-exports?monthKey=

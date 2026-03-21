@@ -91,6 +91,17 @@ export async function precheckMonthClosing(monthKey: string): Promise<PrecheckRe
     warnings.push('이번 월의 신고자료가 아직 생성되지 않았습니다.')
   }
 
+  // 7. 온보딩 미완료 근로자 확인
+  try {
+    const { detectPendingOnboardingForMonth } = await import('./onboarding-engine')
+    const pendingWorkers = await detectPendingOnboardingForMonth(monthKey)
+    if (pendingWorkers.length > 0) {
+      warnings.push(`퇴직공제 대상 여부 등 온보딩이 미완료된 근로자가 ${pendingWorkers.length}명 있습니다.`)
+    }
+  } catch {
+    // onboarding engine optional
+  }
+
   const canClose = errors.length === 0
 
   return {
@@ -116,37 +127,26 @@ export async function closeMonth(monthKey: string, closedBy: string): Promise<vo
     throw new Error(`사전검사 실패: ${precheck.errors.join(', ')}`)
   }
 
-  const closing = await prisma.monthClosing.upsert({
-    where: {
-      monthKey_closingScope_siteId: {
-        monthKey,
-        closingScope: 'GLOBAL',
-        siteId: null as unknown as string,
-      },
-    },
-    create: {
-      monthKey,
-      closingScope: 'GLOBAL',
-      status: 'CLOSED',
-      precheckPassedYn: true,
-      workConfirmationLockedYn: true,
-      insuranceLockedYn: true,
-      wageLockedYn: true,
-      retirementMutualLockedYn: true,
-      closedBy,
-      closedAt: new Date(),
-    },
-    update: {
-      status: 'CLOSED',
-      precheckPassedYn: true,
-      workConfirmationLockedYn: true,
-      insuranceLockedYn: true,
-      wageLockedYn: true,
-      retirementMutualLockedYn: true,
-      closedBy,
-      closedAt: new Date(),
-    },
+  const existing = await prisma.monthClosing.findFirst({
+    where: { monthKey, closingScope: 'GLOBAL', siteId: null },
   })
+
+  const closingData = {
+    status: 'CLOSED' as const,
+    precheckPassedYn: true,
+    workConfirmationLockedYn: true,
+    insuranceLockedYn: true,
+    wageLockedYn: true,
+    retirementMutualLockedYn: true,
+    closedBy,
+    closedAt: new Date(),
+  }
+
+  const closing = existing
+    ? await prisma.monthClosing.update({ where: { id: existing.id }, data: closingData })
+    : await prisma.monthClosing.create({
+        data: { monthKey, closingScope: 'GLOBAL', siteId: null, ...closingData },
+      })
 
   await logCorrection({
     domainType: 'MONTH_CLOSING',

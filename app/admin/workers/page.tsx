@@ -14,6 +14,7 @@ interface Worker {
   isActive: boolean
   deviceCount: number
   createdAt: string
+  retirementMutualStatus?: string
 }
 
 const emptyForm = { name: '', phone: '', company: '', jobTitle: '' }
@@ -152,14 +153,14 @@ export default function WorkersPage() {
             <table style={styles.table}>
               <thead>
                 <tr>
-                  {['이름', '연락처', '회사', '직종', '기기', '상태', '등록일', ''].map((h) => (
+                  {['이름', '연락처', '회사', '직종', '기기', '퇴직공제', '상태', '등록일', ''].map((h) => (
                     <th key={h} style={styles.th}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {workers.length === 0 ? (
-                  <tr><td colSpan={8} style={styles.empty}>등록된 근로자가 없습니다.</td></tr>
+                  <tr><td colSpan={9} style={styles.empty}>등록된 근로자가 없습니다.</td></tr>
                 ) : workers.map((w) => (
                   <tr key={w.id} style={{ opacity: w.isActive ? 1 : 0.5 }}>
                     <td style={styles.td}>{w.name}</td>
@@ -167,6 +168,20 @@ export default function WorkersPage() {
                     <td style={styles.td}>{w.company}</td>
                     <td style={styles.td}>{w.jobTitle}</td>
                     <td style={styles.td}>{w.deviceCount > 0 ? `${w.deviceCount}대` : '미등록'}</td>
+                    <td style={styles.td}>
+                      {w.retirementMutualStatus === 'TARGET' && (
+                        <span style={styles.badgeBlue}>대상</span>
+                      )}
+                      {w.retirementMutualStatus === 'NOT_TARGET' && (
+                        <span style={styles.badgeGray}>비대상</span>
+                      )}
+                      {w.retirementMutualStatus === 'PENDING_REVIEW' && (
+                        <span style={styles.badgeOrange}>확인필요</span>
+                      )}
+                      {!w.retirementMutualStatus && (
+                        <span style={{ fontSize: '12px', color: '#bbb' }}>—</span>
+                      )}
+                    </td>
                     <td style={styles.td}>
                       <span style={{ color: w.isActive ? '#2e7d32' : '#999', fontSize: '12px', fontWeight: 600 }}>
                         {w.isActive ? '활성' : '비활성'}
@@ -321,4 +336,7 @@ const styles: Record<string, React.CSSProperties> = {
   btnRow: { display: 'flex', gap: '8px', marginTop: '16px' },
   saveBtn: { flex: 1, padding: '12px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 },
   cancelBtn: { flex: 1, padding: '12px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer' },
+  badgeBlue:   { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#e3f2fd', color: '#1565c0' },
+  badgeGray:   { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#f5f5f5', color: '#757575' },
+  badgeOrange: { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#fff3e0', color: '#e65100' },
 }

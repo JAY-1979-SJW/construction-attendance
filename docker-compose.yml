@@ -13,6 +13,34 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - app_web
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    image: attendance:latest
+    container_name: attendance
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3002:3002"
+    networks:
+      - app_web
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3002/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  app_web:
+    external: true
 
 volumes:
   pgdata:

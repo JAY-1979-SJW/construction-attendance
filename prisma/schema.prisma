@@ -162,6 +162,12 @@ enum RetirementReportStatus {
   CORRECTED
 }
 
+enum RetirementMutualStatus {
+  YES             // 대상
+  NO              // 비대상
+  PENDING_REVIEW  // 확인 필요
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model AdminUser {
@@ -193,6 +199,7 @@ model Subcontractor {
 
   workers            Worker[]
   laborCostSummaries LaborCostSummary[]
+  settlements        SubcontractorSettlement[]
 
   @@map("subcontractors")
 }
@@ -217,7 +224,15 @@ model Worker {
   subcontractorId           String?
   skillLevel                String?
   retirementMutualTargetYn  Boolean          @default(false)
+  retirementMutualStatus    RetirementMutualStatus @default(PENDING_REVIEW)
   fourInsurancesEligibleYn  Boolean          @default(true)
+  // ── Phase 4 확장 필드 ───────────────────────────────────
+  residentType              String?          // LOCAL | FOREIGNER
+  foreignTaxSpecialYn       Boolean          @default(false)
+  insuranceExceptionYn      Boolean          @default(false)
+  insuranceExceptionReason  String?
+  taxExceptionYn            Boolean          @default(false)
+  taxExceptionReason        String?
   // ───────────────────────────────────────────────────────
 
   createdAt   DateTime @default(now())
@@ -240,6 +255,7 @@ model Worker {
   retirementRecords          RetirementMutualDailyRecord[]
   retirementMutualWorkers    RetirementMutualWorker[]
   retirementMonthlySummaries RetirementMutualMonthlySummary[]
+  onboardingChecklists       OnboardingChecklist[]
 
   @@map("workers")
 }
@@ -269,6 +285,8 @@ model Site {
   retirementMutualSite       RetirementMutualSite?
   retirementMonthlySummaries RetirementMutualMonthlySummary[]
   laborCostSummaries         LaborCostSummary[]
+  subcontractorSettlements   SubcontractorSettlement[]
+  onboardingChecklists       OnboardingChecklist[]
 
   @@map("sites")
 }
@@ -683,6 +701,12 @@ model FilingExport {
   exportScopeJson       Json?
   generatedSnapshotJson Json?
 
+  templateCode      String?
+  fileFormat        String           @default("CSV")  // XLSX | CSV | PDF
+  institutionType   String?
+  downloadCount     Int              @default(0)
+  lastDownloadedAt  DateTime?
+
   monthClosing MonthClosing? @relation(fields: [monthClosingId], references: [id], onDelete: SetNull)
 
   @@index([monthKey])
@@ -812,4 +836,49 @@ model LaborCostSummary {
   @@index([monthKey])
   @@index([siteId, monthKey])
   @@map("labor_cost_summaries")
+}
+
+// ─── 노무 관리 Models (Phase 4) ───────────────────────────
+
+model SubcontractorSettlement {
+  id                      String   @id @default(cuid())
+  monthKey                String
+  siteId                  String
+  subcontractorId         String
+  workerCount             Int      @default(0)
+  confirmedWorkUnits      Decimal  @default(0) @db.Decimal(10, 2)
+  grossAmount             Int      @default(0)
+  taxAmount               Int      @default(0)
+  insuranceRelatedAmount  Int      @default(0)
+  retirementMutualAmount  Int?
+  finalPayableAmount      Int      @default(0)
+  snapshotJson            Json?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  site          Site          @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  subcontractor Subcontractor @relation(fields: [subcontractorId], references: [id], onDelete: Restrict)
+
+  @@unique([monthKey, siteId, subcontractorId])
+  @@index([monthKey])
+  @@map("subcontractor_settlements")
+}
+
+model OnboardingChecklist {
+  id          String   @id @default(cuid())
+  workerId    String
+  siteId      String?
+  checkType   String   // RETIREMENT_MUTUAL_STATUS | TAX_TYPE | INSURANCE_TYPE | FOREIGNER_STATUS
+  status      String   @default("PENDING")  // PENDING | RESOLVED | IGNORED
+  message     String
+  resolvedBy  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  worker Worker  @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site   Site?   @relation(fields: [siteId], references: [id], onDelete: SetNull)
+
+  @@index([workerId])
+  @@index([status])
+  @@map("onboarding_checklists")
 }
