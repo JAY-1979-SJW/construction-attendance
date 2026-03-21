@@ -85,8 +85,8 @@ export async function aggregateLaborAllocations(opts: AggregateOptions): Promise
         lte: kstDateStringToDate(dateTo),
       },
       ...(workerId ? { workerId } : {}),
-      // WORKING 상태는 당일이라면 아직 미완료 — 집계에서 제외
-      status: { not: 'WORKING' },
+      // WORKING은 포함하되 needsReview=true로 처리 (미퇴근 감지)
+      status: { not: 'EXCEPTION' },
     },
     include: {
       worker: { select: { name: true, phone: true, company: true, jobTitle: true } },
@@ -129,7 +129,7 @@ export async function aggregateLaborAllocations(opts: AggregateOptions): Promise
     const isAdjusted     = log.status === 'ADJUSTED'
     // 노임 집계 포함: COMPLETED, ADJUSTED (MISSING_CHECKOUT, EXCEPTION 제외)
     const includeInLabor = log.status === 'COMPLETED' || log.status === 'ADJUSTED'
-    const needsReview    = log.status === 'MISSING_CHECKOUT'
+    const needsReview    = log.status === 'MISSING_CHECKOUT' || log.status === 'WORKING'
 
     return {
       attendanceLogId: log.id,

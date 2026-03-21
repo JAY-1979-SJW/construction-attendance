@@ -65,8 +65,8 @@ export async function GET(
 }
 
 const patchSchema = z.object({
-  checkInAt: z.string().datetime().optional(),
-  checkOutAt: z.string().datetime().optional(),
+  checkInAt: z.string().datetime({ offset: true }).optional(),
+  checkOutAt: z.string().datetime({ offset: true }).optional(),
   status: z.nativeEnum(AttendanceStatus).optional(),
   adminNote: z.string().max(500).optional(),
 })
