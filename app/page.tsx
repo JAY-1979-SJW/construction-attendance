@@ -8,7 +8,10 @@ export default function LandingPage() {
       {/* 헤더 */}
       <header style={s.header}>
         <span style={s.headerLogo}>해한건설</span>
-        <Link href="/login" style={s.headerLogin}>로그인</Link>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Link href="/guide" style={{ ...s.headerLogin, background: 'transparent', color: '#1976d2', border: '1px solid #1976d2' }}>앱 미리보기</Link>
+          <Link href="/login" style={s.headerLogin}>로그인</Link>
+        </div>
       </header>
 
       {/* 히어로 */}
@@ -22,7 +25,10 @@ export default function LandingPage() {
             현장에 붙어있는 QR을 스캔하면<br />
             출근·이동·퇴근이 자동으로 기록됩니다.
           </p>
-          <Link href="/login" style={s.startBtn}>시작하기</Link>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/guide" style={{ ...s.startBtn, background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.5)' }}>앱 미리보기</Link>
+            <Link href="/login" style={s.startBtn}>시작하기</Link>
+          </div>
         </div>
       </section>
 
