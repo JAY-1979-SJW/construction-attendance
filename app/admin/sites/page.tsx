@@ -32,6 +32,23 @@ export default function SitesPage() {
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
   const [newQr, setNewQr] = useState<{ siteName: string; qrToken: string } | null>(null)
+  const [gpsLoading, setGpsLoading] = useState(false)
+
+  const fillCurrentLocation = (target: 'form' | 'edit') => {
+    if (!navigator.geolocation) { alert('이 브라우저는 GPS를 지원하지 않습니다.'); return }
+    setGpsLoading(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = String(pos.coords.latitude.toFixed(7))
+        const lng = String(pos.coords.longitude.toFixed(7))
+        if (target === 'form') setForm((f) => ({ ...f, latitude: lat, longitude: lng }))
+        else setEditForm((f) => ({ ...f, latitude: lat, longitude: lng }))
+        setGpsLoading(false)
+      },
+      () => { alert('GPS 위치를 가져올 수 없습니다. 위치 권한을 허용해 주세요.'); setGpsLoading(false) },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }
 
   // 수정 모달
   const [editTarget, setEditTarget] = useState<Site | null>(null)
@@ -188,9 +205,6 @@ export default function SitesPage() {
               {[
                 { label: '현장명', key: 'name', placeholder: '해한 1호 현장' },
                 { label: '주소', key: 'address', placeholder: '서울시 강남구 ...' },
-                { label: '위도', key: 'latitude', placeholder: '37.5065' },
-                { label: '경도', key: 'longitude', placeholder: '127.0536' },
-                { label: 'GPS 허용 반경 (m)', key: 'allowedRadius', placeholder: '100' },
               ].map(({ label, key, placeholder }) => (
                 <div key={key} style={styles.fieldRow}>
                   <label style={styles.label}>{label}</label>
@@ -203,9 +217,48 @@ export default function SitesPage() {
                   />
                 </div>
               ))}
-              <p style={{ fontSize: '12px', color: '#888', margin: '0 0 16px' }}>
-                위도/경도는 Google Maps에서 확인하세요. (예: 37.5065, 127.0536)
-              </p>
+              <div style={styles.fieldRow}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <label style={styles.label}>GPS 좌표 (위도 / 경도)</label>
+                  <button
+                    type="button"
+                    onClick={() => fillCurrentLocation('form')}
+                    disabled={gpsLoading}
+                    style={styles.gpsBtn}
+                  >
+                    {gpsLoading ? '위치 확인 중...' : '📍 현재 위치 자동 입력'}
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    placeholder="위도 37.5065"
+                    value={form.latitude}
+                    onChange={(e) => setForm({ ...form, latitude: e.target.value })}
+                    style={{ ...styles.input, flex: 1 }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="경도 127.0536"
+                    value={form.longitude}
+                    onChange={(e) => setForm({ ...form, longitude: e.target.value })}
+                    style={{ ...styles.input, flex: 1 }}
+                  />
+                </div>
+                <p style={{ fontSize: '12px', color: '#888', margin: '6px 0 0' }}>
+                  현장에서 "현재 위치 자동 입력" 버튼을 누르면 자동으로 채워집니다.
+                </p>
+              </div>
+              <div style={styles.fieldRow}>
+                <label style={styles.label}>GPS 허용 반경 (m)</label>
+                <input
+                  type="text"
+                  placeholder="100"
+                  value={form.allowedRadius}
+                  onChange={(e) => setForm({ ...form, allowedRadius: e.target.value })}
+                  style={styles.input}
+                />
+              </div>
               {formError && <p style={styles.error}>{formError}</p>}
               <div style={styles.btnRow}>
                 <button onClick={handleSave} disabled={saving} style={styles.saveBtn}>
@@ -223,23 +276,55 @@ export default function SitesPage() {
             <div style={styles.modal}>
               <h3 style={styles.modalTitle}>현장 수정 — {editTarget.name}</h3>
               {[
-                { label: '현장명', key: 'name', placeholder: '' },
-                { label: '주소', key: 'address', placeholder: '' },
-                { label: '위도', key: 'latitude', placeholder: '' },
-                { label: '경도', key: 'longitude', placeholder: '' },
-                { label: 'GPS 허용 반경 (m)', key: 'allowedRadius', placeholder: '' },
-              ].map(({ label, key, placeholder }) => (
+                { label: '현장명', key: 'name' },
+                { label: '주소', key: 'address' },
+              ].map(({ label, key }) => (
                 <div key={key} style={styles.fieldRow}>
                   <label style={styles.label}>{label}</label>
                   <input
                     type="text"
-                    placeholder={placeholder}
                     value={editForm[key as keyof typeof editForm]}
                     onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
                     style={styles.input}
                   />
                 </div>
               ))}
+              <div style={styles.fieldRow}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <label style={styles.label}>GPS 좌표 (위도 / 경도)</label>
+                  <button
+                    type="button"
+                    onClick={() => fillCurrentLocation('edit')}
+                    disabled={gpsLoading}
+                    style={styles.gpsBtn}
+                  >
+                    {gpsLoading ? '위치 확인 중...' : '📍 현재 위치 자동 입력'}
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={editForm.latitude}
+                    onChange={(e) => setEditForm({ ...editForm, latitude: e.target.value })}
+                    style={{ ...styles.input, flex: 1 }}
+                  />
+                  <input
+                    type="text"
+                    value={editForm.longitude}
+                    onChange={(e) => setEditForm({ ...editForm, longitude: e.target.value })}
+                    style={{ ...styles.input, flex: 1 }}
+                  />
+                </div>
+              </div>
+              <div style={styles.fieldRow}>
+                <label style={styles.label}>GPS 허용 반경 (m)</label>
+                <input
+                  type="text"
+                  value={editForm.allowedRadius}
+                  onChange={(e) => setEditForm({ ...editForm, allowedRadius: e.target.value })}
+                  style={styles.input}
+                />
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                 <input
                   type="checkbox"
@@ -315,4 +400,5 @@ const styles: Record<string, React.CSSProperties> = {
   btnRow: { display: 'flex', gap: '8px', marginTop: '16px' },
   saveBtn: { flex: 1, padding: '12px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 },
   cancelBtn: { flex: 1, padding: '12px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer' },
+  gpsBtn: { padding: '6px 12px', background: '#e8f5e9', color: '#2e7d32', border: '1px solid #a5d6a7', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' as const },
 }
