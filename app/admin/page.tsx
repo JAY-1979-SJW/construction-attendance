@@ -63,8 +63,9 @@ export default function AdminDashboard() {
           { href: '/admin', label: '대시보드' },
           { href: '/admin/workers', label: '근로자 관리' },
           { href: '/admin/sites', label: '현장 관리' },
-          { href: '/admin/attendance', label: '출퇴근 조회' },
-          { href: '/admin/labor', label: '투입현황/노임서류' },
+          { href: '/admin/attendance',      label: '출퇴근 조회' },
+          { href: '/admin/presence-checks', label: '체류확인 현황' },
+          { href: '/admin/labor',           label: '투입현황/노임서류' },
           { href: '/admin/exceptions', label: `예외 승인${summary?.pendingExceptions ? ` (${summary.pendingExceptions})` : ''}` },
           { href: '/admin/device-requests', label: `기기 변경${summary?.pendingDeviceRequests ? ` (${summary.pendingDeviceRequests})` : ''}` },
         ].map((item) => (
