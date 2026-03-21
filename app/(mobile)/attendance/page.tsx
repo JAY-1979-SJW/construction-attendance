@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface TodayStatus {
@@ -64,6 +64,7 @@ export default function AttendancePage() {
   const [pending, setPending]         = useState<PendingPresence | null>(null)
   const [presenceResult, setPresenceResult] = useState<PresenceResult>({ state: 'idle' })
   const [countdown, setCountdown]     = useState<string | null>(null)
+  const submittingRef                  = useRef(false)  // 중복 제출 방지 (연타·두 탭)
 
   // ── 초기 데이터 로딩 ─────────────────────────────────────────
   useEffect(() => {
@@ -124,7 +125,8 @@ export default function AttendancePage() {
 
   // ── 체류확인 — GPS 위치 가져오기 ─────────────────────────────
   const handlePresenceRespond = async () => {
-    if (!pending) return
+    if (!pending || submittingRef.current) return
+    submittingRef.current = true
     setPresenceResult({ state: 'loading' })
 
     if (!navigator.onLine) {
@@ -140,6 +142,7 @@ export default function AttendancePage() {
         })
       )
     } catch (err) {
+      submittingRef.current = false
       const code = (err as GeolocationPositionError).code
       if (code === 1) { setPresenceResult({ state: 'gps_denied' }); return }
       if (code === 2) { setPresenceResult({ state: 'gps_unavailable' }); return }
@@ -154,8 +157,9 @@ export default function AttendancePage() {
       accuracy:  pos.coords.accuracy,
     }
 
-    // GPS 정확도 경고 (80m 이상)
+    // GPS 정확도 경고 (80m 이상): submittingRef는 사용자가 직접 재결정하므로 해제
     if (coords.accuracy >= 80) {
+      submittingRef.current = false
       setPresenceResult({ state: 'low_accuracy_warning', accuracy: Math.round(coords.accuracy), coords })
       return
     }
@@ -166,6 +170,7 @@ export default function AttendancePage() {
   // ── 체류확인 — API 제출 ───────────────────────────────────────
   const submitPresenceCoords = async (coords: GpsCoords) => {
     if (!pending) return
+    submittingRef.current = true
     setPresenceResult({ state: 'loading' })
     try {
       const res  = await fetch('/api/attendance/presence/respond', {
@@ -200,6 +205,8 @@ export default function AttendancePage() {
       setPending(null)
     } catch {
       setPresenceResult({ state: 'network_error' })
+    } finally {
+      submittingRef.current = false
     }
   }
 

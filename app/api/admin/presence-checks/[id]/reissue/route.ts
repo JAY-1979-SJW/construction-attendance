@@ -40,22 +40,31 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const expiresAt = new Date(now.getTime() + expiresInMinutes * 60 * 1000)
     const prevStatus = pc.status
 
-    await prisma.presenceCheck.update({
-      where: { id: pc.id },
+    // 원자 업데이트: 동시 재확인 요청 또는 상태 변경 경합 방지
+    const atomicResult = await prisma.presenceCheck.updateMany({
+      where: {
+        id:           pc.id,
+        status:       { in: ['REVIEW_REQUIRED', 'PENDING', 'OUT_OF_GEOFENCE', 'NO_RESPONSE'] as never[] },
+        reissueCount: { lt: MAX_REISSUE },
+      },
       data: {
-        status:       'PENDING' as never,
-        scheduledAt:  now,
+        status:         'PENDING' as never,
+        scheduledAt:    now,
         expiresAt,
-        respondedAt:  null,
-        latitude:     null,
-        longitude:    null,
+        respondedAt:    null,
+        latitude:       null,
+        longitude:      null,
         accuracyMeters: null,
         distanceMeters: null,
-        needsReview:  false,
-        reviewReason: null,
-        reissueCount: { increment: 1 },
+        needsReview:    false,
+        reviewReason:   null,
+        reissueCount:   { increment: 1 },
       },
     })
+
+    if (atomicResult.count === 0) {
+      return conflict('CANNOT_REISSUE')
+    }
 
     await logPresenceAudit({
       presenceCheckId:   pc.id,

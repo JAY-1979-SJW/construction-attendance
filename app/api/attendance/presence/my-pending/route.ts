@@ -12,12 +12,14 @@ export async function GET(_req: NextRequest) {
     if (!session) return unauthorized()
 
     const today = toKSTDateString()
+    const now   = new Date()
 
     const pc = await prisma.presenceCheck.findFirst({
       where: {
         workerId:  session.sub,
         checkDate: today,
         status:    'PENDING',
+        expiresAt: { gte: now },  // 만료된 PENDING은 배치 전이라도 노출하지 않음
       },
       orderBy:  { scheduledAt: 'asc' },
       select: {

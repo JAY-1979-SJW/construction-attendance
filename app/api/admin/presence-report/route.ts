@@ -40,22 +40,23 @@ export async function GET(req: NextRequest) {
     // 날짜별 집계
     const dailyMap: Record<string, {
       total: number; completed: number; noResponse: number; outOfFence: number;
-      review: number; manualConfirmed: number; manualRejected: number
+      review: number; pending: number; manualConfirmed: number; manualRejected: number
     }> = {}
 
     for (const d of dates) {
-      dailyMap[d] = { total: 0, completed: 0, noResponse: 0, outOfFence: 0, review: 0, manualConfirmed: 0, manualRejected: 0 }
+      dailyMap[d] = { total: 0, completed: 0, noResponse: 0, outOfFence: 0, review: 0, pending: 0, manualConfirmed: 0, manualRejected: 0 }
     }
 
     for (const item of items) {
       const row = dailyMap[item.checkDate]
       if (!row) continue
       row.total++
-      if (item.status === 'COMPLETED')           row.completed++
+      if (item.status === 'COMPLETED')                               row.completed++
       else if (item.status === 'NO_RESPONSE' || item.status === 'MISSED') row.noResponse++
-      else if (item.status === 'OUT_OF_GEOFENCE') row.outOfFence++
-      else if (item.status === 'REVIEW_REQUIRED') row.review++
-      else if (item.status === 'MANUALLY_CONFIRMED') { row.completed++; row.manualConfirmed++ }
+      else if (item.status === 'OUT_OF_GEOFENCE')                    row.outOfFence++
+      else if (item.status === 'REVIEW_REQUIRED')                    row.review++
+      else if (item.status === 'PENDING')                            row.pending++
+      else if (item.status === 'MANUALLY_CONFIRMED') { row.completed++;  row.manualConfirmed++ }
       else if (item.status === 'MANUALLY_REJECTED')  { row.outOfFence++; row.manualRejected++ }
     }
 
@@ -70,12 +71,14 @@ export async function GET(req: NextRequest) {
         noResponse:         r.noResponse,
         outOfFence:         r.outOfFence,
         review:             r.review,
+        pending:            r.pending,
         manualConfirmed:    r.manualConfirmed,
         manualRejected:     r.manualRejected,
         completedRate:      pct(r.completed, r.total),
         noResponseRate:     pct(r.noResponse, r.total),
         outOfFenceRate:     pct(r.outOfFence, r.total),
         reviewRate:         pct(r.review, r.total),
+        pendingRate:        pct(r.pending, r.total),
         manualRate:         pct(r.manualConfirmed + r.manualRejected, r.total),
       }
     })
@@ -107,9 +110,10 @@ export async function GET(req: NextRequest) {
       noResponse:      acc.noResponse + d.noResponse,
       outOfFence:      acc.outOfFence + d.outOfFence,
       review:          acc.review + d.review,
+      pending:         acc.pending + d.pending,
       manualConfirmed: acc.manualConfirmed + d.manualConfirmed,
       manualRejected:  acc.manualRejected + d.manualRejected,
-    }), { total: 0, completed: 0, noResponse: 0, outOfFence: 0, review: 0, manualConfirmed: 0, manualRejected: 0 })
+    }), { total: 0, completed: 0, noResponse: 0, outOfFence: 0, review: 0, pending: 0, manualConfirmed: 0, manualRejected: 0 })
 
     return ok({
       days,
@@ -123,6 +127,7 @@ export async function GET(req: NextRequest) {
         noResponseRate:  pct(totals.noResponse, totals.total),
         outOfFenceRate:  pct(totals.outOfFence, totals.total),
         reviewRate:      pct(totals.review, totals.total),
+        pendingRate:     pct(totals.pending, totals.total),
         manualRate:      pct(totals.manualConfirmed + totals.manualRejected, totals.total),
       },
       siteBreakdown,

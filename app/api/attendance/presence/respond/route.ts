@@ -77,20 +77,30 @@ export async function POST(req: NextRequest) {
     let newStatus: string
     let reviewReason: string | null = null
 
-    if (within) {
-      newStatus = 'COMPLETED'
-    } else if (poorAccuracy || (distance - radius) <= boundaryMargin) {
+    if (poorAccuracy) {
+      // GPS 정확도 불량이면 반경 내/외 무관하게 검토 대상 (위치 신뢰 불가)
       newStatus    = 'REVIEW_REQUIRED'
-      reviewReason = poorAccuracy ? 'LOW_GPS_ACCURACY' : 'BOUNDARY_CASE'
+      reviewReason = 'LOW_GPS_ACCURACY'
+    } else if (within) {
+      newStatus = 'COMPLETED'
+    } else if ((distance - radius) <= boundaryMargin) {
+      newStatus    = 'REVIEW_REQUIRED'
+      reviewReason = 'BOUNDARY_CASE'
     } else {
       newStatus = 'OUT_OF_GEOFENCE'
     }
 
     const markReview = newStatus === 'REVIEW_REQUIRED'
 
-    // 8. 결과 저장
-    const updated = await prisma.presenceCheck.update({
-      where: { id: pc.id },
+    // 8. 원자 업데이트 — 만료 배치와의 경합 방지
+    // WHERE 조건에 status/respondedAt/expiresAt을 포함해 배치가 먼저 처리한 건은 count=0으로 감지
+    const atomicResult = await prisma.presenceCheck.updateMany({
+      where: {
+        id:          pc.id,
+        status:      'PENDING',
+        respondedAt: null,
+        expiresAt:   { gte: now },
+      },
       data: {
         status:         newStatus as never,
         respondedAt:    now,
@@ -102,6 +112,11 @@ export async function POST(req: NextRequest) {
         reviewReason,
       },
     })
+
+    if (atomicResult.count === 0) {
+      // 배치가 먼저 NO_RESPONSE로 확정하거나 다른 탭이 먼저 응답한 경우
+      return conflict('PRESENCE_CHECK_EXPIRED')
+    }
 
     // 감사 로그
     await logPresenceAudit({
@@ -131,10 +146,10 @@ export async function POST(req: NextRequest) {
     })
 
     return ok({
-      status:              updated.status,
+      status:              newStatus,
       distanceMeters:      distance,
       allowedRadiusMeters: radius,
-      respondedAt:         updated.respondedAt?.toISOString(),
+      respondedAt:         now.toISOString(),
     })
   } catch (err) {
     console.error('[presence/respond]', err)

@@ -20,8 +20,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     const adminName = adminUser?.name ?? session.sub
     const now = new Date()
-    await prisma.presenceCheck.update({
-      where: { id: pc.id },
+
+    // 원자 업데이트: 관리자 2명 동시 판정 시 한 명만 성공
+    const atomicResult = await prisma.presenceCheck.updateMany({
+      where: { id: pc.id, status: 'REVIEW_REQUIRED' },
       data: {
         status:       'MANUALLY_REJECTED' as never,
         reviewedBy:   adminName,
@@ -30,6 +32,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         reviewReason: reason ?? 'MANUALLY_REJECTED',
       },
     })
+
+    if (atomicResult.count === 0) {
+      // 다른 관리자가 동시에 이미 처리한 경우
+      return conflict('NOT_REVIEW_REQUIRED')
+    }
 
     await logPresenceAudit({
       presenceCheckId:   pc.id,
