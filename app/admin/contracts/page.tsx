@@ -18,7 +18,7 @@ interface Contract {
   site: { id: string; name: string } | null
 }
 
-interface Worker { id: string; name: string; company: string; employmentType: string; incomeType: string; organizationType: string }
+interface Worker { id: string; name: string; phone: string; company: string; jobTitle: string; employmentType: string; incomeType: string; organizationType: string; retirementMutualTargetYn: boolean }
 interface Site   { id: string; name: string }
 
 const CONTRACT_LABEL: Record<string, string> = { EMPLOYMENT: '근로계약', DAILY: '일용계약', SERVICE: '용역(3.3%)' }
@@ -159,15 +159,15 @@ export default function ContractsPage() {
                       {workers.length === 0 ? (
                         <tr><td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>데이터 없음</td></tr>
                       ) : workers.map((w) => (
-                        <tr key={w.id} style={s.tr} onClick={() => { setEditWorker(w); setWForm({ ...emptyWorkerForm, name: w.name, employmentType: w.employmentType, incomeType: w.incomeType, organizationType: w.organizationType, phone: (w as unknown as { phone: string }).phone ?? '', company: (w as unknown as { company: string }).company ?? '', jobTitle: (w as unknown as { jobTitle: string }).jobTitle ?? '' }); setShowWForm(true) }}>
+                        <tr key={w.id} style={s.tr} onClick={() => { setEditWorker(w); setWForm({ ...emptyWorkerForm, name: w.name, employmentType: w.employmentType, incomeType: w.incomeType, organizationType: w.organizationType, phone: w.phone ?? '', company: w.company ?? '', jobTitle: w.jobTitle ?? '' }); setShowWForm(true) }}>
                           <td style={s.td}>{w.name}</td>
-                          <td style={s.td}>{(w as unknown as { phone: string }).phone}</td>
+                          <td style={s.td}>{w.phone}</td>
                           <td style={s.td}>{w.company}</td>
-                          <td style={s.td}>{(w as unknown as { jobTitle: string }).jobTitle}</td>
+                          <td style={s.td}>{w.jobTitle}</td>
                           <td style={s.td}>{EMP_LABEL[w.employmentType] ?? w.employmentType}</td>
                           <td style={s.td}>{w.incomeType}</td>
                           <td style={s.td}>{ORG_LABEL[w.organizationType] ?? w.organizationType}</td>
-                          <td style={s.td}>{(w as unknown as { retirementMutualTargetYn: boolean }).retirementMutualTargetYn ? '✅ 대상' : '-'}</td>
+                          <td style={s.td}>{w.retirementMutualTargetYn ? '✅ 대상' : '-'}</td>
                         </tr>
                       ))}
                     </tbody>
