@@ -65,8 +65,16 @@ export default function ExceptionsPage() {
     <div style={styles.layout}>
       <nav style={styles.sidebar}>
         <div style={styles.sidebarTitle}>해한 출퇴근</div>
-        {['/admin', '/admin/workers', '/admin/sites', '/admin/attendance', '/admin/exceptions', '/admin/device-requests'].map((href) => (
-          <Link key={href} href={href} style={styles.navItem}>{href.split('/').pop() === 'admin' ? '대시보드' : href.split('/').pop()?.replace('-', ' ')}</Link>
+        {[
+          { href: '/admin',               label: '대시보드' },
+          { href: '/admin/workers',       label: '근로자 관리' },
+          { href: '/admin/sites',         label: '현장 관리' },
+          { href: '/admin/attendance',    label: '출퇴근 조회' },
+          { href: '/admin/labor',         label: '투입현황/노임서류' },
+          { href: '/admin/exceptions',    label: '예외 승인' },
+          { href: '/admin/device-requests', label: '기기 승인' },
+        ].map(({ href, label }) => (
+          <Link key={href} href={href} style={styles.navItem}>{label}</Link>
         ))}
       </nav>
       <main style={styles.main}>
