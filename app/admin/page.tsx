@@ -13,6 +13,10 @@ interface DashboardSummary {
   pendingMissing: number
   pendingExceptions: number
   pendingDeviceRequests: number
+  todayPresenceTotal:    number
+  todayPresencePending:  number
+  todayPresenceReview:   number
+  todayPresenceNoResponse: number
 }
 
 interface RecentRecord {
@@ -27,6 +31,15 @@ interface RecentRecord {
 
 const STATUS_LABEL: Record<string, string> = { WORKING: '근무중', COMPLETED: '퇴근', MISSING_CHECKOUT: '미퇴근', EXCEPTION: '예외' }
 const STATUS_COLOR: Record<string, string> = { WORKING: '#2e7d32', COMPLETED: '#1565c0', MISSING_CHECKOUT: '#b71c1c', EXCEPTION: '#e65100' }
+
+function alertCardStyle(color: string, bg: string): React.CSSProperties {
+  return {
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    background: bg, border: `1px solid ${color}40`, borderRadius: '10px',
+    padding: '16px 24px', textDecoration: 'none', minWidth: '140px',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.06)', cursor: 'pointer',
+  }
+}
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -63,9 +76,10 @@ export default function AdminDashboard() {
           { href: '/admin', label: '대시보드' },
           { href: '/admin/workers', label: '근로자 관리' },
           { href: '/admin/sites', label: '현장 관리' },
-          { href: '/admin/attendance',      label: '출퇴근 조회' },
-          { href: '/admin/presence-checks', label: '체류확인 현황' },
-          { href: '/admin/labor',           label: '투입현황/노임서류' },
+          { href: '/admin/attendance',       label: '출퇴근 조회' },
+          { href: '/admin/presence-checks',  label: '체류확인 현황' },
+          { href: '/admin/presence-report',  label: '체류확인 리포트' },
+          { href: '/admin/labor',            label: '투입현황/노임서류' },
           { href: '/admin/exceptions', label: `예외 승인${summary?.pendingExceptions ? ` (${summary.pendingExceptions})` : ''}` },
           { href: '/admin/device-requests', label: `기기 변경${summary?.pendingDeviceRequests ? ` (${summary.pendingDeviceRequests})` : ''}` },
         ].map((item) => (
@@ -78,6 +92,30 @@ export default function AdminDashboard() {
       <main style={styles.main}>
         <h1 style={styles.pageTitle}>대시보드</h1>
         <p style={styles.dateLabel}>{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}</p>
+
+        {/* 체류확인 알림 */}
+        {summary && (summary.todayPresenceReview > 0 || summary.todayPresenceNoResponse > 0) && (
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+            {summary.todayPresenceReview > 0 && (
+              <a href="/admin/presence-checks?status=REVIEW_REQUIRED" style={alertCardStyle('#f57f17', '#fff8e1')}>
+                <div style={{ fontSize: '22px', fontWeight: 700, color: '#f57f17' }}>{summary.todayPresenceReview}</div>
+                <div style={{ fontSize: '12px', color: '#f57f17' }}>검토필요 — 즉시 확인</div>
+              </a>
+            )}
+            {summary.todayPresenceNoResponse > 0 && (
+              <a href="/admin/presence-checks?status=NO_RESPONSE" style={alertCardStyle('#b71c1c', '#fff3f3')}>
+                <div style={{ fontSize: '22px', fontWeight: 700, color: '#b71c1c' }}>{summary.todayPresenceNoResponse}</div>
+                <div style={{ fontSize: '12px', color: '#b71c1c' }}>미응답 — 확인 필요</div>
+              </a>
+            )}
+            {summary.todayPresenceTotal > 0 && (
+              <a href="/admin/presence-checks" style={alertCardStyle('#546e7a', '#f5f5f5')}>
+                <div style={{ fontSize: '22px', fontWeight: 700, color: '#546e7a' }}>{summary.todayPresenceTotal}</div>
+                <div style={{ fontSize: '12px', color: '#546e7a' }}>오늘 체류확인 전체</div>
+              </a>
+            )}
+          </div>
+        )}
 
         {/* Summary Cards */}
         <div style={styles.grid}>

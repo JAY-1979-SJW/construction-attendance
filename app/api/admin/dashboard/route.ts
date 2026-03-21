@@ -22,6 +22,22 @@ export async function GET() {
         prisma.deviceChangeRequest.count({ where: { status: 'PENDING' } }),
       ])
 
+    const todayStr = toKSTDateString()
+    const presenceCounts = await prisma.presenceCheck.groupBy({
+      by: ['status'],
+      where: { checkDate: todayStr },
+      _count: { _all: true },
+    })
+    const pc = (status: string) => presenceCounts.find((r) => r.status === status)?._count._all ?? 0
+    const todayPresence = {
+      total:       presenceCounts.reduce((s, r) => s + r._count._all, 0),
+      pending:     pc('PENDING'),
+      completed:   pc('COMPLETED') + pc('MANUALLY_CONFIRMED'),
+      noResponse:  pc('NO_RESPONSE') + pc('MISSED'),
+      outOfFence:  pc('OUT_OF_GEOFENCE') + pc('MANUALLY_REJECTED'),
+      review:      pc('REVIEW_REQUIRED'),
+    }
+
     // 오늘 출근 현황 (최근 20건)
     const recentAttendance = await prisma.attendanceLog.findMany({
       where: { workDate: today },
@@ -43,6 +59,12 @@ export async function GET() {
         pendingMissing,
         pendingExceptions,
         pendingDeviceRequests,
+        todayPresenceTotal:      todayPresence.total,
+        todayPresencePending:    todayPresence.pending,
+        todayPresenceCompleted:  todayPresence.completed,
+        todayPresenceNoResponse: todayPresence.noResponse,
+        todayPresenceOutOfFence: todayPresence.outOfFence,
+        todayPresenceReview:     todayPresence.review,
       },
       recentAttendance: recentAttendance.map((l) => ({
         id: l.id,

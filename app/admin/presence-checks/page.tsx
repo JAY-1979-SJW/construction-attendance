@@ -114,6 +114,15 @@ const ACTION_LABEL: Record<string, string> = {
   CANCELED:                      '취소',
 }
 
+function URGENCY_ORDER(status: string): number {
+  const order: Record<string, number> = {
+    REVIEW_REQUIRED: 0, PENDING: 1, OUT_OF_GEOFENCE: 2, NO_RESPONSE: 3,
+    MANUALLY_REJECTED: 4, MISSED: 5, COMPLETED: 6, MANUALLY_CONFIRMED: 7,
+    CANCELED: 8, SKIPPED: 9, LOW_ACCURACY: 10,
+  }
+  return order[status] ?? 99
+}
+
 function todayKST() {
   const kst = new Date(Date.now() + 9 * 60 * 60 * 1000)
   return kst.toISOString().slice(0, 10)
@@ -282,6 +291,7 @@ export default function PresenceChecksPage() {
           { href: '/admin/sites',           label: '현장 관리' },
           { href: '/admin/attendance',      label: '출퇴근 조회' },
           { href: '/admin/presence-checks', label: '체류확인 현황' },
+          { href: '/admin/presence-report', label: '체류확인 리포트' },
           { href: '/admin/labor',           label: '투입현황/노임서류' },
           { href: '/admin/exceptions',      label: '예외 승인' },
           { href: '/admin/device-requests', label: '기기 변경' },
@@ -305,6 +315,22 @@ export default function PresenceChecksPage() {
           </div>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={s.datePicker} />
         </div>
+
+        {/* 미처리 건 알림 */}
+        {!loading && summary && (summary.review > 0 || summary.noResponse > 0) && (
+          <div style={s.alertBar}>
+            {summary.review > 0 && (
+              <span style={{ ...s.alertChip, background: '#fff8e1', color: '#f57f17', border: '1px solid #ffcc80' }}>
+                검토필요 {summary.review}건 — 즉시 처리 필요
+              </span>
+            )}
+            {summary.noResponse > 0 && (
+              <span style={{ ...s.alertChip, background: '#fff3f3', color: '#b71c1c', border: '1px solid #ef9a9a' }}>
+                미응답 {summary.noResponse}건
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Filter row */}
         <div style={s.filterRow}>
@@ -375,7 +401,7 @@ export default function PresenceChecksPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((item) => (
+                  {[...items].sort((a, b) => URGENCY_ORDER(a.status) - URGENCY_ORDER(b.status)).map((item) => (
                     <tr
                       key={item.id}
                       onClick={() => openDetail(item.id)}
@@ -652,6 +678,8 @@ const s: Record<string, React.CSSProperties> = {
   subtitle:     { fontSize: '14px', color: '#888', margin: 0 },
   datePicker:   { padding: '8px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px' },
 
+  alertBar:     { display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '12px', alignItems: 'center' },
+  alertChip:    { padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 600 },
   filterRow:    { display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px', alignItems: 'center' },
   select:       { padding: '7px 10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', background: 'white' },
   searchInput:  { padding: '7px 10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', width: '140px' },
