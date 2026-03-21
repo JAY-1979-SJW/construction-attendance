@@ -32,13 +32,20 @@ interface PendingPresence {
   radiusMeters: number
 }
 
+type GpsCoords = { latitude: number; longitude: number; accuracy: number }
+
 type PresenceResult =
   | { state: 'idle' }
   | { state: 'loading' }
   | { state: 'completed'; distanceMeters: number; allowedRadiusMeters: number }
   | { state: 'out_of_geofence'; distanceMeters: number; allowedRadiusMeters: number }
+  | { state: 'review_required'; distanceMeters: number; allowedRadiusMeters: number }
   | { state: 'expired' }
   | { state: 'gps_denied' }
+  | { state: 'gps_unavailable' }
+  | { state: 'gps_timeout' }
+  | { state: 'low_accuracy_warning'; accuracy: number; coords: GpsCoords }
+  | { state: 'network_error' }
   | { state: 'error'; message: string }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -115,47 +122,84 @@ export default function AttendancePage() {
     return () => clearInterval(id)
   }, [pending])
 
-  // ── 체류확인 응답 처리 ────────────────────────────────────────
+  // ── 체류확인 — GPS 위치 가져오기 ─────────────────────────────
   const handlePresenceRespond = async () => {
     if (!pending) return
     setPresenceResult({ state: 'loading' })
+
+    if (!navigator.onLine) {
+      setPresenceResult({ state: 'network_error' })
+      return
+    }
 
     let pos: GeolocationPosition
     try {
       pos = await new Promise<GeolocationPosition>((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true, timeout: 10000,
+          enableHighAccuracy: true, timeout: 12000,
         })
       )
-    } catch {
-      setPresenceResult({ state: 'gps_denied' })
+    } catch (err) {
+      const code = (err as GeolocationPositionError).code
+      if (code === 1) { setPresenceResult({ state: 'gps_denied' }); return }
+      if (code === 2) { setPresenceResult({ state: 'gps_unavailable' }); return }
+      // code === 3: TIMEOUT
+      setPresenceResult({ state: 'gps_timeout' })
       return
     }
 
-    const { latitude, longitude, accuracy } = pos.coords
+    const coords: GpsCoords = {
+      latitude:  pos.coords.latitude,
+      longitude: pos.coords.longitude,
+      accuracy:  pos.coords.accuracy,
+    }
+
+    // GPS 정확도 경고 (80m 이상)
+    if (coords.accuracy >= 80) {
+      setPresenceResult({ state: 'low_accuracy_warning', accuracy: Math.round(coords.accuracy), coords })
+      return
+    }
+
+    await submitPresenceCoords(coords)
+  }
+
+  // ── 체류확인 — API 제출 ───────────────────────────────────────
+  const submitPresenceCoords = async (coords: GpsCoords) => {
+    if (!pending) return
+    setPresenceResult({ state: 'loading' })
     try {
       const res  = await fetch('/api/attendance/presence/respond', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ presenceCheckId: pending.id, latitude, longitude, accuracy }),
+        body:    JSON.stringify({
+          presenceCheckId: pending.id,
+          latitude:        coords.latitude,
+          longitude:       coords.longitude,
+          accuracy:        coords.accuracy,
+        }),
       })
       const data = await res.json()
 
       if (!res.ok) {
-        const code = data.message ?? ''
-        if (code.includes('EXPIRED')) { setPresenceResult({ state: 'expired' }); return }
-        setPresenceResult({ state: 'error', message: data.message })
+        const msg = data.message ?? ''
+        if (msg.includes('EXPIRED')) { setPresenceResult({ state: 'expired' }); return }
+        setPresenceResult({ state: 'error', message: data.message ?? '서버 오류가 발생했습니다.' })
         return
       }
 
-      if (data.data.status === 'COMPLETED') {
-        setPresenceResult({ state: 'completed', distanceMeters: data.data.distanceMeters, allowedRadiusMeters: data.data.allowedRadiusMeters })
+      const status = data.data.status as string
+      const d = data.data.distanceMeters as number
+      const r = data.data.allowedRadiusMeters as number
+      if (status === 'COMPLETED') {
+        setPresenceResult({ state: 'completed', distanceMeters: d, allowedRadiusMeters: r })
+      } else if (status === 'REVIEW_REQUIRED') {
+        setPresenceResult({ state: 'review_required', distanceMeters: d, allowedRadiusMeters: r })
       } else {
-        setPresenceResult({ state: 'out_of_geofence', distanceMeters: data.data.distanceMeters, allowedRadiusMeters: data.data.allowedRadiusMeters })
+        setPresenceResult({ state: 'out_of_geofence', distanceMeters: d, allowedRadiusMeters: r })
       }
       setPending(null)
     } catch {
-      setPresenceResult({ state: 'error', message: '네트워크 오류가 발생했습니다.' })
+      setPresenceResult({ state: 'network_error' })
     }
   }
 
@@ -203,6 +247,7 @@ export default function AttendancePage() {
           result={presenceResult}
           countdown={countdown}
           onRespond={handlePresenceRespond}
+          onForceSubmit={submitPresenceCoords}
           onDismiss={() => setPresenceResult({ state: 'idle' })}
         />
       )}
@@ -258,36 +303,53 @@ export default function AttendancePage() {
 
 /* ── PresenceCard 컴포넌트 ─────────────────────────────────── */
 function PresenceCard({
-  pending, result, countdown, onRespond, onDismiss,
+  pending, result, countdown, onRespond, onForceSubmit, onDismiss,
 }: {
   pending: PendingPresence | null
   result: PresenceResult
   countdown: string | null
   onRespond: () => void
+  onForceSubmit: (coords: GpsCoords) => void
   onDismiss: () => void
 }) {
-  // 결과 화면
+  // ── 결과 화면들 ──
   if (result.state === 'completed') {
     return (
       <div style={pc.card}>
         <div style={pc.iconRow}>✅</div>
         <div style={{ ...pc.title, color: '#2e7d32' }}>현장 체류 확인 완료</div>
-        <div style={pc.desc}>현장 기준 {result.distanceMeters}m · 허용 {result.allowedRadiusMeters}m</div>
+        <div style={pc.desc}>현장 기준 {Math.round(result.distanceMeters)}m · 허용 {result.allowedRadiusMeters}m</div>
         <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
       </div>
     )
   }
+
+  if (result.state === 'review_required') {
+    return (
+      <div style={{ ...pc.card, borderColor: '#f57f17' }}>
+        <div style={pc.iconRow}>🔍</div>
+        <div style={{ ...pc.title, color: '#e65100' }}>검토 중</div>
+        <div style={pc.desc}>
+          현장 기준 {Math.round(result.distanceMeters)}m · 허용 {result.allowedRadiusMeters}m<br />
+          GPS 정확도 또는 위치가 경계에 있어 관리자가 확인 중입니다.
+        </div>
+        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      </div>
+    )
+  }
+
   if (result.state === 'out_of_geofence') {
     return (
       <div style={{ ...pc.card, borderColor: '#e53935' }}>
         <div style={pc.iconRow}>📍</div>
         <div style={{ ...pc.title, color: '#c62828' }}>현장 반경 밖</div>
-        <div style={pc.desc}>현장 기준 {result.distanceMeters}m · 허용 {result.allowedRadiusMeters}m</div>
-        <div style={pc.warn}>현장 근처에서 관리자에게 문의하세요.</div>
+        <div style={pc.desc}>현장 기준 {Math.round(result.distanceMeters)}m · 허용 {result.allowedRadiusMeters}m</div>
+        <div style={pc.warn}>현장에 있는 경우 관리자에게 문의하세요.</div>
         <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
       </div>
     )
   }
+
   if (result.state === 'expired') {
     return (
       <div style={{ ...pc.card, borderColor: '#bbb' }}>
@@ -298,16 +360,72 @@ function PresenceCard({
       </div>
     )
   }
+
   if (result.state === 'gps_denied') {
     return (
       <div style={{ ...pc.card, borderColor: '#e65100' }}>
-        <div style={pc.iconRow}>📵</div>
-        <div style={{ ...pc.title, color: '#e65100' }}>위치 권한 필요</div>
-        <div style={pc.desc}>브라우저 위치 권한을 허용 후 다시 시도해 주세요.</div>
-        <button onClick={onRespond} style={pc.primaryBtn}>다시 시도</button>
+        <div style={pc.iconRow}>🚫</div>
+        <div style={{ ...pc.title, color: '#e65100' }}>위치 권한 거부됨</div>
+        <div style={pc.desc}>
+          브라우저 주소창 옆 자물쇠 아이콘을 눌러 위치 권한을 허용한 후 다시 시도해 주세요.
+        </div>
+        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
       </div>
     )
   }
+
+  if (result.state === 'gps_unavailable') {
+    return (
+      <div style={{ ...pc.card, borderColor: '#e65100' }}>
+        <div style={pc.iconRow}>📡</div>
+        <div style={{ ...pc.title, color: '#e65100' }}>현재 위치를 가져올 수 없음</div>
+        <div style={pc.desc}>GPS 신호가 약합니다. 실외로 이동 후 다시 시도해 주세요.</div>
+        <button onClick={onRespond} style={pc.primaryBtn}>다시 시도</button>
+        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      </div>
+    )
+  }
+
+  if (result.state === 'gps_timeout') {
+    return (
+      <div style={{ ...pc.card, borderColor: '#e65100' }}>
+        <div style={pc.iconRow}>⏳</div>
+        <div style={{ ...pc.title, color: '#e65100' }}>위치 조회 시간 초과</div>
+        <div style={pc.desc}>GPS 응답이 너무 늦었습니다. 잠시 후 다시 시도해 주세요.</div>
+        <button onClick={onRespond} style={pc.primaryBtn}>다시 시도</button>
+        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      </div>
+    )
+  }
+
+  if (result.state === 'network_error') {
+    return (
+      <div style={{ ...pc.card, borderColor: '#e53935' }}>
+        <div style={pc.iconRow}>📶</div>
+        <div style={{ ...pc.title, color: '#c62828' }}>네트워크 오류</div>
+        <div style={pc.desc}>인터넷 연결을 확인하고 다시 시도해 주세요.</div>
+        <button onClick={onRespond} style={pc.primaryBtn}>다시 시도</button>
+        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      </div>
+    )
+  }
+
+  if (result.state === 'low_accuracy_warning') {
+    return (
+      <div style={{ ...pc.card, borderColor: '#f57f17' }}>
+        <div style={pc.iconRow}>📡</div>
+        <div style={{ ...pc.title, color: '#e65100' }}>GPS 정확도 낮음</div>
+        <div style={pc.desc}>
+          현재 GPS 오차가 약 <strong>{result.accuracy}m</strong>입니다.<br />
+          실내·지하 등 GPS 수신이 어려운 환경이면 실외로 이동 후 재시도하세요.
+        </div>
+        <button onClick={() => onForceSubmit(result.coords)} style={pc.primaryBtn}>그래도 응답하기</button>
+        <button onClick={onRespond} style={{ ...pc.secondaryBtn, marginTop: '8px' }}>다시 측정하기</button>
+        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      </div>
+    )
+  }
+
   if (result.state === 'error') {
     return (
       <div style={{ ...pc.card, borderColor: '#e53935' }}>
@@ -319,7 +437,7 @@ function PresenceCard({
     )
   }
 
-  // PENDING 요청 화면
+  // ── PENDING 요청 화면 ──
   if (!pending) return null
 
   const isLoading = result.state === 'loading'
