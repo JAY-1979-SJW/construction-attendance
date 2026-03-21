@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { getAdminSession } from '@/lib/auth/admin-session'
+import { prisma } from '@/lib/db/prisma'
+import { getAdminSession } from '@/lib/auth/guards'
 import { ok, unauthorized, forbidden, badRequest, internalError } from '@/lib/utils/response'
 
 const RADIUS_MIN = 10
@@ -18,9 +18,9 @@ async function getOrCreateSettings() {
 }
 
 // GET /api/admin/settings/attendance
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
-    const session = await getAdminSession(req)
+    const session = await getAdminSession()
     if (!session) return unauthorized()
 
     const s = await getOrCreateSettings()
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
 // POST /api/admin/settings/attendance
 export async function POST(req: NextRequest) {
   try {
-    const session = await getAdminSession(req)
+    const session = await getAdminSession()
     if (!session) return unauthorized()
     if (session.role === 'VIEWER') return forbidden('조회 전용 계정입니다.')
 
