@@ -73,6 +73,7 @@ export default function ExceptionsPage() {
           { href: '/admin/labor',         label: '투입현황/노임서류' },
           { href: '/admin/exceptions',    label: '예외 승인' },
           { href: '/admin/device-requests', label: '기기 승인' },
+          { href: '/admin/settings',        label: '⚙️ 시스템 설정' },
         ].map(({ href, label }) => (
           <Link key={href} href={href} style={styles.navItem}>{label}</Link>
         ))}
