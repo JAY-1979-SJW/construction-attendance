@@ -231,7 +231,7 @@ export default function ContractsPage() {
               ].map(({ label, key }) => (
                 <div key={key}>
                   <label style={s.label}>{label}</label>
-                  <input value={(wForm as Record<string, string>)[key] ?? ''} onChange={(e) => setWForm({ ...wForm, [key]: e.target.value })} style={{ ...s.input, width: '100%' }} />
+                  <input value={(wForm as unknown as Record<string, string>)[key] ?? ''} onChange={(e) => setWForm({ ...wForm, [key]: e.target.value })} style={{ ...s.input, width: '100%' }} />
                 </div>
               ))}
               <div>
