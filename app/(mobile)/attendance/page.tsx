@@ -38,6 +38,7 @@ export default function AttendancePage() {
   const [worker, setWorker] = useState<WorkerInfo | null>(null)
   const [today, setToday] = useState<TodayStatus | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isPreview, setIsPreview] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -45,7 +46,11 @@ export default function AttendancePage() {
       fetch('/api/attendance/today').then((r) => r.json()),
     ]).then(([meData, todayData]) => {
       if (!meData.success) {
-        router.push('/login')
+        // 비로그인 → 미리보기 모드 (리디렉션 없음)
+        setIsPreview(true)
+        setWorker({ name: '홍길동 (미리보기)', company: '해한건설', jobTitle: '철근공' })
+        setToday(null)
+        setLoading(false)
         return
       }
       setWorker(meData.data)
@@ -69,14 +74,25 @@ export default function AttendancePage() {
 
   return (
     <div style={styles.container}>
+      {/* 미리보기 배너 */}
+      {isPreview && (
+        <div style={styles.previewBanner}>
+          <span>👀 미리보기 모드 — 실제 사용하려면</span>
+          <button onClick={() => router.push('/login')} style={styles.previewLoginBtn}>로그인하기</button>
+        </div>
+      )}
+
       {/* 헤더 */}
       <div style={styles.header}>
         <div>
           <div style={styles.workerName}>{worker?.name}</div>
           <div style={styles.workerInfo}>{worker?.company} · {worker?.jobTitle}</div>
         </div>
-        <button onClick={() => fetch('/api/auth/logout', { method: 'POST' }).then(() => router.push('/login'))} style={styles.logoutBtn}>
-          로그아웃
+        <button
+          onClick={() => isPreview ? router.push('/login') : fetch('/api/auth/logout', { method: 'POST' }).then(() => router.push('/login'))}
+          style={styles.logoutBtn}
+        >
+          {isPreview ? '로그인' : '로그아웃'}
         </button>
       </div>
 
@@ -125,15 +141,19 @@ export default function AttendancePage() {
       </div>
 
       {/* 기기 변경 요청 버튼 */}
-      <button onClick={() => router.push('/device/change')} style={styles.changeDeviceBtn}>
-        기기 변경 요청
-      </button>
+      {!isPreview && (
+        <button onClick={() => router.push('/device/change')} style={styles.changeDeviceBtn}>
+          기기 변경 요청
+        </button>
+      )}
     </div>
   )
 }
 
 const styles: Record<string, React.CSSProperties> = {
   container: { maxWidth: '480px', margin: '0 auto', padding: '20px', minHeight: '100vh' },
+  previewBanner: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff3e0', border: '1px solid #ffb74d', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '13px', color: '#e65100', gap: '8px' },
+  previewLoginBtn: { padding: '6px 14px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 700, flexShrink: 0 },
   header: {
     display: 'flex',
     justifyContent: 'space-between',

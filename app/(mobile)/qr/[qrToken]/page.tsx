@@ -24,6 +24,7 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
   const [processing, setProcessing] = useState(false)
   const [distance, setDistance] = useState<number | null>(null)
   const [completedLabel, setCompletedLabel] = useState('')
+  const [isPreview, setIsPreview] = useState(false)
 
   // 이동 모드 전용: 현재 근무 중인 현장명
   const [currentSiteName, setCurrentSiteName] = useState('')
@@ -35,8 +36,8 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
         const meRes = await fetch('/api/auth/me')
         const me = await meRes.json()
         if (!me.success) {
-          router.push(`/login`)
-          return
+          // 비로그인 → 미리보기 모드 (현장 정보는 그대로 표시)
+          setIsPreview(true)
         }
 
         // 2. QR → 현장 조회
@@ -49,6 +50,12 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
         }
         const scannedSite: SiteInfo = siteData.data
         setSite(scannedSite)
+
+        // 비로그인 미리보기: 출근 화면 표시
+        if (!me.success) {
+          setMode('check-in')
+          return
+        }
 
         // 3. 오늘 기록 확인
         const todayRes = await fetch('/api/attendance/today')
@@ -99,6 +106,7 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
   }
 
   const handleCheckIn = async () => {
+    if (isPreview) { router.push('/login'); return }
     const deviceToken = getDeviceToken()
     if (!deviceToken) return
 
@@ -130,6 +138,7 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
   }
 
   const handleMove = async () => {
+    if (isPreview) { router.push('/login'); return }
     const deviceToken = getDeviceToken()
     if (!deviceToken) return
 
@@ -161,6 +170,7 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
   }
 
   const handleCheckOut = async () => {
+    if (isPreview) { router.push('/login'); return }
     const deviceToken = getDeviceToken()
     if (!deviceToken) return
 
@@ -213,6 +223,14 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
 
   return (
     <div style={styles.container}>
+      {/* 미리보기 배너 */}
+      {isPreview && (
+        <div style={previewBannerStyle}>
+          <span>👀 미리보기 — 버튼 클릭 시 로그인으로 이동합니다</span>
+          <button onClick={() => router.push('/login')} style={previewBtnStyle}>로그인</button>
+        </div>
+      )}
+
       {/* 현장 정보 */}
       {site && (
         <div style={styles.siteCard}>
@@ -319,6 +337,16 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
       )}
     </div>
   )
+}
+
+const previewBannerStyle: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+  background: '#fff3e0', border: '1px solid #ffb74d', borderRadius: '10px',
+  padding: '10px 14px', marginBottom: '16px', fontSize: '13px', color: '#e65100', gap: '8px',
+}
+const previewBtnStyle: React.CSSProperties = {
+  padding: '6px 14px', background: '#1976d2', color: 'white', border: 'none',
+  borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 700, flexShrink: 0,
 }
 
 const centerStyle: React.CSSProperties = {

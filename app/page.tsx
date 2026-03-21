@@ -10,7 +10,7 @@ export default function LandingPage() {
         <span style={s.headerLogo}>해한건설</span>
         <div style={{ display: 'flex', gap: '8px' }}>
           <Link href="/guide" style={{ ...s.headerLogin, background: 'transparent', color: '#1976d2', border: '1px solid #1976d2' }}>앱 미리보기</Link>
-          <Link href="/login" style={s.headerLogin}>로그인</Link>
+          <Link href="/login" style={s.headerLogin}>로그인 / 등록</Link>
         </div>
       </header>
 
@@ -26,8 +26,8 @@ export default function LandingPage() {
             출근·이동·퇴근이 자동으로 기록됩니다.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/guide" style={{ ...s.startBtn, background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.5)' }}>앱 미리보기</Link>
-            <Link href="/login" style={s.startBtn}>시작하기</Link>
+            <Link href="/guide" style={{ ...s.startBtn, background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.5)' }}>사용법 보기</Link>
+            <Link href="/attendance" style={s.startBtn}>앱 체험하기</Link>
           </div>
         </div>
       </section>
@@ -93,7 +93,7 @@ export default function LandingPage() {
       <section style={s.cta}>
         <h2 style={s.ctaTitle}>지금 바로 시작하세요</h2>
         <p style={s.ctaSub}>전화번호 입력만으로 등록 가능합니다.</p>
-        <Link href="/login" style={s.ctaBtn}>출퇴근 앱 시작하기</Link>
+        <Link href="/attendance" style={s.ctaBtn}>앱 직접 체험하기</Link>
       </section>
 
       {/* 푸터 */}
