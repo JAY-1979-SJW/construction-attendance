@@ -37,18 +37,27 @@ export async function POST(req: NextRequest) {
 
     // 4. 상태 확인 (이미 응답된 건)
     if (pc.status !== 'PENDING') {
+      const expiredStatuses = ['MISSED', 'NO_RESPONSE']
       return conflict(
-        pc.status === 'MISSED' ? 'PRESENCE_CHECK_EXPIRED' : 'PRESENCE_CHECK_NOT_PENDING'
+        expiredStatuses.includes(pc.status) ? 'PRESENCE_CHECK_EXPIRED' : 'PRESENCE_CHECK_NOT_PENDING'
       )
     }
 
     // 5. 만료 확인
     const now = new Date()
     if (pc.expiresAt && pc.expiresAt < now) {
-      // 만료 상태로 갱신
+      // 만료 상태로 갱신 (NO_RESPONSE로 통일)
       await prisma.presenceCheck.update({
         where: { id: pc.id },
-        data:  { status: 'MISSED', needsReview: pc.needsReview },
+        data:  { status: 'NO_RESPONSE' as never, closedAt: now },
+      })
+      await logPresenceAudit({
+        presenceCheckId: pc.id,
+        action:          'AUTO_EXPIRED',
+        actorType:       'SYSTEM',
+        fromStatus:      'PENDING',
+        toStatus:        'NO_RESPONSE',
+        message:         '근로자 응답 시도 시점 만료 확인',
       })
       return conflict('PRESENCE_CHECK_EXPIRED')
     }
