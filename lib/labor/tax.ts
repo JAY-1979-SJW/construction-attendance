@@ -21,8 +21,9 @@ const LOCAL_TAX_RATE         = 0.10      // 지방소득세 10%
 const BUSINESS_33_RATE       = 0.03      // 사업소득세 3%
 
 export interface TaxRunOptions {
-  monthKey:  string
-  workerId?: string
+  monthKey:   string
+  workerId?:  string
+  workerIds?: string[]
 }
 
 export interface TaxRunResult {
@@ -51,14 +52,21 @@ function calcBusiness33Tax(grossAmount: number): { incomeTax: number; localTax: 
 }
 
 export async function runTaxCalculation(opts: TaxRunOptions): Promise<TaxRunResult> {
-  const { monthKey, workerId } = opts
+  const { monthKey, workerId, workerIds } = opts
   const result: TaxRunResult = { processed: 0, created: 0, updated: 0, errors: 0 }
+
+  // workerIds 배열 우선, 단일 workerId 폴백
+  const workerFilter = workerIds && workerIds.length > 0
+    ? { workerId: { in: workerIds } }
+    : workerId
+      ? { workerId }
+      : {}
 
   const rows = await prisma.monthlyWorkConfirmation.findMany({
     where: {
       monthKey,
       confirmationStatus: 'CONFIRMED',
-      ...(workerId ? { workerId } : {}),
+      ...workerFilter,
     },
     include: { worker: true },
   })

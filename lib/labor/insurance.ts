@@ -14,8 +14,9 @@ const NP_MIN_AMOUNT       = 2_200_000  // 국민연금 최소 소득 (220만원)
 const HEALTH_MIN_MONTHS   = 1          // 건강보험: 1개월 미만 일용 제외
 
 export interface InsuranceRunOptions {
-  monthKey:  string  // 'YYYY-MM'
-  workerId?: string
+  monthKey:   string    // 'YYYY-MM'
+  workerId?:  string
+  workerIds?: string[]
 }
 
 export interface InsuranceRunResult {
@@ -26,15 +27,22 @@ export interface InsuranceRunResult {
 }
 
 export async function runInsuranceEligibility(opts: InsuranceRunOptions): Promise<InsuranceRunResult> {
-  const { monthKey, workerId } = opts
+  const { monthKey, workerId, workerIds } = opts
   const result: InsuranceRunResult = { processed: 0, created: 0, updated: 0, errors: 0 }
+
+  // workerIds 배열 우선, 단일 workerId 폴백
+  const workerFilter = workerIds && workerIds.length > 0
+    ? { workerId: { in: workerIds } }
+    : workerId
+      ? { workerId }
+      : {}
 
   // 해당 월 CONFIRMED 근무확정 집계
   const rows = await prisma.monthlyWorkConfirmation.findMany({
     where: {
       monthKey,
       confirmationStatus: 'CONFIRMED',
-      ...(workerId ? { workerId } : {}),
+      ...workerFilter,
     },
     include: { worker: true },
   })

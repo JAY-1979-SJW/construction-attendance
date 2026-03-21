@@ -10,6 +10,8 @@ interface FilingExport {
   exportType: string
   status: string
   rowCount: number
+  version: number
+  isLatest: boolean
   createdAt: string
 }
 
@@ -74,6 +76,15 @@ export default function FilingExportsPage() {
   }
 
   const fmtDate = (iso: string) => new Date(iso).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+
+  // Group items by exportType to determine which is the latest version per type+month
+  const latestByTypeMonth = items.reduce<Record<string, string>>((acc, item) => {
+    const key = `${item.monthKey}__${item.exportType}`
+    if (!acc[key] || new Date(item.createdAt) > new Date(items.find((i) => i.id === acc[key])?.createdAt ?? '')) {
+      acc[key] = item.id
+    }
+    return acc
+  }, {})
 
   return (
     <div style={s.layout}>
@@ -149,24 +160,44 @@ export default function FilingExportsPage() {
             <div style={{ overflowX: 'auto' }}>
               <table style={s.table}>
                 <thead>
-                  <tr>{['귀속연월', '자료유형', '건수', '생성일시', ''].map((h) => <th key={h} style={s.th}>{h}</th>)}</tr>
+                  <tr>{['귀속연월', '자료유형', '건수', '버전', '생성일시', ''].map((h) => <th key={h} style={s.th}>{h}</th>)}</tr>
                 </thead>
                 <tbody>
                   {items.length === 0 ? (
-                    <tr><td colSpan={5} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>이력 없음</td></tr>
-                  ) : items.map((item) => (
-                    <tr key={item.id} style={s.tr}>
-                      <td style={s.td}>{item.monthKey}</td>
-                      <td style={s.td}>{EXPORT_TYPES.find((t) => t.value === item.exportType)?.label ?? item.exportType}</td>
-                      <td style={{ ...s.td, textAlign: 'center' as const }}>{item.rowCount}건</td>
-                      <td style={s.td}>{fmtDate(item.createdAt)}</td>
-                      <td style={s.td}>
-                        <button onClick={() => handleDownload(item.id)} style={{ ...s.btn, padding: '4px 12px', fontSize: '12px' }}>
-                          다운로드
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                    <tr><td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>이력 없음</td></tr>
+                  ) : items.map((item) => {
+                    const typeMonthKey = `${item.monthKey}__${item.exportType}`
+                    const isLatest = latestByTypeMonth[typeMonthKey] === item.id
+                    return (
+                      <tr key={item.id} style={s.tr}>
+                        <td style={s.td}>{item.monthKey}</td>
+                        <td style={s.td}>
+                          {EXPORT_TYPES.find((t) => t.value === item.exportType)?.label ?? item.exportType}
+                          {!isLatest && (
+                            <span style={{ marginLeft: '6px', fontSize: '11px', background: '#fff3e0', color: '#e65100', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                              구버전
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ ...s.td, textAlign: 'center' as const }}>{item.rowCount}건</td>
+                        <td style={{ ...s.td, textAlign: 'center' as const }}>
+                          <span style={{ fontSize: '12px', color: isLatest ? '#2e7d32' : '#9e9e9e', fontWeight: 600 }}>
+                            v{item.version ?? 1}
+                            {isLatest && <span style={{ marginLeft: '4px', fontSize: '10px', background: '#e8f5e9', color: '#2e7d32', padding: '1px 5px', borderRadius: '3px' }}>최신</span>}
+                          </span>
+                        </td>
+                        <td style={s.td}>{fmtDate(item.createdAt)}</td>
+                        <td style={s.td}>
+                          <button
+                            onClick={() => handleDownload(item.id)}
+                            style={{ ...s.btn, padding: '4px 12px', fontSize: '12px', background: isLatest ? '#1976d2' : '#9e9e9e' }}
+                          >
+                            다운로드
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -178,19 +209,23 @@ export default function FilingExportsPage() {
 }
 
 const NAV_ITEMS = [
-  { href: '/admin',                      label: '대시보드' },
-  { href: '/admin/workers',              label: '근로자 관리' },
-  { href: '/admin/sites',                label: '현장 관리' },
-  { href: '/admin/attendance',           label: '출퇴근 조회' },
-  { href: '/admin/presence-checks',      label: '체류확인 현황' },
-  { href: '/admin/presence-report',      label: '체류확인 리포트' },
-  { href: '/admin/work-confirmations',   label: '근무확정' },
-  { href: '/admin/contracts',            label: '인력/계약 관리' },
+  { href: '/admin',                       label: '대시보드' },
+  { href: '/admin/workers',               label: '근로자 관리' },
+  { href: '/admin/sites',                 label: '현장 관리' },
+  { href: '/admin/attendance',            label: '출퇴근 조회' },
+  { href: '/admin/presence-checks',       label: '체류확인 현황' },
+  { href: '/admin/presence-report',       label: '체류확인 리포트' },
+  { href: '/admin/work-confirmations',    label: '근무확정' },
+  { href: '/admin/contracts',             label: '인력/계약 관리' },
   { href: '/admin/insurance-eligibility', label: '보험판정' },
-  { href: '/admin/wage-calculations',    label: '세금/노임 계산' },
-  { href: '/admin/filing-exports',       label: '신고자료 내보내기' },
-  { href: '/admin/exceptions',           label: '예외 승인' },
-  { href: '/admin/device-requests',      label: '기기 변경' },
+  { href: '/admin/wage-calculations',     label: '세금/노임 계산' },
+  { href: '/admin/filing-exports',        label: '신고자료 내보내기' },
+  { href: '/admin/retirement-mutual',     label: '퇴직공제' },
+  { href: '/admin/labor-cost-summaries',  label: '노무비 집계' },
+  { href: '/admin/month-closings',        label: '월마감' },
+  { href: '/admin/corrections',           label: '정정 이력' },
+  { href: '/admin/exceptions',            label: '예외 승인' },
+  { href: '/admin/device-requests',       label: '기기 변경' },
 ]
 
 const s: Record<string, React.CSSProperties> = {

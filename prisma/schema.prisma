@@ -122,6 +122,44 @@ enum FilingExportType {
   NP_BASE                // 국민연금 판정 기초
   HI_BASE                // 건강보험 판정 기초
   RETIREMENT_MUTUAL_BASE // 퇴직공제 기초
+  LABOR_COST_SUMMARY     // 노무비 집계
+}
+
+enum MonthClosingStatus {
+  OPEN
+  CLOSING
+  CLOSED
+  REOPENED
+}
+
+enum ClosingScope {
+  GLOBAL
+  SITE
+}
+
+enum CorrectionDomainType {
+  WORK_CONFIRMATION
+  INSURANCE
+  WAGE
+  WITHHOLDING
+  RETIREMENT_MUTUAL
+  EXPORT
+  MONTH_CLOSING
+}
+
+enum CorrectionActionType {
+  CREATE
+  UPDATE
+  DELETE
+  REOPEN
+  RECALCULATE
+  MANUAL_OVERRIDE
+}
+
+enum RetirementReportStatus {
+  READY
+  EXPORTED
+  CORRECTED
 }
 
 // ─── Models ──────────────────────────────────────────────
@@ -153,7 +191,8 @@ model Subcontractor {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  workers Worker[]
+  workers            Worker[]
+  laborCostSummaries LaborCostSummary[]
 
   @@map("subcontractors")
 }
@@ -198,7 +237,9 @@ model Worker {
   insuranceSnapshots   InsuranceEligibilitySnapshot[]
   wageCalculations     WageCalculation[]
   withholdingCalcs     WithholdingCalculation[]
-  retirementRecords    RetirementMutualDailyRecord[]
+  retirementRecords          RetirementMutualDailyRecord[]
+  retirementMutualWorkers    RetirementMutualWorker[]
+  retirementMonthlySummaries RetirementMutualMonthlySummary[]
 
   @@map("workers")
 }
@@ -222,8 +263,12 @@ model Site {
   presenceChecks PresenceCheck[]
   contracts      WorkerContract[]
   attendanceDays AttendanceDay[]
-  workConfirmations MonthlyWorkConfirmation[]
-  retirementRecords RetirementMutualDailyRecord[]
+  workConfirmations          MonthlyWorkConfirmation[]
+  retirementRecords          RetirementMutualDailyRecord[]
+  monthClosings              MonthClosing[]
+  retirementMutualSite       RetirementMutualSite?
+  retirementMonthlySummaries RetirementMutualMonthlySummary[]
+  laborCostSummaries         LaborCostSummary[]
 
   @@map("sites")
 }
@@ -601,11 +646,15 @@ model RetirementMutualDailyRecord {
   siteId               String
   workDate             String  // 'YYYY-MM-DD'
   monthKey             String  // 'YYYY-MM'
-  eligibleYn           Boolean @default(true)
-  recognizedWorkUnit   Decimal @default(1.0) @db.Decimal(4, 2)
-  sourceConfirmationId String?
-  reason               String?
-  createdAt            DateTime @default(now())
+  eligibleYn            Boolean  @default(true)
+  recognizedWorkUnit    Decimal  @default(1.0) @db.Decimal(4, 2)
+  sourceConfirmationId  String?
+  reason                String?
+  excludedReason        String?
+  manualOverrideYn      Boolean  @default(false)
+  manualOverrideReason  String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   worker       Worker                  @relation(fields: [workerId], references: [id], onDelete: Cascade)
   site         Site                    @relation(fields: [siteId], references: [id], onDelete: Restrict)
@@ -618,17 +667,149 @@ model RetirementMutualDailyRecord {
 }
 
 model FilingExport {
-  id           String           @id @default(cuid())
-  monthKey     String           // 'YYYY-MM'
-  exportType   FilingExportType
-  status       String           @default("PENDING") // PENDING | COMPLETED | FAILED
-  filePath     String?
-  rowCount     Int              @default(0)
-  snapshotJson Json?
-  createdBy    String?          // AdminUser.id
-  createdAt    DateTime         @default(now())
+  id                    String           @id @default(cuid())
+  monthKey              String           // 'YYYY-MM'
+  exportType            FilingExportType
+  status                String           @default("PENDING") // PENDING | COMPLETED | FAILED
+  filePath              String?
+  rowCount              Int              @default(0)
+  snapshotJson          Json?
+  createdBy             String?          // AdminUser.id
+  createdAt             DateTime         @default(now())
+  monthClosingId        String?
+  versionNo             Int              @default(1)
+  isLatestYn            Boolean          @default(true)
+  outdatedYn            Boolean          @default(false)
+  exportScopeJson       Json?
+  generatedSnapshotJson Json?
+
+  monthClosing MonthClosing? @relation(fields: [monthClosingId], references: [id], onDelete: SetNull)
 
   @@index([monthKey])
   @@index([exportType])
   @@map("filing_exports")
+}
+
+// ─── 노무 관리 Models (Phase 3) ───────────────────────────
+
+model MonthClosing {
+  id                          String             @id @default(cuid())
+  monthKey                    String             // 'YYYY-MM'
+  siteId                      String?
+  closingScope                ClosingScope       @default(GLOBAL)
+  status                      MonthClosingStatus @default(OPEN)
+  precheckPassedYn            Boolean            @default(false)
+  workConfirmationLockedYn    Boolean            @default(false)
+  insuranceLockedYn           Boolean            @default(false)
+  wageLockedYn                Boolean            @default(false)
+  retirementMutualLockedYn    Boolean            @default(false)
+  closedBy                    String?
+  closedAt                    DateTime?
+  reopenedBy                  String?
+  reopenedAt                  DateTime?
+  reopenReason                String?
+  createdAt                   DateTime           @default(now())
+  updatedAt                   DateTime           @updatedAt
+
+  site          Site?          @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  filingExports FilingExport[]
+
+  @@unique([monthKey, closingScope, siteId])
+  @@index([monthKey])
+  @@map("month_closings")
+}
+
+model RetirementMutualSite {
+  id                      String   @id @default(cuid())
+  siteId                  String   @unique
+  enabledYn               Boolean  @default(false)
+  projectType             String?
+  contractAmount          BigInt?
+  recognitionRuleType     String   @default("DEFAULT")
+  halfDayRecognitionRule  String   @default("INCLUDE")  // INCLUDE | EXCLUDE
+  notes                   String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@map("retirement_mutual_sites")
+}
+
+model RetirementMutualWorker {
+  id        String   @id @default(cuid())
+  workerId  String
+  enabledYn Boolean  @default(true)
+  startDate String   // 'YYYY-MM-DD'
+  endDate   String?
+  reason    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@index([workerId])
+  @@map("retirement_mutual_workers")
+}
+
+model RetirementMutualMonthlySummary {
+  id                  String                 @id @default(cuid())
+  workerId            String
+  siteId              String
+  monthKey            String
+  recognizedWorkDays  Int                    @default(0)
+  recognizedWorkUnits Decimal                @default(0) @db.Decimal(6, 2)
+  eligibleYn          Boolean                @default(true)
+  reportStatus        RetirementReportStatus @default(READY)
+  snapshotJson        Json?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Restrict)
+
+  @@unique([workerId, siteId, monthKey])
+  @@index([monthKey])
+  @@map("retirement_mutual_monthly_summaries")
+}
+
+model CorrectionLog {
+  id          String               @id @default(cuid())
+  domainType  CorrectionDomainType
+  domainId    String
+  actionType  CorrectionActionType
+  beforeJson  Json?
+  afterJson   Json?
+  reason      String?
+  actedBy     String?
+  actedAt     DateTime             @default(now())
+
+  @@index([domainType, domainId])
+  @@index([actedAt])
+  @@map("correction_logs")
+}
+
+model LaborCostSummary {
+  id                              String           @id @default(cuid())
+  monthKey                        String
+  siteId                          String
+  organizationType                OrganizationType
+  subcontractorId                 String?
+  workerCount                     Int              @default(0)
+  confirmedWorkUnits              Decimal          @default(0) @db.Decimal(10, 2)
+  grossAmount                     Int              @default(0)
+  taxableAmount                   Int              @default(0)
+  withholdingTaxAmount            Int              @default(0)
+  nationalPensionTargetCount      Int              @default(0)
+  healthInsuranceTargetCount      Int              @default(0)
+  employmentInsuranceTargetCount  Int              @default(0)
+  retirementMutualTargetDays      Int              @default(0)
+  createdAt                       DateTime         @default(now())
+
+  site          Site           @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  subcontractor Subcontractor? @relation(fields: [subcontractorId], references: [id], onDelete: SetNull)
+
+  @@index([monthKey])
+  @@index([siteId, monthKey])
+  @@map("labor_cost_summaries")
 }

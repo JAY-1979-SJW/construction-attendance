@@ -12,6 +12,7 @@ export type ExportType =
   | 'NP_BASE'
   | 'HI_BASE'
   | 'RETIREMENT_MUTUAL_BASE'
+  | 'LABOR_COST_SUMMARY'
 
 export interface FilingExportOptions {
   monthKey:   string
@@ -156,6 +157,46 @@ async function buildRetirementMutualBase(monthKey: string, siteId?: string) {
   }))
 }
 
+/** 노무비 집계 내보내기 기초자료 */
+async function buildLaborCostSummaryExport(monthKey: string, siteId?: string) {
+  const summaries = await prisma.laborCostSummary.findMany({
+    where: { monthKey, ...(siteId ? { siteId } : {}) },
+    include: { site: true, subcontractor: true },
+  })
+
+  return summaries.map((s) => ({
+    현장명: s.site.name,
+    조직구분: s.organizationType === 'DIRECT' ? '직영' : '협력사',
+    협력사명: s.subcontractor?.name ?? '',
+    인원수: s.workerCount,
+    공수: Number(s.confirmedWorkUnits),
+    총노임: s.grossAmount,
+    과세금액: s.taxableAmount,
+    원천세: s.withholdingTaxAmount,
+    국민연금대상수: s.nationalPensionTargetCount,
+    건보대상수: s.healthInsuranceTargetCount,
+    고용보험대상수: s.employmentInsuranceTargetCount,
+    퇴직공제대상일수: s.retirementMutualTargetDays,
+  }))
+}
+
+/** CSV 변환 헬퍼 */
+function rowsToCsv(rows: Record<string, unknown>[]): string {
+  if (rows.length === 0) return ''
+  const headers = Object.keys(rows[0])
+  const lines = [
+    headers.join(','),
+    ...rows.map((row) =>
+      headers.map((h) => {
+        const val = row[h]
+        const s = String(val ?? '')
+        return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s
+      }).join(',')
+    ),
+  ]
+  return lines.join('\n')
+}
+
 /** 신고 기초자료 생성 메인 함수 */
 export async function createFilingExport(opts: FilingExportOptions): Promise<FilingExportResult> {
   const { monthKey, exportType, createdBy, siteId } = opts
@@ -181,18 +222,52 @@ export async function createFilingExport(opts: FilingExportOptions): Promise<Fil
     case 'RETIREMENT_MUTUAL_BASE':
       rows = await buildRetirementMutualBase(monthKey, siteId)
       break
+    case 'LABOR_COST_SUMMARY':
+      rows = await buildLaborCostSummaryExport(monthKey, siteId)
+      break
     default:
       throw new Error(`Unknown exportType: ${exportType}`)
   }
+
+  // 버전 관리: 이전 버전 outdated 처리
+  const prevExports = await prisma.filingExport.findMany({
+    where: {
+      monthKey,
+      exportType: exportType as never,
+      isLatestYn: true,
+      outdatedYn: false,
+    },
+  })
+
+  if (prevExports.length > 0) {
+    await prisma.filingExport.updateMany({
+      where: {
+        id: { in: prevExports.map((e) => e.id) },
+      },
+      data: { isLatestYn: false, outdatedYn: true },
+    })
+  }
+
+  const nextVersionNo = prevExports.length > 0 ? Math.max(...prevExports.map((e) => e.versionNo)) + 1 : 1
+
+  // CSV 파일 내용 생성 (참조용, 실제 저장은 filePath 기준)
+  rowsToCsv(rows) // 생성 확인용 (결과는 generatedSnapshotJson에 보관)
+  const fileName = `${monthKey}_${exportType}_v${nextVersionNo}.csv`
+  const filePath = `/exports/${monthKey}/${fileName}`
 
   const record = await prisma.filingExport.create({
     data: {
       monthKey,
       exportType: exportType as never,
-      status:      'COMPLETED',
-      rowCount:    rows.length,
-      snapshotJson: { rows: rows.slice(0, 5) as Prisma.JsonArray, totalRows: rows.length } as Prisma.InputJsonObject, // 미리보기용 스냅샷
-      createdBy:   createdBy ?? null,
+      status: 'COMPLETED',
+      rowCount: rows.length,
+      filePath,
+      versionNo: nextVersionNo,
+      isLatestYn: true,
+      outdatedYn: false,
+      snapshotJson: { rows: rows.slice(0, 5) as Prisma.JsonArray, totalRows: rows.length } as Prisma.InputJsonObject,
+      generatedSnapshotJson: { rows } as unknown as Prisma.InputJsonObject,
+      createdBy: createdBy ?? null,
     },
   })
 
