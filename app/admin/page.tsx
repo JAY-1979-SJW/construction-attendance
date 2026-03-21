@@ -10,6 +10,7 @@ interface DashboardSummary {
   todayTotal: number
   todayCheckedIn: number
   todayCompleted: number
+  pendingMissing: number
   pendingExceptions: number
   pendingDeviceRequests: number
 }
@@ -24,8 +25,8 @@ interface RecentRecord {
   status: string
 }
 
-const STATUS_LABEL: Record<string, string> = { WORKING: '근무중', COMPLETED: '퇴근', EXCEPTION: '예외' }
-const STATUS_COLOR: Record<string, string> = { WORKING: '#2e7d32', COMPLETED: '#1565c0', EXCEPTION: '#e65100' }
+const STATUS_LABEL: Record<string, string> = { WORKING: '근무중', COMPLETED: '퇴근', MISSING_CHECKOUT: '미퇴근', EXCEPTION: '예외' }
+const STATUS_COLOR: Record<string, string> = { WORKING: '#2e7d32', COMPLETED: '#1565c0', MISSING_CHECKOUT: '#b71c1c', EXCEPTION: '#e65100' }
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -63,6 +64,7 @@ export default function AdminDashboard() {
           { href: '/admin/workers', label: '근로자 관리' },
           { href: '/admin/sites', label: '현장 관리' },
           { href: '/admin/attendance', label: '출퇴근 조회' },
+          { href: '/admin/labor', label: '투입현황/노임서류' },
           { href: '/admin/exceptions', label: `예외 승인${summary?.pendingExceptions ? ` (${summary.pendingExceptions})` : ''}` },
           { href: '/admin/device-requests', label: `기기 변경${summary?.pendingDeviceRequests ? ` (${summary.pendingDeviceRequests})` : ''}` },
         ].map((item) => (
@@ -82,6 +84,7 @@ export default function AdminDashboard() {
             { label: '오늘 출근', value: summary?.todayTotal ?? 0, color: '#1976d2' },
             { label: '근무 중', value: summary?.todayCheckedIn ?? 0, color: '#2e7d32' },
             { label: '퇴근 완료', value: summary?.todayCompleted ?? 0, color: '#455a64' },
+            { label: '미퇴근 누적', value: summary?.pendingMissing ?? 0, color: '#b71c1c' },
             { label: '예외 대기', value: summary?.pendingExceptions ?? 0, color: '#e65100' },
             { label: '기기 변경 대기', value: summary?.pendingDeviceRequests ?? 0, color: '#7b1fa2' },
             { label: '등록 근로자', value: summary?.totalWorkers ?? 0, color: '#37474f' },

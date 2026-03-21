@@ -94,7 +94,7 @@ export default function QrPage({ params }: { params: Promise<{ qrToken: string }
 
   const getDeviceToken = (): string | null => {
     const token = getStoredDeviceToken()
-    if (!token) router.push('/device/register')
+    if (!token) router.push('/login')
     return token
   }
 

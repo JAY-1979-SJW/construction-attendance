@@ -10,12 +10,14 @@ export async function GET() {
 
     const today = kstDateStringToDate(toKSTDateString())
 
-    const [totalWorkers, activeSites, todayCheckedIn, todayCompleted, pendingExceptions, pendingDeviceRequests] =
+    const [totalWorkers, activeSites, todayCheckedIn, todayCompleted, pendingMissing, pendingExceptions, pendingDeviceRequests] =
       await Promise.all([
         prisma.worker.count({ where: { isActive: true } }),
         prisma.site.count({ where: { isActive: true } }),
         prisma.attendanceLog.count({ where: { workDate: today, status: 'WORKING' } }),
         prisma.attendanceLog.count({ where: { workDate: today, status: 'COMPLETED' } }),
+        // 전일 이전 MISSING_CHECKOUT 건 — 관리자 미확인 누적분
+        prisma.attendanceLog.count({ where: { status: 'MISSING_CHECKOUT', workDate: { lt: today } } }),
         prisma.attendanceLog.count({ where: { status: 'EXCEPTION' } }),
         prisma.deviceChangeRequest.count({ where: { status: 'PENDING' } }),
       ])
@@ -38,6 +40,7 @@ export async function GET() {
         todayCheckedIn,
         todayCompleted,
         todayTotal: todayCheckedIn + todayCompleted,
+        pendingMissing,
         pendingExceptions,
         pendingDeviceRequests,
       },

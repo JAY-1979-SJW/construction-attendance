@@ -3,8 +3,66 @@ import { z } from 'zod'
 import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
-import { unauthorized, badRequest, notFound, internalError } from '@/lib/utils/response'
+import { ok, unauthorized, badRequest, notFound, internalError } from '@/lib/utils/response'
 import { AttendanceStatus } from '@prisma/client'
+
+/**
+ * GET /api/admin/attendance/[id]
+ * 출퇴근 기록 상세 조회 — MOVE 이벤트 포함
+ */
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getAdminSession()
+    if (!session) return unauthorized()
+
+    const log = await prisma.attendanceLog.findUnique({
+      where: { id: params.id },
+      include: {
+        worker: { select: { name: true, phone: true, company: true, jobTitle: true } },
+        checkInSite: { select: { id: true, name: true, address: true } },
+        checkOutSite: { select: { id: true, name: true } },
+        events: {
+          where: { eventType: 'MOVE' },
+          include: { site: { select: { name: true } } },
+          orderBy: { occurredAt: 'asc' },
+        },
+      },
+    })
+
+    if (!log) return notFound('출퇴근 기록을 찾을 수 없습니다.')
+
+    return ok({
+      id: log.id,
+      workerName: log.worker.name,
+      workerPhone: log.worker.phone,
+      company: log.worker.company,
+      jobTitle: log.worker.jobTitle,
+      workDate: log.workDate.toISOString().slice(0, 10),
+      status: log.status,
+      checkInAt: log.checkInAt?.toISOString() ?? null,
+      checkOutAt: log.checkOutAt?.toISOString() ?? null,
+      checkInDistance: log.checkInDistance,
+      checkOutDistance: log.checkOutDistance,
+      checkInSite: { id: log.checkInSite.id, name: log.checkInSite.name, address: log.checkInSite.address },
+      checkOutSite: log.checkOutSite ? { id: log.checkOutSite.id, name: log.checkOutSite.name } : null,
+      adminNote: log.adminNote,
+      isAutoCheckout: log.adminNote?.includes('[AUTO]') ?? false,
+      exceptionReason: log.exceptionReason,
+      moveEvents: log.events.map((e) => ({
+        id: e.id,
+        siteName: e.site?.name ?? '알 수 없음',
+        occurredAt: e.occurredAt.toISOString(),
+        distanceFromSite: e.distanceFromSite,
+      })),
+    })
+  } catch (err) {
+    console.error('[admin/attendance/[id] GET]', err)
+    return internalError()
+  }
+}
 
 const patchSchema = z.object({
   checkInAt: z.string().datetime().optional(),

@@ -44,7 +44,7 @@ export default function DeviceRequestsPage() {
       })
   }
 
-  useEffect(() => { load() }, [router])
+  useEffect(() => { load() }, [router]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAction = async (requestId: string, action: 'APPROVE' | 'REJECT') => {
     setProcessing(requestId)
@@ -62,6 +62,8 @@ export default function DeviceRequestsPage() {
 
   const formatPhone = (p: string) => p.length === 11 ? `${p.slice(0,3)}-${p.slice(3,7)}-${p.slice(7)}` : p
   const formatDt = (iso: string) => new Date(iso).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+  const getRequestType = (item: DeviceRequest) => item.oldDeviceToken === null ? '신규 등록' : '기기 변경'
+  const getTypeColor = (item: DeviceRequest) => item.oldDeviceToken === null ? '#1565c0' : '#6a1b9a'
 
   return (
     <div style={styles.layout}>
@@ -69,11 +71,12 @@ export default function DeviceRequestsPage() {
         <div style={styles.sidebarTitle}>해한 출퇴근</div>
         {[
           ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/sites', '현장 관리'],
-          ['/admin/attendance', '출퇴근 조회'], ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'],
+          ['/admin/attendance', '출퇴근 조회'], ['/admin/labor', '투입현황/노임서류'],
+          ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 승인'],
         ].map(([href, label]) => <Link key={href} href={href} style={styles.navItem}>{label}</Link>)}
       </nav>
       <main style={styles.main}>
-        <h1 style={styles.pageTitle}>기기 변경 요청 ({total}건)</h1>
+        <h1 style={styles.pageTitle}>기기 등록/변경 요청 ({total}건)</h1>
 
         {msg && <div style={styles.msgBox}>{msg}</div>}
 
@@ -94,13 +97,26 @@ export default function DeviceRequestsPage() {
           <div style={styles.tableCard}>
             <table style={styles.table}>
               <thead>
-                <tr>{['근로자', '연락처', '회사', '새 기기명', '변경 사유', '요청일', '상태', '처리'].map((h) => <th key={h} style={styles.th}>{h}</th>)}</tr>
+                <tr>{['유형', '근로자', '연락처', '회사', '새 기기명', '변경 사유', '요청일', '상태', '처리'].map((h) => <th key={h} style={styles.th}>{h}</th>)}</tr>
               </thead>
               <tbody>
                 {items.length === 0 ? (
-                  <tr><td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>요청이 없습니다.</td></tr>
+                  <tr><td colSpan={9} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>요청이 없습니다.</td></tr>
                 ) : items.map((item) => (
                   <tr key={item.id} style={styles.tr}>
+                    <td style={styles.td}>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        color: getTypeColor(item),
+                        background: item.oldDeviceToken === null ? '#e3f2fd' : '#f3e5f5',
+                        padding: '2px 8px',
+                        borderRadius: '10px',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {getRequestType(item)}
+                      </span>
+                    </td>
                     <td style={styles.td}>{item.workerName}</td>
                     <td style={styles.td}>{formatPhone(item.workerPhone)}</td>
                     <td style={styles.td}>{item.company}</td>

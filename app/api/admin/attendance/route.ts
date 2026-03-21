@@ -59,6 +59,8 @@ export async function GET(request: NextRequest) {
         checkInDistance: l.checkInDistance,
         checkOutDistance: l.checkOutDistance,
         exceptionReason: l.exceptionReason,
+        adminNote: l.adminNote,
+        isAutoCheckout: l.adminNote?.includes('[AUTO]') ?? false,
       })),
       total,
       page,

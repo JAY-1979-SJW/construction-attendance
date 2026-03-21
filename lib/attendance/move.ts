@@ -49,9 +49,16 @@ export async function processMove(input: MoveInput): Promise<MoveResult> {
     return { success: false, message: '유효하지 않은 QR코드입니다.' }
   }
 
-  // 4. 동일 현장 이동 방지 (출근 현장과 동일하면 이동 불필요)
-  if (openLog.siteId === newSite.id) {
-    return { success: false, message: '현재 출근 중인 현장과 동일합니다.' }
+  // 4. 동일 현장 이동 방지 — 현재 근무 현장(마지막 이동 또는 출근 현장) 기준으로 비교
+  const lastMoveCheck = await prisma.attendanceEvent.findFirst({
+    where: { attendanceLogId: openLog.id, eventType: 'MOVE' },
+    orderBy: { occurredAt: 'desc' },
+    select: { siteId: true },
+  })
+  const currentSiteId = lastMoveCheck?.siteId ?? openLog.siteId
+
+  if (currentSiteId === newSite.id) {
+    return { success: false, message: '현재 근무 중인 현장과 동일합니다.' }
   }
 
   // 5. 새 현장 GPS 반경 체크

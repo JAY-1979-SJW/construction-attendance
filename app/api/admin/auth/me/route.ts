@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession } from '@/lib/auth/guards'
 import { ok, badRequest, unauthorized, internalError } from '@/lib/utils/response'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 // GET /api/admin/auth/me — 현재 관리자 정보 조회
 export async function GET() {
@@ -71,6 +72,19 @@ export async function PATCH(request: NextRequest) {
         ...(passwordHash && { passwordHash }),
       },
       select: { id: true, name: true, email: true, role: true },
+    })
+
+    const changed: string[] = []
+    if (name) changed.push('이름')
+    if (email) changed.push('이메일')
+    if (newPassword) changed.push('비밀번호')
+
+    await writeAuditLog({
+      adminId: session.sub,
+      actionType: 'UPDATE_ADMIN_PROFILE',
+      targetType: 'AdminUser',
+      targetId: session.sub,
+      description: `관리자 본인 정보 변경: ${updated.name} | 변경항목: ${changed.join(', ')}`,
     })
 
     return ok(updated, '정보가 변경되었습니다.')

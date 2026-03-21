@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/db/prisma'
 import { signToken } from '@/lib/auth/jwt'
 import { badRequest, unauthorized, internalError } from '@/lib/utils/response'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import bcrypt from 'bcryptjs'
 
 const schema = z.object({
@@ -28,6 +29,14 @@ export async function POST(request: NextRequest) {
       sub: admin.id,
       type: 'admin',
       role: admin.role,
+    })
+
+    await writeAuditLog({
+      adminId: admin.id,
+      actionType: 'ADMIN_LOGIN',
+      targetType: 'AdminUser',
+      targetId: admin.id,
+      description: `관리자 로그인: ${admin.name} (${admin.email})`,
     })
 
     const response = NextResponse.json({
