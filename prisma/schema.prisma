@@ -65,6 +65,65 @@ enum PresenceCheckStatus {
   MANUALLY_REJECTED   // new: admin confirmed absence/violation
 }
 
+// ─── 노무 관리 Enums (Phase 1) ────────────────────────────
+
+enum EmploymentType {
+  REGULAR              // 상용근로자
+  DAILY_CONSTRUCTION   // 건설 일용근로자
+  BUSINESS_33          // 3.3% 사업소득
+  OTHER                // 기타
+}
+
+enum IncomeType {
+  SALARY           // 급여 (상용)
+  DAILY_WAGE       // 일용근로소득
+  BUSINESS_INCOME  // 사업소득
+}
+
+enum OrganizationType {
+  DIRECT         // 직영
+  SUBCONTRACTOR  // 협력사 소속
+}
+
+enum ContractType {
+  EMPLOYMENT  // 근로계약
+  DAILY       // 일용계약
+  SERVICE     // 용역계약 (3.3%)
+}
+
+enum WorkConfirmationStatus {
+  DRAFT      // 확정 전 (초안)
+  CONFIRMED  // 확정 완료
+  EXCLUDED   // 제외 (무효)
+}
+
+enum ConfirmedWorkType {
+  FULL_DAY   // 정규 1공수
+  HALF_DAY   // 반일 0.5공수
+  OVERTIME   // 연장근무
+  NIGHT      // 야간근무
+  HOLIDAY    // 휴일근무
+  INVALID    // 무효 출역
+}
+
+enum AttendanceDayPresenceStatus {
+  NORMAL           // 정상
+  REVIEW_REQUIRED  // 검토 필요
+  OUT_OF_GEOFENCE  // 위치이탈
+  NO_RESPONSE      // 미응답
+  MISSING_CHECKOUT // 퇴근 미기록
+  INVALID          // 무효
+}
+
+enum FilingExportType {
+  DAILY_WAGE_NTS         // 일용근로소득 지급명세서
+  BUSINESS_INCOME_NTS    // 사업소득 간이지급명세서
+  EI_DAILY_REPORT        // 고용보험 근로내용확인신고
+  NP_BASE                // 국민연금 판정 기초
+  HI_BASE                // 건강보험 판정 기초
+  RETIREMENT_MUTUAL_BASE // 퇴직공제 기초
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model AdminUser {
@@ -84,13 +143,44 @@ model AdminUser {
   @@map("admin_users")
 }
 
+model Subcontractor {
+  id             String   @id @default(cuid())
+  name           String
+  businessNumber String?  @unique
+  contactName    String?
+  phone          String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  workers Worker[]
+
+  @@map("subcontractors")
+}
+
 model Worker {
   id          String   @id @default(cuid())
   name        String
   phone       String   @unique
-  company     String   // 소속 회사 / 협력업체
-  jobTitle    String   // 직종 / 역할
+  company     String
+  jobTitle    String
   isActive    Boolean  @default(true)
+
+  // ── 노무 관리 확장 필드 (Phase 1) ──────────────────────
+  residentIdMasked          String?
+  foreignerYn               Boolean          @default(false)
+  nationalityCode           String?          @default("KR")
+  bankName                  String?
+  bankAccount               String?
+  employmentType            EmploymentType   @default(DAILY_CONSTRUCTION)
+  incomeType                IncomeType       @default(DAILY_WAGE)
+  organizationType          OrganizationType @default(DIRECT)
+  subcontractorId           String?
+  skillLevel                String?
+  retirementMutualTargetYn  Boolean          @default(false)
+  fourInsurancesEligibleYn  Boolean          @default(true)
+  // ───────────────────────────────────────────────────────
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -101,6 +191,14 @@ model Worker {
   otpVerifications     OtpVerification[]
   attendanceEvents     AttendanceEvent[]
   presenceChecks       PresenceCheck[]
+  subcontractor        Subcontractor?              @relation(fields: [subcontractorId], references: [id], onDelete: SetNull)
+  contracts            WorkerContract[]
+  attendanceDays       AttendanceDay[]
+  workConfirmations    MonthlyWorkConfirmation[]
+  insuranceSnapshots   InsuranceEligibilitySnapshot[]
+  wageCalculations     WageCalculation[]
+  withholdingCalcs     WithholdingCalculation[]
+  retirementRecords    RetirementMutualDailyRecord[]
 
   @@map("workers")
 }
@@ -122,6 +220,10 @@ model Site {
   checkOutLogs   AttendanceLog[]   @relation("CheckOutSite")
   events         AttendanceEvent[]
   presenceChecks PresenceCheck[]
+  contracts      WorkerContract[]
+  attendanceDays AttendanceDay[]
+  workConfirmations MonthlyWorkConfirmation[]
+  retirementRecords RetirementMutualDailyRecord[]
 
   @@map("sites")
 }
@@ -130,14 +232,13 @@ model WorkerDevice {
   id          String   @id @default(cuid())
   workerId    String
   deviceToken String   @unique
-  deviceName  String   // 기기명 / 표시명
-  isPrimary   Boolean  @default(false) // 기본 기기 여부
+  deviceName  String
+  isPrimary   Boolean  @default(false)
   isActive    Boolean  @default(true)
   lastLoginAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relations
   worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
 
   @@map("worker_devices")
@@ -152,7 +253,6 @@ model OtpVerification {
   verifiedAt  DateTime?
   createdAt   DateTime   @default(now())
 
-  // Relations (optional — phone may not yet be registered)
   workerId String?
   worker   Worker? @relation(fields: [workerId], references: [id], onDelete: SetNull)
 
@@ -162,59 +262,50 @@ model OtpVerification {
 model AttendanceLog {
   id              String           @id @default(cuid())
   workerId        String
-  // 출근 현장 (체크인 기준)
   siteId          String
-  // 퇴근 현장 — 이동형 근무 시 출근 현장과 다를 수 있음 (nullable)
   checkOutSiteId  String?
-  workDate        DateTime         @db.Date // 날짜만 저장 (KST 기준)
+  workDate        DateTime         @db.Date
   checkInAt       DateTime?
   checkOutAt      DateTime?
   checkInLat      Float?
   checkInLng      Float?
   checkOutLat     Float?
   checkOutLng     Float?
-  checkInDistance Float?           // 현장까지 거리(m)
+  checkInDistance Float?
   checkOutDistance Float?
-  qrToken         String           // 사용된 QR 토큰 스냅샷 (체크인)
+  qrToken         String
   status          AttendanceStatus @default(WORKING)
   exceptionReason String?
-  adminNote       String?          // 관리자 메모
+  adminNote       String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  // Relations
   worker        Worker  @relation(fields: [workerId], references: [id])
   checkInSite   Site    @relation("CheckInSite", fields: [siteId], references: [id])
   checkOutSite  Site?   @relation("CheckOutSite", fields: [checkOutSiteId], references: [id])
-
-  // 이벤트 로그 (이동형 근무)
   events         AttendanceEvent[]
   presenceChecks PresenceCheck[]
 
-  // 같은 근로자, 같은 현장, 같은 날짜는 1건만 허용
   @@unique([workerId, siteId, workDate])
   @@index([workDate])
   @@index([siteId, workDate])
   @@map("attendance_logs")
 }
 
-// 출근/이동/퇴근 이벤트 로그 (이동형 근무 지원)
-// 상시 GPS 추적 금지 — 버튼 누를 때만 기록
 model AttendanceEvent {
   id               String              @id @default(cuid())
   attendanceLogId  String
   workerId         String
   eventType        AttendanceEventType
-  siteId           String?             // 연결된 현장 (null 허용: 이동 중)
+  siteId           String?
   occurredAt       DateTime            @default(now())
   latitude         Float?
   longitude        Float?
-  accuracy         Float?              // GPS 정확도(m)
-  distanceFromSite Float?              // 현장까지 거리(m)
-  deviceId         String?             // WorkerDevice.id
+  accuracy         Float?
+  distanceFromSite Float?
+  deviceId         String?
   memo             String?
 
-  // Relations
   attendanceLog AttendanceLog @relation(fields: [attendanceLogId], references: [id], onDelete: Cascade)
   worker        Worker        @relation(fields: [workerId], references: [id])
   site          Site?         @relation(fields: [siteId], references: [id])
@@ -234,72 +325,65 @@ model DeviceChangeRequest {
   status         DeviceRequestStatus @default(PENDING)
   requestedAt    DateTime            @default(now())
   processedAt    DateTime?
-  processedBy    String?             // AdminUser.id
+  processedBy    String?
 
-  // Relations
   worker    Worker     @relation(fields: [workerId], references: [id])
   adminUser AdminUser? @relation("ProcessedBy", fields: [processedBy], references: [id])
 
   @@map("device_change_requests")
 }
 
-// ─── 시스템 설정 (싱글톤 — id = "singleton") ─────────────────
 model AppSettings {
   id                                String   @id @default("singleton")
-  // 플랜
-  planType                          String   @default("FREE")   // FREE | PRO
-  // 중간 체류 확인 기능
-  presenceCheckFeatureAvailable     Boolean  @default(false)    // 플랜상 사용 가능 여부
-  presenceCheckEnabled              Boolean  @default(false)    // 관리자 활성화 여부
-  presenceCheckAmEnabled            Boolean  @default(true)     // 오전 랜덤 확인
-  presenceCheckPmEnabled            Boolean  @default(true)     // 오후 랜덤 확인
-  presenceCheckRadiusMeters         Int      @default(30)       // 체류 확인 반경(m)
-  presenceCheckResponseLimitMinutes Int      @default(20)       // 응답 제한 시간(분)
-  presenceCheckFailureNeedsReview   Boolean  @default(true)     // 실패/미응답 검토 처리
-  presenceCheckAmStart              String   @default("09:30")  // 오전 시작 HH:mm
-  presenceCheckAmEnd                String   @default("11:30")  // 오전 종료 HH:mm
-  presenceCheckPmStart              String   @default("13:30")  // 오후 시작 HH:mm
-  presenceCheckPmEnd                String   @default("16:30")  // 오후 종료 HH:mm
+  planType                          String   @default("FREE")
+  presenceCheckFeatureAvailable     Boolean  @default(false)
+  presenceCheckEnabled              Boolean  @default(false)
+  presenceCheckAmEnabled            Boolean  @default(true)
+  presenceCheckPmEnabled            Boolean  @default(true)
+  presenceCheckRadiusMeters         Int      @default(30)
+  presenceCheckResponseLimitMinutes Int      @default(20)
+  presenceCheckFailureNeedsReview   Boolean  @default(true)
+  presenceCheckAmStart              String   @default("09:30")
+  presenceCheckAmEnd                String   @default("11:30")
+  presenceCheckPmStart              String   @default("13:30")
+  presenceCheckPmEnd                String   @default("16:30")
   updatedAt                         DateTime @updatedAt
 
   @@map("app_settings")
 }
 
-// ─── 중간 체류 확인 기록 ──────────────────────────────────────
 model PresenceCheck {
   id                  String              @id @default(cuid())
   workerId            String
-  attendanceLogId     String              // 해당 근무일의 AttendanceLog
-  siteId              String              // 생성 시점 기준 현장
-  checkDate           String              // 'YYYY-MM-DD' KST 기준 근무일
-  timeBucket          TimeBucket          // AM | PM
-  scheduledAt         DateTime            // 알림 발송 예정 시각
-  expiresAt           DateTime            // 응답 만료 시각
+  attendanceLogId     String
+  siteId              String
+  checkDate           String
+  timeBucket          TimeBucket
+  scheduledAt         DateTime
+  expiresAt           DateTime
   status              PresenceCheckStatus @default(PENDING)
   respondedAt         DateTime?
   latitude            Float?
   longitude           Float?
   accuracyMeters      Float?
   distanceMeters      Float?
-  appliedRadiusMeters Int?                // 판정에 사용된 반경
+  appliedRadiusMeters Int?
   needsReview         Boolean             @default(false)
-  reviewReason        String?             // MISSED_PRESENCE_CHECK | OUT_OF_GEOFENCE | LOW_ACCURACY
-  reviewedBy          String?             // 판정자 (관리자명 스냅샷)
-  reviewedAt          DateTime?           // 판정 시각
-  adminNote           String?             // 관리자 메모
-  reissuedFromId      String?             // 재확인 원본 PC id
-  reissueCount        Int                 @default(0) // 재확인 횟수
-  closedAt            DateTime?           // 자동 만료/종결 시각
+  reviewReason        String?
+  reviewedBy          String?
+  reviewedAt          DateTime?
+  adminNote           String?
+  reissuedFromId      String?
+  reissueCount        Int                 @default(0)
+  closedAt            DateTime?
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
-  // Relations
   worker        Worker        @relation(fields: [workerId], references: [id])
   attendanceLog AttendanceLog @relation(fields: [attendanceLogId], references: [id], onDelete: Cascade)
   site          Site          @relation(fields: [siteId], references: [id])
   auditLogs     PresenceCheckAuditLog[]
 
-  // 동일 근무일 + 동일 버킷 중복 방지 (attendanceLog 기준)
   @@unique([attendanceLogId, checkDate, timeBucket])
   @@index([workerId, scheduledAt])
   @@index([attendanceLogId])
@@ -312,8 +396,8 @@ model PresenceCheck {
 model PresenceCheckAuditLog {
   id                String   @id @default(cuid())
   presenceCheckId   String
-  action            String   // CREATED | AUTO_EXPIRED | WORKER_RESPONDED | AUTO_CLASSIFIED_* | ADMIN_CONFIRMED | ADMIN_REJECTED | ADMIN_REISSUED | ADMIN_NOTE_UPDATED | CANCELED
-  actorType         String   // SYSTEM | WORKER | ADMIN
+  action            String
+  actorType         String
   actorId           String?
   actorNameSnapshot String?
   fromStatus        String?
@@ -332,18 +416,219 @@ model PresenceCheckAuditLog {
 model AdminAuditLog {
   id          String   @id @default(cuid())
   adminId     String
-  actionType  String   // e.g. APPROVE_EXCEPTION, REGISTER_WORKER, etc.
-  targetType  String?  // e.g. Worker, AttendanceLog, etc.
+  actionType  String
+  targetType  String?
   targetId    String?
   description String
   createdAt   DateTime @default(now())
-
   ipAddress   String?
 
-  // Relations
   admin AdminUser @relation(fields: [adminId], references: [id])
 
   @@index([adminId])
   @@index([createdAt])
   @@map("admin_audit_logs")
+}
+
+// ─── 노무 관리 Models (Phase 1) ───────────────────────────
+
+model WorkerContract {
+  id                       String       @id @default(cuid())
+  workerId                 String
+  siteId                   String?
+  contractType             ContractType @default(DAILY)
+  startDate                String       // 'YYYY-MM-DD'
+  endDate                  String?
+  dailyWage                Int          @default(0)
+  monthlySalary            Int?
+  hourlyRate               Int?
+  overtimeRate             Decimal?     @db.Decimal(4, 2)  // 배율 (예: 1.5)
+  nightRate                Decimal?     @db.Decimal(4, 2)
+  holidayRate              Decimal?     @db.Decimal(4, 2)
+  halfDayRule              String       @default("HALF")   // HALF | QUARTER
+  taxRuleType              String       @default("DAILY_WAGE")
+  insuranceRuleType        String       @default("DEFAULT")
+  retirementMutualRuleType String       @default("DEFAULT")
+  notes                    String?
+  isActive                 Boolean      @default(true)
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
+
+  worker Worker  @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site   Site?   @relation(fields: [siteId], references: [id], onDelete: SetNull)
+
+  @@index([workerId])
+  @@index([siteId])
+  @@index([startDate])
+  @@map("worker_contracts")
+}
+
+model AttendanceDay {
+  id                      String                      @id @default(cuid())
+  workerId                String
+  siteId                  String
+  workDate                String   // 'YYYY-MM-DD'
+  firstCheckInAt          DateTime?
+  lastCheckOutAt          DateTime?
+  workedMinutesRaw        Int?
+  presenceStatus          AttendanceDayPresenceStatus @default(NORMAL)
+  presenceReviewResult    String?
+  attendanceSourceSummary Json?
+  hasMoveBetweenSites     Boolean  @default(false)
+  manualAdjustedYn        Boolean  @default(false)
+  manualAdjustedReason    String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  workConfirmations MonthlyWorkConfirmation[]
+
+  @@unique([workerId, siteId, workDate])
+  @@index([workerId, workDate])
+  @@index([siteId, workDate])
+  @@map("attendance_days")
+}
+
+model MonthlyWorkConfirmation {
+  id                              String                 @id @default(cuid())
+  workerId                        String
+  siteId                          String
+  workDate                        String   // 'YYYY-MM-DD'
+  monthKey                        String   // 'YYYY-MM'
+  attendanceDayId                 String?
+  confirmationStatus              WorkConfirmationStatus @default(DRAFT)
+  confirmedWorkType               ConfirmedWorkType?
+  confirmedWorkUnits              Decimal  @default(0) @db.Decimal(4, 2) // 0.5, 1.0, 1.5...
+  confirmedWorkMinutes            Int      @default(0)
+  confirmedBaseAmount             Int      @default(0)
+  confirmedAllowanceAmount        Int      @default(0)
+  confirmedTotalAmount            Int      @default(0)
+  incomeTypeSnapshot              String?
+  employmentTypeSnapshot          String?
+  retirementMutualTargetSnapshot  Boolean?
+  insuranceReviewSnapshotJson     Json?
+  confirmedBy                     String?  // AdminUser.id
+  confirmedAt                     DateTime?
+  notes                           String?
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime @updatedAt
+
+  worker        Worker        @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site          Site          @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  attendanceDay AttendanceDay? @relation(fields: [attendanceDayId], references: [id], onDelete: SetNull)
+  retirementRecords RetirementMutualDailyRecord[]
+
+  @@unique([workerId, siteId, workDate])
+  @@index([workerId, monthKey])
+  @@index([siteId, monthKey])
+  @@index([monthKey])
+  @@map("monthly_work_confirmations")
+}
+
+model InsuranceEligibilitySnapshot {
+  id                           String  @id @default(cuid())
+  workerId                     String
+  monthKey                     String  // 'YYYY-MM'
+  totalWorkDays                Int     @default(0)
+  totalConfirmedAmount         Int     @default(0)
+  nationalPensionEligible      Boolean @default(false)
+  nationalPensionReason        String?
+  healthInsuranceEligible      Boolean @default(false)
+  healthInsuranceReason        String?
+  employmentInsuranceEligible  Boolean @default(false)
+  employmentInsuranceReason    String?
+  industrialAccidentEligible   Boolean @default(true)
+  industrialAccidentReason     String?
+  calculationSnapshotJson      Json?
+  createdAt                    DateTime @default(now())
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@unique([workerId, monthKey])
+  @@index([monthKey])
+  @@map("insurance_eligibility_snapshots")
+}
+
+model WageCalculation {
+  id                      String     @id @default(cuid())
+  workerId                String
+  monthKey                String     // 'YYYY-MM'
+  incomeType              IncomeType
+  regularDays             Decimal    @default(0) @db.Decimal(6, 2)
+  halfDays                Decimal    @default(0) @db.Decimal(6, 2)
+  overtimeMinutes         Int        @default(0)
+  nightMinutes            Int        @default(0)
+  holidayMinutes          Int        @default(0)
+  grossAmount             Int        @default(0)
+  nonTaxableAmount        Int        @default(0)
+  taxableAmount           Int        @default(0)
+  calculationSnapshotJson Json?
+  createdAt               DateTime   @default(now())
+
+  worker          Worker               @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  withholdingCalc WithholdingCalculation?
+
+  @@unique([workerId, monthKey])
+  @@index([monthKey])
+  @@map("wage_calculations")
+}
+
+model WithholdingCalculation {
+  id                   String     @id @default(cuid())
+  workerId             String
+  monthKey             String     // 'YYYY-MM'
+  incomeType           IncomeType
+  grossAmount          Int        @default(0)
+  incomeTaxAmount      Int        @default(0)
+  localIncomeTaxAmount Int        @default(0)
+  formulaCode          String     // DAILY_WAGE_2024 | BUSINESS_33 | SALARY_TABLE
+  formulaSnapshotJson  Json?
+  wageCalculationId    String?    @unique
+  createdAt            DateTime   @default(now())
+
+  worker          Worker          @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  wageCalculation WageCalculation? @relation(fields: [wageCalculationId], references: [id], onDelete: SetNull)
+
+  @@unique([workerId, monthKey])
+  @@index([monthKey])
+  @@map("withholding_calculations")
+}
+
+model RetirementMutualDailyRecord {
+  id                   String  @id @default(cuid())
+  workerId             String
+  siteId               String
+  workDate             String  // 'YYYY-MM-DD'
+  monthKey             String  // 'YYYY-MM'
+  eligibleYn           Boolean @default(true)
+  recognizedWorkUnit   Decimal @default(1.0) @db.Decimal(4, 2)
+  sourceConfirmationId String?
+  reason               String?
+  createdAt            DateTime @default(now())
+
+  worker       Worker                  @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site         Site                    @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  confirmation MonthlyWorkConfirmation? @relation(fields: [sourceConfirmationId], references: [id], onDelete: SetNull)
+
+  @@unique([workerId, siteId, workDate])
+  @@index([workerId, monthKey])
+  @@index([monthKey])
+  @@map("retirement_mutual_daily_records")
+}
+
+model FilingExport {
+  id           String           @id @default(cuid())
+  monthKey     String           // 'YYYY-MM'
+  exportType   FilingExportType
+  status       String           @default("PENDING") // PENDING | COMPLETED | FAILED
+  filePath     String?
+  rowCount     Int              @default(0)
+  snapshotJson Json?
+  createdBy    String?          // AdminUser.id
+  createdAt    DateTime         @default(now())
+
+  @@index([monthKey])
+  @@index([exportType])
+  @@map("filing_exports")
 }
