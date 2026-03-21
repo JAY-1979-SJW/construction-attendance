@@ -5,6 +5,16 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
 
+declare global {
+  interface Window {
+    daum: {
+      Postcode: new (opts: {
+        oncomplete: (data: { roadAddress: string; jibunAddress: string; x: string; y: string }) => void
+      }) => { open: () => void }
+    }
+  }
+}
+
 interface Site {
   id: string
   name: string
@@ -33,6 +43,28 @@ export default function SitesPage() {
   const [saving, setSaving] = useState(false)
   const [newQr, setNewQr] = useState<{ siteName: string; qrToken: string } | null>(null)
   const [gpsLoading, setGpsLoading] = useState(false)
+
+  // 카카오 우편번호 스크립트 로드
+  useEffect(() => {
+    if (document.getElementById('kakao-postcode-script')) return
+    const script = document.createElement('script')
+    script.id = 'kakao-postcode-script'
+    script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
+    document.head.appendChild(script)
+  }, [])
+
+  const openAddressSearch = (target: 'form' | 'edit') => {
+    if (!window.daum?.Postcode) { alert('주소 검색 서비스를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.'); return }
+    new window.daum.Postcode({
+      oncomplete: (data) => {
+        const address = data.roadAddress || data.jibunAddress
+        const lat = data.y   // 위도
+        const lng = data.x   // 경도
+        if (target === 'form') setForm((f) => ({ ...f, address, latitude: lat, longitude: lng }))
+        else setEditForm((f) => ({ ...f, address, latitude: lat, longitude: lng }))
+      },
+    }).open()
+  }
 
   const fillCurrentLocation = (target: 'form' | 'edit') => {
     if (!navigator.geolocation) { alert('이 브라우저는 GPS를 지원하지 않습니다.'); return }
@@ -202,21 +234,34 @@ export default function SitesPage() {
           <div style={styles.modalOverlay}>
             <div style={styles.modal}>
               <h3 style={styles.modalTitle}>현장 등록</h3>
-              {[
-                { label: '현장명', key: 'name', placeholder: '해한 1호 현장' },
-                { label: '주소', key: 'address', placeholder: '서울시 강남구 ...' },
-              ].map(({ label, key, placeholder }) => (
-                <div key={key} style={styles.fieldRow}>
-                  <label style={styles.label}>{label}</label>
-                  <input
-                    type="text"
-                    placeholder={placeholder}
-                    value={form[key as keyof typeof form]}
-                    onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    style={styles.input}
-                  />
+              <div style={styles.fieldRow}>
+                <label style={styles.label}>현장명</label>
+                <input
+                  type="text"
+                  placeholder="해한 1호 현장"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  style={styles.input}
+                />
+              </div>
+              <div style={styles.fieldRow}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <label style={styles.label}>주소</label>
+                  <button type="button" onClick={() => openAddressSearch('form')} style={styles.addrBtn}>
+                    🔍 주소 검색
+                  </button>
                 </div>
-              ))}
+                <input
+                  type="text"
+                  placeholder="주소 검색 버튼을 눌러주세요"
+                  value={form.address}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
+                  style={styles.input}
+                />
+                <p style={{ fontSize: '12px', color: '#888', margin: '4px 0 0' }}>
+                  주소 검색 시 위도/경도가 자동으로 채워집니다.
+                </p>
+              </div>
               <div style={styles.fieldRow}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                   <label style={styles.label}>GPS 좌표 (위도 / 경도)</label>
@@ -275,20 +320,29 @@ export default function SitesPage() {
           <div style={styles.modalOverlay}>
             <div style={styles.modal}>
               <h3 style={styles.modalTitle}>현장 수정 — {editTarget.name}</h3>
-              {[
-                { label: '현장명', key: 'name' },
-                { label: '주소', key: 'address' },
-              ].map(({ label, key }) => (
-                <div key={key} style={styles.fieldRow}>
-                  <label style={styles.label}>{label}</label>
-                  <input
-                    type="text"
-                    value={editForm[key as keyof typeof editForm]}
-                    onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
-                    style={styles.input}
-                  />
+              <div style={styles.fieldRow}>
+                <label style={styles.label}>현장명</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  style={styles.input}
+                />
+              </div>
+              <div style={styles.fieldRow}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <label style={styles.label}>주소</label>
+                  <button type="button" onClick={() => openAddressSearch('edit')} style={styles.addrBtn}>
+                    🔍 주소 검색
+                  </button>
                 </div>
-              ))}
+                <input
+                  type="text"
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                  style={styles.input}
+                />
+              </div>
               <div style={styles.fieldRow}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                   <label style={styles.label}>GPS 좌표 (위도 / 경도)</label>
@@ -401,4 +455,5 @@ const styles: Record<string, React.CSSProperties> = {
   saveBtn: { flex: 1, padding: '12px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 },
   cancelBtn: { flex: 1, padding: '12px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer' },
   gpsBtn: { padding: '6px 12px', background: '#e8f5e9', color: '#2e7d32', border: '1px solid #a5d6a7', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' as const },
+  addrBtn: { padding: '6px 12px', background: '#e3f2fd', color: '#1565c0', border: '1px solid #90caf9', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' as const },
 }
