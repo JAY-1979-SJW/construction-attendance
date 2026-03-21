@@ -85,9 +85,17 @@ export async function POST(request: NextRequest) {
           where: { workerId: req.workerId, isActive: true },
           data: { isActive: false, isPrimary: false },
         })
-        // 신규 기기 등록
-        await tx.workerDevice.create({
-          data: {
+        // 신규 기기 등록 (동일 deviceToken이 비활성 상태로 남아있을 수 있으므로 upsert)
+        await tx.workerDevice.upsert({
+          where: { deviceToken: req.newDeviceToken },
+          update: {
+            workerId: req.workerId,
+            deviceName: req.newDeviceName,
+            isPrimary: true,
+            isActive: true,
+            lastLoginAt: new Date(),
+          },
+          create: {
             workerId: req.workerId,
             deviceToken: req.newDeviceToken,
             deviceName: req.newDeviceName,
