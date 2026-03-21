@@ -287,6 +287,8 @@ model Site {
   laborCostSummaries         LaborCostSummary[]
   subcontractorSettlements   SubcontractorSettlement[]
   onboardingChecklists       OnboardingChecklist[]
+  closingSnapshots           MonthClosingSnapshot[]
+  preflightRuns              PreflightCheckRun[]
 
   @@map("sites")
 }
@@ -706,6 +708,10 @@ model FilingExport {
   institutionType   String?
   downloadCount     Int              @default(0)
   lastDownloadedAt  DateTime?
+  siteId              String?
+  yearMonth           String?
+  lastDownloadedBy    String?
+  lastPreflightStatus String?  // OK | WARNING | ERROR
 
   monthClosing MonthClosing? @relation(fields: [monthClosingId], references: [id], onDelete: SetNull)
 
@@ -723,6 +729,8 @@ model MonthClosing {
   closingScope                ClosingScope       @default(GLOBAL)
   status                      MonthClosingStatus @default(OPEN)
   precheckPassedYn            Boolean            @default(false)
+  closingStartedAt            DateTime?
+  closingStartedBy            String?
   workConfirmationLockedYn    Boolean            @default(false)
   insuranceLockedYn           Boolean            @default(false)
   wageLockedYn                Boolean            @default(false)
@@ -737,6 +745,7 @@ model MonthClosing {
 
   site          Site?          @relation(fields: [siteId], references: [id], onDelete: SetNull)
   filingExports FilingExport[]
+  snapshots     MonthClosingSnapshot[]
 
   @@unique([monthKey, closingScope, siteId])
   @@index([monthKey])
@@ -855,6 +864,10 @@ model SubcontractorSettlement {
   snapshotJson            Json?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
+  status                  String   @default("DRAFT")  // DRAFT | REVIEW_REQUIRED | CONFIRMED | HOLD
+  reviewNote              String?
+  confirmedAt             DateTime?
+  confirmedBy             String?
 
   site          Site          @relation(fields: [siteId], references: [id], onDelete: Restrict)
   subcontractor Subcontractor @relation(fields: [subcontractorId], references: [id], onDelete: Restrict)
@@ -870,6 +883,8 @@ model OnboardingChecklist {
   siteId      String?
   checkType   String   // RETIREMENT_MUTUAL_STATUS | TAX_TYPE | INSURANCE_TYPE | FOREIGNER_STATUS
   status      String   @default("PENDING")  // PENDING | RESOLVED | IGNORED
+  severity    String   @default("WARNING")  // ERROR | WARNING | INFO
+  issueCode   String?
   message     String
   resolvedBy  String?
   resolvedAt  DateTime?
@@ -881,4 +896,40 @@ model OnboardingChecklist {
   @@index([workerId])
   @@index([status])
   @@map("onboarding_checklists")
+}
+
+model MonthClosingSnapshot {
+  id           String   @id @default(cuid())
+  closingId    String
+  siteId       String?
+  monthKey     String
+  snapshotType String   // WORKER_SUMMARY | SUBCONTRACTOR_SUMMARY | DOCUMENT_BASE
+  payloadJson  Json
+  createdAt    DateTime @default(now())
+  createdBy    String?
+
+  closing MonthClosing @relation(fields: [closingId], references: [id], onDelete: Cascade)
+  site    Site?        @relation(fields: [siteId], references: [id], onDelete: SetNull)
+
+  @@index([closingId])
+  @@index([monthKey])
+  @@map("month_closing_snapshots")
+}
+
+model PreflightCheckRun {
+  id                String   @id @default(cuid())
+  siteId            String?
+  monthKey          String
+  templateCode      String
+  resultSummaryJson Json?
+  errorCount        Int      @default(0)
+  warningCount      Int      @default(0)
+  infoCount         Int      @default(0)
+  createdAt         DateTime @default(now())
+  createdBy         String?
+
+  site Site? @relation(fields: [siteId], references: [id], onDelete: SetNull)
+
+  @@index([monthKey, templateCode])
+  @@map("preflight_check_runs")
 }
