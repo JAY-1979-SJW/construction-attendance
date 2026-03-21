@@ -46,6 +46,20 @@ enum AdminRole {
   VIEWER
 }
 
+enum TimeBucket {
+  AM
+  PM
+}
+
+enum PresenceCheckStatus {
+  PENDING
+  COMPLETED
+  MISSED
+  OUT_OF_GEOFENCE
+  LOW_ACCURACY
+  SKIPPED
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model AdminUser {
@@ -81,6 +95,7 @@ model Worker {
   deviceChangeRequests DeviceChangeRequest[]
   otpVerifications     OtpVerification[]
   attendanceEvents     AttendanceEvent[]
+  presenceChecks       PresenceCheck[]
 
   @@map("workers")
 }
@@ -98,9 +113,10 @@ model Site {
   updatedAt      DateTime @updatedAt
 
   // Relations
-  checkInLogs    AttendanceLog[]  @relation("CheckInSite")
-  checkOutLogs   AttendanceLog[]  @relation("CheckOutSite")
+  checkInLogs    AttendanceLog[]   @relation("CheckInSite")
+  checkOutLogs   AttendanceLog[]   @relation("CheckOutSite")
   events         AttendanceEvent[]
+  presenceChecks PresenceCheck[]
 
   @@map("sites")
 }
@@ -167,7 +183,8 @@ model AttendanceLog {
   checkOutSite  Site?   @relation("CheckOutSite", fields: [checkOutSiteId], references: [id])
 
   // 이벤트 로그 (이동형 근무)
-  events AttendanceEvent[]
+  events         AttendanceEvent[]
+  presenceChecks PresenceCheck[]
 
   // 같은 근로자, 같은 현장, 같은 날짜는 1건만 허용
   @@unique([workerId, siteId, workDate])
@@ -219,6 +236,60 @@ model DeviceChangeRequest {
   adminUser AdminUser? @relation("ProcessedBy", fields: [processedBy], references: [id])
 
   @@map("device_change_requests")
+}
+
+// ─── 시스템 설정 (싱글톤 — id = "singleton") ─────────────────
+model AppSettings {
+  id                                String   @id @default("singleton")
+  // 플랜
+  planType                          String   @default("FREE")   // FREE | PRO
+  // 중간 체류 확인 기능
+  presenceCheckFeatureAvailable     Boolean  @default(false)    // 플랜상 사용 가능 여부
+  presenceCheckEnabled              Boolean  @default(false)    // 관리자 활성화 여부
+  presenceCheckAmEnabled            Boolean  @default(true)     // 오전 랜덤 확인
+  presenceCheckPmEnabled            Boolean  @default(true)     // 오후 랜덤 확인
+  presenceCheckRadiusMeters         Int      @default(30)       // 체류 확인 반경(m)
+  presenceCheckResponseLimitMinutes Int      @default(20)       // 응답 제한 시간(분)
+  presenceCheckFailureNeedsReview   Boolean  @default(true)     // 실패/미응답 검토 처리
+  updatedAt                         DateTime @updatedAt
+
+  @@map("app_settings")
+}
+
+// ─── 중간 체류 확인 기록 ──────────────────────────────────────
+model PresenceCheck {
+  id                  String              @id @default(cuid())
+  workerId            String
+  attendanceLogId     String              // 해당 근무일의 AttendanceLog
+  siteId              String              // 생성 시점 기준 현장
+  timeBucket          TimeBucket          // AM | PM
+  scheduledAt         DateTime            // 알림 발송 예정 시각
+  expiresAt           DateTime            // 응답 만료 시각
+  status              PresenceCheckStatus @default(PENDING)
+  respondedAt         DateTime?
+  latitude            Float?
+  longitude           Float?
+  accuracyMeters      Float?
+  distanceMeters      Float?
+  appliedRadiusMeters Int?                // 판정에 사용된 반경
+  needsReview         Boolean             @default(false)
+  reviewReason        String?             // MISSED_PRESENCE_CHECK | OUT_OF_GEOFENCE | LOW_ACCURACY
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  // Relations
+  worker        Worker        @relation(fields: [workerId], references: [id])
+  attendanceLog AttendanceLog @relation(fields: [attendanceLogId], references: [id], onDelete: Cascade)
+  site          Site          @relation(fields: [siteId], references: [id])
+
+  // 동일 근로자 + 동일 근무일 + 동일 버킷 중복 방지
+  @@unique([workerId, attendanceLogId, timeBucket])
+  @@index([workerId, scheduledAt])
+  @@index([attendanceLogId])
+  @@index([status])
+  @@index([scheduledAt])
+
+  @@map("presence_checks")
 }
 
 model AdminAuditLog {
