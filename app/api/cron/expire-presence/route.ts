@@ -7,7 +7,7 @@ import { ok, unauthorized, internalError } from '@/lib/utils/response'
  *
  * 만료된 PENDING 체류확인을 NO_RESPONSE로 자동 전환.
  * crontab 예시 (매 5분):
- *   */5 * * * * curl -s -X POST http://localhost:3002/api/cron/expire-presence \
+ *   [star]/5 [star] [star] [star] [star] curl -s -X POST http://localhost:3002/api/cron/expire-presence
  *     -H "Authorization: Bearer $CRON_SECRET" >> /var/log/expire-presence.log 2>&1
  */
 export async function POST(request: NextRequest) {
