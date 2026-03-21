@@ -3,6 +3,7 @@ import { getSiteByQrToken } from '@/lib/qr/qr-token'
 import { isWithinRadius } from '@/lib/gps/distance'
 import { validateDevice } from '@/lib/auth/device'
 import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
+import { schedulePresenceChecksForAttendance } from '@/lib/attendance/presence-scheduler'
 
 interface CheckInInput {
   workerId: string
@@ -77,6 +78,13 @@ export async function processCheckIn(input: CheckInInput): Promise<CheckInResult
       status: 'WORKING',
     },
   })
+
+  // 7. PresenceCheck 예약 생성 (실패해도 출근은 유지)
+  try {
+    await schedulePresenceChecksForAttendance(log.id)
+  } catch (err) {
+    console.error('[presence] scheduling failed after check-in', { attendanceId: log.id, err })
+  }
 
   return { success: true, message: '출근이 완료되었습니다.', attendanceId: log.id, distance }
 }

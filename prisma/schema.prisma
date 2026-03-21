@@ -251,6 +251,10 @@ model AppSettings {
   presenceCheckRadiusMeters         Int      @default(30)       // 체류 확인 반경(m)
   presenceCheckResponseLimitMinutes Int      @default(20)       // 응답 제한 시간(분)
   presenceCheckFailureNeedsReview   Boolean  @default(true)     // 실패/미응답 검토 처리
+  presenceCheckAmStart              String   @default("09:30")  // 오전 시작 HH:mm
+  presenceCheckAmEnd                String   @default("11:30")  // 오전 종료 HH:mm
+  presenceCheckPmStart              String   @default("13:30")  // 오후 시작 HH:mm
+  presenceCheckPmEnd                String   @default("16:30")  // 오후 종료 HH:mm
   updatedAt                         DateTime @updatedAt
 
   @@map("app_settings")
@@ -262,6 +266,7 @@ model PresenceCheck {
   workerId            String
   attendanceLogId     String              // 해당 근무일의 AttendanceLog
   siteId              String              // 생성 시점 기준 현장
+  checkDate           String              // 'YYYY-MM-DD' KST 기준 근무일
   timeBucket          TimeBucket          // AM | PM
   scheduledAt         DateTime            // 알림 발송 예정 시각
   expiresAt           DateTime            // 응답 만료 시각
@@ -282,8 +287,8 @@ model PresenceCheck {
   attendanceLog AttendanceLog @relation(fields: [attendanceLogId], references: [id], onDelete: Cascade)
   site          Site          @relation(fields: [siteId], references: [id])
 
-  // 동일 근로자 + 동일 근무일 + 동일 버킷 중복 방지
-  @@unique([workerId, attendanceLogId, timeBucket])
+  // 동일 근무일 + 동일 버킷 중복 방지 (attendanceLog 기준)
+  @@unique([attendanceLogId, checkDate, timeBucket])
   @@index([workerId, scheduledAt])
   @@index([attendanceLogId])
   @@index([status])
