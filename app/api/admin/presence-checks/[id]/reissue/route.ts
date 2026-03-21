@@ -1,0 +1,81 @@
+import { NextRequest } from 'next/server'
+import { prisma } from '@/lib/db/prisma'
+import { getAdminSession } from '@/lib/auth/guards'
+import { ok, unauthorized, badRequest, notFound, conflict, internalError } from '@/lib/utils/response'
+import { logPresenceAudit } from '@/lib/attendance/presence-audit'
+
+const MAX_REISSUE = 2
+
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const session = await getAdminSession()
+    if (!session) return unauthorized()
+
+    const body = await req.json().catch(() => ({}))
+    const expiresInMinutes: number = body.expiresInMinutes ?? 10
+    const reason: string = body.reason ?? '재확인 요청'
+
+    if (expiresInMinutes < 2 || expiresInMinutes > 60) {
+      return badRequest('INVALID_EXPIRES_MINUTES')
+    }
+
+    const [pc, adminUser] = await Promise.all([
+      prisma.presenceCheck.findUnique({ where: { id: params.id } }),
+      prisma.adminUser.findUnique({ where: { id: session.sub }, select: { name: true } }),
+    ])
+    const adminName = adminUser?.name ?? session.sub
+    if (!pc) return notFound('NOT_FOUND')
+
+    // Only allow reissue from REVIEW_REQUIRED or PENDING
+    if (!['REVIEW_REQUIRED', 'PENDING', 'OUT_OF_GEOFENCE', 'NO_RESPONSE'].includes(pc.status)) {
+      return conflict('CANNOT_REISSUE')
+    }
+
+    // Check reissue count limit
+    if (pc.reissueCount >= MAX_REISSUE) {
+      return conflict('MAX_REISSUE_EXCEEDED')
+    }
+
+    const now       = new Date()
+    const expiresAt = new Date(now.getTime() + expiresInMinutes * 60 * 1000)
+    const prevStatus = pc.status
+
+    await prisma.presenceCheck.update({
+      where: { id: pc.id },
+      data: {
+        status:       'PENDING' as never,
+        scheduledAt:  now,
+        expiresAt,
+        respondedAt:  null,
+        latitude:     null,
+        longitude:    null,
+        accuracyMeters: null,
+        distanceMeters: null,
+        needsReview:  false,
+        reviewReason: null,
+        reissueCount: { increment: 1 },
+      },
+    })
+
+    await logPresenceAudit({
+      presenceCheckId:   pc.id,
+      action:            'ADMIN_REISSUED',
+      actorType:         'ADMIN',
+      actorId:           session.sub,
+      actorNameSnapshot: adminName,
+      fromStatus:        prevStatus,
+      toStatus:          'PENDING',
+      message:           `${reason} (만료: ${expiresInMinutes}분)`,
+      metadata: { expiresInMinutes, reason },
+    })
+
+    return ok({
+      status:            'PENDING',
+      expiresAt:         expiresAt.toISOString(),
+      reissueCount:      pc.reissueCount + 1,
+    })
+  } catch (err) {
+    console.error('[admin/presence-checks/:id/reissue]', err)
+    return internalError()
+  }
+}

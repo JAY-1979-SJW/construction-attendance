@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma'
 import { getWorkerSession } from '@/lib/auth/guards'
 import { isWithinRadius } from '@/lib/gps/distance'
 import { ok, unauthorized, badRequest, forbidden, notFound, conflict, internalError } from '@/lib/utils/response'
+import { logPresenceAudit } from '@/lib/attendance/presence-audit'
 
 // POST /api/attendance/presence/respond
 export async function POST(req: NextRequest) {
@@ -60,24 +61,55 @@ export async function POST(req: NextRequest) {
       radius,
     )
 
-    const newStatus = within ? 'COMPLETED' : 'OUT_OF_GEOFENCE'
+    // 7. REVIEW_REQUIRED 분류 (경계값 or GPS 정확도 불량)
+    const boundaryMargin = 20  // 반경 초과분이 20m 이하면 경계 케이스
+    const poorAccuracy   = typeof accuracy === 'number' && accuracy >= 80
 
-    // failureNeedsReview 설정 조회
-    const settings = await prisma.appSettings.findUnique({ where: { id: 'singleton' } })
-    const markReview = !within && (settings?.presenceCheckFailureNeedsReview ?? true)
+    let newStatus: string
+    let reviewReason: string | null = null
 
-    // 7. 결과 저장
+    if (within) {
+      newStatus = 'COMPLETED'
+    } else if (poorAccuracy || (distance - radius) <= boundaryMargin) {
+      newStatus    = 'REVIEW_REQUIRED'
+      reviewReason = poorAccuracy ? 'LOW_GPS_ACCURACY' : 'BOUNDARY_CASE'
+    } else {
+      newStatus = 'OUT_OF_GEOFENCE'
+    }
+
+    const markReview = newStatus === 'REVIEW_REQUIRED'
+
+    // 8. 결과 저장
     const updated = await prisma.presenceCheck.update({
       where: { id: pc.id },
       data: {
-        status:        newStatus,
-        respondedAt:   now,
+        status:         newStatus as never,
+        respondedAt:    now,
         latitude,
         longitude,
         accuracyMeters: accuracy ?? null,
         distanceMeters: distance,
-        needsReview:   markReview,
-        reviewReason:  markReview ? 'OUT_OF_GEOFENCE' : null,
+        needsReview:    markReview,
+        reviewReason,
+      },
+    })
+
+    // 감사 로그
+    await logPresenceAudit({
+      presenceCheckId:   pc.id,
+      action:            `AUTO_CLASSIFIED_${newStatus}`,
+      actorType:         'WORKER',
+      actorId:           session.sub,
+      fromStatus:        'PENDING',
+      toStatus:          newStatus,
+      message:           `거리 ${Math.round(distance)}m / 반경 ${radius}m / accuracy ${accuracy ?? '-'}m`,
+      metadata: {
+        distanceMeters:  distance,
+        radiusMeters:    radius,
+        accuracyMeters:  accuracy ?? null,
+        latitude,
+        longitude,
+        reviewReason,
       },
     })
 

@@ -54,10 +54,15 @@ enum TimeBucket {
 enum PresenceCheckStatus {
   PENDING
   COMPLETED
-  MISSED
+  MISSED           // legacy, replaced by NO_RESPONSE
   OUT_OF_GEOFENCE
-  LOW_ACCURACY
-  SKIPPED
+  LOW_ACCURACY     // legacy
+  SKIPPED          // legacy
+  NO_RESPONSE      // new: expired without response
+  REVIEW_REQUIRED  // new: needs admin review
+  CANCELED         // new: admin canceled
+  MANUALLY_CONFIRMED  // new: admin approved as present
+  MANUALLY_REJECTED   // new: admin confirmed absence/violation
 }
 
 // ─── Models ──────────────────────────────────────────────
@@ -279,6 +284,12 @@ model PresenceCheck {
   appliedRadiusMeters Int?                // 판정에 사용된 반경
   needsReview         Boolean             @default(false)
   reviewReason        String?             // MISSED_PRESENCE_CHECK | OUT_OF_GEOFENCE | LOW_ACCURACY
+  reviewedBy          String?             // 판정자 (관리자명 스냅샷)
+  reviewedAt          DateTime?           // 판정 시각
+  adminNote           String?             // 관리자 메모
+  reissuedFromId      String?             // 재확인 원본 PC id
+  reissueCount        Int                 @default(0) // 재확인 횟수
+  closedAt            DateTime?           // 자동 만료/종결 시각
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
@@ -286,6 +297,7 @@ model PresenceCheck {
   worker        Worker        @relation(fields: [workerId], references: [id])
   attendanceLog AttendanceLog @relation(fields: [attendanceLogId], references: [id], onDelete: Cascade)
   site          Site          @relation(fields: [siteId], references: [id])
+  auditLogs     PresenceCheckAuditLog[]
 
   // 동일 근무일 + 동일 버킷 중복 방지 (attendanceLog 기준)
   @@unique([attendanceLogId, checkDate, timeBucket])
@@ -295,6 +307,26 @@ model PresenceCheck {
   @@index([scheduledAt])
 
   @@map("presence_checks")
+}
+
+model PresenceCheckAuditLog {
+  id                String   @id @default(cuid())
+  presenceCheckId   String
+  action            String   // CREATED | AUTO_EXPIRED | WORKER_RESPONDED | AUTO_CLASSIFIED_* | ADMIN_CONFIRMED | ADMIN_REJECTED | ADMIN_REISSUED | ADMIN_NOTE_UPDATED | CANCELED
+  actorType         String   // SYSTEM | WORKER | ADMIN
+  actorId           String?
+  actorNameSnapshot String?
+  fromStatus        String?
+  toStatus          String?
+  message           String?
+  metadataJson      Json?
+  createdAt         DateTime @default(now())
+
+  presenceCheck PresenceCheck @relation(fields: [presenceCheckId], references: [id], onDelete: Cascade)
+
+  @@index([presenceCheckId])
+  @@index([createdAt])
+  @@map("presence_check_audit_logs")
 }
 
 model AdminAuditLog {

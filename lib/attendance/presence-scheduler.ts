@@ -39,6 +39,23 @@ export async function schedulePresenceChecksForAttendance(
   // ── Step 2. 관리자 설정 조회 ────────────────────────────────
   const settings = await prisma.appSettings.findUnique({ where: { id: 'singleton' } })
 
+  // ── Step 2b. 중복 생성 방지 — 이미 열린 PENDING 있으면 스킵 ──
+  const now = new Date()
+  const existingPending = await prisma.presenceCheck.findFirst({
+    where: {
+      workerId:  log.workerId,
+      status:    'PENDING',
+      expiresAt: { gt: now },
+    },
+  })
+  if (existingPending) {
+    console.info('[presence] skipped: already has open PENDING', {
+      attendanceLogId,
+      existingId: existingPending.id,
+    })
+    return
+  }
+
   if (!settings?.presenceCheckEnabled) {
     console.info('[presence] skipped: feature disabled', { attendanceLogId })
     return

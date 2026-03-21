@@ -118,7 +118,7 @@ export default function LaborPage() {
         <div style={s.sidebarTitle}>해한 출퇴근</div>
         {[
           ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/sites', '현장 관리'],
-          ['/admin/attendance', '출퇴근 조회'], ['/admin/labor', '투입현황/노임서류'],
+          ['/admin/attendance', '출퇴근 조회'], ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
           ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'],
         ].map(([href, label]) => (
           <Link key={href} href={href} style={{ ...s.navItem, ...(href === '/admin/labor' ? s.navActive : {}) }}>
