@@ -3,6 +3,7 @@
  * monthly_work_confirmations 기반으로 각종 신고용 기초자료 생성
  */
 import { prisma } from '@/lib/db/prisma'
+import { Prisma } from '@prisma/client'
 
 export type ExportType =
   | 'DAILY_WAGE_NTS'
@@ -190,7 +191,7 @@ export async function createFilingExport(opts: FilingExportOptions): Promise<Fil
       exportType: exportType as never,
       status:      'COMPLETED',
       rowCount:    rows.length,
-      snapshotJson: { rows: rows.slice(0, 5), totalRows: rows.length }, // 미리보기용 스냅샷
+      snapshotJson: { rows: rows.slice(0, 5) as Prisma.JsonArray, totalRows: rows.length } as Prisma.InputJsonObject, // 미리보기용 스냅샷
       createdBy:   createdBy ?? null,
     },
   })
