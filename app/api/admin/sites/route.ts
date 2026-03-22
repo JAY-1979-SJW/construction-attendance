@@ -12,6 +12,10 @@ const createSchema = z.object({
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
   allowedRadius: z.number().int().min(10).max(5000).default(100),
+  siteCode: z.string().optional(),
+  openedAt: z.string().optional(),
+  closedAt: z.string().optional(),
+  notes: z.string().optional(),
 })
 
 export async function GET(request: NextRequest) {
@@ -21,13 +25,29 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const includeInactive = searchParams.get('includeInactive') === 'true'
+    const page = parseInt(searchParams.get('page') ?? '1', 10)
+    const pageSize = parseInt(searchParams.get('pageSize') ?? '200', 10)
 
-    const sites = await prisma.site.findMany({
-      where: includeInactive ? {} : { isActive: true },
-      orderBy: { createdAt: 'desc' },
-    })
+    const where = includeInactive ? {} : { isActive: true }
+    const [total, sites] = await Promise.all([
+      prisma.site.count({ where }),
+      prisma.site.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+          companyAssignments: {
+            include: {
+              company: { select: { id: true, companyName: true, companyType: true } },
+            },
+            orderBy: { startDate: 'desc' },
+          },
+        },
+      }),
+    ])
 
-    return ok(sites)
+    return ok({ items: sites, total, page, pageSize })
   } catch (err) {
     console.error('[admin/sites GET]', err)
     return internalError()
@@ -45,9 +65,17 @@ export async function POST(request: NextRequest) {
     const parsed = createSchema.safeParse(body)
     if (!parsed.success) return badRequest(parsed.error.errors[0].message)
 
+    const { siteCode, openedAt, closedAt, notes, ...coreData } = parsed.data
     const qrToken = generateQrToken()
     const site = await prisma.site.create({
-      data: { ...parsed.data, qrToken },
+      data: {
+        ...coreData,
+        qrToken,
+        siteCode: siteCode ?? null,
+        openedAt: openedAt ? new Date(openedAt) : null,
+        closedAt: closedAt ? new Date(closedAt) : null,
+        notes: notes ?? null,
+      },
     })
 
     await writeAuditLog({

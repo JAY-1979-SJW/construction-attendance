@@ -18,6 +18,10 @@ const patchSchema = z.object({
   longitude: z.number().min(-180).max(180).optional(),
   allowedRadius: z.number().int().min(10).max(5000).optional(),
   isActive: z.boolean().optional(),
+  siteCode: z.string().nullable().optional(),
+  openedAt: z.string().nullable().optional(),
+  closedAt: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
 })
 
 // ─── PATCH /api/admin/sites/[id] — 현장 정보 수정 / 활성화 전환 ──────────────
@@ -45,9 +49,14 @@ export async function PATCH(
     const site = await prisma.site.findUnique({ where: { id } })
     if (!site) return notFound('현장을 찾을 수 없습니다.')
 
+    const { openedAt, closedAt, ...rest } = parsed.data
     const updated = await prisma.site.update({
       where: { id },
-      data: parsed.data,
+      data: {
+        ...rest,
+        ...(openedAt !== undefined ? { openedAt: openedAt ? new Date(openedAt) : null } : {}),
+        ...(closedAt !== undefined ? { closedAt: closedAt ? new Date(closedAt) : null } : {}),
+      },
     })
 
     const changedKeys = Object.keys(parsed.data).join(', ')
