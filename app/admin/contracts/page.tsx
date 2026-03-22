@@ -14,7 +14,7 @@ interface Contract {
   isActive: boolean
   taxRuleType: string
   notes: string | null
-  worker: { id: string; name: string; company: string }
+  worker: { id: string; name: string }
   site: { id: string; name: string } | null
 }
 
@@ -195,7 +195,7 @@ export default function ContractsPage() {
                         <tr><td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>데이터 없음</td></tr>
                       ) : contracts.map((c) => (
                         <tr key={c.id} style={s.tr}>
-                          <td style={s.td}>{c.worker.name}<br /><span style={{ fontSize: '11px', color: '#999' }}>{c.worker.company}</span></td>
+                          <td style={s.td}>{c.worker.name}</td>
                           <td style={s.td}>{c.site?.name ?? '-'}</td>
                           <td style={s.td}>{CONTRACT_LABEL[c.contractType] ?? c.contractType}</td>
                           <td style={s.td}>{c.startDate}</td>
@@ -358,6 +358,7 @@ export default function ContractsPage() {
 const NAV_ITEMS = [
   { href: '/admin',                      label: '대시보드' },
   { href: '/admin/workers',              label: '근로자 관리' },
+  { href: '/admin/companies',           label: '회사 관리' },
   { href: '/admin/sites',                label: '현장 관리' },
   { href: '/admin/attendance',           label: '출퇴근 조회' },
   { href: '/admin/presence-checks',      label: '체류확인 현황' },

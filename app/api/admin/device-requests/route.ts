@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       prisma.deviceChangeRequest.count({ where: { status: status as 'PENDING' | 'APPROVED' | 'REJECTED' } }),
       prisma.deviceChangeRequest.findMany({
         where: { status: status as 'PENDING' | 'APPROVED' | 'REJECTED' },
-        include: { worker: { select: { name: true, phone: true, company: true } } },
+        include: { worker: { select: { name: true, phone: true } } },
         orderBy: { requestedAt: 'desc' },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -37,7 +37,6 @@ export async function GET(request: NextRequest) {
         id: r.id,
         workerName: r.worker.name,
         workerPhone: r.worker.phone,
-        company: r.worker.company,
         oldDeviceToken: r.oldDeviceToken,
         newDeviceToken: r.newDeviceToken,
         newDeviceName: r.newDeviceName,

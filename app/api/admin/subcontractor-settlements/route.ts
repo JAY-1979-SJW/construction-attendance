@@ -9,21 +9,21 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const monthKey = searchParams.get('monthKey')
   const siteId = searchParams.get('siteId')
-  const subcontractorId = searchParams.get('subcontractorId')
+  const companyId = searchParams.get('companyId') ?? searchParams.get('subcontractorId')
 
   if (!monthKey) return NextResponse.json({ error: 'monthKey required' }, { status: 400 })
 
-  const settlements = await prisma.subcontractorSettlement.findMany({
+  const settlements = await prisma.companySettlement.findMany({
     where: {
       monthKey,
       ...(siteId ? { siteId } : {}),
-      ...(subcontractorId ? { subcontractorId } : {}),
+      ...(companyId ? { companyId } : {}),
     },
     include: {
       site: { select: { id: true, name: true } },
-      subcontractor: { select: { id: true, name: true, businessNumber: true } },
+      company: { select: { id: true, companyName: true, businessNumber: true } },
     },
-    orderBy: [{ siteId: 'asc' }, { subcontractorId: 'asc' }],
+    orderBy: [{ siteId: 'asc' }, { companyId: 'asc' }],
   })
 
   const totals = settlements.reduce((acc, s) => ({

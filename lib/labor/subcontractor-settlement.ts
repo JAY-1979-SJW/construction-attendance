@@ -1,52 +1,75 @@
 /**
- * 협력사 정산 엔진
+ * 회사별 정산 엔진 (구 협력사 정산, Company 단일화 적용)
  */
 import { prisma } from '@/lib/db/prisma'
 import { Prisma } from '@prisma/client'
 
-export interface SubcontractorSettlementRunOptions {
+export interface CompanySettlementRunOptions {
   monthKey: string
   siteId?: string
-  subcontractorId?: string
+  companyId?: string
 }
 
-export async function runSubcontractorSettlement(opts: SubcontractorSettlementRunOptions): Promise<number> {
-  const { monthKey, siteId, subcontractorId } = opts
+/** @deprecated Use CompanySettlementRunOptions */
+export type SubcontractorSettlementRunOptions = CompanySettlementRunOptions
 
-  // 협력사 소속 근로자 확정 근무 조회
+export async function runSubcontractorSettlement(opts: CompanySettlementRunOptions): Promise<number> {
+  return runCompanySettlement(opts)
+}
+
+export async function runCompanySettlement(opts: CompanySettlementRunOptions): Promise<number> {
+  const { monthKey, siteId, companyId } = opts
+
+  // 확정 근무 조회 (협력사 소속 근로자)
   const confirmations = await prisma.monthlyWorkConfirmation.findMany({
     where: {
       monthKey,
       confirmationStatus: 'CONFIRMED',
       confirmedWorkType: { not: 'INVALID' },
-      worker: {
-        organizationType: 'SUBCONTRACTOR',
-        ...(subcontractorId ? { subcontractorId } : { subcontractorId: { not: null } }),
-      },
+      worker: { organizationType: 'SUBCONTRACTOR' },
       ...(siteId ? { siteId } : {}),
     },
-    include: {
-      worker: { select: { subcontractorId: true } },
-    },
+    select: { workerId: true, siteId: true, confirmedWorkUnits: true, confirmedTotalAmount: true },
   })
 
   if (confirmations.length === 0) return 0
 
-  // site × subcontractor 조합별 집계
+  // 근로자-현장별 회사 배정 조회 (WorkerSiteAssignment 기준)
+  const workerIds = Array.from(new Set(confirmations.map(c => c.workerId)))
+  const siteIds = Array.from(new Set(confirmations.map(c => c.siteId)))
+
+  const siteAssignments = await prisma.workerSiteAssignment.findMany({
+    where: {
+      workerId: { in: workerIds },
+      siteId: { in: siteIds },
+      ...(companyId ? { companyId } : {}),
+    },
+    select: { workerId: true, siteId: true, companyId: true },
+  })
+
+  // 근로자+현장 → companyId 매핑
+  const assignmentMap = new Map<string, string>()
+  for (const a of siteAssignments) {
+    assignmentMap.set(`${a.workerId}:${a.siteId}`, a.companyId)
+  }
+
+  // site × company 조합별 집계
   type Key = `${string}:${string}`
   const aggMap = new Map<Key, {
     siteId: string
-    subcontractorId: string
+    companyId: string
     workerSet: Set<string>
     workUnits: number
     grossAmount: number
   }>()
 
   for (const c of confirmations) {
-    const subId = c.worker.subcontractorId!
-    const key: Key = `${c.siteId}:${subId}`
+    const cId = assignmentMap.get(`${c.workerId}:${c.siteId}`)
+    if (!cId) continue  // 배정 없는 경우 skip
+
+    const key: Key = `${c.siteId}:${cId}`
     if (!aggMap.has(key)) {
-      aggMap.set(key, { siteId: c.siteId, subcontractorId: subId, workerSet: new Set(), workUnits: 0, grossAmount: 0 })
+      aggMap.set(key, { siteId: c.siteId, companyId: cId, workerSet: new Set(), workUnits: 0, grossAmount: 0 })
     }
     const agg = aggMap.get(key)!
     agg.workerSet.add(c.workerId)
@@ -54,8 +77,9 @@ export async function runSubcontractorSettlement(opts: SubcontractorSettlementRu
     agg.grossAmount += c.confirmedTotalAmount
   }
 
+  if (aggMap.size === 0) return 0
+
   // 원천세 조회
-  const workerIds = Array.from(new Set(confirmations.map(c => c.workerId)))
   const withholdingMap = new Map(
     (await prisma.withholdingCalculation.findMany({
       where: { monthKey, workerId: { in: workerIds } },
@@ -66,18 +90,17 @@ export async function runSubcontractorSettlement(opts: SubcontractorSettlementRu
   const retirementMap = new Map<Key, number>()
   const retirementSummaries = await prisma.retirementMutualMonthlySummary.findMany({
     where: { monthKey, workerId: { in: workerIds } },
-    include: { worker: { select: { subcontractorId: true } } },
+    select: { workerId: true, siteId: true, recognizedWorkDays: true },
   })
   for (const r of retirementSummaries) {
-    const subId = r.worker.subcontractorId
-    if (!subId) continue
-    const key: Key = `${r.siteId}:${subId}`
+    const cId = assignmentMap.get(`${r.workerId}:${r.siteId}`)
+    if (!cId) continue
+    const key: Key = `${r.siteId}:${cId}`
     retirementMap.set(key, (retirementMap.get(key) ?? 0) + r.recognizedWorkDays)
   }
 
   let created = 0
   for (const [key, agg] of Array.from(aggMap.entries())) {
-    // 해당 조합 근로자 원천세 합계
     let taxAmount = 0
     for (const wid of Array.from(agg.workerSet)) {
       taxAmount += withholdingMap.get(wid) ?? 0
@@ -86,18 +109,18 @@ export async function runSubcontractorSettlement(opts: SubcontractorSettlementRu
     const retirementAmount = retirementMap.get(key) ?? 0
     const finalPayable = agg.grossAmount - taxAmount
 
-    await prisma.subcontractorSettlement.upsert({
+    await prisma.companySettlement.upsert({
       where: {
-        monthKey_siteId_subcontractorId: {
+        monthKey_siteId_companyId: {
           monthKey,
           siteId: agg.siteId,
-          subcontractorId: agg.subcontractorId,
+          companyId: agg.companyId,
         },
       },
       create: {
         monthKey,
         siteId: agg.siteId,
-        subcontractorId: agg.subcontractorId,
+        companyId: agg.companyId,
         workerCount: agg.workerSet.size,
         confirmedWorkUnits: new Prisma.Decimal(agg.workUnits),
         grossAmount: agg.grossAmount,

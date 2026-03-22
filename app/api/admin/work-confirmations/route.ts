@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
         ...(status   ? { confirmationStatus: status as never } : {}),
       },
       include: {
-        worker: { select: { id: true, name: true, company: true, jobTitle: true, employmentType: true, incomeType: true } },
+        worker: { select: { id: true, name: true, jobTitle: true, employmentType: true, incomeType: true } },
         site:   { select: { id: true, name: true } },
         attendanceDay: { select: { firstCheckInAt: true, lastCheckOutAt: true, presenceStatus: true } },
       },

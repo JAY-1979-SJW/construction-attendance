@@ -11,6 +11,8 @@ export interface PreflightIssue {
 export interface PreflightContext {
   monthKey: string
   siteId?: string
+  companyId?: string
+  /** @deprecated use companyId */
   subcontractorId?: string
 }
 

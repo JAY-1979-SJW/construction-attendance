@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       prisma.attendanceLog.findMany({
         where,
         include: {
-          worker: { select: { name: true, phone: true, company: true, jobTitle: true } },
+          worker: { select: { name: true, phone: true, jobTitle: true } },
           checkInSite: { select: { name: true } },
         },
         orderBy: [{ workDate: 'desc' }, { checkInAt: 'desc' }],
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
         id: l.id,
         workerName: l.worker.name,
         workerPhone: l.worker.phone,
-        company: l.worker.company,
+        company: l.companyNameSnapshot ?? '',
         jobTitle: l.worker.jobTitle,
         siteName: l.checkInSite.name,
         workDate: l.workDate.toISOString().slice(0, 10),

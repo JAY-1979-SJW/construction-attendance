@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json().catch(() => ({}))
-  const { monthKey, documentType, siteId, subcontractorId } = body
+  const { monthKey, documentType, siteId, companyId, subcontractorId } = body
 
   if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) {
     return NextResponse.json({ error: 'INVALID_MONTH_KEY' }, { status: 400 })
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       monthKey,
       documentType: documentType as XlsxDocumentType,
       siteId,
-      subcontractorId,
+      companyId: companyId ?? subcontractorId,
     })
 
     // 다운로드 이력 기록

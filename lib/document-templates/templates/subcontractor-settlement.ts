@@ -3,14 +3,14 @@ import { prisma } from '@/lib/db/prisma'
 
 async function checkSettlementPreflight(ctx: PreflightContext): Promise<PreflightIssue[]> {
   const issues: PreflightIssue[] = []
-  if (!ctx.siteId && !ctx.subcontractorId) {
+  if (!ctx.siteId && !ctx.companyId) {
     issues.push({ severity: 'WARNING', code: 'NO_FILTER', message: '현장 또는 협력사를 선택하면 더 정확한 정산서를 출력할 수 있습니다.' })
   }
-  const count = await prisma.subcontractorSettlement.count({
+  const count = await prisma.companySettlement.count({
     where: {
       monthKey: ctx.monthKey,
       ...(ctx.siteId ? { siteId: ctx.siteId } : {}),
-      ...(ctx.subcontractorId ? { subcontractorId: ctx.subcontractorId } : {}),
+      ...(ctx.companyId ? { companyId: ctx.companyId } : {}),
     },
   })
   if (count === 0) {

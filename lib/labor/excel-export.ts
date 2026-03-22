@@ -19,6 +19,8 @@ export interface ExcelExportOptions {
   monthKey: string
   documentType: ExcelDocumentType
   siteId?: string
+  companyId?: string
+  /** @deprecated use companyId */
   subcontractorId?: string
   createdBy?: string
 }
@@ -273,23 +275,23 @@ export async function buildRetirementMutualSummary(opts: ExcelExportOptions): Pr
 
 /** 협력사 정산서 생성 */
 export async function buildSubcontractorSettlement(opts: ExcelExportOptions): Promise<ExcelExportResult> {
-  const settlements = await prisma.subcontractorSettlement.findMany({
+  const settlements = await prisma.companySettlement.findMany({
     where: {
       monthKey: opts.monthKey,
       ...(opts.siteId ? { siteId: opts.siteId } : {}),
-      ...(opts.subcontractorId ? { subcontractorId: opts.subcontractorId } : {}),
+      ...(opts.companyId ? { companyId: opts.companyId } : {}),
     },
     include: {
       site: { select: { name: true } },
-      subcontractor: { select: { name: true, businessNumber: true } },
+      company: { select: { companyName: true, businessNumber: true } },
     },
-    orderBy: [{ siteId: 'asc' }, { subcontractorId: 'asc' }],
+    orderBy: [{ siteId: 'asc' }, { companyId: 'asc' }],
   })
 
   const rows = settlements.map(s => ({
     현장명: s.site.name,
-    협력사명: s.subcontractor.name,
-    사업자번호: s.subcontractor.businessNumber ?? '',
+    협력사명: s.company.companyName,
+    사업자번호: s.company.businessNumber ?? '',
     귀속연월: s.monthKey,
     투입인원: s.workerCount,
     확정공수: Number(s.confirmedWorkUnits),

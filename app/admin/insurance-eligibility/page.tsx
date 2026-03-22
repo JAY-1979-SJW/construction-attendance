@@ -17,7 +17,7 @@ interface InsuranceItem {
   employmentInsuranceReason: string | null
   industrialAccidentEligible: boolean
   industrialAccidentReason: string | null
-  worker: { id: string; name: string; company: string; employmentType: string; incomeType: string }
+  worker: { id: string; name: string; employmentType: string; incomeType: string }
 }
 
 function getMonthKey() {
@@ -115,7 +115,7 @@ export default function InsuranceEligibilityPage() {
                     <tr><td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>데이터 없음 — 보험판정 실행을 먼저 하세요</td></tr>
                   ) : items.map((item) => (
                     <tr key={item.id} style={s.tr}>
-                      <td style={s.td}>{item.worker.name}<br /><span style={{ fontSize: '11px', color: '#999' }}>{item.worker.company}</span></td>
+                      <td style={s.td}>{item.worker.name}</td>
                       <td style={s.td}>{EMP_LABEL[item.worker.employmentType] ?? item.worker.employmentType}</td>
                       <td style={{ ...s.td, textAlign: 'center' as const }}>{item.totalWorkDays}일</td>
                       <td style={{ ...s.td, textAlign: 'right' as const }}>{fmt(item.totalConfirmedAmount)}</td>
@@ -149,6 +149,7 @@ export default function InsuranceEligibilityPage() {
 const NAV_ITEMS = [
   { href: '/admin',                      label: '대시보드' },
   { href: '/admin/workers',              label: '근로자 관리' },
+  { href: '/admin/companies',           label: '회사 관리' },
   { href: '/admin/sites',                label: '현장 관리' },
   { href: '/admin/attendance',           label: '출퇴근 조회' },
   { href: '/admin/presence-checks',      label: '체류확인 현황' },

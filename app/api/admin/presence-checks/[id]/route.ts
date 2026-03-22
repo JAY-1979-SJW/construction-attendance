@@ -11,7 +11,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     const pc = await prisma.presenceCheck.findUnique({
       where: { id: params.id },
       include: {
-        worker: { select: { id: true, name: true, company: true, phone: true } },
+        worker: { select: { id: true, name: true, phone: true } },
         site:   { select: { id: true, name: true, address: true, latitude: true, longitude: true, allowedRadius: true } },
         auditLogs: { orderBy: { createdAt: 'desc' }, take: 20 },
       },
@@ -39,7 +39,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       // Worker
       workerId:            pc.worker.id,
       workerName:          pc.worker.name,
-      workerCompany:       pc.worker.company,
+      workerCompany:       '',
       workerPhone:         pc.worker.phone,
       // Site
       siteId:              pc.site.id,

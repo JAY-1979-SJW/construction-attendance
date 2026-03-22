@@ -161,13 +161,13 @@ async function buildRetirementMutualBase(monthKey: string, siteId?: string) {
 async function buildLaborCostSummaryExport(monthKey: string, siteId?: string) {
   const summaries = await prisma.laborCostSummary.findMany({
     where: { monthKey, ...(siteId ? { siteId } : {}) },
-    include: { site: true, subcontractor: true },
+    include: { site: true, company: true },
   })
 
   return summaries.map((s) => ({
     현장명: s.site.name,
     조직구분: s.organizationType === 'DIRECT' ? '직영' : '협력사',
-    협력사명: s.subcontractor?.name ?? '',
+    협력사명: s.company?.companyName ?? '',
     인원수: s.workerCount,
     공수: Number(s.confirmedWorkUnits),
     총노임: s.grossAmount,

@@ -88,7 +88,7 @@ export async function getOperationsDashboard(monthKey: string): Promise<Operatio
     : 0
 
   // 협력사 정산 미확정
-  const unconfirmedSettlement = await prisma.subcontractorSettlement.count({
+  const unconfirmedSettlement = await prisma.companySettlement.count({
     where: { monthKey, status: { not: 'CONFIRMED' } },
   })
 
@@ -118,7 +118,7 @@ export async function getOperationsDashboard(monthKey: string): Promise<Operatio
   })
 
   // 협력사 정산 현황
-  const settlements = await prisma.subcontractorSettlement.groupBy({
+  const settlements = await prisma.companySettlement.groupBy({
     by: ['status'],
     where: { monthKey },
     _count: { id: true },

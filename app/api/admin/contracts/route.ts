@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
         ...(isActive ? { isActive: isActive === 'true' }     : {}),
       },
       include: {
-        worker: { select: { id: true, name: true, company: true } },
+        worker: { select: { id: true, name: true } },
         site:   { select: { id: true, name: true } },
       },
       orderBy: [{ workerId: 'asc' }, { startDate: 'desc' }],

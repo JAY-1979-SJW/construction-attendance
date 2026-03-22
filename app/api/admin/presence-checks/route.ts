@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
         reviewedBy:      true,
         reviewedAt:      true,
         reissueCount:    true,
-        worker: { select: { id: true, name: true, company: true } },
+        worker: { select: { id: true, name: true } },
         site:   { select: { id: true, name: true } },
       },
     })
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
       id:             pc.id,
       workerId:       pc.worker.id,
       workerName:     pc.worker.name,
-      workerCompany:  pc.worker.company,
+      workerCompany:  '',
       siteId:         pc.site.id,
       siteName:       pc.site.name,
       slot:           pc.timeBucket,

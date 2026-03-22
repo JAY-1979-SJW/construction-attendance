@@ -9,24 +9,24 @@ interface Site {
   name: string
 }
 
-interface Subcontractor {
+interface Company {
   id: string
-  name: string
+  companyName: string
 }
 
 interface Settlement {
   id: string
   monthKey: string
   siteId: string
-  subcontractorId: string
+  companyId: string
   workerCount: number
-  mandays: number
+  confirmedWorkUnits: number
   grossAmount: number
   taxAmount: number
   retirementMutualAmount: number
   finalPayableAmount: number
   site: { id: string; name: string }
-  subcontractor: { id: string; name: string; businessNumber: string }
+  company: { id: string; companyName: string; businessNumber: string }
 }
 
 interface Totals {
@@ -47,7 +47,7 @@ export default function SubcontractorSettlementsPage() {
   const [siteFilter, setSiteFilter] = useState('')
   const [subFilter, setSubFilter] = useState('')
   const [sites, setSites] = useState<Site[]>([])
-  const [subcontractors, setSubcontractors] = useState<Subcontractor[]>([])
+  const [companies, setCompanies] = useState<Company[]>([])
   const [settlements, setSettlements] = useState<Settlement[]>([])
   const [totals, setTotals] = useState<Totals | null>(null)
   const [loading, setLoading] = useState(false)
@@ -62,10 +62,10 @@ export default function SubcontractorSettlementsPage() {
       .then(d => {
         if (d.success) setSites(d.data?.items?.map((s: { id: string; name: string }) => ({ id: s.id, name: s.name })) ?? [])
       })
-    fetch('/api/admin/subcontractors?pageSize=200')
+    fetch('/api/admin/companies?pageSize=200')
       .then(r => r.json())
       .then(d => {
-        if (d.success) setSubcontractors(d.data?.items?.map((s: { id: string; name: string }) => ({ id: s.id, name: s.name })) ?? [])
+        if (d.success) setCompanies(d.data?.items ?? [])
       })
   }, [])
 
@@ -74,7 +74,7 @@ export default function SubcontractorSettlementsPage() {
     try {
       const params = new URLSearchParams({ monthKey })
       if (siteFilter) params.set('siteId', siteFilter)
-      if (subFilter) params.set('subcontractorId', subFilter)
+      if (subFilter) params.set('companyId', subFilter)
       const res = await fetch(`/api/admin/subcontractor-settlements?${params}`)
       if (res.status === 401) { router.push('/admin/login'); return }
       const data = await res.json()
@@ -98,7 +98,7 @@ export default function SubcontractorSettlementsPage() {
         body: JSON.stringify({
           monthKey,
           siteId: siteFilter || undefined,
-          subcontractorId: subFilter || undefined,
+          companyId: subFilter || undefined,
         }),
       })
       const data = await res.json()
@@ -123,7 +123,7 @@ export default function SubcontractorSettlementsPage() {
           monthKey,
           documentType: 'SUBCONTRACTOR_SETTLEMENT',
           siteId: siteFilter || undefined,
-          subcontractorId: subFilter || undefined,
+          companyId: subFilter || undefined,
         }),
       })
       if (!res.ok) {
@@ -208,8 +208,8 @@ export default function SubcontractorSettlementsPage() {
               style={{ ...s.input, minWidth: '160px' }}
             >
               <option value="">전체 협력사</option>
-              {subcontractors.map(sub => (
-                <option key={sub.id} value={sub.id}>{sub.name}</option>
+              {companies.map(c => (
+                <option key={c.id} value={c.id}>{c.companyName}</option>
               ))}
             </select>
           </div>
@@ -281,10 +281,10 @@ export default function SubcontractorSettlementsPage() {
                   ) : settlements.map(row => (
                     <tr key={row.id}>
                       <td style={s.td}>{row.site.name}</td>
-                      <td style={s.td}>{row.subcontractor.name}</td>
-                      <td style={{ ...s.td, fontSize: '12px', color: '#888' }}>{row.subcontractor.businessNumber}</td>
+                      <td style={s.td}>{row.company.companyName}</td>
+                      <td style={{ ...s.td, fontSize: '12px', color: '#888' }}>{row.company.businessNumber}</td>
                       <td style={{ ...s.td, textAlign: 'center' as const }}>{fmt(row.workerCount)}명</td>
-                      <td style={{ ...s.td, textAlign: 'center' as const }}>{fmt(row.mandays)}일</td>
+                      <td style={{ ...s.td, textAlign: 'center' as const }}>{Number(row.confirmedWorkUnits).toFixed(1)}공수</td>
                       <td style={{ ...s.td, textAlign: 'right' as const }}>{fmt(row.grossAmount)}</td>
                       <td style={{ ...s.td, textAlign: 'right' as const, color: '#b71c1c' }}>{fmt(row.taxAmount)}</td>
                       <td style={{ ...s.td, textAlign: 'right' as const, color: '#6a1b9a' }}>{fmt(row.retirementMutualAmount)}</td>
@@ -317,6 +317,7 @@ export default function SubcontractorSettlementsPage() {
 const NAV_ITEMS = [
   { href: '/admin',                         label: '대시보드' },
   { href: '/admin/workers',                 label: '근로자 관리' },
+  { href: '/admin/companies', label: '회사 관리' },
   { href: '/admin/sites',                   label: '현장 관리' },
   { href: '/admin/attendance',              label: '출퇴근 조회' },
   { href: '/admin/presence-checks',         label: '체류확인 현황' },

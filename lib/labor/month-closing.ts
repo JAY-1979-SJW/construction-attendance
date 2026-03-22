@@ -151,7 +151,7 @@ export async function closeMonth(monthKey: string, closedBy: string): Promise<vo
   // 스냅샷 저장 (3종)
   const confirmedWorkers = await prisma.monthlyWorkConfirmation.findMany({
     where: { monthKey, confirmationStatus: 'CONFIRMED' },
-    include: { worker: { select: { id: true, name: true, company: true, employmentType: true, retirementMutualStatus: true } } },
+    include: { worker: { select: { id: true, name: true, employmentType: true, retirementMutualStatus: true } } },
     distinct: ['workerId'],
   })
 
@@ -166,9 +166,9 @@ export async function closeMonth(monthKey: string, closedBy: string): Promise<vo
   })
   const withholdingByWorker = new Map(withholdingCalcs.map(w => [w.workerId, w]))
 
-  const settlements = await prisma.subcontractorSettlement.findMany({
+  const settlements = await prisma.companySettlement.findMany({
     where: { monthKey },
-    select: { subcontractorId: true, workerCount: true, grossAmount: true, status: true },
+    select: { companyId: true, workerCount: true, grossAmount: true, status: true },
   })
 
   // WORKER_SUMMARY 스냅샷
@@ -183,7 +183,6 @@ export async function closeMonth(monthKey: string, closedBy: string): Promise<vo
         workers: confirmedWorkers.map(w => ({
           workerId: w.workerId,
           name: w.worker.name,
-          company: w.worker.company,
           employmentType: w.worker.employmentType,
           retirementMutualStatus: w.worker.retirementMutualStatus,
         })),

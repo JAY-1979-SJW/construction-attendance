@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     const logs = await prisma.attendanceLog.findMany({
       where,
       include: {
-        worker: { select: { name: true, phone: true, company: true, jobTitle: true } },
+        worker: { select: { name: true, phone: true, jobTitle: true } },
         checkInSite: { select: { name: true } },
       },
       orderBy: [{ workDate: 'asc' }, { checkInAt: 'asc' }],
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       현장명: l.checkInSite.name,
       이름: l.worker.name,
       연락처: l.worker.phone,
-      회사: l.worker.company,
+      회사: l.companyNameSnapshot ?? '',
       직종: l.worker.jobTitle,
       출근시각: l.checkInAt ? toKSTTimeString(l.checkInAt) : '',
       퇴근시각: l.checkOutAt ? toKSTTimeString(l.checkOutAt) : '',

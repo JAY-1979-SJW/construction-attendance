@@ -89,7 +89,7 @@ export async function aggregateLaborAllocations(opts: AggregateOptions): Promise
       status: { not: 'EXCEPTION' },
     },
     include: {
-      worker: { select: { name: true, phone: true, company: true, jobTitle: true } },
+      worker: { select: { name: true, phone: true, jobTitle: true } },
       checkInSite: { select: { id: true, name: true } },
       checkOutSite: { select: { id: true, name: true } },
       events: {
@@ -137,7 +137,7 @@ export async function aggregateLaborAllocations(opts: AggregateOptions): Promise
       workerId: log.workerId,
       workerName: log.worker.name,
       workerPhone: log.worker.phone,
-      company: log.worker.company,
+      company: log.companyNameSnapshot ?? '',
       jobTitle: log.worker.jobTitle,
       checkInSiteId: log.checkInSite.id,
       checkInSiteName: log.checkInSite.name,

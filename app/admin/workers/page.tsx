@@ -9,13 +9,17 @@ interface Worker {
   id: string
   name: string
   phone: string
-  company: string
   jobTitle: string
   isActive: boolean
   deviceCount: number
   createdAt: string
   retirementMutualStatus?: string
   idVerificationStatus?: string | null
+  foreignerYn?: boolean
+  employmentType?: string
+  organizationType?: string
+  primaryCompany?: { id: string; companyName: string } | null
+  activeSites?: { id: string; name: string }[]
 }
 
 interface ScanResult {
@@ -37,7 +41,7 @@ interface ScanResult {
   }
 }
 
-const emptyForm = { name: '', phone: '', company: '', jobTitle: '' }
+const emptyForm = { name: '', phone: '', jobTitle: '', employmentType: 'DAILY_CONSTRUCTION', organizationType: 'DIRECT', foreignerYn: false }
 
 export default function WorkersPage() {
   const router = useRouter()
@@ -107,7 +111,7 @@ export default function WorkersPage() {
   // ── 수정 ─────────────────────────────────────────────────────
   const openEdit = (w: Worker) => {
     setEditTarget(w)
-    setEditForm({ name: w.name, phone: w.phone, company: w.company, jobTitle: w.jobTitle })
+    setEditForm({ name: w.name, phone: w.phone, jobTitle: w.jobTitle, employmentType: w.employmentType ?? 'DAILY_CONSTRUCTION', organizationType: w.organizationType ?? 'DIRECT', foreignerYn: w.foreignerYn ?? false })
     setEditActive(w.isActive)
     setEditError('')
   }
@@ -177,8 +181,9 @@ export default function WorkersPage() {
       <nav style={styles.sidebar}>
         <div style={styles.sidebarTitle}>해한 출퇴근</div>
         {[
-          ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/sites', '현장 관리'],
-          ['/admin/attendance', '출퇴근 조회'], ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
+          ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'],
+          ['/admin/sites', '현장 관리'], ['/admin/attendance', '출퇴근 조회'],
+          ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
           ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'],
         ].map(([href, label]) => (
           <Link key={href} href={href} style={styles.navItem}>{label}</Link>
@@ -208,20 +213,28 @@ export default function WorkersPage() {
             <table style={styles.table}>
               <thead>
                 <tr>
-                  {['이름', '연락처', '회사', '직종', '기기', '퇴직공제', '신분증', '상태', '등록일', ''].map((h) => (
+                  {['이름', '연락처', '소속회사', '직종', '고용형태', '기기', '퇴직공제', '신분증', '상태', '등록일', ''].map((h) => (
                     <th key={h} style={styles.th}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {workers.length === 0 ? (
-                  <tr><td colSpan={10} style={styles.empty}>등록된 근로자가 없습니다.</td></tr>
+                  <tr><td colSpan={11} style={styles.empty}>등록된 근로자가 없습니다.</td></tr>
                 ) : workers.map((w) => (
                   <tr key={w.id} style={{ opacity: w.isActive ? 1 : 0.5 }}>
                     <td style={styles.td}>{w.name}</td>
                     <td style={styles.td}>{formatPhone(w.phone)}</td>
-                    <td style={styles.td}>{w.company}</td>
+                    <td style={styles.td}>{w.primaryCompany?.companyName ?? <span style={{ color: '#bbb' }}>—</span>}</td>
                     <td style={styles.td}>{w.jobTitle}</td>
+                    <td style={styles.td}>
+                      <span style={{ fontSize: '12px', color: '#555' }}>
+                        {w.employmentType === 'DAILY_CONSTRUCTION' ? '건설일용' :
+                         w.employmentType === 'REGULAR' ? '상용' :
+                         w.employmentType === 'BUSINESS_33' ? '3.3%' : w.employmentType ?? '—'}
+                        {w.foreignerYn && <span style={{ marginLeft: '4px', color: '#f57c00' }}>외</span>}
+                      </span>
+                    </td>
                     <td style={styles.td}>{w.deviceCount > 0 ? `${w.deviceCount}대` : '미등록'}</td>
                     <td style={styles.td}>
                       {w.retirementMutualStatus === 'TARGET' && (
@@ -280,7 +293,6 @@ export default function WorkersPage() {
               {[
                 { label: '이름', key: 'name', placeholder: '홍길동' },
                 { label: '휴대폰', key: 'phone', placeholder: '01012345678 (숫자만)' },
-                { label: '회사/협력업체', key: 'company', placeholder: '해한건설' },
                 { label: '직종/역할', key: 'jobTitle', placeholder: '형틀목공' },
               ].map(({ label, key, placeholder }) => (
                 <div key={key} style={styles.fieldRow}>
@@ -288,12 +300,45 @@ export default function WorkersPage() {
                   <input
                     type="text"
                     placeholder={placeholder}
-                    value={form[key as keyof typeof form]}
+                    value={form[key as keyof typeof form] as string}
                     onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                     style={styles.input}
                   />
                 </div>
               ))}
+              <div style={styles.fieldRow}>
+                <label style={styles.label}>고용형태</label>
+                <select
+                  value={form.employmentType}
+                  onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
+                  style={styles.input}
+                >
+                  <option value="DAILY_CONSTRUCTION">건설 일용근로자</option>
+                  <option value="REGULAR">상용근로자</option>
+                  <option value="BUSINESS_33">3.3% 사업소득</option>
+                  <option value="OTHER">기타</option>
+                </select>
+              </div>
+              <div style={styles.fieldRow}>
+                <label style={styles.label}>소속구분</label>
+                <select
+                  value={form.organizationType}
+                  onChange={(e) => setForm({ ...form, organizationType: e.target.value })}
+                  style={styles.input}
+                >
+                  <option value="DIRECT">직영</option>
+                  <option value="SUBCONTRACTOR">협력사 소속</option>
+                </select>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <input
+                  type="checkbox"
+                  id="foreignerYn"
+                  checked={form.foreignerYn as boolean}
+                  onChange={(e) => setForm({ ...form, foreignerYn: e.target.checked })}
+                />
+                <label htmlFor="foreignerYn" style={{ fontSize: '14px' }}>외국인 근로자</label>
+              </div>
               {formError && <p style={styles.error}>{formError}</p>}
               <div style={styles.btnRow}>
                 <button onClick={handleSave} disabled={saving} style={styles.saveBtn}>
@@ -313,7 +358,6 @@ export default function WorkersPage() {
               {[
                 { label: '이름', key: 'name', placeholder: '' },
                 { label: '휴대폰', key: 'phone', placeholder: '01012345678' },
-                { label: '회사/협력업체', key: 'company', placeholder: '' },
                 { label: '직종/역할', key: 'jobTitle', placeholder: '' },
               ].map(({ label, key, placeholder }) => (
                 <div key={key} style={styles.fieldRow}>
@@ -321,7 +365,7 @@ export default function WorkersPage() {
                   <input
                     type="text"
                     placeholder={placeholder}
-                    value={editForm[key as keyof typeof editForm]}
+                    value={editForm[key as keyof typeof editForm] as string}
                     onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
                     style={styles.input}
                   />

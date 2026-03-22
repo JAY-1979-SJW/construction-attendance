@@ -17,6 +17,8 @@ export interface XlsxExportOptions {
   monthKey: string
   documentType: XlsxDocumentType
   siteId?: string
+  companyId?: string
+  /** @deprecated use companyId */
   subcontractorId?: string
 }
 
@@ -233,15 +235,16 @@ async function buildInsuranceReportXlsx(opts: XlsxExportOptions): Promise<Buffer
 
 /** 협력사 정산서 XLSX */
 async function buildSubcontractorSettlementXlsx(opts: XlsxExportOptions): Promise<Buffer> {
-  const settlements = await prisma.subcontractorSettlement.findMany({
+  const companyId = opts.companyId ?? opts.subcontractorId
+  const settlements = await prisma.companySettlement.findMany({
     where: {
       monthKey: opts.monthKey,
       ...(opts.siteId ? { siteId: opts.siteId } : {}),
-      ...(opts.subcontractorId ? { subcontractorId: opts.subcontractorId } : {}),
+      ...(companyId ? { companyId } : {}),
     },
     include: {
       site: { select: { name: true } },
-      subcontractor: { select: { name: true, businessNumber: true } },
+      company: { select: { companyName: true, businessNumber: true } },
     },
   })
 
@@ -258,7 +261,7 @@ async function buildSubcontractorSettlementXlsx(opts: XlsxExportOptions): Promis
 
   settlements.forEach((s, idx) => {
     const row = ws.addRow([
-      s.site.name, s.subcontractor.name, s.subcontractor.businessNumber ?? '',
+      s.site.name, s.company.companyName, s.company.businessNumber ?? '',
       s.monthKey, s.workerCount, Number(s.confirmedWorkUnits),
       s.grossAmount, s.taxAmount, s.retirementMutualAmount ?? 0, s.finalPayableAmount,
     ])

@@ -15,7 +15,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: 'INVALID_STATUS' }, { status: 400 })
   }
 
-  const updated = await prisma.subcontractorSettlement.update({
+  const updated = await prisma.companySettlement.update({
     where: { id: params.id },
     data: {
       status,

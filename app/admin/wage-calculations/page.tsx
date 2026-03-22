@@ -13,7 +13,7 @@ interface WageItem {
   grossAmount: number
   nonTaxableAmount: number
   taxableAmount: number
-  worker: { id: string; name: string; company: string; employmentType: string; incomeType: string }
+  worker: { id: string; name: string; employmentType: string; incomeType: string }
   withholding: {
     incomeTaxAmount: number
     localIncomeTaxAmount: number
@@ -140,7 +140,7 @@ export default function WageCalculationsPage() {
                     <tr><td colSpan={9} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>데이터 없음 — 세금계산 실행을 먼저 하세요</td></tr>
                   ) : items.map((item) => (
                     <tr key={item.id} style={s.tr}>
-                      <td style={s.td}>{item.worker.name}<br /><span style={{ fontSize: '11px', color: '#999' }}>{item.worker.company}</span></td>
+                      <td style={s.td}>{item.worker.name}</td>
                       <td style={s.td}>
                         <span style={{ color: INCOME_COLOR[item.incomeType], fontWeight: 600, fontSize: '12px' }}>
                           {INCOME_LABEL[item.incomeType] ?? item.incomeType}
@@ -176,6 +176,7 @@ export default function WageCalculationsPage() {
 const NAV_ITEMS = [
   { href: '/admin',                       label: '대시보드' },
   { href: '/admin/workers',               label: '근로자 관리' },
+  { href: '/admin/companies', label: '회사 관리' },
   { href: '/admin/sites',                 label: '현장 관리' },
   { href: '/admin/attendance',            label: '출퇴근 조회' },
   { href: '/admin/presence-checks',       label: '체류확인 현황' },

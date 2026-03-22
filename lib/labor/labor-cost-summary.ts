@@ -1,6 +1,7 @@
 /**
  * 노무비 집계 엔진
- * monthly_work_confirmations + 보험/세금 데이터 기반으로 현장별/협력사별 집계
+ * monthly_work_confirmations + 보험/세금 데이터 기반으로 현장별/회사별 집계
+ * Company 단일화 적용: subcontractorId → companyId (WorkerSiteAssignment 기준)
  */
 import { prisma } from '@/lib/db/prisma'
 import { Prisma } from '@prisma/client'
@@ -13,7 +14,6 @@ export interface LaborCostRunOptions {
 export async function runLaborCostSummary(opts: LaborCostRunOptions): Promise<number> {
   const { monthKey, siteId } = opts
 
-  // 현장 목록
   const sites = siteId
     ? await prisma.site.findMany({ where: { id: siteId } })
     : await prisma.site.findMany({ where: { isActive: true } })
@@ -21,7 +21,6 @@ export async function runLaborCostSummary(opts: LaborCostRunOptions): Promise<nu
   let totalCreated = 0
 
   for (const site of sites) {
-    // 확정 근무 집계 (직영/협력사별)
     const confirmations = await prisma.monthlyWorkConfirmation.findMany({
       where: {
         monthKey,
@@ -31,19 +30,21 @@ export async function runLaborCostSummary(opts: LaborCostRunOptions): Promise<nu
       },
       include: {
         worker: {
-          select: {
-            id: true,
-            organizationType: true,
-            subcontractorId: true,
-          },
+          select: { id: true, organizationType: true },
         },
       },
     })
 
     if (confirmations.length === 0) continue
 
-    // 보험/세금 데이터 조회
     const workerIds = Array.from(new Set(confirmations.map((c) => c.worker.id)))
+
+    // 근로자-현장 배정에서 회사 정보 조회
+    const siteAssignments = await prisma.workerSiteAssignment.findMany({
+      where: { workerId: { in: workerIds }, siteId: site.id },
+      select: { workerId: true, companyId: true },
+    })
+    const workerCompanyMap = new Map(siteAssignments.map(a => [a.workerId, a.companyId]))
 
     const insuranceMap = new Map(
       (await prisma.insuranceEligibilitySnapshot.findMany({
@@ -63,11 +64,11 @@ export async function runLaborCostSummary(opts: LaborCostRunOptions): Promise<nu
       })).map((r) => [r.workerId, r])
     )
 
-    // 조직 구분별 집계
-    type OrgKey = string  // `${organizationType}:${subcontractorId ?? ''}`
+    // 조직구분 + 회사별 집계
+    type OrgKey = string  // `${organizationType}:${companyId ?? ''}`
     const orgMap = new Map<OrgKey, {
       organizationType: 'DIRECT' | 'SUBCONTRACTOR'
-      subcontractorId: string | null
+      companyId: string | null
       workerSet: Set<string>
       confirmedWorkUnits: number
       grossAmount: number
@@ -81,13 +82,13 @@ export async function runLaborCostSummary(opts: LaborCostRunOptions): Promise<nu
 
     for (const conf of confirmations) {
       const orgType = conf.worker.organizationType as 'DIRECT' | 'SUBCONTRACTOR'
-      const subId = conf.worker.subcontractorId ?? null
-      const key = `${orgType}:${subId ?? ''}`
+      const cId = workerCompanyMap.get(conf.worker.id) ?? null
+      const key = `${orgType}:${cId ?? ''}`
 
       if (!orgMap.has(key)) {
         orgMap.set(key, {
           organizationType: orgType,
-          subcontractorId: subId,
+          companyId: cId,
           workerSet: new Set(),
           confirmedWorkUnits: 0,
           grossAmount: 0,
@@ -124,10 +125,7 @@ export async function runLaborCostSummary(opts: LaborCostRunOptions): Promise<nu
       }
     }
 
-    // 기존 집계 삭제 후 재생성
-    await prisma.laborCostSummary.deleteMany({
-      where: { monthKey, siteId: site.id },
-    })
+    await prisma.laborCostSummary.deleteMany({ where: { monthKey, siteId: site.id } })
 
     for (const [, agg] of Array.from(orgMap.entries())) {
       await prisma.laborCostSummary.create({
@@ -135,7 +133,7 @@ export async function runLaborCostSummary(opts: LaborCostRunOptions): Promise<nu
           monthKey,
           siteId: site.id,
           organizationType: agg.organizationType,
-          subcontractorId: agg.subcontractorId,
+          companyId: agg.companyId,
           workerCount: agg.workerSet.size,
           confirmedWorkUnits: new Prisma.Decimal(agg.confirmedWorkUnits),
           grossAmount: agg.grossAmount,

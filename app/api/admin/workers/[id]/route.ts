@@ -15,7 +15,6 @@ import { writeAuditLog } from '@/lib/audit/write-audit-log'
 const updateSchema = z.object({
   name: z.string().min(1).optional(),
   phone: z.string().regex(/^010\d{8}$/, '올바른 휴대폰 번호 형식이 아닙니다.').optional(),
-  company: z.string().min(1).optional(),
   jobTitle: z.string().min(1).optional(),
   isActive: z.boolean().optional(),
 })
@@ -71,7 +70,6 @@ export async function PUT(
         id: updated.id,
         name: updated.name,
         phone: updated.phone,
-        company: updated.company,
         jobTitle: updated.jobTitle,
         isActive: updated.isActive,
         updatedAt: updated.updatedAt,

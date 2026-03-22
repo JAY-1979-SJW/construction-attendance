@@ -21,6 +21,18 @@ interface WorkerInfo {
   jobTitle: string
 }
 
+interface AvailableSite {
+  siteId: string
+  siteName: string
+  companyId: string
+  companyName: string
+  tradeType: string | null
+  isPrimary: boolean
+  allowedRadiusMeters: number
+  distanceMeters: number | null
+  withinRadius: boolean | null
+}
+
 interface PendingPresence {
   id: string
   timeBucket: 'AM' | 'PM'
@@ -65,6 +77,13 @@ export default function AttendancePage() {
   const [presenceResult, setPresenceResult] = useState<PresenceResult>({ state: 'idle' })
   const [countdown, setCountdown]     = useState<string | null>(null)
   const submittingRef                  = useRef(false)  // 중복 제출 방지 (연타·두 탭)
+  // ── 직접 출근 state ───────────────────────────────────────────
+  const [availableSites, setAvailableSites] = useState<AvailableSite[]>([])
+  const [checkInLoading, setCheckInLoading] = useState(false)
+  const [checkOutLoading, setCheckOutLoading] = useState(false)
+  const [attendanceMsg, setAttendanceMsg] = useState('')
+  const [exceptionReason, setExceptionReason] = useState('')
+  const [needsException, setNeedsException] = useState(false)
 
   // ── 초기 데이터 로딩 ─────────────────────────────────────────
   useEffect(() => {
@@ -213,6 +232,116 @@ export default function AttendancePage() {
     }
   }
 
+  // ── GPS 좌표 가져오기 ─────────────────────────────────────────
+  const getGpsCoords = (): Promise<{ latitude: number; longitude: number }> =>
+    new Promise((resolve, reject) =>
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+        (err) => reject(err),
+        { enableHighAccuracy: true, timeout: 12000 }
+      )
+    )
+
+  // ── 배정 현장 목록 로딩 ───────────────────────────────────────
+  const loadAvailableSites = useCallback(async () => {
+    if (isPreview) return
+    try {
+      let url = '/api/attendance/available-sites'
+      if (navigator.geolocation) {
+        try {
+          const coords = await getGpsCoords()
+          url += `?lat=${coords.latitude}&lng=${coords.longitude}`
+        } catch { /* GPS 실패해도 목록은 조회 */ }
+      }
+      const res = await fetch(url)
+      const data = await res.json()
+      if (data.success) setAvailableSites(data.sites ?? [])
+    } catch { /* ignore */ }
+  }, [isPreview])
+
+  useEffect(() => {
+    if (!loading && !isPreview && !today) {
+      loadAvailableSites()
+    }
+  }, [loading, isPreview, today, loadAvailableSites])
+
+  // ── 직접 출근 ─────────────────────────────────────────────────
+  const handleDirectCheckIn = async (siteId: string) => {
+    if (checkInLoading) return
+    setCheckInLoading(true)
+    setAttendanceMsg('')
+    try {
+      let coords: { latitude: number; longitude: number }
+      try {
+        coords = await getGpsCoords()
+      } catch {
+        setAttendanceMsg('GPS 권한을 허용해주세요.')
+        return
+      }
+
+      const deviceToken = localStorage.getItem('deviceToken') ?? ''
+      const res = await fetch('/api/attendance/check-in-direct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ siteId, ...coords, deviceToken }),
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        setAttendanceMsg(data.message ?? '출근 완료')
+        const todayRes = await fetch('/api/attendance/today')
+        const todayData = await todayRes.json()
+        setToday(todayData.data)
+      } else {
+        setAttendanceMsg(data.message ?? '출근 실패')
+      }
+    } finally {
+      setCheckInLoading(false)
+    }
+  }
+
+  // ── 직접 퇴근 ─────────────────────────────────────────────────
+  const handleDirectCheckOut = async (reason?: string) => {
+    if (checkOutLoading) return
+    setCheckOutLoading(true)
+    setAttendanceMsg('')
+    try {
+      let coords: { latitude: number; longitude: number }
+      try {
+        coords = await getGpsCoords()
+      } catch {
+        setAttendanceMsg('GPS 권한을 허용해주세요.')
+        return
+      }
+
+      const deviceToken = localStorage.getItem('deviceToken') ?? ''
+      const res = await fetch('/api/attendance/check-out-direct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...coords, deviceToken, exceptionReason: reason }),
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        setAttendanceMsg(data.data?.isException ? '예외 퇴근 처리되었습니다.' : '퇴근 완료')
+        setNeedsException(false)
+        setExceptionReason('')
+        const todayRes = await fetch('/api/attendance/today')
+        const todayData = await todayRes.json()
+        setToday(todayData.data)
+      } else {
+        if (data.code === 'NEEDS_EXCEPTION_REASON') {
+          setNeedsException(true)
+          setAttendanceMsg('현장 반경 밖입니다. 퇴근 사유를 입력해주세요.')
+        } else {
+          setAttendanceMsg(data.message ?? '퇴근 실패')
+        }
+      }
+    } finally {
+      setCheckOutLoading(false)
+    }
+  }
+
   const formatTime = (iso: string | null) => {
     if (!iso) return '--:--'
     return new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
@@ -262,7 +391,18 @@ export default function AttendancePage() {
         />
       )}
 
-      {/* 오늘 현황 */}
+      {/* 출퇴근 메시지 */}
+      {attendanceMsg && (
+        <div style={{
+          background: attendanceMsg.includes('완료') ? '#e8f5e9' : '#fff3e0',
+          color: attendanceMsg.includes('완료') ? '#2e7d32' : '#e65100',
+          borderRadius: '10px', padding: '12px 16px', marginBottom: '12px', fontSize: '14px', fontWeight: 600,
+        }}>
+          {attendanceMsg}
+        </div>
+      )}
+
+      {/* 오늘 현황 + 직접 출퇴근 */}
       <div style={styles.card}>
         <div style={styles.dateLabel}>오늘의 출퇴근</div>
         {today ? (
@@ -276,30 +416,105 @@ export default function AttendancePage() {
               <div style={styles.timeBox}>
                 <div style={styles.timeLabel}>출근</div>
                 <div style={styles.timeValue}>{formatTime(today.checkInAt)}</div>
-                {today.checkInDistance != null && <div style={styles.distanceLabel}>{today.checkInDistance}m</div>}
+                {today.checkInDistance != null && <div style={styles.distanceLabel}>{Math.round(today.checkInDistance)}m</div>}
               </div>
               <div style={styles.timeDivider}>→</div>
               <div style={styles.timeBox}>
                 <div style={styles.timeLabel}>퇴근</div>
                 <div style={styles.timeValue}>{formatTime(today.checkOutAt)}</div>
-                {today.checkOutDistance != null && <div style={styles.distanceLabel}>{today.checkOutDistance}m</div>}
+                {today.checkOutDistance != null && <div style={styles.distanceLabel}>{Math.round(today.checkOutDistance)}m</div>}
               </div>
             </div>
+
+            {/* 퇴근 버튼 (근무 중일 때) */}
+            {!isPreview && today.status === 'WORKING' && (
+              <div style={{ marginTop: '20px' }}>
+                {needsException ? (
+                  <>
+                    <textarea
+                      placeholder="반경 밖 퇴근 사유를 입력하세요"
+                      value={exceptionReason}
+                      onChange={e => setExceptionReason(e.target.value)}
+                      rows={3}
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e0e0e0', fontSize: '14px', resize: 'none', boxSizing: 'border-box' as const }}
+                    />
+                    <button
+                      onClick={() => handleDirectCheckOut(exceptionReason)}
+                      disabled={!exceptionReason.trim() || checkOutLoading}
+                      style={{ ...styles.checkOutBtn, marginTop: '8px', opacity: !exceptionReason.trim() || checkOutLoading ? 0.6 : 1 }}
+                    >
+                      {checkOutLoading ? '퇴근 처리 중...' : '사유 입력 후 퇴근'}
+                    </button>
+                    <button onClick={() => setNeedsException(false)} style={styles.cancelBtn}>취소</button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => handleDirectCheckOut()}
+                    disabled={checkOutLoading}
+                    style={{ ...styles.checkOutBtn, opacity: checkOutLoading ? 0.6 : 1 }}
+                  >
+                    {checkOutLoading ? '퇴근 처리 중...' : '퇴근하기'}
+                  </button>
+                )}
+              </div>
+            )}
           </>
         ) : (
-          <div style={styles.noRecord}>
-            <p>오늘 출근 기록이 없습니다.</p>
-            <p style={{ fontSize: '13px', color: '#888' }}>현장 QR코드를 스캔하여 출근하세요.</p>
+          <div>
+            {/* 배정 현장 목록 + 출근 버튼 */}
+            {!isPreview && availableSites.length > 0 ? (
+              <div>
+                <p style={{ fontSize: '14px', color: '#555', marginBottom: '12px' }}>배정된 현장을 선택하여 출근하세요.</p>
+                {availableSites.map(site => (
+                  <div key={site.siteId} style={{
+                    border: `2px solid ${site.withinRadius ? '#2e7d32' : '#e0e0e0'}`,
+                    borderRadius: '12px', padding: '14px', marginBottom: '10px',
+                    background: site.withinRadius ? '#f1f8e9' : 'white',
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <div>
+                        <div style={{ fontSize: '15px', fontWeight: 700, color: '#1a1a2e' }}>{site.siteName}</div>
+                        <div style={{ fontSize: '12px', color: '#888' }}>{site.companyName}</div>
+                      </div>
+                      {site.distanceMeters !== null && (
+                        <div style={{ textAlign: 'right' as const, flexShrink: 0, marginLeft: '8px' }}>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: site.withinRadius ? '#2e7d32' : '#666' }}>
+                            {site.distanceMeters}m
+                          </div>
+                          <div style={{ fontSize: '11px', color: site.withinRadius ? '#388e3c' : '#999' }}>
+                            {site.withinRadius ? '반경 내' : `허용 ${site.allowedRadiusMeters}m`}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleDirectCheckIn(site.siteId)}
+                      disabled={checkInLoading}
+                      style={{ ...styles.checkInBtn, opacity: checkInLoading ? 0.6 : 1 }}
+                    >
+                      {checkInLoading ? '출근 처리 중...' : '출근하기'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={styles.noRecord}>
+                <p>오늘 출근 기록이 없습니다.</p>
+                <p style={{ fontSize: '13px', color: '#888' }}>
+                  {!isPreview && availableSites.length === 0
+                    ? '배정된 현장이 없습니다. 관리자에게 문의하세요.'
+                    : '아래 QR 스캔 또는 현장 선택으로 출근하세요.'}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* 안내 */}
+      {/* QR 보조 수단 안내 */}
       <div style={styles.guideCard}>
-        <div style={styles.guideTitle}>출퇴근 방법</div>
-        <div style={styles.guideStep}>1. 현장에 부착된 QR코드를 스캔하세요</div>
-        <div style={styles.guideStep}>2. 위치 권한을 허용하세요</div>
-        <div style={styles.guideStep}>3. 출근 / 퇴근 버튼을 누르세요</div>
+        <div style={styles.guideTitle}>QR 스캔으로 출근</div>
+        <div style={styles.guideStep}>현장에 부착된 QR코드를 스캔하면 자동으로 현장이 선택됩니다.</div>
       </div>
 
       {!isPreview && (
@@ -498,6 +713,9 @@ const styles: Record<string, React.CSSProperties> = {
   guideTitle:      { fontSize: '14px', fontWeight: 700, color: '#1565c0', marginBottom: '12px' },
   guideStep:       { fontSize: '13px', color: '#1976d2', marginBottom: '6px' },
   changeDeviceBtn: { width: '100%', padding: '12px', fontSize: '14px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '10px', cursor: 'pointer', color: '#666' },
+  checkInBtn:    { width: '100%', padding: '12px', fontSize: '15px', fontWeight: 700, background: '#2e7d32', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
+  checkOutBtn:   { width: '100%', padding: '14px', fontSize: '17px', fontWeight: 700, background: '#1565c0', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer' },
+  cancelBtn:     { width: '100%', padding: '10px', fontSize: '14px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '8px', cursor: 'pointer', color: '#888', marginTop: '6px' },
 }
 
 const pc: Record<string, React.CSSProperties> = {

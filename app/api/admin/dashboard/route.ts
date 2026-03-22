@@ -42,7 +42,7 @@ export async function GET() {
     const recentAttendance = await prisma.attendanceLog.findMany({
       where: { workDate: today },
       include: {
-        worker: { select: { name: true, company: true } },
+        worker: { select: { name: true } },
         checkInSite: { select: { name: true } },
       },
       orderBy: { checkInAt: 'desc' },
@@ -69,7 +69,7 @@ export async function GET() {
       recentAttendance: recentAttendance.map((l) => ({
         id: l.id,
         workerName: l.worker.name,
-        company: l.worker.company,
+        company: l.companyNameSnapshot ?? '',
         siteName: l.checkInSite.name,
         checkInAt: l.checkInAt?.toISOString() ?? null,
         checkOutAt: l.checkOutAt?.toISOString() ?? null,

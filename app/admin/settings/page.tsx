@@ -89,6 +89,7 @@ export default function AttendanceSettingsPage() {
         {[
           { href: '/admin',                  label: '대시보드' },
           { href: '/admin/workers',          label: '근로자 관리' },
+  { href: '/admin/companies', label: '회사 관리' },
           { href: '/admin/sites',            label: '현장 관리' },
           { href: '/admin/attendance',       label: '출퇴근 조회' },
           { href: '/admin/presence-checks',  label: '체류확인 현황' },

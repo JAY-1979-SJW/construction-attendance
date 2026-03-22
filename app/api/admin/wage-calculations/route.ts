@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
           monthKey,
           ...(incomeType ? { incomeType: incomeType as never } : {}),
         },
-        include: { worker: { select: { id: true, name: true, company: true, employmentType: true, incomeType: true } } },
+        include: { worker: { select: { id: true, name: true, employmentType: true, incomeType: true } } },
         orderBy: { worker: { name: 'asc' } },
       }),
       prisma.withholdingCalculation.findMany({

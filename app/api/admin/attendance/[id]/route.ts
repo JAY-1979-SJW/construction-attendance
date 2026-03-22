@@ -21,7 +21,7 @@ export async function GET(
     const log = await prisma.attendanceLog.findUnique({
       where: { id: params.id },
       include: {
-        worker: { select: { name: true, phone: true, company: true, jobTitle: true } },
+        worker: { select: { name: true, phone: true, jobTitle: true } },
         checkInSite: { select: { id: true, name: true, address: true } },
         checkOutSite: { select: { id: true, name: true } },
         events: {
@@ -38,7 +38,7 @@ export async function GET(
       id: log.id,
       workerName: log.worker.name,
       workerPhone: log.worker.phone,
-      company: log.worker.company,
+      company: log.companyNameSnapshot ?? '',
       jobTitle: log.worker.jobTitle,
       workDate: log.workDate.toISOString().slice(0, 10),
       status: log.status,

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       prisma.attendanceLog.findMany({
         where: { status: 'EXCEPTION' },
         include: {
-          worker: { select: { name: true, phone: true, company: true } },
+          worker: { select: { name: true, phone: true } },
           checkInSite: { select: { name: true } },
         },
         orderBy: { createdAt: 'desc' },
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
         id: e.id,
         workerName: e.worker.name,
         workerPhone: e.worker.phone,
-        company: e.worker.company,
+        company: e.companyNameSnapshot ?? '',
         siteName: e.checkInSite.name,
         workDate: e.workDate.toISOString().slice(0, 10),
         checkInAt: e.checkInAt?.toISOString() ?? null,

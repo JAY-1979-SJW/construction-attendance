@@ -16,7 +16,7 @@ interface WorkConfirmation {
   incomeTypeSnapshot: string | null
   employmentTypeSnapshot: string | null
   notes: string | null
-  worker: { id: string; name: string; company: string; jobTitle: string; employmentType: string; incomeType: string }
+  worker: { id: string; name: string; jobTitle: string; employmentType: string; incomeType: string }
   site: { id: string; name: string }
   attendanceDay: { firstCheckInAt: string | null; lastCheckOutAt: string | null; presenceStatus: string } | null
 }
@@ -194,7 +194,7 @@ export default function WorkConfirmationsPage() {
                   ) : items.map((item) => (
                     <tr key={item.id} style={s.tr}>
                       <td style={s.td}>{item.workDate}</td>
-                      <td style={s.td}>{item.worker.name}<br /><span style={{ fontSize: '11px', color: '#999' }}>{item.worker.company}</span></td>
+                      <td style={s.td}>{item.worker.name}</td>
                       <td style={s.td}>{item.site.name}</td>
                       <td style={s.td}>{fmtTime(item.attendanceDay?.firstCheckInAt ?? null)}</td>
                       <td style={s.td}>{fmtTime(item.attendanceDay?.lastCheckOutAt ?? null)}</td>
@@ -267,6 +267,7 @@ export default function WorkConfirmationsPage() {
 const NAV_ITEMS = [
   { href: '/admin',                      label: '대시보드' },
   { href: '/admin/workers',              label: '근로자 관리' },
+  { href: '/admin/companies',           label: '회사 관리' },
   { href: '/admin/sites',                label: '현장 관리' },
   { href: '/admin/attendance',           label: '출퇴근 조회' },
   { href: '/admin/presence-checks',      label: '체류확인 현황' },

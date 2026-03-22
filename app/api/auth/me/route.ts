@@ -14,6 +14,11 @@ export async function GET() {
           where: { isActive: true },
           select: { id: true, deviceName: true, isPrimary: true, lastLoginAt: true },
         },
+        companyAssignments: {
+          where: { isPrimary: true, validTo: null },
+          include: { company: { select: { companyName: true } } },
+          take: 1,
+        },
       },
     })
 
@@ -23,7 +28,7 @@ export async function GET() {
       id: worker.id,
       name: worker.name,
       phone: worker.phone,
-      company: worker.company,
+      company: worker.companyAssignments[0]?.company.companyName ?? '',
       jobTitle: worker.jobTitle,
       devices: worker.devices,
     })

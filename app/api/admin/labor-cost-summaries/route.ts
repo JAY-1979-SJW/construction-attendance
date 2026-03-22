@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     },
     include: {
       site: { select: { id: true, name: true } },
-      subcontractor: { select: { id: true, name: true } },
+      company: { select: { id: true, companyName: true } },
     },
     orderBy: [{ siteId: 'asc' }, { organizationType: 'asc' }],
   })

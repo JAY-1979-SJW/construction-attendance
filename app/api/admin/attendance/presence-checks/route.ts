@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
         distanceMeters:  true,
         needsReview:     true,
         reviewReason:    true,
-        worker: { select: { name: true, company: true } },
+        worker: { select: { name: true } },
         site:   { select: { name: true } },
       },
     })
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     const result = items.map((pc) => ({
       id:             pc.id,
       workerName:     pc.worker.name,
-      workerCompany:  pc.worker.company,
+      workerCompany:  '',
       siteName:       pc.site.name,
       slot:           pc.timeBucket,
       checkDate:      pc.checkDate,

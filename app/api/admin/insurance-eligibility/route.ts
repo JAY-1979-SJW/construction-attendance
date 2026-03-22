@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const items = await prisma.insuranceEligibilitySnapshot.findMany({
       where: { monthKey, ...whereExtra },
       include: {
-        worker: { select: { id: true, name: true, company: true, employmentType: true, incomeType: true } },
+        worker: { select: { id: true, name: true, employmentType: true, incomeType: true } },
       },
       orderBy: { worker: { name: 'asc' } },
     })
