@@ -7,14 +7,15 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json().catch(() => ({}))
-  const { monthKey, templateCode, siteId, subcontractorId } = body
+  const { monthKey, templateCode, documentType, siteId, subcontractorId } = body
+  const code = templateCode ?? documentType
 
-  if (!monthKey || !templateCode) {
+  if (!monthKey || !code) {
     return NextResponse.json({ error: 'monthKey and templateCode required' }, { status: 400 })
   }
 
   try {
-    const result = await runPreflight(templateCode, { monthKey, siteId, subcontractorId }, session.sub)
+    const result = await runPreflight(code, { monthKey, siteId, subcontractorId }, session.sub)
     return NextResponse.json(result)
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : '사전검사 실패'
