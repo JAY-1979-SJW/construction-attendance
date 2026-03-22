@@ -100,7 +100,10 @@ export default function AttendancePage() {
     if (!loading && !isPreview) {
       fetchPending()
       const id = setInterval(fetchPending, 30_000)
-      return () => clearInterval(id)
+      // 탭/앱 복귀 시 즉시 pending 재조회 (알림 미지원 환경 대체 흐름)
+      const onVisible = () => { if (document.visibilityState === 'visible') fetchPending() }
+      document.addEventListener('visibilitychange', onVisible)
+      return () => { clearInterval(id); document.removeEventListener('visibilitychange', onVisible) }
     }
   }, [loading, isPreview, fetchPending])
 
