@@ -6,7 +6,7 @@ RUN npm ci
 COPY . .
 RUN mkdir -p public
 RUN npx prisma generate
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=1024" npm run build
 
 FROM node:20-slim AS runner
 WORKDIR /app
