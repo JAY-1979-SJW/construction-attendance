@@ -256,6 +256,12 @@ model Worker {
   retirementMutualWorkers    RetirementMutualWorker[]
   retirementMonthlySummaries RetirementMutualMonthlySummary[]
   onboardingChecklists       OnboardingChecklist[]
+  idVerificationStatus       IdReviewStatus?
+  latestIdentityDocumentId   String?
+  identityLastReviewedAt     DateTime?
+  identityLastReviewedBy     String?
+  identityDocuments          WorkerIdentityDocument[]
+  sensitiveIdentity          WorkerSensitiveIdentity?
 
   @@map("workers")
 }
@@ -932,4 +938,120 @@ model PreflightCheckRun {
 
   @@index([monthKey, templateCode])
   @@map("preflight_check_runs")
+}
+
+// ─── Phase 6: 신분증 스캔/OCR/마스킹/권한관리 ─────────────────
+
+enum IdDocumentType {
+  NATIONAL_ID
+  DRIVER_LICENSE
+  ALIEN_REGISTRATION
+  UNKNOWN
+}
+
+enum IdScanStatus {
+  UPLOADED
+  OCR_RUNNING
+  OCR_DONE
+  PARSED
+  FAILED
+}
+
+enum IdReviewStatus {
+  PENDING_REVIEW
+  VERIFIED
+  REJECTED
+  RESCAN_REQUIRED
+  ARCHIVED
+}
+
+enum IdentityAccessAction {
+  UPLOAD
+  VIEW_ORIGINAL
+  VIEW_MASKED
+  DOWNLOAD_ORIGINAL
+  DOWNLOAD_MASKED
+  OCR_RUN
+  APPLY_TO_WORKER
+  VERIFY
+  REJECT
+  DELETE
+}
+
+model WorkerIdentityDocument {
+  id               String          @id @default(cuid())
+  workerId         String
+  documentType     IdDocumentType  @default(UNKNOWN)
+  originalFileKey  String
+  maskedFileKey    String?
+  thumbnailFileKey String?
+  fileMimeType     String
+  fileSize         Int
+  ocrRawText       String?
+  ocrRawJson       Json?
+  parsedJson       Json?
+  scanStatus       IdScanStatus    @default(UPLOADED)
+  reviewStatus     IdReviewStatus  @default(PENDING_REVIEW)
+  uploadedBy       String
+  reviewedBy       String?
+  reviewedAt       DateTime?
+  rejectedReason   String?
+  isLatest         Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  worker           Worker          @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  sensitiveData    WorkerSensitiveIdentity?
+  accessLogs       IdentityAccessLog[]
+
+  @@index([workerId])
+  @@map("worker_identity_documents")
+}
+
+model WorkerSensitiveIdentity {
+  id                      String    @id @default(cuid())
+  workerId                String    @unique
+  sourceDocumentId        String    @unique
+  legalName               String?
+  birthDate               String?
+  gender                  String?
+  nationality             String?
+  residentType            String?
+  idNumberEncrypted       String?
+  idNumberMasked          String?
+  addressEncrypted        String?
+  addressMasked           String?
+  licenseNumberEncrypted  String?
+  licenseNumberMasked     String?
+  issueDate               String?
+  expiryDate              String?
+  foreignerYn             Boolean   @default(false)
+  verificationStatus      IdReviewStatus @default(PENDING_REVIEW)
+  verifiedBy              String?
+  verifiedAt              DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  worker                  Worker    @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  sourceDocument          WorkerIdentityDocument @relation(fields: [sourceDocumentId], references: [id])
+
+  @@map("worker_sensitive_identities")
+}
+
+model IdentityAccessLog {
+  id           String               @id @default(cuid())
+  workerId     String
+  documentId   String
+  actionType   IdentityAccessAction
+  actorUserId  String
+  actorRole    String
+  ipAddress    String?
+  reason       String?
+  createdAt    DateTime             @default(now())
+
+  document     WorkerIdentityDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([workerId])
+  @@index([documentId])
+  @@map("identity_access_logs")
 }

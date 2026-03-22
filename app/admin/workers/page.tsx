@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
@@ -15,6 +15,26 @@ interface Worker {
   deviceCount: number
   createdAt: string
   retirementMutualStatus?: string
+  idVerificationStatus?: string | null
+}
+
+interface ScanResult {
+  documentId: string
+  reviewStatus: string
+  scanStatus: string
+  parsed: {
+    documentType: string
+    name?: string
+    birthDate?: string
+    nationality?: string
+    address?: string
+    issueDate?: string
+    expiryDate?: string
+    foreignerYn?: boolean
+    residentType?: string
+    confidence?: Record<string, number>
+    rawText?: string
+  }
 }
 
 const emptyForm = { name: '', phone: '', company: '', jobTitle: '' }
@@ -45,6 +65,13 @@ export default function WorkersPage() {
   const [deleteTarget, setDeleteTarget] = useState<Worker | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+
+  // 신분증 업로드
+  const [showUpload, setShowUpload] = useState(false)
+  const [uploadWorkerId, setUploadWorkerId] = useState('')
+  const [uploadWorkerName, setUploadWorkerName] = useState('')
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null)
+  const [showScanResult, setShowScanResult] = useState(false)
 
   const load = (s = search) => {
     setLoading(true)
@@ -101,6 +128,34 @@ export default function WorkersPage() {
     setEditSaving(false)
   }
 
+  // ── 신분증 업로드/검토 ─────────────────────────────────────
+  const handleUploadSuccess = (result: ScanResult) => {
+    setShowUpload(false)
+    setScanResult(result)
+    setShowScanResult(true)
+    load()
+  }
+
+  const handleVerify = async () => {
+    if (!scanResult || !uploadWorkerId) return
+    await fetch(`/api/admin/workers/${uploadWorkerId}/identity-documents/${scanResult.documentId}/verify`, { method: 'POST' })
+    setShowScanResult(false)
+    setScanResult(null)
+    load()
+  }
+
+  const handleReject = async (status: string, reason: string) => {
+    if (!scanResult || !uploadWorkerId) return
+    await fetch(`/api/admin/workers/${uploadWorkerId}/identity-documents/${scanResult.documentId}/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reviewStatus: status, reason }),
+    })
+    setShowScanResult(false)
+    setScanResult(null)
+    load()
+  }
+
   // ── 삭제(비활성화) ────────────────────────────────────────────
   const handleDelete = async () => {
     if (!deleteTarget) return
@@ -153,14 +208,14 @@ export default function WorkersPage() {
             <table style={styles.table}>
               <thead>
                 <tr>
-                  {['이름', '연락처', '회사', '직종', '기기', '퇴직공제', '상태', '등록일', ''].map((h) => (
+                  {['이름', '연락처', '회사', '직종', '기기', '퇴직공제', '신분증', '상태', '등록일', ''].map((h) => (
                     <th key={h} style={styles.th}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {workers.length === 0 ? (
-                  <tr><td colSpan={9} style={styles.empty}>등록된 근로자가 없습니다.</td></tr>
+                  <tr><td colSpan={10} style={styles.empty}>등록된 근로자가 없습니다.</td></tr>
                 ) : workers.map((w) => (
                   <tr key={w.id} style={{ opacity: w.isActive ? 1 : 0.5 }}>
                     <td style={styles.td}>{w.name}</td>
@@ -181,6 +236,17 @@ export default function WorkersPage() {
                       {!w.retirementMutualStatus && (
                         <span style={{ fontSize: '12px', color: '#bbb' }}>—</span>
                       )}
+                    </td>
+                    <td style={styles.td}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <IdVerificationBadge status={w.idVerificationStatus} />
+                        <button
+                          onClick={() => { setUploadWorkerId(w.id); setUploadWorkerName(w.name); setShowUpload(true) }}
+                          style={{ fontSize: '12px', color: '#1976d2', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                        >
+                          업로드
+                        </button>
+                      </div>
                     </td>
                     <td style={styles.td}>
                       <span style={{ color: w.isActive ? '#2e7d32' : '#999', fontSize: '12px', fontWeight: 600 }}>
@@ -302,6 +368,25 @@ export default function WorkersPage() {
             </div>
           </div>
         )}
+        {/* ── 신분증 업로드 모달 ────────────────────────────── */}
+        {showUpload && (
+          <IdentityUploadModal
+            workerId={uploadWorkerId}
+            workerName={uploadWorkerName}
+            onClose={() => setShowUpload(false)}
+            onSuccess={handleUploadSuccess}
+          />
+        )}
+        {/* ── AI 분석 결과 모달 ─────────────────────────────── */}
+        {showScanResult && scanResult && (
+          <ScanResultModal
+            workerId={uploadWorkerId}
+            result={scanResult}
+            onClose={() => { setShowScanResult(false); setScanResult(null) }}
+            onVerify={handleVerify}
+            onReject={handleReject}
+          />
+        )}
       </main>
     </div>
   )
@@ -339,4 +424,246 @@ const styles: Record<string, React.CSSProperties> = {
   badgeBlue:   { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#e3f2fd', color: '#1565c0' },
   badgeGray:   { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#f5f5f5', color: '#757575' },
   badgeOrange: { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#fff3e0', color: '#e65100' },
+}
+
+// ── 신분증 관련 하위 컴포넌트 ─────────────────────────────────────────
+
+function IdVerificationBadge({ status }: { status?: string | null }) {
+  const config: Record<string, { label: string; className: string }> = {
+    VERIFIED: { label: '검토완료', className: 'bg-green-100 text-green-700' },
+    PENDING_REVIEW: { label: '검토대기', className: 'bg-yellow-100 text-yellow-700' },
+    REJECTED: { label: '반려', className: 'bg-red-100 text-red-700' },
+    RESCAN_REQUIRED: { label: '재스캔', className: 'bg-orange-100 text-orange-700' },
+    ARCHIVED: { label: '보관', className: 'bg-gray-100 text-gray-500' },
+  }
+  const styleMap: Record<string, React.CSSProperties> = {
+    VERIFIED: { background: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: 600 },
+    PENDING_REVIEW: { background: '#fef9c3', color: '#a16207', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: 600 },
+    REJECTED: { background: '#fee2e2', color: '#dc2626', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: 600 },
+    RESCAN_REQUIRED: { background: '#ffedd5', color: '#c2410c', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: 600 },
+    ARCHIVED: { background: '#f3f4f6', color: '#6b7280', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: 600 },
+  }
+  if (!status) return <span style={{ fontSize: '12px', color: '#bbb' }}>미제출</span>
+  const label = config[status]?.label ?? status
+  const s = styleMap[status] ?? { background: '#f3f4f6', color: '#4b5563', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: 600 }
+  return <span style={s}>{label}</span>
+}
+
+function IdentityUploadModal({ workerId, workerName, onClose, onSuccess }: {
+  workerId: string; workerName: string; onClose: () => void; onSuccess: (r: ScanResult) => void
+}) {
+  const [file, setFile] = React.useState<File | null>(null)
+  const [preview, setPreview] = React.useState<string | null>(null)
+  const [loading, setLoading] = React.useState(false)
+  const [error, setError] = React.useState('')
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    if (!f) return
+    setFile(f)
+    setPreview(URL.createObjectURL(f))
+    setError('')
+  }
+
+  const handleUpload = async () => {
+    if (!file) { setError('파일을 선택해주세요.'); return }
+    setLoading(true); setError('')
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch(`/api/admin/workers/${workerId}/identity-documents/upload`, { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error ?? '업로드 실패'); return }
+      onSuccess(data as ScanResult)
+    } catch { setError('오류가 발생했습니다.') }
+    finally { setLoading(false) }
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}>
+      <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', width: '100%', maxWidth: '480px' }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#1a1a1a' }}>신분증 업로드 — {workerName}</h2>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#999', lineHeight: 1 }}>✕</button>
+        </div>
+        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <label style={{ display: 'block' }}>
+            <span style={{ fontSize: '13px', fontWeight: 500, color: '#444', display: 'block', marginBottom: '6px' }}>신분증 이미지 (JPG/PNG, 최대 10MB)</span>
+            <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onChange={handleFile}
+              style={{ display: 'block', width: '100%', fontSize: '13px', color: '#555' }} />
+          </label>
+          {preview && (
+            <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={preview} alt="미리보기" style={{ width: '100%', maxHeight: '192px', objectFit: 'contain', background: '#f9fafb', display: 'block' }} />
+            </div>
+          )}
+          {error && <p style={{ fontSize: '13px', color: '#dc2626', margin: 0 }}>{error}</p>}
+          <div style={{ fontSize: '12px', color: '#9ca3af', background: '#f9fafb', borderRadius: '6px', padding: '10px 12px' }}>
+            ⚠️ 원본 이미지는 암호화 저장되며 관리자만 열람 가능합니다.
+          </div>
+        </div>
+        <div style={{ padding: '16px 24px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+          <button onClick={onClose} style={{ padding: '8px 16px', fontSize: '13px', color: '#555', background: '#f5f5f5', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>취소</button>
+          <button onClick={handleUpload} disabled={!file || loading}
+            style={{ padding: '8px 20px', fontSize: '13px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', opacity: (!file || loading) ? 0.5 : 1 }}>
+            {loading ? 'AI 분석 중...' : '업로드 + AI 분석'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ScanResultModal({ workerId, result, onClose, onVerify, onReject }: {
+  workerId: string; result: ScanResult; onClose: () => void
+  onVerify: () => void; onReject: (s: string, r: string) => void
+}) {
+  const [showReject, setShowReject] = React.useState(false)
+  const [rejectReason, setRejectReason] = React.useState('')
+  const [rejectStatus, setRejectStatus] = React.useState('REJECTED')
+  const [applying, setApplying] = React.useState(false)
+  const [applyMsg, setApplyMsg] = React.useState('')
+
+  const docTypeLabel: Record<string, string> = {
+    NATIONAL_ID: '주민등록증', DRIVER_LICENSE: '운전면허증',
+    ALIEN_REGISTRATION: '외국인등록증', UNKNOWN: '미분류',
+  }
+  const reviewLabel: Record<string, string> = {
+    PENDING_REVIEW: '검토대기', VERIFIED: '검토완료',
+    REJECTED: '반려', RESCAN_REQUIRED: '재스캔필요',
+  }
+  const p = result.parsed
+
+  const handleApply = async () => {
+    setApplying(true)
+    try {
+      const res = await fetch(`/api/admin/workers/${workerId}/identity-documents/${result.documentId}/apply`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ overwritePolicy: 'FILL_EMPTY_ONLY' }),
+      })
+      const data = await res.json()
+      setApplyMsg(res.ok ? `반영 완료 (${(data.applied ?? []).join(', ') || '없음'})` : `실패: ${data.error}`)
+    } finally { setApplying(false) }
+  }
+
+  const fields: { label: string; value: string | undefined }[] = [
+    { label: '이름', value: p.name },
+    { label: '생년월일', value: p.birthDate },
+    { label: '국적', value: p.nationality },
+    { label: '발급일', value: p.issueDate },
+    { label: '만료일', value: p.expiryDate },
+    { label: '외국인', value: p.foreignerYn !== undefined ? (p.foreignerYn ? '외국인' : '내국인') : undefined },
+    { label: '거주자구분', value: p.residentType },
+    { label: '주소', value: p.address },
+  ]
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}>
+      <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', width: '100%', maxWidth: '680px', maxHeight: '90vh', overflowY: 'auto' }}>
+        {/* 헤더 */}
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'white', zIndex: 10 }}>
+          <div>
+            <h2 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 600, color: '#1a1a1a' }}>AI 분석 결과</h2>
+            <p style={{ margin: 0, fontSize: '12px', color: '#9ca3af' }}>
+              상태: <span style={{ fontWeight: 500 }}>{reviewLabel[result.reviewStatus] ?? result.reviewStatus}</span> · 스캔: {result.scanStatus}
+            </p>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#999', lineHeight: 1 }}>✕</button>
+        </div>
+        {/* 본문 */}
+        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* 문서 종류 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>문서 종류:</span>
+            <span style={{ padding: '2px 10px', fontSize: '12px', background: '#dbeafe', color: '#1d4ed8', borderRadius: '9999px', fontWeight: 500 }}>
+              {docTypeLabel[p.documentType] ?? p.documentType}
+            </span>
+          </div>
+          {/* 파싱 필드 그리드 */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            {fields.filter(item => item.value).map(item => (
+              <div key={item.label} style={{ background: '#f9fafb', borderRadius: '8px', padding: '10px 12px' }}>
+                <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '2px' }}>{item.label}</div>
+                <div style={{ fontSize: '13px', fontWeight: 500, color: '#1a1a1a', wordBreak: 'break-all' }}>{item.value}</div>
+              </div>
+            ))}
+          </div>
+          {/* AI 신뢰도 */}
+          {p.confidence && Object.keys(p.confidence).length > 0 && (
+            <div style={{ background: '#eff6ff', borderRadius: '8px', padding: '12px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 500, color: '#1d4ed8', marginBottom: '6px' }}>AI 신뢰도</div>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                {Object.entries(p.confidence).map(([k, v]) => (
+                  <span key={k} style={{ fontSize: '12px', color: '#374151' }}>{k}: <strong>{Math.round(Number(v) * 100)}%</strong></span>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* 마스킹 이미지 */}
+          <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/admin/identity-documents/${result.documentId}/file?variant=masked`}
+              alt="마스킹본"
+              style={{ width: '100%', maxHeight: '224px', objectFit: 'contain', background: '#f3f4f6', display: 'block' }}
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+            />
+            <div style={{ padding: '8px', fontSize: '12px', color: '#9ca3af', textAlign: 'center' }}>마스킹본 (민감정보 가림)</div>
+          </div>
+          <a
+            href={`/api/admin/identity-documents/${result.documentId}/file?variant=original`}
+            target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: '12px', color: '#6b7280', textDecoration: 'underline' }}
+          >
+            원본 보기 (관리자 전용)
+          </a>
+          {/* 데이터 반영 */}
+          <div style={{ background: '#f9fafb', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>근로자 데이터 자동 반영</span>
+              <button onClick={handleApply} disabled={applying}
+                style={{ fontSize: '12px', padding: '4px 12px', background: '#4f46e5', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', opacity: applying ? 0.5 : 1 }}>
+                {applying ? '반영 중...' : '빈 필드에 반영'}
+              </button>
+            </div>
+            {applyMsg && <p style={{ fontSize: '12px', color: '#15803d', margin: '0 0 4px' }}>{applyMsg}</p>}
+            <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>기존 데이터가 있는 필드는 덮어쓰지 않습니다.</p>
+          </div>
+          {/* 반려 폼 */}
+          {showReject && (
+            <div style={{ border: '1px solid #fca5a5', borderRadius: '8px', padding: '14px', background: '#fff5f5', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <select value={rejectStatus} onChange={e => setRejectStatus(e.target.value)}
+                style={{ width: '100%', fontSize: '13px', border: '1px solid #ddd', borderRadius: '6px', padding: '8px' }}>
+                <option value="REJECTED">반려</option>
+                <option value="RESCAN_REQUIRED">재스캔 요청</option>
+              </select>
+              <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)}
+                placeholder="사유 입력 (필수)" rows={2}
+                style={{ width: '100%', fontSize: '13px', border: '1px solid #ddd', borderRadius: '6px', padding: '8px', resize: 'none', boxSizing: 'border-box' }} />
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                <button onClick={() => setShowReject(false)}
+                  style={{ fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', textDecoration: 'underline' }}>취소</button>
+                <button onClick={() => { if (rejectReason) onReject(rejectStatus, rejectReason) }} disabled={!rejectReason}
+                  style={{ fontSize: '12px', padding: '4px 12px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', opacity: !rejectReason ? 0.5 : 1 }}>확인</button>
+              </div>
+            </div>
+          )}
+        </div>
+        {/* 하단 버튼 */}
+        <div style={{ padding: '16px 24px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '10px', justifyContent: 'space-between', position: 'sticky', bottom: 0, background: 'white' }}>
+          <button onClick={() => setShowReject(!showReject)}
+            style={{ padding: '8px 16px', fontSize: '13px', border: '1px solid #fca5a5', color: '#dc2626', background: 'white', borderRadius: '8px', cursor: 'pointer' }}>
+            반려 / 재스캔
+          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={onClose}
+              style={{ padding: '8px 16px', fontSize: '13px', color: '#555', background: '#f5f5f5', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>닫기</button>
+            <button onClick={onVerify}
+              style={{ padding: '8px 20px', fontSize: '13px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>검토 완료</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }

@@ -55,6 +55,7 @@ export async function GET(request: NextRequest) {
         retirementMutualStatus: w.retirementMutualStatus,
         foreignerYn: w.foreignerYn,
         employmentType: w.employmentType,
+        idVerificationStatus: w.idVerificationStatus,
         createdAt: w.createdAt,
       })),
       total,

@@ -1,0 +1,47 @@
+import { writeFile, mkdir, readFile as fsReadFile, unlink } from 'fs/promises'
+import { existsSync } from 'fs'
+import path from 'path'
+import { randomUUID } from 'crypto'
+
+const UPLOAD_ROOT = path.join(process.cwd(), 'uploads', 'identity')
+
+async function ensureDir(dir: string) {
+  if (!existsSync(dir)) await mkdir(dir, { recursive: true })
+}
+
+function datePath() {
+  const now = new Date()
+  return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+
+export async function saveOriginalFile(buffer: Buffer, ext: string): Promise<string> {
+  const subPath = `original/${datePath()}`
+  await ensureDir(path.join(UPLOAD_ROOT, subPath))
+  const fileKey = `${subPath}/${randomUUID()}${ext}`
+  await writeFile(path.join(UPLOAD_ROOT, fileKey), buffer)
+  return fileKey
+}
+
+export async function saveMaskedFile(buffer: Buffer, ext: string): Promise<string> {
+  const subPath = `masked/${datePath()}`
+  await ensureDir(path.join(UPLOAD_ROOT, subPath))
+  const fileKey = `${subPath}/${randomUUID()}${ext}`
+  await writeFile(path.join(UPLOAD_ROOT, fileKey), buffer)
+  return fileKey
+}
+
+export async function readIdentityFile(fileKey: string): Promise<Buffer> {
+  return fsReadFile(path.join(UPLOAD_ROOT, fileKey))
+}
+
+export async function deleteIdentityFile(fileKey: string): Promise<void> {
+  try { await unlink(path.join(UPLOAD_ROOT, fileKey)) } catch { /* ignore */ }
+}
+
+export function getExtFromMime(mime: string): string {
+  const map: Record<string, string> = {
+    'image/jpeg': '.jpg', 'image/jpg': '.jpg',
+    'image/png': '.png', 'image/webp': '.webp',
+  }
+  return map[mime] ?? '.bin'
+}
