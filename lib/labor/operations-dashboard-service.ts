@@ -10,6 +10,8 @@ export interface OperationsDashboardData {
     monthWorkerCount: number
     pendingOnboardingCount: number
     retirementPendingCount: number
+    insuranceExceptionCount: number
+    taxExceptionCount: number
     exceptionWorkerCount: number
     unconfirmedSettlementCount: number
     thisMonthDownloadCount: number
@@ -72,13 +74,16 @@ export async function getOperationsDashboard(monthKey: string): Promise<Operatio
       })
     : 0
 
-  // 예외 처리 근로자 (보험예외 or 세금예외)
-  const exceptionWorkers = workerIds.length > 0
+  // 예외 처리 근로자 (보험예외 / 세금예외 분리)
+  const insuranceExceptionCount = workerIds.length > 0
     ? await prisma.worker.count({
-        where: {
-          id: { in: workerIds },
-          OR: [{ insuranceExceptionYn: true }, { taxExceptionYn: true }],
-        },
+        where: { id: { in: workerIds }, insuranceExceptionYn: true },
+      })
+    : 0
+
+  const taxExceptionCount = workerIds.length > 0
+    ? await prisma.worker.count({
+        where: { id: { in: workerIds }, taxExceptionYn: true },
       })
     : 0
 
@@ -139,7 +144,9 @@ export async function getOperationsDashboard(monthKey: string): Promise<Operatio
       monthWorkerCount,
       pendingOnboardingCount: pendingOnboarding,
       retirementPendingCount: pendingOnboarding,
-      exceptionWorkerCount: exceptionWorkers,
+      insuranceExceptionCount,
+      taxExceptionCount,
+      exceptionWorkerCount: insuranceExceptionCount + taxExceptionCount, // 하위호환
       unconfirmedSettlementCount: unconfirmedSettlement,
       thisMonthDownloadCount: downloadCount,
     },

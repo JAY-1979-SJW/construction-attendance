@@ -10,6 +10,8 @@ interface KpiData {
   pendingOnboardingCount: number
   retirementPendingCount: number
   exceptionWorkerCount: number
+  insuranceExceptionCount: number
+  taxExceptionCount: number
   unconfirmedSettlementCount: number
   thisMonthDownloadCount: number
 }
@@ -113,49 +115,61 @@ export default function OperationsDashboardPage() {
   const kpiCards = kpi ? [
     {
       label: '오늘 출근',
-      value: kpi.todayActiveWorkers,
+      value: kpi.todayActiveWorkers ?? 0,
       color: '#1976d2',
       bg: '#e3f2fd',
       alert: false,
+      sub: null,
     },
     {
       label: '이번 달 근로자',
-      value: kpi.monthWorkerCount,
+      value: kpi.monthWorkerCount ?? 0,
       color: '#2e7d32',
       bg: '#e8f5e9',
       alert: false,
+      sub: null,
     },
     {
       label: '온보딩 미완료',
-      value: kpi.pendingOnboardingCount,
-      color: kpi.pendingOnboardingCount > 0 ? '#e65100' : '#666',
-      bg: kpi.pendingOnboardingCount > 0 ? '#fff3e0' : '#f5f5f5',
-      alert: kpi.pendingOnboardingCount > 0,
+      value: kpi.pendingOnboardingCount ?? 0,
+      color: (kpi.pendingOnboardingCount ?? 0) > 0 ? '#e65100' : '#666',
+      bg: (kpi.pendingOnboardingCount ?? 0) > 0 ? '#fff3e0' : '#f5f5f5',
+      alert: (kpi.pendingOnboardingCount ?? 0) > 0,
+      sub: null,
     },
     {
       label: '예외 처리 근로자',
-      value: kpi.exceptionWorkerCount,
+      value: kpi.exceptionWorkerCount ?? 0,
       color: '#f57f17',
       bg: '#fffde7',
       alert: false,
+      sub: `보험예외 ${kpi.insuranceExceptionCount ?? 0} / 세금예외 ${kpi.taxExceptionCount ?? 0}`,
     },
     {
       label: '미확정 정산',
-      value: kpi.unconfirmedSettlementCount,
-      color: kpi.unconfirmedSettlementCount > 0 ? '#c62828' : '#666',
-      bg: kpi.unconfirmedSettlementCount > 0 ? '#ffebee' : '#f5f5f5',
-      alert: kpi.unconfirmedSettlementCount > 0,
+      value: kpi.unconfirmedSettlementCount ?? 0,
+      color: (kpi.unconfirmedSettlementCount ?? 0) > 0 ? '#c62828' : '#666',
+      bg: (kpi.unconfirmedSettlementCount ?? 0) > 0 ? '#ffebee' : '#f5f5f5',
+      alert: (kpi.unconfirmedSettlementCount ?? 0) > 0,
+      sub: null,
     },
     {
       label: '이번 달 다운로드',
-      value: kpi.thisMonthDownloadCount,
+      value: kpi.thisMonthDownloadCount ?? 0,
       color: '#555',
       bg: '#f5f5f5',
       alert: false,
+      sub: null,
     },
   ] : []
 
   const closingStatus = data?.monthClosingStatus?.status ?? 'OPEN'
+
+  if (loading && !data) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px', color: '#888', fontSize: '15px' }}>
+      대시보드 로딩 중...
+    </div>
+  )
 
   return (
     <div style={s.layout}>
@@ -207,52 +221,70 @@ export default function OperationsDashboardPage() {
 
         {/* KPI 카드 + 월마감 상태 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-          {kpiCards.map((card) => (
-            <div key={card.label} style={{
-              background: card.bg,
-              borderRadius: '12px',
-              padding: '20px',
-              boxShadow: card.alert ? '0 0 0 2px ' + card.color : '0 1px 4px rgba(0,0,0,0.06)',
-            }}>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: card.color }}>
-                {loading ? '-' : card.value.toLocaleString()}
-              </div>
-              <div style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>{card.label}</div>
-              {card.alert && (
-                <div style={{ fontSize: '11px', color: card.color, marginTop: '4px', fontWeight: 600 }}>
-                  확인 필요
+          {loading && !data ? (
+            // 스켈레톤 로딩
+            Array.from({ length: 7 }).map((_, i) => (
+              <div key={i} style={{
+                background: '#f0f0f0',
+                borderRadius: '12px',
+                padding: '20px',
+                height: '80px',
+                animation: 'pulse 1.5s ease-in-out infinite',
+              }} />
+            ))
+          ) : (
+            <>
+              {kpiCards.map((card) => (
+                <div key={card.label} style={{
+                  background: card.bg,
+                  borderRadius: '12px',
+                  padding: '20px',
+                  boxShadow: card.alert ? '0 0 0 2px ' + card.color : '0 1px 4px rgba(0,0,0,0.06)',
+                }}>
+                  <div style={{ fontSize: '32px', fontWeight: 700, color: card.color }}>
+                    {loading ? '-' : card.value.toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>{card.label}</div>
+                  {card.sub && (
+                    <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>{card.sub}</div>
+                  )}
+                  {card.alert && (
+                    <div style={{ fontSize: '11px', color: card.color, marginTop: '4px', fontWeight: 600 }}>
+                      확인 필요
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+              ))}
 
-          {/* 월마감 상태 카드 */}
-          <div style={{
-            background: 'white',
-            borderRadius: '12px',
-            padding: '20px',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-          }}>
-            <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px', fontWeight: 600 }}>월마감 상태</div>
-            <span style={{
-              ...s.badge,
-              ...closingStatusColor[closingStatus],
-              fontSize: '15px',
-              padding: '6px 16px',
-            }}>
-              {closingStatusLabel[closingStatus] ?? closingStatus}
-            </span>
-            {data?.monthClosingStatus?.closedAt && (
-              <div style={{ fontSize: '11px', color: '#999', marginTop: '8px' }}>
-                {new Date(data.monthClosingStatus.closedAt).toLocaleDateString('ko-KR')} 마감
+              {/* 월마감 상태 카드 */}
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+              }}>
+                <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px', fontWeight: 600 }}>월마감 상태</div>
+                <span style={{
+                  ...s.badge,
+                  ...closingStatusColor[closingStatus],
+                  fontSize: '15px',
+                  padding: '6px 16px',
+                }}>
+                  {closingStatusLabel[closingStatus] ?? closingStatus}
+                </span>
+                {data?.monthClosingStatus?.closedAt && (
+                  <div style={{ fontSize: '11px', color: '#999', marginTop: '8px' }}>
+                    {new Date(data.monthClosingStatus.closedAt).toLocaleDateString('ko-KR')} 마감
+                  </div>
+                )}
+                {data?.monthClosingStatus?.reopenReason && (
+                  <div style={{ fontSize: '11px', color: '#e65100', marginTop: '4px' }}>
+                    {data.monthClosingStatus.reopenReason}
+                  </div>
+                )}
               </div>
-            )}
-            {data?.monthClosingStatus?.reopenReason && (
-              <div style={{ fontSize: '11px', color: '#e65100', marginTop: '4px' }}>
-                {data.monthClosingStatus.reopenReason}
-              </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
 
         {/* 하단 3열 패널 */}
@@ -260,28 +292,35 @@ export default function OperationsDashboardPage() {
 
           {/* 협력사 정산 현황 */}
           <div style={s.panel}>
-            <div style={s.panelHeader}>협력사 정산 현황</div>
+            <div style={{ ...s.panelHeader, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>협력사 정산 현황</span>
+              <Link href="/admin/subcontractor-settlements" style={s.panelLink}>→ 이동</Link>
+            </div>
             <div style={{ padding: '16px' }}>
               {data ? (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                     <span style={s.panelLabel}>전체</span>
-                    <span style={{ fontWeight: 700, fontSize: '15px' }}>{data.settlementSummary.total}건</span>
+                    <span style={{ fontWeight: 700, fontSize: '15px' }}>{data.settlementSummary.total ?? 0}건</span>
                   </div>
-                  {[
-                    { label: '확정', value: data.settlementSummary.confirmed, color: '#2e7d32', bg: '#e8f5e9' },
-                    { label: '검토 필요', value: data.settlementSummary.reviewRequired, color: '#c62828', bg: '#ffebee' },
-                    { label: '임시저장', value: data.settlementSummary.draft, color: '#666', bg: '#f5f5f5' },
-                    { label: '보류', value: data.settlementSummary.hold, color: '#f57f17', bg: '#fffde7' },
-                  ].map(item => (
-                    <div key={item.label} style={{
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '8px 10px', borderRadius: '6px', background: item.bg, marginBottom: '6px',
-                    }}>
-                      <span style={{ fontSize: '13px', color: item.color, fontWeight: 600 }}>{item.label}</span>
-                      <span style={{ fontSize: '14px', fontWeight: 700, color: item.color }}>{item.value}</span>
-                    </div>
-                  ))}
+                  {data.settlementSummary.total === 0 ? (
+                    <p style={{ fontSize: '13px', color: '#aaa', textAlign: 'center', margin: '8px 0' }}>정산 내역이 없습니다.</p>
+                  ) : (
+                    [
+                      { label: '확정', value: data.settlementSummary.confirmed ?? 0, color: '#2e7d32', bg: '#e8f5e9' },
+                      { label: '검토 필요', value: data.settlementSummary.reviewRequired ?? 0, color: '#c62828', bg: '#ffebee' },
+                      { label: '임시저장', value: data.settlementSummary.draft ?? 0, color: '#666', bg: '#f5f5f5' },
+                      { label: '보류', value: data.settlementSummary.hold ?? 0, color: '#f57f17', bg: '#fffde7' },
+                    ].map(item => (
+                      <div key={item.label} style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        padding: '8px 10px', borderRadius: '6px', background: item.bg, marginBottom: '6px',
+                      }}>
+                        <span style={{ fontSize: '13px', color: item.color, fontWeight: 600 }}>{item.label}</span>
+                        <span style={{ fontSize: '14px', fontWeight: 700, color: item.color }}>{item.value}</span>
+                      </div>
+                    ))
+                  )}
                 </>
               ) : (
                 <div style={s.emptyMsg}>로딩 중...</div>
@@ -291,9 +330,12 @@ export default function OperationsDashboardPage() {
 
           {/* 최근 다운로드 */}
           <div style={s.panel}>
-            <div style={s.panelHeader}>최근 다운로드</div>
+            <div style={{ ...s.panelHeader, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>최근 다운로드</span>
+              <Link href="/admin/document-center" style={s.panelLink}>→ 이동</Link>
+            </div>
             <div style={{ padding: '8px 0' }}>
-              {data?.recentDownloads.length ? data.recentDownloads.map(dl => (
+              {data?.recentDownloads && data.recentDownloads.length > 0 ? data.recentDownloads.map(dl => (
                 <div key={dl.id} style={{
                   padding: '10px 16px',
                   borderBottom: '1px solid #f5f5f5',
@@ -326,34 +368,39 @@ export default function OperationsDashboardPage() {
 
           {/* 온보딩 이슈 */}
           <div style={s.panel}>
-            <div style={s.panelHeader}>온보딩 이슈</div>
+            <div style={{ ...s.panelHeader, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>온보딩 이슈</span>
+              <Link href="/admin/workers" style={s.panelLink}>→ 이동</Link>
+            </div>
             <div style={{ padding: '8px 0' }}>
-              {data?.onboardingIssues.length ? data.onboardingIssues.map(issue => (
-                <div key={issue.workerId} style={{
-                  padding: '10px 16px',
-                  borderBottom: '1px solid #f5f5f5',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                  <div>
-                    <Link
-                      href={`/admin/workers/${issue.workerId}`}
-                      style={{ fontSize: '13px', fontWeight: 600, color: '#1976d2', textDecoration: 'none' }}
-                    >
-                      {issue.workerName}
-                    </Link>
-                    <div style={{ fontSize: '11px', color: '#e65100', marginTop: '2px' }}>{issue.topIssue}</div>
-                  </div>
-                  <span style={{
-                    fontSize: '12px', fontWeight: 700, color: 'white',
-                    background: '#e53935', borderRadius: '999px', padding: '2px 8px',
+              {(!data?.onboardingIssues || data.onboardingIssues.length === 0) ? (
+                <p style={{ ...s.emptyMsg, margin: 0 }}>온보딩 이슈가 없습니다.</p>
+              ) : (
+                data.onboardingIssues.map(issue => (
+                  <div key={issue.workerId} style={{
+                    padding: '10px 16px',
+                    borderBottom: '1px solid #f5f5f5',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                   }}>
-                    {issue.issueCount}
-                  </span>
-                </div>
-              )) : (
-                <div style={s.emptyMsg}>온보딩 이슈가 없습니다</div>
+                    <div>
+                      <Link
+                        href={`/admin/workers/${issue.workerId}`}
+                        style={{ fontSize: '13px', fontWeight: 600, color: '#1976d2', textDecoration: 'none' }}
+                      >
+                        {issue.workerName}
+                      </Link>
+                      <div style={{ fontSize: '11px', color: '#e65100', marginTop: '2px' }}>{issue.topIssue}</div>
+                    </div>
+                    <span style={{
+                      fontSize: '12px', fontWeight: 700, color: 'white',
+                      background: '#e53935', borderRadius: '999px', padding: '2px 8px',
+                    }}>
+                      {issue.issueCount}
+                    </span>
+                  </div>
+                ))
               )}
             </div>
           </div>
@@ -403,5 +450,6 @@ const s: Record<string, React.CSSProperties> = {
   panel:        { background: 'white', borderRadius: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' },
   panelHeader:  { padding: '14px 16px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: '14px' },
   panelLabel:   { fontSize: '13px', color: '#666' },
+  panelLink:    { fontSize: '12px', color: '#1976d2', textDecoration: 'none', fontWeight: 400 },
   emptyMsg:     { padding: '20px 16px', fontSize: '13px', color: '#aaa', textAlign: 'center' as const },
 }

@@ -21,17 +21,22 @@ interface Site {
 }
 
 interface PreflightIssue {
-  level: 'ERROR' | 'WARNING' | 'INFO'
+  severity: 'ERROR' | 'WARNING' | 'INFO'
+  code: string
   message: string
+  workerIds?: string[]
+  detail?: string
 }
 
 interface PreflightResult {
+  ok: boolean
   canDownload: boolean
-  errorCount: number
-  warningCount: number
-  infoCount: number
+  summary: {
+    errorCount: number
+    warningCount: number
+    infoCount: number
+  }
   issues: PreflightIssue[]
-  checkedAt: string
 }
 
 function getMonthKey() {
@@ -50,6 +55,7 @@ export default function DocumentCenterPage() {
   const [xlsxLoading, setXlsxLoading] = useState(false)
   const [msg, setMsg] = useState('')
   const [preflight, setPreflight] = useState<PreflightResult | null>(null)
+  const [preflightCheckedAt, setPreflightCheckedAt] = useState<Date | null>(null)
 
   useEffect(() => {
     fetch('/api/admin/sites?pageSize=200')
@@ -62,6 +68,7 @@ export default function DocumentCenterPage() {
   // 월/서식 바뀌면 사전검사 결과 초기화
   useEffect(() => {
     setPreflight(null)
+    setPreflightCheckedAt(null)
     setMsg('')
   }, [monthKey, docType, siteId])
 
@@ -72,12 +79,13 @@ export default function DocumentCenterPage() {
       const res = await fetch('/api/admin/document-center/preflight', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ monthKey, documentType: docType, siteId: siteId || undefined }),
+        body: JSON.stringify({ monthKey, templateCode: docType, siteId: siteId || undefined }),
       })
       if (res.status === 401) { router.push('/admin/login'); return }
       const data = await res.json()
       if (!res.ok) { setMsg(`사전검사 실패: ${data.error ?? res.status}`); return }
       setPreflight(data)
+      setPreflightCheckedAt(new Date())
     } finally {
       setPreflightLoading(false)
     }
@@ -151,6 +159,7 @@ export default function DocumentCenterPage() {
   const selectedDoc = DOC_TYPES.find(d => d.value === docType)
   const isSuccess = msg.startsWith('다운로드') || msg.startsWith('XLSX 다운로드')
   const hasXlsx = XLSX_SUPPORTED.includes(docType)
+  // preflight가 실행됐고 canDownload가 false인 경우에만 차단
   const downloadBlocked = preflight !== null && !preflight.canDownload
 
   return (
@@ -207,8 +216,20 @@ export default function DocumentCenterPage() {
 
           {/* 서식 종류 선택 */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={s.label}>서식 종류</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '8px' }}>
+            {/* 서식 레이블 + XLSX 지원 배지 */}
+            <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <label style={{ ...s.label, margin: 0 }}>서식 종류</label>
+              {XLSX_SUPPORTED.includes(docType) ? (
+                <span style={{ fontSize: '11px', padding: '1px 8px', background: '#e8f5e9', color: '#2e7d32', borderRadius: '999px', fontWeight: 600 }}>
+                  XLSX 지원
+                </span>
+              ) : (
+                <span style={{ fontSize: '11px', padding: '1px 8px', background: '#f5f5f5', color: '#9e9e9e', borderRadius: '999px', fontWeight: 600 }}>
+                  CSV만
+                </span>
+              )}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {DOC_TYPES.map(d => (
                 <button
                   key={d.value}
@@ -255,50 +276,124 @@ export default function DocumentCenterPage() {
             >
               {preflightLoading ? '검사 중...' : '사전검사 실행'}
             </button>
-
-            {preflight && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}>
-                {preflight.errorCount > 0 && (
-                  <span style={{ color: '#c62828', fontWeight: 600 }}>오류 {preflight.errorCount}건</span>
-                )}
-                {preflight.warningCount > 0 && (
-                  <span style={{ color: '#f57f17', fontWeight: 600 }}>경고 {preflight.warningCount}건</span>
-                )}
-                {preflight.canDownload && (
-                  <span style={{ color: '#2e7d32', fontWeight: 600 }}>다운로드 가능</span>
-                )}
-                <span style={{ color: '#999' }}>
-                  {new Date(preflight.checkedAt).toLocaleTimeString('ko-KR')} 검사
-                </span>
-              </div>
-            )}
           </div>
 
-          {/* 사전검사 결과 패널 */}
-          {preflight && preflight.issues.length > 0 && (
+          {/* 사전검사 결과 패널 (전면 교체) */}
+          {preflight ? (
             <div style={{ marginBottom: '16px', border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
-              <div style={{ padding: '10px 14px', background: '#fafafa', borderBottom: '1px solid #e0e0e0', fontSize: '13px', fontWeight: 600 }}>
-                사전검사 결과
-              </div>
-              <div style={{ padding: '10px 14px' }}>
-                {preflight.issues.map((issue, i) => {
-                  const styles = {
-                    ERROR:   { bg: '#ffebee', color: '#c62828', icon: 'x' },
-                    WARNING: { bg: '#fff8e1', color: '#f57f17', icon: '!' },
-                    INFO:    { bg: '#e3f2fd', color: '#1565c0', icon: 'i' },
-                  }[issue.level]
-                  return (
-                    <div key={i} style={{
-                      background: styles.bg, color: styles.color,
-                      padding: '7px 12px', borderRadius: '5px', marginBottom: '5px',
-                      fontSize: '13px', display: 'flex', gap: '8px', alignItems: 'flex-start',
-                    }}>
-                      <span style={{ fontWeight: 700, flexShrink: 0 }}>{styles.icon}</span>
-                      <span>{issue.message}</span>
+              {/* 헤더 - 결과 요약 */}
+              <div style={{
+                padding: '14px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderBottom: '1px solid #e0e0e0',
+                background: preflight.summary.errorCount > 0
+                  ? '#fff5f5'
+                  : preflight.summary.warningCount > 0
+                    ? '#fffde7'
+                    : '#f1f8e9',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '18px' }}>
+                    {preflight.summary.errorCount > 0 ? '❌' : preflight.summary.warningCount > 0 ? '⚠️' : '✅'}
+                  </span>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '14px' }}>
+                      {preflight.canDownload ? '다운로드 가능' : '다운로드 차단됨'}
                     </div>
-                  )
-                })}
+                    <div style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>
+                      {preflightCheckedAt && `${preflightCheckedAt.toLocaleTimeString('ko-KR')} 검사 완료`}
+                    </div>
+                  </div>
+                </div>
+                {/* 배지 요약 */}
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {preflight.summary.errorCount > 0 && (
+                    <span style={{ padding: '2px 10px', fontSize: '11px', fontWeight: 700, background: '#ffebee', color: '#c62828', borderRadius: '999px' }}>
+                      오류 {preflight.summary.errorCount}
+                    </span>
+                  )}
+                  {preflight.summary.warningCount > 0 && (
+                    <span style={{ padding: '2px 10px', fontSize: '11px', fontWeight: 700, background: '#fff8e1', color: '#f57f17', borderRadius: '999px' }}>
+                      경고 {preflight.summary.warningCount}
+                    </span>
+                  )}
+                  {preflight.summary.infoCount > 0 && (
+                    <span style={{ padding: '2px 10px', fontSize: '11px', fontWeight: 700, background: '#e3f2fd', color: '#1565c0', borderRadius: '999px' }}>
+                      정보 {preflight.summary.infoCount}
+                    </span>
+                  )}
+                  {preflight.summary.errorCount === 0 && preflight.summary.warningCount === 0 && (
+                    <span style={{ padding: '2px 10px', fontSize: '11px', fontWeight: 700, background: '#e8f5e9', color: '#2e7d32', borderRadius: '999px' }}>
+                      이상 없음
+                    </span>
+                  )}
+                </div>
               </div>
+
+              {/* 이슈 목록 */}
+              {preflight.issues.length > 0 ? (
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                  {preflight.issues.map((issue, i) => (
+                    <li key={i} style={{
+                      padding: '10px 14px',
+                      borderBottom: i < preflight.issues.length - 1 ? '1px solid #f5f5f5' : 'none',
+                      display: 'flex',
+                      gap: '10px',
+                      alignItems: 'flex-start',
+                    }}>
+                      <span style={{
+                        marginTop: '1px',
+                        flexShrink: 0,
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        background: issue.severity === 'ERROR' ? '#ffebee' : issue.severity === 'WARNING' ? '#fff8e1' : '#e3f2fd',
+                        color: issue.severity === 'ERROR' ? '#c62828' : issue.severity === 'WARNING' ? '#f57f17' : '#1565c0',
+                      }}>
+                        {issue.severity === 'ERROR' ? '!' : issue.severity === 'WARNING' ? '△' : 'i'}
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#333' }}>{issue.message}</div>
+                        {issue.detail && (
+                          <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>{issue.detail}</div>
+                        )}
+                        {issue.workerIds && issue.workerIds.length > 0 && (
+                          <div style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>
+                            대상 근로자 {issue.workerIds.length}명
+                          </div>
+                        )}
+                        <div style={{ fontSize: '11px', color: '#bbb', marginTop: '2px', fontFamily: 'monospace' }}>{issue.code}</div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div style={{ padding: '16px', fontSize: '13px', color: '#aaa', textAlign: 'center' }}>
+                  검사 항목 없음 (모두 정상)
+                </div>
+              )}
+
+              {/* 재실행 버튼 */}
+              <div style={{ padding: '10px 14px', background: '#fafafa', borderTop: '1px solid #f0f0f0', display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={handlePreflight}
+                  disabled={preflightLoading}
+                  style={{ fontSize: '12px', color: '#1976d2', background: 'none', border: 'none', cursor: 'pointer', opacity: preflightLoading ? 0.5 : 1 }}
+                >
+                  {preflightLoading ? '검사 중...' : '↻ 사전검사 재실행'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ marginBottom: '16px', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '16px', background: '#fafafa', fontSize: '13px', color: '#aaa', textAlign: 'center' }}>
+              사전검사를 실행하면 결과가 여기에 표시됩니다.
             </div>
           )}
 
@@ -334,6 +429,13 @@ export default function DocumentCenterPage() {
               </button>
             )}
           </div>
+
+          {/* 다운로드 차단 안내 */}
+          {preflight && !preflight.canDownload && (
+            <p style={{ fontSize: '12px', color: '#c62828', marginTop: '6px' }}>
+              오류를 해결한 후 다운로드하세요.
+            </p>
+          )}
 
           {/* 결과 메시지 */}
           {msg && (

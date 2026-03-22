@@ -148,6 +148,92 @@ export async function closeMonth(monthKey: string, closedBy: string): Promise<vo
         data: { monthKey, closingScope: 'GLOBAL', siteId: null, ...closingData },
       })
 
+  // 스냅샷 저장 (3종)
+  const confirmedWorkers = await prisma.monthlyWorkConfirmation.findMany({
+    where: { monthKey, confirmationStatus: 'CONFIRMED' },
+    include: { worker: { select: { id: true, name: true, company: true, employmentType: true, retirementMutualStatus: true } } },
+    distinct: ['workerId'],
+  })
+
+  const wageCalcs = await prisma.wageCalculation.findMany({
+    where: { monthKey },
+    select: { workerId: true, grossAmount: true, taxableAmount: true },
+  })
+
+  const withholdingCalcs = await prisma.withholdingCalculation.findMany({
+    where: { monthKey },
+    select: { workerId: true, incomeTaxAmount: true, localIncomeTaxAmount: true },
+  })
+  const withholdingByWorker = new Map(withholdingCalcs.map(w => [w.workerId, w]))
+
+  const settlements = await prisma.subcontractorSettlement.findMany({
+    where: { monthKey },
+    select: { subcontractorId: true, workerCount: true, grossAmount: true, status: true },
+  })
+
+  // WORKER_SUMMARY 스냅샷
+  await prisma.monthClosingSnapshot.create({
+    data: {
+      closingId: closing.id,
+      siteId: null,
+      monthKey,
+      snapshotType: 'WORKER_SUMMARY',
+      payloadJson: {
+        workerCount: confirmedWorkers.length,
+        workers: confirmedWorkers.map(w => ({
+          workerId: w.workerId,
+          name: w.worker.name,
+          company: w.worker.company,
+          employmentType: w.worker.employmentType,
+          retirementMutualStatus: w.worker.retirementMutualStatus,
+        })),
+      } as never,
+      createdBy: closedBy,
+    },
+  })
+
+  // SUBCONTRACTOR_SUMMARY 스냅샷
+  await prisma.monthClosingSnapshot.create({
+    data: {
+      closingId: closing.id,
+      siteId: null,
+      monthKey,
+      snapshotType: 'SUBCONTRACTOR_SUMMARY',
+      payloadJson: {
+        settlementCount: settlements.length,
+        settlements,
+      } as never,
+      createdBy: closedBy,
+    },
+  })
+
+  // DOCUMENT_EXPORT_BASE 스냅샷
+  const wageMap: Record<string, { grossAmount: number; taxableAmount: number; withholdingTax: number }> = {}
+  for (const w of wageCalcs) {
+    const wh = withholdingByWorker.get(w.workerId)
+    const withholdingTax = wh ? wh.incomeTaxAmount + wh.localIncomeTaxAmount : 0
+    wageMap[w.workerId] = {
+      grossAmount: Number(w.grossAmount),
+      taxableAmount: Number(w.taxableAmount),
+      withholdingTax,
+    }
+  }
+
+  await prisma.monthClosingSnapshot.create({
+    data: {
+      closingId: closing.id,
+      siteId: null,
+      monthKey,
+      snapshotType: 'DOCUMENT_EXPORT_BASE',
+      payloadJson: {
+        totalGrossAmount: wageCalcs.reduce((sum, w) => sum + Number(w.grossAmount), 0),
+        totalWithholdingTax: Object.values(wageMap).reduce((sum, w) => sum + w.withholdingTax, 0),
+        workerWages: wageMap,
+      } as never,
+      createdBy: closedBy,
+    },
+  })
+
   await logCorrection({
     domainType: 'MONTH_CLOSING',
     domainId: closing.id,
@@ -170,6 +256,10 @@ export async function reopenMonth(monthKey: string, reopenedBy: string, reason: 
 
   if (!closing) {
     throw new Error('마감 이력이 없습니다.')
+  }
+
+  if (closing.status !== 'CLOSED') {
+    throw new Error('마감된 상태에서만 재오픈할 수 있습니다.')
   }
 
   const before = { ...closing }

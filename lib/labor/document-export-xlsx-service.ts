@@ -121,7 +121,7 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
     formatAmount(ws.getRow(ws.rowCount).getCell(11), local)
   })
 
-  // 합계 행
+  // 합계 행 (데이터가 없어도 합계 행 추가)
   const totalRow = ws.addRow(['합계', '', '', '', '', '', '', '', totalGross, totalTax, totalLocal, ''])
   styleHeader(totalRow, 'FFFFE0B2')
   formatAmount(totalRow.getCell(9), totalGross)
@@ -130,6 +130,61 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
 
   ws.views = [{ state: 'frozen', xSplit: 0, ySplit: 2 }]
 
+  const arrayBuffer = await wb.xlsx.writeBuffer()
+  return Buffer.from(arrayBuffer)
+}
+
+/** 세금계산표 XLSX */
+async function buildTaxReportXlsx(opts: XlsxExportOptions): Promise<Buffer> {
+  const wageCalcs = await prisma.wageCalculation.findMany({
+    where: { monthKey: opts.monthKey },
+    include: { worker: { select: { name: true, residentIdMasked: true, jobTitle: true } } },
+    orderBy: { workerId: 'asc' },
+  })
+
+  const withholdingCalcs = await prisma.withholdingCalculation.findMany({
+    where: { monthKey: opts.monthKey },
+    select: { workerId: true, incomeTaxAmount: true, localIncomeTaxAmount: true },
+  })
+  const withholdingMap = new Map(withholdingCalcs.map(w => [w.workerId, w]))
+
+  const wb = new ExcelJS.Workbook()
+  wb.creator = '해한 출퇴근 시스템'
+  const ws = wb.addWorksheet('세금계산표')
+  const headers = ['성명', '주민번호', '직종', '귀속연월', '총지급액', '과세소득', '원천징수세', '비고']
+  const colWidths = [12, 16, 12, 10, 14, 14, 14, 16]
+
+  addTitleRow(ws, `${opts.monthKey} 세금계산표`, headers.length)
+  styleHeader(ws.addRow(headers))
+  ws.getRow(2).height = 22
+  headers.forEach((_, i) => { ws.getColumn(i + 1).width = colWidths[i] })
+
+  let totalGross = 0, totalTax = 0
+
+  wageCalcs.forEach((w, idx) => {
+    const gross = Number(w.grossAmount)
+    const taxable = Number(w.taxableAmount)
+    const wh = withholdingMap.get(w.workerId)
+    const withholding = wh ? wh.incomeTaxAmount + wh.localIncomeTaxAmount : 0
+    totalGross += gross; totalTax += withholding
+
+    const row = ws.addRow([
+      w.worker.name, w.worker.residentIdMasked ?? '', w.worker.jobTitle,
+      w.monthKey, gross, taxable, withholding, '',
+    ])
+    styleDataRow(row, idx % 2 === 1)
+    formatAmount(row.getCell(5), gross)
+    formatAmount(row.getCell(6), taxable)
+    formatAmount(row.getCell(7), withholding)
+  })
+
+  // 데이터가 없어도 합계 행 추가
+  const totalRow = ws.addRow(['합계', '', '', '', totalGross, '', totalTax, ''])
+  styleHeader(totalRow, 'FFFFE0B2')
+  formatAmount(totalRow.getCell(5), totalGross)
+  formatAmount(totalRow.getCell(7), totalTax)
+
+  ws.views = [{ state: 'frozen', xSplit: 0, ySplit: 2 }]
   const arrayBuffer = await wb.xlsx.writeBuffer()
   return Buffer.from(arrayBuffer)
 }
@@ -143,12 +198,14 @@ async function buildInsuranceReportXlsx(opts: XlsxExportOptions): Promise<Buffer
   })
 
   const wb = new ExcelJS.Workbook()
+  wb.creator = '해한 출퇴근 시스템'
   const ws = wb.addWorksheet('보험판정표')
   const headers = ['성명', '주민번호', '직종', '귀속연월', '총근무일', '총소득', '국민연금', '건강보험', '고용보험', '산재보험']
-  const colWidths = [10, 16, 10, 10, 10, 12, 10, 10, 10, 10]
+  const colWidths = [12, 16, 12, 10, 10, 14, 10, 10, 10, 10]
 
   addTitleRow(ws, `${opts.monthKey} 보험판정표`, headers.length)
   styleHeader(ws.addRow(headers))
+  ws.getRow(2).height = 22
   headers.forEach((_, i) => { ws.getColumn(i + 1).width = colWidths[i] })
 
   snapshots.forEach((s, idx) => {
@@ -169,6 +226,7 @@ async function buildInsuranceReportXlsx(opts: XlsxExportOptions): Promise<Buffer
     })
   })
 
+  ws.views = [{ state: 'frozen', xSplit: 0, ySplit: 2 }]
   const arrayBuffer = await wb.xlsx.writeBuffer()
   return Buffer.from(arrayBuffer)
 }
@@ -269,13 +327,17 @@ export async function createXlsxDocument(opts: XlsxExportOptions): Promise<{ buf
       buffer = await buildInsuranceReportXlsx(opts)
       fileName = `${opts.monthKey}_보험판정표.xlsx`
       break
+    case 'TAX_REPORT':
+      buffer = await buildTaxReportXlsx(opts)
+      fileName = `${opts.monthKey}_세금계산표.xlsx`
+      break
     case 'SUBCONTRACTOR_SETTLEMENT':
       buffer = await buildSubcontractorSettlementXlsx(opts)
       fileName = `${opts.monthKey}_협력사정산서.xlsx`
       break
     case 'RETIREMENT_MUTUAL_SUMMARY':
       buffer = await buildRetirementSummaryXlsx(opts)
-      fileName = `${opts.monthKey}_퇴직공제요약표.xlsx`
+      fileName = `${opts.monthKey}_퇴직공제요약.xlsx`
       break
     default:
       throw new Error(`XLSX not supported for: ${opts.documentType}. Use CSV instead.`)

@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { ok, unauthorized, badRequest, internalError } from '@/lib/utils/response'
 import { runTaxCalculation } from '@/lib/labor/tax'
+import { isMonthLocked } from '@/lib/labor/month-closing'
 
 // POST /api/admin/wage-calculations/run
 // { monthKey, workerId? }
@@ -16,6 +17,9 @@ export async function POST(req: NextRequest) {
     if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) {
       return badRequest('INVALID_MONTH_KEY')
     }
+
+    const locked = await isMonthLocked(monthKey)
+    if (locked) return badRequest('마감 완료된 월입니다. 재오픈 후 수정하세요.')
 
     const result = await runTaxCalculation({ monthKey, workerId })
     return ok({ monthKey, ...result })
