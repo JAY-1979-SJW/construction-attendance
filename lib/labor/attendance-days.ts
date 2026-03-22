@@ -3,7 +3,7 @@
  * attendance_logs + presence_checks → attendance_days
  */
 import { prisma } from '@/lib/db/prisma'
-import { toKSTDateString } from '@/lib/utils/date'
+import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
 
 export interface AggregateDaysOptions {
   workDate?: string   // 'YYYY-MM-DD' — 미지정 시 오늘
@@ -25,7 +25,7 @@ export async function aggregateAttendanceDays(
   const result: AggregateDaysResult = { processed: 0, created: 0, updated: 0, errors: 0 }
 
   // workDate 는 'YYYY-MM-DD' 문자열 → Date 변환
-  const dateAsDate = new Date(`${workDate}T00:00:00+09:00`)
+  const dateAsDate = kstDateStringToDate(workDate)
 
   // 해당 날짜의 attendance_logs 조회
   const logs = await prisma.attendanceLog.findMany({

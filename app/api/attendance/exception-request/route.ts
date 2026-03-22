@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
           workerId: session.sub,
           siteId,
           workDate: workDateObj,
-          qrToken: 'EXCEPTION',
+          qrToken: null,
           status: 'EXCEPTION',
           exceptionReason: `[${type}] ${reason}`,
         },

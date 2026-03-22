@@ -294,7 +294,7 @@ export default function AttendancePage() {
         return
       }
 
-      const deviceToken = localStorage.getItem('deviceToken') ?? ''
+      const deviceToken = localStorage.getItem('ca_device_token') ?? ''
       const res = await fetch('/api/attendance/check-in-direct', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -329,7 +329,7 @@ export default function AttendancePage() {
         return
       }
 
-      const deviceToken = localStorage.getItem('deviceToken') ?? ''
+      const deviceToken = localStorage.getItem('ca_device_token') ?? ''
       const res = await fetch('/api/attendance/check-out-direct', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

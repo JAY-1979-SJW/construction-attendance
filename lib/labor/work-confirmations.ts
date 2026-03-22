@@ -2,9 +2,42 @@
  * 근무확정 서비스
  * attendance_days → monthly_work_confirmations (DRAFT 생성)
  * 관리자 확정 → CONFIRMED 상태로 전환, 보수 계산
+ *
+ * 공수 판정 기준 (07:00~16:00, 점심 1시간, 실근로 8시간 = 1.0 공수)
+ *   - 실근로 8시간 이상 (4시간 초과 시 점심 1시간 차감) → FULL_DAY  1.0
+ *   - 실근로 4~8시간                                    → HALF_DAY  0.5
+ *   - 실근로 4시간 미만 / 미퇴근 / 무효                 → INVALID   0
  */
 import { prisma } from '@/lib/db/prisma'
 import { Decimal } from '@prisma/client/runtime/library'
+
+/**
+ * workedMinutesRaw(출근~퇴근 경과 분) 기준 공수 자동 판정
+ * - 경과 4시간 초과 시 점심 1시간 차감하여 실근로 계산
+ * - MISSING_CHECKOUT / INVALID presenceStatus는 무조건 INVALID
+ */
+function calcWorkUnits(
+  workedMinutesRaw: number | null,
+  presenceStatus: string,
+): { workType: string; workUnits: Decimal } {
+  if (['MISSING_CHECKOUT', 'INVALID'].includes(presenceStatus) || workedMinutesRaw == null) {
+    return { workType: 'INVALID', workUnits: new Decimal(0) }
+  }
+
+  // 4시간(240분) 초과 시 점심 60분 차감 → 실근로 산출
+  const effectiveMinutes = workedMinutesRaw > 240 ? workedMinutesRaw - 60 : workedMinutesRaw
+
+  if (effectiveMinutes >= 480) {
+    // 실근로 8시간 이상 → 1.0 공수
+    return { workType: 'FULL_DAY', workUnits: new Decimal(1) }
+  } else if (effectiveMinutes >= 240) {
+    // 실근로 4~8시간 → 0.5 공수
+    return { workType: 'HALF_DAY', workUnits: new Decimal('0.5') }
+  } else {
+    // 실근로 4시간 미만 → 무효 (관리자 직접 조정 필요)
+    return { workType: 'INVALID', workUnits: new Decimal(0) }
+  }
+}
 
 export interface GenerateConfirmationsOptions {
   monthKey: string   // 'YYYY-MM'
@@ -50,10 +83,12 @@ export async function generateDraftConfirmations(
         continue
       }
 
-      // 기본 공수 판단: 정상 출퇴근 → 1공수, 퇴근 누락/무효 → 0
-      const isInvalid = ['MISSING_CHECKOUT', 'INVALID'].includes(day.presenceStatus)
-      const defaultWorkType = isInvalid ? 'INVALID' : 'FULL_DAY'
-      const defaultWorkUnits = isInvalid ? new Decimal(0) : new Decimal(1)
+      // 공수 판정: 실근로 시간 기반 (07:00~16:00, 점심 1시간, 실근로 8시간 = 1.0 공수)
+      const { workType: defaultWorkType, workUnits: defaultWorkUnits } = calcWorkUnits(
+        day.workedMinutesRaw,
+        day.presenceStatus,
+      )
+      const isInvalid = defaultWorkType === 'INVALID'
 
       // 해당 날짜 유효 계약 조회
       const contract = await prisma.workerContract.findFirst({
