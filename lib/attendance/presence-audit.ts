@@ -24,7 +24,7 @@ export async function logPresenceAudit(params: AuditParams): Promise<void> {
         fromStatus:        params.fromStatus ?? null,
         toStatus:          params.toStatus ?? null,
         message:           params.message ?? null,
-        metadataJson:      params.metadata ? JSON.parse(JSON.stringify(params.metadata)) : undefined,
+        metadataJson:      params.metadata as never ?? undefined,
       },
     })
   } catch (err) {

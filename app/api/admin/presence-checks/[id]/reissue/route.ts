@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession } from '@/lib/auth/guards'
-import { ok, unauthorized, badRequest, notFound, conflict, internalError } from '@/lib/utils/response'
+import { ok, unauthorized, forbidden, badRequest, notFound, conflict, internalError } from '@/lib/utils/response'
 import { logPresenceAudit } from '@/lib/attendance/presence-audit'
 
 const MAX_REISSUE = 2
@@ -10,6 +10,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
+    if (session.role === 'VIEWER') {
+      await logPresenceAudit({ presenceCheckId: params.id, action: 'PERMISSION_DENIED', actorType: 'ADMIN', actorId: session.sub, message: 'VIEWER 역할 reissue 시도 차단' })
+      return forbidden('조회 전용 계정은 이 작업을 수행할 수 없습니다.')
+    }
 
     const body = await req.json().catch(() => ({}))
     const expiresInMinutes: number = body.expiresInMinutes ?? 10

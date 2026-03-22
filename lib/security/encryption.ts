@@ -1,3 +1,21 @@
+/**
+ * 암호화 + 마스킹 공통 유틸리티
+ *
+ * ■ 마스킹 정책 (전체 시스템 공통)
+ *   - 주민등록번호: 앞 8자리 표시, 뒤 6자리 마스킹  예) 900101-1******
+ *   - 외국인등록번호: 동일 규칙
+ *   - 발급번호/면허번호: 뒤 4자리 마스킹  예) ABCD1234****
+ *   - 주소: 시/구 단위까지만 표시, 이하 *** 처리  예) 서울시 강남구 ***
+ *
+ * ■ 원본 저장 정책
+ *   - 민감 정보(주민번호, 주소, 면허번호)는 AES-256-GCM으로 암호화 저장
+ *   - 환경변수: IDENTITY_ENCRYPTION_KEY (최소 32자)
+ *
+ * ■ 열람 권한 정책
+ *   - 기본 조회: 마스킹값(idNumberMasked, addressMasked, licenseNumberMasked)만 노출
+ *   - 원본 조회: ADMIN, SUPER_ADMIN 역할만 복호화 허용 + 감사로그 필수
+ *   - 원본 다운로드: SUPER_ADMIN만 허용 + 감사로그 필수
+ */
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypto'
 
 const ALGORITHM = 'aes-256-gcm'

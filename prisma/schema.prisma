@@ -307,6 +307,7 @@ model WorkerDevice {
   isPrimary   Boolean  @default(false)
   isActive    Boolean  @default(true)
   lastLoginAt DateTime?
+  fcmToken    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -447,6 +448,8 @@ model PresenceCheck {
   reissuedFromId      String?
   reissueCount        Int                 @default(0)
   closedAt            DateTime?
+  pushSentAt          DateTime?
+  pushFailedAt        DateTime?
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 

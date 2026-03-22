@@ -6,6 +6,14 @@ import { decrypt } from '@/lib/security/encryption'
 
 const ORIGINAL_ROLES = ['SUPER_ADMIN', 'ADMIN']
 
+function getClientIp(req: NextRequest): string | null {
+  return (
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    req.headers.get('x-real-ip') ??
+    null
+  )
+}
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -13,17 +21,21 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const canSeeOriginal = ORIGINAL_ROLES.includes(session.role ?? '')
   const { searchParams } = new URL(req.url)
   const documentId = searchParams.get('documentId')
+  const ipAddress  = getClientIp(req)
 
   if (documentId) {
     const doc = await prisma.workerIdentityDocument.findUnique({
       where: { id: documentId }, include: { sensitiveData: true },
     })
-    if (!doc || doc.workerId !== params.id) return NextResponse.json({ error: '문서를 찾을 수 없습니다.' }, { status: 404 })
+    if (!doc || doc.workerId !== params.id) {
+      return NextResponse.json({ error: '문서를 찾을 수 없습니다.' }, { status: 404 })
+    }
 
     await logAccess({
       workerId: params.id, documentId,
       actionType: canSeeOriginal ? 'VIEW_ORIGINAL' : 'VIEW_MASKED',
       actorUserId: session.sub, actorRole: session.role ?? '',
+      ipAddress: ipAddress ?? undefined,
     })
 
     const s = doc.sensitiveData
@@ -47,7 +59,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   const docs = await prisma.workerIdentityDocument.findMany({
     where: { workerId: params.id }, orderBy: { createdAt: 'desc' },
-    select: { id: true, documentType: true, scanStatus: true, reviewStatus: true, isLatest: true, createdAt: true, fileSize: true, uploadedBy: true },
+    select: {
+      id: true, documentType: true, scanStatus: true, reviewStatus: true,
+      isLatest: true, createdAt: true, fileSize: true, uploadedBy: true,
+    },
   })
   return NextResponse.json({ items: docs, total: docs.length })
 }

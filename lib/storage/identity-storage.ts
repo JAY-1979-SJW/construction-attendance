@@ -35,7 +35,14 @@ export async function readIdentityFile(fileKey: string): Promise<Buffer> {
 }
 
 export async function deleteIdentityFile(fileKey: string): Promise<void> {
-  try { await unlink(path.join(UPLOAD_ROOT, fileKey)) } catch { /* ignore */ }
+  try {
+    await unlink(path.join(UPLOAD_ROOT, fileKey))
+  } catch (err) {
+    // 파일 미존재는 정상 케이스(이미 삭제됨), 다른 오류는 경고 로그
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+      console.error('[identity-storage] 파일 삭제 실패 — 수동 확인 필요', { fileKey, err })
+    }
+  }
 }
 
 export function getExtFromMime(mime: string): string {
