@@ -537,21 +537,12 @@ export default function AttendancePage() {
                 <p style={{ fontSize: '13px', color: '#888' }}>
                   {!isPreview && availableSites.length === 0
                     ? '배정된 현장이 없습니다. 관리자에게 문의하세요.'
-                    : '아래 QR 스캔 또는 현장 선택으로 출근하세요.'}
+                    : '현장 목록에서 출근할 현장을 선택하세요.'}
                 </p>
               </div>
             )}
           </div>
         )}
-      </div>
-
-      {/* QR 보조 수단 — 미등록 현장 대비 보조 기능 */}
-      <div style={{ textAlign: 'center' as const, marginBottom: '12px' }}>
-        <span style={{ fontSize: '12px', color: '#aaa' }}>
-          현장 QR코드가 있다면{' '}
-          <a href="/attendance/qr-scan" style={{ color: '#1976d2', textDecoration: 'underline' }}>QR 스캔</a>
-          {' '}으로 현장 자동 선택
-        </span>
       </div>
 
       {!isPreview && (

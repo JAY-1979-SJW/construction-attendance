@@ -77,7 +77,6 @@ export async function PATCH(
         longitude: updated.longitude,
         allowedRadius: updated.allowedRadius,
         isActive: updated.isActive,
-        qrToken: updated.qrToken,
         updatedAt: updated.updatedAt,
       },
       '현장 정보가 수정되었습니다.'

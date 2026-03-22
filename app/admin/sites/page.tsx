@@ -39,7 +39,6 @@ interface Site {
   latitude: number
   longitude: number
   allowedRadius: number
-  qrToken: string
   isActive: boolean
   siteCode?: string | null
   openedAt?: string | null
@@ -103,7 +102,7 @@ export default function SitesPage() {
   const [form, setForm] = useState(emptyForm)
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
-  const [newQr, setNewQr] = useState<{ siteName: string; qrToken: string } | null>(null)
+  const [registered, setRegistered] = useState<string | null>(null)
 
   // ── 수정 모달 ──────────────────────────────────────────────────────
   const [editTarget, setEditTarget] = useState<Site | null>(null)
@@ -301,7 +300,7 @@ export default function SitesPage() {
     const data = await res.json()
     if (!data.success) { setFormError(data.message); setSaving(false); return }
     setShowForm(false)
-    setNewQr({ siteName: form.name, qrToken: data.data.qrToken })
+    setRegistered(form.name)
     setForm(emptyForm); load(); setSaving(false)
   }
 
@@ -370,8 +369,6 @@ export default function SitesPage() {
     await fetch(`/api/admin/sites/${siteId}/company-assignments?assignmentId=${assignmentId}`, { method: 'DELETE' })
     load()
   }
-
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
 
   // ── 공통 모달 폼 렌더 ─────────────────────────────────────────────────
   const renderFormFields = (
@@ -520,23 +517,11 @@ export default function SitesPage() {
                   ))}
                 </div>
 
-                {/* QR 섹션 */}
-                <div style={styles.qrBox}>
-                  <div style={styles.qrLabel}>QR URL</div>
-                  <div style={styles.qrUrl}>{baseUrl}/qr/{site.qrToken}</div>
-                  <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
-                    <button onClick={() => navigator.clipboard.writeText(`${baseUrl}/qr/${site.qrToken}`)} style={styles.copyBtn}>URL 복사</button>
-                    <a href={`/api/admin/sites/qr?siteId=${site.id}`} download={`QR_${site.name}.png`}
-                      style={{ ...styles.copyBtn, textDecoration: 'none', display: 'inline-block' }}>QR 다운로드</a>
-                  </div>
-                </div>
-
                 {/* 상세 패널 (토글) */}
                 {detailSite?.id === site.id && (
                   <div style={styles.detailPanel}>
                     <div style={styles.detailRow}><span style={styles.detailLabel}>위도</span><span>{site.latitude}</span></div>
                     <div style={styles.detailRow}><span style={styles.detailLabel}>경도</span><span>{site.longitude}</span></div>
-                    <div style={styles.detailRow}><span style={styles.detailLabel}>qrToken</span><span style={{ wordBreak: 'break-all', fontSize: '11px' }}>{site.qrToken}</span></div>
                     <div style={styles.detailRow}><span style={styles.detailLabel}>등록일</span><span>{fmtDate(site.createdAt)}</span></div>
                   </div>
                 )}
@@ -633,17 +618,14 @@ export default function SitesPage() {
           </div>
         )}
 
-        {/* ── QR 발급 완료 ──────────────────────────────────── */}
-        {newQr && (
+        {/* ── 등록 완료 알림 ──────────────────────────────────── */}
+        {registered && (
           <div style={styles.modalOverlay}>
             <div style={styles.modal}>
               <div style={{ fontSize: '40px', textAlign: 'center', marginBottom: '12px' }}>✅</div>
               <h3 style={{ margin: '0 0 12px', textAlign: 'center' }}>현장 등록 완료</h3>
-              <p style={{ fontSize: '14px', color: '#555', textAlign: 'center', marginBottom: '16px' }}>{newQr.siteName}의 QR URL이 발급되었습니다.</p>
-              <div style={styles.qrBox}>
-                <div style={{ wordBreak: 'break-all', fontSize: '13px', color: '#1976d2' }}>{baseUrl}/qr/{newQr.qrToken}</div>
-              </div>
-              <button onClick={() => setNewQr(null)} style={{ ...styles.saveBtn, width: '100%', marginTop: '16px' }}>확인</button>
+              <p style={{ fontSize: '14px', color: '#555', textAlign: 'center', marginBottom: '16px' }}>{registered} 현장이 등록되었습니다.</p>
+              <button onClick={() => setRegistered(null)} style={{ ...styles.saveBtn, width: '100%', marginTop: '16px' }}>확인</button>
             </div>
           </div>
         )}
@@ -685,10 +667,6 @@ const styles: Record<string, React.CSSProperties> = {
   companyMeta:  { fontSize: '11px', color: '#777', marginTop: '3px' },
   assignBtn:    { fontSize: '11px', padding: '3px 8px', background: '#e8f5e9', color: '#2e7d32', border: '1px solid #a5d6a7', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' as const },
   delAssignBtn: { fontSize: '11px', padding: '2px 6px', background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', flexShrink: 0 },
-  qrBox:        { background: '#f8f9fa', borderRadius: '8px', padding: '12px', marginTop: '8px' },
-  qrLabel:      { fontSize: '11px', color: '#999', marginBottom: '4px' },
-  qrUrl:        { fontSize: '12px', color: '#1976d2', wordBreak: 'break-all', marginBottom: '8px' },
-  copyBtn:      { padding: '4px 10px', fontSize: '12px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' },
   editBtn:      { padding: '4px 10px', fontSize: '12px', background: '#e3f2fd', color: '#1976d2', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer' },
   detailBtn:    { padding: '4px 10px', fontSize: '12px', background: '#f5f5f5', color: '#555', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer' },
   detailPanel:  { borderTop: '1px solid #f0f0f0', marginTop: '10px', paddingTop: '10px' },

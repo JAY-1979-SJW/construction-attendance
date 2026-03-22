@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, badRequest, unauthorized, notFound, internalError } from '@/lib/utils/response'
-import { generateQrToken } from '@/lib/qr/qr-token'
+import { generateToken } from '@/lib/utils/random'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 export async function POST(
@@ -44,7 +44,7 @@ export async function POST(
             latitude: row.latitude,
             longitude: row.longitude,
             allowedRadius: row.allowedRadiusMeters ?? 100,
-            qrToken: generateQrToken(),
+            qrToken: generateToken(32),
             isActive: true,
           },
         })

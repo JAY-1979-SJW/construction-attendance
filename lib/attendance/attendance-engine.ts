@@ -31,7 +31,6 @@ export interface AttendanceEngineInput {
   latitude: number
   longitude: number
   isDirectCheckIn?: boolean
-  qrToken?: string
   exceptionReason?: string
 }
 
@@ -122,7 +121,7 @@ export async function processAttendanceCheckIn(
   input: AttendanceEngineInput,
   schedulePresence: (attendanceId: string) => Promise<void>
 ): Promise<AttendanceCheckInResult> {
-  const { workerId, deviceToken, siteId, latitude, longitude, isDirectCheckIn, qrToken, exceptionReason } = input
+  const { workerId, deviceToken, siteId, latitude, longitude, isDirectCheckIn, exceptionReason } = input
 
   // 1. 기기 검증
   if (!(await validateAttendanceDevice(workerId, deviceToken))) {
@@ -179,8 +178,7 @@ export async function processAttendanceCheckIn(
       checkInLng: longitude,
       checkInDistance: distance,
       checkInWithinRadius: within,
-      qrToken: qrToken ?? null,
-      isDirectCheckIn: isDirectCheckIn ?? !qrToken,
+      isDirectCheckIn: true,
       status: 'WORKING',
       // 회사 스냅샷
       companyId: assignment.companyId,

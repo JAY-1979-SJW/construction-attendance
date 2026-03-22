@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, created, badRequest, unauthorized, internalError } from '@/lib/utils/response'
-import { generateQrToken } from '@/lib/qr/qr-token'
+import { generateToken } from '@/lib/utils/random'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 const createSchema = z.object({
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) return badRequest(parsed.error.errors[0].message)
 
     const { siteCode, openedAt, closedAt, notes, ...coreData } = parsed.data
-    const qrToken = generateQrToken()
+    const qrToken = generateToken(32)
     const site = await prisma.site.create({
       data: {
         ...coreData,
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
       description: `현장 등록: ${site.name}`,
     })
 
-    return created({ id: site.id, qrToken }, '현장이 등록되었습니다.')
+    return created({ id: site.id }, '현장이 등록되었습니다.')
   } catch (err) {
     console.error('[admin/sites POST]', err)
     return internalError()
