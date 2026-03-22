@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getStoredDeviceToken } from '@/lib/utils/device-token'
 
@@ -15,8 +15,8 @@ interface SiteInfo {
 
 type Mode = 'loading' | 'check-in' | 'move' | 'check-out' | 'completed' | 'already-done' | 'error'
 
-export default function QrPage({ params }: { params: Promise<{ qrToken: string }> }) {
-  const { qrToken } = use(params)
+export default function QrPage({ params }: { params: { qrToken: string } }) {
+  const { qrToken } = params
   const router = useRouter()
   const [site, setSite] = useState<SiteInfo | null>(null)
   const [mode, setMode] = useState<Mode>('loading')
