@@ -204,14 +204,14 @@ export default function AdminAttendancePage() {
             <table style={styles.table}>
               <thead>
                 <tr>
-                  {['날짜', '이름', '회사', '직종', '현장', '출근', '퇴근', '상태', '자동처리', '비고'].map((h) => (
+                  {['날짜', '이름', '회사', '직종', '현장', '출근', '퇴근', '출근거리', '퇴근거리', '상태', '자동처리', '예외사유'].map((h) => (
                     <th key={h} style={styles.th}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {items.length === 0 ? (
-                  <tr><td colSpan={10} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>데이터가 없습니다.</td></tr>
+                  <tr><td colSpan={12} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>데이터가 없습니다.</td></tr>
                 ) : items.map((item) => (
                   <tr
                     key={item.id}
@@ -225,6 +225,16 @@ export default function AdminAttendancePage() {
                     <td style={styles.td}>{item.siteName}</td>
                     <td style={styles.td}>{formatTime(item.checkInAt)}</td>
                     <td style={styles.td}>{formatTime(item.checkOutAt)}</td>
+                    <td style={{ ...styles.td, textAlign: 'right' as const }}>
+                      {item.checkInDistance != null
+                        ? <span style={{ fontSize: '12px', color: item.checkInDistance > 200 ? '#e65100' : '#2e7d32', fontWeight: 600 }}>{item.checkInDistance}m</span>
+                        : <span style={{ fontSize: '11px', color: '#ccc' }}>-</span>}
+                    </td>
+                    <td style={{ ...styles.td, textAlign: 'right' as const }}>
+                      {item.checkOutDistance != null
+                        ? <span style={{ fontSize: '12px', color: item.checkOutDistance > 200 ? '#e65100' : '#555', fontWeight: 600 }}>{item.checkOutDistance}m</span>
+                        : <span style={{ fontSize: '11px', color: '#ccc' }}>-</span>}
+                    </td>
                     <td style={styles.td}>
                       <span style={{
                         color: STATUS_COLOR[item.status],
@@ -245,7 +255,9 @@ export default function AdminAttendancePage() {
                       )}
                     </td>
                     <td style={styles.td}>
-                      <span style={{ fontSize: '11px', color: '#999' }}>{item.exceptionReason ?? ''}</span>
+                      {item.exceptionReason
+                        ? <span style={{ fontSize: '11px', background: '#fff3e0', color: '#e65100', padding: '2px 8px', borderRadius: '10px', fontWeight: 600, whiteSpace: 'nowrap' as const }}>{item.exceptionReason}</span>
+                        : null}
                     </td>
                   </tr>
                 ))}

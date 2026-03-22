@@ -84,6 +84,7 @@ export default function AttendancePage() {
   const [attendanceMsg, setAttendanceMsg] = useState('')
   const [exceptionReason, setExceptionReason] = useState('')
   const [needsException, setNeedsException] = useState(false)
+  const [gpsStatus, setGpsStatus] = useState<'idle' | 'loading' | 'ok' | 'denied' | 'error'>('idle')
 
   // ── 초기 데이터 로딩 ─────────────────────────────────────────
   useEffect(() => {
@@ -242,16 +243,30 @@ export default function AttendancePage() {
       )
     )
 
+  // ── GPS 오류 메시지 헬퍼 ─────────────────────────────────────
+  const getGpsErrorMsg = (err: unknown): string => {
+    const code = (err as GeolocationPositionError)?.code
+    if (code === 1) return '위치 권한이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해 주세요.'
+    if (code === 2) return '현재 위치를 가져올 수 없습니다. 실외로 이동 후 다시 시도해 주세요.'
+    if (code === 3) return '위치 조회 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요.'
+    return 'GPS 오류가 발생했습니다. 위치 권한을 확인해 주세요.'
+  }
+
   // ── 배정 현장 목록 로딩 ───────────────────────────────────────
   const loadAvailableSites = useCallback(async () => {
     if (isPreview) return
     try {
       let url = '/api/attendance/available-sites'
       if (navigator.geolocation) {
+        setGpsStatus('loading')
         try {
           const coords = await getGpsCoords()
           url += `?lat=${coords.latitude}&lng=${coords.longitude}`
-        } catch { /* GPS 실패해도 목록은 조회 */ }
+          setGpsStatus('ok')
+        } catch (err) {
+          const code = (err as GeolocationPositionError)?.code
+          setGpsStatus(code === 1 ? 'denied' : 'error')
+        }
       }
       const res = await fetch(url)
       const data = await res.json()
@@ -274,8 +289,8 @@ export default function AttendancePage() {
       let coords: { latitude: number; longitude: number }
       try {
         coords = await getGpsCoords()
-      } catch {
-        setAttendanceMsg('GPS 권한을 허용해주세요.')
+      } catch (err) {
+        setAttendanceMsg(getGpsErrorMsg(err))
         return
       }
 
@@ -309,8 +324,8 @@ export default function AttendancePage() {
       let coords: { latitude: number; longitude: number }
       try {
         coords = await getGpsCoords()
-      } catch {
-        setAttendanceMsg('GPS 권한을 허용해주세요.')
+      } catch (err) {
+        setAttendanceMsg(getGpsErrorMsg(err))
         return
       }
 
@@ -462,6 +477,25 @@ export default function AttendancePage() {
         ) : (
           <div>
             {/* 배정 현장 목록 + 출근 버튼 */}
+            {/* GPS 상태 표시 */}
+            {!isPreview && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  {gpsStatus === 'loading' && <><span style={{ color: '#1976d2' }}>📡</span><span style={{ color: '#1976d2' }}>위치 조회 중...</span></>}
+                  {gpsStatus === 'ok' && <><span style={{ color: '#2e7d32' }}>📍</span><span style={{ color: '#2e7d32' }}>위치 확인됨</span></>}
+                  {gpsStatus === 'denied' && <><span style={{ color: '#e65100' }}>🚫</span><span style={{ color: '#e65100' }}>위치 권한 거부됨</span></>}
+                  {gpsStatus === 'error' && <><span style={{ color: '#e65100' }}>⚠️</span><span style={{ color: '#e65100' }}>위치 오류</span></>}
+                  {gpsStatus === 'idle' && <><span style={{ color: '#aaa' }}>📍</span><span style={{ color: '#aaa' }}>위치 미확인</span></>}
+                </div>
+                <button
+                  onClick={loadAvailableSites}
+                  disabled={gpsStatus === 'loading' || checkInLoading}
+                  style={{ fontSize: '12px', padding: '4px 10px', background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: '6px', cursor: 'pointer', color: '#555' }}
+                >
+                  새로고침
+                </button>
+              </div>
+            )}
             {!isPreview && availableSites.length > 0 ? (
               <div>
                 <p style={{ fontSize: '14px', color: '#555', marginBottom: '12px' }}>배정된 현장을 선택하여 출근하세요.</p>
@@ -511,10 +545,13 @@ export default function AttendancePage() {
         )}
       </div>
 
-      {/* QR 보조 수단 안내 */}
-      <div style={styles.guideCard}>
-        <div style={styles.guideTitle}>QR 스캔으로 출근</div>
-        <div style={styles.guideStep}>현장에 부착된 QR코드를 스캔하면 자동으로 현장이 선택됩니다.</div>
+      {/* QR 보조 수단 — 미등록 현장 대비 보조 기능 */}
+      <div style={{ textAlign: 'center' as const, marginBottom: '12px' }}>
+        <span style={{ fontSize: '12px', color: '#aaa' }}>
+          현장 QR코드가 있다면{' '}
+          <a href="/attendance/qr-scan" style={{ color: '#1976d2', textDecoration: 'underline' }}>QR 스캔</a>
+          {' '}으로 현장 자동 선택
+        </span>
       </div>
 
       {!isPreview && (
