@@ -222,6 +222,103 @@ export async function processAttendanceCheckIn(
   }
 }
 
+export interface AttendanceSiteMoveResult {
+  success: boolean
+  message: string
+  distance?: number
+  withinRadius?: boolean
+  fromSiteId?: string
+  toSiteId?: string
+}
+
+/** 현장 이동 처리 */
+export async function processAttendanceSiteMove(
+  workerId: string,
+  deviceToken: string,
+  targetSiteId: string,
+  latitude: number,
+  longitude: number,
+): Promise<AttendanceSiteMoveResult> {
+
+  // 1. 기기 검증
+  if (!(await validateAttendanceDevice(workerId, deviceToken))) {
+    return { success: false, message: '등록된 기기에서만 이동 처리가 가능합니다.' }
+  }
+
+  // 2. 오늘 열린 출근 세션 조회
+  const workDate = kstDateStringToDate(toKSTDateString())
+  const log = await prisma.attendanceLog.findFirst({
+    where: { workerId, status: 'WORKING', checkOutAt: null, workDate },
+  })
+  if (!log) {
+    return { success: false, message: '출근 기록이 없습니다. 먼저 출근하세요.' }
+  }
+
+  // 3. 현재 위치 현장 확인
+  const lastMove = await prisma.attendanceEvent.findFirst({
+    where: { attendanceLogId: log.id, eventType: 'MOVE' },
+    orderBy: { occurredAt: 'desc' },
+    select: { siteId: true },
+  })
+  const currentSiteId = lastMove?.siteId ?? log.siteId
+
+  // 4. 같은 현장 이동 차단
+  if (currentSiteId === targetSiteId) {
+    return { success: false, message: '현재 근무 중인 현장과 동일합니다.' }
+  }
+
+  // 5. 이동 대상 현장 배정 확인
+  const assignment = await getWorkerSiteAssignment(workerId, targetSiteId)
+  if (!assignment) {
+    return { success: false, message: '배정되지 않은 현장입니다. 관리자에게 문의하세요.' }
+  }
+
+  // 6. 이동 대상 현장 조회
+  const site = await prisma.site.findUnique({
+    where: { id: targetSiteId, isActive: true },
+    select: { id: true, name: true, latitude: true, longitude: true, allowedRadius: true },
+  })
+  if (!site) {
+    return { success: false, message: '유효하지 않은 현장입니다.' }
+  }
+
+  // 7. GPS 거리 계산
+  const { within, distance } = calcDistance(latitude, longitude, site.latitude, site.longitude, site.allowedRadius)
+  if (!within) {
+    return {
+      success: false,
+      message: `이동할 현장 반경 밖입니다. (거리: ${Math.round(distance)}m, 허용: ${site.allowedRadius}m)`,
+      distance,
+      withinRadius: false,
+    }
+  }
+
+  // 8. MOVE 이벤트 생성
+  await prisma.attendanceEvent.create({
+    data: {
+      attendanceLogId: log.id,
+      workerId,
+      siteId: targetSiteId,
+      companyId: assignment.companyId,
+      eventType: 'MOVE',
+      latitude,
+      longitude,
+      distanceFromSite: distance,
+      withinRadius: within,
+      deviceTokenSnapshot: deviceToken,
+    },
+  })
+
+  return {
+    success: true,
+    message: `현장 이동이 기록되었습니다. 현재 작업 현장: ${site.name}`,
+    distance,
+    withinRadius: true,
+    fromSiteId: currentSiteId,
+    toSiteId: targetSiteId,
+  }
+}
+
 /** 퇴근 처리 (직접/QR 공통) */
 export async function processAttendanceCheckOut(
   workerId: string,

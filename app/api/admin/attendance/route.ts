@@ -36,7 +36,13 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           worker: { select: { name: true, phone: true, jobTitle: true } },
-          checkInSite: { select: { name: true } },
+          checkInSite:  { select: { name: true } },
+          checkOutSite: { select: { name: true } },
+          events: {
+            where: { eventType: 'MOVE' },
+            orderBy: { occurredAt: 'asc' },
+            include: { site: { select: { name: true } } },
+          },
         },
         orderBy: [{ workDate: 'desc' }, { checkInAt: 'desc' }],
         skip: (page - 1) * pageSize,
@@ -45,23 +51,43 @@ export async function GET(request: NextRequest) {
     ])
 
     return ok({
-      items: logs.map((l) => ({
-        id: l.id,
-        workerName: l.worker.name,
-        workerPhone: l.worker.phone,
-        company: l.companyNameSnapshot ?? '',
-        jobTitle: l.worker.jobTitle,
-        siteName: l.checkInSite.name,
-        workDate: l.workDate.toISOString().slice(0, 10),
-        checkInAt: l.checkInAt?.toISOString() ?? null,
-        checkOutAt: l.checkOutAt?.toISOString() ?? null,
-        status: l.status,
-        checkInDistance: l.checkInDistance,
-        checkOutDistance: l.checkOutDistance,
-        exceptionReason: l.exceptionReason,
-        adminNote: l.adminNote,
-        isAutoCheckout: l.adminNote?.includes('[AUTO]') ?? false,
-      })),
+      items: logs.map((l) => {
+        const moveEvents = l.events.map(e => ({
+          siteId:   e.siteId,
+          siteName: e.site?.name ?? '',
+          movedAt:  e.occurredAt.toISOString(),
+        }))
+
+        // 이동 경로 문자열: "A현장 → B현장 → C현장"
+        const checkInSiteName  = l.checkInSite.name
+        const checkOutSiteName = l.checkOutSite?.name ?? null
+        const movePath = moveEvents.length > 0
+          ? [checkInSiteName, ...moveEvents.map(e => e.siteName)].join(' → ')
+          : null
+
+        return {
+          id: l.id,
+          workerName: l.worker.name,
+          workerPhone: l.worker.phone,
+          company: l.companyNameSnapshot ?? '',
+          jobTitle: l.worker.jobTitle,
+          siteName: checkInSiteName,
+          checkOutSiteName,
+          workDate: l.workDate.toISOString().slice(0, 10),
+          checkInAt: l.checkInAt?.toISOString() ?? null,
+          checkOutAt: l.checkOutAt?.toISOString() ?? null,
+          status: l.status,
+          checkInDistance: l.checkInDistance,
+          checkOutDistance: l.checkOutDistance,
+          exceptionReason: l.exceptionReason,
+          adminNote: l.adminNote,
+          isAutoCheckout: l.adminNote?.includes('[AUTO]') ?? false,
+          hasSiteMove: moveEvents.length > 0,
+          moveCount: moveEvents.length,
+          movePath,
+          moveEvents,
+        }
+      }),
       total,
       page,
       pageSize,

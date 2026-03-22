@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 
 interface TodayStatus {
   id: string
+  siteId: string
+  currentSiteId: string
+  currentSiteName: string
   siteName: string
   siteAddress: string
   workDate: string
@@ -13,6 +16,7 @@ interface TodayStatus {
   status: 'WORKING' | 'COMPLETED' | 'EXCEPTION'
   checkInDistance: number | null
   checkOutDistance: number | null
+  moveEvents: { siteId: string; siteName: string; movedAt: string }[]
 }
 
 interface WorkerInfo {
@@ -79,11 +83,13 @@ export default function AttendancePage() {
   const submittingRef                  = useRef(false)  // 중복 제출 방지 (연타·두 탭)
   // ── 직접 출근 state ───────────────────────────────────────────
   const [availableSites, setAvailableSites] = useState<AvailableSite[]>([])
-  const [checkInLoading, setCheckInLoading] = useState(false)
+  const [checkInLoading, setCheckInLoading]   = useState(false)
   const [checkOutLoading, setCheckOutLoading] = useState(false)
-  const [attendanceMsg, setAttendanceMsg] = useState('')
+  const [moveLoading, setMoveLoading]         = useState(false)
+  const [showMovePanel, setShowMovePanel]     = useState(false)
+  const [attendanceMsg, setAttendanceMsg]     = useState('')
   const [exceptionReason, setExceptionReason] = useState('')
-  const [needsException, setNeedsException] = useState(false)
+  const [needsException, setNeedsException]   = useState(false)
   const [gpsStatus, setGpsStatus] = useState<'idle' | 'loading' | 'ok' | 'denied' | 'error'>('idle')
 
   // ── 초기 데이터 로딩 ─────────────────────────────────────────
@@ -275,7 +281,7 @@ export default function AttendancePage() {
   }, [isPreview])
 
   useEffect(() => {
-    if (!loading && !isPreview && !today) {
+    if (!loading && !isPreview && (!today || today.status === 'WORKING')) {
       loadAvailableSites()
     }
   }, [loading, isPreview, today, loadAvailableSites])
@@ -357,6 +363,43 @@ export default function AttendancePage() {
     }
   }
 
+  // ── 현장 이동 ─────────────────────────────────────────────────
+  const handleSiteMove = async (targetSiteId: string) => {
+    if (moveLoading) return
+    setMoveLoading(true)
+    setAttendanceMsg('')
+    try {
+      let coords: { latitude: number; longitude: number }
+      try {
+        coords = await getGpsCoords()
+      } catch (err) {
+        setAttendanceMsg(getGpsErrorMsg(err))
+        return
+      }
+
+      const deviceToken = localStorage.getItem('ca_device_token') ?? ''
+      const res = await fetch('/api/attendance/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetSiteId, ...coords, deviceToken }),
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        setAttendanceMsg(data.message ?? '현장 이동 완료')
+        setShowMovePanel(false)
+        const todayRes = await fetch('/api/attendance/today')
+        const todayData = await todayRes.json()
+        setToday(todayData.data)
+        await loadAvailableSites()
+      } else {
+        setAttendanceMsg(data.message ?? '이동 처리 실패')
+      }
+    } finally {
+      setMoveLoading(false)
+    }
+  }
+
   const formatTime = (iso: string | null) => {
     if (!iso) return '--:--'
     return new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
@@ -425,7 +468,14 @@ export default function AttendancePage() {
             <div style={{ ...styles.statusBadge, background: STATUS_COLOR[today.status] }}>
               {STATUS_LABEL[today.status]}
             </div>
-            <div style={styles.siteName}>{today.siteName}</div>
+            <div style={styles.siteName}>
+              {today.moveEvents?.length > 0 ? today.currentSiteName : today.siteName}
+            </div>
+            {today.moveEvents?.length > 0 && (
+              <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>
+                출근: {today.siteName} → 현재: {today.currentSiteName}
+              </div>
+            )}
             <div style={styles.siteAddress}>{today.siteAddress}</div>
             <div style={styles.timeRow}>
               <div style={styles.timeBox}>
@@ -441,10 +491,58 @@ export default function AttendancePage() {
               </div>
             </div>
 
-            {/* 퇴근 버튼 (근무 중일 때) */}
+            {/* 퇴근 버튼 + 현장 이동 버튼 (근무 중일 때) */}
             {!isPreview && today.status === 'WORKING' && (
               <div style={{ marginTop: '20px' }}>
-                {needsException ? (
+                {/* 현장 이동 패널 */}
+                {showMovePanel ? (
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '10px', color: '#1565c0' }}>
+                      이동할 현장을 선택하세요
+                    </div>
+                    {availableSites
+                      .filter(s => s.siteId !== today.currentSiteId)
+                      .map(site => (
+                        <div key={site.siteId} style={{
+                          border: `2px solid ${site.withinRadius ? '#1565c0' : '#e0e0e0'}`,
+                          borderRadius: '10px', padding: '12px', marginBottom: '8px',
+                          background: site.withinRadius ? '#e3f2fd' : 'white',
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: 700 }}>{site.siteName}</div>
+                              <div style={{ fontSize: '11px', color: '#888' }}>{site.companyName}</div>
+                            </div>
+                            {site.distanceMeters !== null && (
+                              <div style={{ textAlign: 'right' as const, fontSize: '12px', color: site.withinRadius ? '#1565c0' : '#999' }}>
+                                {site.distanceMeters}m<br/>
+                                <span style={{ fontSize: '10px' }}>{site.withinRadius ? '반경 내' : `허용 ${site.allowedRadiusMeters}m`}</span>
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => handleSiteMove(site.siteId)}
+                            disabled={moveLoading}
+                            style={{
+                              marginTop: '8px', width: '100%', padding: '10px',
+                              background: site.withinRadius ? '#1565c0' : '#9e9e9e',
+                              color: 'white', border: 'none', borderRadius: '8px',
+                              fontSize: '14px', fontWeight: 600, cursor: 'pointer',
+                              opacity: moveLoading ? 0.6 : 1,
+                            }}
+                          >
+                            {moveLoading ? '이동 처리 중...' : '이 현장으로 이동'}
+                          </button>
+                        </div>
+                      ))}
+                    {availableSites.filter(s => s.siteId !== today.currentSiteId).length === 0 && (
+                      <div style={{ fontSize: '13px', color: '#888', padding: '10px 0' }}>
+                        이동 가능한 다른 배정 현장이 없습니다.
+                      </div>
+                    )}
+                    <button onClick={() => setShowMovePanel(false)} style={styles.cancelBtn}>취소</button>
+                  </div>
+                ) : needsException ? (
                   <>
                     <textarea
                       placeholder="반경 밖 퇴근 사유를 입력하세요"
@@ -463,13 +561,27 @@ export default function AttendancePage() {
                     <button onClick={() => setNeedsException(false)} style={styles.cancelBtn}>취소</button>
                   </>
                 ) : (
-                  <button
-                    onClick={() => handleDirectCheckOut()}
-                    disabled={checkOutLoading}
-                    style={{ ...styles.checkOutBtn, opacity: checkOutLoading ? 0.6 : 1 }}
-                  >
-                    {checkOutLoading ? '퇴근 처리 중...' : '퇴근하기'}
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => handleDirectCheckOut()}
+                      disabled={checkOutLoading}
+                      style={{ ...styles.checkOutBtn, flex: 1, opacity: checkOutLoading ? 0.6 : 1 }}
+                    >
+                      {checkOutLoading ? '퇴근 처리 중...' : '퇴근하기'}
+                    </button>
+                    {availableSites.filter(s => s.siteId !== today.currentSiteId).length > 0 && (
+                      <button
+                        onClick={() => setShowMovePanel(true)}
+                        style={{
+                          padding: '14px 16px', background: '#1565c0', color: 'white',
+                          border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600,
+                          cursor: 'pointer', whiteSpace: 'nowrap' as const,
+                        }}
+                      >
+                        현장 이동
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             )}
