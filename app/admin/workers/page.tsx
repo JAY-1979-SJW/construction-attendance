@@ -268,6 +268,7 @@ export default function WorkersPage() {
                     </td>
                     <td style={styles.td}>{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
                     <td style={{ ...styles.td, whiteSpace: 'nowrap' }}>
+                      <Link href={`/admin/workers/${w.id}`} style={{ fontSize: '12px', color: '#1976d2', textDecoration: 'none', marginRight: '6px' }}>상세</Link>
                       {canMutate && <button onClick={() => openEdit(w)} style={styles.editBtn}>수정</button>}
                       {canMutate && w.isActive && (
                         <button

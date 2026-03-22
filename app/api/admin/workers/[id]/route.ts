@@ -12,6 +12,48 @@ import {
 } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
+// ─── GET /api/admin/workers/[id] — 근로자 상세 조회 ────────────────────────
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getAdminSession()
+    if (!session) return unauthorized()
+
+    const { id } = await params
+
+    const worker = await prisma.worker.findUnique({
+      where: { id },
+      include: {
+        _count: { select: { devices: { where: { isActive: true } }, attendanceLogs: true } },
+        companyAssignments: {
+          include: { company: { select: { id: true, companyName: true, companyType: true, businessNumber: true } } },
+          orderBy: [{ isPrimary: 'desc' }, { validFrom: 'desc' }],
+        },
+        siteAssignments: {
+          include: {
+            site: { select: { id: true, name: true, address: true } },
+            company: { select: { id: true, companyName: true } },
+          },
+          orderBy: [{ isActive: 'desc' }, { isPrimary: 'desc' }, { assignedFrom: 'desc' }],
+        },
+        insuranceStatuses: {
+          include: { company: { select: { id: true, companyName: true } } },
+          orderBy: { updatedAt: 'desc' },
+        },
+      },
+    })
+    if (!worker) return notFound('근로자를 찾을 수 없습니다.')
+
+    return ok(worker)
+  } catch (err) {
+    console.error('[admin/workers/[id] GET]', err)
+    return internalError()
+  }
+}
+
 const updateSchema = z.object({
   name: z.string().min(1).optional(),
   phone: z.string().regex(/^010\d{8}$/, '올바른 휴대폰 번호 형식이 아닙니다.').optional(),
