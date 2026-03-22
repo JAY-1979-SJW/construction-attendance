@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/db/prisma'
 
 /** v2: 범용 감사 로그 (audit_logs 테이블) */
@@ -31,7 +32,7 @@ export async function writeAuditLog(input: AuditLogInput): Promise<void> {
         targetType: input.targetType ?? null,
         targetId: input.targetId ?? null,
         summary,
-        metadataJson: input.metadataJson ?? null,
+        metadataJson: (input.metadataJson ?? undefined) as Prisma.InputJsonValue | undefined,
         ipAddress: input.ipAddress ?? null,
         userAgent: input.userAgent ?? null,
       },

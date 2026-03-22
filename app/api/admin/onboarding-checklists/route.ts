@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
       ...(workerId ? { workerId } : {}),
     },
     include: {
-      worker: { select: { id: true, name: true, company: true } },
+      worker: { select: { id: true, name: true } },
       site: { select: { id: true, name: true } },
     },
     orderBy: { createdAt: 'desc' },

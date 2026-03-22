@@ -44,7 +44,7 @@ async function getWageLedgerData(monthKey: string, siteId?: string) {
       worker: {
         select: {
           id: true, name: true, residentIdMasked: true,
-          company: true, jobTitle: true,
+          jobTitle: true,
           employmentType: true, incomeType: true,
         },
       },

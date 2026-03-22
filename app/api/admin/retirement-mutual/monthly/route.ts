@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   const summaries = await prisma.retirementMutualMonthlySummary.findMany({
     where: { monthKey, ...(siteId ? { siteId } : {}) },
     include: {
-      worker: { select: { id: true, name: true, company: true } },
+      worker: { select: { id: true, name: true } },
       site: { select: { id: true, name: true } },
     },
     orderBy: [{ siteId: 'asc' }, { workerId: 'asc' }],

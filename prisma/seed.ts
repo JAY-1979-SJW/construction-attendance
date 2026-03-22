@@ -50,7 +50,6 @@ async function main() {
     create: {
       name: '홍길동',
       phone: '01012345678',
-      company: '해한건설',
       jobTitle: '형틀목공',
     },
   })

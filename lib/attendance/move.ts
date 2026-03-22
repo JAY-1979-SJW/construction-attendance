@@ -93,7 +93,6 @@ export async function processMove(input: MoveInput): Promise<MoveResult> {
       latitude,
       longitude,
       distanceFromSite: distance,
-      deviceId: device?.id ?? null,
     },
   })
 

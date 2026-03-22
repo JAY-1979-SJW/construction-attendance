@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const workers = await prisma.retirementMutualWorker.findMany({
-    include: { worker: { select: { id: true, name: true, company: true } } },
+    include: { worker: { select: { id: true, name: true } } },
     orderBy: { createdAt: 'desc' },
   })
 
