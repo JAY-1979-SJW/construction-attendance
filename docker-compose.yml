@@ -29,6 +29,8 @@ services:
     env_file: .env
     ports:
       - "3002:3002"
+    volumes:
+      - identity_uploads:/app/uploads/identity
     networks:
       - app_web
     healthcheck:
@@ -44,3 +46,4 @@ networks:
 
 volumes:
   pgdata:
+  identity_uploads:

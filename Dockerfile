@@ -27,6 +27,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --chown=nextjs:nodejs entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 
+RUN mkdir -p /app/uploads/identity/original /app/uploads/identity/masked && \
+    chown -R nextjs:nodejs /app/uploads
+
 USER nextjs
 EXPOSE 3002
 ENV PORT=3002
