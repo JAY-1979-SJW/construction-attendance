@@ -87,7 +87,7 @@ interface WorkerDetail {
 
 // ─── 탭 종류 ──────────────────────────────────────────────────────────────────
 
-type Tab = 'info' | 'company' | 'site' | 'insurance'
+type Tab = 'info' | 'company' | 'site' | 'insurance' | 'docs'
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
@@ -296,7 +296,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
 
         {/* 탭 */}
         <div style={s.tabBar}>
-          {([['info', '기본정보'], ['company', '회사배정'], ['site', '현장배정'], ['insurance', '보험상태']] as [Tab, string][]).map(([key, label]) => (
+          {([['info', '기본정보'], ['company', '회사배정'], ['site', '현장배정'], ['insurance', '보험상태'], ['docs', '문서']] as [Tab, string][]).map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)} style={{ ...s.tabBtn, ...(tab === key ? s.tabActive : {}) }}>
               {label}
               {key === 'company' && worker.companyAssignments.length > 0 && (
@@ -333,6 +333,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
               onAdd={openInsuranceForm}
             />
           )}
+          {tab === 'docs' && <DocsTab workerId={worker.id} />}
         </div>
       </main>
 
@@ -728,4 +729,240 @@ const s: Record<string, React.CSSProperties> = {
   modalBtns: { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' },
   cancelBtn: { padding: '8px 18px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
   saveBtn: { padding: '8px 18px', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
+}
+
+// ─── 문서 탭 ─────────────────────────────────────────────────────────────────
+
+interface WorkerDoc {
+  id: string
+  documentType: string
+  status: string
+  expiresAt: string | null
+  reviewedBy: string | null
+  reviewedAt: string | null
+  notes: string | null
+  createdAt: string
+  file: {
+    id: string
+    originalFilename: string
+    mimeType: string
+    sizeBytes: number
+    uploadedAt: string
+  }
+}
+
+const DOC_TYPE_LABEL: Record<string, string> = {
+  ID_CARD: '신분증', INSURANCE_DOC: '4대보험증빙', CONTRACT: '근로계약서',
+  SAFETY_CERT: '안전교육이수증', OTHER: '기타',
+}
+const DOC_STATUS_LABEL: Record<string, string> = {
+  UPLOADED: '업로드완료', REVIEW_PENDING: '검토대기', APPROVED: '승인',
+  NEEDS_SUPPLEMENT: '보완필요', EXPIRED: '만료',
+}
+const DOC_STATUS_COLOR: Record<string, string> = {
+  UPLOADED: '#555', REVIEW_PENDING: '#e65100', APPROVED: '#2e7d32',
+  NEEDS_SUPPLEMENT: '#b71c1c', EXPIRED: '#888',
+}
+const DOC_STATUS_BG: Record<string, string> = {
+  UPLOADED: '#f5f5f5', REVIEW_PENDING: '#fff3e0', APPROVED: '#e8f5e9',
+  NEEDS_SUPPLEMENT: '#ffebee', EXPIRED: '#f5f5f5',
+}
+
+function fmtBytes(b: number) {
+  if (b < 1024) return `${b}B`
+  if (b < 1024 * 1024) return `${(b / 1024).toFixed(0)}KB`
+  return `${(b / 1024 / 1024).toFixed(1)}MB`
+}
+
+function DocsTab({ workerId }: { workerId: string }) {
+  const [docs, setDocs]           = useState<WorkerDoc[]>([])
+  const [loading, setLoading]     = useState(true)
+  const [uploading, setUploading] = useState(false)
+  const [uploadMsg, setUploadMsg] = useState('')
+  const [filterType, setFilterType] = useState('')
+
+  // 업로드 폼 상태
+  const [docType, setDocType]     = useState('OTHER')
+  const [notes, setNotes]         = useState('')
+  const [expiresAt, setExpiresAt] = useState('')
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+
+  const load = () => {
+    setLoading(true)
+    const q = filterType ? `?documentType=${filterType}` : ''
+    fetch(`/api/admin/workers/${workerId}/documents${q}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) setDocs(data.data.items)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }
+
+  useEffect(load, [workerId, filterType]) // eslint-disable-line
+
+  const handleUpload = async () => {
+    const file = fileInputRef.current?.files?.[0]
+    if (!file) { setUploadMsg('파일을 선택하세요.'); return }
+    setUploading(true)
+    setUploadMsg('')
+    const form = new FormData()
+    form.append('file', file)
+    form.append('documentType', docType)
+    if (notes) form.append('notes', notes)
+    if (expiresAt) form.append('expiresAt', expiresAt)
+    const res = await fetch(`/api/admin/workers/${workerId}/documents`, { method: 'POST', body: form })
+    const data = await res.json()
+    setUploading(false)
+    if (data.success) {
+      setUploadMsg('업로드 완료')
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      setNotes(''); setExpiresAt('')
+      load()
+    } else {
+      setUploadMsg(data.error ?? data.message ?? '업로드 실패')
+    }
+  }
+
+  const changeStatus = async (docId: string, status: string) => {
+    const res = await fetch(`/api/admin/workers/${workerId}/documents/${docId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    })
+    if (res.ok) load()
+    else alert('상태 변경 실패')
+  }
+
+  return (
+    <div>
+      {/* 업로드 폼 */}
+      <div style={{ background: '#f8f9fa', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+        <div style={{ fontWeight: 700, fontSize: '13px', marginBottom: '12px', color: '#333' }}>문서 업로드</div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, alignItems: 'flex-end' }}>
+          <div>
+            <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>문서 유형</div>
+            <select value={docType} onChange={(e) => setDocType(e.target.value)} style={s.input}>
+              {Object.entries(DOC_TYPE_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+          </div>
+          <div>
+            <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>파일</div>
+            <input ref={fileInputRef} type="file"
+              accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+              style={{ fontSize: '13px' }}
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>만료일 (선택)</div>
+            <input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} style={{ ...s.input, width: '140px' }} />
+          </div>
+          <div>
+            <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>비고 (선택)</div>
+            <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="비고" style={{ ...s.input, width: '160px' }} />
+          </div>
+          <button onClick={handleUpload} disabled={uploading} style={{ ...s.addBtn, opacity: uploading ? 0.6 : 1 }}>
+            {uploading ? '업로드 중...' : '업로드'}
+          </button>
+        </div>
+        {uploadMsg && (
+          <div style={{ marginTop: '8px', fontSize: '13px', fontWeight: 600,
+            color: uploadMsg.includes('완료') ? '#2e7d32' : '#b71c1c' }}>
+            {uploadMsg}
+          </div>
+        )}
+        <div style={{ marginTop: '8px', fontSize: '11px', color: '#aaa' }}>
+          지원 형식: JPG, PNG, PDF, DOC, DOCX, XLS, XLSX · 최대 20MB · 신분증은 SUPER_ADMIN/ADMIN만 열람 가능
+        </div>
+      </div>
+
+      {/* 필터 */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' as const }}>
+        <button onClick={() => setFilterType('')} style={{ ...filterBtn, background: filterType === '' ? '#1976d2' : '#f0f0f0', color: filterType === '' ? 'white' : '#666' }}>전체</button>
+        {Object.entries(DOC_TYPE_LABEL).map(([v, l]) => (
+          <button key={v} onClick={() => setFilterType(v)} style={{ ...filterBtn, background: filterType === v ? '#1976d2' : '#f0f0f0', color: filterType === v ? 'white' : '#666' }}>{l}</button>
+        ))}
+      </div>
+
+      {/* 문서 목록 */}
+      {loading ? <p style={s.empty}>로딩 중...</p> : docs.length === 0 ? (
+        <p style={s.empty}>문서가 없습니다.</p>
+      ) : (
+        <table style={s.table}>
+          <thead>
+            <tr>
+              {['유형', '파일명', '크기', '업로드일', '만료일', '상태', '검토자/일', '비고', '열람', '다운로드', '상태변경'].map((h) => (
+                <th key={h} style={s.th}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {docs.map((doc) => (
+              <tr key={doc.id}>
+                <td style={s.td}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, background: '#e3f2fd', color: '#1565c0', padding: '2px 8px', borderRadius: '8px' }}>
+                    {DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
+                  </span>
+                </td>
+                <td style={{ ...s.td, maxWidth: '180px', fontSize: '12px', color: '#333', wordBreak: 'break-all' as const }}>
+                  {/* 파일명만 노출 — 민감문서는 내용 미노출 */}
+                  {doc.file.originalFilename}
+                </td>
+                <td style={{ ...s.td, fontSize: '11px', color: '#888' }}>{fmtBytes(doc.file.sizeBytes)}</td>
+                <td style={{ ...s.td, fontSize: '11px', color: '#888', whiteSpace: 'nowrap' as const }}>
+                  {new Date(doc.file.uploadedAt).toLocaleDateString('ko-KR')}
+                </td>
+                <td style={{ ...s.td, fontSize: '11px', color: doc.expiresAt && new Date(doc.expiresAt) < new Date() ? '#b71c1c' : '#555' }}>
+                  {doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString('ko-KR') : '—'}
+                </td>
+                <td style={s.td}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '10px',
+                    color: DOC_STATUS_COLOR[doc.status], background: DOC_STATUS_BG[doc.status] }}>
+                    {DOC_STATUS_LABEL[doc.status] ?? doc.status}
+                  </span>
+                </td>
+                <td style={{ ...s.td, fontSize: '11px', color: '#888', whiteSpace: 'nowrap' as const }}>
+                  {doc.reviewedBy ? `${doc.reviewedBy.slice(-6)} / ${doc.reviewedAt ? new Date(doc.reviewedAt).toLocaleDateString('ko-KR') : '—'}` : '—'}
+                </td>
+                <td style={{ ...s.td, fontSize: '11px', color: '#888', maxWidth: '120px' }}>{doc.notes ?? '—'}</td>
+                <td style={s.td}>
+                  <a
+                    href={`/api/admin/workers/${workerId}/documents/${doc.id}/download?inline=1`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: '12px', color: '#1976d2', textDecoration: 'underline' }}
+                  >
+                    열람
+                  </a>
+                </td>
+                <td style={s.td}>
+                  <a
+                    href={`/api/admin/workers/${workerId}/documents/${doc.id}/download`}
+                    style={{ fontSize: '12px', color: '#555', textDecoration: 'underline' }}
+                  >
+                    다운로드
+                  </a>
+                </td>
+                <td style={s.td}>
+                  <select
+                    value={doc.status}
+                    onChange={(e) => changeStatus(doc.id, e.target.value)}
+                    style={{ fontSize: '12px', padding: '4px 6px', border: '1px solid #ddd', borderRadius: '4px' }}
+                  >
+                    {Object.entries(DOC_STATUS_LABEL).map(([v, l]) => (
+                      <option key={v} value={v}>{l}</option>
+                    ))}
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  )
+}
+
+const filterBtn: React.CSSProperties = {
+  padding: '4px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 600,
 }
