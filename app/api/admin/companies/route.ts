@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const where = {
     ...(q ? {
       OR: [
-        { companyName: { contains: q, mode: 'insensitive' } },
+        { companyName: { contains: q, mode: 'insensitive' as const } },
         { businessNumber: { contains: q } },
         { companyCode: { contains: q } },
       ],
