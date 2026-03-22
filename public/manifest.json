@@ -1,7 +1,7 @@
 {
   "name": "해한 현장 출퇴근",
   "short_name": "해한출퇴근",
-  "description": "건설현장 QR 출퇴근 관리 시스템",
+  "description": "건설현장 GPS 출퇴근 관리 시스템",
   "start_url": "/attendance",
   "scope": "/",
   "display": "standalone",
