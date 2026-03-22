@@ -7,7 +7,7 @@ export interface AuditLogInput {
   actionType: string
   targetType?: string
   targetId?: string
-  summary: string
+  summary?: string
   metadataJson?: Record<string, unknown>
   ipAddress?: string
   userAgent?: string
