@@ -117,7 +117,7 @@ export default function AuditLogsPage() {
           ['/admin/labor', '투입현황/노임서류'],
           ['/admin/exceptions', '예외 승인'],
           ['/admin/device-requests', '기기 변경'],
-          ['/admin/audit-logs', '감사 로그'],
+          ['/admin/audit-logs', '감사 로그'], ['/admin/site-imports', '현장 엑셀 업로드'],
         ].map(([href, label]) => (
           <Link key={href} href={href} style={{ ...styles.navItem, ...(href === '/admin/audit-logs' ? styles.navActive : {}) }}>
             {label}
