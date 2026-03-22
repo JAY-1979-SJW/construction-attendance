@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1'))
   const pageSize = Math.min(200, parseInt(searchParams.get('pageSize') ?? '50'))
 
-  const where: Parameters<typeof prisma.company.findMany>[0]['where'] = {
+  const where = {
     ...(q ? {
       OR: [
         { companyName: { contains: q, mode: 'insensitive' } },
