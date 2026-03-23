@@ -71,7 +71,7 @@ export async function POST(
         companyId,
         initiatedBy:        session.sub,
         status:             'IN_PROGRESS',
-        autoCheckResultJson: autoCheckResult,
+        autoCheckResultJson: autoCheckResult as unknown as import('@prisma/client').Prisma.InputJsonValue,
       },
     })
 
