@@ -30,7 +30,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --chown=nextjs:nodejs entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 
-RUN mkdir -p /app/uploads/identity/original /app/uploads/identity/masked && \
+RUN mkdir -p /app/uploads/identity/original /app/uploads/identity/masked \
+              /app/uploads/documents /app/uploads/estimates && \
     chown -R nextjs:nodejs /app/uploads
 
 USER nextjs

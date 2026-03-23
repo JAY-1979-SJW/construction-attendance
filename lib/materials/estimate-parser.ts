@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx'
+import { readFileSync } from 'fs'
 import { detectSheetByName } from './sheet-detector'
 import { prisma } from '@/lib/db/prisma'
 
@@ -87,7 +88,8 @@ export async function parseEstimateDocument(documentId: string): Promise<void> {
   })
 
   try {
-    const workbook = XLSX.readFile(doc.filePath)
+    const fileBuffer = readFileSync(doc.filePath)
+    const workbook = XLSX.read(fileBuffer, { type: 'buffer' })
     const sheetNames = workbook.SheetNames
 
     // Clean up previous results

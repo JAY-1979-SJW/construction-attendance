@@ -40,13 +40,8 @@ describe('detectSheetByName — 시트 유형 분류', () => {
   // ── DETAIL_BILL ───────────────────────────────────────────
   describe('DETAIL_BILL 분류', () => {
     it.each([
-      ['내역서', null],
-      ['소방전기내역서', '소방전기'],
-      ['소방기계내역서', '소방기계'],
-      ['기계설비내역', '기계설비'],
-      ['전기내역서', '전기'],
-      ['BOQ'],
-    ])('"%s" → DETAIL_BILL', (name) => {
+      '내역서', '소방전기내역서', '소방기계내역서', '기계설비내역', '전기내역서', 'BOQ',
+    ])('"%s" → DETAIL_BILL', (name: string) => {
       const r = detectSheetByName(name)
       expect(r.sheetType).toBe('DETAIL_BILL')
       expect(r.needsReview).toBe(false)
