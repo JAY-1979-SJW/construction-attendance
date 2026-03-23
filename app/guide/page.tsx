@@ -299,7 +299,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
 ────────────────────────────────────────────── */
 const pg: Record<string, React.CSSProperties> = {
   page:        { fontFamily: "'Pretendard', 'Pretendard Variable', system-ui, sans-serif", color: '#ffffff', minHeight: '100vh', background: '#1B2838' },
-  header:      { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', height: '60px', background: '#243144', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'sticky' as const, top: 0, zIndex: 10, boxShadow: '0 2px 12px rgba(0,0,0,0.2)' },
+  header:      { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', height: '60px', background: '#243144', borderBottom: '1px solid rgba(91,164,217,0.15)', position: 'sticky' as const, top: 0, zIndex: 10, boxShadow: '0 2px 12px rgba(0,0,0,0.2)' },
   backLink:    { fontSize: '14px', color: '#A0AEC0', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' },
   headerTitle: { fontSize: '16px', fontWeight: 700, color: '#ffffff' },
   startBtn:    { padding: '9px 20px', background: '#F47920', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 700, boxShadow: '0 2px 8px rgba(244,121,32,0.3)' },
@@ -307,7 +307,7 @@ const pg: Record<string, React.CSSProperties> = {
   body:        { display: 'flex', gap: '28px', padding: '28px 24px', maxWidth: '1100px', margin: '0 auto', flexWrap: 'wrap' as const },
 
   tabs:        { display: 'flex', flexDirection: 'column' as const, gap: '6px', minWidth: '190px', flex: '0 0 auto' },
-  tab:         { background: '#1B2838', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const, transition: 'all 0.15s' },
+  tab:         { background: '#1B2838', border: '1px solid rgba(91,164,217,0.15)', borderRadius: '12px', padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const, transition: 'all 0.15s' },
   tabActive:   { borderColor: '#F47920', background: 'rgba(244,121,32,0.1)', borderLeft: '3px solid #F47920' },
   tabLabel:    { display: 'block', fontSize: '13px', fontWeight: 700, color: '#ffffff', marginBottom: '2px' },
   tabDesc:     { display: 'block', fontSize: '11px', color: '#718096' },
@@ -319,7 +319,7 @@ const pg: Record<string, React.CSSProperties> = {
     borderRadius: '40px',
     padding: '14px',
     boxShadow: '0 24px 60px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.06)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid rgba(91,164,217,0.2)',
   },
   phoneSpeaker: { width: '50px', height: '5px', background: '#222', borderRadius: '3px', margin: '0 auto 10px' },
   phoneScreen:  { background: '#1B2838', borderRadius: '28px', minHeight: '540px', overflow: 'hidden', position: 'relative' as const },
@@ -341,9 +341,9 @@ const sc: Record<string, React.CSSProperties> = {
   // 로그인
   loginLogo:   { fontSize: '30px', fontWeight: 900, color: '#ffffff', textAlign: 'center' as const, paddingTop: '40px', marginBottom: '6px', letterSpacing: '-1px' },
   loginSub:    { fontSize: '12px', color: '#718096', textAlign: 'center' as const, marginBottom: '28px' },
-  loginCard:   { background: '#243144', borderRadius: '16px', padding: '22px', border: '1px solid rgba(255,255,255,0.08)' },
+  loginCard:   { background: '#243144', borderRadius: '16px', padding: '22px', border: '1px solid rgba(91,164,217,0.15)' },
   loginLabel:  { fontSize: '12px', color: '#A0AEC0', marginBottom: '6px' },
-  loginInput:  { width: '100%', padding: '12px', fontSize: '15px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', boxSizing: 'border-box' as const, marginBottom: '12px', background: 'rgba(255,255,255,0.06)', color: '#ffffff' },
+  loginInput:  { width: '100%', padding: '12px', fontSize: '15px', border: '1px solid rgba(91,164,217,0.25)', borderRadius: '8px', boxSizing: 'border-box' as const, marginBottom: '12px', background: 'rgba(255,255,255,0.06)', color: '#ffffff' },
   loginBtn:    { width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', marginBottom: '12px', boxShadow: '0 3px 10px rgba(244,121,32,0.3)' },
   loginHint:   { fontSize: '11px', color: '#5a6a7e', textAlign: 'center' as const, lineHeight: 1.5 },
 
@@ -351,25 +351,25 @@ const sc: Record<string, React.CSSProperties> = {
   attHeader:   { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', paddingTop: '8px' },
   workerName:  { fontSize: '16px', fontWeight: 700, color: '#ffffff' },
   workerInfo:  { fontSize: '11px', color: '#718096', marginTop: '2px' },
-  logoutBtn:   { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '5px 10px', fontSize: '11px', cursor: 'pointer', color: '#A0AEC0' },
-  card:        { background: '#243144', borderRadius: '14px', padding: '18px', marginBottom: '10px', border: '1px solid rgba(255,255,255,0.07)' },
+  logoutBtn:   { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', padding: '5px 10px', fontSize: '11px', cursor: 'pointer', color: '#A0AEC0' },
+  card:        { background: '#243144', borderRadius: '14px', padding: '18px', marginBottom: '10px', border: '1px solid rgba(91,164,217,0.12)' },
   dateLabel:   { fontSize: '11px', color: '#718096', marginBottom: '10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' },
   guideCard:   { background: 'rgba(91,164,217,0.08)', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '12px', padding: '14px', marginBottom: '10px' },
   guideTitle:  { fontSize: '12px', fontWeight: 700, color: '#5BA4D9', marginBottom: '8px' },
   guideStep:   { fontSize: '11px', color: '#4A93C8', marginBottom: '4px', display: 'flex', gap: '6px' },
 
   // QR 화면
-  siteCard:    { background: '#243144', borderRadius: '12px', padding: '14px', marginBottom: '10px', border: '1px solid rgba(255,255,255,0.07)' },
+  siteCard:    { background: '#243144', borderRadius: '12px', padding: '14px', marginBottom: '10px', border: '1px solid rgba(91,164,217,0.12)' },
   siteLabel:   { fontSize: '10px', color: '#5a6a7e', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' },
   siteName:    { fontSize: '17px', fontWeight: 700, color: '#ffffff', marginBottom: '3px' },
   siteAddress: { fontSize: '12px', color: '#A0AEC0' },
-  actionCard:  { background: '#243144', borderRadius: '14px', padding: '28px 20px', textAlign: 'center' as const, border: '1px solid rgba(255,255,255,0.07)', marginBottom: '10px' },
+  actionCard:  { background: '#243144', borderRadius: '14px', padding: '28px 20px', textAlign: 'center' as const, border: '1px solid rgba(91,164,217,0.12)', marginBottom: '10px' },
   actionTitle: { fontSize: '18px', fontWeight: 700, color: '#ffffff', marginBottom: '6px' },
   actionDesc:  { fontSize: '13px', color: '#A0AEC0', marginBottom: '18px' },
   checkInBtn:  { width: '100%', padding: '15px', fontSize: '16px', fontWeight: 700, background: 'linear-gradient(135deg, #2e7d32, #43a047)', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', boxShadow: '0 3px 10px rgba(46,125,50,0.3)' },
   checkOutBtn: { width: '100%', padding: '15px', fontSize: '16px', fontWeight: 700, background: 'linear-gradient(135deg, #E06810, #F47920)', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', boxShadow: '0 3px 10px rgba(244,121,32,0.3)' },
-  homeBtn:     { width: '100%', padding: '13px', fontSize: '14px', fontWeight: 600, background: 'rgba(255,255,255,0.06)', color: '#CBD5E0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' },
-  exceptionBtn:{ width: '100%', padding: '10px', fontSize: '12px', background: 'none', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '9px', cursor: 'pointer', color: '#718096' },
+  homeBtn:     { width: '100%', padding: '13px', fontSize: '14px', fontWeight: 600, background: 'rgba(255,255,255,0.06)', color: '#CBD5E0', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '10px', cursor: 'pointer' },
+  exceptionBtn:{ width: '100%', padding: '10px', fontSize: '12px', background: 'none', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '9px', cursor: 'pointer', color: '#718096' },
 
   demoNext:    { width: '100%', padding: '11px', fontSize: '12px', background: 'rgba(244,121,32,0.1)', color: '#F47920', border: '1px solid rgba(244,121,32,0.3)', borderRadius: '9px', cursor: 'pointer', fontWeight: 600 },
 }

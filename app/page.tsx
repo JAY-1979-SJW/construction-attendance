@@ -419,7 +419,7 @@ const s: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     gap: '0',
     background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid rgba(91,164,217,0.15)',
     borderRadius: '16px',
     overflow: 'hidden',
   },
@@ -430,7 +430,7 @@ const s: Record<string, React.CSSProperties> = {
     flexDirection: 'column' as const,
     alignItems: 'center',
     gap: '4px',
-    borderRight: '1px solid rgba(255,255,255,0.08)',
+    borderRight: '1px solid rgba(91,164,217,0.12)',
   },
   statNum: {
     fontSize: '22px',
@@ -485,7 +485,7 @@ const s: Record<string, React.CSSProperties> = {
     background: '#243144',
     borderRadius: '16px',
     padding: '32px 28px',
-    border: '1px solid rgba(255,255,255,0.06)',
+    border: '1px solid rgba(91,164,217,0.12)',
     transition: 'transform 0.2s',
   },
   featureIconWrap: {
@@ -526,7 +526,7 @@ const s: Record<string, React.CSSProperties> = {
     borderRadius: '16px',
     padding: '32px 24px',
     textAlign: 'center' as const,
-    border: '1px solid rgba(255,255,255,0.06)',
+    border: '1px solid rgba(91,164,217,0.12)',
     position: 'relative' as const,
   },
   stepLine: {
@@ -565,8 +565,8 @@ const s: Record<string, React.CSSProperties> = {
   trustSection: {
     padding: '80px 24px',
     background: '#1B2838',
-    borderTop: '1px solid rgba(255,255,255,0.06)',
-    borderBottom: '1px solid rgba(255,255,255,0.06)',
+    borderTop: '1px solid rgba(91,164,217,0.12)',
+    borderBottom: '1px solid rgba(91,164,217,0.12)',
   },
   trustGrid: {
     maxWidth: '1100px',
@@ -584,7 +584,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   trustCard: {
     background: '#243144',
-    border: '1px solid rgba(255,255,255,0.08)',
+    border: '1px solid rgba(91,164,217,0.15)',
     borderRadius: '16px',
     padding: '28px 20px',
     textAlign: 'center' as const,
@@ -612,7 +612,7 @@ const s: Record<string, React.CSSProperties> = {
     gap: '16px',
     alignItems: 'flex-start',
     background: '#1B2838',
-    border: '1px solid rgba(255,255,255,0.08)',
+    border: '1px solid rgba(91,164,217,0.15)',
     borderRadius: '14px',
     padding: '22px 20px',
   },
@@ -664,7 +664,7 @@ const s: Record<string, React.CSSProperties> = {
 
   // ── 푸터
   footer: {
-    background: '#0D1520',
+    background: '#1B2A4A',
     padding: '0',
     borderTop: '3px solid #F47920',
   },

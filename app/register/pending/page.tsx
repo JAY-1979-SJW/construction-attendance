@@ -57,13 +57,13 @@ export default function RegisterPendingPage() {
 
 const s: Record<string, React.CSSProperties> = {
   page:      { minHeight: '100vh', background: 'linear-gradient(160deg, #0d1b2a 0%, #1B2838 60%, #141E2A 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' },
-  card:      { background: '#243144', borderRadius: '20px', padding: '44px 36px', width: '100%', maxWidth: '460px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)', borderTop: '3px solid #F47920', textAlign: 'center' as const },
+  card:      { background: '#243144', borderRadius: '20px', padding: '44px 36px', width: '100%', maxWidth: '460px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)', border: '1px solid rgba(91,164,217,0.15)', borderTop: '3px solid #F47920', textAlign: 'center' as const },
   iconWrap:  { marginBottom: '20px' },
   iconCircle: { width: '72px', height: '72px', background: 'rgba(244,121,32,0.12)', border: '1px solid rgba(244,121,32,0.3)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', margin: '0 auto' },
   title:     { fontSize: '24px', fontWeight: 800, margin: '0 0 12px', color: '#ffffff', letterSpacing: '-0.5px' },
   desc:      { fontSize: '15px', color: '#A0AEC0', lineHeight: 1.7, margin: '0 0 28px' },
   highlight: { color: '#F47920', fontWeight: 700 },
-  stepsBox:  { textAlign: 'left' as const, margin: '0 0 24px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', padding: '16px 20px' },
+  stepsBox:  { textAlign: 'left' as const, margin: '0 0 24px', background: 'rgba(91,164,217,0.04)', borderRadius: '12px', padding: '16px 20px' },
   stepItem:  { display: 'flex', alignItems: 'flex-start', gap: '14px', marginBottom: '14px' },
   stepDot:   { width: '30px', height: '30px', minWidth: '30px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, marginTop: '2px' },
   stepTitle: { fontSize: '14px', fontWeight: 600, marginBottom: '2px' },

@@ -68,7 +68,7 @@ export default function AdminLoginPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   container:  { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(160deg, #0d1b2a 0%, #1B2838 60%, #141E2A 100%)' },
-  card:       { background: '#243144', borderRadius: '20px', padding: '44px 40px', width: '100%', maxWidth: '420px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)', borderTop: '3px solid #F47920' },
+  card:       { background: '#243144', borderRadius: '20px', padding: '44px 40px', width: '100%', maxWidth: '420px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)', border: '1px solid rgba(91,164,217,0.15)', borderTop: '3px solid #F47920' },
   logoWrap:   { textAlign: 'center' as const, marginBottom: '28px' },
   logoIcon:   { fontSize: '36px', marginBottom: '12px' },
   logoText:   { fontSize: '22px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px', marginBottom: '6px' },
@@ -76,7 +76,7 @@ const styles: Record<string, React.CSSProperties> = {
   divider:    { height: '1px', background: 'rgba(255,255,255,0.08)', margin: '0 0 24px' },
   inputGroup: { marginBottom: '16px' },
   label:      { display: 'block', fontSize: '13px', fontWeight: 600, color: '#A0AEC0', marginBottom: '6px' },
-  input:      { width: '100%', padding: '13px 16px', fontSize: '15px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', outline: 'none', boxSizing: 'border-box' as const, background: 'rgba(255,255,255,0.06)', color: '#ffffff' },
+  input:      { width: '100%', padding: '13px 16px', fontSize: '15px', border: '1px solid rgba(91,164,217,0.25)', borderRadius: '10px', outline: 'none', boxSizing: 'border-box' as const, background: 'rgba(255,255,255,0.06)', color: '#ffffff' },
   errorBox:   { background: 'rgba(229,57,53,0.12)', border: '1px solid rgba(229,57,53,0.35)', borderRadius: '10px', padding: '10px 14px', color: '#ef9a9a', fontSize: '13px', marginBottom: '14px' },
   error:      { color: '#ef9a9a', fontSize: '13px', marginBottom: '12px' },
   button:     { width: '100%', padding: '15px', fontSize: '16px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(244,121,32,0.35)', marginTop: '4px' },
