@@ -160,7 +160,7 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
 
       <main style={s.main}>
         <div style={{ marginBottom: '20px' }}>
-          <Link href={`/admin/workers/${workerId}`} style={{ color: '#666', fontSize: '14px' }}>← {workerName}</Link>
+          <Link href={`/admin/workers/${workerId}`} style={{ color: '#A0AEC0', fontSize: '14px' }}>← {workerName}</Link>
           <h1 style={s.pageTitle}>개인정보 관리 — {workerName}</h1>
         </div>
 
@@ -389,7 +389,7 @@ const s: Record<string, React.CSSProperties> = {
   notice: { background: 'rgba(91,164,217,0.1)', border: '1px solid #90caf9', borderRadius: '6px', padding: '8px 14px', fontSize: '13px', color: '#4A93C8', marginBottom: '16px' },
   msgBox: { border: '1px solid', borderRadius: '8px', padding: '12px 16px', fontSize: '14px' },
   tabRow: { display: 'flex', gap: '8px', marginBottom: '16px' },
-  tab: { padding: '8px 20px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', background: 'white', cursor: 'pointer', fontSize: '14px', color: '#666' },
+  tab: { padding: '8px 20px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', background: '#243144', cursor: 'pointer', fontSize: '14px', color: '#A0AEC0' },
   tabActive: { background: '#1a1a2e', color: 'white', borderColor: '#1a1a2e' },
   card: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   sectionTitle: { fontSize: '15px', fontWeight: 700, marginTop: 0, marginBottom: '12px' },

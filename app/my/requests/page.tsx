@@ -63,7 +63,7 @@ export default function MyRequestsPage() {
       <WorkerDisclaimerBanner />
 
       {/* 헤더 */}
-      <div style={{ background: '#1565c0', color: '#fff', padding: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ background: '#E06810', color: '#fff', padding: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <span style={{ fontSize: '20px' }}>📝</span>
         <div>
           <div style={{ fontSize: '16px', fontWeight: 700 }}>요청 접수</div>
@@ -118,7 +118,7 @@ export default function MyRequestsPage() {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#333' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#CBD5E0' }}>
                       {CATEGORY_LABEL[req.category] ?? req.category}
                     </span>
                     <span style={{
@@ -132,7 +132,7 @@ export default function MyRequestsPage() {
                       {STATUS_LABEL[req.status] ?? req.status}
                     </span>
                   </div>
-                  <p style={{ fontSize: '13px', color: '#555', margin: '0 0 8px 0', lineHeight: '1.5' }}>
+                  <p style={{ fontSize: '13px', color: '#A0AEC0', margin: '0 0 8px 0', lineHeight: '1.5' }}>
                     {req.content}
                   </p>
                   {req.adminMemo && (

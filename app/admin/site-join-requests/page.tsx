@@ -140,9 +140,9 @@ export default function SiteJoinRequestsPage() {
 
 const s: Record<string, React.CSSProperties> = {
   page:       { padding: '32px 24px', maxWidth: '1000px', margin: '0 auto', fontFamily: '"Malgun Gothic",sans-serif' },
-  title:      { fontSize: '22px', fontWeight: 700, margin: '0 0 24px', color: '#1a1a2e' },
+  title:      { fontSize: '22px', fontWeight: 700, margin: '0 0 24px', color: '#ffffff' },
   tabs:       { display: 'flex', gap: '8px', marginBottom: '20px' },
-  tab:        { padding: '8px 18px', borderRadius: '20px', border: '1px solid #ddd', background: 'white', fontSize: '14px', cursor: 'pointer', color: '#666' },
+  tab:        { padding: '8px 18px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', background: '#243144', fontSize: '14px', cursor: 'pointer', color: '#A0AEC0' },
   tabActive:  { background: '#F47920', color: 'white', border: '1px solid #1976d2', fontWeight: 700 },
   msgBox:     { background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#2e7d32', fontSize: '14px' },
   empty:      { textAlign: 'center' as const, padding: '60px', color: '#A0AEC0', fontSize: '15px' },

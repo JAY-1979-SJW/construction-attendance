@@ -80,12 +80,12 @@ function RawSheetGrid({ cells, maxDisplayRows }: { cells: CellData[][], maxDispl
         <tbody>
           {cells.slice(0, maxDisplayRows).map((row, rowIdx) => (
             <tr key={rowIdx}>
-              <td style={{ padding: '2px 6px', border: '1px solid #e0e0e0', background: '#1B2838', color: '#718096', fontSize: '11px', textAlign: 'right', whiteSpace: 'nowrap', userSelect: 'none', minWidth: '32px', position: 'sticky', left: 0, zIndex: 1 }}>
+              <td style={{ padding: '2px 6px', border: '1px solid rgba(255,255,255,0.12)', background: '#1B2838', color: '#718096', fontSize: '11px', textAlign: 'right', whiteSpace: 'nowrap', userSelect: 'none', minWidth: '32px', position: 'sticky', left: 0, zIndex: 1 }}>
                 {rowIdx === 0 ? '' : rowIdx}
               </td>
               {row.map((cell, i) => (
                 <td key={i} rowSpan={cell.rowspan ?? 1} colSpan={cell.colspan ?? 1}
-                  style={{ padding: '3px 6px', border: '1px solid #e0e0e0', whiteSpace: 'nowrap', maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', verticalAlign: 'middle', background: rowIdx === 0 ? '#fafafa' : 'white', fontWeight: rowIdx === 0 ? 600 : 400 }}
+                  style={{ padding: '3px 6px', border: '1px solid rgba(255,255,255,0.12)', whiteSpace: 'nowrap', maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', verticalAlign: 'middle', background: rowIdx === 0 ? '#fafafa' : 'white', fontWeight: rowIdx === 0 ? 600 : 400 }}
                   title={cell.v != null ? String(cell.v) : ''}>
                   {cell.v != null ? String(cell.v) : ''}
                 </td>
@@ -185,34 +185,34 @@ function OverrideModal({ row, docId, onClose, onSaved }: OverrideModalProps) {
         </div>
 
         {/* 원문 정보 */}
-        <div style={{ background: '#1B2838', borderRadius: '6px', padding: '10px 14px', marginBottom: '18px', fontSize: '12px', color: '#666' }}>
-          <div style={{ fontWeight: 700, marginBottom: '4px', color: '#333' }}>원문 (수정불가)</div>
+        <div style={{ background: '#1B2838', borderRadius: '6px', padding: '10px 14px', marginBottom: '18px', fontSize: '12px', color: '#A0AEC0' }}>
+          <div style={{ fontWeight: 700, marginBottom: '4px', color: '#CBD5E0' }}>원문 (수정불가)</div>
           <div>품명: {row.rawItemName || '-'} / 규격: {row.rawSpec || '-'} / 단위: {row.rawUnit || '-'} / 수량: {row.rawQuantity || '-'}</div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
           <div>
-            <label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>수동 품명</label>
+            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>수동 품명</label>
             <input value={itemName} onChange={e => setItemName(e.target.value)} placeholder={row.normalized?.normalizedItemName ?? row.rawItemName ?? ''} style={s.input} />
           </div>
           <div>
-            <label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>수동 규격</label>
+            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>수동 규격</label>
             <input value={spec} onChange={e => setSpec(e.target.value)} placeholder={row.normalized?.normalizedSpec ?? row.rawSpec ?? ''} style={s.input} />
           </div>
           <div>
-            <label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>수동 단위</label>
+            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>수동 단위</label>
             <input value={unit} onChange={e => setUnit(e.target.value)} placeholder={row.normalized?.normalizedUnit ?? row.rawUnit ?? ''} style={s.input} />
           </div>
           <div>
-            <label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>수동 수량</label>
+            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>수동 수량</label>
             <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder={row.rawQuantity ?? ''} style={s.input} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
-            <label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>수동 그룹 키 <span style={{ color: '#A0AEC0', fontWeight: 400 }}>(같은 값끼리 집계 묶음)</span></label>
+            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>수동 그룹 키 <span style={{ color: '#A0AEC0', fontWeight: 400 }}>(같은 값끼리 집계 묶음)</span></label>
             <input value={groupKey} onChange={e => setGroupKey(e.target.value)} placeholder={row.normalized?.groupKey ?? ''} style={s.input} />
           </div>
           <div style={{ gridColumn: '1 / -1' }}>
-            <label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>보정 사유</label>
+            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>보정 사유</label>
             <input value={reason} onChange={e => setReason(e.target.value)} placeholder="보정 사유 입력 (선택)" style={s.input} />
           </div>
         </div>
@@ -399,7 +399,7 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
           {result && result.totalPages > 1 && (
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '16px', alignItems: 'center' }}>
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={s.pageBtn}>이전</button>
-              <span style={{ fontSize: '13px', color: '#666' }}>{page} / {result.totalPages}</span>
+              <span style={{ fontSize: '13px', color: '#A0AEC0' }}>{page} / {result.totalPages}</span>
               <button onClick={() => setPage(p => Math.min(result.totalPages, p + 1))} disabled={page === result.totalPages} style={s.pageBtn}>다음</button>
             </div>
           )}
@@ -515,7 +515,7 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
       )}
 
       {/* 집계 제어 툴바 */}
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', padding: '12px 16px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', padding: '12px 16px', background: '#1B2838', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
         <button
           onClick={handleRebuild}
           disabled={rebuilding}
@@ -573,7 +573,7 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                           <strong>{row.normalizedItemName}</strong>
                           {row.manualOverrideUsed && <span style={{ marginLeft: '4px', fontSize: '10px', color: '#7b1fa2', fontWeight: 700 }}>보정</span>}
                         </td>
-                        <td style={{ ...s.td, maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '12px', color: '#666' }}>
+                        <td style={{ ...s.td, maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '12px', color: '#A0AEC0' }}>
                           {row.normalizedSpec || '-'}
                         </td>
                         <td style={s.td}>{row.normalizedUnit || '-'}</td>
@@ -704,7 +704,7 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                 })}
                 {overrides.length > 0 && (
                   <div style={{ marginTop: '12px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#555', marginBottom: '6px' }}>보정 이력</div>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#A0AEC0', marginBottom: '6px' }}>보정 이력</div>
                     {overrides.map(o => (
                       <div key={o.id} style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>
                         {new Date(o.changedAt).toLocaleString('ko-KR')} {o.changedBy} — {o.fieldName}: {o.beforeValue ?? '-'} → {o.afterValue ?? '-'}
@@ -835,7 +835,7 @@ export default function EstimateDetailPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', fontSize: '14px', color: '#A0AEC0' }}>
           <Link href="/admin/materials" style={{ color: '#5BA4D9', textDecoration: 'none' }}>자재관리</Link>
           <span>/</span>
-          <span style={{ color: '#333' }}>{doc.fileName}</span>
+          <span style={{ color: '#CBD5E0' }}>{doc.fileName}</span>
         </div>
 
         {/* Header card */}
@@ -843,7 +843,7 @@ export default function EstimateDetailPage() {
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
             <div>
               <h1 style={{ fontSize: '20px', fontWeight: 700, margin: '0 0 8px' }}>{doc.fileName}</h1>
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '14px', color: '#666' }}>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '14px', color: '#A0AEC0' }}>
                 {doc.site && <span>현장: <strong>{doc.site.name}</strong></span>}
                 <span>유형: <strong>{DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}</strong></span>
                 <span>업로드: {new Date(doc.uploadedAt).toLocaleDateString('ko-KR')}</span>
@@ -876,7 +876,7 @@ export default function EstimateDetailPage() {
           ))}
         </div>
 
-        <div style={{ background: 'white', borderRadius: '0 0 10px 10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
+        <div style={{ background: '#243144', borderRadius: '0 0 10px 10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
 
           {/* Tab: Sheet List */}
           {activeTab === 'sheets' && (
@@ -910,7 +910,7 @@ export default function EstimateDetailPage() {
           {activeTab === 'raw' && (
             <div>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
-                <label style={{ fontSize: '14px', fontWeight: 600, color: '#555', whiteSpace: 'nowrap' }}>시트 선택:</label>
+                <label style={{ fontSize: '14px', fontWeight: 600, color: '#A0AEC0', whiteSpace: 'nowrap' }}>시트 선택:</label>
                 <select value={selectedSheetId} onChange={e => setSelectedSheetId(e.target.value)} style={s.filterSelect}>
                   <option value="">-- 시트를 선택하세요 --</option>
                   {sheets.map(sh => <option key={sh.id} value={sh.id}>{sh.sheetIndex + 1}. {sh.sheetName}{sh.discipline ? ` (${sh.discipline})` : ''}{sh.isHidden ? ' [숨김]' : ''}</option>)}

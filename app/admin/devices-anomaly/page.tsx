@@ -149,13 +149,13 @@ export default function DevicesAnomalyPage() {
           ))}
           <div style={{
             background: '#1B2838',
-            border: '1px solid #e0e0e0',
+            border: '1px solid rgba(255,255,255,0.12)',
             borderRadius: '10px',
             padding: '14px 24px',
             minWidth: '120px',
             textAlign: 'center',
           }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#555' }}>{anomalies.length}</div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: '#A0AEC0' }}>{anomalies.length}</div>
             <div style={{ fontSize: '12px', color: '#A0AEC0', fontWeight: 600 }}>전체</div>
           </div>
         </div>
@@ -221,7 +221,7 @@ export default function DevicesAnomalyPage() {
                             {a.workerName}
                           </div>
                         </td>
-                        <td style={{ ...s.td, fontSize: '12px', color: '#555', maxWidth: '160px' }}>
+                        <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0', maxWidth: '160px' }}>
                           <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {a.deviceInfo}
                           </div>
@@ -229,7 +229,7 @@ export default function DevicesAnomalyPage() {
                         <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0', whiteSpace: 'nowrap' }}>
                           {new Date(a.occurredAt).toLocaleString('ko-KR')}
                         </td>
-                        <td style={{ ...s.td, fontSize: '12px', color: '#555', maxWidth: '240px' }}>
+                        <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0', maxWidth: '240px' }}>
                           {a.description}
                         </td>
                       </tr>
@@ -282,6 +282,6 @@ const s: Record<string, React.CSSProperties> = {
   btn:          { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden' },
   table:        { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
-  th:           { background: '#f8f9fa', padding: '12px 14px', textAlign: 'left', fontWeight: 600, color: '#555', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' },
+  th:           { background: '#1B2838', padding: '12px 14px', textAlign: 'left', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' },
   td:           { padding: '12px 14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' },
 }

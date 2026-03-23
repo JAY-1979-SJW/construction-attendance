@@ -66,7 +66,7 @@ export default function TodayTasksPage() {
         <button
           onClick={load}
           disabled={loading}
-          style={{ padding: '8px 16px', background: '#1565c0', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}
+          style={{ padding: '8px 16px', background: '#E06810', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}
         >
           {loading ? '조회 중...' : '새로고침'}
         </button>
@@ -97,7 +97,7 @@ export default function TodayTasksPage() {
                   : `미처리 ${data.summary.totalPending}건${data.summary.highCount > 0 ? ` (즉시처리 ${data.summary.highCount}개 카테고리)` : ''}`
                 }
               </div>
-              <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
+              <div style={{ fontSize: '12px', color: '#A0AEC0', marginTop: '2px' }}>
                 6개 카테고리 기준 · 즉시처리 항목을 우선 처리하세요
               </div>
             </div>
@@ -145,7 +145,7 @@ export default function TodayTasksPage() {
 
           {/* 출력물 센터 링크 */}
           <div style={{ marginTop: '24px', padding: '16px 20px', background: '#1B2838', borderRadius: '10px', border: '1px solid #e0e0e0' }}>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: '#333', marginBottom: '10px' }}>관련 화면 바로가기</div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#CBD5E0', marginBottom: '10px' }}>관련 화면 바로가기</div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               <Link href="/admin/operations/attendance-exceptions" style={quickLink('#37474f')}>출퇴근 처리 센터</Link>
               <Link href="/admin/operations/labor-review" style={quickLink('#1b5e20')}>공수 검토 화면</Link>

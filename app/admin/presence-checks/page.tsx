@@ -576,7 +576,7 @@ export default function PresenceChecksPage() {
                           onChange={(e) => setReissueMinutes(Number(e.target.value))}
                           style={{ ...s.miniInput, width: '60px' }}
                         />
-                        <span style={{ fontSize: '13px', color: '#666' }}>분</span>
+                        <span style={{ fontSize: '13px', color: '#A0AEC0' }}>분</span>
                         <input
                           type="text"
                           placeholder="사유 (선택)"
@@ -705,10 +705,10 @@ const s: Record<string, React.CSSProperties> = {
   empty:        { textAlign: 'center', padding: '32px', color: '#718096', fontSize: '14px' },
 
   // Detail panel
-  panel:        { position: 'fixed', right: 0, top: 0, width: '420px', height: '100vh', background: 'white', borderLeft: '1px solid #e0e0e0', boxShadow: '-4px 0 20px rgba(0,0,0,0.08)', display: 'flex', flexDirection: 'column', zIndex: 100, overflow: 'hidden' },
+  panel:        { position: 'fixed', right: 0, top: 0, width: '420px', height: '100vh', background: '#243144', borderLeft: '1px solid #e0e0e0', boxShadow: '-4px 0 20px rgba(0,0,0,0.08)', display: 'flex', flexDirection: 'column', zIndex: 100, overflow: 'hidden' },
   panelHeader:  { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #f0f0f0', flexShrink: 0 },
   panelTitle:   { fontSize: '16px', fontWeight: 700 },
-  closeBtn:     { background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#666', padding: '4px 8px' },
+  closeBtn:     { background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#A0AEC0', padding: '4px 8px' },
   panelBody:    { flex: 1, overflowY: 'auto', padding: '16px 20px' },
   statusRow:    { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' },
   statusChip:   { padding: '4px 12px', borderRadius: '16px', fontSize: '13px', fontWeight: 700 },
@@ -716,8 +716,8 @@ const s: Record<string, React.CSSProperties> = {
   actionGroup:  { display: 'flex', gap: '8px', marginBottom: '10px' },
   actionBtn:    { padding: '8px 16px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, margin: '0 0 6px' },
 
-  reissueForm:       { background: '#f8f9fa', borderRadius: '8px', padding: '10px', marginTop: '6px' },
-  reissueLabel:      { fontSize: '12px', color: '#666', marginBottom: '8px' },
+  reissueForm:       { background: '#1B2838', borderRadius: '8px', padding: '10px', marginTop: '6px' },
+  reissueLabel:      { fontSize: '12px', color: '#A0AEC0', marginBottom: '8px' },
   reissueInputRow:   { display: 'flex', gap: '6px', alignItems: 'center' },
   miniInput:         { padding: '6px 8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '5px', fontSize: '13px' },
 
@@ -725,8 +725,8 @@ const s: Record<string, React.CSSProperties> = {
 
   auditRow:    { padding: '8px 0', borderBottom: '1px solid #f0f0f0', fontSize: '12px' },
   auditMeta:   { display: 'flex', justifyContent: 'space-between', marginBottom: '2px' },
-  auditAction: { fontWeight: 600, color: '#333' },
+  auditAction: { fontWeight: 600, color: '#CBD5E0' },
   auditTime:   { color: '#aaa' },
-  auditMsg:    { color: '#555' },
+  auditMsg:    { color: '#A0AEC0' },
   auditActor:  { color: '#A0AEC0', fontSize: '11px' },
 }

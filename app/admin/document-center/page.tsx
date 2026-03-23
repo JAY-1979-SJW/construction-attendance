@@ -280,7 +280,7 @@ export default function DocumentCenterPage() {
 
           {/* 사전검사 결과 패널 (전면 교체) */}
           {preflight ? (
-            <div style={{ marginBottom: '16px', border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
+            <div style={{ marginBottom: '16px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', overflow: 'hidden' }}>
               {/* 헤더 - 결과 요약 */}
               <div style={{
                 padding: '14px 16px',
@@ -360,7 +360,7 @@ export default function DocumentCenterPage() {
                         {issue.severity === 'ERROR' ? '!' : issue.severity === 'WARNING' ? '△' : 'i'}
                       </span>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#333' }}>{issue.message}</div>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#CBD5E0' }}>{issue.message}</div>
                         {issue.detail && (
                           <div style={{ fontSize: '12px', color: '#A0AEC0', marginTop: '2px' }}>{issue.detail}</div>
                         )}
@@ -392,7 +392,7 @@ export default function DocumentCenterPage() {
               </div>
             </div>
           ) : (
-            <div style={{ marginBottom: '16px', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '16px', background: '#fafafa', fontSize: '13px', color: '#aaa', textAlign: 'center' }}>
+            <div style={{ marginBottom: '16px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '16px', background: '#fafafa', fontSize: '13px', color: '#aaa', textAlign: 'center' }}>
               사전검사를 실행하면 결과가 여기에 표시됩니다.
             </div>
           )}
@@ -472,9 +472,9 @@ export default function DocumentCenterPage() {
                 <tr key={row.label}>
                   <td style={{ ...s.td, fontWeight: 600 }}>{row.label}</td>
                   <td style={s.td}>{row.desc}</td>
-                  <td style={{ ...s.td, color: '#666' }}>{row.use}</td>
+                  <td style={{ ...s.td, color: '#A0AEC0' }}>{row.use}</td>
                   <td style={s.td}>
-                    <span style={{ fontSize: '12px', color: '#666' }}>CSV</span>
+                    <span style={{ fontSize: '12px', color: '#A0AEC0' }}>CSV</span>
                     {row.xlsx && (
                       <span style={{ marginLeft: '6px', fontSize: '12px', background: '#e8f5e9', color: '#2e7d32', padding: '1px 6px', borderRadius: '3px', fontWeight: 700 }}>
                         XLSX
@@ -526,9 +526,9 @@ const s: Record<string, React.CSSProperties> = {
   main:             { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:        { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
   card:             { background: '#243144', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', marginBottom: '20px' },
-  label:            { display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 },
-  input:            { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: 'white' },
-  docTypeBtn:       { textAlign: 'left', padding: '12px 14px', borderRadius: '8px', border: '1px solid #e0e0e0', cursor: 'pointer', background: 'white', transition: 'all 0.1s' },
+  label:            { display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 },
+  input:            { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
+  docTypeBtn:       { textAlign: 'left', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', background: '#243144', transition: 'all 0.1s' },
   docTypeBtnActive: { background: 'rgba(91,164,217,0.1)', borderColor: '#1976d2', color: '#4A93C8' },
   infoBox:          { background: 'rgba(91,164,217,0.1)', borderRadius: '6px', padding: '10px 14px', marginBottom: '16px', fontSize: '13px', color: '#4A93C8' },
   preflightBtn:     { padding: '9px 18px', background: '#455a64', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },

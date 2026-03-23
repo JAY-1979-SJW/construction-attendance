@@ -101,7 +101,7 @@ export default function SiteImportsPage() {
           </div>
 
           {/* 엑셀 샘플 형식 안내 */}
-          <div style={{ background: '#f8f9fa', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', fontSize: '12px', color: '#555' }}>
+          <div style={{ background: '#1B2838', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', fontSize: '12px', color: '#A0AEC0' }}>
             <div style={{ fontWeight: 600, marginBottom: '6px' }}>📋 엑셀 헤더 예시 (1행)</div>
             <code style={{ display: 'block', color: '#5BA4D9' }}>현장명 | 주소 | 허용반경(m) | 현장코드</code>
             <div style={{ marginTop: '4px', color: '#A0AEC0' }}>※ 지오코딩 API 미설정 시 좌표는 검수 화면에서 직접 입력</div>

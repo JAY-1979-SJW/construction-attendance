@@ -139,7 +139,7 @@ export default function AttendanceExceptionsPage() {
       )}
 
       {/* 목록 */}
-      <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '10px', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
             <tr style={{ background: '#263238', color: '#fff' }}>
@@ -189,7 +189,7 @@ export default function AttendanceExceptionsPage() {
                   <td style={td}>
                     <button
                       onClick={() => { setTarget(item); setAction(''); setCheckOut(''); setNote('') }}
-                      style={{ padding: '4px 12px', background: '#1565c0', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', fontWeight: 700 }}
+                      style={{ padding: '4px 12px', background: '#E06810', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', fontWeight: 700 }}
                     >
                       처리
                     </button>
@@ -207,7 +207,7 @@ export default function AttendanceExceptionsPage() {
           <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={pageBtnStyle(page === 1)}>
             이전
           </button>
-          <span style={{ fontSize: '13px', alignSelf: 'center', color: '#666' }}>{page} / {totalPages}</span>
+          <span style={{ fontSize: '13px', alignSelf: 'center', color: '#A0AEC0' }}>{page} / {totalPages}</span>
           <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={pageBtnStyle(page === totalPages)}>
             다음
           </button>
@@ -219,7 +219,7 @@ export default function AttendanceExceptionsPage() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#fff', borderRadius: '12px', padding: '28px', width: '460px', maxWidth: '95vw' }}>
             <h2 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: 800 }}>출퇴근 처리</h2>
-            <div style={{ fontSize: '13px', color: '#666', marginBottom: '20px' }}>
+            <div style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '20px' }}>
               {target.workerName} · {target.workDate} · {target.siteName}
             </div>
 
@@ -264,7 +264,7 @@ export default function AttendanceExceptionsPage() {
             </div>
 
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={() => setTarget(null)} style={{ flex: 1, padding: '12px', border: '1px solid #e0e0e0', borderRadius: '8px', background: '#fff', cursor: 'pointer', fontSize: '14px' }}>
+              <button onClick={() => setTarget(null)} style={{ flex: 1, padding: '12px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', background: '#fff', cursor: 'pointer', fontSize: '14px' }}>
                 취소
               </button>
               <button
@@ -284,8 +284,8 @@ export default function AttendanceExceptionsPage() {
 
 const th: React.CSSProperties = { padding: '10px 12px', textAlign: 'left', fontWeight: 700, fontSize: '12px', whiteSpace: 'nowrap' }
 const td: React.CSSProperties = { padding: '10px 12px', borderBottom: '1px solid #f0f0f0', verticalAlign: 'top' }
-const inputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: '7px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px', color: '#555' }
+const inputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '7px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }
+const labelStyle: React.CSSProperties = { display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px', color: '#A0AEC0' }
 
 function btnStyle(bg: string, disabled: boolean): React.CSSProperties {
   return { padding: '8px 16px', background: disabled ? '#bdbdbd' : bg, color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', cursor: disabled ? 'not-allowed' : 'pointer', fontWeight: 700 }

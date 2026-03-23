@@ -223,7 +223,7 @@ export default function SubcontractorSettlementsPage() {
           <button
             onClick={handleDownload}
             disabled={downloading}
-            style={{ ...s.btn, background: '#1565c0', opacity: downloading ? 0.6 : 1 }}
+            style={{ ...s.btn, background: '#E06810', opacity: downloading ? 0.6 : 1 }}
           >
             {downloading ? '생성 중...' : 'CSV 다운로드'}
           </button>
@@ -347,8 +347,8 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
-  label:        { display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 },
-  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  label:        { display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 },
+  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
   btn:          { padding: '8px 16px', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   msg:          { padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' },
   summaryCard:  { background: '#243144', borderRadius: '10px', padding: '16px 20px', minWidth: '140px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },

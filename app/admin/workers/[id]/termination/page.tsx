@@ -221,7 +221,7 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
         <h1 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800, color: done ? '#2e7d32' : '#e65100' }}>
           {done ? '✅ 종료 처리 완료' : '⚠️ 종료 처리 체크리스트'}
         </h1>
-        <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>
+        <p style={{ margin: 0, fontSize: '13px', color: '#A0AEC0' }}>
           {done
             ? '종료 확정 및 스냅샷이 저장되었습니다. 분쟁방어 패널에서 확인할 수 있습니다.'
             : '단순 상태 변경은 금지됩니다. 아래 절차를 완료해야 종료 처리됩니다.'}
@@ -264,7 +264,7 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 
       {/* ── Step 1: 기본정보 ─────────────────────────────────────────────────── */}
       {step === 1 && (
-        <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '12px', padding: '24px' }}>
+        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '24px' }}>
           <h2 style={{ margin: '0 0 20px', fontSize: '16px', fontWeight: 700 }}>Step 1 — 종료 기본정보 입력</h2>
 
           <Field label="종료 유형" required>
@@ -318,7 +318,7 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 
       {/* ── Step 2: 자동점검 결과 ────────────────────────────────────────────── */}
       {step === 2 && (
-        <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '12px', padding: '24px' }}>
+        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '24px' }}>
           <h2 style={{ margin: '0 0 20px', fontSize: '16px', fontWeight: 700 }}>Step 2 — 자동점검 결과</h2>
 
           {hasCritical && (
@@ -365,9 +365,9 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 
       {/* ── Step 3: 누락항목 보완 ────────────────────────────────────────────── */}
       {step === 3 && (
-        <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '12px', padding: '24px' }}>
+        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '24px' }}>
           <h2 style={{ margin: '0 0 16px', fontSize: '16px', fontWeight: 700 }}>Step 3 — 누락항목 보완</h2>
-          <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#666' }}>
+          <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#A0AEC0' }}>
             아래 항목들을 보완한 후 재점검을 실행하세요. 치명 항목은 반드시 처리해 주세요.
           </p>
 
@@ -401,9 +401,9 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 
       {/* ── Step 4: 최종 확인 ────────────────────────────────────────────────── */}
       {step === 4 && (
-        <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '12px', padding: '24px' }}>
+        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '24px' }}>
           <h2 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: 700 }}>Step 4 — 관리자 최종 확인</h2>
-          <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#666' }}>
+          <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#A0AEC0' }}>
             아래 항목을 모두 확인한 후 종료를 확정할 수 있습니다.
           </p>
 
@@ -442,8 +442,8 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
           </div>
 
           {/* 종료정보 요약 */}
-          <div style={{ background: '#1B2838', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px', fontSize: '13px', color: '#555' }}>
-            <div style={{ fontWeight: 700, marginBottom: '8px', color: '#333' }}>종료 처리 요약</div>
+          <div style={{ background: '#1B2838', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px', fontSize: '13px', color: '#A0AEC0' }}>
+            <div style={{ fontWeight: 700, marginBottom: '8px', color: '#CBD5E0' }}>종료 처리 요약</div>
             <div>사유: <strong>{TERMINATION_REASONS.find(r => r.value === form.terminationReason)?.label}</strong></div>
             <div>종료일: <strong>{form.terminationDate}</strong></div>
             <div style={{ marginTop: '4px', color: '#777' }}>{form.detailReason}</div>
@@ -477,7 +477,7 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
         <div style={{ background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: '12px', padding: '32px', textAlign: 'center' }}>
           <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
           <h2 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 800, color: '#2e7d32' }}>종료 처리 완료</h2>
-          <p style={{ margin: '0 0 24px', fontSize: '14px', color: '#555' }}>
+          <p style={{ margin: '0 0 24px', fontSize: '14px', color: '#A0AEC0' }}>
             종료 스냅샷이 저장되었으며 감사로그가 기록되었습니다.
           </p>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -520,7 +520,7 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: '16px' }}>
-      <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '6px', color: '#333' }}>
+      <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '6px', color: '#CBD5E0' }}>
         {label} {required && <span style={{ color: '#e53935' }}>*</span>}
       </label>
       {children}
@@ -540,7 +540,7 @@ function getActionHref(action: string, workerId: string): string {
 }
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0',
+  width: '100%', padding: '10px 12px', border: '1px solid rgba(255,255,255,0.12)',
   borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box',
 }
 const selectStyle: React.CSSProperties = { ...inputStyle, background: '#fff' }
@@ -554,8 +554,8 @@ function primaryBtn(disabled: boolean): React.CSSProperties {
   }
 }
 const secondaryBtn: React.CSSProperties = {
-  padding: '13px 20px', border: '1px solid #e0e0e0', borderRadius: '8px',
-  background: '#fff', fontSize: '14px', cursor: 'pointer', color: '#555',
+  padding: '13px 20px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px',
+  background: '#fff', fontSize: '14px', cursor: 'pointer', color: '#A0AEC0',
 }
 const linkBtn: React.CSSProperties = {
   display: 'inline-block', padding: '12px 20px', borderRadius: '8px',

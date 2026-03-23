@@ -239,14 +239,14 @@ const styles: Record<string, React.CSSProperties> = {
   tabActive: { color: '#0f4c75', borderBottomColor: '#0f4c75', fontWeight: 600 },
   list: { display: 'flex', flexDirection: 'column', gap: '8px' },
   item: {
-    background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px',
+    background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px',
     padding: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px',
   },
   itemName: { fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '2px' },
   itemSub: { fontSize: '12px', color: '#6b7280' },
   itemDetail: { fontSize: '12px', color: '#9ca3af', marginTop: '2px' },
   itemDate: { fontSize: '11px', color: '#d1d5db', marginTop: '4px' },
-  empty: { textAlign: 'center', color: '#9ca3af', padding: '48px 0', background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' },
+  empty: { textAlign: 'center', color: '#9ca3af', padding: '48px 0', background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px' },
   approveBtn: {
     padding: '5px 12px', background: '#059669', color: 'white',
     border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px',
@@ -256,7 +256,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px',
   },
   cancelBtn: {
-    padding: '5px 12px', background: 'white', color: '#374151',
+    padding: '5px 12px', background: '#243144', color: '#374151',
     border: '1px solid rgba(91,164,217,0.3)', borderRadius: '5px', cursor: 'pointer', fontSize: '12px',
   },
   modalOverlay: {

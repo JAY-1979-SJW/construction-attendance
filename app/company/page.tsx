@@ -62,7 +62,7 @@ function StatCard({ label, value, unit, color }: { label: string; value: number;
 
 const styles: Record<string, React.CSSProperties> = {
   container: { padding: '32px' },
-  title: { fontSize: '22px', fontWeight: 700, margin: '0 0 24px', color: '#1a1a2e' },
+  title: { fontSize: '22px', fontWeight: 700, margin: '0 0 24px', color: '#ffffff' },
   loading: { color: '#A0AEC0', fontSize: '15px' },
   cards: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' },
   card: { background: '#243144', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden', display: 'flex', flexDirection: 'row' },

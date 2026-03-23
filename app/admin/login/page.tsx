@@ -64,7 +64,7 @@ const styles: Record<string, React.CSSProperties> = {
   title: { fontSize: '22px', fontWeight: 700, margin: '0 0 6px', textAlign: 'center' },
   subtitle: { fontSize: '13px', color: '#A0AEC0', textAlign: 'center', margin: '0 0 32px' },
   inputGroup: { marginBottom: '16px' },
-  label: { display: 'block', fontSize: '13px', fontWeight: 600, color: '#555', marginBottom: '6px' },
+  label: { display: 'block', fontSize: '13px', fontWeight: 600, color: '#A0AEC0', marginBottom: '6px' },
   input: { width: '100%', padding: '12px 14px', fontSize: '15px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' as const },
   error: { color: '#e53935', fontSize: '13px', marginBottom: '12px' },
   button: { width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' },

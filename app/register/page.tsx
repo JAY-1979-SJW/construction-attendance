@@ -107,7 +107,7 @@ export default function RegisterPage() {
     return (
       <div style={s.page}>
         <div style={s.card}>
-          <p style={{ textAlign: 'center', color: '#666' }}>로딩 중...</p>
+          <p style={{ textAlign: 'center', color: '#A0AEC0' }}>로딩 중...</p>
         </div>
       </div>
     )
@@ -257,19 +257,19 @@ export default function RegisterPage() {
 
 const s: Record<string, React.CSSProperties> = {
   page:         { minHeight: '100vh', background: '#f5f6fa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' },
-  card:         { background: 'white', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '520px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' },
-  title:        { fontSize: '24px', fontWeight: 700, margin: '0 0 8px', color: '#1a1a2e' },
-  subtitle:     { fontSize: '14px', color: '#666', margin: '0 0 28px', lineHeight: 1.6 },
+  card:         { background: '#243144', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '520px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' },
+  title:        { fontSize: '24px', fontWeight: 700, margin: '0 0 8px', color: '#ffffff' },
+  subtitle:     { fontSize: '14px', color: '#A0AEC0', margin: '0 0 28px', lineHeight: 1.6 },
   errorBox:     { background: '#fff0f0', border: '1px solid #ffcccc', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', color: '#c62828', fontSize: '14px' },
-  label:        { display: 'block', fontSize: '13px', fontWeight: 600, color: '#333', marginBottom: '6px', marginTop: '16px' },
+  label:        { display: 'block', fontSize: '13px', fontWeight: 600, color: '#CBD5E0', marginBottom: '6px', marginTop: '16px' },
   required:     { color: '#e53935' },
   input:        { width: '100%', padding: '10px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' },
-  consentSection: { margin: '20px 0', padding: '16px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #e8e8e8' },
-  consentTitle: { fontSize: '13px', fontWeight: 700, marginBottom: '12px', color: '#333' },
+  consentSection: { margin: '20px 0', padding: '16px', background: '#1B2838', borderRadius: '8px', border: '1px solid #e8e8e8' },
+  consentTitle: { fontSize: '13px', fontWeight: 700, marginBottom: '12px', color: '#CBD5E0' },
   consentBlock: { marginBottom: '10px', borderBottom: '1px solid #eee', paddingBottom: '10px' },
   consentRow:   { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', fontSize: '13px', color: '#444' },
   viewBtn:      { fontSize: '12px', color: '#5BA4D9', background: 'none', border: '1px solid #1976d2', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', whiteSpace: 'nowrap' },
-  docContent:   { marginTop: '8px', fontSize: '12px', color: '#555', background: 'white', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '12px', maxHeight: '200px', overflowY: 'auto', whiteSpace: 'pre-wrap', lineHeight: 1.6 },
+  docContent:   { marginTop: '8px', fontSize: '12px', color: '#A0AEC0', background: '#243144', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '12px', maxHeight: '200px', overflowY: 'auto', whiteSpace: 'pre-wrap', lineHeight: 1.6 },
   btn:          { display: 'block', width: '100%', padding: '14px', background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', marginTop: '20px' },
   footer:       { display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '20px', textAlign: 'center' },
   link:         { color: '#5BA4D9', fontSize: '13px', textDecoration: 'none' },

@@ -104,7 +104,7 @@ export default function PrintCenterPage() {
       </PrintCard>
 
       {/* 5. 종료 증빙 패키지 안내 */}
-      <div style={{ background: '#1B2838', border: '1px solid #e0e0e0', borderRadius: '10px', padding: '18px 20px', marginTop: '16px' }}>
+      <div style={{ background: '#1B2838', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '18px 20px', marginTop: '16px' }}>
         <div style={{ fontSize: '14px', color: '#A0AEC0' }}>
           💼 <strong>종료 증빙 패키지</strong>는 개별 근로자 종료 처리 화면에서 출력할 수 있습니다.
           <br />
@@ -122,7 +122,7 @@ function PrintCard({ title, description, icon, children }: {
   children: React.ReactNode
 }) {
   return (
-    <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '10px', padding: '20px', marginBottom: '16px' }}>
+    <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '20px', marginBottom: '16px' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
         <div style={{ fontSize: '28px', flexShrink: 0 }}>{icon}</div>
         <div style={{ flex: 1 }}>
@@ -135,7 +135,7 @@ function PrintCard({ title, description, icon, children }: {
   )
 }
 
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px', color: '#555' }
+const labelStyle: React.CSSProperties = { display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px', color: '#A0AEC0' }
 const inputStyle: React.CSSProperties = { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', outline: 'none' }
 
 function printBtnStyle(disabled: boolean): React.CSSProperties {

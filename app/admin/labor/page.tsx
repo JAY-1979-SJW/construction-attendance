@@ -343,6 +343,6 @@ const s: Record<string, React.CSSProperties> = {
   legend:       { background: '#243144', borderRadius: '10px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   legendTitle:  { fontSize: '12px', color: '#A0AEC0', fontWeight: 600, marginBottom: '10px', textTransform: 'uppercase' as const },
   legendRow:    { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' },
-  legendText:   { fontSize: '13px', color: '#555' },
+  legendText:   { fontSize: '13px', color: '#A0AEC0' },
   badge:        { fontSize: '11px', padding: '2px 8px', borderRadius: '10px', fontWeight: 600 },
 }

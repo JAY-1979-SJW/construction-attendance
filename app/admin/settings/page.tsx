@@ -313,7 +313,7 @@ function NumberRow({ label, desc, value, unit, min, max, disabled, onChange }: {
           onChange={(e) => onChange(Number(e.target.value))}
           style={s.numInput}
         />
-        <span style={{ fontSize: '13px', color: '#666' }}>{unit}</span>
+        <span style={{ fontSize: '13px', color: '#A0AEC0' }}>{unit}</span>
       </div>
     </div>
   )
@@ -371,24 +371,24 @@ const s: Record<string, React.CSSProperties> = {
   cardSub:    { fontSize: '12px', color: '#A0AEC0', marginTop: '2px' },
   proBadge:   { background: '#fff3e0', color: '#e65100', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '4px', border: '1px solid #ffcc80' },
 
-  lockedBox:  { padding: '40px', textAlign: 'center' as const, color: '#666' },
+  lockedBox:  { padding: '40px', textAlign: 'center' as const, color: '#A0AEC0' },
   fieldList:  { padding: '8px 0' },
   fieldRow:   { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 24px', gap: '16px' },
   fieldInfo:  { flex: 1 },
-  fieldLabel: { fontSize: '14px', fontWeight: 600, color: '#1a1a2e', marginBottom: '2px' },
+  fieldLabel: { fontSize: '14px', fontWeight: 600, color: '#ffffff', marginBottom: '2px' },
   fieldDesc:  { fontSize: '12px', color: '#A0AEC0' },
   divider:    { borderTop: '1px solid #f5f5f5', margin: '0 24px' },
 
   toggle:     { width: '44px', height: '24px', borderRadius: '12px', border: 'none', position: 'relative' as const, transition: 'background 0.2s', flexShrink: 0 },
-  toggleKnob: { position: 'absolute' as const, top: '2px', width: '20px', height: '20px', background: 'white', borderRadius: '50%', transition: 'transform 0.2s', display: 'block' },
+  toggleKnob: { position: 'absolute' as const, top: '2px', width: '20px', height: '20px', background: '#243144', borderRadius: '50%', transition: 'transform 0.2s', display: 'block' },
 
   numInput:   { width: '72px', padding: '6px 10px', fontSize: '15px', fontWeight: 700, border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', textAlign: 'center' as const },
-  timeInput:  { padding: '6px 10px', fontSize: '14px', fontWeight: 600, border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', color: '#1a1a2e' },
+  timeInput:  { padding: '6px 10px', fontSize: '14px', fontWeight: 600, border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', color: '#ffffff' },
 
   msgBox:     { borderRadius: '8px', padding: '10px 14px', fontSize: '13px', marginBottom: '12px' },
   saveBtn:    { width: '100%', padding: '14px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 700, cursor: 'pointer' },
 
-  helpCard:   { background: '#f8f9fa', borderRadius: '10px', padding: '18px 20px' },
+  helpCard:   { background: '#1B2838', borderRadius: '10px', padding: '18px 20px' },
   helpTitle:  { fontSize: '14px', fontWeight: 700, marginBottom: '10px', color: '#4A93C8' },
-  helpItem:   { fontSize: '13px', color: '#555', lineHeight: 1.8 },
+  helpItem:   { fontSize: '13px', color: '#A0AEC0', lineHeight: 1.8 },
 }

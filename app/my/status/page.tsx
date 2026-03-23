@@ -138,13 +138,13 @@ export default function MyStatusPage() {
               <div style={{ fontSize: '15px', fontWeight: 700, color: attendanceEligibility.canCheckIn ? '#2e7d32' : '#e65100' }}>
                 {attendanceEligibility.canCheckIn ? '출퇴근 가능' : '출퇴근 불가'}
               </div>
-              <div style={{ fontSize: '13px', color: '#555', marginTop: '2px' }}>{attendanceEligibility.summary}</div>
+              <div style={{ fontSize: '13px', color: '#A0AEC0', marginTop: '2px' }}>{attendanceEligibility.summary}</div>
             </div>
           </div>
           {attendanceEligibility.blockReasons.map((r, i) => (
             <div key={i} style={s.blockReasonRow}>
               <div style={{ fontWeight: 600, color: '#c62828', fontSize: '13px' }}>❌ {r.message}</div>
-              <div style={{ color: '#555', fontSize: '12px', marginTop: '2px' }}>→ {r.actionRequired}</div>
+              <div style={{ color: '#A0AEC0', fontSize: '12px', marginTop: '2px' }}>→ {r.actionRequired}</div>
             </div>
           ))}
         </div>
@@ -276,14 +276,14 @@ export default function MyStatusPage() {
                 ['퇴직공제', complianceStatus.retirementMutualStatus],
               ].map(([label, status]) => (
                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f9f9f9', borderRadius: '8px', fontSize: '14px' }}>
-                  <span style={{ color: '#555' }}>{label}</span>
+                  <span style={{ color: '#A0AEC0' }}>{label}</span>
                   <span style={{ fontWeight: 600, color: INSURANCE_STATUS_COLOR[status] ?? '#888' }}>
                     {INSURANCE_STATUS_LABEL[status] ?? status}
                   </span>
                 </div>
               ))}
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f9f9f9', borderRadius: '8px', fontSize: '14px' }}>
-                <span style={{ color: '#555' }}>계좌 등록</span>
+                <span style={{ color: '#A0AEC0' }}>계좌 등록</span>
                 <span style={{ fontWeight: 600, color: complianceStatus.bankInfoCollected ? '#2e7d32' : '#9e9e9e' }}>
                   {complianceStatus.bankInfoCollected ? '완료' : '미등록'}
                 </span>
@@ -300,9 +300,9 @@ export default function MyStatusPage() {
 
 const s: Record<string, React.CSSProperties> = {
   page:            { minHeight: '100vh', background: '#1E3350', padding: '24px 16px' },
-  center:          { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontSize: '16px', color: '#666' },
+  center:          { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontSize: '16px', color: '#A0AEC0' },
   container:       { maxWidth: '520px', margin: '0 auto' },
-  title:           { fontSize: '24px', fontWeight: 700, margin: '0 0 16px', color: '#1a1a2e' },
+  title:           { fontSize: '24px', fontWeight: 700, margin: '0 0 16px', color: '#ffffff' },
   eligibilityBox:  { borderRadius: '12px', padding: '16px 18px', marginBottom: '16px', border: '1px solid' },
   blockReasonRow:  { background: 'rgba(255,255,255,0.6)', borderRadius: '8px', padding: '8px 12px', marginTop: '8px' },
   section:         { background: '#243144', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
@@ -315,9 +315,9 @@ const s: Record<string, React.CSSProperties> = {
   infoLabel:       { color: '#A0AEC0', fontWeight: 600 },
   hint:            { fontSize: '13px', color: '#A0AEC0', margin: '8px 0 0' },
   siteCard:        { border: '1px solid #eee', borderRadius: '10px', padding: '14px 16px', marginBottom: '10px' },
-  siteName:        { fontSize: '15px', fontWeight: 700, color: '#1a1a2e' },
+  siteName:        { fontSize: '15px', fontWeight: 700, color: '#ffffff' },
   siteAddr:        { fontSize: '13px', color: '#A0AEC0', marginTop: '4px' },
-  siteInfo:        { fontSize: '13px', color: '#666' },
+  siteInfo:        { fontSize: '13px', color: '#A0AEC0' },
   joinBtn:         { marginTop: '10px', padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
   reapplyBtn:      { marginTop: '10px', padding: '6px 16px', background: '#ff9800', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
   joinMsg:         { background: '#e8f5e9', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#2e7d32', marginBottom: '12px' },

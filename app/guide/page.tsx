@@ -126,8 +126,8 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
       return (
         <div style={{ ...sc.container, justifyContent: 'center', alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
-          <div style={{ fontSize: '18px', fontWeight: 700, color: '#1a1a2e', marginBottom: '8px' }}>기기 승인 대기 중</div>
-          <div style={{ fontSize: '13px', color: '#666', textAlign: 'center', lineHeight: 1.7, marginBottom: '24px' }}>
+          <div style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff', marginBottom: '8px' }}>기기 승인 대기 중</div>
+          <div style={{ fontSize: '13px', color: '#A0AEC0', textAlign: 'center', lineHeight: 1.7, marginBottom: '24px' }}>
             현장 관리자가 이 기기를<br />승인하면 자동으로 로그인됩니다.<br /><br />
             <strong>최초 1회만</strong> 필요합니다.
           </div>
@@ -153,7 +153,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
           </div>
           <div style={sc.card}>
             <div style={sc.dateLabel}>오늘의 출퇴근</div>
-            <div style={{ textAlign: 'center', padding: '20px 0', color: '#555' }}>
+            <div style={{ textAlign: 'center', padding: '20px 0', color: '#A0AEC0' }}>
               <p>오늘 출근 기록이 없습니다.</p>
               <p style={{ fontSize: '13px', color: '#A0AEC0' }}>현장 QR코드를 스캔하여 출근하세요.</p>
             </div>
@@ -211,7 +211,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
             <div style={{ display: 'inline-block', background: '#2e7d32', color: 'white', fontSize: '13px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', marginBottom: '12px' }}>
               근무 중
             </div>
-            <div style={{ fontSize: '16px', fontWeight: 700, color: '#1a1a2e', marginBottom: '4px' }}>해한 A현장</div>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', marginBottom: '4px' }}>해한 A현장</div>
             <div style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '20px' }}>서울시 강남구 테헤란로 123</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ flex: 1, textAlign: 'center' }}>
@@ -291,18 +291,18 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
    스타일
 ────────────────────────────────────────────── */
 const pg: Record<string, React.CSSProperties> = {
-  page:        { fontFamily: '"Malgun Gothic","Apple SD Gothic Neo",sans-serif', color: '#1a1a2e', minHeight: '100vh', background: '#f0f4f8' },
-  header:      { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', background: 'white', borderBottom: '1px solid #eee', position: 'sticky' as const, top: 0, zIndex: 10 },
-  backLink:    { fontSize: '14px', color: '#555', textDecoration: 'none' },
+  page:        { fontFamily: '"Malgun Gothic","Apple SD Gothic Neo",sans-serif', color: '#ffffff', minHeight: '100vh', background: '#1B2838' },
+  header:      { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', background: '#243144', borderBottom: '1px solid #eee', position: 'sticky' as const, top: 0, zIndex: 10 },
+  backLink:    { fontSize: '14px', color: '#A0AEC0', textDecoration: 'none' },
   headerTitle: { fontSize: '16px', fontWeight: 700 },
   startBtn:    { padding: '8px 18px', background: '#F47920', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 },
 
   body:        { display: 'flex', gap: '24px', padding: '24px', maxWidth: '1100px', margin: '0 auto', flexWrap: 'wrap' as const },
 
   tabs:        { display: 'flex', flexDirection: 'column' as const, gap: '8px', minWidth: '180px', flex: '0 0 auto' },
-  tab:         { background: 'white', border: '2px solid #e0e0e0', borderRadius: '10px', padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const, transition: 'all 0.15s' },
+  tab:         { background: '#243144', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const, transition: 'all 0.15s' },
   tabActive:   { borderColor: '#1976d2', background: 'rgba(91,164,217,0.1)' },
-  tabLabel:    { display: 'block', fontSize: '13px', fontWeight: 700, color: '#1a1a2e', marginBottom: '2px' },
+  tabLabel:    { display: 'block', fontSize: '13px', fontWeight: 700, color: '#ffffff', marginBottom: '2px' },
   tabDesc:     { display: 'block', fontSize: '11px', color: '#A0AEC0' },
 
   phoneWrapper: { flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '16px' },
@@ -319,7 +319,7 @@ const pg: Record<string, React.CSSProperties> = {
 
   navRow:  { display: 'flex', alignItems: 'center', gap: '16px' },
   navBtn:  { padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  navInfo: { fontSize: '14px', color: '#666' },
+  navInfo: { fontSize: '14px', color: '#A0AEC0' },
 
   cta:     { textAlign: 'center' as const, padding: '40px 24px', background: '#1a1a2e' },
   ctaText: { color: 'rgba(255,255,255,0.7)', marginBottom: '16px', fontSize: '16px' },
@@ -331,20 +331,20 @@ const sc: Record<string, React.CSSProperties> = {
   container:   { maxWidth: '480px', margin: '0 auto', padding: '20px', minHeight: '560px', background: '#1B2838' },
 
   // 로그인
-  loginLogo:   { fontSize: '28px', fontWeight: 900, color: '#1a1a2e', textAlign: 'center' as const, paddingTop: '40px', marginBottom: '4px' },
+  loginLogo:   { fontSize: '28px', fontWeight: 900, color: '#ffffff', textAlign: 'center' as const, paddingTop: '40px', marginBottom: '4px' },
   loginSub:    { fontSize: '13px', color: '#A0AEC0', textAlign: 'center' as const, marginBottom: '32px' },
-  loginCard:   { background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
-  loginLabel:  { fontSize: '13px', color: '#555', marginBottom: '6px' },
-  loginInput:  { width: '100%', padding: '12px', fontSize: '16px', border: '1px solid #e0e0e0', borderRadius: '8px', boxSizing: 'border-box' as const, marginBottom: '12px', background: '#f9f9f9' },
+  loginCard:   { background: '#243144', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
+  loginLabel:  { fontSize: '13px', color: '#A0AEC0', marginBottom: '6px' },
+  loginInput:  { width: '100%', padding: '12px', fontSize: '16px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', boxSizing: 'border-box' as const, marginBottom: '12px', background: '#f9f9f9' },
   loginBtn:    { width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', marginBottom: '12px' },
   loginHint:   { fontSize: '12px', color: '#aaa', textAlign: 'center' as const, lineHeight: 1.5 },
 
   // 출퇴근 홈
   attHeader:   { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingTop: '8px' },
-  workerName:  { fontSize: '16px', fontWeight: 700, color: '#1a1a2e' },
-  workerInfo:  { fontSize: '12px', color: '#666', marginTop: '2px' },
-  logoutBtn:   { background: 'none', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', padding: '5px 10px', fontSize: '12px', cursor: 'pointer', color: '#666' },
-  card:        { background: 'white', borderRadius: '14px', padding: '20px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  workerName:  { fontSize: '16px', fontWeight: 700, color: '#ffffff' },
+  workerInfo:  { fontSize: '12px', color: '#A0AEC0', marginTop: '2px' },
+  logoutBtn:   { background: 'none', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', padding: '5px 10px', fontSize: '12px', cursor: 'pointer', color: '#A0AEC0' },
+  card:        { background: '#243144', borderRadius: '14px', padding: '20px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
   dateLabel:   { fontSize: '12px', color: '#A0AEC0', marginBottom: '10px' },
   guideCard:   { background: 'rgba(91,164,217,0.1)', borderRadius: '10px', padding: '16px', marginBottom: '12px' },
   guideTitle:  { fontSize: '13px', fontWeight: 700, color: '#4A93C8', marginBottom: '10px' },
@@ -353,15 +353,15 @@ const sc: Record<string, React.CSSProperties> = {
   // QR 화면
   siteCard:    { background: '#243144', borderRadius: '10px', padding: '16px', marginBottom: '12px', boxShadow: '0 2px 6px rgba(0,0,0,0.06)' },
   siteLabel:   { fontSize: '11px', color: '#718096', marginBottom: '4px' },
-  siteName:    { fontSize: '18px', fontWeight: 700, color: '#1a1a2e', marginBottom: '3px' },
+  siteName:    { fontSize: '18px', fontWeight: 700, color: '#ffffff', marginBottom: '3px' },
   siteAddress: { fontSize: '12px', color: '#A0AEC0' },
-  actionCard:  { background: 'white', borderRadius: '14px', padding: '32px 24px', textAlign: 'center' as const, boxShadow: '0 2px 10px rgba(0,0,0,0.07)', marginBottom: '12px' },
-  actionTitle: { fontSize: '20px', fontWeight: 700, color: '#1a1a2e', marginBottom: '6px' },
-  actionDesc:  { fontSize: '13px', color: '#666', marginBottom: '20px' },
+  actionCard:  { background: '#243144', borderRadius: '14px', padding: '32px 24px', textAlign: 'center' as const, boxShadow: '0 2px 10px rgba(0,0,0,0.07)', marginBottom: '12px' },
+  actionTitle: { fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '6px' },
+  actionDesc:  { fontSize: '13px', color: '#A0AEC0', marginBottom: '20px' },
   checkInBtn:  { width: '100%', padding: '16px', fontSize: '18px', fontWeight: 700, background: '#2e7d32', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
   checkOutBtn: { width: '100%', padding: '16px', fontSize: '18px', fontWeight: 700, background: '#E06810', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
-  homeBtn:     { width: '100%', padding: '14px', fontSize: '15px', fontWeight: 600, background: '#1B2838', color: '#333', border: 'none', borderRadius: '10px', cursor: 'pointer' },
-  exceptionBtn:{ width: '100%', padding: '11px', fontSize: '12px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '9px', cursor: 'pointer', color: '#A0AEC0' },
+  homeBtn:     { width: '100%', padding: '14px', fontSize: '15px', fontWeight: 600, background: '#1B2838', color: '#CBD5E0', border: 'none', borderRadius: '10px', cursor: 'pointer' },
+  exceptionBtn:{ width: '100%', padding: '11px', fontSize: '12px', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '9px', cursor: 'pointer', color: '#A0AEC0' },
 
   demoNext:    { width: '100%', padding: '12px', fontSize: '13px', background: 'rgba(244,121,32,0.12)', color: '#F47920', border: '1px solid #90caf9', borderRadius: '9px', cursor: 'pointer', fontWeight: 600 },
 }

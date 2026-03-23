@@ -164,10 +164,10 @@ const styles: Record<string, React.CSSProperties> = {
   },
   empty: {
     textAlign: 'center', color: '#9ca3af', padding: '48px 0',
-    background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px',
+    background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px',
   },
   errorMsg: { padding: '10px 14px', background: '#fee2e2', color: '#991b1b', borderRadius: '6px', fontSize: '13px', marginBottom: '12px' },
-  tableWrap: { background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'auto' },
+  tableWrap: { background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'auto' },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
   thead: { background: '#f9fafb' },
   th: { padding: '10px 14px', textAlign: 'left', fontSize: '12px', color: '#6b7280', fontWeight: 600, borderBottom: '1px solid #e5e7eb' },

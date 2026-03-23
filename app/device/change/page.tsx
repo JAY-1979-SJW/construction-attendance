@@ -55,7 +55,7 @@ export default function DeviceChangePage() {
         <div style={styles.card}>
           <div style={{ fontSize: '48px', textAlign: 'center', marginBottom: '16px' }}>📨</div>
           <h1 style={{ ...styles.title, marginBottom: '12px' }}>요청 접수 완료</h1>
-          <p style={{ textAlign: 'center', color: '#555', fontSize: '14px', lineHeight: 1.6 }}>
+          <p style={{ textAlign: 'center', color: '#A0AEC0', fontSize: '14px', lineHeight: 1.6 }}>
             기기 변경 요청이 관리자에게 전달되었습니다.
             <br />
             승인 후 새 기기에서 출퇴근 가능합니다.
@@ -106,14 +106,14 @@ export default function DeviceChangePage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  container: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', background: '#f0f4f8' },
-  card: { background: 'white', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' },
-  back: { background: 'none', border: 'none', color: '#666', fontSize: '14px', cursor: 'pointer', padding: '0 0 16px', display: 'block' },
-  title: { fontSize: '22px', fontWeight: 700, color: '#1a1a2e', margin: '0 0 8px', textAlign: 'center' },
-  subtitle: { fontSize: '13px', color: '#666', textAlign: 'center', margin: '0 0 28px', lineHeight: 1.5 },
+  container: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', background: '#1B2838' },
+  card: { background: '#243144', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' },
+  back: { background: 'none', border: 'none', color: '#A0AEC0', fontSize: '14px', cursor: 'pointer', padding: '0 0 16px', display: 'block' },
+  title: { fontSize: '22px', fontWeight: 700, color: '#ffffff', margin: '0 0 8px', textAlign: 'center' },
+  subtitle: { fontSize: '13px', color: '#A0AEC0', textAlign: 'center', margin: '0 0 28px', lineHeight: 1.5 },
   inputGroup: { marginBottom: '16px' },
-  label: { display: 'block', fontSize: '14px', fontWeight: 600, color: '#333', marginBottom: '8px' },
-  input: { width: '100%', padding: '12px 14px', fontSize: '15px', border: '2px solid #e0e0e0', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' as const },
+  label: { display: 'block', fontSize: '14px', fontWeight: 600, color: '#CBD5E0', marginBottom: '8px' },
+  input: { width: '100%', padding: '12px 14px', fontSize: '15px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' as const },
   error: { color: '#e53935', fontSize: '13px', margin: '0 0 12px' },
   button: { width: '100%', padding: '16px', fontSize: '17px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
 }

@@ -199,7 +199,7 @@ export default function AuditLogsPage() {
                       onClick={() => setExpanded(expanded === item.id ? null : item.id)}
                     >
                       <td style={styles.td}>
-                        <span style={{ fontSize: '12px', color: '#555', whiteSpace: 'nowrap' as const }}>{formatDateTime(item.createdAt)}</span>
+                        <span style={{ fontSize: '12px', color: '#A0AEC0', whiteSpace: 'nowrap' as const }}>{formatDateTime(item.createdAt)}</span>
                       </td>
                       <td style={styles.td}>
                         <div>
@@ -219,7 +219,7 @@ export default function AuditLogsPage() {
                       </td>
                       <td style={styles.td}>
                         {item.targetType && (
-                          <span style={{ fontSize: '11px', color: '#666', background: '#f0f0f0', padding: '2px 6px', borderRadius: '6px' }}>
+                          <span style={{ fontSize: '11px', color: '#A0AEC0', background: '#f0f0f0', padding: '2px 6px', borderRadius: '6px' }}>
                             {item.targetType}
                           </span>
                         )}
@@ -265,7 +265,7 @@ export default function AuditLogsPage() {
                             {item.metadataJson && (
                               <div>
                                 <div style={detailLabel}>메타데이터</div>
-                                <pre style={{ fontSize: '11px', color: '#555', margin: 0, background: '#1B2838', padding: '6px 10px', borderRadius: '6px', maxWidth: '400px', overflowX: 'auto' as const }}>
+                                <pre style={{ fontSize: '11px', color: '#A0AEC0', margin: 0, background: '#1B2838', padding: '6px 10px', borderRadius: '6px', maxWidth: '400px', overflowX: 'auto' as const }}>
                                   {JSON.stringify(item.metadataJson, null, 2)}
                                 </pre>
                               </div>
@@ -286,7 +286,7 @@ export default function AuditLogsPage() {
           <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px' }}>
             <button onClick={() => load(1)} disabled={page <= 1} style={styles.pageBtn}>처음</button>
             <button onClick={() => load(page - 1)} disabled={page <= 1} style={styles.pageBtn}>← 이전</button>
-            <span style={{ fontSize: '13px', color: '#555', padding: '6px 12px' }}>{page} / {totalPages}</span>
+            <span style={{ fontSize: '13px', color: '#A0AEC0', padding: '6px 12px' }}>{page} / {totalPages}</span>
             <button onClick={() => load(page + 1)} disabled={page >= totalPages} style={styles.pageBtn}>다음 →</button>
             <button onClick={() => load(totalPages)} disabled={page >= totalPages} style={styles.pageBtn}>마지막</button>
           </div>
@@ -319,7 +319,7 @@ function ActionTypeBadge({ actionType }: { actionType: string }) {
 
 /* ── 스타일 ─────────────────────────────────────────────── */
 const detailLabel: React.CSSProperties = { fontSize: '10px', color: '#aaa', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }
-const detailValue: React.CSSProperties = { fontSize: '12px', color: '#333', fontFamily: 'monospace' }
+const detailValue: React.CSSProperties = { fontSize: '12px', color: '#CBD5E0', fontFamily: 'monospace' }
 
 const styles: Record<string, React.CSSProperties> = {
   layout:      { display: 'flex', minHeight: '100vh', background: '#1B2838' },
@@ -340,5 +340,5 @@ const styles: Record<string, React.CSSProperties> = {
   th:          { textAlign: 'left' as const, padding: '12px 14px', fontSize: '11px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const, background: '#fafafa' },
   td:          { padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
   tr:          {},
-  pageBtn:     { padding: '6px 14px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#555' },
+  pageBtn:     { padding: '6px 14px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#A0AEC0' },
 }

@@ -64,9 +64,9 @@ export default function RegisterPendingPage() {
 
 const s: Record<string, React.CSSProperties> = {
   page:      { minHeight: '100vh', background: '#f5f6fa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' },
-  card:      { background: 'white', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '440px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', textAlign: 'center' as const },
+  card:      { background: '#243144', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '440px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', textAlign: 'center' as const },
   icon:      { fontSize: '56px', marginBottom: '16px' },
-  title:     { fontSize: '24px', fontWeight: 700, margin: '0 0 12px', color: '#1a1a2e' },
+  title:     { fontSize: '24px', fontWeight: 700, margin: '0 0 12px', color: '#ffffff' },
   desc:      { fontSize: '15px', color: '#444', lineHeight: 1.7, margin: '0 0 28px' },
   stepsBox:  { textAlign: 'left' as const, margin: '0 0 24px' },
   stepItem:  { display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '14px' },

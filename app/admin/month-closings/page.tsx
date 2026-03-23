@@ -182,7 +182,7 @@ export default function MonthClosingsPage() {
           <button
             onClick={runPrecheck}
             disabled={loading}
-            style={{ ...s.btn, background: '#1976d2', opacity: loading ? 0.6 : 1 }}
+            style={{ ...s.btn, background: '#F47920', opacity: loading ? 0.6 : 1 }}
           >
             {loading ? '처리 중...' : '사전검사 실행'}
           </button>
@@ -295,7 +295,7 @@ export default function MonthClosingsPage() {
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
               <button
                 onClick={() => { setShowReopenModal(false); setReopenReason('') }}
-                style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: 'white', cursor: 'pointer', fontSize: '13px' }}
+                style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: '#243144', cursor: 'pointer', fontSize: '13px' }}
               >
                 취소
               </button>
@@ -345,7 +345,7 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
-  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
   btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   msg:          { padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' },
   badge:        { padding: '4px 14px', borderRadius: '999px', fontSize: '13px', fontWeight: 600 },

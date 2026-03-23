@@ -205,7 +205,7 @@ export default function PresenceReportPage() {
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr style={{ background: '#f8f9fa', fontWeight: 700 }}>
+                    <tr style={{ background: '#1B2838', fontWeight: 700 }}>
                       <td style={s.td}>합계</td>
                       <td style={{ ...s.td, textAlign: 'center' as const }}>{data.totals.total}</td>
                       <td style={{ ...s.td, textAlign: 'center' as const }}>{data.totals.completed}</td>
@@ -279,7 +279,7 @@ const s: Record<string, React.CSSProperties> = {
   header:       { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 4px' },
   subtitle:     { fontSize: '14px', color: '#A0AEC0', margin: 0 },
-  select:       { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '13px', background: 'white' },
+  select:       { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '13px', background: '#243144' },
   cards:        { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '14px', marginBottom: '24px' },
   card:         { background: '#243144', borderRadius: '10px', padding: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   cardVal:      { fontSize: '26px', fontWeight: 700, marginBottom: '4px' },

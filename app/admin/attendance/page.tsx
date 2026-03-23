@@ -395,7 +395,7 @@ export default function AdminAttendancePage() {
                 {detail.adminNote && (
                   <div style={{ ...infoSection, background: '#fff8f8' }}>
                     <div style={infoTitle}>처리 메모</div>
-                    <div style={{ fontSize: '13px', color: '#555', lineHeight: 1.6 }}>{detail.adminNote}</div>
+                    <div style={{ fontSize: '13px', color: '#A0AEC0', lineHeight: 1.6 }}>{detail.adminNote}</div>
                   </div>
                 )}
 
@@ -470,7 +470,7 @@ const overlay: React.CSSProperties = {
 }
 
 const modal: React.CSSProperties = {
-  background: 'white', borderRadius: '16px', padding: '32px',
+  background: '#243144', borderRadius: '16px', padding: '32px',
   width: '540px', maxWidth: '95vw', maxHeight: '85vh', overflowY: 'auto',
 }
 
@@ -483,7 +483,7 @@ const closeBtn: React.CSSProperties = {
 }
 
 const infoSection: React.CSSProperties = {
-  background: '#f8f9fa', borderRadius: '10px', padding: '16px', marginBottom: '12px',
+  background: '#1B2838', borderRadius: '10px', padding: '16px', marginBottom: '12px',
 }
 
 const infoTitle: React.CSSProperties = {

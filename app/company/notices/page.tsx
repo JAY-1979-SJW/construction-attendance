@@ -260,7 +260,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   empty: {
     textAlign: 'center', color: '#9ca3af', padding: '48px 0',
-    background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px',
+    background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px',
   },
   formCard: {
     background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px',
@@ -277,11 +277,11 @@ const styles: Record<string, React.CSSProperties> = {
     border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
   },
   cancelBtn: {
-    padding: '8px 16px', background: 'white', color: '#374151',
+    padding: '8px 16px', background: '#243144', color: '#374151',
     border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
   },
   noticeCard: {
-    background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px',
+    background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px',
     padding: '14px 16px',
   },
 }

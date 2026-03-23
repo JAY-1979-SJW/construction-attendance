@@ -255,5 +255,5 @@ const styles: Record<string, React.CSSProperties> = {
   td: { padding: '10px 12px', fontSize: '14px', borderBottom: '1px solid #f5f5f5' },
   activeBadge: { fontSize: '11px', background: '#e8f5e9', color: '#2e7d32', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 },
   inactiveBadge: { fontSize: '11px', background: '#1B2838', color: '#A0AEC0', padding: '2px 8px', borderRadius: '10px' },
-  viewBtn: { padding: '4px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', background: 'white', cursor: 'pointer', fontSize: '12px' },
+  viewBtn: { padding: '4px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', background: '#243144', cursor: 'pointer', fontSize: '12px' },
 }

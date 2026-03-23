@@ -177,7 +177,7 @@ export default function CompaniesPage() {
             <option value="">전체 유형</option>
             {Object.entries(COMPANY_TYPES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
-          <label style={{ fontSize: '13px', color: '#666', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <label style={{ fontSize: '13px', color: '#A0AEC0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
             <input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} />
             비활성 포함
           </label>
@@ -317,14 +317,14 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0' },
-  label:        { display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 },
+  label:        { display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 },
   input:        { width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' as const },
   btn:          { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  actionBtn:    { padding: '4px 10px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: '#5BA4D9' },
+  actionBtn:    { padding: '4px 10px', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: '#5BA4D9' },
   formCard:     { background: '#243144', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
   formGrid:     { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' },
   tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden' },
   table:        { width: '100%', borderCollapse: 'collapse' as const, fontSize: '13px' },
-  th:           { background: '#f8f9fa', padding: '12px 14px', textAlign: 'left' as const, fontWeight: 600, color: '#555', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' as const },
+  th:           { background: '#1B2838', padding: '12px 14px', textAlign: 'left' as const, fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' as const },
   td:           { padding: '12px 14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' as const },
 }

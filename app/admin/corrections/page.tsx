@@ -152,7 +152,7 @@ export default function CorrectionsPage() {
                             {domainLabel(item.domainType)}
                           </span>
                         </td>
-                        <td style={{ ...s.td, fontFamily: 'monospace', fontSize: '12px', color: '#555', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <td style={{ ...s.td, fontFamily: 'monospace', fontSize: '12px', color: '#A0AEC0', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {item.targetId}
                         </td>
                         <td style={s.td}>
@@ -164,7 +164,7 @@ export default function CorrectionsPage() {
                             {item.action}
                           </span>
                         </td>
-                        <td style={{ ...s.td, maxWidth: '200px', fontSize: '12px', color: '#666' }}>{item.reason ?? '-'}</td>
+                        <td style={{ ...s.td, maxWidth: '200px', fontSize: '12px', color: '#A0AEC0' }}>{item.reason ?? '-'}</td>
                         <td style={s.td}>{item.operatorName ?? item.operatorId ?? '-'}</td>
                         <td style={s.td}>
                           {(item.beforeJson || item.afterJson) && (
@@ -185,7 +185,7 @@ export default function CorrectionsPage() {
                                 <div style={{ fontSize: '11px', fontWeight: 700, color: '#c62828', marginBottom: '8px', textTransform: 'uppercase' }}>
                                   변경 전 (Before)
                                 </div>
-                                <pre style={{ fontSize: '11px', color: '#333', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                                <pre style={{ fontSize: '11px', color: '#CBD5E0', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
                                   {item.beforeJson ? JSON.stringify(item.beforeJson, null, 2) : '(없음)'}
                                 </pre>
                               </div>
@@ -193,7 +193,7 @@ export default function CorrectionsPage() {
                                 <div style={{ fontSize: '11px', fontWeight: 700, color: '#2e7d32', marginBottom: '8px', textTransform: 'uppercase' }}>
                                   변경 후 (After)
                                 </div>
-                                <pre style={{ fontSize: '11px', color: '#333', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                                <pre style={{ fontSize: '11px', color: '#CBD5E0', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
                                   {item.afterJson ? JSON.stringify(item.afterJson, null, 2) : '(없음)'}
                                 </pre>
                               </div>
@@ -218,7 +218,7 @@ export default function CorrectionsPage() {
               >
                 이전
               </button>
-              <span style={{ fontSize: '13px', color: '#666' }}>{page} / {totalPages}</span>
+              <span style={{ fontSize: '13px', color: '#A0AEC0' }}>{page} / {totalPages}</span>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
@@ -265,8 +265,8 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:  { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:       { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:  { fontSize: '24px', fontWeight: 700, margin: '0 0 8px' },
-  label:      { display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 },
-  input:      { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  label:      { display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 },
+  input:      { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
   btn:        { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   filterCard: { background: '#243144', borderRadius: '12px', padding: '24px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   tableCard:  { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
@@ -274,5 +274,5 @@ const s: Record<string, React.CSSProperties> = {
   th:         { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
   td:         { padding: '12px 16px', fontSize: '13px', color: '#CBD5E0', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
   tr:         { cursor: 'default' },
-  pageBtn:    { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: 'white', cursor: 'pointer', fontSize: '13px' },
+  pageBtn:    { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: '#243144', cursor: 'pointer', fontSize: '13px' },
 }

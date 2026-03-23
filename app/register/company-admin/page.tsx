@@ -89,10 +89,10 @@ export default function CompanyAdminRegisterPage() {
         <div style={s.card}>
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-            <h2 style={{ fontSize: '20px', fontWeight: 700, margin: '0 0 12px', color: '#1a1a2e' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, margin: '0 0 12px', color: '#ffffff' }}>
               업체 관리자 신청이 완료되었습니다
             </h2>
-            <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.7, margin: '0 0 24px' }}>
+            <p style={{ fontSize: '14px', color: '#A0AEC0', lineHeight: 1.7, margin: '0 0 24px' }}>
               담당자가 사업자등록증 및 신청 내용을 검토 후<br />
               연락드릴 예정입니다. (영업일 기준 1~3일)
             </p>
@@ -176,7 +176,7 @@ export default function CompanyAdminRegisterPage() {
             </label>
 
             <div style={s.noticeBox}>
-              <p style={{ fontSize: '12px', color: '#555', margin: 0, lineHeight: 1.6 }}>
+              <p style={{ fontSize: '12px', color: '#A0AEC0', margin: 0, lineHeight: 1.6 }}>
                 * 사업자등록번호는 중복 검토에 사용됩니다.<br />
                 * 승인 후 임시 비밀번호가 발급됩니다.<br />
                 * 심사 기간: 영업일 기준 1~3일
@@ -204,13 +204,13 @@ export default function CompanyAdminRegisterPage() {
 
 const s: Record<string, React.CSSProperties> = {
   page:        { minHeight: '100vh', background: '#f5f6fa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' },
-  card:        { background: 'white', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '520px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' },
-  title:       { fontSize: '24px', fontWeight: 700, margin: '0 0 8px', color: '#1a1a2e' },
-  subtitle:    { fontSize: '14px', color: '#666', margin: '0 0 24px', lineHeight: 1.6 },
+  card:        { background: '#243144', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '520px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' },
+  title:       { fontSize: '24px', fontWeight: 700, margin: '0 0 8px', color: '#ffffff' },
+  subtitle:    { fontSize: '14px', color: '#A0AEC0', margin: '0 0 24px', lineHeight: 1.6 },
   errorBox:    { background: '#fff0f0', border: '1px solid #ffcccc', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', color: '#c62828', fontSize: '14px' },
-  section:     { marginBottom: '24px', padding: '16px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #e8e8e8' },
-  sectionTitle:{ fontSize: '13px', fontWeight: 700, color: '#333', marginBottom: '12px' },
-  label:       { display: 'block', fontSize: '13px', fontWeight: 600, color: '#333', marginBottom: '6px', marginTop: '12px' },
+  section:     { marginBottom: '24px', padding: '16px', background: '#1B2838', borderRadius: '8px', border: '1px solid #e8e8e8' },
+  sectionTitle:{ fontSize: '13px', fontWeight: 700, color: '#CBD5E0', marginBottom: '12px' },
+  label:       { display: 'block', fontSize: '13px', fontWeight: 600, color: '#CBD5E0', marginBottom: '6px', marginTop: '12px' },
   required:    { color: '#e53935' },
   input:       { width: '100%', padding: '10px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' },
   consentRow:  { display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: '#444', marginBottom: '8px', cursor: 'pointer' },

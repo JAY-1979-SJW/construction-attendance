@@ -305,7 +305,7 @@ export default function MaterialsPage() {
           {totalPages > 1 && (
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', padding: '20px 0 4px' }}>
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={styles.pageBtn}>이전</button>
-              <span style={{ padding: '6px 12px', fontSize: '14px', color: '#555' }}>{page} / {totalPages}</span>
+              <span style={{ padding: '6px 12px', fontSize: '14px', color: '#A0AEC0' }}>{page} / {totalPages}</span>
               <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={styles.pageBtn}>다음</button>
             </div>
           )}
@@ -327,9 +327,9 @@ const styles: Record<string, React.CSSProperties> = {
   pageTitle: { fontSize: '24px', fontWeight: 700, margin: '0 0 4px' },
   pageDesc: { fontSize: '14px', color: '#A0AEC0', margin: 0 },
   primaryBtn: { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  cancelBtn: { padding: '10px 20px', background: '#e0e0e0', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
+  cancelBtn: { padding: '10px 20px', background: '#e0e0e0', color: '#CBD5E0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
   filterRow: { display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' },
-  filterSelect: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  filterSelect: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
   tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: { textAlign: 'left', padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' },
@@ -338,12 +338,12 @@ const styles: Record<string, React.CSSProperties> = {
   actionBtn: { padding: '4px 10px', background: 'rgba(91,164,217,0.12)', color: '#5BA4D9', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'inline-block' },
   actionBtnSecondary: { padding: '4px 10px', background: '#f3e5f5', color: '#7b1fa2', border: '1px solid #ce93d8', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 },
   actionBtnDanger: { padding: '4px 10px', background: '#ffebee', color: '#b71c1c', border: '1px solid #ef9a9a', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 },
-  pageBtn: { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', background: 'white', cursor: 'pointer', fontSize: '13px' },
+  pageBtn: { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', background: '#243144', cursor: 'pointer', fontSize: '13px' },
   modalOverlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
   modal: { background: '#243144', borderRadius: '12px', padding: '32px', width: '480px', maxWidth: '90vw', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' },
-  formLabel: { display: 'block', fontSize: '13px', fontWeight: 600, color: '#555', marginBottom: '6px', marginTop: '16px' },
+  formLabel: { display: 'block', fontSize: '13px', fontWeight: 600, color: '#A0AEC0', marginBottom: '6px', marginTop: '16px' },
   fileInput: { display: 'block', width: '100%', padding: '8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px' },
-  select: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  select: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
   textarea: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', resize: 'vertical', boxSizing: 'border-box' },
   errorMsg: { background: '#ffebee', color: '#b71c1c', padding: '10px 14px', borderRadius: '6px', fontSize: '13px', marginTop: '12px' },
 }

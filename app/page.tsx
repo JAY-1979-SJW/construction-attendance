@@ -55,7 +55,7 @@ export default function LandingPage() {
       </section>
 
       {/* 특징 */}
-      <section style={{ ...s.section, background: '#f8f9fa' }}>
+      <section style={{ ...s.section, background: '#1B2838' }}>
         <h2 style={s.sectionTitle}>주요 특징</h2>
         <div style={s.features}>
           {[
@@ -109,11 +109,11 @@ export default function LandingPage() {
 
 // ── 스타일 ────────────────────────────────────────────────────────────
 const s: Record<string, React.CSSProperties> = {
-  page:          { fontFamily: '"Malgun Gothic","Apple SD Gothic Neo",sans-serif', color: '#1a1a2e', minHeight: '100vh' },
+  page:          { fontFamily: '"Malgun Gothic","Apple SD Gothic Neo",sans-serif', color: '#ffffff', minHeight: '100vh' },
 
   // 헤더
-  header:        { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', background: 'white', borderBottom: '1px solid #eee', position: 'sticky' as const, top: 0, zIndex: 10 },
-  headerLogo:    { fontSize: '18px', fontWeight: 700, color: '#1a1a2e' },
+  header:        { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', background: '#243144', borderBottom: '1px solid #eee', position: 'sticky' as const, top: 0, zIndex: 10 },
+  headerLogo:    { fontSize: '18px', fontWeight: 700, color: '#ffffff' },
   headerLogin:   { padding: '8px 20px', background: '#F47920', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 },
   headerAdminLogin: { padding: '7px 14px', background: '#ff6f00', color: 'white', border: 'none', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 700 },
 
@@ -126,23 +126,23 @@ const s: Record<string, React.CSSProperties> = {
   startBtn:      { display: 'inline-block', padding: '18px 48px', background: '#F47920', color: 'white', borderRadius: '12px', textDecoration: 'none', fontSize: '18px', fontWeight: 700 },
 
   // 섹션 공통
-  section:       { padding: '64px 24px', background: 'white' },
+  section:       { padding: '64px 24px', background: '#243144' },
   sectionTitle:  { fontSize: '28px', fontWeight: 700, textAlign: 'center' as const, margin: '0 0 40px' },
 
   // 스텝
   steps:         { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', maxWidth: '900px', margin: '0 auto' },
-  stepCard:      { background: '#f8f9fa', borderRadius: '16px', padding: '28px 20px', textAlign: 'center' as const },
+  stepCard:      { background: '#1B2838', borderRadius: '16px', padding: '28px 20px', textAlign: 'center' as const },
   stepNum:       { display: 'inline-block', width: '28px', height: '28px', background: '#F47920', color: 'white', borderRadius: '50%', fontSize: '14px', fontWeight: 700, lineHeight: '28px', textAlign: 'center' as const, marginBottom: '12px' },
   stepIcon:      { fontSize: '36px', marginBottom: '12px' },
   stepTitle:     { fontSize: '16px', fontWeight: 700, marginBottom: '8px' },
-  stepDesc:      { fontSize: '13px', color: '#666', lineHeight: 1.6, whiteSpace: 'pre-line' as const },
+  stepDesc:      { fontSize: '13px', color: '#A0AEC0', lineHeight: 1.6, whiteSpace: 'pre-line' as const },
 
   // 특징
   features:      { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', maxWidth: '900px', margin: '0 auto' },
-  featureCard:   { background: 'white', borderRadius: '16px', padding: '28px 20px', textAlign: 'center' as const, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  featureCard:   { background: '#243144', borderRadius: '16px', padding: '28px 20px', textAlign: 'center' as const, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
   featureIcon:   { fontSize: '36px', marginBottom: '12px' },
   featureTitle:  { fontSize: '16px', fontWeight: 700, marginBottom: '8px' },
-  featureDesc:   { fontSize: '13px', color: '#666', lineHeight: 1.6 },
+  featureDesc:   { fontSize: '13px', color: '#A0AEC0', lineHeight: 1.6 },
 
   // 주의사항
   notices:       { maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column' as const, gap: '12px' },
@@ -156,6 +156,6 @@ const s: Record<string, React.CSSProperties> = {
   ctaBtn:        { display: 'inline-block', padding: '18px 48px', background: '#F47920', color: 'white', borderRadius: '12px', textDecoration: 'none', fontSize: '18px', fontWeight: 700 },
 
   // 푸터
-  footer:        { background: '#111', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#666' },
-  footerAdmin:   { color: '#555', textDecoration: 'none', fontSize: '12px' },
+  footer:        { background: '#111', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#A0AEC0' },
+  footerAdmin:   { color: '#A0AEC0', textDecoration: 'none', fontSize: '12px' },
 }

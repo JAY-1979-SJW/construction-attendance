@@ -194,7 +194,7 @@ export default function CompanyDetailPage() {
     )
   }
 
-  const statusStyle = STATUS_COLORS[company.status] ?? { bg: '#f5f5f5', color: '#555' }
+  const statusStyle = STATUS_COLORS[company.status] ?? { bg: '#f5f5f5', color: '#A0AEC0' }
 
   return (
     <div style={s.layout}>
@@ -216,7 +216,7 @@ export default function CompanyDetailPage() {
       <main style={s.main}>
         {/* 헤더 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-          <Link href="/admin/companies" style={{ color: '#666', fontSize: '13px', textDecoration: 'none' }}>← 목록</Link>
+          <Link href="/admin/companies" style={{ color: '#A0AEC0', fontSize: '13px', textDecoration: 'none' }}>← 목록</Link>
           <h1 style={s.pageTitle}>{company.companyName}</h1>
           <span style={{ background: statusStyle.bg, color: statusStyle.color, padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
             {STATUS_LABELS[company.status] ?? company.status}
@@ -341,7 +341,7 @@ export default function CompanyDetailPage() {
                       width: '20px',
                       height: '20px',
                       borderRadius: '50%',
-                      background: 'white',
+                      background: '#243144',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
                       transition: 'left 0.2s',
                     }} />
@@ -371,7 +371,7 @@ export default function CompanyDetailPage() {
                   {admins.map(admin => (
                     <tr key={admin.id}>
                       <td style={s.td}>{admin.name}</td>
-                      <td style={{ ...s.td, fontSize: '12px', color: '#666' }}>{admin.email}</td>
+                      <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0' }}>{admin.email}</td>
                       <td style={s.td}>
                         <span style={{
                           background: admin.isActive ? '#e8f5e9' : '#f5f5f5',
@@ -447,13 +447,13 @@ const s: Record<string, React.CSSProperties> = {
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0' },
   card:         { background: '#243144', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: '16px', fontWeight: 700, margin: '0 0 16px', color: '#1a1a2e' },
+  sectionTitle: { fontSize: '16px', fontWeight: 700, margin: '0 0 16px', color: '#ffffff' },
   infoGrid:     { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' },
   infoItem:     {},
   infoLabel:    { fontSize: '11px', color: '#A0AEC0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' },
-  infoValue:    { fontSize: '14px', color: '#1a1a2e', fontWeight: 500 },
+  infoValue:    { fontSize: '14px', color: '#ffffff', fontWeight: 500 },
   table:        { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
-  th:           { background: '#f8f9fa', padding: '12px 14px', textAlign: 'left', fontWeight: 600, color: '#555', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' },
+  th:           { background: '#1B2838', padding: '12px 14px', textAlign: 'left', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' },
   td:           { padding: '12px 14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' },
-  actionBtn:    { padding: '4px 10px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
+  actionBtn:    { padding: '4px 10px', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
 }

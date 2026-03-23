@@ -258,9 +258,9 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
                 <>
                   <tr key={row.id} style={{ background: editingId === row.id ? '#f0f7ff' : 'white' }}>
                     <td style={{ ...styles.td, textAlign: 'center' as const, color: '#A0AEC0', fontSize: '11px' }}>{row.rowNumber}</td>
-                    <td style={styles.td}><span style={{ fontWeight: 600, color: '#1a1a2e' }}>{row.siteName}</span></td>
+                    <td style={styles.td}><span style={{ fontWeight: 600, color: '#ffffff' }}>{row.siteName}</span></td>
                     <td style={{ ...styles.td, maxWidth: '160px', fontSize: '11px', color: '#A0AEC0' }}>{row.rawAddress}</td>
-                    <td style={{ ...styles.td, maxWidth: '200px', fontSize: '11px', color: '#555' }}>
+                    <td style={{ ...styles.td, maxWidth: '200px', fontSize: '11px', color: '#A0AEC0' }}>
                       {row.normalizedAddress ?? <span style={{ color: '#ccc' }}>-</span>}
                     </td>
                     <td style={{ ...styles.td, fontSize: '11px', fontFamily: 'monospace' }}>
@@ -403,5 +403,5 @@ const styles: Record<string, React.CSSProperties> = {
   table:       { width: '100%', borderCollapse: 'collapse' as const },
   th:          { textAlign: 'left' as const, padding: '10px 12px', fontSize: '11px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', background: '#fafafa', whiteSpace: 'nowrap' as const },
   td:          { padding: '10px 12px', fontSize: '13px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
-  editBtn:     { padding: '4px 12px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#555' },
+  editBtn:     { padding: '4px 12px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#A0AEC0' },
 }

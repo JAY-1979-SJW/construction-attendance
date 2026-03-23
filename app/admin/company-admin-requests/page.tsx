@@ -188,9 +188,9 @@ export default function CompanyAdminRequestsPage() {
 
 const s: Record<string, React.CSSProperties> = {
   page:       { padding: '32px 24px', maxWidth: '1100px', margin: '0 auto', fontFamily: '"Malgun Gothic",sans-serif' },
-  title:      { fontSize: '22px', fontWeight: 700, margin: '0 0 24px', color: '#1a1a2e' },
+  title:      { fontSize: '22px', fontWeight: 700, margin: '0 0 24px', color: '#ffffff' },
   tabs:       { display: 'flex', gap: '8px', marginBottom: '20px' },
-  tab:        { padding: '8px 18px', borderRadius: '20px', border: '1px solid #ddd', background: 'white', fontSize: '14px', cursor: 'pointer', color: '#666' },
+  tab:        { padding: '8px 18px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', background: '#243144', fontSize: '14px', cursor: 'pointer', color: '#A0AEC0' },
   tabActive:  { background: '#F47920', color: 'white', border: '1px solid #1976d2', fontWeight: 700 },
   msgBox:     { background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#2e7d32', fontSize: '14px' },
   resultBox:  { background: 'rgba(91,164,217,0.1)', border: '1px solid #90caf9', borderRadius: '8px', padding: '16px', marginBottom: '16px', fontSize: '14px' },
@@ -209,9 +209,9 @@ const s: Record<string, React.CSSProperties> = {
   rejectBtnSm:{ padding: '6px 12px', background: '#c62828', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 600 },
   overlay:    { position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 },
   modal:      { background: '#243144', borderRadius: '12px', padding: '28px', width: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' },
-  modalInfo:  { display: 'grid', gridTemplateColumns: '80px 1fr', gap: '8px 12px', fontSize: '14px', marginBottom: '16px', padding: '14px', background: '#f8f9fa', borderRadius: '8px' },
+  modalInfo:  { display: 'grid', gridTemplateColumns: '80px 1fr', gap: '8px 12px', fontSize: '14px', marginBottom: '16px', padding: '14px', background: '#1B2838', borderRadius: '8px' },
   infoLabel:  { color: '#A0AEC0', fontWeight: 600 },
-  label:      { display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px', color: '#333' },
+  label:      { display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px', color: '#CBD5E0' },
   input:      { width: '100%', padding: '10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' as const },
   textarea:   { width: '100%', padding: '10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' as const, resize: 'vertical' as const },
   cancelBtn:  { padding: '8px 16px', background: '#eee', border: 'none', borderRadius: '8px', fontSize: '14px', cursor: 'pointer' },

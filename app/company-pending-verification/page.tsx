@@ -11,7 +11,7 @@ export default function CompanyPendingVerificationPage() {
       fontFamily: 'sans-serif',
     }}>
       <div style={{
-        background: 'white',
+        background: '#243144',
         border: '1px solid #e5e7eb',
         borderRadius: '16px',
         padding: '48px 40px',

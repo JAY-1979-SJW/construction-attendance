@@ -201,7 +201,7 @@ export default function WorkConfirmationsPage() {
                       <td style={s.td}>{INCOME_LABEL[item.incomeTypeSnapshot ?? ''] ?? item.incomeTypeSnapshot}</td>
                       <td style={s.td}>
                         {WORK_TYPE_LABEL[item.confirmedWorkType ?? ''] ?? '-'}
-                        <br /><span style={{ fontSize: '11px', color: '#666' }}>{item.confirmedWorkUnits}공수</span>
+                        <br /><span style={{ fontSize: '11px', color: '#A0AEC0' }}>{item.confirmedWorkUnits}공수</span>
                       </td>
                       <td style={{ ...s.td, textAlign: 'right' as const }}>{fmt(item.confirmedTotalAmount)}</td>
                       <td style={s.td}>
@@ -291,7 +291,7 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
-  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
   btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   btnCancel:    { padding: '8px 16px', background: 'rgba(91,164,217,0.1)', color: '#A0AEC0', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
   msg:          { padding: '12px 16px', background: 'rgba(91,164,217,0.1)', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', color: '#4A93C8' },
@@ -303,6 +303,6 @@ const s: Record<string, React.CSSProperties> = {
   tr:           { cursor: 'default' },
   editBtn:      { padding: '4px 10px', fontSize: '12px', background: '#F47920', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' },
   overlay:      { position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modal:        { background: 'white', borderRadius: '16px', padding: '32px', width: '480px', maxWidth: '90vw', boxShadow: '0 8px 32px rgba(0,0,0,0.18)' },
-  label:        { display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 },
+  modal:        { background: '#243144', borderRadius: '16px', padding: '32px', width: '480px', maxWidth: '90vw', boxShadow: '0 8px 32px rgba(0,0,0,0.18)' },
+  label:        { display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 },
 }

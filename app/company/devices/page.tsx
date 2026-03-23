@@ -150,14 +150,14 @@ export default function CompanyDevicesPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   container: { padding: '32px' },
-  title: { fontSize: '22px', fontWeight: 700, margin: '0 0 16px', color: '#1a1a2e' },
+  title: { fontSize: '22px', fontWeight: 700, margin: '0 0 16px', color: '#ffffff' },
   msg: { padding: '10px 14px', borderRadius: '6px', marginBottom: '16px', fontSize: '14px' },
   filterRow: { display: 'flex', gap: '8px', marginBottom: '16px' },
   filterBtn: { padding: '7px 14px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
   loading: { color: '#A0AEC0', fontSize: '15px' },
   tableWrapper: { background: '#243144', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'auto' },
   table: { width: '100%', borderCollapse: 'collapse' },
-  th: { padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#666', borderBottom: '1px solid #eee', background: '#fafafa', whiteSpace: 'nowrap' as const },
+  th: { padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid #eee', background: '#fafafa', whiteSpace: 'nowrap' as const },
   tr: { borderBottom: '1px solid #f0f0f0' },
   td: { padding: '12px 16px', fontSize: '14px', color: '#CBD5E0', whiteSpace: 'nowrap' as const },
   empty: { padding: '32px', textAlign: 'center', color: '#aaa', fontSize: '14px' },

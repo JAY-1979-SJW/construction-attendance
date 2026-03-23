@@ -126,10 +126,10 @@ export default function WorkerContractConfirmPage() {
   if (step === 'done') {
     return (
       <div style={{ minHeight: '100vh', background: '#1B2838', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', gap: '16px' }}>
-        <div style={{ background: 'white', borderRadius: '16px', padding: '32px 24px', maxWidth: '440px', width: '100%', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
+        <div style={{ background: '#243144', borderRadius: '16px', padding: '32px 24px', maxWidth: '440px', width: '100%', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
           <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
           <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1b5e20', marginBottom: '8px' }}>확인 완료</h2>
-          <p style={{ fontSize: '13px', color: '#555', lineHeight: '1.6' }}>
+          <p style={{ fontSize: '13px', color: '#A0AEC0', lineHeight: '1.6' }}>
             계약 내용 확인 절차가 완료되었습니다.<br />
             관리자가 다음 단계를 안내해 드릴 것입니다.
           </p>
@@ -139,7 +139,7 @@ export default function WorkerContractConfirmPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f4f8', paddingBottom: '40px' }}>
+    <div style={{ minHeight: '100vh', background: '#1B2838', paddingBottom: '40px' }}>
       {/* 헤더 */}
       <div style={{ background: accent, color: 'white', padding: '20px 20px 16px', position: 'sticky', top: 0, zIndex: 10 }}>
         <p style={{ fontSize: '11px', opacity: 0.8, marginBottom: '4px' }}>
@@ -182,11 +182,11 @@ export default function WorkerContractConfirmPage() {
             {/* 유형 설명 */}
             <div style={{ background: '#243144', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
               <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#222', marginBottom: '8px' }}>근로유형 안내</h3>
-              <p style={{ fontSize: '13px', color: '#555', lineHeight: '1.7', marginBottom: '12px' }}>{guide.description}</p>
+              <p style={{ fontSize: '13px', color: '#A0AEC0', lineHeight: '1.7', marginBottom: '12px' }}>{guide.description}</p>
               <div style={{ background: '#f8f8f8', borderRadius: '8px', padding: '12px' }}>
                 <div style={{ fontSize: '12px', fontWeight: 600, color: '#444', marginBottom: '6px' }}>확인사항</div>
                 {guide.checkPoints.map((pt, i) => (
-                  <div key={i} style={{ fontSize: '12px', color: '#555', marginBottom: '4px' }}>• {pt}</div>
+                  <div key={i} style={{ fontSize: '12px', color: '#A0AEC0', marginBottom: '4px' }}>• {pt}</div>
                 ))}
               </div>
             </div>

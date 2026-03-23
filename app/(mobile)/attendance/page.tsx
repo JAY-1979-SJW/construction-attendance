@@ -554,7 +554,7 @@ export default function AttendancePage() {
                       value={exceptionReason}
                       onChange={e => setExceptionReason(e.target.value)}
                       rows={3}
-                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e0e0e0', fontSize: '14px', resize: 'none', boxSizing: 'border-box' as const }}
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', fontSize: '14px', resize: 'none', boxSizing: 'border-box' as const }}
                     />
                     <button
                       onClick={() => handleDirectCheckOut(exceptionReason)}
@@ -607,7 +607,7 @@ export default function AttendancePage() {
                 <button
                   onClick={loadAvailableSites}
                   disabled={gpsStatus === 'loading' || checkInLoading}
-                  style={{ fontSize: '12px', padding: '4px 10px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', color: '#555' }}
+                  style={{ fontSize: '12px', padding: '4px 10px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', color: '#A0AEC0' }}
                 >
                   새로고침
                 </button>
@@ -615,7 +615,7 @@ export default function AttendancePage() {
             )}
             {!isPreview && availableSites.length > 0 ? (
               <div>
-                <p style={{ fontSize: '14px', color: '#555', marginBottom: '12px' }}>배정된 현장을 선택하여 출근하세요.</p>
+                <p style={{ fontSize: '14px', color: '#A0AEC0', marginBottom: '12px' }}>배정된 현장을 선택하여 출근하세요.</p>
                 {availableSites.map(site => (
                   <div key={site.siteId} style={{
                     border: `2px solid ${site.withinRadius ? '#2e7d32' : '#e0e0e0'}`,
@@ -624,7 +624,7 @@ export default function AttendancePage() {
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <div>
-                        <div style={{ fontSize: '15px', fontWeight: 700, color: '#1a1a2e' }}>{site.siteName}</div>
+                        <div style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>{site.siteName}</div>
                         <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{site.companyName}</div>
                       </div>
                       {site.distanceMeters !== null && (
@@ -835,36 +835,36 @@ const styles: Record<string, React.CSSProperties> = {
   previewBanner:   { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff3e0', border: '1px solid #ffb74d', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '13px', color: '#e65100', gap: '8px' },
   previewLoginBtn: { padding: '6px 14px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 700, flexShrink: 0 },
   header:          { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingTop: '8px' },
-  workerName:      { fontSize: '18px', fontWeight: 700, color: '#1a1a2e' },
-  workerInfo:      { fontSize: '13px', color: '#666', marginTop: '2px' },
-  logoutBtn:       { background: 'none', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '6px 12px', fontSize: '13px', cursor: 'pointer', color: '#666' },
-  card:            { background: 'white', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
+  workerName:      { fontSize: '18px', fontWeight: 700, color: '#ffffff' },
+  workerInfo:      { fontSize: '13px', color: '#A0AEC0', marginTop: '2px' },
+  logoutBtn:       { background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '6px 12px', fontSize: '13px', cursor: 'pointer', color: '#A0AEC0' },
+  card:            { background: '#243144', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
   dateLabel:       { fontSize: '13px', color: '#A0AEC0', marginBottom: '12px' },
   statusBadge:     { display: 'inline-block', color: 'white', fontSize: '13px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', marginBottom: '12px' },
-  siteName:        { fontSize: '18px', fontWeight: 700, color: '#1a1a2e', marginBottom: '4px' },
+  siteName:        { fontSize: '18px', fontWeight: 700, color: '#ffffff', marginBottom: '4px' },
   siteAddress:     { fontSize: '13px', color: '#A0AEC0', marginBottom: '20px' },
   timeRow:         { display: 'flex', alignItems: 'center', gap: '12px' },
   timeBox:         { flex: 1, textAlign: 'center' as const },
   timeLabel:       { fontSize: '12px', color: '#718096', marginBottom: '4px' },
-  timeValue:       { fontSize: '24px', fontWeight: 700, color: '#1a1a2e' },
+  timeValue:       { fontSize: '24px', fontWeight: 700, color: '#ffffff' },
   distanceLabel:   { fontSize: '11px', color: '#aaa', marginTop: '4px' },
   timeDivider:     { fontSize: '20px', color: '#ccc' },
-  noRecord:        { textAlign: 'center' as const, padding: '20px 0', color: '#555' },
+  noRecord:        { textAlign: 'center' as const, padding: '20px 0', color: '#A0AEC0' },
   guideCard:       { background: 'rgba(91,164,217,0.1)', borderRadius: '12px', padding: '20px', marginBottom: '16px' },
   guideTitle:      { fontSize: '14px', fontWeight: 700, color: '#4A93C8', marginBottom: '12px' },
   guideStep:       { fontSize: '13px', color: '#5BA4D9', marginBottom: '6px' },
-  changeDeviceBtn: { width: '100%', padding: '12px', fontSize: '14px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '10px', cursor: 'pointer', color: '#666' },
+  changeDeviceBtn: { width: '100%', padding: '12px', fontSize: '14px', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', cursor: 'pointer', color: '#A0AEC0' },
   checkInBtn:    { width: '100%', padding: '12px', fontSize: '15px', fontWeight: 700, background: '#2e7d32', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
   checkOutBtn:   { width: '100%', padding: '14px', fontSize: '17px', fontWeight: 700, background: '#E06810', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer' },
-  cancelBtn:     { width: '100%', padding: '10px', fontSize: '14px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '8px', cursor: 'pointer', color: '#A0AEC0', marginTop: '6px' },
+  cancelBtn:     { width: '100%', padding: '10px', fontSize: '14px', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', cursor: 'pointer', color: '#A0AEC0', marginTop: '6px' },
 }
 
 const pc: Record<string, React.CSSProperties> = {
-  card:         { background: 'white', border: '2px solid #1976d2', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(25,118,210,0.12)' },
+  card:         { background: '#243144', border: '2px solid #1976d2', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(25,118,210,0.12)' },
   badge:        { display: 'inline-block', background: 'rgba(244,121,32,0.12)', color: '#F47920', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '12px', marginBottom: '10px' },
-  title:        { fontSize: '18px', fontWeight: 700, color: '#1a1a2e', marginBottom: '6px' },
+  title:        { fontSize: '18px', fontWeight: 700, color: '#ffffff', marginBottom: '6px' },
   siteName:     { fontSize: '14px', fontWeight: 600, color: '#5BA4D9', marginBottom: '10px' },
-  desc:         { fontSize: '13px', color: '#555', lineHeight: 1.7, marginBottom: '16px' },
+  desc:         { fontSize: '13px', color: '#A0AEC0', lineHeight: 1.7, marginBottom: '16px' },
   warn:         { fontSize: '12px', color: '#A0AEC0', marginBottom: '16px', lineHeight: 1.6 },
   countdown:    { fontSize: '15px', fontWeight: 700, marginBottom: '14px' },
   iconRow:      { fontSize: '40px', textAlign: 'center' as const, marginBottom: '12px' },

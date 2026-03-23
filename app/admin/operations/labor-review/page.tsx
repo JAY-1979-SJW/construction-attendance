@@ -154,7 +154,7 @@ export default function LaborReviewPage() {
       )}
 
       {/* 목록 */}
-      <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '10px', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: '900px' }}>
             <thead>
@@ -234,7 +234,7 @@ export default function LaborReviewPage() {
       {totalPages > 1 && (
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '16px' }}>
           <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={pageBtnStyle(page === 1)}>이전</button>
-          <span style={{ fontSize: '13px', alignSelf: 'center', color: '#666' }}>{page} / {totalPages}</span>
+          <span style={{ fontSize: '13px', alignSelf: 'center', color: '#A0AEC0' }}>{page} / {totalPages}</span>
           <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={pageBtnStyle(page === totalPages)}>다음</button>
         </div>
       )}
@@ -244,7 +244,7 @@ export default function LaborReviewPage() {
 
 function SummaryCard({ label, value, color = '#1565c0' }: { label: string; value: number; color?: string }) {
   return (
-    <div style={{ background: '#1B2838', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '10px 16px', minWidth: '100px' }}>
+    <div style={{ background: '#1B2838', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '10px 16px', minWidth: '100px' }}>
       <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{label}</div>
       <div style={{ fontSize: '22px', fontWeight: 800, color }}>{value}</div>
     </div>

@@ -174,7 +174,7 @@ const styles: Record<string, React.CSSProperties> = {
   pageTitle: { fontSize: '22px', fontWeight: 700, margin: '0 0 20px' },
   msgBox: { background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: '8px', padding: '12px 16px', fontSize: '14px', color: '#2e7d32', marginBottom: '16px' },
   tabRow: { display: 'flex', gap: '8px', marginBottom: '16px' },
-  tab: { padding: '8px 20px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', background: 'white', cursor: 'pointer', fontSize: '14px', color: '#666' },
+  tab: { padding: '8px 20px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', background: '#243144', cursor: 'pointer', fontSize: '14px', color: '#A0AEC0' },
   tabActive: { background: '#1a1a2e', color: 'white', borderColor: '#1a1a2e' },
   tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflowX: 'auto' },
   table: { width: '100%', borderCollapse: 'collapse' as const },

@@ -290,7 +290,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
             </h1>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-            <div style={{ fontSize: '13px', color: '#666' }}>
+            <div style={{ fontSize: '13px', color: '#A0AEC0' }}>
               {fmtPhone(worker.phone)} · {worker.jobTitle} · 기기 {worker._count.devices}대 · 출퇴근 {worker._count.attendanceLogs}건
             </div>
             <Link
@@ -667,7 +667,7 @@ function InsuranceTab({ statuses, onAdd }: { statuses: InsuranceStatus[]; onAdd:
         <div key={st.id} style={s.insCard}>
           <div style={s.insHeader}>
             <strong>{st.company.companyName}</strong>
-            <span style={{ fontSize: '12px', color: '#666' }}>최종 수정: {fmtDate(st.updatedAt)}</span>
+            <span style={{ fontSize: '12px', color: '#A0AEC0' }}>최종 수정: {fmtDate(st.updatedAt)}</span>
           </div>
           <div style={s.ins4Grid}>
             {ins4(st).map(([label, val]) => (
@@ -702,7 +702,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
       <div style={s.modal}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <h3 style={{ margin: 0, fontSize: '16px' }}>{title}</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#666' }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#A0AEC0' }}>✕</button>
         </div>
         {children}
       </div>
@@ -732,38 +732,38 @@ const s: Record<string, React.CSSProperties> = {
   pageTitle: { margin: 0, fontSize: '20px', fontWeight: 700, display: 'inline-flex', alignItems: 'baseline', gap: '6px' },
   backBtn: { padding: '6px 12px', background: '#fff', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
   tabBar: { display: 'flex', gap: '4px', marginBottom: '16px', borderBottom: '1px solid #e0e0e0', paddingBottom: '0' },
-  tabBtn: { padding: '8px 18px', background: 'none', border: 'none', borderBottom: '2px solid transparent', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#666', display: 'flex', alignItems: 'center', gap: '6px' },
+  tabBtn: { padding: '8px 18px', background: 'none', border: 'none', borderBottom: '2px solid transparent', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#A0AEC0', display: 'flex', alignItems: 'center', gap: '6px' },
   tabActive: { borderBottom: '2px solid #1976d2', color: '#5BA4D9', fontWeight: 700 },
-  tabBadge: { background: '#1976d2', color: '#fff', borderRadius: '10px', padding: '1px 6px', fontSize: '11px', fontWeight: 700 },
+  tabBadge: { background: '#F47920', color: '#fff', borderRadius: '10px', padding: '1px 6px', fontSize: '11px', fontWeight: 700 },
   card: { background: '#fff', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' },
-  tabTitle: { margin: '0 0 16px', fontSize: '14px', fontWeight: 700, color: '#333' },
+  tabTitle: { margin: '0 0 16px', fontSize: '14px', fontWeight: 700, color: '#CBD5E0' },
   tabHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' },
-  addBtn: { padding: '7px 14px', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
+  addBtn: { padding: '7px 14px', background: '#F47920', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
   infoTable: { width: '100%', borderCollapse: 'collapse' },
-  infoLabel: { padding: '8px 16px 8px 0', fontWeight: 600, fontSize: '13px', color: '#555', width: '140px', verticalAlign: 'top' },
+  infoLabel: { padding: '8px 16px 8px 0', fontWeight: 600, fontSize: '13px', color: '#A0AEC0', width: '140px', verticalAlign: 'top' },
   infoValue: { padding: '8px 0', fontSize: '13px', color: '#CBD5E0' },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
-  th: { padding: '10px 12px', background: '#f8f8f8', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #e0e0e0', color: '#555' },
-  td: { padding: '10px 12px', borderBottom: '1px solid #f0f0f0', color: '#333' },
+  th: { padding: '10px 12px', background: '#f8f8f8', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #e0e0e0', color: '#A0AEC0' },
+  td: { padding: '10px 12px', borderBottom: '1px solid #f0f0f0', color: '#CBD5E0' },
   empty: { color: '#718096', padding: '24px 0', textAlign: 'center', fontSize: '13px' },
   badge: { background: 'rgba(244,121,32,0.12)', color: '#F47920', padding: '2px 8px', borderRadius: '4px', fontSize: '11px' },
   badgePrimary: { background: '#e8f5e9', color: '#2e7d32', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600 },
-  insCard: { border: '1px solid #e0e0e0', borderRadius: '8px', padding: '16px', marginBottom: '12px' },
+  insCard: { border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '16px', marginBottom: '12px' },
   insHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' },
   ins4Grid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '10px' },
   ins4Cell: { background: '#f9f9f9', borderRadius: '6px', padding: '10px', textAlign: 'center' },
   ins4Label: { fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' },
   ins4Value: { fontSize: '13px', fontWeight: 700 },
-  insMeta: { display: 'flex', gap: '16px', fontSize: '12px', color: '#666', flexWrap: 'wrap' },
+  insMeta: { display: 'flex', gap: '16px', fontSize: '12px', color: '#A0AEC0', flexWrap: 'wrap' },
   overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
   modal: { background: '#fff', borderRadius: '12px', padding: '28px', width: '480px', maxHeight: '80vh', overflowY: 'auto' },
   fieldRow: { display: 'flex', alignItems: 'center', marginBottom: '14px', gap: '12px' },
-  fieldLabel: { width: '90px', flexShrink: 0, fontSize: '13px', fontWeight: 600, color: '#555' },
+  fieldLabel: { width: '90px', flexShrink: 0, fontSize: '13px', fontWeight: 600, color: '#A0AEC0' },
   input: { flex: 1, padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px' },
   err: { color: '#c62828', fontSize: '13px', marginBottom: '12px' },
   modalBtns: { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' },
   cancelBtn: { padding: '8px 18px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
-  saveBtn: { padding: '8px 18px', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
+  saveBtn: { padding: '8px 18px', background: '#F47920', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
 }
 
 // ─── 문서 탭 ─────────────────────────────────────────────────────────────────
@@ -872,8 +872,8 @@ function DocsTab({ workerId }: { workerId: string }) {
   return (
     <div>
       {/* 업로드 폼 */}
-      <div style={{ background: '#f8f9fa', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
-        <div style={{ fontWeight: 700, fontSize: '13px', marginBottom: '12px', color: '#333' }}>문서 업로드</div>
+      <div style={{ background: '#1B2838', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+        <div style={{ fontWeight: 700, fontSize: '13px', marginBottom: '12px', color: '#CBD5E0' }}>문서 업로드</div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, alignItems: 'flex-end' }}>
           <div>
             <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>문서 유형</div>
@@ -939,7 +939,7 @@ function DocsTab({ workerId }: { workerId: string }) {
                     {DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
                   </span>
                 </td>
-                <td style={{ ...s.td, maxWidth: '180px', fontSize: '12px', color: '#333', wordBreak: 'break-all' as const }}>
+                <td style={{ ...s.td, maxWidth: '180px', fontSize: '12px', color: '#CBD5E0', wordBreak: 'break-all' as const }}>
                   {/* 파일명만 노출 — 민감문서는 내용 미노출 */}
                   {doc.file.originalFilename}
                 </td>
@@ -973,7 +973,7 @@ function DocsTab({ workerId }: { workerId: string }) {
                 <td style={s.td}>
                   <a
                     href={`/api/admin/workers/${workerId}/documents/${doc.id}/download`}
-                    style={{ fontSize: '12px', color: '#555', textDecoration: 'underline' }}
+                    style={{ fontSize: '12px', color: '#A0AEC0', textDecoration: 'underline' }}
                   >
                     다운로드
                   </a>
@@ -1110,7 +1110,7 @@ function ProfileTab({ workerId }: { workerId: string }) {
             { label: '계속근로 검토', key: 'continuousWorkReview', options: [['OK','이상 없음'],['REVIEW_REQUIRED','검토 필요']] },
           ].map(({ label, key, options }) => (
             <div key={key}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 }}>{label}</label>
+              <label style={{ display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 }}>{label}</label>
               <select value={f(key)} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
                 style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }}>
                 {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -1124,7 +1124,7 @@ function ProfileTab({ workerId }: { workerId: string }) {
             <label style={{ fontSize: '13px', cursor: 'pointer' }}>사무실 근무자</label>
           </div>
           <div style={{ gridColumn: '1/-1' }}>
-            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 }}>관리자 메모</label>
+            <label style={{ display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 }}>관리자 메모</label>
             <input value={f('classificationNote')}
               onChange={e => setForm(p => ({ ...p, classificationNote: e.target.value }))}
               placeholder="판단 근거 등 메모"
@@ -1201,7 +1201,7 @@ function ContractsTab({ workerId }: { workerId: string }) {
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
-            <tr style={{ background: '#f8f9fa', borderBottom: '1px solid #e5e7eb' }}>
+            <tr style={{ background: '#1B2838', borderBottom: '1px solid #e5e7eb' }}>
               <th style={{ padding: '8px 12px', textAlign: 'left' }}>유형</th>
               <th style={{ padding: '8px 12px', textAlign: 'left' }}>현장</th>
               <th style={{ padding: '8px 12px', textAlign: 'left' }}>기간</th>
@@ -1221,8 +1221,8 @@ function ContractsTab({ workerId }: { workerId: string }) {
                     <span style={{ marginLeft: 4, fontSize: '11px', color: '#A0AEC0' }}>v{c.currentVersion}</span>
                   )}
                 </td>
-                <td style={{ padding: '8px 12px', color: '#555' }}>{c.site?.name || '—'}</td>
-                <td style={{ padding: '8px 12px', color: '#555' }}>
+                <td style={{ padding: '8px 12px', color: '#A0AEC0' }}>{c.site?.name || '—'}</td>
+                <td style={{ padding: '8px 12px', color: '#A0AEC0' }}>
                   {c.startDate} ~ {c.endDate || '무기한'}
                 </td>
                 <td style={{ padding: '8px 12px', textAlign: 'right' }}>
@@ -1392,7 +1392,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
-            <tr style={{ background: '#f8f9fa', borderBottom: '1px solid #e5e7eb' }}>
+            <tr style={{ background: '#1B2838', borderBottom: '1px solid #e5e7eb' }}>
               <th style={{ padding: '8px 12px', textAlign: 'left' }}>문서 종류</th>
               <th style={{ padding: '8px 12px', textAlign: 'left' }}>현장</th>
               <th style={{ padding: '8px 12px', textAlign: 'left' }}>문서일</th>
@@ -1405,8 +1405,8 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
             {docs.map(d => (
               <tr key={d.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
                 <td style={{ padding: '8px 12px' }}>{SAFETY_DOC_LABELS[d.documentType] || d.documentType}</td>
-                <td style={{ padding: '8px 12px', color: '#555' }}>{d.site?.name || '—'}</td>
-                <td style={{ padding: '8px 12px', color: '#555' }}>{d.educationDate || d.documentDate || '—'}</td>
+                <td style={{ padding: '8px 12px', color: '#A0AEC0' }}>{d.site?.name || '—'}</td>
+                <td style={{ padding: '8px 12px', color: '#A0AEC0' }}>{d.educationDate || d.documentDate || '—'}</td>
                 <td style={{ padding: '8px 12px', textAlign: 'center' }}>
                   <span style={{
                     padding: '2px 8px', borderRadius: 12, fontSize: '11px', fontWeight: 600,
@@ -1416,7 +1416,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                     {d.status === 'SIGNED' ? '서명완료' : d.status === 'ISSUED' ? '발행' : '초안'}
                   </span>
                 </td>
-                <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: '12px', color: '#555' }}>
+                <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: '12px', color: '#A0AEC0' }}>
                   {d.signedAt ? new Date(d.signedAt).toLocaleDateString('ko-KR') : '—'}
                 </td>
                 <td style={{ padding: '8px 12px', textAlign: 'center' }}>
@@ -1690,7 +1690,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
               <h3 style={{ margin: 0, fontSize: '16px' }}>{SAFETY_DOC_LABELS[previewDoc.documentType] || previewDoc.documentType}</h3>
               <button onClick={() => setPreviewDoc(null)} style={{ border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
             </div>
-            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px', background: '#f8f9fa', padding: 16, borderRadius: 6, lineHeight: 1.7 }}>
+            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px', background: '#1B2838', padding: 16, borderRadius: 6, lineHeight: 1.7 }}>
               {previewDoc.contentText || '내용 없음'}
             </pre>
             <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
@@ -1856,7 +1856,7 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
       <section>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700 }}>소명 요청 ({explanations.length}건)</h3>
-          <button onClick={() => setShowExplain(true)} style={{ padding: '6px 14px', background: '#1565c0', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+          <button onClick={() => setShowExplain(true)} style={{ padding: '6px 14px', background: '#E06810', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
             + 소명 요청
           </button>
         </div>
@@ -1871,7 +1871,7 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
                   {EXPL_STATUS_LABEL[e.status as string] ?? e.status as string}
                 </span>
               </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>{fmtDate(e.createdAt)}{e.deadline ? ` · 기한: ${fmtDate(e.deadline)}` : ''}</div>
+              <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{fmtDate(e.createdAt)}{e.deadline ? ` · 기한: ${fmtDate(e.deadline)}` : ''}</div>
             </div>
           ))
         )}
@@ -1913,17 +1913,17 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
             <div key={n.id as string} style={{ border: '1px solid #f0f0f0', borderRadius: '8px', padding: '10px 14px', marginBottom: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                 <span style={{ fontSize: '13px', fontWeight: 600 }}>{n.title as string}</span>
-                <span style={{ fontSize: '11px', color: '#666', background: '#1B2838', padding: '1px 8px', borderRadius: '20px' }}>
+                <span style={{ fontSize: '11px', color: '#A0AEC0', background: '#1B2838', padding: '1px 8px', borderRadius: '20px' }}>
                   {NOTICE_TYPE_LABEL[n.noticeType as string] ?? n.noticeType as string}
                 </span>
               </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>발행일: {fmtDate(n.createdAt)}{n.effectiveDate ? ` · 효력일: ${n.effectiveDate}` : ''}</div>
+              <div style={{ fontSize: '12px', color: '#A0AEC0' }}>발행일: {fmtDate(n.createdAt)}{n.effectiveDate ? ` · 효력일: ${n.effectiveDate}` : ''}</div>
             </div>
           ))
         )}
 
         {showNotice && (
-          <div style={{ background: '#1B2838', border: '1px solid #e0e0e0', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
+          <div style={{ background: '#1B2838', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
             <h4 style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700 }}>통지서 발행 — {workerName}</h4>
             <select value={nForm.noticeType} onChange={e => setNForm(f => ({ ...f, noticeType: e.target.value }))}
               style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }}>

@@ -117,7 +117,7 @@ export default function ExceptionsPage() {
           <div style={styles.modalOverlay}>
             <div style={styles.modal}>
               <h3 style={{ margin: '0 0 16px' }}>예외 처리</h3>
-              <p style={{ fontSize: '14px', color: '#555', marginBottom: '16px' }}>
+              <p style={{ fontSize: '14px', color: '#A0AEC0', marginBottom: '16px' }}>
                 {selected.workerName} · {selected.siteName} · {selected.workDate}
               </p>
               <div style={styles.inputGroup}>
@@ -163,9 +163,9 @@ const styles: Record<string, React.CSSProperties> = {
   modalOverlay: { position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 },
   modal: { background: '#243144', borderRadius: '12px', padding: '32px', width: '400px', maxWidth: '90vw' },
   inputGroup: { marginBottom: '12px' },
-  label: { display: 'block', fontSize: '13px', color: '#555', marginBottom: '4px' },
+  label: { display: 'block', fontSize: '13px', color: '#A0AEC0', marginBottom: '4px' },
   input: { width: '100%', padding: '8px 12px', fontSize: '14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', boxSizing: 'border-box' as const },
   approveBtn: { flex: 1, padding: '10px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 },
   rejectBtn: { flex: 1, padding: '10px', background: '#e53935', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 },
-  cancelBtn: { flex: 1, padding: '10px', background: '#1B2838', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer' },
+  cancelBtn: { flex: 1, padding: '10px', background: '#1B2838', color: '#CBD5E0', border: 'none', borderRadius: '6px', cursor: 'pointer' },
 }

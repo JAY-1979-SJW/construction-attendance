@@ -175,5 +175,5 @@ const styles: Record<string, React.CSSProperties> = {
   alertBadge:   { position: 'absolute' as const, top: '12px', right: '12px', background: '#d32f2f', color: 'white', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 },
   guide:        { background: '#243144', borderRadius: '10px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   guideTitle:   { fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#444' },
-  guideList:    { margin: 0, paddingLeft: '20px', fontSize: '13px', color: '#666', lineHeight: '2' },
+  guideList:    { margin: 0, paddingLeft: '20px', fontSize: '13px', color: '#A0AEC0', lineHeight: '2' },
 }

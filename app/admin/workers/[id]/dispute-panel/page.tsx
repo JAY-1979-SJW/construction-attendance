@@ -240,7 +240,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
       </div>
 
       {/* 헤더 */}
-      <div style={{ background: '#ffffff', border: '1px solid #e0e0e0', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
+      <div style={{ background: '#ffffff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
@@ -251,7 +251,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
                 </span>
               )}
             </div>
-            <div style={{ fontSize: '13px', color: '#666', lineHeight: '1.8' }}>
+            <div style={{ fontSize: '13px', color: '#A0AEC0', lineHeight: '1.8' }}>
               <span>{worker.jobTitle}</span>
               {worker.companyName && <span> · {worker.companyName}</span>}
               <br />
@@ -373,7 +373,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
 
       {/* 문서 교부 */}
       {activeSection === 'documents' && (
-        <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: '14px' }}>
             문서 교부 이력 ({deliveryLogs.length}건)
           </div>
@@ -394,7 +394,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
                 {deliveryLogs.map(log => (
                   <tr key={log.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
                     <td style={{ padding: '10px 16px' }}>{log.documentType}</td>
-                    <td style={{ padding: '10px 16px', color: '#666' }}>{log.deliveryMethod}</td>
+                    <td style={{ padding: '10px 16px', color: '#A0AEC0' }}>{log.deliveryMethod}</td>
                     <td style={{ padding: '10px 16px' }}>
                       <span style={{ color: DELIVERY_STATUS_COLOR[log.status] ?? '#666', fontWeight: 700, fontSize: '12px' }}>
                         {DELIVERY_STATUS_LABEL[log.status] ?? log.status}
@@ -413,7 +413,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
 
       {/* 출퇴근 이력 */}
       {activeSection === 'attendance' && (
-        <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: '14px' }}>
             출퇴근 이력 (최근 90일, {recentAttendance.length}건)
           </div>
@@ -432,8 +432,8 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
                 {recentAttendance.map(rec => (
                   <tr key={rec.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
                     <td style={{ padding: '10px 16px', fontWeight: 600 }}>{rec.workDate}</td>
-                    <td style={{ padding: '10px 16px', color: '#555' }}>{rec.checkInAt ? new Date(rec.checkInAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
-                    <td style={{ padding: '10px 16px', color: '#555' }}>{rec.checkOutAt ? new Date(rec.checkOutAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                    <td style={{ padding: '10px 16px', color: '#A0AEC0' }}>{rec.checkInAt ? new Date(rec.checkInAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                    <td style={{ padding: '10px 16px', color: '#A0AEC0' }}>{rec.checkOutAt ? new Date(rec.checkOutAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                     <td style={{ padding: '10px 16px', fontSize: '12px', color: rec.status === 'ADJUSTED' ? '#f57f17' : '#666' }}>{rec.status}</td>
                   </tr>
                 ))}
@@ -445,7 +445,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
 
       {/* 수정 이력 */}
       {activeSection === 'adjustments' && (
-        <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: '14px' }}>
             출퇴근 수정 이력 ({adjustmentLogs.length}건)
           </div>
@@ -459,12 +459,12 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
                     <span style={{ fontSize: '13px', fontWeight: 700 }}>{log.field}</span>
                     <span style={{ fontSize: '11px', color: '#999' }}>{new Date(log.createdAt).toLocaleDateString('ko-KR')}</span>
                   </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>
+                  <div style={{ fontSize: '12px', color: '#A0AEC0' }}>
                     <span style={{ textDecoration: 'line-through', color: '#c62828' }}>{log.beforeValue ?? '없음'}</span>
                     <span style={{ margin: '0 8px' }}>→</span>
                     <span style={{ color: '#2e7d32', fontWeight: 600 }}>{log.afterValue ?? '없음'}</span>
                   </div>
-                  <div style={{ fontSize: '12px', color: '#555', marginTop: '6px' }}>
+                  <div style={{ fontSize: '12px', color: '#A0AEC0', marginTop: '6px' }}>
                     사유: {log.reason}
                   </div>
                 </div>
@@ -476,7 +476,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
 
       {/* 분쟁 케이스 */}
       {activeSection === 'disputes' && (
-        <div style={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: '14px' }}>
             분쟁 케이스 ({disputeCases.length}건)
           </div>
@@ -519,7 +519,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
               <select
                 value={newCaseForm.disputeType}
                 onChange={e => setNewCaseForm(f => ({ ...f, disputeType: e.target.value }))}
-                style={{ width: '100%', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px' }}
+                style={{ width: '100%', padding: '10px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', fontSize: '14px' }}
               >
                 <option value="">선택...</option>
                 {Object.entries(DISPUTE_TYPE_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -531,7 +531,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
                 value={newCaseForm.title}
                 onChange={e => setNewCaseForm(f => ({ ...f, title: e.target.value }))}
                 placeholder="예: 2026-03 임금 지급 관련 이의제기"
-                style={{ width: '100%', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '10px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' }}
               />
             </div>
             <div style={{ marginBottom: '20px' }}>
@@ -540,11 +540,11 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
                 value={newCaseForm.summary}
                 onChange={e => setNewCaseForm(f => ({ ...f, summary: e.target.value }))}
                 rows={3}
-                style={{ width: '100%', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px', resize: 'vertical', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '10px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', fontSize: '14px', resize: 'vertical', boxSizing: 'border-box' }}
               />
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={() => setShowNewCase(false)} style={{ flex: 1, padding: '12px', border: '1px solid #e0e0e0', borderRadius: '8px', background: '#fff', cursor: 'pointer', fontSize: '14px' }}>취소</button>
+              <button onClick={() => setShowNewCase(false)} style={{ flex: 1, padding: '12px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', background: '#fff', cursor: 'pointer', fontSize: '14px' }}>취소</button>
               <button
                 onClick={handleOpenCase}
                 disabled={!newCaseForm.disputeType || !newCaseForm.title || submitting}

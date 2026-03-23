@@ -156,7 +156,7 @@ export default function OperationsDashboardPage() {
     {
       label: '이번 달 다운로드',
       value: kpi.thisMonthDownloadCount ?? 0,
-      color: '#555',
+      color: '#A0AEC0',
       bg: '#f5f5f5',
       alert: false,
       sub: null,
@@ -244,7 +244,7 @@ export default function OperationsDashboardPage() {
                   <div style={{ fontSize: '32px', fontWeight: 700, color: card.color }}>
                     {loading ? '-' : card.value.toLocaleString()}
                   </div>
-                  <div style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>{card.label}</div>
+                  <div style={{ fontSize: '13px', color: '#A0AEC0', marginTop: '4px' }}>{card.label}</div>
                   {card.sub && (
                     <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '4px' }}>{card.sub}</div>
                   )}
@@ -258,7 +258,7 @@ export default function OperationsDashboardPage() {
 
               {/* 월마감 상태 카드 */}
               <div style={{
-                background: 'white',
+                background: '#243144',
                 borderRadius: '12px',
                 padding: '20px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
@@ -309,7 +309,7 @@ export default function OperationsDashboardPage() {
                     [
                       { label: '확정', value: data.settlementSummary.confirmed ?? 0, color: '#2e7d32', bg: '#e8f5e9' },
                       { label: '검토 필요', value: data.settlementSummary.reviewRequired ?? 0, color: '#c62828', bg: '#ffebee' },
-                      { label: '임시저장', value: data.settlementSummary.draft ?? 0, color: '#666', bg: '#f5f5f5' },
+                      { label: '임시저장', value: data.settlementSummary.draft ?? 0, color: '#A0AEC0', bg: '#f5f5f5' },
                       { label: '보류', value: data.settlementSummary.hold ?? 0, color: '#f57f17', bg: '#fffde7' },
                     ].map(item => (
                       <div key={item.label} style={{
@@ -344,7 +344,7 @@ export default function OperationsDashboardPage() {
                   alignItems: 'flex-start',
                 }}>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#333' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#CBD5E0' }}>
                       {exportTypeLabel[dl.exportType] ?? dl.exportType}
                     </div>
                     <div style={{ fontSize: '11px', color: '#718096', marginTop: '2px' }}>
@@ -444,13 +444,13 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
-  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
   btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   badge:        { padding: '4px 14px', borderRadius: '999px', fontSize: '13px', fontWeight: 600 },
   msgBox:       { padding: '12px 16px', borderRadius: '8px', fontSize: '14px' },
   panel:        { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
   panelHeader:  { padding: '14px 16px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: '14px' },
-  panelLabel:   { fontSize: '13px', color: '#666' },
+  panelLabel:   { fontSize: '13px', color: '#A0AEC0' },
   panelLink:    { fontSize: '12px', color: '#5BA4D9', textDecoration: 'none', fontWeight: 400 },
   emptyMsg:     { padding: '20px 16px', fontSize: '13px', color: '#aaa', textAlign: 'center' as const },
 }
