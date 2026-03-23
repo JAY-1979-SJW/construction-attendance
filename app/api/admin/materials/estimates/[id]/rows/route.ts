@@ -9,15 +9,20 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const { searchParams } = new URL(req.url)
   const discipline = searchParams.get('discipline') ?? undefined
   const sheetId = searchParams.get('sheetId') ?? undefined
+  const rowType = searchParams.get('rowType') ?? undefined
+  const reviewOnly = searchParams.get('reviewOnly') === 'true'
+  const candidateOnly = searchParams.get('candidateOnly') === 'true'
   const unmappedOnly = searchParams.get('unmappedOnly') === 'true'
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1'))
-  const pageSize = 50
+  const pageSize = 100
 
   const where: Record<string, unknown> = {
     documentId: params.id,
-    isSummaryRow: false,
     ...(discipline ? { discipline } : {}),
     ...(sheetId ? { sheetId } : {}),
+    ...(rowType ? { rowType } : {}),
+    ...(reviewOnly ? { reviewRequired: true } : {}),
+    ...(candidateOnly ? { aggregateCandidate: true } : {}),
     ...(unmappedOnly ? {
       normalized: { normalizationSource: 'UNMAPPED' }
     } : {}),

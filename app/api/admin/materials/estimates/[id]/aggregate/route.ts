@@ -8,10 +8,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   const { searchParams } = new URL(req.url)
   const discipline = searchParams.get('discipline') ?? undefined
+  const reviewOnly = searchParams.get('reviewOnly') === 'true'
 
   const where = {
     documentId: params.id,
     ...(discipline ? { discipline } : {}),
+    ...(reviewOnly ? { reviewRequired: true } : {}),
   }
 
   const items = await prisma.materialAggregateRow.findMany({

@@ -3301,6 +3301,13 @@ model EstimateBillRow {
   isSummaryRow   Boolean   @default(false)
   rowType        String?   // "DATA" | "SECTION" | "SUBSECTION" | "SUMMARY" | "TITLE"
   parseConfidence Float?
+  headerPathJson    String?   @db.Text
+  groupContextJson  String?   @db.Text
+  rawRowJson        String?   @db.Text
+  aggregateCandidate Boolean  @default(false)
+  reviewRequired    Boolean   @default(false)
+  reviewReasonsJson String?
+  sourceCellRange   String?
   createdAt      DateTime  @default(now())
 
   document    EstimateDocument       @relation(fields: [documentId], references: [id], onDelete: Cascade)
@@ -3349,6 +3356,7 @@ model MaterialAggregateRow {
   sourceRowCount        Int       @default(0)
   sourceRowIdsJson      String?   @db.Text
   unitPriceInconsistent Boolean   @default(false)
+  reviewRequired    Boolean   @default(false)
   groupKey              String
   createdAt             DateTime  @default(now())
 
