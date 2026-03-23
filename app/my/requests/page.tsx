@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import WorkerRequestForm from '@/components/worker/WorkerRequestForm'
 import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
 import WorkerDisclaimerBanner from '@/components/worker/WorkerDisclaimerBanner'
+import WorkerTopBar from '@/components/worker/WorkerTopBar'
 
 interface MyRequest {
   id: string
@@ -59,15 +60,17 @@ export default function MyRequestsPage() {
   }, [tab])
 
   return (
-    <div style={{ minHeight: '100vh', background: '#1B2838', paddingBottom: '80px' }}>
+    <>
+      <WorkerTopBar />
+      <div style={{ minHeight: '100vh', background: '#1B2838', paddingBottom: '80px', paddingTop: '56px' }}>
       <WorkerDisclaimerBanner />
 
       {/* 헤더 */}
-      <div style={{ background: '#E06810', color: '#fff', padding: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ background: '#243144', borderBottom: '1px solid rgba(91,164,217,0.15)', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <span style={{ fontSize: '20px' }}>📝</span>
         <div>
-          <div style={{ fontSize: '16px', fontWeight: 700 }}>요청 접수</div>
-          <div style={{ fontSize: '12px', opacity: 0.8 }}>업무 관련 요청만 처리합니다</div>
+          <div style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff' }}>요청 접수</div>
+          <div style={{ fontSize: '12px', color: '#A0AEC0' }}>업무 관련 요청만 처리합니다</div>
         </div>
       </div>
 
@@ -160,5 +163,6 @@ export default function MyRequestsPage() {
 
       <WorkerBottomNav />
     </div>
+    </>
   )
 }

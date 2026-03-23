@@ -9,6 +9,7 @@ import {
   detectDeviceName,
 } from '@/lib/utils/device-token'
 import { generateToken } from '@/lib/utils/random'
+import WorkerTopBar from '@/components/worker/WorkerTopBar'
 
 export default function DeviceRegisterPage() {
   const router = useRouter()
@@ -51,7 +52,9 @@ export default function DeviceRegisterPage() {
   }
 
   return (
-    <div style={styles.container}>
+    <>
+      <WorkerTopBar />
+      <div style={{ ...styles.container, paddingTop: '76px' }}>
       <div style={styles.card}>
         <h1 style={styles.title}>기기 등록</h1>
         <p style={styles.subtitle}>
@@ -86,6 +89,7 @@ export default function DeviceRegisterPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }
 

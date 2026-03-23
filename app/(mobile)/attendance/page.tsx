@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import WorkerDisclaimerBanner from '@/components/worker/WorkerDisclaimerBanner'
 import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
+import WorkerTopBar from '@/components/worker/WorkerTopBar'
 
 interface TodayStatus {
   id: string
@@ -416,7 +417,9 @@ export default function AttendancePage() {
   }
 
   return (
-    <div style={{ ...styles.container, paddingBottom: '80px' }}>
+    <>
+      <WorkerTopBar />
+      <div style={{ ...styles.container, paddingBottom: '80px', paddingTop: '76px' }}>
       {/* 법적 고지 배너 */}
       {!isPreview && <WorkerDisclaimerBanner />}
 
@@ -664,6 +667,7 @@ export default function AttendancePage() {
 
       {!isPreview && <WorkerBottomNav />}
     </div>
+    </>
   )
 }
 

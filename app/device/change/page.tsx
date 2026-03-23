@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { generateBrowserFingerprint, detectDeviceName } from '@/lib/utils/device-token'
+import WorkerTopBar from '@/components/worker/WorkerTopBar'
 
 export default function DeviceChangePage() {
   const router = useRouter()
@@ -51,7 +52,9 @@ export default function DeviceChangePage() {
 
   if (submitted) {
     return (
-      <div style={styles.container}>
+      <>
+        <WorkerTopBar />
+        <div style={{ ...styles.container, paddingTop: '76px' }}>
         <div style={styles.card}>
           <div style={{ fontSize: '48px', textAlign: 'center', marginBottom: '16px' }}>📨</div>
           <h1 style={{ ...styles.title, marginBottom: '12px' }}>요청 접수 완료</h1>
@@ -65,11 +68,14 @@ export default function DeviceChangePage() {
           </button>
         </div>
       </div>
+      </>
     )
   }
 
   return (
-    <div style={styles.container}>
+    <>
+      <WorkerTopBar />
+      <div style={{ ...styles.container, paddingTop: '76px' }}>
       <div style={styles.card}>
         <button onClick={() => router.back()} style={styles.back}>← 뒤로</button>
         <h1 style={styles.title}>기기 변경 요청</h1>
@@ -102,6 +108,7 @@ export default function DeviceChangePage() {
         </button>
       </div>
     </div>
+    </>
   )
 }
 
@@ -113,7 +120,7 @@ const styles: Record<string, React.CSSProperties> = {
   subtitle: { fontSize: '13px', color: '#A0AEC0', textAlign: 'center', margin: '0 0 28px', lineHeight: 1.5 },
   inputGroup: { marginBottom: '16px' },
   label: { display: 'block', fontSize: '14px', fontWeight: 600, color: '#CBD5E0', marginBottom: '8px' },
-  input: { width: '100%', padding: '12px 14px', fontSize: '15px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' as const },
+  input: { width: '100%', padding: '12px 14px', fontSize: '15px', border: '1px solid rgba(91,164,217,0.25)', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' as const, background: 'rgba(255,255,255,0.06)', color: '#ffffff' },
   error: { color: '#e53935', fontSize: '13px', margin: '0 0 12px' },
   button: { width: '100%', padding: '16px', fontSize: '17px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
 }

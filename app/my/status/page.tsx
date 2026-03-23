@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import WorkerDisclaimerBanner from '@/components/worker/WorkerDisclaimerBanner'
 import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
+import WorkerTopBar from '@/components/worker/WorkerTopBar'
 
 interface BlockReason {
   code: string
@@ -121,7 +122,9 @@ export default function MyStatusPage() {
   }
 
   return (
-    <div style={{ ...s.page, paddingBottom: '88px' }}>
+    <>
+      <WorkerTopBar />
+      <div style={{ ...s.page, paddingBottom: '88px', paddingTop: '80px' }}>
       <WorkerDisclaimerBanner />
       <div style={s.container}>
         <h1 style={s.title}>내 상태</h1>
@@ -295,6 +298,7 @@ export default function MyStatusPage() {
       </div>
       <WorkerBottomNav />
     </div>
+    </>
   )
 }
 
