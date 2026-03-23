@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 
 // ─── 탭 정의 ──────────────────────────────────────────────────────────────────
@@ -118,7 +118,7 @@ function rejectApi(tab: TabKey, id: string): string {
 }
 
 // ─── 메인 페이지 ──────────────────────────────────────────────────────────────
-export default function ApprovalsPage() {
+function ApprovalsContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const tabParam = (searchParams.get('tab') as TabKey) || 'workers'
@@ -148,6 +148,10 @@ export default function ApprovalsPage() {
       <ApprovalTab key={activeTab} tab={activeTab} />
     </div>
   )
+}
+
+export default function ApprovalsPage() {
+  return <Suspense fallback={<div style={{ padding: 32 }}>로딩 중...</div>}><ApprovalsContent /></Suspense>
 }
 
 // ─── 개별 탭 컴포넌트 ─────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 
 type TabKey = 'workers' | 'site-joins'
@@ -33,7 +33,7 @@ function fmtDate(d: string) {
   return new Date(d).toLocaleDateString('ko-KR')
 }
 
-export default function CompanyApprovalsPage() {
+function CompanyApprovalsContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const tabParam = (searchParams.get('tab') as TabKey) || 'workers'
@@ -61,6 +61,10 @@ export default function CompanyApprovalsPage() {
       <ApprovalTab key={activeTab} tab={activeTab} />
     </div>
   )
+}
+
+export default function CompanyApprovalsPage() {
+  return <Suspense fallback={<div style={{ padding: 32 }}>로딩 중...</div>}><CompanyApprovalsContent /></Suspense>
 }
 
 function ApprovalTab({ tab }: { tab: TabKey }) {
