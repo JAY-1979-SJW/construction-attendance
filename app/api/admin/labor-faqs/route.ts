@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession } from '@/lib/auth/guards'
 
@@ -94,7 +95,7 @@ export async function POST(req: NextRequest) {
       faqId:         faq.id,
       changedBy:     session.sub,
       changeType:    'CREATE',
-      afterSnapshot: faq as unknown as Record<string, unknown>,
+      afterSnapshot: faq as unknown as Prisma.InputJsonValue,
     },
   })
 
