@@ -30,7 +30,7 @@ export async function PATCH(
     const updated = await prisma.workerRequest.update({
       where: { id },
       data: {
-        ...(status    ? { status, reviewedBy: session.sub, reviewedAt: new Date() } : {}),
+        ...(status    ? { status: status as never, reviewedBy: session.sub, reviewedAt: new Date() } : {}),
         ...(adminMemo !== undefined ? { adminMemo } : {}),
       },
     })
