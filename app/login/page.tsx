@@ -186,7 +186,14 @@ export default function LoginPage() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>{APP_NAME}</h1>
+        <div style={{ textAlign: 'center', marginBottom: '4px' }}>
+          <div style={{ fontSize: '28px', fontWeight: 900, color: '#ffffff', letterSpacing: '-1px' }}>
+            해한<span style={{ color: '#F47920' }}>Ai</span> Engineering
+          </div>
+          <div style={{ fontSize: '12px', color: '#5a6a7e', marginTop: '4px' }}>현장 출퇴근 관리 시스템</div>
+        </div>
+        <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '20px 0' }} />
+        <h1 style={{ ...styles.title, fontSize: '18px', marginBottom: '4px' }}>로그인</h1>
         <p style={styles.subtitle}>휴대폰 번호를 입력하세요</p>
 
         <div style={styles.inputGroup}>

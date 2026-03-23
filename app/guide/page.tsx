@@ -102,8 +102,8 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
     case 'login':
       return (
         <div style={sc.container}>
-          <div style={sc.loginLogo}>해한건설</div>
-          <div style={sc.loginSub}>출퇴근 관리 시스템</div>
+          <div style={sc.loginLogo}>해한<span style={{ color: '#F47920' }}>Ai</span></div>
+          <div style={sc.loginSub}>현장 출퇴근 관리 시스템</div>
           <div style={sc.loginCard}>
             <div style={sc.loginLabel}>전화번호</div>
             <input
@@ -147,7 +147,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
           <div style={sc.attHeader}>
             <div>
               <div style={sc.workerName}>홍길동</div>
-              <div style={sc.workerInfo}>해한건설 · 철근공</div>
+              <div style={sc.workerInfo}>해한Ai Engineering · 철근공</div>
             </div>
             <button style={sc.logoutBtn}>로그아웃</button>
           </div>
@@ -202,7 +202,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
           <div style={sc.attHeader}>
             <div>
               <div style={sc.workerName}>홍길동</div>
-              <div style={sc.workerInfo}>해한건설 · 철근공</div>
+              <div style={sc.workerInfo}>해한Ai Engineering · 철근공</div>
             </div>
             <button style={sc.logoutBtn}>로그아웃</button>
           </div>
@@ -291,77 +291,78 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
    스타일
 ────────────────────────────────────────────── */
 const pg: Record<string, React.CSSProperties> = {
-  page:        { fontFamily: '"Malgun Gothic","Apple SD Gothic Neo",sans-serif', color: '#ffffff', minHeight: '100vh', background: '#1B2838' },
-  header:      { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', background: '#243144', borderBottom: '1px solid #eee', position: 'sticky' as const, top: 0, zIndex: 10 },
-  backLink:    { fontSize: '14px', color: '#A0AEC0', textDecoration: 'none' },
-  headerTitle: { fontSize: '16px', fontWeight: 700 },
-  startBtn:    { padding: '8px 18px', background: '#F47920', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 },
+  page:        { fontFamily: "'Pretendard', 'Pretendard Variable', system-ui, sans-serif", color: '#ffffff', minHeight: '100vh', background: '#1B2838' },
+  header:      { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', height: '60px', background: '#243144', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'sticky' as const, top: 0, zIndex: 10, boxShadow: '0 2px 12px rgba(0,0,0,0.2)' },
+  backLink:    { fontSize: '14px', color: '#A0AEC0', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' },
+  headerTitle: { fontSize: '16px', fontWeight: 700, color: '#ffffff' },
+  startBtn:    { padding: '9px 20px', background: '#F47920', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 700, boxShadow: '0 2px 8px rgba(244,121,32,0.3)' },
 
-  body:        { display: 'flex', gap: '24px', padding: '24px', maxWidth: '1100px', margin: '0 auto', flexWrap: 'wrap' as const },
+  body:        { display: 'flex', gap: '28px', padding: '28px 24px', maxWidth: '1100px', margin: '0 auto', flexWrap: 'wrap' as const },
 
-  tabs:        { display: 'flex', flexDirection: 'column' as const, gap: '8px', minWidth: '180px', flex: '0 0 auto' },
-  tab:         { background: '#243144', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const, transition: 'all 0.15s' },
-  tabActive:   { borderColor: '#1976d2', background: 'rgba(91,164,217,0.1)' },
+  tabs:        { display: 'flex', flexDirection: 'column' as const, gap: '6px', minWidth: '190px', flex: '0 0 auto' },
+  tab:         { background: '#1B2838', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const, transition: 'all 0.15s' },
+  tabActive:   { borderColor: '#F47920', background: 'rgba(244,121,32,0.1)', borderLeft: '3px solid #F47920' },
   tabLabel:    { display: 'block', fontSize: '13px', fontWeight: 700, color: '#ffffff', marginBottom: '2px' },
-  tabDesc:     { display: 'block', fontSize: '11px', color: '#A0AEC0' },
+  tabDesc:     { display: 'block', fontSize: '11px', color: '#718096' },
 
-  phoneWrapper: { flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '16px' },
+  phoneWrapper: { flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '20px' },
   phone:        {
-    width: '320px',
-    background: '#1a1a2e',
+    width: '300px',
+    background: '#0d1520',
     borderRadius: '40px',
-    padding: '16px',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
+    padding: '14px',
+    boxShadow: '0 24px 60px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.06)',
+    border: '1px solid rgba(255,255,255,0.1)',
   },
-  phoneSpeaker: { width: '60px', height: '6px', background: '#333', borderRadius: '3px', margin: '0 auto 12px' },
-  phoneScreen:  { background: '#1B2838', borderRadius: '24px', minHeight: '560px', overflow: 'hidden', position: 'relative' as const },
-  phoneHome:    { width: '40px', height: '40px', background: '#333', borderRadius: '50%', margin: '12px auto 0' },
+  phoneSpeaker: { width: '50px', height: '5px', background: '#222', borderRadius: '3px', margin: '0 auto 10px' },
+  phoneScreen:  { background: '#1B2838', borderRadius: '28px', minHeight: '540px', overflow: 'hidden', position: 'relative' as const },
+  phoneHome:    { width: '36px', height: '36px', background: '#222', borderRadius: '50%', margin: '10px auto 0', border: '1px solid #333' },
 
   navRow:  { display: 'flex', alignItems: 'center', gap: '16px' },
-  navBtn:  { padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  navInfo: { fontSize: '14px', color: '#A0AEC0' },
+  navBtn:  { padding: '10px 24px', background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 700, boxShadow: '0 3px 10px rgba(244,121,32,0.3)' },
+  navInfo: { fontSize: '14px', color: '#718096', minWidth: '48px', textAlign: 'center' as const },
 
-  cta:     { textAlign: 'center' as const, padding: '40px 24px', background: '#1a1a2e' },
-  ctaText: { color: 'rgba(255,255,255,0.7)', marginBottom: '16px', fontSize: '16px' },
-  ctaBtn:  { display: 'inline-block', padding: '16px 40px', background: '#F47920', color: 'white', borderRadius: '12px', textDecoration: 'none', fontSize: '18px', fontWeight: 700 },
+  cta:     { textAlign: 'center' as const, padding: '48px 24px', background: 'linear-gradient(135deg, #0d1b2a 0%, #1a2c42 100%)' },
+  ctaText: { color: '#A0AEC0', marginBottom: '20px', fontSize: '16px' },
+  ctaBtn:  { display: 'inline-block', padding: '16px 44px', background: '#F47920', color: 'white', borderRadius: '12px', textDecoration: 'none', fontSize: '17px', fontWeight: 700, boxShadow: '0 4px 16px rgba(244,121,32,0.4)' },
 }
 
 // 화면 내부 스타일 (실제 앱과 동일)
 const sc: Record<string, React.CSSProperties> = {
-  container:   { maxWidth: '480px', margin: '0 auto', padding: '20px', minHeight: '560px', background: '#1B2838' },
+  container:   { maxWidth: '480px', margin: '0 auto', padding: '20px', minHeight: '540px', background: '#1B2838' },
 
   // 로그인
-  loginLogo:   { fontSize: '28px', fontWeight: 900, color: '#ffffff', textAlign: 'center' as const, paddingTop: '40px', marginBottom: '4px' },
-  loginSub:    { fontSize: '13px', color: '#A0AEC0', textAlign: 'center' as const, marginBottom: '32px' },
-  loginCard:   { background: '#243144', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
-  loginLabel:  { fontSize: '13px', color: '#A0AEC0', marginBottom: '6px' },
-  loginInput:  { width: '100%', padding: '12px', fontSize: '16px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', boxSizing: 'border-box' as const, marginBottom: '12px', background: '#f9f9f9' },
-  loginBtn:    { width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', marginBottom: '12px' },
-  loginHint:   { fontSize: '12px', color: '#aaa', textAlign: 'center' as const, lineHeight: 1.5 },
+  loginLogo:   { fontSize: '30px', fontWeight: 900, color: '#ffffff', textAlign: 'center' as const, paddingTop: '40px', marginBottom: '6px', letterSpacing: '-1px' },
+  loginSub:    { fontSize: '12px', color: '#718096', textAlign: 'center' as const, marginBottom: '28px' },
+  loginCard:   { background: '#243144', borderRadius: '16px', padding: '22px', border: '1px solid rgba(255,255,255,0.08)' },
+  loginLabel:  { fontSize: '12px', color: '#A0AEC0', marginBottom: '6px' },
+  loginInput:  { width: '100%', padding: '12px', fontSize: '15px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', boxSizing: 'border-box' as const, marginBottom: '12px', background: 'rgba(255,255,255,0.06)', color: '#ffffff' },
+  loginBtn:    { width: '100%', padding: '13px', fontSize: '15px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', marginBottom: '12px', boxShadow: '0 3px 10px rgba(244,121,32,0.3)' },
+  loginHint:   { fontSize: '11px', color: '#5a6a7e', textAlign: 'center' as const, lineHeight: 1.5 },
 
   // 출퇴근 홈
-  attHeader:   { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingTop: '8px' },
+  attHeader:   { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', paddingTop: '8px' },
   workerName:  { fontSize: '16px', fontWeight: 700, color: '#ffffff' },
-  workerInfo:  { fontSize: '12px', color: '#A0AEC0', marginTop: '2px' },
-  logoutBtn:   { background: 'none', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', padding: '5px 10px', fontSize: '12px', cursor: 'pointer', color: '#A0AEC0' },
-  card:        { background: '#243144', borderRadius: '14px', padding: '20px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
-  dateLabel:   { fontSize: '12px', color: '#A0AEC0', marginBottom: '10px' },
-  guideCard:   { background: 'rgba(91,164,217,0.1)', borderRadius: '10px', padding: '16px', marginBottom: '12px' },
-  guideTitle:  { fontSize: '13px', fontWeight: 700, color: '#4A93C8', marginBottom: '10px' },
-  guideStep:   { fontSize: '12px', color: '#5BA4D9', marginBottom: '5px' },
+  workerInfo:  { fontSize: '11px', color: '#718096', marginTop: '2px' },
+  logoutBtn:   { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '5px 10px', fontSize: '11px', cursor: 'pointer', color: '#A0AEC0' },
+  card:        { background: '#243144', borderRadius: '14px', padding: '18px', marginBottom: '10px', border: '1px solid rgba(255,255,255,0.07)' },
+  dateLabel:   { fontSize: '11px', color: '#718096', marginBottom: '10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' },
+  guideCard:   { background: 'rgba(91,164,217,0.08)', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '12px', padding: '14px', marginBottom: '10px' },
+  guideTitle:  { fontSize: '12px', fontWeight: 700, color: '#5BA4D9', marginBottom: '8px' },
+  guideStep:   { fontSize: '11px', color: '#4A93C8', marginBottom: '4px', display: 'flex', gap: '6px' },
 
   // QR 화면
-  siteCard:    { background: '#243144', borderRadius: '10px', padding: '16px', marginBottom: '12px', boxShadow: '0 2px 6px rgba(0,0,0,0.06)' },
-  siteLabel:   { fontSize: '11px', color: '#718096', marginBottom: '4px' },
-  siteName:    { fontSize: '18px', fontWeight: 700, color: '#ffffff', marginBottom: '3px' },
+  siteCard:    { background: '#243144', borderRadius: '12px', padding: '14px', marginBottom: '10px', border: '1px solid rgba(255,255,255,0.07)' },
+  siteLabel:   { fontSize: '10px', color: '#5a6a7e', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' },
+  siteName:    { fontSize: '17px', fontWeight: 700, color: '#ffffff', marginBottom: '3px' },
   siteAddress: { fontSize: '12px', color: '#A0AEC0' },
-  actionCard:  { background: '#243144', borderRadius: '14px', padding: '32px 24px', textAlign: 'center' as const, boxShadow: '0 2px 10px rgba(0,0,0,0.07)', marginBottom: '12px' },
-  actionTitle: { fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '6px' },
-  actionDesc:  { fontSize: '13px', color: '#A0AEC0', marginBottom: '20px' },
-  checkInBtn:  { width: '100%', padding: '16px', fontSize: '18px', fontWeight: 700, background: '#2e7d32', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
-  checkOutBtn: { width: '100%', padding: '16px', fontSize: '18px', fontWeight: 700, background: '#E06810', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
-  homeBtn:     { width: '100%', padding: '14px', fontSize: '15px', fontWeight: 600, background: '#1B2838', color: '#CBD5E0', border: 'none', borderRadius: '10px', cursor: 'pointer' },
-  exceptionBtn:{ width: '100%', padding: '11px', fontSize: '12px', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '9px', cursor: 'pointer', color: '#A0AEC0' },
+  actionCard:  { background: '#243144', borderRadius: '14px', padding: '28px 20px', textAlign: 'center' as const, border: '1px solid rgba(255,255,255,0.07)', marginBottom: '10px' },
+  actionTitle: { fontSize: '18px', fontWeight: 700, color: '#ffffff', marginBottom: '6px' },
+  actionDesc:  { fontSize: '13px', color: '#A0AEC0', marginBottom: '18px' },
+  checkInBtn:  { width: '100%', padding: '15px', fontSize: '16px', fontWeight: 700, background: 'linear-gradient(135deg, #2e7d32, #43a047)', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', boxShadow: '0 3px 10px rgba(46,125,50,0.3)' },
+  checkOutBtn: { width: '100%', padding: '15px', fontSize: '16px', fontWeight: 700, background: 'linear-gradient(135deg, #E06810, #F47920)', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', boxShadow: '0 3px 10px rgba(244,121,32,0.3)' },
+  homeBtn:     { width: '100%', padding: '13px', fontSize: '14px', fontWeight: 600, background: 'rgba(255,255,255,0.06)', color: '#CBD5E0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' },
+  exceptionBtn:{ width: '100%', padding: '10px', fontSize: '12px', background: 'none', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '9px', cursor: 'pointer', color: '#718096' },
 
-  demoNext:    { width: '100%', padding: '12px', fontSize: '13px', background: 'rgba(244,121,32,0.12)', color: '#F47920', border: '1px solid #90caf9', borderRadius: '9px', cursor: 'pointer', fontWeight: 600 },
+  demoNext:    { width: '100%', padding: '11px', fontSize: '12px', background: 'rgba(244,121,32,0.1)', color: '#F47920', border: '1px solid rgba(244,121,32,0.3)', borderRadius: '9px', cursor: 'pointer', fontWeight: 600 },
 }

@@ -121,6 +121,11 @@ export default function RegisterPage() {
   return (
     <div style={s.page}>
       <div style={s.card}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <div style={{ fontSize: '20px', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px', marginBottom: '4px' }}>
+            해한<span style={{ color: '#F47920' }}>Ai</span> Engineering
+          </div>
+        </div>
         <h1 style={s.title}>근로자 회원가입</h1>
         <p style={s.subtitle}>가입 후 관리자 승인을 받아야 출퇴근이 가능합니다.</p>
 
@@ -256,21 +261,21 @@ export default function RegisterPage() {
 }
 
 const s: Record<string, React.CSSProperties> = {
-  page:         { minHeight: '100vh', background: '#f5f6fa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' },
-  card:         { background: '#243144', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '520px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' },
-  title:        { fontSize: '24px', fontWeight: 700, margin: '0 0 8px', color: '#ffffff' },
+  page:         { minHeight: '100vh', background: 'linear-gradient(160deg, #0d1b2a 0%, #1B2838 60%, #141E2A 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' },
+  card:         { background: '#243144', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '520px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)', borderTop: '3px solid #F47920' },
+  title:        { fontSize: '24px', fontWeight: 800, margin: '0 0 8px', color: '#ffffff', letterSpacing: '-0.5px' },
   subtitle:     { fontSize: '14px', color: '#A0AEC0', margin: '0 0 28px', lineHeight: 1.6 },
-  errorBox:     { background: '#fff0f0', border: '1px solid #ffcccc', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', color: '#c62828', fontSize: '14px' },
-  label:        { display: 'block', fontSize: '13px', fontWeight: 600, color: '#CBD5E0', marginBottom: '6px', marginTop: '16px' },
-  required:     { color: '#e53935' },
-  input:        { width: '100%', padding: '10px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' },
-  consentSection: { margin: '20px 0', padding: '16px', background: '#1B2838', borderRadius: '8px', border: '1px solid #e8e8e8' },
-  consentTitle: { fontSize: '13px', fontWeight: 700, marginBottom: '12px', color: '#CBD5E0' },
-  consentBlock: { marginBottom: '10px', borderBottom: '1px solid #eee', paddingBottom: '10px' },
-  consentRow:   { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', fontSize: '13px', color: '#444' },
-  viewBtn:      { fontSize: '12px', color: '#5BA4D9', background: 'none', border: '1px solid #1976d2', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', whiteSpace: 'nowrap' },
-  docContent:   { marginTop: '8px', fontSize: '12px', color: '#A0AEC0', background: '#243144', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '12px', maxHeight: '200px', overflowY: 'auto', whiteSpace: 'pre-wrap', lineHeight: 1.6 },
-  btn:          { display: 'block', width: '100%', padding: '14px', background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', marginTop: '20px' },
-  footer:       { display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '20px', textAlign: 'center' },
+  errorBox:     { background: 'rgba(229,57,53,0.12)', border: '1px solid rgba(229,57,53,0.4)', borderRadius: '10px', padding: '12px 16px', marginBottom: '20px', color: '#ef9a9a', fontSize: '14px' },
+  label:        { display: 'block', fontSize: '13px', fontWeight: 600, color: '#A0AEC0', marginBottom: '6px', marginTop: '16px' },
+  required:     { color: '#F47920' },
+  input:        { width: '100%', padding: '12px 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', fontSize: '15px', boxSizing: 'border-box' as const, background: 'rgba(255,255,255,0.06)', color: '#ffffff', outline: 'none' },
+  consentSection: { margin: '20px 0', padding: '18px', background: 'rgba(255,255,255,0.04)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' },
+  consentTitle: { fontSize: '13px', fontWeight: 700, marginBottom: '14px', color: '#A0AEC0', letterSpacing: '0.5px' },
+  consentBlock: { marginBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' },
+  consentRow:   { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', fontSize: '13px', color: '#CBD5E0' },
+  viewBtn:      { fontSize: '12px', color: '#5BA4D9', background: 'rgba(91,164,217,0.1)', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '3px 10px', cursor: 'pointer', whiteSpace: 'nowrap' as const },
+  docContent:   { marginTop: '8px', fontSize: '12px', color: '#A0AEC0', background: '#1B2838', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '12px', maxHeight: '200px', overflowY: 'auto' as const, whiteSpace: 'pre-wrap' as const, lineHeight: 1.6 },
+  btn:          { display: 'block', width: '100%', padding: '15px', background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', marginTop: '20px', boxShadow: '0 4px 14px rgba(244,121,32,0.35)' },
+  footer:       { display: 'flex', flexDirection: 'column' as const, gap: '8px', marginTop: '20px', textAlign: 'center' as const },
   link:         { color: '#5BA4D9', fontSize: '13px', textDecoration: 'none' },
 }

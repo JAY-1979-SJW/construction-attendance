@@ -39,12 +39,12 @@ export default function WorkerBottomNav() {
         bottom:         0,
         left:           0,
         right:          0,
-        background:     '#ffffff',
-        borderTop:      '1px solid #e0e0e0',
+        background:     '#0D1520',
+        borderTop:      '1px solid rgba(255,255,255,0.08)',
         display:        'flex',
-        height:         '60px',
+        height:         '64px',
         zIndex:         100,
-        boxShadow:      '0 -2px 8px rgba(0,0,0,0.06)',
+        boxShadow:      '0 -4px 20px rgba(0,0,0,0.3)',
       }}
     >
       {NAV_ITEMS.map((item) => {
@@ -59,16 +59,18 @@ export default function WorkerBottomNav() {
               flexDirection:  'column',
               alignItems:     'center',
               justifyContent: 'center',
-              gap:            '2px',
+              gap:            '3px',
               border:         'none',
               background:     'transparent',
               cursor:         'pointer',
-              color:          isActive ? '#1565c0' : '#9e9e9e',
-              padding:        '6px 0',
+              color:          isActive ? '#F47920' : '#5a6a7e',
+              padding:        '8px 0',
+              borderTop:      isActive ? '2px solid #F47920' : '2px solid transparent',
+              transition:     'color 0.15s',
             }}
           >
-            <span style={{ fontSize: '18px', lineHeight: 1 }}>{item.icon}</span>
-            <span style={{ fontSize: '11px', fontWeight: isActive ? 700 : 400 }}>{item.label}</span>
+            <span style={{ fontSize: '20px', lineHeight: 1 }}>{item.icon}</span>
+            <span style={{ fontSize: '10px', fontWeight: isActive ? 700 : 400, letterSpacing: '0.3px' }}>{item.label}</span>
           </button>
         )
       })}
