@@ -156,7 +156,7 @@ export default function LaborPage() {
           <div style={s.metaRow}>
             {[
               { label: '전체 기록', value: meta.totalRows, color: '#37474f' },
-              { label: '노임 집계 포함', value: meta.includedCount, color: '#1565c0' },
+              { label: '노임 집계 포함', value: meta.includedCount, color: '#4A93C8' },
               { label: '검토 필요(미퇴근)', value: meta.needsReviewCount, color: '#b71c1c' },
               { label: '자동처리 포함', value: meta.autoCount, color: '#6a1b9a' },
             ].map((item) => (
@@ -181,7 +181,7 @@ export default function LaborPage() {
           ))}
         </div>
 
-        {loading ? <p style={{ color: '#888', padding: '24px 0' }}>집계 중...</p> : (
+        {loading ? <p style={{ color: '#A0AEC0', padding: '24px 0' }}>집계 중...</p> : (
           <>
             {/* ── 탭1: 투입현황 상세 ──────────────────────────── */}
             {tab === 'detail' && (
@@ -247,7 +247,7 @@ export default function LaborPage() {
             {/* ── 탭2: 노임집계 합계 ──────────────────────────── */}
             {tab === 'summary' && (
               <div style={{ ...s.tableCard, overflowX: 'auto' }}>
-                <div style={{ fontSize: '12px', color: '#888', marginBottom: '12px' }}>
+                <div style={{ fontSize: '12px', color: '#A0AEC0', marginBottom: '12px' }}>
                   * COMPLETED + ADJUSTED 기준 합산. MISSING_CHECKOUT은 검토필요 건수만 표시됩니다.
                 </div>
                 <table style={s.table}>
@@ -267,7 +267,7 @@ export default function LaborPage() {
                         <td style={{ ...s.td, fontWeight: 600 }}>{row.workerName}</td>
                         <td style={s.td}>{row.company}</td>
                         <td style={s.td}>{row.jobTitle}</td>
-                        <td style={{ ...s.td, textAlign: 'center', fontWeight: 700, color: '#1565c0' }}>{row.totalDays}일</td>
+                        <td style={{ ...s.td, textAlign: 'center', fontWeight: 700, color: '#4A93C8' }}>{row.totalDays}일</td>
                         <td style={{ ...s.td, textAlign: 'center', fontWeight: 700 }}>{formatMinutes(row.totalMinutes)}</td>
                         <td style={{ ...s.td, textAlign: 'center' }}>
                           {row.adjustedDays > 0 && <span style={{ color: '#6a1b9a', fontSize: '12px' }}>{row.adjustedDays}건</span>}
@@ -295,7 +295,7 @@ export default function LaborPage() {
         <div style={s.legend}>
           <div style={s.legendTitle}>집계 기준</div>
           <div style={s.legendRow}>
-            <span style={{ ...s.badge, color: '#1565c0', background: '#e3f2fd' }}>완료</span>
+            <span style={{ ...s.badge, color: '#4A93C8', background: 'rgba(91,164,217,0.1)' }}>완료</span>
             <span style={s.legendText}>정상 집계 포함 (COMPLETED)</span>
           </div>
           <div style={s.legendRow}>
@@ -306,7 +306,7 @@ export default function LaborPage() {
             <span style={{ ...s.badge, color: '#b71c1c', background: '#ffebee' }}>미퇴근</span>
             <span style={s.legendText}>집계 제외 — 검토 필요 (MISSING_CHECKOUT)</span>
           </div>
-          <div style={{ ...s.legendRow, marginTop: '8px', fontSize: '12px', color: '#888' }}>
+          <div style={{ ...s.legendRow, marginTop: '8px', fontSize: '12px', color: '#A0AEC0' }}>
             인정 현장 기준: 이동 이력이 있으면 마지막 현장 기준 / 없으면 출근 현장 기준
           </div>
         </div>
@@ -316,8 +316,8 @@ export default function LaborPage() {
 }
 
 const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0 },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.75)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
   navActive:    { color: 'white', background: 'rgba(255,255,255,0.1)', fontWeight: 700 },
@@ -325,23 +325,23 @@ const s: Record<string, React.CSSProperties> = {
   pageTitle:    { fontSize: '22px', fontWeight: 700, margin: '0 0 20px' },
   filterRow:    { display: 'flex', gap: '12px', alignItems: 'flex-end', marginBottom: '20px', flexWrap: 'wrap' as const },
   filterGroup:  { display: 'flex', flexDirection: 'column' as const, gap: '4px' },
-  filterLabel:  { fontSize: '12px', color: '#888' },
-  filterInput:  { padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px' },
-  searchBtn:    { padding: '8px 20px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
+  filterLabel:  { fontSize: '12px', color: '#A0AEC0' },
+  filterInput:  { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px' },
+  searchBtn:    { padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
   exportBtn:    { padding: '8px 20px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
   metaRow:      { display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' as const },
-  metaCard:     { background: 'white', borderRadius: '10px', padding: '16px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', minWidth: '140px' },
+  metaCard:     { background: '#243144', borderRadius: '10px', padding: '16px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', minWidth: '140px' },
   metaValue:    { fontSize: '28px', fontWeight: 700, marginBottom: '4px' },
-  metaLabel:    { fontSize: '12px', color: '#888' },
+  metaLabel:    { fontSize: '12px', color: '#A0AEC0' },
   tabRow:       { display: 'flex', gap: '0', marginBottom: '16px', borderBottom: '2px solid #e0e0e0' },
-  tab:          { padding: '10px 24px', background: 'none', border: 'none', fontSize: '14px', cursor: 'pointer', color: '#888', fontWeight: 500, borderBottom: '2px solid transparent', marginBottom: '-2px' },
-  tabActive:    { color: '#1976d2', fontWeight: 700, borderBottom: '2px solid #1976d2' },
-  tableCard:    { background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginBottom: '20px' },
+  tab:          { padding: '10px 24px', background: 'none', border: 'none', fontSize: '14px', cursor: 'pointer', color: '#A0AEC0', fontWeight: 500, borderBottom: '2px solid transparent', marginBottom: '-2px' },
+  tabActive:    { color: '#5BA4D9', fontWeight: 700, borderBottom: '2px solid #1976d2' },
+  tableCard:    { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', marginBottom: '20px' },
   table:        { width: '100%', borderCollapse: 'collapse' as const },
-  th:           { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#888', borderBottom: '2px solid #f0f0f0', whiteSpace: 'nowrap' as const },
+  th:           { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
   td:           { padding: '9px 12px', fontSize: '13px', borderBottom: '1px solid #f5f5f5', whiteSpace: 'nowrap' as const },
-  legend:       { background: 'white', borderRadius: '10px', padding: '20px 24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  legendTitle:  { fontSize: '12px', color: '#888', fontWeight: 600, marginBottom: '10px', textTransform: 'uppercase' as const },
+  legend:       { background: '#243144', borderRadius: '10px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
+  legendTitle:  { fontSize: '12px', color: '#A0AEC0', fontWeight: 600, marginBottom: '10px', textTransform: 'uppercase' as const },
   legendRow:    { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' },
   legendText:   { fontSize: '13px', color: '#555' },
   badge:        { fontSize: '11px', padding: '2px 8px', borderRadius: '10px', fontWeight: 600 },

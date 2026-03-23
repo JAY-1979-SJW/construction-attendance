@@ -123,7 +123,7 @@ export default function LaborReviewPage() {
             type="month"
             value={monthKey}
             onChange={e => { setMonthKey(e.target.value); setPage(1) }}
-            style={{ padding: '7px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px' }}
+            style={{ padding: '7px 12px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }}
           />
           <button onClick={load} disabled={loading} style={btnStyle('#1565c0', loading)}>
             {loading ? '조회 중...' : '조회'}
@@ -184,14 +184,14 @@ export default function LaborReviewPage() {
                     <tr key={item.id} style={{ background: item.isZeroMinutes ? '#fff8e1' : item.hasOverride ? '#f3e5f5' : i % 2 === 1 ? '#fafafa' : '#fff' }}>
                       <td style={td}>
                         <div style={{ fontWeight: 700 }}>{item.workerName}</div>
-                        <div style={{ fontSize: '11px', color: '#888' }}>{item.workerPhone}</div>
+                        <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{item.workerPhone}</div>
                       </td>
                       <td style={td}>{item.siteName}</td>
                       <td style={td}>{item.workDate}</td>
                       <td style={td}>
                         <span style={{ fontWeight: 700 }}>{item.confirmedWorkUnits > 0 ? `${item.confirmedWorkUnits}공수` : '—'}</span>
                         {item.confirmedWorkType && (
-                          <div style={{ fontSize: '11px', color: '#888' }}>{item.confirmedWorkType}</div>
+                          <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{item.confirmedWorkType}</div>
                         )}
                       </td>
                       <td style={td}>{fmtMinutes(item.workedMinutesAuto)}</td>
@@ -204,10 +204,10 @@ export default function LaborReviewPage() {
                         {item.hasOverride ? (
                           <span style={{ color: '#6a1b9a', fontSize: '11px', fontWeight: 700 }}>수동수정</span>
                         ) : (
-                          <span style={{ color: '#999', fontSize: '11px' }}>자동</span>
+                          <span style={{ color: '#718096', fontSize: '11px' }}>자동</span>
                         )}
                         {item.manualAdjustedReason && (
-                          <div style={{ fontSize: '10px', color: '#888', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: '10px', color: '#A0AEC0', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {item.manualAdjustedReason}
                           </div>
                         )}
@@ -244,8 +244,8 @@ export default function LaborReviewPage() {
 
 function SummaryCard({ label, value, color = '#1565c0' }: { label: string; value: number; color?: string }) {
   return (
-    <div style={{ background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '10px 16px', minWidth: '100px' }}>
-      <div style={{ fontSize: '11px', color: '#888' }}>{label}</div>
+    <div style={{ background: '#1B2838', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '10px 16px', minWidth: '100px' }}>
+      <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{label}</div>
       <div style={{ fontSize: '22px', fontWeight: 800, color }}>{value}</div>
     </div>
   )
@@ -258,5 +258,5 @@ function btnStyle(bg: string, disabled: boolean): React.CSSProperties {
   return { padding: '8px 16px', background: disabled ? '#bdbdbd' : bg, color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', cursor: disabled ? 'not-allowed' : 'pointer', fontWeight: 700 }
 }
 function pageBtnStyle(disabled: boolean): React.CSSProperties {
-  return { padding: '6px 14px', border: '1px solid #e0e0e0', borderRadius: '6px', background: disabled ? '#f5f5f5' : '#fff', color: disabled ? '#bbb' : '#333', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: '13px' }
+  return { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: disabled ? '#f5f5f5' : '#fff', color: disabled ? '#bbb' : '#333', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: '13px' }
 }

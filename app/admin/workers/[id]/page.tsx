@@ -353,7 +353,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
           <div style={{ background: '#fff3e0', border: '1px solid #ffcc80', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px' }}>
             <div>
               <div style={{ fontSize: '14px', fontWeight: 700, color: '#e65100' }}>종료 처리</div>
-              <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>체크리스트 완료 후 종료 확정이 가능합니다. 단순 상태 변경은 허용되지 않습니다.</div>
+              <div style={{ fontSize: '12px', color: '#718096', marginTop: '2px' }}>체크리스트 완료 후 종료 확정이 가능합니다. 단순 상태 변경은 허용되지 않습니다.</div>
             </div>
             <Link
               href={`/admin/workers/${worker.id}/termination`}
@@ -364,7 +364,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
           </div>
         )}
         {!worker.isActive && (
-          <div style={{ background: '#f5f5f5', border: '1px solid #bdbdbd', borderRadius: '12px', padding: '14px 20px', marginTop: '16px', fontSize: '13px', color: '#999', textAlign: 'center' }}>
+          <div style={{ background: '#1B2838', border: '1px solid #bdbdbd', borderRadius: '12px', padding: '14px 20px', marginTop: '16px', fontSize: '13px', color: '#718096', textAlign: 'center' }}>
             이 근로자는 이미 종료(비활성화) 처리되었습니다.
           </div>
         )}
@@ -722,7 +722,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 // ─── 스타일 ──────────────────────────────────────────────────────────────────
 
 const s: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#f5f5f5', fontFamily: 'system-ui, sans-serif' },
+  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838', fontFamily: 'system-ui, sans-serif' },
   sidebar: { width: '200px', background: '#1a1a2e', padding: '20px 0', flexShrink: 0 },
   sidebarTitle: { color: '#fff', fontSize: '14px', fontWeight: 700, padding: '0 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '12px' },
   navItem: { display: 'block', color: 'rgba(255,255,255,0.75)', padding: '10px 20px', textDecoration: 'none', fontSize: '13px' },
@@ -730,10 +730,10 @@ const s: Record<string, React.CSSProperties> = {
   page: { fontFamily: 'system-ui, sans-serif' },
   header: { marginBottom: '20px' },
   pageTitle: { margin: 0, fontSize: '20px', fontWeight: 700, display: 'inline-flex', alignItems: 'baseline', gap: '6px' },
-  backBtn: { padding: '6px 12px', background: '#fff', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
+  backBtn: { padding: '6px 12px', background: '#fff', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
   tabBar: { display: 'flex', gap: '4px', marginBottom: '16px', borderBottom: '1px solid #e0e0e0', paddingBottom: '0' },
   tabBtn: { padding: '8px 18px', background: 'none', border: 'none', borderBottom: '2px solid transparent', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#666', display: 'flex', alignItems: 'center', gap: '6px' },
-  tabActive: { borderBottom: '2px solid #1976d2', color: '#1976d2', fontWeight: 700 },
+  tabActive: { borderBottom: '2px solid #1976d2', color: '#5BA4D9', fontWeight: 700 },
   tabBadge: { background: '#1976d2', color: '#fff', borderRadius: '10px', padding: '1px 6px', fontSize: '11px', fontWeight: 700 },
   card: { background: '#fff', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' },
   tabTitle: { margin: '0 0 16px', fontSize: '14px', fontWeight: 700, color: '#333' },
@@ -741,28 +741,28 @@ const s: Record<string, React.CSSProperties> = {
   addBtn: { padding: '7px 14px', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
   infoTable: { width: '100%', borderCollapse: 'collapse' },
   infoLabel: { padding: '8px 16px 8px 0', fontWeight: 600, fontSize: '13px', color: '#555', width: '140px', verticalAlign: 'top' },
-  infoValue: { padding: '8px 0', fontSize: '13px', color: '#333' },
+  infoValue: { padding: '8px 0', fontSize: '13px', color: '#CBD5E0' },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
   th: { padding: '10px 12px', background: '#f8f8f8', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #e0e0e0', color: '#555' },
   td: { padding: '10px 12px', borderBottom: '1px solid #f0f0f0', color: '#333' },
-  empty: { color: '#999', padding: '24px 0', textAlign: 'center', fontSize: '13px' },
-  badge: { background: '#e3f2fd', color: '#1565c0', padding: '2px 8px', borderRadius: '4px', fontSize: '11px' },
+  empty: { color: '#718096', padding: '24px 0', textAlign: 'center', fontSize: '13px' },
+  badge: { background: 'rgba(244,121,32,0.12)', color: '#F47920', padding: '2px 8px', borderRadius: '4px', fontSize: '11px' },
   badgePrimary: { background: '#e8f5e9', color: '#2e7d32', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600 },
   insCard: { border: '1px solid #e0e0e0', borderRadius: '8px', padding: '16px', marginBottom: '12px' },
   insHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' },
   ins4Grid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '10px' },
   ins4Cell: { background: '#f9f9f9', borderRadius: '6px', padding: '10px', textAlign: 'center' },
-  ins4Label: { fontSize: '11px', color: '#888', marginBottom: '4px' },
+  ins4Label: { fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' },
   ins4Value: { fontSize: '13px', fontWeight: 700 },
   insMeta: { display: 'flex', gap: '16px', fontSize: '12px', color: '#666', flexWrap: 'wrap' },
   overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
   modal: { background: '#fff', borderRadius: '12px', padding: '28px', width: '480px', maxHeight: '80vh', overflowY: 'auto' },
   fieldRow: { display: 'flex', alignItems: 'center', marginBottom: '14px', gap: '12px' },
   fieldLabel: { width: '90px', flexShrink: 0, fontSize: '13px', fontWeight: 600, color: '#555' },
-  input: { flex: 1, padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px' },
+  input: { flex: 1, padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px' },
   err: { color: '#c62828', fontSize: '13px', marginBottom: '12px' },
   modalBtns: { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' },
-  cancelBtn: { padding: '8px 18px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
+  cancelBtn: { padding: '8px 18px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
   saveBtn: { padding: '8px 18px', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
 }
 
@@ -876,24 +876,24 @@ function DocsTab({ workerId }: { workerId: string }) {
         <div style={{ fontWeight: 700, fontSize: '13px', marginBottom: '12px', color: '#333' }}>문서 업로드</div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, alignItems: 'flex-end' }}>
           <div>
-            <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>문서 유형</div>
+            <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>문서 유형</div>
             <select value={docType} onChange={(e) => setDocType(e.target.value)} style={s.input}>
               {Object.entries(DOC_TYPE_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
           </div>
           <div>
-            <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>파일</div>
+            <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>파일</div>
             <input ref={fileInputRef} type="file"
               accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
               style={{ fontSize: '13px' }}
             />
           </div>
           <div>
-            <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>만료일 (선택)</div>
+            <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>만료일 (선택)</div>
             <input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} style={{ ...s.input, width: '140px' }} />
           </div>
           <div>
-            <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>비고 (선택)</div>
+            <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>비고 (선택)</div>
             <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="비고" style={{ ...s.input, width: '160px' }} />
           </div>
           <button onClick={handleUpload} disabled={uploading} style={{ ...s.addBtn, opacity: uploading ? 0.6 : 1 }}>
@@ -935,7 +935,7 @@ function DocsTab({ workerId }: { workerId: string }) {
             {docs.map((doc) => (
               <tr key={doc.id}>
                 <td style={s.td}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, background: '#e3f2fd', color: '#1565c0', padding: '2px 8px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, background: 'rgba(244,121,32,0.12)', color: '#F47920', padding: '2px 8px', borderRadius: '8px' }}>
                     {DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
                   </span>
                 </td>
@@ -943,8 +943,8 @@ function DocsTab({ workerId }: { workerId: string }) {
                   {/* 파일명만 노출 — 민감문서는 내용 미노출 */}
                   {doc.file.originalFilename}
                 </td>
-                <td style={{ ...s.td, fontSize: '11px', color: '#888' }}>{fmtBytes(doc.file.sizeBytes)}</td>
-                <td style={{ ...s.td, fontSize: '11px', color: '#888', whiteSpace: 'nowrap' as const }}>
+                <td style={{ ...s.td, fontSize: '11px', color: '#A0AEC0' }}>{fmtBytes(doc.file.sizeBytes)}</td>
+                <td style={{ ...s.td, fontSize: '11px', color: '#A0AEC0', whiteSpace: 'nowrap' as const }}>
                   {new Date(doc.file.uploadedAt).toLocaleDateString('ko-KR')}
                 </td>
                 <td style={{ ...s.td, fontSize: '11px', color: doc.expiresAt && new Date(doc.expiresAt) < new Date() ? '#b71c1c' : '#555' }}>
@@ -956,16 +956,16 @@ function DocsTab({ workerId }: { workerId: string }) {
                     {DOC_STATUS_LABEL[doc.status] ?? doc.status}
                   </span>
                 </td>
-                <td style={{ ...s.td, fontSize: '11px', color: '#888', whiteSpace: 'nowrap' as const }}>
+                <td style={{ ...s.td, fontSize: '11px', color: '#A0AEC0', whiteSpace: 'nowrap' as const }}>
                   {doc.reviewedBy ? `${doc.reviewedBy.slice(-6)} / ${doc.reviewedAt ? new Date(doc.reviewedAt).toLocaleDateString('ko-KR') : '—'}` : '—'}
                 </td>
-                <td style={{ ...s.td, fontSize: '11px', color: '#888', maxWidth: '120px' }}>{doc.notes ?? '—'}</td>
+                <td style={{ ...s.td, fontSize: '11px', color: '#A0AEC0', maxWidth: '120px' }}>{doc.notes ?? '—'}</td>
                 <td style={s.td}>
                   <a
                     href={`/api/admin/workers/${workerId}/documents/${doc.id}/download?inline=1`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ fontSize: '12px', color: '#1976d2', textDecoration: 'underline' }}
+                    style={{ fontSize: '12px', color: '#5BA4D9', textDecoration: 'underline' }}
                   >
                     열람
                   </a>
@@ -982,7 +982,7 @@ function DocsTab({ workerId }: { workerId: string }) {
                   <select
                     value={doc.status}
                     onChange={(e) => changeStatus(doc.id, e.target.value)}
-                    style={{ fontSize: '12px', padding: '4px 6px', border: '1px solid #ddd', borderRadius: '4px' }}
+                    style={{ fontSize: '12px', padding: '4px 6px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px' }}
                   >
                     {Object.entries(DOC_STATUS_LABEL).map(([v, l]) => (
                       <option key={v} value={v}>{l}</option>
@@ -1052,14 +1052,14 @@ function ProfileTab({ workerId }: { workerId: string }) {
   const f = (key: string) => (form[key] as string) || ''
   const fb = (key: string) => !!(form[key])
 
-  if (loading) return <div style={{ padding: '32px', color: '#999', textAlign: 'center' }}>로딩 중...</div>
+  if (loading) return <div style={{ padding: '32px', color: '#718096', textAlign: 'center' }}>로딩 중...</div>
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>근로형태 분류정보</h3>
         {!editing && (
-          <button onClick={startEdit} style={{ padding: '6px 14px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
+          <button onClick={startEdit} style={{ padding: '6px 14px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
             {profile ? '수정' : '분류 등록'}
           </button>
         )}
@@ -1068,7 +1068,7 @@ function ProfileTab({ workerId }: { workerId: string }) {
       {msg && <div style={{ padding: '8px 12px', background: '#e8f5e9', borderRadius: '6px', fontSize: '13px', color: '#2e7d32', marginBottom: '12px' }}>{msg}</div>}
 
       {!editing && !profile && (
-        <div style={{ padding: '32px', textAlign: 'center', color: '#999', fontSize: '14px' }}>
+        <div style={{ padding: '32px', textAlign: 'center', color: '#718096', fontSize: '14px' }}>
           분류정보가 없습니다. "분류 등록" 버튼으로 등록하세요.
         </div>
       )}
@@ -1085,7 +1085,7 @@ function ProfileTab({ workerId }: { workerId: string }) {
               ? '⚠️ 검토 필요' : '이상 없음'],
           ].map(([label, value]) => (
             <div key={label as string} style={{ padding: '12px', background: '#f9f9f9', borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>{label}</div>
+              <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>{label}</div>
               <div style={{ fontSize: '14px', fontWeight: 600, color: profile.continuousWorkReview === 'REVIEW_REQUIRED' && label === '계속근로 검토' ? '#e65100' : '#333' }}>
                 {value as string}
               </div>
@@ -1093,7 +1093,7 @@ function ProfileTab({ workerId }: { workerId: string }) {
           ))}
           {!!profile.classificationNote && (
             <div style={{ gridColumn: '1/-1', padding: '12px', background: '#fff3e0', borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>관리자 메모</div>
+              <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>관리자 메모</div>
               <div style={{ fontSize: '13px' }}>{String(profile.classificationNote)}</div>
             </div>
           )}
@@ -1112,7 +1112,7 @@ function ProfileTab({ workerId }: { workerId: string }) {
             <div key={key}>
               <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 }}>{label}</label>
               <select value={f(key)} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px' }}>
+                style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }}>
                 {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
             </div>
@@ -1128,7 +1128,7 @@ function ProfileTab({ workerId }: { workerId: string }) {
             <input value={f('classificationNote')}
               onChange={e => setForm(p => ({ ...p, classificationNote: e.target.value }))}
               placeholder="판단 근거 등 메모"
-              style={{ width: '100%', padding: '8px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px' }} />
+              style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }} />
           </div>
           <div style={{ gridColumn: '1/-1', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
             <button onClick={handleSave} disabled={saving}
@@ -1136,7 +1136,7 @@ function ProfileTab({ workerId }: { workerId: string }) {
               {saving ? '저장 중...' : '저장'}
             </button>
             <button onClick={() => setEditing(false)}
-              style={{ padding: '8px 16px', background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
+              style={{ padding: '8px 16px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
               취소
             </button>
           </div>
@@ -1185,7 +1185,7 @@ function ContractsTab({ workerId }: { workerId: string }) {
     DAILY: '일용직', REGULAR: '상용직', FIXED_TERM: '기간제', SUBCONTRACT: '외주',
   }
 
-  if (loading) return <p style={{ color: '#999', padding: '16px' }}>불러오는 중...</p>
+  if (loading) return <p style={{ color: '#718096', padding: '16px' }}>불러오는 중...</p>
 
   return (
     <div>
@@ -1218,7 +1218,7 @@ function ContractsTab({ workerId }: { workerId: string }) {
                 <td style={{ padding: '8px 12px' }}>
                   {CONTRACT_TYPE_LABEL[c.contractType] || c.contractType}
                   {c.currentVersion && c.currentVersion > 1 && (
-                    <span style={{ marginLeft: 4, fontSize: '11px', color: '#888' }}>v{c.currentVersion}</span>
+                    <span style={{ marginLeft: 4, fontSize: '11px', color: '#A0AEC0' }}>v{c.currentVersion}</span>
                   )}
                 </td>
                 <td style={{ padding: '8px 12px', color: '#555' }}>{c.site?.name || '—'}</td>
@@ -1374,7 +1374,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
     if (data.success) setPreviewDoc(data.data)
   }
 
-  if (loading) return <p style={{ color: '#999', padding: '16px' }}>불러오는 중...</p>
+  if (loading) return <p style={{ color: '#718096', padding: '16px' }}>불러오는 중...</p>
 
   return (
     <div>
@@ -1421,7 +1421,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                 </td>
                 <td style={{ padding: '8px 12px', textAlign: 'center' }}>
                   <button onClick={() => handlePreview(d.id)}
-                    style={{ marginRight: 6, padding: '2px 8px', fontSize: '11px', border: '1px solid #d1d5db', borderRadius: 4, cursor: 'pointer', background: '#fff' }}>
+                    style={{ marginRight: 6, padding: '2px 8px', fontSize: '11px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 4, cursor: 'pointer', background: '#fff' }}>
                     미리보기
                   </button>
                   {d.status !== 'SIGNED' && (
@@ -1449,7 +1449,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
             <div style={{ marginBottom: 14 }}>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>문서 종류 *</label>
               <select value={form.documentType} onChange={e => setForm(f => ({ ...f, documentType: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }}>
+                style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }}>
                 <option value="SAFETY_EDUCATION_NEW_HIRE">신규채용 안전보건교육 확인서</option>
                 <option value="SAFETY_EDUCATION_TASK_CHANGE">작업변경 교육 확인서</option>
                 <option value="PPE_PROVISION">보호구 지급 확인서</option>
@@ -1465,7 +1465,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육/문서 일자 *</label>
               <input type="date" value={form.educationDate}
                 onChange={e => setForm(f => ({ ...f, educationDate: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
             </div>
 
             {(form.documentType === 'SAFETY_EDUCATION_NEW_HIRE' || form.documentType === 'SAFETY_EDUCATION_TASK_CHANGE') && (
@@ -1474,21 +1474,21 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육 시간 (시간)</label>
                   <input type="number" value={form.educationHours} min={0.5} step={0.5}
                     onChange={e => setForm(f => ({ ...f, educationHours: Number(e.target.value) }))}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                 </div>
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육 장소</label>
                   <input type="text" value={form.educationPlace}
                     onChange={e => setForm(f => ({ ...f, educationPlace: e.target.value }))}
                     placeholder="현장 사무소, 현장 내 교육장 등"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                 </div>
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육 담당자</label>
                   <input type="text" value={form.educatorName}
                     onChange={e => setForm(f => ({ ...f, educatorName: e.target.value }))}
                     placeholder="현장소장, 안전관리자 등"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                 </div>
               </>
             )}
@@ -1515,13 +1515,13 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                           <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: 2 }}>수량</label>
                           <input type="number" min={1} value={item.qty}
                             onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, qty: Number(e.target.value) } : it))}
-                            style={{ width: '100%', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: 4, fontSize: '13px' }} />
+                            style={{ width: '100%', padding: '4px 8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 4, fontSize: '13px' }} />
                         </div>
                         <div>
                           <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: 2 }}>상태</label>
                           <select value={item.condition}
                             onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, condition: e.target.value } : it))}
-                            style={{ width: '100%', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: 4, fontSize: '13px' }}>
+                            style={{ width: '100%', padding: '4px 8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 4, fontSize: '13px' }}>
                             <option value="신품">신품</option>
                             <option value="양호">양호</option>
                             <option value="재사용">재사용</option>
@@ -1542,7 +1542,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                           <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: 2 }}>비고</label>
                           <input type="text" value={item.note} placeholder="규격, 특이사항 등"
                             onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, note: e.target.value } : it))}
-                            style={{ width: '100%', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: 4, fontSize: '13px' }} />
+                            style={{ width: '100%', padding: '4px 8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 4, fontSize: '13px' }} />
                         </div>
                       </div>
                     )}
@@ -1558,28 +1558,28 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>근로일 *</label>
                   <input type="date" value={form.workDate}
                     onChange={e => setForm(f => ({ ...f, workDate: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                 </div>
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>공종</label>
                   <input type="text" value={form.tradeType}
                     onChange={e => setForm(f => ({ ...f, tradeType: e.target.value }))}
                     placeholder="예: 전기, 소방기계"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                 </div>
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>직종</label>
                   <input type="text" value={form.jobType}
                     onChange={e => setForm(f => ({ ...f, jobType: e.target.value }))}
                     placeholder="예: 전공, 보통인부"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                 </div>
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>현장관리자명</label>
                   <input type="text" value={form.managerName}
                     onChange={e => setForm(f => ({ ...f, managerName: e.target.value }))}
                     placeholder="현장소장, 관리자명"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                 </div>
               </>
             )}
@@ -1591,7 +1591,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>근로일 *</label>
                   <input type="date" value={form.workDate}
                     onChange={e => setForm(f => ({ ...f, workDate: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                 </div>
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
@@ -1606,14 +1606,14 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                       <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>이수일</label>
                       <input type="date" value={form.eduCompletedDate}
                         onChange={e => setForm(f => ({ ...f, eduCompletedDate: e.target.value }))}
-                        style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                        style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                     </div>
                     <div style={{ marginBottom: 14 }}>
                       <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육기관명</label>
                       <input type="text" value={form.eduOrganization}
                         onChange={e => setForm(f => ({ ...f, eduOrganization: e.target.value }))}
                         placeholder="교육기관명"
-                        style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                        style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                     </div>
                   </>
                 )}
@@ -1629,7 +1629,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>확인일</label>
                     <input type="date" value={form.eduCertConfirmedDate}
                       onChange={e => setForm(f => ({ ...f, eduCertConfirmedDate: e.target.value }))}
-                      style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                      style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                   </div>
                 )}
                 <div style={{ marginBottom: 14 }}>
@@ -1637,7 +1637,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                   <input type="text" value={form.confirmerName}
                     onChange={e => setForm(f => ({ ...f, confirmerName: e.target.value }))}
                     placeholder="확인자 성명"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                 </div>
               </>
             )}
@@ -1649,28 +1649,28 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>근로일 *</label>
                   <input type="date" value={form.workDate}
                     onChange={e => setForm(f => ({ ...f, workDate: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                 </div>
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>특이 안전수칙 (선택)</label>
                   <textarea value={form.specialSafetyRules}
                     onChange={e => setForm(f => ({ ...f, specialSafetyRules: e.target.value }))}
                     rows={2} placeholder="현장 특이 안전수칙이 있으면 입력"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px', resize: 'none' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px', resize: 'none' }} />
                 </div>
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>관리자 성명</label>
                   <input type="text" value={form.confirmerName}
                     onChange={e => setForm(f => ({ ...f, confirmerName: e.target.value }))}
                     placeholder="관리자 성명"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
                 </div>
               </>
             )}
 
             <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
               <button onClick={() => setShowForm(false)}
-                style={{ flex: 1, padding: '10px', border: '1px solid #d1d5db', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>
                 취소
               </button>
               <button onClick={handleSubmit} disabled={submitting}
@@ -1707,7 +1707,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                 다운로드
               </button>
               <button onClick={() => setPreviewDoc(null)}
-                style={{ padding: '8px 16px', border: '1px solid #d1d5db', borderRadius: 6, background: '#fff', cursor: 'pointer', fontSize: '13px' }}>
+                style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, background: '#fff', cursor: 'pointer', fontSize: '13px' }}>
                 닫기
               </button>
             </div>
@@ -1812,7 +1812,7 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
           </button>
         </div>
         {warnings.length === 0 ? (
-          <div style={{ color: '#999', fontSize: '13px' }}>경고 기록이 없습니다.</div>
+          <div style={{ color: '#718096', fontSize: '13px' }}>경고 기록이 없습니다.</div>
         ) : (
           warnings.map((w: Record<string, unknown>) => (
             <div key={w.id as string} style={{ border: '1px solid #f0f0f0', borderLeft: `4px solid ${WARNING_LEVEL_COLOR[w.warningLevel as string] ?? '#e0e0e0'}`, borderRadius: '8px', padding: '10px 14px', marginBottom: '8px' }}>
@@ -1831,19 +1831,19 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
           <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
             <h4 style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700 }}>경고장 발행 — {workerName}</h4>
             <select value={wForm.warningLevel} onChange={e => setWForm(f => ({ ...f, warningLevel: e.target.value }))}
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px' }}>
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }}>
               <option value="VERBAL">구두 경고</option>
               <option value="WRITTEN">서면 경고</option>
               <option value="FINAL">최종 경고</option>
             </select>
             <textarea value={wForm.reason} onChange={e => setWForm(f => ({ ...f, reason: e.target.value }))}
               placeholder="경고 사유 *" rows={3}
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
             <textarea value={wForm.detailMemo} onChange={e => setWForm(f => ({ ...f, detailMemo: e.target.value }))}
               placeholder="상세 메모 (선택)" rows={2}
-              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setShowWarning(false)} style={{ padding: '8px 16px', border: '1px solid #e0e0e0', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
+              <button onClick={() => setShowWarning(false)} style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
               <button onClick={submitWarning} disabled={saving || !wForm.reason.trim()} style={{ padding: '8px 16px', background: saving ? '#bdbdbd' : '#e65100', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
                 {saving ? '처리 중...' : '발행'}
               </button>
@@ -1861,13 +1861,13 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
           </button>
         </div>
         {explanations.length === 0 ? (
-          <div style={{ color: '#999', fontSize: '13px' }}>소명 요청 내역이 없습니다.</div>
+          <div style={{ color: '#718096', fontSize: '13px' }}>소명 요청 내역이 없습니다.</div>
         ) : (
           explanations.map((e: Record<string, unknown>) => (
             <div key={e.id as string} style={{ border: '1px solid #f0f0f0', borderRadius: '8px', padding: '10px 14px', marginBottom: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                 <span style={{ fontSize: '13px', fontWeight: 600 }}>{e.subject as string}</span>
-                <span style={{ fontSize: '11px', color: '#1565c0', background: '#e3f2fd', padding: '1px 8px', borderRadius: '20px', fontWeight: 700 }}>
+                <span style={{ fontSize: '11px', color: '#4A93C8', background: 'rgba(91,164,217,0.1)', padding: '1px 8px', borderRadius: '20px', fontWeight: 700 }}>
                   {EXPL_STATUS_LABEL[e.status as string] ?? e.status as string}
                 </span>
               </div>
@@ -1877,19 +1877,19 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
         )}
 
         {showExplain && (
-          <div style={{ background: '#e3f2fd', border: '1px solid #90caf9', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
+          <div style={{ background: 'rgba(91,164,217,0.1)', border: '1px solid #90caf9', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
             <h4 style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700 }}>소명 요청 — {workerName}</h4>
             <input value={eForm.subject} onChange={e => setEForm(f => ({ ...f, subject: e.target.value }))}
               placeholder="소명 요청 제목 *"
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
             <textarea value={eForm.reason} onChange={e => setEForm(f => ({ ...f, reason: e.target.value }))}
               placeholder="소명 요청 사유 *" rows={3}
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
             <input type="date" value={eForm.deadline} onChange={e => setEForm(f => ({ ...f, deadline: e.target.value }))}
               placeholder="기한 (선택)"
-              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setShowExplain(false)} style={{ padding: '8px 16px', border: '1px solid #e0e0e0', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
+              <button onClick={() => setShowExplain(false)} style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
               <button onClick={submitExplanation} disabled={saving || !eForm.subject.trim() || !eForm.reason.trim()} style={{ padding: '8px 16px', background: saving ? '#bdbdbd' : '#1565c0', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
                 {saving ? '처리 중...' : '요청 전송'}
               </button>
@@ -1907,13 +1907,13 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
           </button>
         </div>
         {notices.length === 0 ? (
-          <div style={{ color: '#999', fontSize: '13px' }}>통지 기록이 없습니다.</div>
+          <div style={{ color: '#718096', fontSize: '13px' }}>통지 기록이 없습니다.</div>
         ) : (
           notices.map((n: Record<string, unknown>) => (
             <div key={n.id as string} style={{ border: '1px solid #f0f0f0', borderRadius: '8px', padding: '10px 14px', marginBottom: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                 <span style={{ fontSize: '13px', fontWeight: 600 }}>{n.title as string}</span>
-                <span style={{ fontSize: '11px', color: '#666', background: '#f5f5f5', padding: '1px 8px', borderRadius: '20px' }}>
+                <span style={{ fontSize: '11px', color: '#666', background: '#1B2838', padding: '1px 8px', borderRadius: '20px' }}>
                   {NOTICE_TYPE_LABEL[n.noticeType as string] ?? n.noticeType as string}
                 </span>
               </div>
@@ -1923,10 +1923,10 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
         )}
 
         {showNotice && (
-          <div style={{ background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
+          <div style={{ background: '#1B2838', border: '1px solid #e0e0e0', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
             <h4 style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700 }}>통지서 발행 — {workerName}</h4>
             <select value={nForm.noticeType} onChange={e => setNForm(f => ({ ...f, noticeType: e.target.value }))}
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px' }}>
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }}>
               <option value="CONTRACT_END">계약만료 통지</option>
               <option value="TERMINATION">종료/해고 통지</option>
               <option value="SUSPENSION">업무 정지 통지</option>
@@ -1935,15 +1935,15 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
             </select>
             <input value={nForm.title} onChange={e => setNForm(f => ({ ...f, title: e.target.value }))}
               placeholder="통지서 제목 *"
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
             <textarea value={nForm.content} onChange={e => setNForm(f => ({ ...f, content: e.target.value }))}
               placeholder="통지 내용 *" rows={4}
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
             <input type="date" value={nForm.effectiveDate} onChange={e => setNForm(f => ({ ...f, effectiveDate: e.target.value }))}
               placeholder="효력 발생일 (선택)"
-              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setShowNotice(false)} style={{ padding: '8px 16px', border: '1px solid #e0e0e0', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
+              <button onClick={() => setShowNotice(false)} style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
               <button onClick={submitNotice} disabled={saving || !nForm.title.trim() || !nForm.content.trim()} style={{ padding: '8px 16px', background: saving ? '#bdbdbd' : '#37474f', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
                 {saving ? '처리 중...' : '발행'}
               </button>

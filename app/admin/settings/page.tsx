@@ -143,7 +143,7 @@ export default function AttendanceSettingsPage() {
                 <div style={s.lockedBox}>
                   <div style={{ fontSize: '32px', marginBottom: '12px' }}>🔒</div>
                   <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '6px' }}>유료 플랜 전용 기능입니다.</div>
-                  <div style={{ fontSize: '13px', color: '#888' }}>플랜 업그레이드 후 사용할 수 있습니다.</div>
+                  <div style={{ fontSize: '13px', color: '#A0AEC0' }}>플랜 업그레이드 후 사용할 수 있습니다.</div>
                 </div>
               ) : (
                 <div style={s.fieldList}>
@@ -337,7 +337,7 @@ function TimeRangeRow({ label, desc, startVal, endVal, disabled, onChangeStart, 
           onChange={(e) => onChangeStart(e.target.value)}
           style={s.timeInput}
         />
-        <span style={{ fontSize: '13px', color: '#888' }}>~</span>
+        <span style={{ fontSize: '13px', color: '#A0AEC0' }}>~</span>
         <input
           type="time"
           value={endVal}
@@ -352,23 +352,23 @@ function TimeRangeRow({ label, desc, startVal, endVal, disabled, onChangeStart, 
 
 /* ── 스타일 ──────────────────────────────────────────────────── */
 const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0 },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navItemActive: { background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 600 },
+  navItemActive: { background: 'rgba(244,121,32,0.15)', color: 'white', fontWeight: 600 },
   main:         { flex: 1, padding: '32px' },
   pageTitle:    { fontSize: '22px', fontWeight: 700, margin: '0 0 24px' },
 
   statusRow:   { display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' as const },
-  statusCard:  { background: 'white', borderRadius: '10px', padding: '16px 20px', flex: '1 1 160px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  statusLabel: { fontSize: '12px', color: '#888', marginBottom: '6px' },
+  statusCard:  { background: '#243144', borderRadius: '10px', padding: '16px 20px', flex: '1 1 160px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
+  statusLabel: { fontSize: '12px', color: '#A0AEC0', marginBottom: '6px' },
   statusValue: { fontSize: '16px', fontWeight: 700 },
 
-  card:       { background: 'white', borderRadius: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginBottom: '20px', overflow: 'hidden' },
+  card:       { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', marginBottom: '20px', overflow: 'hidden' },
   cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '20px 24px', borderBottom: '1px solid #f0f0f0' },
   cardTitle:  { fontSize: '16px', fontWeight: 700 },
-  cardSub:    { fontSize: '12px', color: '#888', marginTop: '2px' },
+  cardSub:    { fontSize: '12px', color: '#A0AEC0', marginTop: '2px' },
   proBadge:   { background: '#fff3e0', color: '#e65100', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '4px', border: '1px solid #ffcc80' },
 
   lockedBox:  { padding: '40px', textAlign: 'center' as const, color: '#666' },
@@ -376,19 +376,19 @@ const s: Record<string, React.CSSProperties> = {
   fieldRow:   { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 24px', gap: '16px' },
   fieldInfo:  { flex: 1 },
   fieldLabel: { fontSize: '14px', fontWeight: 600, color: '#1a1a2e', marginBottom: '2px' },
-  fieldDesc:  { fontSize: '12px', color: '#888' },
+  fieldDesc:  { fontSize: '12px', color: '#A0AEC0' },
   divider:    { borderTop: '1px solid #f5f5f5', margin: '0 24px' },
 
   toggle:     { width: '44px', height: '24px', borderRadius: '12px', border: 'none', position: 'relative' as const, transition: 'background 0.2s', flexShrink: 0 },
   toggleKnob: { position: 'absolute' as const, top: '2px', width: '20px', height: '20px', background: 'white', borderRadius: '50%', transition: 'transform 0.2s', display: 'block' },
 
-  numInput:   { width: '72px', padding: '6px 10px', fontSize: '15px', fontWeight: 700, border: '1px solid #ddd', borderRadius: '6px', textAlign: 'center' as const },
-  timeInput:  { padding: '6px 10px', fontSize: '14px', fontWeight: 600, border: '1px solid #ddd', borderRadius: '6px', color: '#1a1a2e' },
+  numInput:   { width: '72px', padding: '6px 10px', fontSize: '15px', fontWeight: 700, border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', textAlign: 'center' as const },
+  timeInput:  { padding: '6px 10px', fontSize: '14px', fontWeight: 600, border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', color: '#1a1a2e' },
 
   msgBox:     { borderRadius: '8px', padding: '10px 14px', fontSize: '13px', marginBottom: '12px' },
-  saveBtn:    { width: '100%', padding: '14px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 700, cursor: 'pointer' },
+  saveBtn:    { width: '100%', padding: '14px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 700, cursor: 'pointer' },
 
   helpCard:   { background: '#f8f9fa', borderRadius: '10px', padding: '18px 20px' },
-  helpTitle:  { fontSize: '14px', fontWeight: 700, marginBottom: '10px', color: '#1565c0' },
+  helpTitle:  { fontSize: '14px', fontWeight: 700, marginBottom: '10px', color: '#4A93C8' },
   helpItem:   { fontSize: '13px', color: '#555', lineHeight: 1.8 },
 }

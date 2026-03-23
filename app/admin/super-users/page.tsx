@@ -116,7 +116,7 @@ export default function SuperUsersPage() {
       <div style={s.header}>
         <div>
           <h1 style={s.title}>업체 관리자 계정</h1>
-          <p style={{ color: '#888', fontSize: 13, margin: '4px 0 0' }}>전체 {accounts.length}개 계정</p>
+          <p style={{ color: '#A0AEC0', fontSize: 13, margin: '4px 0 0' }}>전체 {accounts.length}개 계정</p>
         </div>
         <button style={s.btn} onClick={() => { setShowForm(true); setMsg('') }}>+ 계정 생성</button>
       </div>
@@ -196,7 +196,7 @@ export default function SuperUsersPage() {
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={8} style={{ textAlign: 'center', padding: 32, color: '#888' }}>계정이 없습니다.</td></tr>
+              <tr><td colSpan={8} style={{ textAlign: 'center', padding: 32, color: '#A0AEC0' }}>계정이 없습니다.</td></tr>
             )}
             {filtered.map((a) => (
               <tr key={a.id} style={{ opacity: a.isActive ? 1 : 0.6 }}>
@@ -209,7 +209,7 @@ export default function SuperUsersPage() {
                 </td>
                 <td style={s.td}>
                   {a.companyId ? (
-                    <Link href={`/admin/companies/${a.companyId}`} style={{ color: '#1565c0', textDecoration: 'none' }}>
+                    <Link href={`/admin/companies/${a.companyId}`} style={{ color: '#4A93C8', textDecoration: 'none' }}>
                       {a.companyName}
                     </Link>
                   ) : '-'}
@@ -270,11 +270,11 @@ const s: Record<string, React.CSSProperties> = {
   btn: { padding: '10px 20px', background: '#1a1a2e', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 },
   smallBtn: { padding: '4px 12px', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 },
   filterBtn: { padding: '6px 14px', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 },
-  formBox: { background: '#f5f5f5', border: '1px solid #ddd', borderRadius: 12, padding: 24, marginBottom: 24 },
+  formBox: { background: '#1B2838', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 12, padding: 24, marginBottom: 24 },
   grid: { display: 'grid', gridTemplateColumns: '100px 1fr', gap: '10px 12px', alignItems: 'center' },
   label: { fontSize: 13, fontWeight: 600, color: '#555' },
-  input: { padding: '10px 12px', fontSize: 14, border: '1px solid #ddd', borderRadius: 8, width: '100%', boxSizing: 'border-box' as const },
+  input: { padding: '10px 12px', fontSize: 14, border: '1px solid rgba(91,164,217,0.3)', borderRadius: 8, width: '100%', boxSizing: 'border-box' as const },
   table: { width: '100%', borderCollapse: 'collapse' as const, fontSize: 14 },
-  th: { padding: '10px 12px', background: '#f5f5f5', border: '1px solid #e0e0e0', textAlign: 'left' as const, fontWeight: 600 },
+  th: { padding: '10px 12px', background: '#1B2838', border: '1px solid #e0e0e0', textAlign: 'left' as const, fontWeight: 600 },
   td: { padding: '10px 12px', border: '1px solid #e0e0e0' },
 }

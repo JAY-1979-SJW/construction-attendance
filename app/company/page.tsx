@@ -63,9 +63,9 @@ function StatCard({ label, value, unit, color }: { label: string; value: number;
 const styles: Record<string, React.CSSProperties> = {
   container: { padding: '32px' },
   title: { fontSize: '22px', fontWeight: 700, margin: '0 0 24px', color: '#1a1a2e' },
-  loading: { color: '#888', fontSize: '15px' },
+  loading: { color: '#A0AEC0', fontSize: '15px' },
   cards: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' },
-  card: { background: 'white', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden', display: 'flex', flexDirection: 'row' },
+  card: { background: '#243144', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden', display: 'flex', flexDirection: 'row' },
   cardAccent: { width: '6px', flexShrink: 0 },
   cardBody: { padding: '20px 20px' },
   cardLabel: { fontSize: '13px', color: '#777', marginBottom: '8px', fontWeight: 500 },

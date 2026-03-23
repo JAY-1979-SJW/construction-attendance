@@ -37,7 +37,7 @@ function alertCardStyle(color: string, bg: string): React.CSSProperties {
     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
     background: bg, border: `1px solid ${color}40`, borderRadius: '10px',
     padding: '16px 24px', textDecoration: 'none', minWidth: '140px',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.06)', cursor: 'pointer',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.35)', cursor: 'pointer',
   }
 }
 
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
         {/* Summary Cards */}
         <div style={styles.grid}>
           {[
-            { label: '오늘 출근', value: summary?.todayTotal ?? 0, color: '#1976d2' },
+            { label: '오늘 출근', value: summary?.todayTotal ?? 0, color: '#5BA4D9' },
             { label: '근무 중', value: summary?.todayCheckedIn ?? 0, color: '#2e7d32' },
             { label: '퇴근 완료', value: summary?.todayCompleted ?? 0, color: '#455a64' },
             { label: '미퇴근 누적', value: summary?.pendingMissing ?? 0, color: '#b71c1c' },
@@ -182,23 +182,23 @@ export default function AdminDashboard() {
 const centerStyle: React.CSSProperties = { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }
 
 const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar: { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
+  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
   navSection: { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
   navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
   logoutBtn: { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main: { flex: 1, padding: '32px' },
   pageTitle: { fontSize: '24px', fontWeight: 700, margin: '0 0 4px' },
-  dateLabel: { fontSize: '14px', color: '#888', margin: '0 0 24px' },
+  dateLabel: { fontSize: '14px', color: '#A0AEC0', margin: '0 0 24px' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px', marginBottom: '24px' },
-  summaryCard: { background: 'white', borderRadius: '10px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  summaryCard: { background: '#243144', borderRadius: '10px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   summaryValue: { fontSize: '32px', fontWeight: 700, marginBottom: '4px' },
-  summaryLabel: { fontSize: '13px', color: '#888' },
-  tableCard: { background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  summaryLabel: { fontSize: '13px', color: '#A0AEC0' },
+  tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   tableTitle: { fontSize: '16px', fontWeight: 700, marginBottom: '16px' },
   table: { width: '100%', borderCollapse: 'collapse' as const },
-  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#888', borderBottom: '2px solid #f0f0f0', whiteSpace: 'nowrap' as const },
+  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
   td: { padding: '12px', fontSize: '14px', borderBottom: '1px solid #f5f5f5' },
   tr: {},
 }

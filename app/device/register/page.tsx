@@ -156,7 +156,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   notice: {
     fontSize: '12px',
-    color: '#888',
+    color: '#A0AEC0',
     background: '#fff8e1',
     borderRadius: '8px',
     padding: '12px',

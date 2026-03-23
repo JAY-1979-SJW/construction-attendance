@@ -303,7 +303,7 @@ export default function WorkersPage() {
                         <IdVerificationBadge status={w.idVerificationStatus} />
                         <button
                           onClick={() => { setUploadWorkerId(w.id); setUploadWorkerName(w.name); setShowUpload(true) }}
-                          style={{ fontSize: '12px', color: '#1976d2', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                          style={{ fontSize: '12px', color: '#5BA4D9', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
                         >
                           업로드
                         </button>
@@ -316,7 +316,7 @@ export default function WorkersPage() {
                     </td>
                     <td style={styles.td}>{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
                     <td style={{ ...styles.td, whiteSpace: 'nowrap' }}>
-                      <Link href={`/admin/workers/${w.id}`} style={{ fontSize: '12px', color: '#1976d2', textDecoration: 'none', marginRight: '6px' }}>상세</Link>
+                      <Link href={`/admin/workers/${w.id}`} style={{ fontSize: '12px', color: '#5BA4D9', textDecoration: 'none', marginRight: '6px' }}>상세</Link>
                       {canMutate && <button onClick={() => openEdit(w)} style={styles.editBtn}>수정</button>}
                       {canMutate && w.isActive && (
                         <button
@@ -354,7 +354,7 @@ export default function WorkersPage() {
                 <div style={{ overflowX: 'auto', marginBottom: '14px' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                     <thead>
-                      <tr style={{ background: '#f5f5f5' }}>
+                      <tr style={{ background: '#1B2838' }}>
                         {['유형', '이런 경우 선택', '계약 종료일', '근태/계산 기준', '생성 문서/처리'].map(h => (
                           <th key={h} style={{ padding: '7px 10px', border: '1px solid #e0e0e0', textAlign: 'left', color: '#555', fontWeight: 700, whiteSpace: 'nowrap' }}>{h}</th>
                         ))}
@@ -460,7 +460,7 @@ export default function WorkersPage() {
               <div style={styles.modal}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                   <h3 style={{ ...styles.modalTitle, margin: 0 }}>근로자 등록</h3>
-                  <button onClick={() => setGuideStep('guide')} style={{ background: 'none', border: 'none', fontSize: '13px', cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}>← 유형 안내</button>
+                  <button onClick={() => setGuideStep('guide')} style={{ background: 'none', border: 'none', fontSize: '13px', cursor: 'pointer', color: '#5BA4D9', textDecoration: 'underline' }}>← 유형 안내</button>
                 </div>
                 {[
                   { label: '이름', key: 'name', placeholder: '홍길동' },
@@ -579,7 +579,7 @@ export default function WorkersPage() {
               <p style={{ fontSize: '14px', color: '#555', marginBottom: '8px' }}>
                 <strong>{deleteTarget.name}</strong> ({formatPhone(deleteTarget.phone)}) 을 비활성화합니다.
               </p>
-              <p style={{ fontSize: '13px', color: '#888', marginBottom: '20px' }}>
+              <p style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '20px' }}>
                 출퇴근 이력은 보존되며, 기존 기기는 모두 비활성화됩니다.
               </p>
               {deleteError && <p style={styles.error}>{deleteError}</p>}
@@ -617,37 +617,37 @@ export default function WorkersPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar: { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0 },
+  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
   navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
   main: { flex: 1, padding: '32px' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
   pageTitle: { fontSize: '22px', fontWeight: 700, margin: 0 },
-  addBtn: { padding: '10px 20px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  addBtn: { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   searchRow: { display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' as const },
-  searchInput: { flex: 1, padding: '10px 14px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', maxWidth: '360px' },
-  filterSelect: { padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '13px', background: 'white', cursor: 'pointer' },
-  searchBtn: { padding: '10px 20px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' },
-  tableCard: { background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflowX: 'auto' },
+  searchInput: { flex: 1, padding: '10px 14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '14px', maxWidth: '360px' },
+  filterSelect: { padding: '10px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '13px', background: 'white', cursor: 'pointer' },
+  searchBtn: { padding: '10px 20px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' },
+  tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflowX: 'auto' },
   table: { width: '100%', borderCollapse: 'collapse' as const },
-  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#888', borderBottom: '2px solid #f0f0f0' },
+  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)' },
   td: { padding: '12px', fontSize: '14px', borderBottom: '1px solid #f5f5f5' },
   empty: { textAlign: 'center', padding: '24px', color: '#999' },
-  editBtn: { padding: '4px 10px', fontSize: '12px', background: '#e3f2fd', color: '#1976d2', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer', marginRight: '4px' },
+  editBtn: { padding: '4px 10px', fontSize: '12px', background: 'rgba(91,164,217,0.12)', color: '#5BA4D9', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer', marginRight: '4px' },
   deleteBtn: { padding: '4px 10px', fontSize: '12px', background: '#ffebee', color: '#c62828', border: '1px solid #ef9a9a', borderRadius: '4px', cursor: 'pointer' },
   modalOverlay: { position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 },
-  modal: { background: 'white', borderRadius: '12px', padding: '32px', width: '400px', maxWidth: '90vw' },
+  modal: { background: '#243144', borderRadius: '12px', padding: '32px', width: '400px', maxWidth: '90vw' },
   modalTitle: { margin: '0 0 20px', fontSize: '18px', fontWeight: 700 },
   fieldRow: { marginBottom: '12px' },
   label: { display: 'block', fontSize: '13px', color: '#555', marginBottom: '4px' },
-  input: { width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #ddd', borderRadius: '6px', boxSizing: 'border-box' as const },
+  input: { width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', boxSizing: 'border-box' as const },
   error: { color: '#e53935', fontSize: '13px', margin: '0 0 12px' },
   btnRow: { display: 'flex', gap: '8px', marginTop: '16px' },
-  saveBtn: { flex: 1, padding: '12px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 },
-  cancelBtn: { flex: 1, padding: '12px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer' },
-  badgeBlue:   { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#e3f2fd', color: '#1565c0' },
-  badgeGray:   { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#f5f5f5', color: '#757575' },
+  saveBtn: { flex: 1, padding: '12px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 },
+  cancelBtn: { flex: 1, padding: '12px', background: '#1B2838', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer' },
+  badgeBlue:   { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: 'rgba(244,121,32,0.12)', color: '#F47920' },
+  badgeGray:   { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#1B2838', color: '#757575' },
   badgeOrange: { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#fff3e0', color: '#e65100' },
 }
 
@@ -706,10 +706,10 @@ function IdentityUploadModal({ workerId, workerName, onClose, onSuccess }: {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}>
-      <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', width: '100%', maxWidth: '480px' }}>
+      <div style={{ background: '#243144', borderRadius: '12px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', width: '100%', maxWidth: '480px' }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#1a1a1a' }}>신분증 업로드 — {workerName}</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#999', lineHeight: 1 }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#718096', lineHeight: 1 }}>✕</button>
         </div>
         <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <label style={{ display: 'block' }}>
@@ -729,9 +729,9 @@ function IdentityUploadModal({ workerId, workerName, onClose, onSuccess }: {
           </div>
         </div>
         <div style={{ padding: '16px 24px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '8px 16px', fontSize: '13px', color: '#555', background: '#f5f5f5', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>취소</button>
+          <button onClick={onClose} style={{ padding: '8px 16px', fontSize: '13px', color: '#555', background: '#1B2838', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>취소</button>
           <button onClick={handleUpload} disabled={!file || loading}
-            style={{ padding: '8px 20px', fontSize: '13px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', opacity: (!file || loading) ? 0.5 : 1 }}>
+            style={{ padding: '8px 20px', fontSize: '13px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', opacity: (!file || loading) ? 0.5 : 1 }}>
             {loading ? 'AI 분석 중...' : '업로드 + AI 분석'}
           </button>
         </div>
@@ -785,7 +785,7 @@ function ScanResultModal({ workerId, result, onClose, onVerify, onReject }: {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}>
-      <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', width: '100%', maxWidth: '680px', maxHeight: '90vh', overflowY: 'auto' }}>
+      <div style={{ background: '#243144', borderRadius: '12px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', width: '100%', maxWidth: '680px', maxHeight: '90vh', overflowY: 'auto' }}>
         {/* 헤더 */}
         <div style={{ padding: '20px 24px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'white', zIndex: 10 }}>
           <div>
@@ -794,7 +794,7 @@ function ScanResultModal({ workerId, result, onClose, onVerify, onReject }: {
               상태: <span style={{ fontWeight: 500 }}>{reviewLabel[result.reviewStatus] ?? result.reviewStatus}</span> · 스캔: {result.scanStatus}
             </p>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#999', lineHeight: 1 }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#718096', lineHeight: 1 }}>✕</button>
         </div>
         {/* 본문 */}
         <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -859,13 +859,13 @@ function ScanResultModal({ workerId, result, onClose, onVerify, onReject }: {
           {showReject && (
             <div style={{ border: '1px solid #fca5a5', borderRadius: '8px', padding: '14px', background: '#fff5f5', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <select value={rejectStatus} onChange={e => setRejectStatus(e.target.value)}
-                style={{ width: '100%', fontSize: '13px', border: '1px solid #ddd', borderRadius: '6px', padding: '8px' }}>
+                style={{ width: '100%', fontSize: '13px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '8px' }}>
                 <option value="REJECTED">반려</option>
                 <option value="RESCAN_REQUIRED">재스캔 요청</option>
               </select>
               <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)}
                 placeholder="사유 입력 (필수)" rows={2}
-                style={{ width: '100%', fontSize: '13px', border: '1px solid #ddd', borderRadius: '6px', padding: '8px', resize: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', fontSize: '13px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '8px', resize: 'none', boxSizing: 'border-box' }} />
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                 <button onClick={() => setShowReject(false)}
                   style={{ fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', textDecoration: 'underline' }}>취소</button>
@@ -878,12 +878,12 @@ function ScanResultModal({ workerId, result, onClose, onVerify, onReject }: {
         {/* 하단 버튼 */}
         <div style={{ padding: '16px 24px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '10px', justifyContent: 'space-between', position: 'sticky', bottom: 0, background: 'white' }}>
           <button onClick={() => setShowReject(!showReject)}
-            style={{ padding: '8px 16px', fontSize: '13px', border: '1px solid #fca5a5', color: '#dc2626', background: 'white', borderRadius: '8px', cursor: 'pointer' }}>
+            style={{ padding: '8px 16px', fontSize: '13px', border: '1px solid #fca5a5', color: '#dc2626', background: '#1E3350', borderRadius: '8px', cursor: 'pointer' }}>
             반려 / 재스캔
           </button>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button onClick={onClose}
-              style={{ padding: '8px 16px', fontSize: '13px', color: '#555', background: '#f5f5f5', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>닫기</button>
+              style={{ padding: '8px 16px', fontSize: '13px', color: '#555', background: '#1B2838', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>닫기</button>
             <button onClick={onVerify}
               style={{ padding: '8px 20px', fontSize: '13px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>검토 완료</button>
           </div>

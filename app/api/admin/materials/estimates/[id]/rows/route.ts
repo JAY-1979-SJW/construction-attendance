@@ -13,6 +13,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const reviewOnly = searchParams.get('reviewOnly') === 'true'
   const candidateOnly = searchParams.get('candidateOnly') === 'true'
   const unmappedOnly = searchParams.get('unmappedOnly') === 'true'
+  const excludedOnly = searchParams.get('excludedOnly') === 'true'
+  const overriddenOnly = searchParams.get('overriddenOnly') === 'true'
+  const hasManualGroupKey = searchParams.get('hasManualGroupKey') === 'true'
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1'))
   const pageSize = 100
 
@@ -23,6 +26,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     ...(rowType ? { rowType } : {}),
     ...(reviewOnly ? { reviewRequired: true } : {}),
     ...(candidateOnly ? { aggregateCandidate: true } : {}),
+    ...(excludedOnly ? { excludeFromAggregation: true } : {}),
+    ...(overriddenOnly ? { overriddenAt: { not: null } } : {}),
+    ...(hasManualGroupKey ? { manualGroupKey: { not: null } } : {}),
     ...(unmappedOnly ? {
       normalized: { normalizationSource: 'UNMAPPED' }
     } : {}),

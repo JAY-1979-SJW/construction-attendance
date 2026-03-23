@@ -43,7 +43,7 @@ const SEVERITY_STYLE: Record<Severity, { bg: string; color: string; label: strin
 
 const TYPE_STYLE: Record<AnomalyType, { bg: string; color: string }> = {
   duplicate_device:     { bg: '#fce4ec', color: '#880e4f' },
-  bulk_approval:        { bg: '#e3f2fd', color: '#1565c0' },
+  bulk_approval:        { bg: '#e3f2fd', color: '#4A93C8' },
   night_approval:       { bg: '#f3e5f5', color: '#6a1b9a' },
   bulk_work_edit:       { bg: '#fbe9e7', color: '#bf360c' },
   night_work_edit:      { bg: '#e8eaf6', color: '#283593' },
@@ -104,7 +104,7 @@ export default function DevicesAnomalyPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h1 style={s.pageTitle}>이상행위 탐지</h1>
-            <p style={{ fontSize: '13px', color: '#888', margin: '4px 0 0' }}>최근 30일간 기기 승인 + 공수 수정에서 이상 패턴을 탐지합니다.</p>
+            <p style={{ fontSize: '13px', color: '#A0AEC0', margin: '4px 0 0' }}>최근 30일간 기기 승인 + 공수 수정에서 이상 패턴을 탐지합니다.</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {lastFetched && (
@@ -148,7 +148,7 @@ export default function DevicesAnomalyPage() {
             </div>
           ))}
           <div style={{
-            background: '#f5f5f5',
+            background: '#1B2838',
             border: '1px solid #e0e0e0',
             borderRadius: '10px',
             padding: '14px 24px',
@@ -156,7 +156,7 @@ export default function DevicesAnomalyPage() {
             textAlign: 'center',
           }}>
             <div style={{ fontSize: '28px', fontWeight: 700, color: '#555' }}>{anomalies.length}</div>
-            <div style={{ fontSize: '12px', color: '#888', fontWeight: 600 }}>전체</div>
+            <div style={{ fontSize: '12px', color: '#A0AEC0', fontWeight: 600 }}>전체</div>
           </div>
         </div>
 
@@ -214,7 +214,7 @@ export default function DevicesAnomalyPage() {
                         </td>
                         <td style={s.td}>
                           <div style={{ fontWeight: 600, fontSize: '13px' }}>{a.companyName}</div>
-                          <div style={{ fontSize: '12px', color: '#888' }}>{a.adminName}</div>
+                          <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{a.adminName}</div>
                         </td>
                         <td style={{ ...s.td, fontSize: '13px', maxWidth: '160px' }}>
                           <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -226,7 +226,7 @@ export default function DevicesAnomalyPage() {
                             {a.deviceInfo}
                           </div>
                         </td>
-                        <td style={{ ...s.td, fontSize: '12px', color: '#888', whiteSpace: 'nowrap' }}>
+                        <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0', whiteSpace: 'nowrap' }}>
                           {new Date(a.occurredAt).toLocaleString('ko-KR')}
                         </td>
                         <td style={{ ...s.td, fontSize: '12px', color: '#555', maxWidth: '240px' }}>
@@ -270,8 +270,8 @@ const NAV_ITEMS = [
 ]
 
 const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
   navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
@@ -279,9 +279,9 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0' },
-  btn:          { padding: '10px 20px', background: '#1a1a2e', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  tableCard:    { background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden' },
+  btn:          { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden' },
   table:        { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
   th:           { background: '#f8f9fa', padding: '12px 14px', textAlign: 'left', fontWeight: 600, color: '#555', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' },
-  td:           { padding: '12px 14px', borderBottom: '1px solid #f5f5f5', verticalAlign: 'middle' },
+  td:           { padding: '12px 14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' },
 }

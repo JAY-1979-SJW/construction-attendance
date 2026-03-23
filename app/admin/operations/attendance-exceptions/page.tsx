@@ -127,7 +127,7 @@ export default function AttendanceExceptionsPage() {
             {t === 'ALL' ? '전체' : t === 'EXCEPTION' ? '예외' : '퇴근누락'}
           </button>
         ))}
-        <span style={{ marginLeft: 'auto', fontSize: '13px', color: '#888', alignSelf: 'center' }}>
+        <span style={{ marginLeft: 'auto', fontSize: '13px', color: '#A0AEC0', alignSelf: 'center' }}>
           총 {total}건
         </span>
       </div>
@@ -166,7 +166,7 @@ export default function AttendanceExceptionsPage() {
                 <tr key={item.id} style={{ background: i % 2 === 1 ? '#fafafa' : '#fff' }}>
                   <td style={td}>
                     <div style={{ fontWeight: 700 }}>{item.workerName}</div>
-                    <div style={{ fontSize: '11px', color: '#888' }}>{item.workerPhone}</div>
+                    <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{item.workerPhone}</div>
                   </td>
                   <td style={td}>{item.company || '—'}</td>
                   <td style={td}>{item.siteName}</td>
@@ -178,7 +178,7 @@ export default function AttendanceExceptionsPage() {
                       {STATUS_LABEL[item.status] ?? item.status}
                     </span>
                     {item.exceptionReason && (
-                      <div style={{ fontSize: '11px', color: '#888' }}>{item.exceptionReason}</div>
+                      <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{item.exceptionReason}</div>
                     )}
                   </td>
                   <td style={{ ...td, textAlign: 'center' }}>
@@ -291,5 +291,5 @@ function btnStyle(bg: string, disabled: boolean): React.CSSProperties {
   return { padding: '8px 16px', background: disabled ? '#bdbdbd' : bg, color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', cursor: disabled ? 'not-allowed' : 'pointer', fontWeight: 700 }
 }
 function pageBtnStyle(disabled: boolean): React.CSSProperties {
-  return { padding: '6px 14px', border: '1px solid #e0e0e0', borderRadius: '6px', background: disabled ? '#f5f5f5' : '#fff', color: disabled ? '#bbb' : '#333', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: '13px' }
+  return { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: disabled ? '#f5f5f5' : '#fff', color: disabled ? '#bbb' : '#333', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: '13px' }
 }

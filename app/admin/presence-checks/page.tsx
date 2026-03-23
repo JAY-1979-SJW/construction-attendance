@@ -366,7 +366,7 @@ export default function PresenceChecksPage() {
             {[
               { label: '전체',     value: summary.total,       color: '#37474f' },
               { label: '완료',     value: summary.completed,   color: '#2e7d32' },
-              { label: '대기중',   value: summary.pending,     color: '#1565c0' },
+              { label: '대기중',   value: summary.pending,     color: '#4A93C8' },
               { label: '미응답',   value: summary.noResponse,  color: '#b71c1c' },
               { label: '위치이탈', value: summary.outOfFence,  color: '#e65100' },
               { label: '검토필요', value: summary.review,      color: '#f57f17' },
@@ -489,7 +489,7 @@ export default function PresenceChecksPage() {
                 }}>
                   {STATUS_LABEL[selected.status] ?? selected.status}
                 </span>
-                <span style={{ fontSize: '12px', color: '#888' }}>
+                <span style={{ fontSize: '12px', color: '#A0AEC0' }}>
                   {selected.slot === 'AM' ? '오전' : '오후'} · {selected.checkDate}
                 </span>
               </div>
@@ -587,7 +587,7 @@ export default function PresenceChecksPage() {
                         <button
                           onClick={doReissue}
                           disabled={actionLoading}
-                          style={{ ...s.actionBtn, background: '#1565c0', color: 'white', margin: 0 }}
+                          style={{ ...s.actionBtn, background: '#E06810', color: 'white', margin: 0 }}
                         >
                           요청
                         </button>
@@ -645,7 +645,7 @@ export default function PresenceChecksPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: '16px' }}>
-      <div style={{ fontSize: '11px', fontWeight: 700, color: '#888', textTransform: 'uppercase' as const, letterSpacing: '0.8px', marginBottom: '8px' }}>
+      <div style={{ fontSize: '11px', fontWeight: 700, color: '#A0AEC0', textTransform: 'uppercase' as const, letterSpacing: '0.8px', marginBottom: '8px' }}>
         {title}
       </div>
       {children}
@@ -656,7 +656,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #f0f0f0', fontSize: '13px' }}>
-      <span style={{ color: '#888', flexShrink: 0, marginRight: '8px' }}>{label}</span>
+      <span style={{ color: '#A0AEC0', flexShrink: 0, marginRight: '8px' }}>{label}</span>
       <span style={{ fontWeight: 500, textAlign: 'right' as const, wordBreak: 'break-all' as const }}>{value ?? '-'}</span>
     </div>
   )
@@ -665,8 +665,8 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5', position: 'relative' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838', position: 'relative' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
   navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
@@ -676,33 +676,33 @@ const s: Record<string, React.CSSProperties> = {
   main:         { flex: 1, padding: '32px', transition: 'margin-right 0.2s', minWidth: 0 },
   header:       { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 4px' },
-  subtitle:     { fontSize: '14px', color: '#888', margin: 0 },
-  datePicker:   { padding: '8px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px' },
+  subtitle:     { fontSize: '14px', color: '#A0AEC0', margin: 0 },
+  datePicker:   { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '14px' },
 
   alertBar:     { display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '12px', alignItems: 'center' },
   alertChip:    { padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 600 },
   filterRow:    { display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px', alignItems: 'center' },
-  select:       { padding: '7px 10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', background: 'white' },
-  searchInput:  { padding: '7px 10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', width: '140px' },
+  select:       { padding: '7px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', background: '#1E3048', color: '#E2E8F0' },
+  searchInput:  { padding: '7px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', width: '140px' },
   toggle:       { display: 'flex', alignItems: 'center', fontSize: '13px', cursor: 'pointer', color: '#444', whiteSpace: 'nowrap' },
 
   cards:        { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px', marginBottom: '20px' },
-  card:         { background: 'white', borderRadius: '10px', padding: '14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  card:         { background: '#243144', borderRadius: '10px', padding: '14px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   cardVal:      { fontSize: '26px', fontWeight: 700, marginBottom: '2px' },
-  cardLabel:    { fontSize: '12px', color: '#888' },
+  cardLabel:    { fontSize: '12px', color: '#A0AEC0' },
 
-  tableCard:    { background: 'white', borderRadius: '10px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  tableCard:    { background: '#243144', borderRadius: '10px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   tableTitle:   { fontSize: '15px', fontWeight: 700, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' },
   reviewBadge:  { background: '#fff3e0', color: '#e65100', fontSize: '12px', fontWeight: 600, padding: '3px 10px', borderRadius: '12px', border: '1px solid #ffcc80' },
   table:        { width: '100%', borderCollapse: 'collapse' },
-  th:           { textAlign: 'left', padding: '9px 10px', fontSize: '12px', color: '#888', borderBottom: '2px solid #f0f0f0', whiteSpace: 'nowrap' },
+  th:           { textAlign: 'left', padding: '9px 10px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' },
   td:           { padding: '10px', fontSize: '13px', borderBottom: '1px solid #f5f5f5', whiteSpace: 'nowrap' },
   tr:           { transition: 'background 0.1s' },
   slotBadge:    { padding: '2px 7px', borderRadius: '10px', fontSize: '12px', fontWeight: 600 },
   reissueTag:   { display: 'inline-block', marginLeft: '4px', background: '#e8eaf6', color: '#3949ab', fontSize: '11px', padding: '1px 5px', borderRadius: '8px' },
-  noteTag:      { display: 'inline-block', marginRight: '4px', background: '#e3f2fd', color: '#1565c0', fontSize: '11px', padding: '1px 5px', borderRadius: '8px' },
+  noteTag:      { display: 'inline-block', marginRight: '4px', background: 'rgba(244,121,32,0.12)', color: '#F47920', fontSize: '11px', padding: '1px 5px', borderRadius: '8px' },
   reviewTag:    { display: 'inline-block', background: '#fce4ec', color: '#c62828', fontSize: '11px', padding: '1px 5px', borderRadius: '8px', fontWeight: 600 },
-  empty:        { textAlign: 'center', padding: '32px', color: '#999', fontSize: '14px' },
+  empty:        { textAlign: 'center', padding: '32px', color: '#718096', fontSize: '14px' },
 
   // Detail panel
   panel:        { position: 'fixed', right: 0, top: 0, width: '420px', height: '100vh', background: 'white', borderLeft: '1px solid #e0e0e0', boxShadow: '-4px 0 20px rgba(0,0,0,0.08)', display: 'flex', flexDirection: 'column', zIndex: 100, overflow: 'hidden' },
@@ -719,14 +719,14 @@ const s: Record<string, React.CSSProperties> = {
   reissueForm:       { background: '#f8f9fa', borderRadius: '8px', padding: '10px', marginTop: '6px' },
   reissueLabel:      { fontSize: '12px', color: '#666', marginBottom: '8px' },
   reissueInputRow:   { display: 'flex', gap: '6px', alignItems: 'center' },
-  miniInput:         { padding: '6px 8px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '13px' },
+  miniInput:         { padding: '6px 8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '5px', fontSize: '13px' },
 
-  textarea:     { width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box', display: 'block', marginBottom: '6px' },
+  textarea:     { width: '100%', padding: '8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box', display: 'block', marginBottom: '6px' },
 
   auditRow:    { padding: '8px 0', borderBottom: '1px solid #f0f0f0', fontSize: '12px' },
   auditMeta:   { display: 'flex', justifyContent: 'space-between', marginBottom: '2px' },
   auditAction: { fontWeight: 600, color: '#333' },
   auditTime:   { color: '#aaa' },
   auditMsg:    { color: '#555' },
-  auditActor:  { color: '#888', fontSize: '11px' },
+  auditActor:  { color: '#A0AEC0', fontSize: '11px' },
 }

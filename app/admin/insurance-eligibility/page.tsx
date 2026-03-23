@@ -64,7 +64,7 @@ export default function InsuranceEligibilityPage() {
 
   const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
   const check = (v: boolean) => v ? <span style={{ color: '#2e7d32', fontWeight: 700 }}>✅ 적용</span>
-                                  : <span style={{ color: '#888' }}>✗ 제외</span>
+                                  : <span style={{ color: '#A0AEC0' }}>✗ 제외</span>
 
   return (
     <div style={s.layout}>
@@ -81,7 +81,7 @@ export default function InsuranceEligibilityPage() {
 
       <main style={s.main}>
         <h1 style={s.pageTitle}>4대보험 적용 판정</h1>
-        <p style={{ fontSize: '13px', color: '#888', margin: '-12px 0 20px' }}>
+        <p style={{ fontSize: '13px', color: '#A0AEC0', margin: '-12px 0 20px' }}>
           국민연금 월 8일 이상/220만원 이상 · 건강보험 1개월 미만 일용 제외 · 고용보험 근로내용확인신고 대상
         </p>
 
@@ -121,15 +121,15 @@ export default function InsuranceEligibilityPage() {
                       <td style={{ ...s.td, textAlign: 'right' as const }}>{fmt(item.totalConfirmedAmount)}</td>
                       <td style={s.td}>
                         {check(item.nationalPensionEligible)}
-                        <div style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>{item.nationalPensionReason ?? ''}</div>
+                        <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '2px' }}>{item.nationalPensionReason ?? ''}</div>
                       </td>
                       <td style={s.td}>
                         {check(item.healthInsuranceEligible)}
-                        <div style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>{item.healthInsuranceReason ?? ''}</div>
+                        <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '2px' }}>{item.healthInsuranceReason ?? ''}</div>
                       </td>
                       <td style={s.td}>
                         {check(item.employmentInsuranceEligible)}
-                        <div style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>{item.employmentInsuranceReason ?? ''}</div>
+                        <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '2px' }}>{item.employmentInsuranceReason ?? ''}</div>
                       </td>
                       <td style={s.td}>
                         {check(item.industrialAccidentEligible)}
@@ -164,8 +164,8 @@ const NAV_ITEMS = [
 ]
 
 const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
   navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
@@ -173,12 +173,12 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 8px' },
-  input:        { padding: '8px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '14px', background: 'white' },
-  btn:          { padding: '8px 16px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  msg:          { padding: '12px 16px', background: '#e3f2fd', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', color: '#1565c0' },
-  tableCard:    { background: 'white', borderRadius: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' },
+  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  msg:          { padding: '12px 16px', background: 'rgba(91,164,217,0.1)', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', color: '#4A93C8' },
+  tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
   table:        { width: '100%', borderCollapse: 'collapse' as const },
-  th:           { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#666', borderBottom: '1px solid #f0f0f0', whiteSpace: 'nowrap' as const },
-  td:           { padding: '12px 16px', fontSize: '13px', color: '#333', borderBottom: '1px solid #f9f9f9', verticalAlign: 'top' as const },
+  th:           { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
+  td:           { padding: '12px 16px', fontSize: '13px', color: '#CBD5E0', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
   tr:           { cursor: 'default' },
 }

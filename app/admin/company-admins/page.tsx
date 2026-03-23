@@ -116,7 +116,7 @@ export default function CompanyAdminsPage() {
           </thead>
           <tbody>
             {admins.length === 0 && (
-              <tr><td colSpan={7} style={{ textAlign: 'center', padding: 32, color: '#888' }}>등록된 업체 관리자가 없습니다.</td></tr>
+              <tr><td colSpan={7} style={{ textAlign: 'center', padding: 32, color: '#A0AEC0' }}>등록된 업체 관리자가 없습니다.</td></tr>
             )}
             {admins.map((a) => (
               <tr key={a.id} style={{ background: a.isActive ? 'white' : '#fafafa' }}>
@@ -153,11 +153,11 @@ const s: Record<string, React.CSSProperties> = {
   title: { fontSize: 22, fontWeight: 700, margin: 0 },
   btn: { padding: '10px 20px', background: '#1a1a2e', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 },
   smallBtn: { padding: '4px 12px', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 },
-  formBox: { background: '#f5f5f5', border: '1px solid #ddd', borderRadius: 12, padding: 24, marginBottom: 24 },
+  formBox: { background: '#1B2838', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 12, padding: 24, marginBottom: 24 },
   grid: { display: 'grid', gridTemplateColumns: '100px 1fr', gap: '10px 12px', alignItems: 'center' },
   label: { fontSize: 13, fontWeight: 600, color: '#555' },
-  input: { padding: '10px 12px', fontSize: 14, border: '1px solid #ddd', borderRadius: 8, width: '100%', boxSizing: 'border-box' as const },
+  input: { padding: '10px 12px', fontSize: 14, border: '1px solid rgba(91,164,217,0.3)', borderRadius: 8, width: '100%', boxSizing: 'border-box' as const },
   table: { width: '100%', borderCollapse: 'collapse' as const, fontSize: 14 },
-  th: { padding: '10px 12px', background: '#f5f5f5', border: '1px solid #e0e0e0', textAlign: 'left' as const, fontWeight: 600 },
+  th: { padding: '10px 12px', background: '#1B2838', border: '1px solid #e0e0e0', textAlign: 'left' as const, fontWeight: 600 },
   td: { padding: '10px 12px', border: '1px solid #e0e0e0' },
 }

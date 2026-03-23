@@ -34,7 +34,7 @@ function getMonthKey() {
 }
 
 const statusColor: Record<string, React.CSSProperties> = {
-  OPEN:     { background: '#f5f5f5', color: '#555' },
+  OPEN:     { background: 'rgba(91,164,217,0.1)', color: '#A0AEC0' },
   CLOSING:  { background: '#fff8e1', color: '#f9a825' },
   CLOSED:   { background: '#e8f5e9', color: '#2e7d32' },
   REOPENED: { background: '#fff3e0', color: '#e65100' },
@@ -238,7 +238,7 @@ export default function MonthClosingsPage() {
                     <div style={{ fontSize: '28px', fontWeight: 700, color: card.warn ? '#e53935' : '#333' }}>
                       {card.value}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#888' }}>{card.label}</div>
+                    <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{card.label}</div>
                   </div>
                 ))}
               </div>
@@ -284,18 +284,18 @@ export default function MonthClosingsPage() {
       {/* 재오픈 모달 */}
       {showReopenModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+          <div style={{ background: '#243144', borderRadius: '12px', padding: '24px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>재오픈 사유 입력</h3>
             <textarea
               value={reopenReason}
               onChange={(e) => setReopenReason(e.target.value)}
               placeholder="재오픈 사유를 입력하세요"
-              style={{ width: '100%', border: '1px solid #e0e0e0', borderRadius: '6px', padding: '10px', height: '96px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }}
+              style={{ width: '100%', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', padding: '10px', height: '96px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }}
             />
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
               <button
                 onClick={() => { setShowReopenModal(false); setReopenReason('') }}
-                style={{ padding: '8px 16px', border: '1px solid #e0e0e0', borderRadius: '6px', background: 'white', cursor: 'pointer', fontSize: '13px' }}
+                style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: 'white', cursor: 'pointer', fontSize: '13px' }}
               >
                 취소
               </button>
@@ -336,8 +336,8 @@ const NAV_ITEMS = [
 ]
 
 const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
   navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
@@ -345,15 +345,15 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
-  input:        { padding: '8px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '14px', background: 'white' },
-  btn:          { padding: '8px 16px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   msg:          { padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' },
   badge:        { padding: '4px 14px', borderRadius: '999px', fontSize: '13px', fontWeight: 600 },
   infoBox:      { padding: '12px 16px', borderRadius: '8px', border: '1px solid', fontSize: '13px', lineHeight: '1.6' },
-  summaryCard:  { background: 'white', borderRadius: '10px', padding: '16px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  tableCard:    { background: 'white', borderRadius: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' },
+  summaryCard:  { background: '#243144', borderRadius: '10px', padding: '16px 12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
+  tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
   table:        { width: '100%', borderCollapse: 'collapse' as const },
-  th:           { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#666', borderBottom: '1px solid #f0f0f0', whiteSpace: 'nowrap' as const },
-  td:           { padding: '12px 16px', fontSize: '13px', color: '#333', borderBottom: '1px solid #f9f9f9', verticalAlign: 'top' as const },
+  th:           { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
+  td:           { padding: '12px 16px', fontSize: '13px', color: '#CBD5E0', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
   tr:           { cursor: 'default' },
 }

@@ -72,7 +72,7 @@ const s: Record<string, React.CSSProperties> = {
   stepItem:  { display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '14px' },
   stepDot:   { width: '28px', height: '28px', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, flexShrink: 0, marginTop: '2px' },
   stepTitle: { fontSize: '14px', fontWeight: 600, color: '#222' },
-  stepSub:   { fontSize: '12px', color: '#888', marginTop: '2px' },
+  stepSub:   { fontSize: '12px', color: '#A0AEC0', marginTop: '2px' },
   notice:    { background: '#fff8e1', borderRadius: '8px', padding: '14px 16px', fontSize: '13px', color: '#795548', lineHeight: 1.7, marginBottom: '24px', textAlign: 'left' as const },
-  btn:       { display: 'inline-block', padding: '14px 32px', background: '#1976d2', color: 'white', borderRadius: '10px', textDecoration: 'none', fontSize: '15px', fontWeight: 700 },
+  btn:       { display: 'inline-block', padding: '14px 32px', background: '#F47920', color: 'white', borderRadius: '10px', textDecoration: 'none', fontSize: '15px', fontWeight: 700 },
 }

@@ -137,7 +137,7 @@ export default function DevicesPage() {
                     </td>
                     <td style={styles.td}>{fmtPhone(item.workerPhone)}</td>
                     <td style={styles.td}>{item.deviceName}</td>
-                    <td style={{ ...styles.td, fontSize: '11px', color: '#888', fontFamily: 'monospace' }}>{item.deviceToken}</td>
+                    <td style={{ ...styles.td, fontSize: '11px', color: '#A0AEC0', fontFamily: 'monospace' }}>{item.deviceToken}</td>
                     <td style={styles.td}>{item.platform ?? '-'}</td>
                     <td style={styles.td}>{fmt(item.lastLoginAt)}</td>
                     <td style={styles.td}>
@@ -195,25 +195,25 @@ export default function DevicesPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar: { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0 },
+  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
   navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
   main: { flex: 1, padding: '32px' },
   pageTitle: { fontSize: '22px', fontWeight: 700, margin: '0 0 20px' },
   msgBox: { border: '1px solid', borderRadius: '8px', padding: '12px 16px', fontSize: '14px', marginBottom: '16px' },
   tabRow: { display: 'flex', gap: '8px', marginBottom: '16px' },
-  tab: { padding: '8px 20px', border: '1px solid #ddd', borderRadius: '6px', background: 'white', cursor: 'pointer', fontSize: '14px', color: '#666' },
+  tab: { padding: '8px 20px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', background: 'white', cursor: 'pointer', fontSize: '14px', color: '#666' },
   tabActive: { background: '#1a1a2e', color: 'white', borderColor: '#1a1a2e' },
-  tableCard: { background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflowX: 'auto' },
+  tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflowX: 'auto' },
   table: { width: '100%', borderCollapse: 'collapse' as const },
-  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#888', borderBottom: '2px solid #f0f0f0' },
-  td: { padding: '12px', fontSize: '14px', borderBottom: '1px solid #f5f5f5', verticalAlign: 'middle' },
+  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)' },
+  td: { padding: '12px', fontSize: '14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' },
   tr: {},
-  primaryBadge: { fontSize: '10px', background: '#e3f2fd', color: '#1565c0', padding: '1px 6px', borderRadius: '8px', marginTop: '2px', display: 'inline-block' },
+  primaryBadge: { fontSize: '10px', background: 'rgba(244,121,32,0.12)', color: '#F47920', padding: '1px 6px', borderRadius: '8px', marginTop: '2px', display: 'inline-block' },
   blockedBadge: { fontSize: '11px', background: '#ffebee', color: '#c62828', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 },
   normalBadge: { fontSize: '11px', background: '#e8f5e9', color: '#2e7d32', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 },
   blockBtn: { padding: '5px 12px', background: '#c62828', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px' },
   unblockBtn: { padding: '5px 12px', background: '#37474f', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px' },
-  reasonInput: { padding: '4px 8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '12px', width: '120px' },
+  reasonInput: { padding: '4px 8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', fontSize: '12px', width: '120px' },
 }

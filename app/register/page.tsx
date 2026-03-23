@@ -215,7 +215,7 @@ export default function RegisterPage() {
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', flex: 1 }}>
                   <input type="checkbox" checked={consentMarketing} onChange={e => setConsentMarketing(e.target.checked)} />
                   <span>
-                    <span style={{ color: '#888' }}>[선택]</span>{' '}
+                    <span style={{ color: '#A0AEC0' }}>[선택]</span>{' '}
                     {marketingDoc ? `${marketingDoc.title} (v${marketingDoc.version})` : '마케팅 정보 수신 동의'}
                   </span>
                 </label>
@@ -231,7 +231,7 @@ export default function RegisterPage() {
             </div>
 
             {!allRequired && (
-              <p style={{ fontSize: '12px', color: '#999', margin: '8px 0 0' }}>
+              <p style={{ fontSize: '12px', color: '#718096', margin: '8px 0 0' }}>
                 * 필수 항목에 모두 동의해야 가입이 가능합니다.
               </p>
             )}
@@ -263,14 +263,14 @@ const s: Record<string, React.CSSProperties> = {
   errorBox:     { background: '#fff0f0', border: '1px solid #ffcccc', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', color: '#c62828', fontSize: '14px' },
   label:        { display: 'block', fontSize: '13px', fontWeight: 600, color: '#333', marginBottom: '6px', marginTop: '16px' },
   required:     { color: '#e53935' },
-  input:        { width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' },
+  input:        { width: '100%', padding: '10px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' },
   consentSection: { margin: '20px 0', padding: '16px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #e8e8e8' },
   consentTitle: { fontSize: '13px', fontWeight: 700, marginBottom: '12px', color: '#333' },
   consentBlock: { marginBottom: '10px', borderBottom: '1px solid #eee', paddingBottom: '10px' },
   consentRow:   { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', fontSize: '13px', color: '#444' },
-  viewBtn:      { fontSize: '12px', color: '#1976d2', background: 'none', border: '1px solid #1976d2', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', whiteSpace: 'nowrap' },
-  docContent:   { marginTop: '8px', fontSize: '12px', color: '#555', background: 'white', border: '1px solid #ddd', borderRadius: '6px', padding: '12px', maxHeight: '200px', overflowY: 'auto', whiteSpace: 'pre-wrap', lineHeight: 1.6 },
-  btn:          { display: 'block', width: '100%', padding: '14px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', marginTop: '20px' },
+  viewBtn:      { fontSize: '12px', color: '#5BA4D9', background: 'none', border: '1px solid #1976d2', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', whiteSpace: 'nowrap' },
+  docContent:   { marginTop: '8px', fontSize: '12px', color: '#555', background: 'white', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '12px', maxHeight: '200px', overflowY: 'auto', whiteSpace: 'pre-wrap', lineHeight: 1.6 },
+  btn:          { display: 'block', width: '100%', padding: '14px', background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', marginTop: '20px' },
   footer:       { display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '20px', textAlign: 'center' },
-  link:         { color: '#1976d2', fontSize: '13px', textDecoration: 'none' },
+  link:         { color: '#5BA4D9', fontSize: '13px', textDecoration: 'none' },
 }

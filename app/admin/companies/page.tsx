@@ -181,7 +181,7 @@ export default function CompaniesPage() {
             <input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} />
             비활성 포함
           </label>
-          <span style={{ fontSize: '13px', color: '#888' }}>총 {total}건</span>
+          <span style={{ fontSize: '13px', color: '#A0AEC0' }}>총 {total}건</span>
         </div>
 
         {/* 등록/수정 폼 */}
@@ -257,10 +257,10 @@ export default function CompaniesPage() {
                     <tr key={c.id} style={{ opacity: c.isActive ? 1 : 0.5 }}>
                       <td style={s.td}>
                         <div style={{ fontWeight: 600 }}>{c.companyName}</div>
-                        {c.companyCode && <div style={{ fontSize: '11px', color: '#888' }}>{c.companyCode}</div>}
+                        {c.companyCode && <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{c.companyCode}</div>}
                       </td>
-                      <td style={s.td}><span style={{ background: '#e3f2fd', color: '#1565c0', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 600 }}>{COMPANY_TYPES[c.companyType] ?? c.companyType}</span></td>
-                      <td style={{ ...s.td, fontSize: '12px', color: '#888' }}>{c.businessNumber ?? '-'}</td>
+                      <td style={s.td}><span style={{ background: 'rgba(244,121,32,0.12)', color: '#F47920', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 600 }}>{COMPANY_TYPES[c.companyType] ?? c.companyType}</span></td>
+                      <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0' }}>{c.businessNumber ?? '-'}</td>
                       <td style={{ ...s.td, fontSize: '13px' }}>{c.representativeName ?? '-'}</td>
                       <td style={{ ...s.td, fontSize: '12px' }}>{c.contactName ? `${c.contactName}${c.contactPhone ? ` (${c.contactPhone})` : ''}` : '-'}</td>
                       <td style={{ ...s.td, textAlign: 'center' as const }}>{c._count.workerAssignments}명</td>
@@ -308,8 +308,8 @@ const NAV_ITEMS = [
 ]
 
 const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
   navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
@@ -318,13 +318,13 @@ const s: Record<string, React.CSSProperties> = {
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0' },
   label:        { display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 },
-  input:        { width: '100%', padding: '8px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' as const },
-  btn:          { padding: '10px 20px', background: '#1a1a2e', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  actionBtn:    { padding: '4px 10px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: '#1976d2' },
-  formCard:     { background: 'white', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  input:        { width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' as const },
+  btn:          { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  actionBtn:    { padding: '4px 10px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: '#5BA4D9' },
+  formCard:     { background: '#243144', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
   formGrid:     { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' },
-  tableCard:    { background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden' },
+  tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden' },
   table:        { width: '100%', borderCollapse: 'collapse' as const, fontSize: '13px' },
   th:           { background: '#f8f9fa', padding: '12px 14px', textAlign: 'left' as const, fontWeight: 600, color: '#555', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' as const },
-  td:           { padding: '12px 14px', borderBottom: '1px solid #f5f5f5', verticalAlign: 'middle' as const },
+  td:           { padding: '12px 14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' as const },
 }

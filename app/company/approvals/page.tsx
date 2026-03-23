@@ -212,7 +212,7 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
             <h3 style={{ margin: '0 0 12px', fontSize: '15px', fontWeight: 600 }}>반려 사유</h3>
             <textarea
               rows={4}
-              style={{ width: '100%', border: '1px solid #d1d5db', borderRadius: '6px', padding: '8px', fontSize: '13px', boxSizing: 'border-box' }}
+              style={{ width: '100%', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '8px', fontSize: '13px', boxSizing: 'border-box' }}
               placeholder="반려 사유를 입력하세요"
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
@@ -257,13 +257,13 @@ const styles: Record<string, React.CSSProperties> = {
   },
   cancelBtn: {
     padding: '5px 12px', background: 'white', color: '#374151',
-    border: '1px solid #d1d5db', borderRadius: '5px', cursor: 'pointer', fontSize: '12px',
+    border: '1px solid rgba(91,164,217,0.3)', borderRadius: '5px', cursor: 'pointer', fontSize: '12px',
   },
   modalOverlay: {
     position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
   },
   modal: {
-    background: 'white', borderRadius: '12px', padding: '24px', width: '400px', maxWidth: '90vw',
+    background: '#243144', borderRadius: '12px', padding: '24px', width: '400px', maxWidth: '90vw',
   },
 }

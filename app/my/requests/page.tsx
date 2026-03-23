@@ -59,7 +59,7 @@ export default function MyRequestsPage() {
   }, [tab])
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5', paddingBottom: '80px' }}>
+    <div style={{ minHeight: '100vh', background: '#1B2838', paddingBottom: '80px' }}>
       <WorkerDisclaimerBanner />
 
       {/* 헤더 */}
@@ -102,7 +102,7 @@ export default function MyRequestsPage() {
           {loading ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>불러오는 중...</div>
           ) : requests.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#999', fontSize: '14px' }}>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#718096', fontSize: '14px' }}>
               접수된 요청이 없습니다.
             </div>
           ) : (

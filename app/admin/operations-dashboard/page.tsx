@@ -61,7 +61,7 @@ function getMonthKey() {
 }
 
 const closingStatusColor: Record<string, React.CSSProperties> = {
-  OPEN:     { background: '#f5f5f5', color: '#555' },
+  OPEN:     { background: 'rgba(91,164,217,0.1)', color: '#A0AEC0' },
   CLOSING:  { background: '#fff8e1', color: '#f9a825' },
   CLOSED:   { background: '#e8f5e9', color: '#2e7d32' },
   REOPENED: { background: '#fff3e0', color: '#e65100' },
@@ -116,7 +116,7 @@ export default function OperationsDashboardPage() {
     {
       label: '오늘 출근',
       value: kpi.todayActiveWorkers ?? 0,
-      color: '#1976d2',
+      color: '#5BA4D9',
       bg: '#e3f2fd',
       alert: false,
       sub: null,
@@ -166,7 +166,7 @@ export default function OperationsDashboardPage() {
   const closingStatus = data?.monthClosingStatus?.status ?? 'OPEN'
 
   if (loading && !data) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px', color: '#888', fontSize: '15px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px', color: '#A0AEC0', fontSize: '15px' }}>
       대시보드 로딩 중...
     </div>
   )
@@ -246,7 +246,7 @@ export default function OperationsDashboardPage() {
                   </div>
                   <div style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>{card.label}</div>
                   {card.sub && (
-                    <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>{card.sub}</div>
+                    <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '4px' }}>{card.sub}</div>
                   )}
                   {card.alert && (
                     <div style={{ fontSize: '11px', color: card.color, marginTop: '4px', fontWeight: 600 }}>
@@ -261,9 +261,9 @@ export default function OperationsDashboardPage() {
                 background: 'white',
                 borderRadius: '12px',
                 padding: '20px',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
               }}>
-                <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px', fontWeight: 600 }}>월마감 상태</div>
+                <div style={{ fontSize: '12px', color: '#A0AEC0', marginBottom: '8px', fontWeight: 600 }}>월마감 상태</div>
                 <span style={{
                   ...s.badge,
                   ...closingStatusColor[closingStatus],
@@ -273,7 +273,7 @@ export default function OperationsDashboardPage() {
                   {closingStatusLabel[closingStatus] ?? closingStatus}
                 </span>
                 {data?.monthClosingStatus?.closedAt && (
-                  <div style={{ fontSize: '11px', color: '#999', marginTop: '8px' }}>
+                  <div style={{ fontSize: '11px', color: '#718096', marginTop: '8px' }}>
                     {new Date(data.monthClosingStatus.closedAt).toLocaleDateString('ko-KR')} 마감
                   </div>
                 )}
@@ -347,7 +347,7 @@ export default function OperationsDashboardPage() {
                     <div style={{ fontSize: '13px', fontWeight: 600, color: '#333' }}>
                       {exportTypeLabel[dl.exportType] ?? dl.exportType}
                     </div>
-                    <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>
+                    <div style={{ fontSize: '11px', color: '#718096', marginTop: '2px' }}>
                       {dl.monthKey} · v{dl.versionNo}
                     </div>
                   </div>
@@ -387,7 +387,7 @@ export default function OperationsDashboardPage() {
                     <div>
                       <Link
                         href={`/admin/workers/${issue.workerId}`}
-                        style={{ fontSize: '13px', fontWeight: 600, color: '#1976d2', textDecoration: 'none' }}
+                        style={{ fontSize: '13px', fontWeight: 600, color: '#5BA4D9', textDecoration: 'none' }}
                       >
                         {issue.workerName}
                       </Link>
@@ -435,8 +435,8 @@ const NAV_ITEMS = [
 ]
 
 const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
   navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
@@ -444,13 +444,13 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
-  input:        { padding: '8px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '14px', background: 'white' },
-  btn:          { padding: '8px 16px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   badge:        { padding: '4px 14px', borderRadius: '999px', fontSize: '13px', fontWeight: 600 },
   msgBox:       { padding: '12px 16px', borderRadius: '8px', fontSize: '14px' },
-  panel:        { background: 'white', borderRadius: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' },
+  panel:        { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
   panelHeader:  { padding: '14px 16px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: '14px' },
   panelLabel:   { fontSize: '13px', color: '#666' },
-  panelLink:    { fontSize: '12px', color: '#1976d2', textDecoration: 'none', fontWeight: 400 },
+  panelLink:    { fontSize: '12px', color: '#5BA4D9', textDecoration: 'none', fontWeight: 400 },
   emptyMsg:     { padding: '20px 16px', fontSize: '13px', color: '#aaa', textAlign: 'center' as const },
 }

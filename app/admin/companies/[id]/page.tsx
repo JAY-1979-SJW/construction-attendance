@@ -188,7 +188,7 @@ export default function CompanyDetailPage() {
         </nav>
         <main style={s.main}>
           <div style={{ color: '#c62828' }}>{msg || '업체를 찾을 수 없습니다.'}</div>
-          <Link href="/admin/companies" style={{ color: '#1976d2', fontSize: '14px', marginTop: '12px', display: 'inline-block' }}>← 목록으로</Link>
+          <Link href="/admin/companies" style={{ color: '#5BA4D9', fontSize: '14px', marginTop: '12px', display: 'inline-block' }}>← 목록으로</Link>
         </main>
       </div>
     )
@@ -296,7 +296,7 @@ export default function CompanyDetailPage() {
         {/* Section 2: 기능 플래그 관리 */}
         <div style={s.card}>
           <h2 style={s.sectionTitle}>기능 플래그 관리</h2>
-          <p style={{ fontSize: '13px', color: '#888', marginBottom: '16px' }}>(유료) 표시 항목은 유료 플랜에서 제공되는 기능입니다.</p>
+          <p style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '16px' }}>(유료) 표시 항목은 유료 플랜에서 제공되는 기능입니다.</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
             {FLAG_KEYS.map(key => {
               const label = FEATURE_FLAG_LABELS[key]
@@ -356,7 +356,7 @@ export default function CompanyDetailPage() {
         <div style={s.card}>
           <h2 style={s.sectionTitle}>업체 관리자 계정</h2>
           {admins.length === 0 ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: '#999', fontSize: '14px' }}>등록된 관리자 계정이 없습니다.</div>
+            <div style={{ padding: '24px', textAlign: 'center', color: '#718096', fontSize: '14px' }}>등록된 관리자 계정이 없습니다.</div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={s.table}>
@@ -384,7 +384,7 @@ export default function CompanyDetailPage() {
                           {admin.isActive ? '활성' : '비활성'}
                         </span>
                       </td>
-                      <td style={{ ...s.td, fontSize: '12px', color: '#888' }}>
+                      <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0' }}>
                         {admin.lastLoginAt ? new Date(admin.lastLoginAt).toLocaleString('ko-KR') : '없음'}
                       </td>
                       <td style={s.td}>
@@ -437,8 +437,8 @@ const NAV_ITEMS = [
 ]
 
 const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
   navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
@@ -446,14 +446,14 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0' },
-  card:         { background: 'white', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  card:         { background: '#243144', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
   sectionTitle: { fontSize: '16px', fontWeight: 700, margin: '0 0 16px', color: '#1a1a2e' },
   infoGrid:     { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' },
   infoItem:     {},
-  infoLabel:    { fontSize: '11px', color: '#888', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' },
+  infoLabel:    { fontSize: '11px', color: '#A0AEC0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' },
   infoValue:    { fontSize: '14px', color: '#1a1a2e', fontWeight: 500 },
   table:        { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
   th:           { background: '#f8f9fa', padding: '12px 14px', textAlign: 'left', fontWeight: 600, color: '#555', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' },
-  td:           { padding: '12px 14px', borderBottom: '1px solid #f5f5f5', verticalAlign: 'middle' },
+  td:           { padding: '12px 14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' },
   actionBtn:    { padding: '4px 10px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
 }

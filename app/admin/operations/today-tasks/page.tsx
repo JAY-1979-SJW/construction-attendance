@@ -58,7 +58,7 @@ export default function TodayTasksPage() {
         <div>
           <h1 style={{ margin: 0, fontSize: '22px', fontWeight: 800 }}>오늘 처리할 일</h1>
           {data && (
-            <div style={{ fontSize: '13px', color: '#888', marginTop: '4px' }}>
+            <div style={{ fontSize: '13px', color: '#A0AEC0', marginTop: '4px' }}>
               {data.todayStr} 기준 · {new Date(data.generatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 조회
             </div>
           )}
@@ -129,7 +129,7 @@ export default function TodayTasksPage() {
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: '12px', color: '#888', marginTop: '3px' }}>{task.description}</div>
+                      <div style={{ fontSize: '12px', color: '#A0AEC0', marginTop: '3px' }}>{task.description}</div>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: '20px' }}>
                       <div style={{ fontSize: '28px', fontWeight: 800, color: task.count > 0 ? cfg.color : '#ccc' }}>
@@ -144,7 +144,7 @@ export default function TodayTasksPage() {
           </div>
 
           {/* 출력물 센터 링크 */}
-          <div style={{ marginTop: '24px', padding: '16px 20px', background: '#f5f5f5', borderRadius: '10px', border: '1px solid #e0e0e0' }}>
+          <div style={{ marginTop: '24px', padding: '16px 20px', background: '#1B2838', borderRadius: '10px', border: '1px solid #e0e0e0' }}>
             <div style={{ fontSize: '14px', fontWeight: 700, color: '#333', marginBottom: '10px' }}>관련 화면 바로가기</div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               <Link href="/admin/operations/attendance-exceptions" style={quickLink('#37474f')}>출퇴근 처리 센터</Link>
@@ -156,7 +156,7 @@ export default function TodayTasksPage() {
       )}
 
       {loading && !data && (
-        <div style={{ textAlign: 'center', color: '#888', padding: '60px', fontSize: '14px' }}>
+        <div style={{ textAlign: 'center', color: '#A0AEC0', padding: '60px', fontSize: '14px' }}>
           조회 중...
         </div>
       )}

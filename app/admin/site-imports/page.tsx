@@ -89,22 +89,22 @@ export default function SiteImportsPage() {
 
       <main style={styles.main}>
         <h1 style={styles.pageTitle}>현장 엑셀 업로드</h1>
-        <p style={{ fontSize: '13px', color: '#888', marginTop: '-12px', marginBottom: '24px' }}>
+        <p style={{ fontSize: '13px', color: '#A0AEC0', marginTop: '-12px', marginBottom: '24px' }}>
           xlsx 파일 업로드 → 자동 지오코딩 → 검수 → 승인된 현장만 등록
         </p>
 
         {/* 업로드 카드 */}
         <div style={styles.uploadCard}>
           <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '8px' }}>새 파일 업로드</div>
-          <div style={{ fontSize: '13px', color: '#888', marginBottom: '16px' }}>
+          <div style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '16px' }}>
             필수 컬럼: <strong>현장명</strong>, <strong>주소</strong> / 선택: 허용반경(m), 현장코드
           </div>
 
           {/* 엑셀 샘플 형식 안내 */}
           <div style={{ background: '#f8f9fa', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', fontSize: '12px', color: '#555' }}>
             <div style={{ fontWeight: 600, marginBottom: '6px' }}>📋 엑셀 헤더 예시 (1행)</div>
-            <code style={{ display: 'block', color: '#1976d2' }}>현장명 | 주소 | 허용반경(m) | 현장코드</code>
-            <div style={{ marginTop: '4px', color: '#888' }}>※ 지오코딩 API 미설정 시 좌표는 검수 화면에서 직접 입력</div>
+            <code style={{ display: 'block', color: '#5BA4D9' }}>현장명 | 주소 | 허용반경(m) | 현장코드</code>
+            <div style={{ marginTop: '4px', color: '#A0AEC0' }}>※ 지오코딩 API 미설정 시 좌표는 검수 화면에서 직접 입력</div>
           </div>
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' as const }}>
@@ -125,7 +125,7 @@ export default function SiteImportsPage() {
           )}
 
           {uploading && (
-            <div style={{ marginTop: '12px', fontSize: '12px', color: '#888' }}>
+            <div style={{ marginTop: '12px', fontSize: '12px', color: '#A0AEC0' }}>
               ⏳ 주소별 지오코딩 중입니다. 행 수에 따라 최대 수 분이 소요될 수 있습니다.
             </div>
           )}
@@ -133,7 +133,7 @@ export default function SiteImportsPage() {
 
         {/* 작업 목록 */}
         <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '12px' }}>업로드 이력</div>
-        {loading ? <p style={{ color: '#888' }}>로딩 중...</p> : (
+        {loading ? <p style={{ color: '#A0AEC0' }}>로딩 중...</p> : (
           <div style={styles.tableCard}>
             <table style={styles.table}>
               <thead>
@@ -150,7 +150,7 @@ export default function SiteImportsPage() {
                   <tr key={j.id} style={styles.tr}>
                     <td style={styles.td}>{formatDT(j.createdAt)}</td>
                     <td style={styles.td}>
-                      <span style={{ fontSize: '13px', color: '#333' }}>{j.originalFilename}</span>
+                      <span style={{ fontSize: '13px', color: '#CBD5E0' }}>{j.originalFilename}</span>
                     </td>
                     <td style={styles.td}>
                       <span style={{ fontSize: '11px', fontWeight: 700, color: JOB_STATUS_COLOR[j.status] ?? '#888' }}>
@@ -165,7 +165,7 @@ export default function SiteImportsPage() {
                       <span style={{ color: j.failedRows > 0 ? '#e65100' : '#888', fontWeight: j.failedRows > 0 ? 600 : 400 }}>{j.failedRows}</span>
                     </td>
                     <td style={{ ...styles.td, textAlign: 'center' as const }}>
-                      <span style={{ color: '#1565c0', fontWeight: 600 }}>{j.approvedRows}</span>
+                      <span style={{ color: '#4A93C8', fontWeight: 600 }}>{j.approvedRows}</span>
                     </td>
                     <td style={{ ...styles.td, textAlign: 'center' as const }}>
                       <span style={{ color: '#4a148c', fontWeight: 600 }}>{j.importedRows}</span>
@@ -185,20 +185,20 @@ export default function SiteImportsPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  layout:      { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:     { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0 },
+  layout:      { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:     { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
   sidebarTitle:{ color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
   navItem:     { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
   navActive:   { color: 'white', background: 'rgba(255,255,255,0.1)', fontWeight: 700 },
   main:        { flex: 1, padding: '32px', minWidth: 0 },
   pageTitle:   { fontSize: '22px', fontWeight: 700, margin: '0 0 4px' },
-  uploadCard:  { background: 'white', borderRadius: '12px', padding: '24px', marginBottom: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  fileInput:   { border: '1px solid #ddd', borderRadius: '6px', padding: '6px 10px', fontSize: '13px' },
-  uploadBtn:   { padding: '10px 24px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  tableCard:   { background: 'white', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  uploadCard:  { background: '#243144', borderRadius: '12px', padding: '24px', marginBottom: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
+  fileInput:   { border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '6px 10px', fontSize: '13px' },
+  uploadBtn:   { padding: '10px 24px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  tableCard:   { background: '#243144', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   table:       { width: '100%', borderCollapse: 'collapse' as const },
-  th:          { textAlign: 'left' as const, padding: '10px 14px', fontSize: '11px', color: '#888', borderBottom: '2px solid #f0f0f0', background: '#fafafa', whiteSpace: 'nowrap' as const },
+  th:          { textAlign: 'left' as const, padding: '10px 14px', fontSize: '11px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', background: '#fafafa', whiteSpace: 'nowrap' as const },
   td:          { padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #f5f5f5' },
   tr:          {},
-  reviewLink:  { color: '#1976d2', textDecoration: 'underline', fontSize: '13px', fontWeight: 600 },
+  reviewLink:  { color: '#5BA4D9', textDecoration: 'underline', fontSize: '13px', fontWeight: 600 },
 }

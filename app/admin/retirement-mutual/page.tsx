@@ -358,7 +358,7 @@ export default function RetirementMutualPage() {
                             {r.manualOverride ? '보정' : '-'}
                           </span>
                         </td>
-                        <td style={{ ...s.td, fontSize: '12px', color: '#888' }}>{r.overrideReason ?? '-'}</td>
+                        <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0' }}>{r.overrideReason ?? '-'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -412,7 +412,7 @@ export default function RetirementMutualPage() {
         {tab === 'export' && (
           <div style={s.generateCard}>
             <div style={{ fontWeight: 700, fontSize: '14px', marginBottom: '16px' }}>퇴직공제 자료 생성</div>
-            <p style={{ fontSize: '13px', color: '#888', marginBottom: '20px' }}>
+            <p style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '20px' }}>
               선택한 귀속연월의 퇴직공제 신고 기초자료를 생성합니다.
             </p>
             <button
@@ -457,8 +457,8 @@ const NAV_ITEMS = [
 ]
 
 const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
   navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
@@ -466,14 +466,14 @@ const s: Record<string, React.CSSProperties> = {
   logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
-  input:        { padding: '8px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '14px', background: 'white' },
-  btn:          { padding: '8px 16px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   msg:          { padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' },
-  generateCard: { background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  tableCard:    { background: 'white', borderRadius: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' },
+  generateCard: { background: '#243144', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
+  tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
   table:        { width: '100%', borderCollapse: 'collapse' as const },
-  th:           { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#666', borderBottom: '1px solid #f0f0f0', whiteSpace: 'nowrap' as const },
-  td:           { padding: '12px 16px', fontSize: '13px', color: '#333', borderBottom: '1px solid #f9f9f9', verticalAlign: 'top' as const },
+  th:           { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
+  td:           { padding: '12px 16px', fontSize: '13px', color: '#CBD5E0', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
   tr:           { cursor: 'default' },
   loadingCell:  { padding: '32px', textAlign: 'center' as const, color: '#999' },
   emptyCell:    { textAlign: 'center' as const, padding: '24px', color: '#999' },

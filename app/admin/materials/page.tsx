@@ -240,13 +240,13 @@ export default function MaterialsPage() {
             <option value="">전체 현장</option>
             {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
-          <span style={{ color: '#888', fontSize: '14px' }}>총 {total}건</span>
+          <span style={{ color: '#A0AEC0', fontSize: '14px' }}>총 {total}건</span>
         </div>
 
         {/* Table */}
         <div style={styles.tableCard}>
           {loading ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>로딩 중...</div>
+            <div style={{ padding: '40px', textAlign: 'center', color: '#A0AEC0' }}>로딩 중...</div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={styles.table}>
@@ -264,7 +264,7 @@ export default function MaterialsPage() {
                     <tr key={doc.id} style={styles.tr}>
                       <td style={styles.td}>
                         <div style={{ fontWeight: 600, fontSize: '14px' }}>{doc.fileName}</div>
-                        <div style={{ fontSize: '12px', color: '#888' }}>{formatFileSize(doc.fileSize)}{doc.notes ? ` · ${doc.notes}` : ''}</div>
+                        <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{formatFileSize(doc.fileSize)}{doc.notes ? ` · ${doc.notes}` : ''}</div>
                       </td>
                       <td style={styles.td}>{doc.site?.name ?? '-'}</td>
                       <td style={styles.td}>
@@ -316,34 +316,34 @@ export default function MaterialsPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar: { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
+  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
   navSection: { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
   navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navItemActive: { display: 'block', color: 'white', padding: '10px 20px', fontSize: '14px', textDecoration: 'none', background: 'rgba(255,255,255,0.12)', borderLeft: '3px solid #90caf9' },
+  navItemActive: { display: 'block', color: 'white', padding: '10px 20px', fontSize: '14px', textDecoration: 'none', background: 'rgba(244,121,32,0.15)', borderLeft: '3px solid #F47920' },
   logoutBtn: { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
   main: { flex: 1, padding: '32px' },
   pageTitle: { fontSize: '24px', fontWeight: 700, margin: '0 0 4px' },
-  pageDesc: { fontSize: '14px', color: '#888', margin: 0 },
-  primaryBtn: { padding: '10px 20px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  pageDesc: { fontSize: '14px', color: '#A0AEC0', margin: 0 },
+  primaryBtn: { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   cancelBtn: { padding: '10px 20px', background: '#e0e0e0', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
   filterRow: { display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' },
-  filterSelect: { padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', background: 'white' },
-  tableCard: { background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  filterSelect: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   table: { width: '100%', borderCollapse: 'collapse' },
-  th: { textAlign: 'left', padding: '10px 12px', fontSize: '12px', color: '#888', borderBottom: '2px solid #f0f0f0', whiteSpace: 'nowrap' },
-  td: { padding: '12px', fontSize: '14px', borderBottom: '1px solid #f5f5f5', verticalAlign: 'top' },
+  th: { textAlign: 'left', padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' },
+  td: { padding: '12px', fontSize: '14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' },
   tr: {},
-  actionBtn: { padding: '4px 10px', background: '#e3f2fd', color: '#1976d2', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'inline-block' },
+  actionBtn: { padding: '4px 10px', background: 'rgba(91,164,217,0.12)', color: '#5BA4D9', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'inline-block' },
   actionBtnSecondary: { padding: '4px 10px', background: '#f3e5f5', color: '#7b1fa2', border: '1px solid #ce93d8', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 },
   actionBtnDanger: { padding: '4px 10px', background: '#ffebee', color: '#b71c1c', border: '1px solid #ef9a9a', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 },
-  pageBtn: { padding: '6px 14px', border: '1px solid #ddd', borderRadius: '4px', background: 'white', cursor: 'pointer', fontSize: '13px' },
+  pageBtn: { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', background: 'white', cursor: 'pointer', fontSize: '13px' },
   modalOverlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modal: { background: 'white', borderRadius: '12px', padding: '32px', width: '480px', maxWidth: '90vw', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' },
+  modal: { background: '#243144', borderRadius: '12px', padding: '32px', width: '480px', maxWidth: '90vw', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' },
   formLabel: { display: 'block', fontSize: '13px', fontWeight: 600, color: '#555', marginBottom: '6px', marginTop: '16px' },
-  fileInput: { display: 'block', width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px' },
-  select: { width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', background: 'white' },
-  textarea: { width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', resize: 'vertical', boxSizing: 'border-box' },
+  fileInput: { display: 'block', width: '100%', padding: '8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px' },
+  select: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  textarea: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', resize: 'vertical', boxSizing: 'border-box' },
   errorMsg: { background: '#ffebee', color: '#b71c1c', padding: '10px 14px', borderRadius: '6px', fontSize: '13px', marginTop: '12px' },
 }

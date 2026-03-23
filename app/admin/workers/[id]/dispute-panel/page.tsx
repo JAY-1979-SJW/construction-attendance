@@ -170,7 +170,7 @@ function ScoreGauge({ score }: { score: number }) {
         </div>
       </div>
       <div style={{ marginTop: '4px', fontSize: '13px', fontWeight: 700, color }}>{label}</div>
-      <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>증거 완비도 기준 (법적 판단 아님)</div>
+      <div style={{ fontSize: '11px', color: '#718096', marginTop: '2px' }}>증거 완비도 기준 (법적 판단 아님)</div>
     </div>
   )
 }
@@ -234,7 +234,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px 16px' }}>
       {/* 뒤로가기 */}
       <div style={{ marginBottom: '16px' }}>
-        <Link href={`/admin/workers/${workerId}`} style={{ color: '#1565c0', fontSize: '14px', textDecoration: 'none' }}>
+        <Link href={`/admin/workers/${workerId}`} style={{ color: '#4A93C8', fontSize: '14px', textDecoration: 'none' }}>
           ← 근로자 상세로 돌아가기
         </Link>
       </div>
@@ -256,7 +256,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
               {worker.companyName && <span> · {worker.companyName}</span>}
               <br />
               <span>{worker.phone}</span>
-              <span style={{ marginLeft: '12px', background: '#f5f5f5', padding: '1px 8px', borderRadius: '4px', fontSize: '12px' }}>
+              <span style={{ marginLeft: '12px', background: '#1B2838', padding: '1px 8px', borderRadius: '4px', fontSize: '12px' }}>
                 {worker.employmentType}
               </span>
             </div>
@@ -356,7 +356,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
                         {item.level !== 'OK' && item.action && (
                           <a
                             href={item.actionHref ?? `/admin/workers/${workerId}`}
-                            style={{ fontSize: '12px', color: '#1565c0', background: '#e3f2fd', padding: '3px 10px', borderRadius: '6px', textDecoration: 'none', flexShrink: 0 }}
+                            style={{ fontSize: '12px', color: '#4A93C8', background: 'rgba(91,164,217,0.1)', padding: '3px 10px', borderRadius: '6px', textDecoration: 'none', flexShrink: 0 }}
                           >
                             {item.action} →
                           </a>
@@ -386,7 +386,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
               <thead>
                 <tr style={{ background: '#fafafa' }}>
                   {['문서 유형', '교부 방법', '상태', '교부일'].map(h => (
-                    <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: '#666', borderBottom: '1px solid #f0f0f0' }}>{h}</th>
+                    <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -400,7 +400,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
                         {DELIVERY_STATUS_LABEL[log.status] ?? log.status}
                       </span>
                     </td>
-                    <td style={{ padding: '10px 16px', color: '#999', fontSize: '12px' }}>
+                    <td style={{ padding: '10px 16px', color: '#718096', fontSize: '12px' }}>
                       {log.deliveredAt ? new Date(log.deliveredAt).toLocaleDateString('ko-KR') : '-'}
                     </td>
                   </tr>
@@ -418,13 +418,13 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
             출퇴근 이력 (최근 90일, {recentAttendance.length}건)
           </div>
           {recentAttendance.length === 0 ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#999', fontSize: '14px' }}>출퇴근 기록이 없습니다.</div>
+            <div style={{ padding: '40px', textAlign: 'center', color: '#718096', fontSize: '14px' }}>출퇴근 기록이 없습니다.</div>
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
               <thead>
                 <tr style={{ background: '#fafafa' }}>
                   {['날짜', '출근', '퇴근', '상태'].map(h => (
-                    <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: '#666', borderBottom: '1px solid #f0f0f0' }}>{h}</th>
+                    <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -450,7 +450,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
             출퇴근 수정 이력 ({adjustmentLogs.length}건)
           </div>
           {adjustmentLogs.length === 0 ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#999', fontSize: '14px' }}>수정 이력이 없습니다.</div>
+            <div style={{ padding: '40px', textAlign: 'center', color: '#718096', fontSize: '14px' }}>수정 이력이 없습니다.</div>
           ) : (
             <div style={{ padding: '16px' }}>
               {adjustmentLogs.map(log => (
@@ -481,7 +481,7 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
             분쟁 케이스 ({disputeCases.length}건)
           </div>
           {disputeCases.length === 0 ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#999', fontSize: '14px' }}>분쟁 케이스가 없습니다.</div>
+            <div style={{ padding: '40px', textAlign: 'center', color: '#718096', fontSize: '14px' }}>분쟁 케이스가 없습니다.</div>
           ) : (
             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {disputeCases.map(dc => (
@@ -563,9 +563,9 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
 function StatCard({ label, value, sub, accent }: { label: string; value: string; sub: string; accent?: boolean }) {
   return (
     <div style={{ background: '#ffffff', border: `1px solid ${accent ? '#ffcdd2' : '#e0e0e0'}`, borderRadius: '12px', padding: '16px 20px' }}>
-      <div style={{ fontSize: '12px', color: '#999', marginBottom: '6px' }}>{label}</div>
+      <div style={{ fontSize: '12px', color: '#718096', marginBottom: '6px' }}>{label}</div>
       <div style={{ fontSize: '22px', fontWeight: 800, color: accent ? '#c62828' : '#1a1a2e' }}>{value}</div>
-      <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '12px', color: '#718096', marginTop: '4px' }}>{sub}</div>
     </div>
   )
 }

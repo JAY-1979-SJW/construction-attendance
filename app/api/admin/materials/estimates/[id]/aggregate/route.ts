@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
+import { AggregationStatus } from '@prisma/client'
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getAdminSession()
@@ -9,11 +10,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const { searchParams } = new URL(req.url)
   const discipline = searchParams.get('discipline') ?? undefined
   const reviewOnly = searchParams.get('reviewOnly') === 'true'
+  const aggStatus = searchParams.get('status') ?? undefined // DRAFT | REVIEWED | CONFIRMED
 
   const where = {
     documentId: params.id,
     ...(discipline ? { discipline } : {}),
     ...(reviewOnly ? { reviewRequired: true } : {}),
+    ...(aggStatus ? { aggregationStatus: aggStatus as AggregationStatus } : {}),
   }
 
   const items = await prisma.materialAggregateRow.findMany({

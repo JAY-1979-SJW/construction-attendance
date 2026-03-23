@@ -180,7 +180,7 @@ export default function PoliciesPage() {
               <div key={group.type} style={styles.groupCard}>
                 <h2 style={styles.groupTitle}>{group.label}</h2>
                 {group.docs.length === 0 ? (
-                  <p style={{ color: '#999', fontSize: '14px' }}>등록된 문서가 없습니다.</p>
+                  <p style={{ color: '#718096', fontSize: '14px' }}>등록된 문서가 없습니다.</p>
                 ) : (
                   <table style={styles.table}>
                     <thead>
@@ -235,25 +235,25 @@ export default function PoliciesPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar: { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0 },
+  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
   navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
   main: { flex: 1, padding: '32px' },
   pageTitle: { fontSize: '22px', fontWeight: 700, margin: 0 },
   msgBox: { border: '1px solid', borderRadius: '8px', padding: '12px 16px', fontSize: '14px', marginBottom: '16px' },
   primaryBtn: { padding: '8px 20px', background: '#1a1a2e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
-  formCard: { background: 'white', borderRadius: '10px', padding: '24px', marginBottom: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  formCard: { background: '#243144', borderRadius: '10px', padding: '24px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   formGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' },
-  label: { display: 'block', fontSize: '12px', color: '#888', marginBottom: '4px', fontWeight: 600 },
-  input: { width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' },
-  select: { width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px' },
-  groupCard: { background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  label: { display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 },
+  input: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' },
+  select: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px' },
+  groupCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   groupTitle: { fontSize: '16px', fontWeight: 700, marginTop: 0, marginBottom: '16px', borderBottom: '2px solid #f0f0f0', paddingBottom: '8px' },
   table: { width: '100%', borderCollapse: 'collapse' as const },
-  th: { textAlign: 'left' as const, padding: '8px 12px', fontSize: '12px', color: '#888', borderBottom: '2px solid #f0f0f0' },
+  th: { textAlign: 'left' as const, padding: '8px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)' },
   td: { padding: '10px 12px', fontSize: '14px', borderBottom: '1px solid #f5f5f5' },
   activeBadge: { fontSize: '11px', background: '#e8f5e9', color: '#2e7d32', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 },
-  inactiveBadge: { fontSize: '11px', background: '#f5f5f5', color: '#888', padding: '2px 8px', borderRadius: '10px' },
-  viewBtn: { padding: '4px 10px', border: '1px solid #ddd', borderRadius: '4px', background: 'white', cursor: 'pointer', fontSize: '12px' },
+  inactiveBadge: { fontSize: '11px', background: '#1B2838', color: '#A0AEC0', padding: '2px 8px', borderRadius: '10px' },
+  viewBtn: { padding: '4px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', background: 'white', cursor: 'pointer', fontSize: '12px' },
 }

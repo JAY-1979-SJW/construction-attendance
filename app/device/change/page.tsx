@@ -115,5 +115,5 @@ const styles: Record<string, React.CSSProperties> = {
   label: { display: 'block', fontSize: '14px', fontWeight: 600, color: '#333', marginBottom: '8px' },
   input: { width: '100%', padding: '12px 14px', fontSize: '15px', border: '2px solid #e0e0e0', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' as const },
   error: { color: '#e53935', fontSize: '13px', margin: '0 0 12px' },
-  button: { width: '100%', padding: '16px', fontSize: '17px', fontWeight: 700, background: '#1976d2', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
+  button: { width: '100%', padding: '16px', fontSize: '17px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
 }

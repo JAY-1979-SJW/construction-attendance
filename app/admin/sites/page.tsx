@@ -562,7 +562,7 @@ export default function SitesPage() {
                           {fmtDate(a.startDate)} ~ {fmtDate(a.endDate)}
                           {a.managerName && <span style={{ marginLeft: '8px' }}>담당: {a.managerName}{a.managerPhone ? ` (${a.managerPhone})` : ''}</span>}
                         </div>
-                        {a.notes && <div style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>{a.notes}</div>}
+                        {a.notes && <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '2px' }}>{a.notes}</div>}
                       </div>
                       {canMutate && (
                         <button onClick={() => handleDeleteAssignment(site.id, a.id)} style={styles.delAssignBtn} title="배정 삭제">✕</button>
@@ -677,11 +677,11 @@ export default function SitesPage() {
           <div style={styles.modalOverlay}>
             <div style={styles.modal}>
               <h3 style={styles.modalTitle}>근무시간 정책 — {policySite.name}</h3>
-              <p style={{ fontSize: '12px', color: '#888', marginBottom: '16px', lineHeight: '1.5' }}>
+              <p style={{ fontSize: '12px', color: '#A0AEC0', marginBottom: '16px', lineHeight: '1.5' }}>
                 빈칸 = 회사 기본값 사용 (출근 07:00 / 퇴근 17:00 / 휴게 60분).<br />
                 <strong>휴게시간 차감(분)</strong>이 공수 계산에 직접 영향을 줍니다.
               </p>
-              {policyLoading ? <p style={{ color: '#999', textAlign: 'center' }}>로딩 중...</p> : (
+              {policyLoading ? <p style={{ color: '#718096', textAlign: 'center' }}>로딩 중...</p> : (
                 <>
                   {policyEffective && (
                     <div style={S.effectiveBanner}>
@@ -759,18 +759,18 @@ const S = {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5', fontFamily: 'system-ui, sans-serif' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0 },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838', fontFamily: 'system-ui, sans-serif' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
   main:         { flex: 1, padding: '32px' },
   header:       { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' },
   pageTitle:    { fontSize: '22px', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'baseline', gap: '6px' },
-  addBtn:       { padding: '10px 20px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  addBtn:       { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   grid:         { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '16px' },
-  siteCard:     { background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', display: 'flex', flexDirection: 'column', gap: '0' },
+  siteCard:     { background: '#243144', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', display: 'flex', flexDirection: 'column', gap: '0' },
   siteName:     { fontSize: '17px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' },
-  siteCode:     { fontSize: '11px', color: '#999', marginTop: '2px', fontFamily: 'monospace' },
+  siteCode:     { fontSize: '11px', color: '#718096', marginTop: '2px', fontFamily: 'monospace' },
   statusBadge:  { fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '10px' },
   siteAddress:  { fontSize: '13px', color: '#666', margin: '6px 0 8px' },
   metaChip:     { fontSize: '11px', color: '#555', background: '#f0f0f0', padding: '2px 8px', borderRadius: '10px' },
@@ -780,29 +780,29 @@ const styles: Record<string, React.CSSProperties> = {
   emptyCompany: { fontSize: '12px', color: '#bbb', textAlign: 'center' as const, padding: '8px 0' },
   companyRow:   { display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '8px 0', borderTop: '1px solid #eee' },
   companyName:  { fontSize: '13px', fontWeight: 600, color: '#333' },
-  contractBadge:{ fontSize: '11px', background: '#e3f2fd', color: '#1565c0', padding: '1px 6px', borderRadius: '4px' },
+  contractBadge:{ fontSize: '11px', background: 'rgba(244,121,32,0.12)', color: '#F47920', padding: '1px 6px', borderRadius: '4px' },
   typeBadge:    { fontSize: '11px', background: '#f3e5f5', color: '#6a1b9a', padding: '1px 6px', borderRadius: '4px' },
   companyMeta:  { fontSize: '11px', color: '#777', marginTop: '3px' },
   assignBtn:    { fontSize: '11px', padding: '3px 8px', background: '#e8f5e9', color: '#2e7d32', border: '1px solid #a5d6a7', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' as const },
   delAssignBtn: { fontSize: '11px', padding: '2px 6px', background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', flexShrink: 0 },
-  editBtn:      { padding: '4px 10px', fontSize: '12px', background: '#e3f2fd', color: '#1976d2', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer' },
+  editBtn:      { padding: '4px 10px', fontSize: '12px', background: 'rgba(91,164,217,0.12)', color: '#5BA4D9', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer' },
   policyBtn:    { padding: '4px 10px', fontSize: '12px', background: '#fff8e1', color: '#f57f17', border: '1px solid #ffe082', borderRadius: '4px', cursor: 'pointer' },
-  detailBtn:    { padding: '4px 10px', fontSize: '12px', background: '#f5f5f5', color: '#555', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer' },
+  detailBtn:    { padding: '4px 10px', fontSize: '12px', background: 'rgba(91,164,217,0.1)', color: '#A0AEC0', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', cursor: 'pointer' },
   detailPanel:  { borderTop: '1px solid #f0f0f0', marginTop: '10px', paddingTop: '10px' },
   detailRow:    { display: 'flex', gap: '8px', fontSize: '12px', color: '#555', marginBottom: '4px' },
-  detailLabel:  { width: '70px', flexShrink: 0, fontWeight: 600, color: '#888' },
+  detailLabel:  { width: '70px', flexShrink: 0, fontWeight: 600, color: '#A0AEC0' },
   modalOverlay: { position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, overflowY: 'auto' as const, padding: '24px' },
-  modal:        { background: 'white', borderRadius: '12px', padding: '32px', width: '480px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' as const },
-  modalWide:    { background: 'white', borderRadius: '12px', padding: '32px', width: '600px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' as const },
+  modal:        { background: '#243144', borderRadius: '12px', padding: '32px', width: '480px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' as const },
+  modalWide:    { background: '#243144', borderRadius: '12px', padding: '32px', width: '600px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' as const },
   modalTitle:   { margin: '0 0 20px', fontSize: '18px', fontWeight: 700 },
   fieldRow:     { marginBottom: '14px' },
   label:        { display: 'block', fontSize: '13px', color: '#555', marginBottom: '4px', fontWeight: 600 },
-  input:        { width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #ddd', borderRadius: '6px', boxSizing: 'border-box' as const },
+  input:        { width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', boxSizing: 'border-box' as const },
   mapBox:       { width: '100%', height: '280px', borderRadius: '8px', border: '1px solid #ddd', overflow: 'hidden' },
   error:        { color: '#e53935', fontSize: '13px', margin: '0 0 12px' },
   btnRow:       { display: 'flex', gap: '8px', marginTop: '16px' },
-  saveBtn:      { flex: 1, padding: '12px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 },
-  cancelBtn:    { flex: 1, padding: '12px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer' },
+  saveBtn:      { flex: 1, padding: '12px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 },
+  cancelBtn:    { flex: 1, padding: '12px', background: '#1B2838', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer' },
   gpsBtn:       { padding: '6px 12px', background: '#e8f5e9', color: '#2e7d32', border: '1px solid #a5d6a7', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' as const },
-  addrBtn:      { padding: '6px 12px', background: '#e3f2fd', color: '#1565c0', border: '1px solid #90caf9', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' as const },
+  addrBtn:      { padding: '6px 12px', background: 'rgba(244,121,32,0.12)', color: '#F47920', border: '1px solid #90caf9', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' as const },
 }

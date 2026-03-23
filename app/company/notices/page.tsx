@@ -253,7 +253,7 @@ const styles: Record<string, React.CSSProperties> = {
   page: { padding: '32px', maxWidth: '900px', fontFamily: 'sans-serif' },
   title: { fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 },
   filterRow: { display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '20px' },
-  select: { padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px', minWidth: '180px' },
+  select: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', minWidth: '180px' },
   addBtn: {
     padding: '8px 16px', background: '#0f4c75', color: 'white',
     border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
@@ -269,7 +269,7 @@ const styles: Record<string, React.CSSProperties> = {
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' },
   label: { display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '4px' },
   input: {
-    width: '100%', border: '1px solid #d1d5db', borderRadius: '6px',
+    width: '100%', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px',
     padding: '8px 10px', fontSize: '13px', boxSizing: 'border-box',
   },
   saveBtn: {
@@ -278,7 +278,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   cancelBtn: {
     padding: '8px 16px', background: 'white', color: '#374151',
-    border: '1px solid #d1d5db', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
+    border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
   },
   noticeCard: {
     background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px',

@@ -197,7 +197,7 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
                 <Row k="확인 메모" v={sensitive.idVerificationNote} />
                 <Row k="최종 수정" v={fmt(sensitive.updatedAt)} />
               </div>
-            ) : <p style={{ color: '#999', margin: 0 }}>등록된 정보가 없습니다.</p>}
+            ) : <p style={{ color: '#718096', margin: 0 }}>등록된 정보가 없습니다.</p>}
 
             {canMutate && (
               <>
@@ -241,7 +241,7 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
                 <Row k="예금주명" v={bank.accountHolderNameMasked} />
                 <Row k="최종 수정" v={fmt(bank.updatedAt)} />
               </div>
-            ) : <p style={{ color: '#999', margin: 0 }}>등록된 계좌정보가 없습니다.</p>}
+            ) : <p style={{ color: '#718096', margin: 0 }}>등록된 계좌정보가 없습니다.</p>}
 
             {canMutate && (
               <>
@@ -362,7 +362,7 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
 function Row({ k, v, mono }: { k: string; v: string | null | undefined; mono?: boolean }) {
   return (
     <div style={{ display: 'flex', gap: '16px', padding: '8px 0', borderBottom: '1px solid #f0f0f0', fontSize: '14px' }}>
-      <span style={{ color: '#888', minWidth: '140px', flexShrink: 0 }}>{k}</span>
+      <span style={{ color: '#A0AEC0', minWidth: '140px', flexShrink: 0 }}>{k}</span>
       <span style={{ fontFamily: mono ? 'monospace' : 'inherit' }}>{v ?? '-'}</span>
     </div>
   )
@@ -380,23 +380,23 @@ function F({ label, value, onChange, type = 'text', placeholder = '' }: {
 }
 
 const s: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar: { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0 },
+  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
   navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
   main: { flex: 1, padding: '32px' },
   pageTitle: { fontSize: '22px', fontWeight: 700, margin: '4px 0 16px' },
-  notice: { background: '#e3f2fd', border: '1px solid #90caf9', borderRadius: '6px', padding: '8px 14px', fontSize: '13px', color: '#1565c0', marginBottom: '16px' },
+  notice: { background: 'rgba(91,164,217,0.1)', border: '1px solid #90caf9', borderRadius: '6px', padding: '8px 14px', fontSize: '13px', color: '#4A93C8', marginBottom: '16px' },
   msgBox: { border: '1px solid', borderRadius: '8px', padding: '12px 16px', fontSize: '14px' },
   tabRow: { display: 'flex', gap: '8px', marginBottom: '16px' },
-  tab: { padding: '8px 20px', border: '1px solid #ddd', borderRadius: '6px', background: 'white', cursor: 'pointer', fontSize: '14px', color: '#666' },
+  tab: { padding: '8px 20px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', background: 'white', cursor: 'pointer', fontSize: '14px', color: '#666' },
   tabActive: { background: '#1a1a2e', color: 'white', borderColor: '#1a1a2e' },
-  card: { background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  card: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   sectionTitle: { fontSize: '15px', fontWeight: 700, marginTop: 0, marginBottom: '12px' },
   rows: { display: 'flex', flexDirection: 'column' as const },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' },
-  label: { display: 'block', fontSize: '12px', color: '#888', marginBottom: '4px', fontWeight: 600 },
-  input: { width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' as const },
-  select: { width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px' },
+  label: { display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 },
+  input: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' as const },
+  select: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px' },
   btn: { padding: '8px 20px', background: '#1a1a2e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
 }

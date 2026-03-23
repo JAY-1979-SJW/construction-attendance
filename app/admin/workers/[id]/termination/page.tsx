@@ -211,7 +211,7 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: '24px 16px', fontFamily: 'system-ui, sans-serif' }}>
       {/* 뒤로가기 */}
       <div style={{ marginBottom: '16px' }}>
-        <Link href={`/admin/workers/${workerId}`} style={{ color: '#1565c0', fontSize: '14px', textDecoration: 'none' }}>
+        <Link href={`/admin/workers/${workerId}`} style={{ color: '#4A93C8', fontSize: '14px', textDecoration: 'none' }}>
           ← 근로자 상세로 돌아가기
         </Link>
       </div>
@@ -442,7 +442,7 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
           </div>
 
           {/* 종료정보 요약 */}
-          <div style={{ background: '#f5f5f5', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px', fontSize: '13px', color: '#555' }}>
+          <div style={{ background: '#1B2838', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px', fontSize: '13px', color: '#555' }}>
             <div style={{ fontWeight: 700, marginBottom: '8px', color: '#333' }}>종료 처리 요약</div>
             <div>사유: <strong>{TERMINATION_REASONS.find(r => r.value === form.terminationReason)?.label}</strong></div>
             <div>종료일: <strong>{form.terminationDate}</strong></div>

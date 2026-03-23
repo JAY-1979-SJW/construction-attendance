@@ -3223,6 +3223,12 @@ enum NormalizationSource {
   UNMAPPED
 }
 
+enum AggregationStatus {
+  DRAFT       // 자동 생성 직후
+  REVIEWED    // 관리자 검토 완료
+  CONFIRMED   // 최종 확정
+}
+
 // 계약내역서 문서
 model EstimateDocument {
   id            String                @id @default(cuid())
@@ -3245,6 +3251,7 @@ model EstimateDocument {
   sheets  EstimateDocumentSheet[]
   billRows EstimateBillRow[]
   aggregateRows MaterialAggregateRow[]
+  aggregationRuns EstimateAggregationRun[]
 
   @@index([siteId])
   @@index([parseStatus])
@@ -3308,14 +3315,27 @@ model EstimateBillRow {
   reviewRequired    Boolean   @default(false)
   reviewReasonsJson String?
   sourceCellRange   String?
+  // ── Phase 3: 수동 보정 필드 ──────────────────────────────
+  manualItemName          String?
+  manualSpec              String?
+  manualUnit              String?
+  manualQuantity          Decimal?  @db.Decimal(18, 4)
+  manualGroupKey          String?
+  excludeFromAggregation  Boolean   @default(false)
+  overrideReason          String?
+  overriddenBy            String?
+  overriddenAt            DateTime?
   createdAt      DateTime  @default(now())
 
   document    EstimateDocument       @relation(fields: [documentId], references: [id], onDelete: Cascade)
   sheet       EstimateDocumentSheet  @relation(fields: [sheetId], references: [id], onDelete: Cascade)
   normalized  EstimateBillRowNormalized?
+  overrides   EstimateRowOverride[]
 
   @@index([documentId])
   @@index([sheetId])
+  @@index([manualGroupKey])
+  @@index([excludeFromAggregation])
   @@map("estimate_bill_rows")
 }
 
@@ -3358,6 +3378,12 @@ model MaterialAggregateRow {
   unitPriceInconsistent Boolean   @default(false)
   reviewRequired    Boolean   @default(false)
   groupKey              String
+  // ── Phase 3: 상태·확정·재집계 필드 ───────────────────────
+  aggregationStatus     AggregationStatus @default(DRAFT)
+  manualOverrideUsed    Boolean   @default(false)
+  confirmedBy           String?
+  confirmedAt           DateTime?
+  regeneratedAt         DateTime?
   createdAt             DateTime  @default(now())
 
   document EstimateDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
@@ -3365,7 +3391,43 @@ model MaterialAggregateRow {
   @@index([documentId])
   @@index([discipline])
   @@index([groupKey])
+  @@index([aggregationStatus])
   @@map("material_aggregate_rows")
+}
+
+// ── Phase 3: 행 보정 이력 ─────────────────────────────────
+model EstimateRowOverride {
+  id          String    @id @default(cuid())
+  rowId       String
+  fieldName   String    // manualItemName | manualSpec | manualUnit | manualQuantity | manualGroupKey | excludeFromAggregation
+  beforeValue String?   @db.Text
+  afterValue  String?   @db.Text
+  reason      String?
+  changedBy   String
+  changedAt   DateTime  @default(now())
+
+  row EstimateBillRow @relation(fields: [rowId], references: [id], onDelete: Cascade)
+
+  @@index([rowId])
+  @@index([changedAt])
+  @@map("estimate_row_overrides")
+}
+
+// ── Phase 3: 집계 실행 이력 ───────────────────────────────
+model EstimateAggregationRun {
+  id                   String    @id @default(cuid())
+  documentId           String
+  runType              String    // AUTO | MANUAL_REBUILD
+  rowCount             Int       @default(0)
+  aggregateCount       Int       @default(0)
+  reviewRequiredCount  Int       @default(0)
+  startedAt            DateTime  @default(now())
+  completedAt          DateTime?
+
+  document EstimateDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("estimate_aggregation_runs")
 }
 
 // 자재 마스터

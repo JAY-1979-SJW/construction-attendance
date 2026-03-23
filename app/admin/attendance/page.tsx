@@ -51,7 +51,7 @@ interface DetailRecord {
 function calcManDay(minutes: number | null): { label: string; value: string; color: string } {
   if (minutes == null) return { label: '집계 전', value: '-', color: '#999' }
   const effective = minutes > 240 ? minutes - 60 : minutes
-  if (effective >= 480) return { label: '1.0 공수', value: '1.0', color: '#1565c0' }
+  if (effective >= 480) return { label: '1.0 공수', value: '1.0', color: '#4A93C8' }
   if (effective >= 240) return { label: '0.5 공수', value: '0.5', color: '#e65100' }
   return { label: '0 공수', value: '0', color: '#b71c1c' }
 }
@@ -214,7 +214,7 @@ export default function AdminAttendancePage() {
           <button onClick={handleExport} style={styles.exportBtn}>엑셀 다운로드</button>
         </div>
 
-        <div style={{ fontSize: '13px', color: '#888', marginBottom: '12px' }}>
+        <div style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '12px' }}>
           총 {total}건
           {statusFilter === 'MISSING_CHECKOUT' && (
             <span style={{ marginLeft: '12px', color: '#b71c1c', fontWeight: 600 }}>
@@ -304,13 +304,13 @@ export default function AdminAttendancePage() {
         <div style={overlay} onClick={closeDetail}>
           <div style={modal} onClick={(e) => e.stopPropagation()}>
             {detailLoading ? (
-              <p style={{ textAlign: 'center', padding: '40px', color: '#888' }}>로딩 중...</p>
+              <p style={{ textAlign: 'center', padding: '40px', color: '#A0AEC0' }}>로딩 중...</p>
             ) : detail && (
               <>
                 <div style={modalHeader}>
                   <div>
                     <div style={{ fontSize: '18px', fontWeight: 700 }}>{detail.workerName} 상세</div>
-                    <div style={{ fontSize: '13px', color: '#888', marginTop: '2px' }}>{detail.workDate} · {detail.company} · {detail.jobTitle}</div>
+                    <div style={{ fontSize: '13px', color: '#A0AEC0', marginTop: '2px' }}>{detail.workDate} · {detail.company} · {detail.jobTitle}</div>
                   </div>
                   <button onClick={closeDetail} style={closeBtn}>✕</button>
                 </div>
@@ -450,7 +450,7 @@ export default function AdminAttendancePage() {
                       </button>
                       <button onClick={() => setCorrecting(false)} style={styles.exportBtn}>취소</button>
                     </div>
-                    <div style={{ fontSize: '11px', color: '#888', marginTop: '8px' }}>
+                    <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '8px' }}>
                       * 보정 이력은 감사 로그에 기록됩니다. 상태: ADJUSTED
                     </div>
                   </div>
@@ -479,7 +479,7 @@ const modalHeader: React.CSSProperties = {
 }
 
 const closeBtn: React.CSSProperties = {
-  background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#999', padding: '0 4px',
+  background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#718096', padding: '0 4px',
 }
 
 const infoSection: React.CSSProperties = {
@@ -487,7 +487,7 @@ const infoSection: React.CSSProperties = {
 }
 
 const infoTitle: React.CSSProperties = {
-  fontSize: '11px', color: '#999', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px',
+  fontSize: '11px', color: '#718096', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px',
 }
 
 const infoRow: React.CSSProperties = {
@@ -495,11 +495,11 @@ const infoRow: React.CSSProperties = {
 }
 
 const infoLabel: React.CSSProperties = {
-  fontSize: '12px', color: '#888', width: '70px', flexShrink: 0,
+  fontSize: '12px', color: '#A0AEC0', width: '70px', flexShrink: 0,
 }
 
 const infoValue: React.CSSProperties = {
-  fontSize: '13px', color: '#333', fontWeight: 500,
+  fontSize: '13px', color: '#CBD5E0', fontWeight: 500,
 }
 
 const correctBtn: React.CSSProperties = {
@@ -509,21 +509,21 @@ const correctBtn: React.CSSProperties = {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar: { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0 },
+  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
   navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
   main: { flex: 1, padding: '32px' },
   pageTitle: { fontSize: '22px', fontWeight: 700, margin: '0 0 20px' },
   filterRow: { display: 'flex', gap: '12px', alignItems: 'flex-end', marginBottom: '16px', flexWrap: 'wrap' as const },
   filterGroup: { display: 'flex', flexDirection: 'column' as const, gap: '4px' },
-  filterLabel: { fontSize: '12px', color: '#888' },
-  filterInput: { padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px' },
-  searchBtn: { padding: '8px 20px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
+  filterLabel: { fontSize: '12px', color: '#A0AEC0' },
+  filterInput: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px' },
+  searchBtn: { padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
   exportBtn: { padding: '8px 20px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
-  tableCard: { background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   table: { width: '100%', borderCollapse: 'collapse' as const },
-  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#888', borderBottom: '2px solid #f0f0f0', whiteSpace: 'nowrap' as const },
+  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
   td: { padding: '10px 12px', fontSize: '13px', borderBottom: '1px solid #f5f5f5', whiteSpace: 'nowrap' as const },
   tr: {},
 }

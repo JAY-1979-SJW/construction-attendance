@@ -477,7 +477,7 @@ export default function AttendancePage() {
               {today.moveEvents?.length > 0 ? today.currentSiteName : today.siteName}
             </div>
             {today.moveEvents?.length > 0 && (
-              <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>
+              <div style={{ fontSize: '12px', color: '#A0AEC0', marginBottom: '4px' }}>
                 출근: {today.siteName} → 현재: {today.currentSiteName}
               </div>
             )}
@@ -502,7 +502,7 @@ export default function AttendancePage() {
                 {/* 현장 이동 패널 */}
                 {showMovePanel ? (
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '10px', color: '#1565c0' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '10px', color: '#4A93C8' }}>
                       이동할 현장을 선택하세요
                     </div>
                     {availableSites
@@ -516,7 +516,7 @@ export default function AttendancePage() {
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
                               <div style={{ fontSize: '14px', fontWeight: 700 }}>{site.siteName}</div>
-                              <div style={{ fontSize: '11px', color: '#888' }}>{site.companyName}</div>
+                              <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{site.companyName}</div>
                             </div>
                             {site.distanceMeters !== null && (
                               <div style={{ textAlign: 'right' as const, fontSize: '12px', color: site.withinRadius ? '#1565c0' : '#999' }}>
@@ -541,7 +541,7 @@ export default function AttendancePage() {
                         </div>
                       ))}
                     {availableSites.filter(s => s.siteId !== today.currentSiteId).length === 0 && (
-                      <div style={{ fontSize: '13px', color: '#888', padding: '10px 0' }}>
+                      <div style={{ fontSize: '13px', color: '#A0AEC0', padding: '10px 0' }}>
                         이동 가능한 다른 배정 현장이 없습니다.
                       </div>
                     )}
@@ -578,7 +578,7 @@ export default function AttendancePage() {
                       <button
                         onClick={() => setShowMovePanel(true)}
                         style={{
-                          padding: '14px 16px', background: '#1565c0', color: 'white',
+                          padding: '14px 16px', background: '#E06810', color: 'white',
                           border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600,
                           cursor: 'pointer', whiteSpace: 'nowrap' as const,
                         }}
@@ -598,7 +598,7 @@ export default function AttendancePage() {
             {!isPreview && (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                 <div style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  {gpsStatus === 'loading' && <><span style={{ color: '#1976d2' }}>📡</span><span style={{ color: '#1976d2' }}>위치 조회 중...</span></>}
+                  {gpsStatus === 'loading' && <><span style={{ color: '#5BA4D9' }}>📡</span><span style={{ color: '#5BA4D9' }}>위치 조회 중...</span></>}
                   {gpsStatus === 'ok' && <><span style={{ color: '#2e7d32' }}>📍</span><span style={{ color: '#2e7d32' }}>위치 확인됨</span></>}
                   {gpsStatus === 'denied' && <><span style={{ color: '#e65100' }}>🚫</span><span style={{ color: '#e65100' }}>위치 권한 거부됨</span></>}
                   {gpsStatus === 'error' && <><span style={{ color: '#e65100' }}>⚠️</span><span style={{ color: '#e65100' }}>위치 오류</span></>}
@@ -607,7 +607,7 @@ export default function AttendancePage() {
                 <button
                   onClick={loadAvailableSites}
                   disabled={gpsStatus === 'loading' || checkInLoading}
-                  style={{ fontSize: '12px', padding: '4px 10px', background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: '6px', cursor: 'pointer', color: '#555' }}
+                  style={{ fontSize: '12px', padding: '4px 10px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', color: '#555' }}
                 >
                   새로고침
                 </button>
@@ -625,7 +625,7 @@ export default function AttendancePage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <div>
                         <div style={{ fontSize: '15px', fontWeight: 700, color: '#1a1a2e' }}>{site.siteName}</div>
-                        <div style={{ fontSize: '12px', color: '#888' }}>{site.companyName}</div>
+                        <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{site.companyName}</div>
                       </div>
                       {site.distanceMeters !== null && (
                         <div style={{ textAlign: 'right' as const, flexShrink: 0, marginLeft: '8px' }}>
@@ -651,7 +651,7 @@ export default function AttendancePage() {
             ) : (
               <div style={styles.noRecord}>
                 <p>오늘 출근 기록이 없습니다.</p>
-                <p style={{ fontSize: '13px', color: '#888' }}>
+                <p style={{ fontSize: '13px', color: '#A0AEC0' }}>
                   {!isPreview && availableSites.length === 0
                     ? '배정된 현장이 없습니다. 관리자에게 문의하세요.'
                     : '현장 목록에서 출근할 현장을 선택하세요.'}
@@ -720,7 +720,7 @@ function PresenceCard({
     return (
       <div style={{ ...pc.card, borderColor: '#bbb' }}>
         <div style={pc.iconRow}>⏱️</div>
-        <div style={{ ...pc.title, color: '#888' }}>응답 시간 종료</div>
+        <div style={{ ...pc.title, color: '#A0AEC0' }}>응답 시간 종료</div>
         <div style={pc.desc}>체류 확인 응답 가능 시간이 지났습니다.</div>
         <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
       </div>
@@ -833,41 +833,41 @@ function PresenceCard({
 const styles: Record<string, React.CSSProperties> = {
   container:       { maxWidth: '480px', margin: '0 auto', padding: '20px', minHeight: '100vh' },
   previewBanner:   { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff3e0', border: '1px solid #ffb74d', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '13px', color: '#e65100', gap: '8px' },
-  previewLoginBtn: { padding: '6px 14px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 700, flexShrink: 0 },
+  previewLoginBtn: { padding: '6px 14px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 700, flexShrink: 0 },
   header:          { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingTop: '8px' },
   workerName:      { fontSize: '18px', fontWeight: 700, color: '#1a1a2e' },
   workerInfo:      { fontSize: '13px', color: '#666', marginTop: '2px' },
   logoutBtn:       { background: 'none', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '6px 12px', fontSize: '13px', cursor: 'pointer', color: '#666' },
   card:            { background: 'white', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
-  dateLabel:       { fontSize: '13px', color: '#888', marginBottom: '12px' },
+  dateLabel:       { fontSize: '13px', color: '#A0AEC0', marginBottom: '12px' },
   statusBadge:     { display: 'inline-block', color: 'white', fontSize: '13px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', marginBottom: '12px' },
   siteName:        { fontSize: '18px', fontWeight: 700, color: '#1a1a2e', marginBottom: '4px' },
-  siteAddress:     { fontSize: '13px', color: '#888', marginBottom: '20px' },
+  siteAddress:     { fontSize: '13px', color: '#A0AEC0', marginBottom: '20px' },
   timeRow:         { display: 'flex', alignItems: 'center', gap: '12px' },
   timeBox:         { flex: 1, textAlign: 'center' as const },
-  timeLabel:       { fontSize: '12px', color: '#999', marginBottom: '4px' },
+  timeLabel:       { fontSize: '12px', color: '#718096', marginBottom: '4px' },
   timeValue:       { fontSize: '24px', fontWeight: 700, color: '#1a1a2e' },
   distanceLabel:   { fontSize: '11px', color: '#aaa', marginTop: '4px' },
   timeDivider:     { fontSize: '20px', color: '#ccc' },
   noRecord:        { textAlign: 'center' as const, padding: '20px 0', color: '#555' },
-  guideCard:       { background: '#e3f2fd', borderRadius: '12px', padding: '20px', marginBottom: '16px' },
-  guideTitle:      { fontSize: '14px', fontWeight: 700, color: '#1565c0', marginBottom: '12px' },
-  guideStep:       { fontSize: '13px', color: '#1976d2', marginBottom: '6px' },
+  guideCard:       { background: 'rgba(91,164,217,0.1)', borderRadius: '12px', padding: '20px', marginBottom: '16px' },
+  guideTitle:      { fontSize: '14px', fontWeight: 700, color: '#4A93C8', marginBottom: '12px' },
+  guideStep:       { fontSize: '13px', color: '#5BA4D9', marginBottom: '6px' },
   changeDeviceBtn: { width: '100%', padding: '12px', fontSize: '14px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '10px', cursor: 'pointer', color: '#666' },
   checkInBtn:    { width: '100%', padding: '12px', fontSize: '15px', fontWeight: 700, background: '#2e7d32', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
-  checkOutBtn:   { width: '100%', padding: '14px', fontSize: '17px', fontWeight: 700, background: '#1565c0', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer' },
-  cancelBtn:     { width: '100%', padding: '10px', fontSize: '14px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '8px', cursor: 'pointer', color: '#888', marginTop: '6px' },
+  checkOutBtn:   { width: '100%', padding: '14px', fontSize: '17px', fontWeight: 700, background: '#E06810', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer' },
+  cancelBtn:     { width: '100%', padding: '10px', fontSize: '14px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '8px', cursor: 'pointer', color: '#A0AEC0', marginTop: '6px' },
 }
 
 const pc: Record<string, React.CSSProperties> = {
   card:         { background: 'white', border: '2px solid #1976d2', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(25,118,210,0.12)' },
-  badge:        { display: 'inline-block', background: '#e3f2fd', color: '#1565c0', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '12px', marginBottom: '10px' },
+  badge:        { display: 'inline-block', background: 'rgba(244,121,32,0.12)', color: '#F47920', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '12px', marginBottom: '10px' },
   title:        { fontSize: '18px', fontWeight: 700, color: '#1a1a2e', marginBottom: '6px' },
-  siteName:     { fontSize: '14px', fontWeight: 600, color: '#1976d2', marginBottom: '10px' },
+  siteName:     { fontSize: '14px', fontWeight: 600, color: '#5BA4D9', marginBottom: '10px' },
   desc:         { fontSize: '13px', color: '#555', lineHeight: 1.7, marginBottom: '16px' },
-  warn:         { fontSize: '12px', color: '#888', marginBottom: '16px', lineHeight: 1.6 },
+  warn:         { fontSize: '12px', color: '#A0AEC0', marginBottom: '16px', lineHeight: 1.6 },
   countdown:    { fontSize: '15px', fontWeight: 700, marginBottom: '14px' },
   iconRow:      { fontSize: '40px', textAlign: 'center' as const, marginBottom: '12px' },
-  primaryBtn:   { width: '100%', padding: '16px', fontSize: '17px', fontWeight: 700, background: '#1976d2', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer' },
-  secondaryBtn: { width: '100%', padding: '12px', fontSize: '14px', background: '#f5f5f5', color: '#555', border: 'none', borderRadius: '10px', cursor: 'pointer', marginTop: '8px' },
+  primaryBtn:   { width: '100%', padding: '16px', fontSize: '17px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer' },
+  secondaryBtn: { width: '100%', padding: '12px', fontSize: '14px', background: 'rgba(91,164,217,0.1)', color: '#A0AEC0', border: 'none', borderRadius: '10px', cursor: 'pointer', marginTop: '8px' },
 }

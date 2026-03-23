@@ -79,12 +79,12 @@ export default function CompanyLoginPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   container: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f4c75' },
-  card: { background: 'white', borderRadius: '12px', padding: '48px 40px', width: '100%', maxWidth: '400px', boxShadow: '0 8px 40px rgba(0,0,0,0.3)' },
+  card: { background: '#243144', borderRadius: '12px', padding: '48px 40px', width: '100%', maxWidth: '400px', boxShadow: '0 8px 40px rgba(0,0,0,0.3)' },
   title: { fontSize: '22px', fontWeight: 700, margin: '0 0 6px', textAlign: 'center' },
-  subtitle: { fontSize: '13px', color: '#888', textAlign: 'center', margin: '0 0 32px' },
+  subtitle: { fontSize: '13px', color: '#A0AEC0', textAlign: 'center', margin: '0 0 32px' },
   inputGroup: { marginBottom: '16px' },
   label: { display: 'block', fontSize: '13px', fontWeight: 600, color: '#555', marginBottom: '6px' },
-  input: { width: '100%', padding: '12px 14px', fontSize: '15px', border: '1px solid #ddd', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' as const },
+  input: { width: '100%', padding: '12px 14px', fontSize: '15px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' as const },
   error: { color: '#e53935', fontSize: '13px', marginBottom: '12px' },
   button: { width: '100%', padding: '14px', fontSize: '16px', fontWeight: 700, background: '#0f4c75', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' },
 }

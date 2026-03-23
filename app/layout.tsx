@@ -22,7 +22,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#1565c0',
+  themeColor: '#F47920',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -35,8 +35,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content={APP_NAME} />
         <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+        />
       </head>
-      <body style={{ margin: 0, fontFamily: 'system-ui, sans-serif', background: '#f5f5f5' }}>
+      <body style={{ margin: 0, fontFamily: "'Pretendard', 'Pretendard Variable', system-ui, sans-serif", background: '#1B2838' }}>
         {children}
         {/* Service Worker 등록 */}
         <Script id="sw-register" strategy="afterInteractive">

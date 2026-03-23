@@ -264,7 +264,7 @@ export default function MyStatusPage() {
         {complianceStatus && (
           <div style={s.section}>
             <h2 style={s.sectionTitle}>노무·보험 처리 현황</h2>
-            <p style={{ fontSize: '12px', color: '#999', margin: '0 0 12px' }}>
+            <p style={{ fontSize: '12px', color: '#718096', margin: '0 0 12px' }}>
               출퇴근 가능 여부와 별도입니다. 출퇴근이 가능해도 보험 미처리 상태일 수 있습니다.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -299,27 +299,27 @@ export default function MyStatusPage() {
 }
 
 const s: Record<string, React.CSSProperties> = {
-  page:            { minHeight: '100vh', background: '#f5f6fa', padding: '24px 16px' },
+  page:            { minHeight: '100vh', background: '#1E3350', padding: '24px 16px' },
   center:          { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontSize: '16px', color: '#666' },
   container:       { maxWidth: '520px', margin: '0 auto' },
   title:           { fontSize: '24px', fontWeight: 700, margin: '0 0 16px', color: '#1a1a2e' },
   eligibilityBox:  { borderRadius: '12px', padding: '16px 18px', marginBottom: '16px', border: '1px solid' },
   blockReasonRow:  { background: 'rgba(255,255,255,0.6)', borderRadius: '8px', padding: '8px 12px', marginTop: '8px' },
-  section:         { background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  sectionTitle:    { fontSize: '12px', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 14px' },
+  section:         { background: '#243144', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
+  sectionTitle:    { fontSize: '12px', fontWeight: 700, color: '#A0AEC0', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 14px' },
   statusRow:       { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' },
   badge:           { display: 'inline-block', color: 'white', fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '20px' },
   statusMsg:       { fontSize: '14px', color: '#444' },
   rejectBox:       { background: '#fff0f0', border: '1px solid #ffcccc', borderRadius: '6px', padding: '10px 12px', fontSize: '13px', color: '#c62828', marginTop: '8px' },
   infoGrid:        { display: 'grid', gridTemplateColumns: '80px 1fr', gap: '8px 12px', fontSize: '14px', marginTop: '12px' },
-  infoLabel:       { color: '#888', fontWeight: 600 },
-  hint:            { fontSize: '13px', color: '#888', margin: '8px 0 0' },
+  infoLabel:       { color: '#A0AEC0', fontWeight: 600 },
+  hint:            { fontSize: '13px', color: '#A0AEC0', margin: '8px 0 0' },
   siteCard:        { border: '1px solid #eee', borderRadius: '10px', padding: '14px 16px', marginBottom: '10px' },
   siteName:        { fontSize: '15px', fontWeight: 700, color: '#1a1a2e' },
-  siteAddr:        { fontSize: '13px', color: '#888', marginTop: '4px' },
+  siteAddr:        { fontSize: '13px', color: '#A0AEC0', marginTop: '4px' },
   siteInfo:        { fontSize: '13px', color: '#666' },
-  joinBtn:         { marginTop: '10px', padding: '8px 20px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
+  joinBtn:         { marginTop: '10px', padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
   reapplyBtn:      { marginTop: '10px', padding: '6px 16px', background: '#ff9800', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
   joinMsg:         { background: '#e8f5e9', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#2e7d32', marginBottom: '12px' },
-  backLink:        { color: '#1976d2', fontSize: '14px', textDecoration: 'none' },
+  backLink:        { color: '#5BA4D9', fontSize: '14px', textDecoration: 'none' },
 }

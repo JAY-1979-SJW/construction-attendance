@@ -144,8 +144,8 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
     patchRow(editingId, body)
   }
 
-  if (loading) return <div style={{ padding: '60px', textAlign: 'center', color: '#888' }}>로딩 중...</div>
-  if (!job) return <div style={{ padding: '60px', textAlign: 'center', color: '#888' }}>작업을 찾을 수 없습니다.</div>
+  if (loading) return <div style={{ padding: '60px', textAlign: 'center', color: '#A0AEC0' }}>로딩 중...</div>
+  if (!job) return <div style={{ padding: '60px', textAlign: 'center', color: '#A0AEC0' }}>작업을 찾을 수 없습니다.</div>
 
   const filteredRows = filter === 'ALL' ? job.rows : job.rows.filter((r) => r.validationStatus === filter)
   const approvedCount = job.rows.filter((r) => r.validationStatus === 'APPROVED').length
@@ -171,7 +171,7 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
         {/* 헤더 */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap' as const, gap: '12px' }}>
           <div>
-            <Link href="/admin/site-imports" style={{ fontSize: '13px', color: '#888', textDecoration: 'none' }}>← 목록으로</Link>
+            <Link href="/admin/site-imports" style={{ fontSize: '13px', color: '#A0AEC0', textDecoration: 'none' }}>← 목록으로</Link>
             <h1 style={{ fontSize: '20px', fontWeight: 700, margin: '4px 0 2px' }}>{job.originalFilename}</h1>
             <div style={{ fontSize: '12px', color: '#999' }}>
               업로드: {new Date(job.createdAt).toLocaleString('ko-KR')} · 전체 {job.totalRows}행
@@ -198,7 +198,7 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
           {[
             { label: 'READY', count: job.readyRows, color: '#2e7d32', bg: '#e8f5e9' },
             { label: '검수필요+실패', count: job.failedRows, color: '#e65100', bg: '#fff3e0' },
-            { label: '승인', count: job.approvedRows, color: '#1565c0', bg: '#e3f2fd' },
+            { label: '승인', count: job.approvedRows, color: '#4A93C8', bg: '#e3f2fd' },
             { label: '등록완료', count: job.importedRows, color: '#4a148c', bg: '#f3e5f5' },
           ].map((s) => (
             <div key={s.label} style={{ ...styles.statBox, background: s.bg }}>
@@ -257,9 +257,9 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
               ) : filteredRows.map((row) => (
                 <>
                   <tr key={row.id} style={{ background: editingId === row.id ? '#f0f7ff' : 'white' }}>
-                    <td style={{ ...styles.td, textAlign: 'center' as const, color: '#888', fontSize: '11px' }}>{row.rowNumber}</td>
+                    <td style={{ ...styles.td, textAlign: 'center' as const, color: '#A0AEC0', fontSize: '11px' }}>{row.rowNumber}</td>
                     <td style={styles.td}><span style={{ fontWeight: 600, color: '#1a1a2e' }}>{row.siteName}</span></td>
-                    <td style={{ ...styles.td, maxWidth: '160px', fontSize: '11px', color: '#888' }}>{row.rawAddress}</td>
+                    <td style={{ ...styles.td, maxWidth: '160px', fontSize: '11px', color: '#A0AEC0' }}>{row.rawAddress}</td>
                     <td style={{ ...styles.td, maxWidth: '200px', fontSize: '11px', color: '#555' }}>
                       {row.normalizedAddress ?? <span style={{ color: '#ccc' }}>-</span>}
                     </td>
@@ -369,7 +369,7 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
                             <button onClick={() => setEditingId(null)} style={styles.editBtn}>취소</button>
                           </div>
                         </div>
-                        <div style={{ marginTop: '8px', fontSize: '11px', color: '#888' }}>
+                        <div style={{ marginTop: '8px', fontSize: '11px', color: '#A0AEC0' }}>
                           * 좌표 수정 후 저장하면 NEEDS_REVIEW → READY로 자동 격상됩니다.
                         </div>
                       </td>
@@ -385,12 +385,12 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
   )
 }
 
-const editLabel: React.CSSProperties = { fontSize: '11px', color: '#888', marginBottom: '4px' }
+const editLabel: React.CSSProperties = { fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }
 const editInput: React.CSSProperties = { padding: '7px 10px', border: '1px solid #90caf9', borderRadius: '6px', fontSize: '13px', width: '160px' }
 
 const styles: Record<string, React.CSSProperties> = {
-  layout:      { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:     { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0 },
+  layout:      { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:     { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
   sidebarTitle:{ color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
   navItem:     { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
   navActive:   { color: 'white', background: 'rgba(255,255,255,0.1)', fontWeight: 700 },
@@ -398,10 +398,10 @@ const styles: Record<string, React.CSSProperties> = {
   statsRow:    { display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' as const },
   statBox:     { borderRadius: '10px', padding: '14px 20px', textAlign: 'center' as const, minWidth: '80px' },
   approveAllBtn:{ padding: '8px 18px', background: '#e8f5e9', color: '#2e7d32', border: '1px solid #a5d6a7', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  importBtn:   { padding: '8px 20px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  tableCard:   { background: 'white', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  importBtn:   { padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
+  tableCard:   { background: '#243144', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   table:       { width: '100%', borderCollapse: 'collapse' as const },
-  th:          { textAlign: 'left' as const, padding: '10px 12px', fontSize: '11px', color: '#888', borderBottom: '2px solid #f0f0f0', background: '#fafafa', whiteSpace: 'nowrap' as const },
-  td:          { padding: '10px 12px', fontSize: '13px', borderBottom: '1px solid #f5f5f5', verticalAlign: 'top' as const },
-  editBtn:     { padding: '4px 12px', background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#555' },
+  th:          { textAlign: 'left' as const, padding: '10px 12px', fontSize: '11px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', background: '#fafafa', whiteSpace: 'nowrap' as const },
+  td:          { padding: '10px 12px', fontSize: '13px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
+  editBtn:     { padding: '4px 12px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#555' },
 }

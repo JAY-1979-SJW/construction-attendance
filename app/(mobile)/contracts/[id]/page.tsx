@@ -101,17 +101,17 @@ export default function WorkerContractConfirmPage() {
   // ── 로딩 / 에러 ────────────────────────────────────────────
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5' }}>
-        <p style={{ color: '#888', fontSize: '14px' }}>계약 정보를 불러오는 중...</p>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1B2838' }}>
+        <p style={{ color: '#A0AEC0', fontSize: '14px' }}>계약 정보를 불러오는 중...</p>
       </div>
     )
   }
 
   if (error || !contract) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5', gap: '12px', padding: '24px' }}>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#1B2838', gap: '12px', padding: '24px' }}>
         <p style={{ color: '#c62828', fontSize: '14px', textAlign: 'center' }}>{error || '계약 정보를 찾을 수 없습니다.'}</p>
-        <button onClick={() => router.back()} style={{ padding: '8px 20px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer' }}>
+        <button onClick={() => router.back()} style={{ padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer' }}>
           돌아가기
         </button>
       </div>
@@ -125,7 +125,7 @@ export default function WorkerContractConfirmPage() {
   // ── 완료 화면 ──────────────────────────────────────────────
   if (step === 'done') {
     return (
-      <div style={{ minHeight: '100vh', background: '#f5f5f5', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', gap: '16px' }}>
+      <div style={{ minHeight: '100vh', background: '#1B2838', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', gap: '16px' }}>
         <div style={{ background: 'white', borderRadius: '16px', padding: '32px 24px', maxWidth: '440px', width: '100%', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
           <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
           <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1b5e20', marginBottom: '8px' }}>확인 완료</h2>
@@ -153,7 +153,7 @@ export default function WorkerContractConfirmPage() {
       <div style={{ padding: '16px', maxWidth: '540px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
         {/* 계약 요약 카드 */}
-        <div style={{ background: 'white', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
+        <div style={{ background: '#243144', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
             <span style={{ fontSize: '13px', fontWeight: 700, color: accent, background: accent + '15', borderRadius: '6px', padding: '3px 10px' }}>
               {guide?.title ?? '계약 정보'}
@@ -169,7 +169,7 @@ export default function WorkerContractConfirmPage() {
               { label: '종료일', value: contract.endDate || '별도 없음' },
             ].map(({ label, value }) => (
               <div key={label}>
-                <div style={{ fontSize: '11px', color: '#888', marginBottom: '2px' }}>{label}</div>
+                <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '2px' }}>{label}</div>
                 <div style={{ fontWeight: 600, color: '#222' }}>{value}</div>
               </div>
             ))}
@@ -180,7 +180,7 @@ export default function WorkerContractConfirmPage() {
         {step === 'view' && guide && (
           <>
             {/* 유형 설명 */}
-            <div style={{ background: 'white', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: '#243144', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
               <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#222', marginBottom: '8px' }}>근로유형 안내</h3>
               <p style={{ fontSize: '13px', color: '#555', lineHeight: '1.7', marginBottom: '12px' }}>{guide.description}</p>
               <div style={{ background: '#f8f8f8', borderRadius: '8px', padding: '12px' }}>
@@ -192,7 +192,7 @@ export default function WorkerContractConfirmPage() {
             </div>
 
             {/* 체크박스 동의 */}
-            <div style={{ background: 'white', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: '#243144', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
               <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#222', marginBottom: '12px' }}>내용 확인</h3>
               {guide.checkboxes.map((label, i) => (
                 <label key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '12px', cursor: 'pointer' }}>
@@ -206,7 +206,7 @@ export default function WorkerContractConfirmPage() {
                     }}
                     style={{ width: '18px', height: '18px', marginTop: '1px', accentColor: accent, flexShrink: 0 }}
                   />
-                  <span style={{ fontSize: '13px', color: '#333', lineHeight: '1.5' }}>{label}</span>
+                  <span style={{ fontSize: '13px', color: '#CBD5E0', lineHeight: '1.5' }}>{label}</span>
                 </label>
               ))}
             </div>
@@ -239,7 +239,7 @@ export default function WorkerContractConfirmPage() {
               </p>
             </div>
 
-            <div style={{ background: 'white', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: '#243144', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
               <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#222', marginBottom: '14px' }}>최종 동의</h3>
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
                 <input
@@ -248,7 +248,7 @@ export default function WorkerContractConfirmPage() {
                   onChange={e => setPresignChecked(e.target.checked)}
                   style={{ width: '18px', height: '18px', marginTop: '2px', accentColor: accent, flexShrink: 0 }}
                 />
-                <span style={{ fontSize: '13px', color: '#333', lineHeight: '1.6' }}>{guide.finalCheckText}</span>
+                <span style={{ fontSize: '13px', color: '#CBD5E0', lineHeight: '1.6' }}>{guide.finalCheckText}</span>
               </label>
             </div>
 

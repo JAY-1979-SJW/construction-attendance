@@ -110,7 +110,7 @@ const styles: Record<string, React.CSSProperties> = {
   filterBar: { marginBottom: '16px' },
   searchInput: {
     padding: '8px 12px',
-    border: '1px solid #d1d5db',
+    border: '1px solid rgba(91,164,217,0.3)',
     borderRadius: '6px',
     fontSize: '14px',
     width: '240px',

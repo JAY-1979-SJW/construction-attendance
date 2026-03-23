@@ -312,7 +312,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '12px',
     fontSize: '14px',
     background: 'none',
-    color: '#999',
+    color: '#718096',
     border: '1px solid #e0e0e0',
     borderRadius: '10px',
     cursor: 'pointer',

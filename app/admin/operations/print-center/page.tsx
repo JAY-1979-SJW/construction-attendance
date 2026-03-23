@@ -25,7 +25,7 @@ export default function PrintCenterPage() {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 16px', fontFamily: 'system-ui, sans-serif' }}>
       <h1 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800 }}>관리자 출력물 센터</h1>
-      <p style={{ margin: '0 0 28px', fontSize: '13px', color: '#888' }}>
+      <p style={{ margin: '0 0 28px', fontSize: '13px', color: '#A0AEC0' }}>
         출력물을 선택하고 인쇄 또는 PDF로 저장하세요. 모든 출력물은 Ctrl+P (또는 인쇄 버튼)으로 PDF 저장 가능합니다.
       </p>
 
@@ -104,8 +104,8 @@ export default function PrintCenterPage() {
       </PrintCard>
 
       {/* 5. 종료 증빙 패키지 안내 */}
-      <div style={{ background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: '10px', padding: '18px 20px', marginTop: '16px' }}>
-        <div style={{ fontSize: '14px', color: '#888' }}>
+      <div style={{ background: '#1B2838', border: '1px solid #e0e0e0', borderRadius: '10px', padding: '18px 20px', marginTop: '16px' }}>
+        <div style={{ fontSize: '14px', color: '#A0AEC0' }}>
           💼 <strong>종료 증빙 패키지</strong>는 개별 근로자 종료 처리 화면에서 출력할 수 있습니다.
           <br />
           <span style={{ fontSize: '12px' }}>경로: 관리자 → 근로자 상세 → 종료 처리 → 종료 완료 후 &ldquo;종료 증빙 패키지 보기&rdquo; 버튼</span>
@@ -136,7 +136,7 @@ function PrintCard({ title, description, icon, children }: {
 }
 
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px', color: '#555' }
-const inputStyle: React.CSSProperties = { padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', outline: 'none' }
+const inputStyle: React.CSSProperties = { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', outline: 'none' }
 
 function printBtnStyle(disabled: boolean): React.CSSProperties {
   return {

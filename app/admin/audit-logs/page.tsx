@@ -127,7 +127,7 @@ export default function AuditLogsPage() {
 
       <main style={styles.main}>
         <h1 style={styles.pageTitle}>감사 로그</h1>
-        <p style={{ fontSize: '13px', color: '#888', marginBottom: '20px', marginTop: '-12px' }}>
+        <p style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '20px', marginTop: '-12px' }}>
           시스템 내 모든 주요 이벤트 기록 (출퇴근·기기·회사·현장·근로자·보험)
         </p>
 
@@ -168,7 +168,7 @@ export default function AuditLogsPage() {
           </div>
         </div>
 
-        <div style={{ fontSize: '13px', color: '#888', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>총 {total.toLocaleString()}건 · {page}/{totalPages || 1} 페이지</span>
           {totalPages > 1 && (
             <div style={{ display: 'flex', gap: '8px' }}>
@@ -178,7 +178,7 @@ export default function AuditLogsPage() {
           )}
         </div>
 
-        {loading ? <p style={{ color: '#888' }}>로딩 중...</p> : (
+        {loading ? <p style={{ color: '#A0AEC0' }}>로딩 중...</p> : (
           <div style={{ ...styles.tableCard, overflowX: 'auto' }}>
             <table style={styles.table}>
               <thead>
@@ -211,7 +211,7 @@ export default function AuditLogsPage() {
                             {item.actorType}
                           </span>
                           {item.actorUserId && (
-                            <div style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>
+                            <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '2px' }}>
                               {shortId(item.actorUserId)}
                             </div>
                           )}
@@ -229,11 +229,11 @@ export default function AuditLogsPage() {
                       </td>
                       <td style={styles.td}>
                         {item.targetId && (
-                          <span style={{ fontSize: '11px', color: '#999', fontFamily: 'monospace' }}>{shortId(item.targetId)}</span>
+                          <span style={{ fontSize: '11px', color: '#718096', fontFamily: 'monospace' }}>{shortId(item.targetId)}</span>
                         )}
                       </td>
                       <td style={{ ...styles.td, maxWidth: '320px' }}>
-                        <span style={{ fontSize: '13px', color: '#333' }}>{item.summary}</span>
+                        <span style={{ fontSize: '13px', color: '#CBD5E0' }}>{item.summary}</span>
                       </td>
                     </tr>
                     {expanded === item.id && (
@@ -265,7 +265,7 @@ export default function AuditLogsPage() {
                             {item.metadataJson && (
                               <div>
                                 <div style={detailLabel}>메타데이터</div>
-                                <pre style={{ fontSize: '11px', color: '#555', margin: 0, background: '#f5f5f5', padding: '6px 10px', borderRadius: '6px', maxWidth: '400px', overflowX: 'auto' as const }}>
+                                <pre style={{ fontSize: '11px', color: '#555', margin: 0, background: '#1B2838', padding: '6px 10px', borderRadius: '6px', maxWidth: '400px', overflowX: 'auto' as const }}>
                                   {JSON.stringify(item.metadataJson, null, 2)}
                                 </pre>
                               </div>
@@ -322,23 +322,23 @@ const detailLabel: React.CSSProperties = { fontSize: '10px', color: '#aaa', font
 const detailValue: React.CSSProperties = { fontSize: '12px', color: '#333', fontFamily: 'monospace' }
 
 const styles: Record<string, React.CSSProperties> = {
-  layout:      { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:     { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0 },
+  layout:      { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:     { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
   sidebarTitle:{ color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
   navItem:     { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
   navActive:   { color: 'white', background: 'rgba(255,255,255,0.1)', fontWeight: 700 },
   main:        { flex: 1, padding: '32px', minWidth: 0 },
   pageTitle:   { fontSize: '22px', fontWeight: 700, margin: '0 0 4px' },
-  filterBox:   { background: 'white', borderRadius: '10px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  filterBox:   { background: '#243144', borderRadius: '10px', padding: '20px', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   filterRow:   { display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' as const },
   filterGroup: { display: 'flex', flexDirection: 'column' as const, gap: '4px' },
-  filterLabel: { fontSize: '12px', color: '#888' },
-  filterInput: { padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px' },
-  searchBtn:   { padding: '8px 20px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
-  tableCard:   { background: 'white', borderRadius: '10px', padding: '0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' },
+  filterLabel: { fontSize: '12px', color: '#A0AEC0' },
+  filterInput: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px' },
+  searchBtn:   { padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
+  tableCard:   { background: '#243144', borderRadius: '10px', padding: '0', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
   table:       { width: '100%', borderCollapse: 'collapse' as const },
-  th:          { textAlign: 'left' as const, padding: '12px 14px', fontSize: '11px', color: '#888', borderBottom: '2px solid #f0f0f0', whiteSpace: 'nowrap' as const, background: '#fafafa' },
-  td:          { padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #f5f5f5', verticalAlign: 'top' as const },
+  th:          { textAlign: 'left' as const, padding: '12px 14px', fontSize: '11px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const, background: '#fafafa' },
+  td:          { padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
   tr:          {},
-  pageBtn:     { padding: '6px 14px', background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#555' },
+  pageBtn:     { padding: '6px 14px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#555' },
 }

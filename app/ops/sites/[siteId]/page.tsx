@@ -348,7 +348,7 @@ const styles: Record<string, React.CSSProperties> = {
   infoLabel: { fontSize: '12px', color: '#9ca3af', fontWeight: 500 },
   infoValue: { fontSize: '14px', color: '#1f2937' },
   filterBar: { display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' },
-  dateInput: { padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' },
+  dateInput: { padding: '6px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px' },
   table: { width: '100%', borderCollapse: 'collapse' },
   thead: { background: '#f9fafb' },
   th: { padding: '10px 14px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6b7280', borderBottom: '1px solid #e5e7eb' },

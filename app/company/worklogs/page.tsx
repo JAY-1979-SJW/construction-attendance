@@ -156,8 +156,8 @@ const styles: Record<string, React.CSSProperties> = {
   page: { padding: '32px', fontFamily: 'sans-serif' },
   title: { fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '20px' },
   filterRow: { display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap' },
-  select: { padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px', minWidth: '160px' },
-  dateInput: { padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px' },
+  select: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', minWidth: '160px' },
+  dateInput: { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px' },
   searchBtn: {
     padding: '8px 16px', background: '#0f4c75', color: 'white',
     border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',

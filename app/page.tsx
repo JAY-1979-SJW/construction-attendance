@@ -9,7 +9,7 @@ export default function LandingPage() {
       <header style={s.header}>
         <span style={s.headerLogo}>해한건설</span>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <Link href="/guide" style={{ ...s.headerLogin, background: 'transparent', color: '#1976d2', border: '1px solid #1976d2' }}>앱 미리보기</Link>
+          <Link href="/guide" style={{ ...s.headerLogin, background: 'transparent', color: '#5BA4D9', border: '1px solid #1976d2' }}>앱 미리보기</Link>
           <Link href="/register" style={{ ...s.headerLogin, background: '#4caf50' }}>회원가입</Link>
           <Link href="/login" style={s.headerLogin}>로그인</Link>
           <Link href="/admin/login" style={s.headerAdminLogin}>관리자</Link>
@@ -114,7 +114,7 @@ const s: Record<string, React.CSSProperties> = {
   // 헤더
   header:        { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', background: 'white', borderBottom: '1px solid #eee', position: 'sticky' as const, top: 0, zIndex: 10 },
   headerLogo:    { fontSize: '18px', fontWeight: 700, color: '#1a1a2e' },
-  headerLogin:   { padding: '8px 20px', background: '#1976d2', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 },
+  headerLogin:   { padding: '8px 20px', background: '#F47920', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 },
   headerAdminLogin: { padding: '7px 14px', background: '#ff6f00', color: 'white', border: 'none', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 700 },
 
   // 히어로
@@ -123,7 +123,7 @@ const s: Record<string, React.CSSProperties> = {
   badge:         { display: 'inline-block', background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.9)', borderRadius: '20px', padding: '6px 16px', fontSize: '13px', marginBottom: '24px' },
   heroTitle:     { fontSize: '48px', fontWeight: 900, color: 'white', margin: '0 0 20px', lineHeight: 1.2 },
   heroSub:       { fontSize: '18px', color: 'rgba(255,255,255,0.75)', margin: '0 0 40px', lineHeight: 1.7 },
-  startBtn:      { display: 'inline-block', padding: '18px 48px', background: '#1976d2', color: 'white', borderRadius: '12px', textDecoration: 'none', fontSize: '18px', fontWeight: 700 },
+  startBtn:      { display: 'inline-block', padding: '18px 48px', background: '#F47920', color: 'white', borderRadius: '12px', textDecoration: 'none', fontSize: '18px', fontWeight: 700 },
 
   // 섹션 공통
   section:       { padding: '64px 24px', background: 'white' },
@@ -132,7 +132,7 @@ const s: Record<string, React.CSSProperties> = {
   // 스텝
   steps:         { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', maxWidth: '900px', margin: '0 auto' },
   stepCard:      { background: '#f8f9fa', borderRadius: '16px', padding: '28px 20px', textAlign: 'center' as const },
-  stepNum:       { display: 'inline-block', width: '28px', height: '28px', background: '#1976d2', color: 'white', borderRadius: '50%', fontSize: '14px', fontWeight: 700, lineHeight: '28px', textAlign: 'center' as const, marginBottom: '12px' },
+  stepNum:       { display: 'inline-block', width: '28px', height: '28px', background: '#F47920', color: 'white', borderRadius: '50%', fontSize: '14px', fontWeight: 700, lineHeight: '28px', textAlign: 'center' as const, marginBottom: '12px' },
   stepIcon:      { fontSize: '36px', marginBottom: '12px' },
   stepTitle:     { fontSize: '16px', fontWeight: 700, marginBottom: '8px' },
   stepDesc:      { fontSize: '13px', color: '#666', lineHeight: 1.6, whiteSpace: 'pre-line' as const },
@@ -153,7 +153,7 @@ const s: Record<string, React.CSSProperties> = {
   cta:           { background: '#1a1a2e', padding: '80px 24px', textAlign: 'center' as const },
   ctaTitle:      { fontSize: '32px', fontWeight: 700, color: 'white', margin: '0 0 12px' },
   ctaSub:        { fontSize: '16px', color: 'rgba(255,255,255,0.65)', margin: '0 0 32px' },
-  ctaBtn:        { display: 'inline-block', padding: '18px 48px', background: '#1976d2', color: 'white', borderRadius: '12px', textDecoration: 'none', fontSize: '18px', fontWeight: 700 },
+  ctaBtn:        { display: 'inline-block', padding: '18px 48px', background: '#F47920', color: 'white', borderRadius: '12px', textDecoration: 'none', fontSize: '18px', fontWeight: 700 },
 
   // 푸터
   footer:        { background: '#111', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#666' },

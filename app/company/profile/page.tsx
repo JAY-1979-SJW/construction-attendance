@@ -236,7 +236,7 @@ const styles: Record<string, React.CSSProperties> = {
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' },
   title: { fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 },
   editBtn: {
-    padding: '8px 16px', background: 'white', border: '1px solid #d1d5db',
+    padding: '8px 16px', background: 'white', border: '1px solid rgba(91,164,217,0.3)',
     borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#374151',
   },
   card: {
@@ -250,7 +250,7 @@ const styles: Record<string, React.CSSProperties> = {
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' },
   label: { display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '4px' },
   input: {
-    width: '100%', border: '1px solid #d1d5db', borderRadius: '6px',
+    width: '100%', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px',
     padding: '8px 10px', fontSize: '13px', boxSizing: 'border-box',
   },
   saveBtn: {
@@ -258,7 +258,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
   },
   cancelBtn: {
-    padding: '8px 16px', background: 'white', border: '1px solid #d1d5db',
+    padding: '8px 16px', background: 'white', border: '1px solid rgba(91,164,217,0.3)',
     borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#374151',
   },
   msg: { padding: '10px 14px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px' },

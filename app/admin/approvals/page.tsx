@@ -402,7 +402,7 @@ const styles: Record<string, React.CSSProperties> = {
   tabContent: { background: '#fff', borderRadius: '0 0 8px 8px', border: '1px solid #e5e7eb', borderTop: 'none', padding: '24px' },
   filterRow: { display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center', flexWrap: 'wrap' },
   filterBtn: {
-    padding: '6px 14px', border: '1px solid #d1d5db', borderRadius: '6px',
+    padding: '6px 14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px',
     background: '#fff', cursor: 'pointer', fontSize: '13px', color: '#374151',
     display: 'flex', alignItems: 'center', gap: '6px',
   },
@@ -412,7 +412,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '0 6px', fontSize: '11px', minWidth: '18px', textAlign: 'center',
   },
   refreshBtn: {
-    padding: '6px 12px', border: '1px solid #d1d5db', borderRadius: '6px',
+    padding: '6px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px',
     background: '#fff', cursor: 'pointer', fontSize: '13px', color: '#6b7280',
     marginLeft: 'auto',
   },
@@ -422,7 +422,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '16px 20px', marginBottom: '16px',
   },
   code: { background: '#e0f2fe', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace', fontWeight: 700, color: '#0369a1' },
-  closeBtn: { marginTop: '8px', padding: '5px 12px', border: '1px solid #d1d5db', borderRadius: '5px', cursor: 'pointer', fontSize: '13px', background: '#fff' },
+  closeBtn: { marginTop: '8px', padding: '5px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '5px', cursor: 'pointer', fontSize: '13px', background: '#fff' },
   emptyState: { textAlign: 'center', padding: '48px 0', color: '#6b7280' },
   tableWrap: { border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' },
   table: { width: '100%', borderCollapse: 'collapse' },
@@ -441,7 +441,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px', fontWeight: 600,
   },
   cancelBtn: {
-    padding: '7px 16px', background: '#fff', border: '1px solid #d1d5db',
+    padding: '7px 16px', background: '#fff', border: '1px solid rgba(91,164,217,0.3)',
     borderRadius: '6px', cursor: 'pointer', fontSize: '14px',
   },
   modalOverlay: {
@@ -450,7 +450,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   modal: { background: '#fff', borderRadius: '10px', padding: '28px', width: '400px', maxWidth: '90vw' },
   modalTitle: { fontSize: '16px', fontWeight: 700, color: '#111827', marginBottom: '16px', marginTop: 0 },
-  textarea: { width: '100%', padding: '10px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', resize: 'vertical', boxSizing: 'border-box' },
+  textarea: { width: '100%', padding: '10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', resize: 'vertical', boxSizing: 'border-box' },
   modalActions: { display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' },
   muted: { color: '#6b7280', fontSize: '14px' },
 }

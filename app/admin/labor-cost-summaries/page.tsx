@@ -162,14 +162,14 @@ export default function LaborCostSummariesPage() {
         {totals && (
           <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
             {[
-              { label: '총 근로자수',  value: fmt(totals.workerCount) + '명', color: '#1976d2' },
+              { label: '총 근로자수',  value: fmt(totals.workerCount) + '명', color: '#5BA4D9' },
               { label: '총 공수',     value: fmt(totals.mandays) + '일',      color: '#388e3c' },
               { label: '총 노임',     value: fmtWon(totals.totalWage),        color: '#e65100' },
               { label: '총 원천세',   value: fmtWon(totals.withholdingTax),   color: '#b71c1c' },
             ].map((c) => (
               <div key={c.label} style={{ ...s.summaryCard, borderTop: `4px solid ${c.color}` }}>
                 <div style={{ fontSize: '18px', fontWeight: 700, color: c.color }}>{c.value}</div>
-                <div style={{ fontSize: '12px', color: '#888' }}>{c.label}</div>
+                <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{c.label}</div>
               </div>
             ))}
           </div>
@@ -271,8 +271,8 @@ const NAV_ITEMS = [
 ]
 
 const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#f5f5f5' },
-  sidebar:      { width: '220px', background: '#1a1a2e', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
+  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
+  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
   sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
   navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
   navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
@@ -281,13 +281,13 @@ const s: Record<string, React.CSSProperties> = {
   main:         { flex: 1, padding: '32px', overflow: 'auto' },
   pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
   label:        { display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 },
-  input:        { padding: '8px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '14px', background: 'white' },
-  btn:          { padding: '8px 16px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: 'white' },
+  btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
   msg:          { padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' },
-  summaryCard:  { background: 'white', borderRadius: '10px', padding: '16px 20px', minWidth: '140px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  tableCard:    { background: 'white', borderRadius: '12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' },
+  summaryCard:  { background: '#243144', borderRadius: '10px', padding: '16px 20px', minWidth: '140px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
+  tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
   table:        { width: '100%', borderCollapse: 'collapse' as const },
-  th:           { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#666', borderBottom: '1px solid #f0f0f0', whiteSpace: 'nowrap' as const },
-  td:           { padding: '12px 16px', fontSize: '13px', color: '#333', borderBottom: '1px solid #f9f9f9', verticalAlign: 'top' as const },
+  th:           { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
+  td:           { padding: '12px 16px', fontSize: '13px', color: '#CBD5E0', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
   tr:           { cursor: 'default' },
 }
