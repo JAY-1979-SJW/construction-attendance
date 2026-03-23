@@ -124,6 +124,57 @@ export default function SitesPage() {
   // ── 현장 상세 패널 ─────────────────────────────────────────────────
   const [detailSite, setDetailSite] = useState<Site | null>(null)
 
+  // ── 근무시간 정책 모달 ─────────────────────────────────────────────
+  const [policySite, setPolicySite] = useState<Site | null>(null)
+  const [policyEffective, setPolicyEffective] = useState<{
+    workStartTime: string; workEndTime: string
+    breakStartTime: string | null; breakEndTime: string | null
+    breakMinutes: number; isCustom: boolean
+  } | null>(null)
+  const [policyForm, setPolicyForm] = useState({
+    workStartTime: '', workEndTime: '', breakStartTime: '', breakEndTime: '', breakMinutes: '',
+  })
+  const [policyLoading, setPolicyLoading] = useState(false)
+  const [policySaving, setPolicySaving] = useState(false)
+  const [policyError, setPolicyError] = useState('')
+
+  const openPolicyModal = async (site: Site) => {
+    setPolicySite(site); setPolicyError(''); setPolicyEffective(null)
+    setPolicyLoading(true)
+    const res = await fetch(`/api/admin/sites/${site.id}/policy`)
+    const data = await res.json()
+    if (data.success) {
+      const c = data.data.custom
+      setPolicyEffective({ ...data.data.effective, isCustom: data.data.isCustom })
+      setPolicyForm({
+        workStartTime:  c?.workStartTime  ?? '',
+        workEndTime:    c?.workEndTime    ?? '',
+        breakStartTime: c?.breakStartTime ?? '',
+        breakEndTime:   c?.breakEndTime   ?? '',
+        breakMinutes:   c?.breakMinutes != null ? String(c.breakMinutes) : '',
+      })
+    }
+    setPolicyLoading(false)
+  }
+
+  const handleSavePolicy = async () => {
+    if (!policySite) return
+    setPolicySaving(true); setPolicyError('')
+    const body: Record<string, unknown> = {
+      workStartTime:  policyForm.workStartTime  || null,
+      workEndTime:    policyForm.workEndTime    || null,
+      breakStartTime: policyForm.breakStartTime || null,
+      breakEndTime:   policyForm.breakEndTime   || null,
+      breakMinutes:   policyForm.breakMinutes !== '' ? parseInt(policyForm.breakMinutes, 10) : null,
+    }
+    const res = await fetch(`/api/admin/sites/${policySite.id}/policy`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    })
+    const data = await res.json()
+    if (!data.success) { setPolicyError(data.message ?? '저장 실패'); setPolicySaving(false); return }
+    setPolicySite(null); setPolicySaving(false)
+  }
+
   // ── 지도 refs ───────────────────────────────────────────────────────
   const formMapDiv  = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
   const editMapDiv  = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
@@ -471,6 +522,7 @@ export default function SitesPage() {
                       <button onClick={() => { setDetailSite(detailSite?.id === site.id ? null : site) }} style={styles.detailBtn}>
                         {detailSite?.id === site.id ? '닫기' : '상세'}
                       </button>
+                      <button onClick={() => openPolicyModal(site)} style={styles.policyBtn}>근무정책</button>
                       <button onClick={() => openEdit(site)} style={styles.editBtn}>수정</button>
                     </div>
                   )}
@@ -618,6 +670,68 @@ export default function SitesPage() {
           </div>
         )}
 
+        {/* ── 근무시간 정책 모달 ──────────────────────────────── */}
+        {policySite && (
+          <div style={styles.modalOverlay}>
+            <div style={styles.modal}>
+              <h3 style={styles.modalTitle}>근무시간 정책 — {policySite.name}</h3>
+              <p style={{ fontSize: '12px', color: '#888', marginBottom: '16px', lineHeight: '1.5' }}>
+                빈칸 = 회사 기본값 사용 (출근 07:00 / 퇴근 17:00 / 휴게 60분).<br />
+                <strong>휴게시간 차감(분)</strong>이 공수 계산에 직접 영향을 줍니다.
+              </p>
+              {policyLoading ? <p style={{ color: '#999', textAlign: 'center' }}>로딩 중...</p> : (
+                <>
+                  {policyEffective && (
+                    <div style={S.effectiveBanner}>
+                      실효값: 출근 {policyEffective.workStartTime} / 퇴근 {policyEffective.workEndTime} /
+                      휴게 {policyEffective.breakMinutes}분
+                      {!policyEffective.isCustom && <span style={S.defaultBadge}>회사 기본값</span>}
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={styles.label}>출근 기준 시각</label>
+                      <input type="time" style={styles.input} value={policyForm.workStartTime}
+                        onChange={e => setPolicyForm(f => ({ ...f, workStartTime: e.target.value }))} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={styles.label}>퇴근 기준 시각</label>
+                      <input type="time" style={styles.input} value={policyForm.workEndTime}
+                        onChange={e => setPolicyForm(f => ({ ...f, workEndTime: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={styles.label}>휴게 시작 (표시용)</label>
+                      <input type="time" style={styles.input} value={policyForm.breakStartTime}
+                        onChange={e => setPolicyForm(f => ({ ...f, breakStartTime: e.target.value }))} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={styles.label}>휴게 종료 (표시용)</label>
+                      <input type="time" style={styles.input} value={policyForm.breakEndTime}
+                        onChange={e => setPolicyForm(f => ({ ...f, breakEndTime: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div style={styles.fieldRow}>
+                    <label style={styles.label}>휴게시간 차감 (분) — 공수 계산 적용</label>
+                    <input type="number" min="0" max="480" step="5" style={styles.input}
+                      placeholder="빈칸 = 회사 기본값 (60분)"
+                      value={policyForm.breakMinutes}
+                      onChange={e => setPolicyForm(f => ({ ...f, breakMinutes: e.target.value }))} />
+                  </div>
+                </>
+              )}
+              {policyError && <p style={styles.error}>{policyError}</p>}
+              <div style={styles.btnRow}>
+                <button onClick={handleSavePolicy} disabled={policySaving || policyLoading} style={styles.saveBtn}>
+                  {policySaving ? '저장 중...' : '저장'}
+                </button>
+                <button onClick={() => setPolicySite(null)} style={styles.cancelBtn}>취소</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── 등록 완료 알림 ──────────────────────────────────── */}
         {registered && (
           <div style={styles.modalOverlay}>
@@ -636,8 +750,10 @@ export default function SitesPage() {
 
 // ── 스타일 ────────────────────────────────────────────────────────────
 const S = {
-  rowBetween: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' } as React.CSSProperties,
-  mapHint: { fontSize: '11px', color: '#aaa', fontWeight: 400, marginLeft: '6px' } as React.CSSProperties,
+  rowBetween:     { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' } as React.CSSProperties,
+  mapHint:        { fontSize: '11px', color: '#aaa', fontWeight: 400, marginLeft: '6px' } as React.CSSProperties,
+  effectiveBanner:{ background: '#e8f5e9', borderRadius: '6px', padding: '8px 12px', fontSize: '12px', color: '#2e7d32', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' as const },
+  defaultBadge:   { fontSize: '10px', background: '#c8e6c9', color: '#1b5e20', padding: '1px 6px', borderRadius: '8px', fontWeight: 700 } as React.CSSProperties,
 }
 
 const styles: Record<string, React.CSSProperties> = {
@@ -668,6 +784,7 @@ const styles: Record<string, React.CSSProperties> = {
   assignBtn:    { fontSize: '11px', padding: '3px 8px', background: '#e8f5e9', color: '#2e7d32', border: '1px solid #a5d6a7', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' as const },
   delAssignBtn: { fontSize: '11px', padding: '2px 6px', background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', flexShrink: 0 },
   editBtn:      { padding: '4px 10px', fontSize: '12px', background: '#e3f2fd', color: '#1976d2', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer' },
+  policyBtn:    { padding: '4px 10px', fontSize: '12px', background: '#fff8e1', color: '#f57f17', border: '1px solid #ffe082', borderRadius: '4px', cursor: 'pointer' },
   detailBtn:    { padding: '4px 10px', fontSize: '12px', background: '#f5f5f5', color: '#555', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer' },
   detailPanel:  { borderTop: '1px solid #f0f0f0', marginTop: '10px', paddingTop: '10px' },
   detailRow:    { display: 'flex', gap: '8px', fontSize: '12px', color: '#555', marginBottom: '4px' },

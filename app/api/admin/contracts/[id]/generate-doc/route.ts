@@ -1,6 +1,11 @@
 /**
  * POST /api/admin/contracts/[id]/generate-doc
  * 계약 데이터를 기반으로 문서를 생성하고 GeneratedDocument 레코드를 저장
+ *
+ * 데이터 소스 원칙:
+ *   - resolveContractDocumentData 를 단일 원천으로 사용 (generate-pdf와 동일 resolver)
+ *   - workerName / workerPhone 은 ContractVersion.snapshotJson 우선 (snapshot-first)
+ *   - CONTRACT / DAILY_CONTRACT 타입에 위험 문구 검사 적용 (generate-pdf와 동일 기준)
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
@@ -54,71 +59,12 @@ import {
   renderReclassificationWarning,
   type TeamLeaderData,
 } from '@/lib/contracts/team-docs'
-
-// 계약 DB 레코드를 ContractData로 변환
-function contractToTemplateData(
-  contract: Record<string, unknown>,
-  worker: { name: string; phone?: string | null },
-  site: { name: string; address?: string | null } | null,
-  today: string,
-): ContractData {
-  return {
-    companyName:    (contract.companyName as string) || '주식회사 해한',
-    companyCeo:     (contract.companyRepName as string) || '대표이사',
-    companyAddress: (contract.companyAddress as string) || '서울특별시',
-    companyBizNo:   contract.companyBizNo as string | undefined,
-    workerName:     worker.name,
-    workerPhone:    worker.phone || undefined,
-    workerBirthDate: contract.workerBirthDate as string | undefined,
-    workerAddress:  contract.workerAddress as string | undefined,
-    siteName:       site?.name || (contract.siteName as string) || '미정',
-    siteAddress:    (contract.siteAddress as string | undefined) || site?.address as string | undefined,
-    jobTitle:       (contract.notes as string) || '건설일용직',
-    startDate:      contract.startDate as string,
-    endDate:        contract.endDate as string | undefined,
-    checkInTime:    contract.checkInTime as string | undefined,
-    checkOutTime:   contract.checkOutTime as string | undefined,
-    breakStartTime: contract.breakStartTime as string | undefined,
-    breakEndTime:   contract.breakEndTime as string | undefined,
-    workDays:       contract.workDays as string | undefined,
-    weeklyWorkDays: contract.weeklyWorkDays as number | undefined,
-    weeklyWorkHours: contract.weeklyWorkHours ? Number(contract.weeklyWorkHours) : undefined,
-    paymentMethod:  contract.paymentMethod as string | undefined,
-    dailyWage:      contract.dailyWage as number | undefined,
-    monthlySalary:  contract.monthlySalary as number | undefined,
-    serviceFee:     contract.serviceFee as number | undefined,
-    paymentDay:     contract.paymentDay as number | undefined,
-    breakHours:     Number(contract.breakHours) || undefined,
-    attendanceVerificationMethod: contract.attendanceVerificationMethod as string | undefined,
-    workUnitRule:   contract.workUnitRule as string | undefined,
-    rainDayRule:    contract.rainDayRule as string | undefined,
-    businessRegistrationNo: contract.businessRegistrationNo as string | undefined,
-    contractorName: contract.contractorName as string | undefined,
-    nationalPensionYn:     (contract.nationalPensionYn as boolean) ?? false,
-    healthInsuranceYn:     (contract.healthInsuranceYn as boolean) ?? false,
-    employmentInsuranceYn: (contract.employmentInsuranceYn as boolean) ?? false,
-    industrialAccidentYn:  (contract.industrialAccidentYn as boolean) ?? true,
-    retirementMutualYn:    (contract.retirementMutualYn as boolean) ?? false,
-    safetyClauseYn:        (contract.safetyClauseYn as boolean) ?? true,
-    specialTerms:          contract.specialTerms as string | undefined,
-    contractDate:          today,
-    // v3.4
-    projectName:           contract.projectName as string | undefined,
-    workType:              contract.workType as string | undefined,
-    workTypeSub:           contract.workTypeSub as string | undefined,
-    jobCategory:           contract.jobCategory as string | undefined,
-    jobCategorySub:        contract.jobCategorySub as string | undefined,
-    contractForm:          contract.contractForm as string | undefined,
-    taskDescription:       contract.taskDescription as string | undefined,
-    // v3.6
-    companyPhone:          contract.companyPhone as string | undefined,
-    workDate:              contract.workDate as string | undefined,
-    workerBankName:        contract.workerBankName as string | undefined,
-    workerAccountNumber:   contract.workerAccountNumber as string | undefined,
-    workerAccountHolder:   contract.workerAccountHolder as string | undefined,
-    managerName:           contract.managerName as string | undefined,
-  }
-}
+import {
+  validateDailyContractDangerPhrases,
+  extractContractText,
+} from '@/lib/contracts/validate-contract'
+import { DANGER_PHRASE_APPLICABLE_TEMPLATES } from '@/lib/policies/contract-policy'
+import { resolveContractDocumentData } from '@/lib/contracts/resolve-document-data'
 
 export async function POST(
   req: NextRequest,
@@ -141,7 +87,21 @@ export async function POST(
   if (!docType) return NextResponse.json({ error: 'docType 필수' }, { status: 400 })
 
   const today = new Date().toISOString().slice(0, 10)
-  const base  = contractToTemplateData(contract as never, contract.worker, contract.site, today)
+
+  // 버전 스냅샷 조회 — workerName/workerPhone 불변성 보장 (generate-pdf와 동일 원칙)
+  const existingSnap = await prisma.contractVersion.findUnique({
+    where: { contractId_versionNo: { contractId: params.id, versionNo: contract.currentVersion } },
+    select: { snapshotJson: true },
+  })
+
+  // 공통 resolver — PDF / DOC / 화면 모두 동일한 원천
+  const base = resolveContractDocumentData(
+    contract as never,
+    contract.worker,
+    contract.site,
+    existingSnap?.snapshotJson ?? null,
+    today,
+  )
 
   let rendered
   try {
@@ -150,8 +110,16 @@ export async function POST(
     return NextResponse.json({ error: `문서 렌더링 실패: ${(e as Error).message}` }, { status: 400 })
   }
 
+  // 위험 문구 검출 — CONTRACT / DAILY_CONTRACT 타입에 한해 generate-pdf와 동일 기준 적용
+  const tmpl = (contract as never as Record<string, unknown>).contractTemplateType as string
+  const isContractDoc = docType === 'CONTRACT' || docType === 'DAILY_CONTRACT'
+  const dangerCheck = isContractDoc && DANGER_PHRASE_APPLICABLE_TEMPLATES.includes(tmpl)
+    ? validateDailyContractDangerPhrases(extractContractText(rendered))
+    : { hasDanger: false, matches: [] }
+
   const contentText = contractToText(rendered)
-  const fileName    = `${rendered.title}_${contract.worker.name}_${today}.txt`
+  // 파일명도 snapshot 기준 이름 사용 (base.workerName = snapshot-first 해소된 값)
+  const fileName = `${rendered.title}_${base.workerName}_${today}.txt`
 
   const doc = await prisma.generatedDocument.create({
     data: {
@@ -173,20 +141,32 @@ export async function POST(
     actionType: 'DOCUMENT_GENERATE',
     targetType: 'GeneratedDocument',
     targetId:   doc.id,
-    description: `문서 생성: ${docType} / ${contract.worker.name}`,
+    description: `문서 생성: ${docType} / ${base.workerName}`,
   })
 
-  return NextResponse.json({ success: true, data: { id: doc.id, docType, fileName, contentText } }, { status: 201 })
+  return NextResponse.json({
+    success: true,
+    data: {
+      id: doc.id,
+      docType,
+      fileName,
+      contentText,
+      // 일용직 계약서 위험 문구 경고 (있으면 관리자 수동 검수 필요)
+      ...(dangerCheck.hasDanger ? {
+        warnings: dangerCheck.matches.map(m => `[위험문구] "${m.phrase}" 발견: ${m.context}`),
+      } : {}),
+    },
+  }, { status: 201 })
 }
 
 // ─── 문서 타입별 렌더러 디스패치 ─────────────────────────────
 
 function renderDoc(
-  docType: string,
-  base: ContractData,
+  docType:  string,
+  base:     ContractData,
   contract: Record<string, unknown>,
-  extra: Record<string, unknown>,
-  today: string,
+  extra:    Record<string, unknown>,
+  today:    string,
 ) {
   const tmpl = contract.contractTemplateType as string
 
@@ -194,7 +174,7 @@ function renderDoc(
     // ── 계약서 본문 ──────────────────────────────────────────
     case 'CONTRACT':
     case 'DAILY_CONTRACT':
-      if (tmpl === 'REGULAR_EMPLOYMENT')   return renderRegularEmploymentContract(base, false)
+      if (tmpl === 'REGULAR_EMPLOYMENT')    return renderRegularEmploymentContract(base, false)
       if (tmpl === 'FIXED_TERM_EMPLOYMENT') return renderRegularEmploymentContract(base, true)
       if (tmpl === 'SUBCONTRACT_WITH_BIZ' || tmpl === 'FREELANCER_SERVICE') {
         return renderSubcontractBizContract(base)
@@ -208,34 +188,34 @@ function renderDoc(
     case 'SAFETY_EDUCATION_NEW_HIRE':
       return renderSafetyEducationNewHire({
         ...base,
-        educationDate:    (extra.educationDate as string) || today,
-        educationHours:   (extra.educationHours as number) || 1,
-        educationPlace:   (extra.educationPlace as string) || base.siteName,
-        educatorName:     (extra.educatorName as string) || '현장소장',
+        educationDate:  (extra.educationDate  as string) || today,
+        educationHours: (extra.educationHours as number) || 1,
+        educationPlace: (extra.educationPlace as string) || base.siteName,
+        educatorName:   (extra.educatorName   as string) || '현장소장',
       } as SafetyEducationData)
 
     case 'SAFETY_EDUCATION_TASK_CHANGE':
       return renderTaskChangeEducation({
         ...base,
-        educationDate:    (extra.educationDate as string) || today,
-        educationHours:   (extra.educationHours as number) || 1,
-        educationPlace:   (extra.educationPlace as string) || base.siteName,
-        educatorName:     (extra.educatorName as string) || '현장소장',
-        prevTask:         (extra.prevTask as string) || '이전 작업',
-        newTask:          (extra.newTask as string) || base.jobTitle,
+        educationDate:  (extra.educationDate  as string) || today,
+        educationHours: (extra.educationHours as number) || 1,
+        educationPlace: (extra.educationPlace as string) || base.siteName,
+        educatorName:   (extra.educatorName   as string) || '현장소장',
+        prevTask:       (extra.prevTask        as string) || '이전 작업',
+        newTask:        (extra.newTask         as string) || base.jobTitle,
       })
 
     case 'PPE_PROVISION':
       return renderPPEProvision({
         ...base,
         provisionDate: (extra.provisionDate as string) || today,
-        workType:      (extra.workType as string) || base.jobTitle,
+        workType:      (extra.workType      as string) || base.jobTitle,
         ppeItems:      (extra.ppeItems as PPEProvisionData['ppeItems']) || [
           { name: '안전모', standard: 'KCS 산업용', quantity: 1, condition: '신품' },
           { name: '안전화', standard: 'KCS 안전화', quantity: 1, condition: '신품' },
           { name: '안전대', standard: 'KCS 안전대', quantity: 1, condition: '신품' },
         ],
-        issuedBy:  (extra.issuedBy as string) || '현장소장',
+        issuedBy: (extra.issuedBy as string) || '현장소장',
       } as PPEProvisionData)
 
     case 'SAFETY_PLEDGE':
@@ -244,15 +224,15 @@ function renderDoc(
     case 'SITE_ASSIGNMENT':
       return renderSiteAssignment({
         ...base,
-        prevSiteName:  (extra.prevSiteName as string) || '이전 현장',
-        assignDate:    (extra.assignDate as string) || today,
+        prevSiteName:  (extra.prevSiteName  as string)  || '이전 현장',
+        assignDate:    (extra.assignDate    as string)  || today,
         wageUnchanged: (extra.wageUnchanged as boolean) ?? true,
       } as SiteAssignmentData)
 
     case 'WORK_CONDITION_CHANGE':
       return renderWorkConditionChange({
         ...base,
-        changeDate:   (extra.changeDate as string) || today,
+        changeDate:   (extra.changeDate   as string) || today,
         changeReason: (extra.changeReason as string) || '현장 조건 변경',
         changes:      (extra.changes as WorkConditionChangeData['changes']) || [],
       } as WorkConditionChangeData)
@@ -270,7 +250,7 @@ function renderDoc(
     case 'SUBCONTRACT_PAYMENT_TERMS':
       return renderPaymentAnnex({
         ...buildSubcontractData(base, contract),
-        milestones:   (extra.milestones as { name: string; ratio: number; condition: string }[]) || [],
+        milestones:   (extra.milestones   as { name: string; ratio: number; condition: string }[]) || [],
         paymentTerms: (extra.paymentTerms as string) || '기성 검수 후 30일 이내',
       })
 
@@ -300,28 +280,26 @@ function renderDoc(
       return renderReclassificationWarning(buildTeamData(base, contract))
 
     // ── 안전·동의 문서 (일용직/상용직 분기) ─────────────────────
-    case 'WORK_CONDITIONS_RECEIPT_REGULAR': {
-      const cd = base as ContractData & { probationYn?: boolean; probationMonths?: number; annualLeaveRule?: string }
+    case 'WORK_CONDITIONS_RECEIPT_REGULAR':
       return renderWorkConditionsReceiptRegular({
         ...base,
-        managerName: (extra.managerName as string) || cd.managerName,
-        probationYn:     cd.probationYn,
-        probationMonths: cd.probationMonths,
-        annualLeaveRule: cd.annualLeaveRule,
+        managerName:     (extra.managerName     as string)  || base.managerName,
+        probationYn:     (base as ContractData).probationYn,
+        probationMonths: (base as ContractData).probationMonths,
+        annualLeaveRule: (base as ContractData).annualLeaveRule,
       })
-    }
 
     case 'WORK_CONDITIONS_RECEIPT':
       return renderWorkConditionsReceipt({
         ...base,
-        workDate:              (extra.workDate as string)              || (base as ContractData).workDate,
-        tradeType:             (extra.tradeType as string)             || undefined,
-        jobType:               (extra.jobType as string)               || undefined,
-        workPlace:             (extra.workPlace as string)             || undefined,
-        managerName:           (extra.managerName as string)           || (base as ContractData).managerName,
-        workerBankName:        (extra.workerBankName as string)        || (base as ContractData).workerBankName,
-        workerAccountNumber:   (extra.workerAccountNumber as string)   || (base as ContractData).workerAccountNumber,
-        workerAccountHolder:   (extra.workerAccountHolder as string)   || (base as ContractData).workerAccountHolder,
+        workDate:            (extra.workDate            as string) || base.workDate,
+        tradeType:           (extra.tradeType           as string) || undefined,
+        jobType:             (extra.jobType             as string) || undefined,
+        workPlace:           (extra.workPlace           as string) || undefined,
+        managerName:         (extra.managerName         as string) || base.managerName,
+        workerBankName:      (extra.workerBankName      as string) || base.workerBankName,
+        workerAccountNumber: (extra.workerAccountNumber as string) || base.workerAccountNumber,
+        workerAccountHolder: (extra.workerAccountHolder as string) || base.workerAccountHolder,
       })
 
     case 'PRIVACY_CONSENT':
@@ -330,54 +308,54 @@ function renderDoc(
     case 'BASIC_SAFETY_EDU_CONFIRM':
       return renderBasicSafetyEduConfirm({
         ...base,
-        workDate:              (extra.workDate as string)              || (base as ContractData).workDate,
-        eduCompletedYn:        (extra.eduCompletedYn as boolean)       ?? false,
-        eduCompletedDate:      (extra.eduCompletedDate as string)      || undefined,
-        eduOrganization:       (extra.eduOrganization as string)       || undefined,
-        eduCertConfirmedYn:    (extra.eduCertConfirmedYn as boolean)   ?? false,
-        eduCertConfirmedDate:  (extra.eduCertConfirmedDate as string)  || undefined,
-        confirmerName:         (extra.confirmerName as string)         || (base as ContractData).managerName,
+        workDate:             (extra.workDate             as string)  || base.workDate,
+        eduCompletedYn:       (extra.eduCompletedYn       as boolean) ?? false,
+        eduCompletedDate:     (extra.eduCompletedDate     as string)  || undefined,
+        eduOrganization:      (extra.eduOrganization      as string)  || undefined,
+        eduCertConfirmedYn:   (extra.eduCertConfirmedYn   as boolean) ?? false,
+        eduCertConfirmedDate: (extra.eduCertConfirmedDate as string)  || undefined,
+        confirmerName:        (extra.confirmerName        as string)  || base.managerName,
       })
 
     case 'SITE_SAFETY_RULES_CONFIRM':
       return renderSiteSafetyRulesConfirm({
         ...base,
-        workDate:            (extra.workDate as string)          || (base as ContractData).workDate,
-        specialSafetyRules:  (extra.specialSafetyRules as string) || undefined,
-        confirmerName:       (extra.confirmerName as string)      || (base as ContractData).managerName,
+        workDate:           (extra.workDate           as string) || base.workDate,
+        specialSafetyRules: (extra.specialSafetyRules as string) || undefined,
+        confirmerName:      (extra.confirmerName      as string) || base.managerName,
       })
 
     // ── 안전관리 공통 ─────────────────────────────────────────
     case 'SAFETY_COUNCIL_MINUTES':
       return renderSafetyCouncilMinutes({
         ...base,
-        meetingDate:  (extra.meetingDate as string) || today,
+        meetingDate:  (extra.meetingDate  as string) || today,
         meetingPlace: (extra.meetingPlace as string) || base.siteName,
-        attendees:    (extra.attendees as SafetyCouncilData['attendees']) || [],
-        agendaItems:  (extra.agendaItems as string[]) || ['작업 안전사항 점검'],
-        decisions:    (extra.decisions as string[]) || [],
+        attendees:    (extra.attendees    as SafetyCouncilData['attendees']) || [],
+        agendaItems:  (extra.agendaItems  as string[]) || ['작업 안전사항 점검'],
+        decisions:    (extra.decisions    as string[]) || [],
       } as SafetyCouncilData)
 
     case 'SITE_INSPECTION_RECORD':
       return renderSiteInspection({
         ...base,
-        inspectionDate:    (extra.inspectionDate as string) || today,
-        inspectorName:     (extra.inspectorName as string) || '현장소장',
+        inspectionDate:    (extra.inspectionDate    as string) || today,
+        inspectorName:     (extra.inspectorName     as string) || '현장소장',
         inspectorPosition: (extra.inspectorPosition as string) || '안전관리자',
-        items:             (extra.items as SiteInspectionData['items']) || [],
-        overallResult:     (extra.overallResult as '이상없음' | '시정필요' | '즉시중단') || '이상없음',
+        items:             (extra.items             as SiteInspectionData['items']) || [],
+        overallResult:     (extra.overallResult     as '이상없음' | '시정필요' | '즉시중단') || '이상없음',
       } as SiteInspectionData)
 
     case 'SUBCONTRACTOR_EDUCATION_RECORD':
       return renderSubcontractorEducationRecord({
         ...base,
-        educationDate:     (extra.educationDate as string) || today,
+        educationDate:     (extra.educationDate     as string) || today,
         subcontractorName: (extra.subcontractorName as string) || base.contractorName || '수급인',
-        subcontractorRep:  (extra.subcontractorRep as string) || base.workerName,
-        educationTopic:    (extra.educationTopic as string) || '현장 안전교육',
-        educationHours:    (extra.educationHours as number) || 1,
-        attendeeCount:     (extra.attendeeCount as number) || 1,
-        confirmedBy:       (extra.confirmedBy as string) || '현장소장',
+        subcontractorRep:  (extra.subcontractorRep  as string) || base.workerName,
+        educationTopic:    (extra.educationTopic    as string) || '현장 안전교육',
+        educationHours:    (extra.educationHours    as number) || 1,
+        attendeeCount:     (extra.attendeeCount     as number) || 1,
+        confirmedBy:       (extra.confirmedBy       as string) || '현장소장',
       } as SubcontractorEducationData)
 
     default:
@@ -388,13 +366,13 @@ function renderDoc(
 function buildSubcontractData(base: ContractData, contract: Record<string, unknown>): SubcontractData {
   return {
     ...base,
-    subcontractorBizNo:   (contract.businessRegistrationNo as string) || '         ',
-    subcontractorName:    (contract.contractorName as string) || base.workerName,
-    subcontractorCeo:     base.workerName,
-    scopeDescription:     (contract.notes as string) || base.jobTitle,
-    contractAmount:       (contract.serviceFee as number) || (contract.dailyWage as number) || 0,
-    vatIncluded:          false,
-    paymentSchedule:      `매월 ${base.paymentDay || '말일'} 기성 정산`,
+    subcontractorBizNo:    (contract.businessRegistrationNo as string) || '         ',
+    subcontractorName:     (contract.contractorName         as string) || base.workerName,
+    subcontractorCeo:      base.workerName,
+    scopeDescription:      (contract.notes                  as string) || base.jobTitle,
+    contractAmount:        (contract.serviceFee             as number) || (contract.dailyWage as number) || 0,
+    vatIncluded:           false,
+    paymentSchedule:       `매월 ${base.paymentDay || '말일'} 기성 정산`,
     equipmentByContractor: true,
     materialByContractor:  false,
   } as SubcontractData
@@ -404,7 +382,7 @@ function buildTeamData(base: ContractData, contract: Record<string, unknown>): T
   return {
     ...base,
     attendanceControlledByCompany: (contract.attendanceControlledByCompany as boolean) ?? false,
-    payDecidedByCompany:           (contract.payDecidedByCompany as boolean) ?? false,
-    directPaymentByCompany:        (contract.directPaymentByCompany as boolean) ?? false,
+    payDecidedByCompany:           (contract.payDecidedByCompany           as boolean) ?? false,
+    directPaymentByCompany:        (contract.directPaymentByCompany        as boolean) ?? false,
   } as TeamLeaderData
 }

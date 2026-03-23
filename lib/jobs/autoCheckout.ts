@@ -10,6 +10,7 @@
 
 import { prisma } from '@/lib/db/prisma'
 import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
+import { AUTO_CHECKOUT_NOTE } from '@/lib/policies/attendance-policy'
 
 export interface AutoCheckoutResult {
   runAt: string
@@ -88,7 +89,7 @@ export async function runAutoCheckout(dryRun = false): Promise<AutoCheckoutResul
         data: {
           status: 'MISSING_CHECKOUT',
           checkOutSiteId,
-          adminNote: `[AUTO] 04:00 자동 퇴근 미기록 처리. 실행시각: ${runAt}`,
+          adminNote: AUTO_CHECKOUT_NOTE(runAt),
         },
       })
 

@@ -13,12 +13,14 @@
  */
 import { prisma } from '@/lib/db/prisma'
 import { Decimal } from '@prisma/client/runtime/library'
-
-const DAILY_WAGE_NONTAXABLE  = 150_000   // 일 15만원 비과세
-const DAILY_WAGE_TAX_RATE    = 0.06      // 6%
-const DAILY_WAGE_CREDIT_RATE = 0.55      // 세액공제 55%
-const LOCAL_TAX_RATE         = 0.10      // 지방소득세 10%
-const BUSINESS_33_RATE       = 0.03      // 사업소득세 3%
+import {
+  DAILY_WAGE_NONTAXABLE,
+  DAILY_WAGE_TAX_RATE,
+  DAILY_WAGE_CREDIT_RATE,
+  LOCAL_TAX_RATE,
+  BUSINESS_INCOME_TAX_RATE as BUSINESS_33_RATE,
+  FORMULA_CODE,
+} from '@/lib/policies/tax-policy'
 
 export interface TaxRunOptions {
   monthKey:   string
@@ -107,23 +109,23 @@ export async function runTaxCalculation(opts: TaxRunOptions): Promise<TaxRunResu
         : 0
       const taxable = Math.max(0, agg.gross - nonTaxable)
 
-      // 세금 계산
+      // 세금 계산 (formulaCode는 tax-policy의 상수 사용)
       let formulaCode = 'UNKNOWN'
       let incomeTax = 0
       let localTax  = 0
 
       if (agg.incomeType === 'DAILY_WAGE') {
-        formulaCode = 'DAILY_WAGE_2024'
+        formulaCode = FORMULA_CODE.DAILY_WAGE
         const t = calcDailyWageTax(agg.gross, Math.floor(totalDays))
         incomeTax = t.incomeTax
         localTax  = t.localTax
       } else if (agg.incomeType === 'BUSINESS_INCOME') {
-        formulaCode = 'BUSINESS_33'
+        formulaCode = FORMULA_CODE.BUSINESS_33
         const t = calcBusiness33Tax(agg.gross)
         incomeTax = t.incomeTax
         localTax  = t.localTax
       } else {
-        formulaCode = 'SALARY_TABLE'
+        formulaCode = FORMULA_CODE.SALARY_TABLE
         // 상용근로소득: 간이세액표 적용 (이번 단계에서는 기본 구조만 저장)
         incomeTax = 0
         localTax  = 0

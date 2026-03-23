@@ -1,43 +1,27 @@
 /**
  * validate-contract.ts
  * 계약서 텍스트에 포함되어선 안 되는 위험 문구를 검출한다.
+ * 계약 템플릿과 근로자 유형 불일치 감지도 담당한다.
  *
- * 운영 원칙: 일용직 계약서에 "계속 고용 보장", "상시 근로", "정규직", "무기계약" 등의
- * 표현이 포함되면 근로관계의 법적 해석이 달라질 수 있으므로 반드시 사전에 검출한다.
+ * 운영 원칙 및 금지 문구 목록은 lib/policies/contract-policy.ts 에서 관리한다.
+ * 유형 분류 규칙은 lib/policies/worker-type-policy.ts 에서 관리한다.
  *
  * 사용 위치:
  *   - generate-pdf/route.ts (DAILY_EMPLOYMENT 타입 한정)
  *   - generate-doc/route.ts (WORK_CONDITIONS_RECEIPT 케이스)
- *   - 운영자 수동 검수 체크리스트 (DAILY_WORKER_DOCUMENTS_OPERATIONS_CHECKLIST)
+ *   - contracts/new 계약 생성 시 사전 경고
  */
+import { DAILY_CONTRACT_FORBIDDEN_PATTERNS } from '@/lib/policies/contract-policy'
+import {
+  isTemplateMismatch,
+  isDailyDocumentMixup,
+  getEmploymentTypeLabel,
+} from '@/lib/policies/worker-type-policy'
 
 export interface DangerPhraseResult {
   hasDanger: boolean
   matches: { phrase: string; context: string }[]
 }
-
-/**
- * 일용직 계약서에서 사용 금지된 문구 목록 (근로관계 오해 방지)
- *
- * 근거: 일용직 계약서 운영 체크리스트 D-4항 (docs/DAILY_WORKER_DOCUMENTS_OPERATIONS_CHECKLIST_2026-03-23.md)
- */
-const DAILY_CONTRACT_FORBIDDEN_PHRASES: RegExp[] = [
-  // "계속 고용"을 보장하는 표현
-  /계속\s*고용\s*(을\s*)?보장/,
-  /고용\s*보장/,
-  /계속적\s*(으로\s*)?고용/,
-
-  // "상시 근로" 표현
-  /상시\s*(근로|고용|채용)/,
-
-  // "무기계약" / "정규직" 표현
-  /무기\s*계약\s*(으로\s*)?전환/,
-  /정규직\s*(으로\s*)?전환/,
-  /무기\s*근로자/,
-
-  // 월급제 또는 고정급 표현이 일용직 계약서에 포함된 경우
-  /기본급\s*\d[\d,]*\s*원/,   // "기본급 XXX원" — 일용직에 기본급 표현 금지
-]
 
 /**
  * 일용직 계약서 렌더링 결과에서 위험 문구를 검출한다.
@@ -47,7 +31,7 @@ const DAILY_CONTRACT_FORBIDDEN_PHRASES: RegExp[] = [
 export function validateDailyContractDangerPhrases(text: string): DangerPhraseResult {
   const matches: { phrase: string; context: string }[] = []
 
-  for (const pattern of DAILY_CONTRACT_FORBIDDEN_PHRASES) {
+  for (const pattern of DAILY_CONTRACT_FORBIDDEN_PATTERNS) {
     const match = text.match(pattern)
     if (match) {
       // 매칭 전후 30자를 context로 제공
@@ -62,6 +46,40 @@ export function validateDailyContractDangerPhrases(text: string): DangerPhraseRe
   }
 
   return { hasDanger: matches.length > 0, matches }
+}
+
+// ─── 계약 템플릿 / 근로자 유형 불일치 검증 ──────────────────────────────────
+
+export interface TemplateMismatchResult {
+  hasMismatch: boolean
+  isDailyMixup: boolean  // 일용직 문서가 비일용 근로자에게 발급되려는 경우
+  warning: string | null
+}
+
+/**
+ * 계약 템플릿과 근로자 유형이 맞지 않는지 검증한다.
+ *
+ * @param templateType ContractTemplateType 값 (예: 'DAILY_EMPLOYMENT')
+ * @param employmentType 근로자의 EmploymentType 값 (예: 'REGULAR')
+ * @returns 불일치 감지 결과 + 경고 메시지
+ */
+export function validateTemplateMismatch(
+  templateType: string,
+  employmentType: string,
+): TemplateMismatchResult {
+  const mismatch = isTemplateMismatch(templateType, employmentType)
+  const dailyMixup = isDailyDocumentMixup(templateType, employmentType)
+
+  if (!mismatch) {
+    return { hasMismatch: false, isDailyMixup: false, warning: null }
+  }
+
+  const workerLabel = getEmploymentTypeLabel(employmentType)
+  const warning = dailyMixup
+    ? `[문구 혼입 위험] 일용직 전용 계약서(${templateType})를 ${workerLabel} 근로자에게 발급하려 하고 있습니다. 비일용 계약 템플릿을 선택하세요.`
+    : `[템플릿 불일치] ${templateType} 계약서는 ${workerLabel} 근로자에게 적합하지 않을 수 있습니다. 확인 후 진행하세요.`
+
+  return { hasMismatch: true, isDailyMixup: dailyMixup, warning }
 }
 
 /**

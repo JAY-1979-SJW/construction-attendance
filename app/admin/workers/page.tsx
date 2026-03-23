@@ -4,6 +4,11 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
+import {
+  ADMIN_TYPE_GUIDES,
+  ADMIN_TYPE_WARNINGS,
+  detectEmploymentMismatch,
+} from '@/lib/policies/worker-type-ui-policy'
 
 interface Worker {
   id: string
@@ -43,6 +48,15 @@ interface ScanResult {
 
 const emptyForm = { name: '', phone: '', jobTitle: '', employmentType: 'DAILY_CONSTRUCTION', organizationType: 'DIRECT', foreignerYn: false }
 
+const EMP_LABELS: Record<string, string> = {
+  DAILY_CONSTRUCTION: '건설일용',
+  REGULAR:            '상용직',
+  FIXED_TERM:         '기간제',
+  CONTINUOUS_SITE:    '계속근로형',
+  BUSINESS_33:        '3.3%사업소득',
+  OTHER:              '기타',
+}
+
 export default function WorkersPage() {
   const router = useRouter()
   const role = useAdminRole()
@@ -50,10 +64,13 @@ export default function WorkersPage() {
   const [workers, setWorkers] = useState<Worker[]>([])
   const [total, setTotal] = useState(0)
   const [search, setSearch] = useState('')
+  const [filterEmpType, setFilterEmpType] = useState('')
+  const [filterOrgType, setFilterOrgType] = useState('')
   const [loading, setLoading] = useState(true)
 
   // 등록 모달
   const [showForm, setShowForm] = useState(false)
+  const [guideStep, setGuideStep] = useState<'guide' | 'form'>('guide')
   const [form, setForm] = useState(emptyForm)
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -91,6 +108,12 @@ export default function WorkersPage() {
 
   useEffect(() => { load() }, [router])
 
+  const closeRegModal = () => {
+    setShowForm(false)
+    setGuideStep('guide')
+    setFormError('')
+  }
+
   // ── 등록 ─────────────────────────────────────────────────────
   const handleSave = async () => {
     setSaving(true)
@@ -102,7 +125,7 @@ export default function WorkersPage() {
     })
     const data = await res.json()
     if (!data.success) { setFormError(data.message); setSaving(false); return }
-    setShowForm(false)
+    closeRegModal()
     setForm(emptyForm)
     load()
     setSaving(false)
@@ -205,6 +228,20 @@ export default function WorkersPage() {
             onKeyDown={(e) => e.key === 'Enter' && load()}
             style={styles.searchInput}
           />
+          <select value={filterEmpType} onChange={e => setFilterEmpType(e.target.value)} style={styles.filterSelect}>
+            <option value="">전체 고용형태</option>
+            <option value="DAILY_CONSTRUCTION">건설일용</option>
+            <option value="REGULAR">상용직</option>
+            <option value="FIXED_TERM">기간제</option>
+            <option value="CONTINUOUS_SITE">계속근로형</option>
+            <option value="BUSINESS_33">3.3%사업소득</option>
+            <option value="OTHER">기타</option>
+          </select>
+          <select value={filterOrgType} onChange={e => setFilterOrgType(e.target.value)} style={styles.filterSelect}>
+            <option value="">전체 소속</option>
+            <option value="DIRECT">직영</option>
+            <option value="SUBCONTRACTOR">협력사</option>
+          </select>
           <button onClick={() => load()} style={styles.searchBtn}>검색</button>
         </div>
 
@@ -213,15 +250,21 @@ export default function WorkersPage() {
             <table style={styles.table}>
               <thead>
                 <tr>
-                  {['이름', '연락처', '소속회사', '직종', '고용형태', '기기', '퇴직공제', '신분증', '상태', '등록일', ''].map((h) => (
+                  {['이름', '연락처', '소속회사', '직종', '고용형태', '소속구분', '기기', '퇴직공제', '신분증', '상태', '등록일', ''].map((h) => (
                     <th key={h} style={styles.th}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {workers.length === 0 ? (
-                  <tr><td colSpan={11} style={styles.empty}>등록된 근로자가 없습니다.</td></tr>
-                ) : workers.map((w) => (
+                {workers.filter(w =>
+                  (!filterEmpType || w.employmentType === filterEmpType) &&
+                  (!filterOrgType || w.organizationType === filterOrgType)
+                ).length === 0 ? (
+                  <tr><td colSpan={12} style={styles.empty}>조건에 맞는 근로자가 없습니다.</td></tr>
+                ) : workers.filter(w =>
+                  (!filterEmpType || w.employmentType === filterEmpType) &&
+                  (!filterOrgType || w.organizationType === filterOrgType)
+                ).map((w) => (
                   <tr key={w.id} style={{ opacity: w.isActive ? 1 : 0.5 }}>
                     <td style={styles.td}>{w.name}</td>
                     <td style={styles.td}>{formatPhone(w.phone)}</td>
@@ -229,10 +272,15 @@ export default function WorkersPage() {
                     <td style={styles.td}>{w.jobTitle}</td>
                     <td style={styles.td}>
                       <span style={{ fontSize: '12px', color: '#555' }}>
-                        {w.employmentType === 'DAILY_CONSTRUCTION' ? '건설일용' :
-                         w.employmentType === 'REGULAR' ? '상용' :
-                         w.employmentType === 'BUSINESS_33' ? '3.3%' : w.employmentType ?? '—'}
+                        {EMP_LABELS[w.employmentType ?? ''] ?? w.employmentType ?? '—'}
                         {w.foreignerYn && <span style={{ marginLeft: '4px', color: '#f57c00' }}>외</span>}
+                      </span>
+                    </td>
+                    <td style={styles.td}>
+                      <span style={{ fontSize: '11px', color: w.organizationType === 'SUBCONTRACTOR' ? '#e65100' : '#555',
+                        background: w.organizationType === 'SUBCONTRACTOR' ? '#fff3e0' : '#f5f5f5',
+                        padding: '1px 6px', borderRadius: '8px' }}>
+                        {w.organizationType === 'SUBCONTRACTOR' ? '협력사' : '직영'}
                       </span>
                     </td>
                     <td style={styles.td}>{w.deviceCount > 0 ? `${w.deviceCount}대` : '미등록'}</td>
@@ -289,65 +337,196 @@ export default function WorkersPage() {
         {/* ── 등록 모달 ─────────────────────────────────────── */}
         {showForm && (
           <div style={styles.modalOverlay}>
-            <div style={styles.modal}>
-              <h3 style={styles.modalTitle}>근로자 등록</h3>
-              {[
-                { label: '이름', key: 'name', placeholder: '홍길동' },
-                { label: '휴대폰', key: 'phone', placeholder: '01012345678 (숫자만)' },
-                { label: '직종/역할', key: 'jobTitle', placeholder: '형틀목공' },
-              ].map(({ label, key, placeholder }) => (
-                <div key={key} style={styles.fieldRow}>
-                  <label style={styles.label}>{label}</label>
-                  <input
-                    type="text"
-                    placeholder={placeholder}
-                    value={form[key as keyof typeof form] as string}
-                    onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    style={styles.input}
-                  />
+            {guideStep === 'guide' ? (
+              /* ─ 안내 단계 ─ */
+              <div style={{ ...styles.modal, width: '740px', maxHeight: '90vh', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <h3 style={{ ...styles.modalTitle, margin: 0 }}>근로유형 / 계약유형 선택 안내</h3>
+                  <button onClick={closeRegModal} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#999' }}>✕</button>
                 </div>
-              ))}
-              <div style={styles.fieldRow}>
-                <label style={styles.label}>고용형태</label>
-                <select
-                  value={form.employmentType}
-                  onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
-                  style={styles.input}
-                >
-                  <option value="DAILY_CONSTRUCTION">건설 일용근로자</option>
-                  <option value="REGULAR">상용근로자</option>
-                  <option value="BUSINESS_33">3.3% 사업소득</option>
-                  <option value="OTHER">기타</option>
-                </select>
+                <p style={{ fontSize: '13px', color: '#555', marginBottom: '16px', lineHeight: '1.6' }}>
+                  근로유형에 따라 계약서 종류, 입력 항목, 근태 기준, 정산 방식이 달라집니다.
+                  유형을 잘못 선택하면 문서·근태·정산 처리에 오류가 생길 수 있으므로, 아래 설명을 먼저 확인한 후 진행하세요.
+                  근로자 등록 시 선택한 유형에 따라 이후 계약서 종류와 입력 항목이 달라집니다.
+                </p>
+
+                {/* 비교표 */}
+                <div style={{ overflowX: 'auto', marginBottom: '14px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                    <thead>
+                      <tr style={{ background: '#f5f5f5' }}>
+                        {['유형', '이런 경우 선택', '계약 종료일', '근태/계산 기준', '생성 문서/처리'].map(h => (
+                          <th key={h} style={{ padding: '7px 10px', border: '1px solid #e0e0e0', textAlign: 'left', color: '#555', fontWeight: 700, whiteSpace: 'nowrap' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ADMIN_TYPE_GUIDES.map(g => (
+                        <tr key={g.code} style={{ verticalAlign: 'top' }}>
+                          <td style={{ padding: '7px 10px', border: '1px solid #e0e0e0', fontWeight: 700, color: g.accentColor, whiteSpace: 'nowrap' }}>{g.icon} {g.label}</td>
+                          <td style={{ padding: '7px 10px', border: '1px solid #e0e0e0', color: '#444', fontSize: '11px' }}>{g.tableRow.whenToSelect}</td>
+                          <td style={{ padding: '7px 10px', border: '1px solid #e0e0e0', color: '#444', fontSize: '11px', whiteSpace: 'nowrap' }}>{g.tableRow.endDateConcept}</td>
+                          <td style={{ padding: '7px 10px', border: '1px solid #e0e0e0', color: '#444', fontSize: '11px' }}>{g.tableRow.calcBasis}</td>
+                          <td style={{ padding: '7px 10px', border: '1px solid #e0e0e0', color: '#444', fontSize: '11px' }}>{g.tableRow.documents}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* 오선택 방지 경고 */}
+                <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '8px', padding: '10px 14px', marginBottom: '16px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#795548', marginBottom: '6px' }}>⚠ 오선택 방지 — 반드시 확인하세요</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 16px' }}>
+                    {ADMIN_TYPE_WARNINGS.map((w, i) => (
+                      <div key={i} style={{ fontSize: '11px', color: '#795548' }}>• {w}</div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 유형별 카드 (2×2 그리드) */}
+                {(() => {
+                  const selectedGuideCode = form.organizationType === 'SUBCONTRACTOR'
+                    ? 'SUBCONTRACTOR'
+                    : form.employmentType || null
+                  return (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                        {ADMIN_TYPE_GUIDES.map(guide => {
+                          const isSelected = guide.code === selectedGuideCode
+                          return (
+                            <div
+                              key={guide.code}
+                              onClick={() => {
+                                if (guide.code === 'SUBCONTRACTOR') {
+                                  setForm(f => ({ ...f, organizationType: 'SUBCONTRACTOR', employmentType: '' }))
+                                } else {
+                                  setForm(f => ({ ...f, employmentType: guide.code, organizationType: 'DIRECT' }))
+                                }
+                              }}
+                              style={{
+                                border: `2px solid ${isSelected ? guide.accentColor : guide.accentColor + '30'}`,
+                                borderRadius: '8px', padding: '14px', background: isSelected ? guide.accentColor + '08' : 'white',
+                                display: 'flex', flexDirection: 'column', cursor: 'pointer',
+                                transition: 'border-color 0.15s, background 0.15s',
+                              }}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                                <span style={{ fontSize: '18px' }}>{guide.icon}</span>
+                                <span style={{ fontWeight: 700, fontSize: '14px', color: guide.accentColor }}>{guide.label}</span>
+                                {isSelected && (
+                                  <span style={{ marginLeft: 'auto', fontSize: '11px', fontWeight: 700, color: guide.accentColor, background: guide.accentColor + '18', borderRadius: '10px', padding: '2px 8px' }}>
+                                    ✓ 선택됨
+                                  </span>
+                                )}
+                              </div>
+                              <p style={{ fontSize: '12px', color: '#555', marginBottom: '8px', lineHeight: '1.5', flexGrow: 1 }}>{guide.detail}</p>
+                              <div style={{ fontSize: '11px', color: '#666', marginBottom: '8px' }}>
+                                <div style={{ fontWeight: 600, marginBottom: '3px', color: '#2e7d32' }}>✅ 이 유형이 맞는 경우</div>
+                                {guide.whenItFits.map((w, i) => <div key={i} style={{ marginBottom: '2px' }}>• {w}</div>)}
+                              </div>
+                              <div style={{ fontSize: '11px', color: '#9a4a00', background: '#fff3e0', borderRadius: '4px', padding: '6px 8px' }}>
+                                ⚠ {guide.caution}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                        <button onClick={closeRegModal} style={{ ...styles.cancelBtn, flex: 'unset', padding: '8px 20px' }}>취소</button>
+                        <button
+                          disabled={!selectedGuideCode}
+                          onClick={() => setGuideStep('form')}
+                          style={{
+                            padding: '9px 24px', borderRadius: '6px', fontSize: '13px', fontWeight: 700, border: 'none', cursor: selectedGuideCode ? 'pointer' : 'not-allowed',
+                            background: selectedGuideCode
+                              ? (ADMIN_TYPE_GUIDES.find(g => g.code === selectedGuideCode)?.accentColor || '#1976d2')
+                              : '#ccc',
+                            color: 'white', opacity: selectedGuideCode ? 1 : 0.6,
+                          }}
+                        >
+                          {selectedGuideCode
+                            ? `${ADMIN_TYPE_GUIDES.find(g => g.code === selectedGuideCode)?.label} 으로 등록 진행 →`
+                            : '유형을 선택하세요'}
+                        </button>
+                      </div>
+                    </>
+                  )
+                })()}
               </div>
-              <div style={styles.fieldRow}>
-                <label style={styles.label}>소속구분</label>
-                <select
-                  value={form.organizationType}
-                  onChange={(e) => setForm({ ...form, organizationType: e.target.value })}
-                  style={styles.input}
-                >
-                  <option value="DIRECT">직영</option>
-                  <option value="SUBCONTRACTOR">협력사 소속</option>
-                </select>
+            ) : (
+              /* ─ 등록 폼 단계 ─ */
+              <div style={styles.modal}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ ...styles.modalTitle, margin: 0 }}>근로자 등록</h3>
+                  <button onClick={() => setGuideStep('guide')} style={{ background: 'none', border: 'none', fontSize: '13px', cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}>← 유형 안내</button>
+                </div>
+                {[
+                  { label: '이름', key: 'name', placeholder: '홍길동' },
+                  { label: '휴대폰', key: 'phone', placeholder: '01012345678 (숫자만)' },
+                  { label: '직종/역할', key: 'jobTitle', placeholder: '형틀목공' },
+                ].map(({ label, key, placeholder }) => (
+                  <div key={key} style={styles.fieldRow}>
+                    <label style={styles.label}>{label}</label>
+                    <input
+                      type="text"
+                      placeholder={placeholder}
+                      value={form[key as keyof typeof form] as string}
+                      onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                      style={styles.input}
+                    />
+                  </div>
+                ))}
+                <div style={styles.fieldRow}>
+                  <label style={styles.label}>고용형태</label>
+                  <select
+                    value={form.employmentType}
+                    onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
+                    style={styles.input}
+                  >
+                    <option value="DAILY_CONSTRUCTION">건설일용 (일 단위 공수)</option>
+                    <option value="REGULAR">상용직 (근태 관리)</option>
+                    <option value="FIXED_TERM">기간제 (계약기간 필수)</option>
+                    <option value="CONTINUOUS_SITE">계속근로형 현장근로자</option>
+                    <option value="BUSINESS_33">3.3% 사업소득 (용역)</option>
+                    <option value="OTHER">기타</option>
+                  </select>
+                </div>
+                <div style={styles.fieldRow}>
+                  <label style={styles.label}>소속구분</label>
+                  <select
+                    value={form.organizationType}
+                    onChange={(e) => setForm({ ...form, organizationType: e.target.value })}
+                    style={styles.input}
+                  >
+                    <option value="DIRECT">직영</option>
+                    <option value="SUBCONTRACTOR">협력사 소속</option>
+                  </select>
+                </div>
+                {detectEmploymentMismatch(form.employmentType, form.organizationType) && (
+                  <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '6px', padding: '10px 12px', marginBottom: '12px', fontSize: '12px', color: '#795548' }}>
+                    ⚠ {detectEmploymentMismatch(form.employmentType, form.organizationType)!.message}
+                  </div>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <input
+                    type="checkbox"
+                    id="foreignerYn"
+                    checked={form.foreignerYn as boolean}
+                    onChange={(e) => setForm({ ...form, foreignerYn: e.target.checked })}
+                  />
+                  <label htmlFor="foreignerYn" style={{ fontSize: '14px' }}>외국인 근로자</label>
+                </div>
+                {formError && <p style={styles.error}>{formError}</p>}
+                <div style={styles.btnRow}>
+                  <button onClick={handleSave} disabled={saving} style={styles.saveBtn}>
+                    {saving ? '저장 중...' : '등록'}
+                  </button>
+                  <button onClick={closeRegModal} style={styles.cancelBtn}>취소</button>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <input
-                  type="checkbox"
-                  id="foreignerYn"
-                  checked={form.foreignerYn as boolean}
-                  onChange={(e) => setForm({ ...form, foreignerYn: e.target.checked })}
-                />
-                <label htmlFor="foreignerYn" style={{ fontSize: '14px' }}>외국인 근로자</label>
-              </div>
-              {formError && <p style={styles.error}>{formError}</p>}
-              <div style={styles.btnRow}>
-                <button onClick={handleSave} disabled={saving} style={styles.saveBtn}>
-                  {saving ? '저장 중...' : '등록'}
-                </button>
-                <button onClick={() => { setShowForm(false); setFormError('') }} style={styles.cancelBtn}>취소</button>
-              </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -446,8 +625,9 @@ const styles: Record<string, React.CSSProperties> = {
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
   pageTitle: { fontSize: '22px', fontWeight: 700, margin: 0 },
   addBtn: { padding: '10px 20px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  searchRow: { display: 'flex', gap: '8px', marginBottom: '16px' },
+  searchRow: { display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' as const },
   searchInput: { flex: 1, padding: '10px 14px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', maxWidth: '360px' },
+  filterSelect: { padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '13px', background: 'white', cursor: 'pointer' },
   searchBtn: { padding: '10px 20px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' },
   tableCard: { background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflowX: 'auto' },
   table: { width: '100%', borderCollapse: 'collapse' as const },

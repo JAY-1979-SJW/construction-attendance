@@ -2,6 +2,14 @@
 
 import { Suspense, useEffect, useState, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import {
+  ADMIN_TYPE_GUIDES,
+  ADMIN_TYPE_WARNINGS,
+  detectWorkerContractMismatch,
+} from '@/lib/policies/worker-type-ui-policy'
+import { getDocumentSet } from '@/lib/policies/document-set-policy'
+import { validateForGenerate, STAGE_LABELS, type ValidationError } from '@/lib/policies/contract-save-policy'
+import FaqChatWidget from '@/components/labor-faq/FaqChatWidget'
 
 // ─── 계약 유형 분류 ───────────────────────────────────────────
 
@@ -69,7 +77,7 @@ const JOB_CATEGORY_OPTIONS = [
   '보통인부', '특별인부', '조공', '전공', '기능공', '기사반장', '기타',
 ]
 
-interface Worker { id: string; name: string; phone: string; jobTitle: string; birthDate?: string; bankName?: string; bankAccount?: string; bankAccountSecure?: { bankName: string | null; accountNumberMasked: string | null } | null }
+interface Worker { id: string; name: string; phone: string; jobTitle: string; birthDate?: string; employmentType?: string; bankAccountSecure?: { bankName: string | null; accountNumberMasked: string | null } | null }
 interface Site   { id: string; name: string; address?: string }
 interface CompanyOpt { id: string; companyName: string; representativeName?: string | null; businessNumber?: string | null; address?: string | null; contactPhone?: string | null }
 
@@ -137,6 +145,9 @@ function NewContractPage() {
   const [saving, setSaving]     = useState(false)
   const [error, setError]       = useState('')
   const [selectedCompanyId, setSelectedCompanyId] = useState('')
+  const [showGuide, setShowGuide] = useState(true)
+  const [pendingTypeChange, setPendingTypeChange] = useState<{ laborRelation: string; templateType: string; label: string } | null>(null)
+  const [showFaqChat, setShowFaqChat] = useState(false)
 
   // 계약 유형 분류
   const [laborRelation, setLaborRelation] = useState<LaborRelationType>('DIRECT_EMPLOYEE')
@@ -249,8 +260,8 @@ function NewContractPage() {
         ...f,
         workerId,
         workerBirthDate: w.birthDate || '',
-        workerBankName:  w.bankAccountSecure?.bankName || w.bankName || '',
-        workerAccountNumber: w.bankAccountSecure?.accountNumberMasked || w.bankAccount || '',
+        workerBankName:  w.bankAccountSecure?.bankName || '',
+        workerAccountNumber: w.bankAccountSecure?.accountNumberMasked || '',
         workerAccountHolder: w.name,
       }))
     }
@@ -295,6 +306,19 @@ function NewContractPage() {
     }))
   }
 
+  function handleAdminTypeSelect(guide: { contractMapping: { laborRelation: string; templateType: string }; label: string }) {
+    const m = guide.contractMapping
+    const hasData = !!(form.workerId || form.startDate || form.dailyWage || form.monthlySalary || form.serviceFee)
+    const isSameType = laborRelation === m.laborRelation && form.contractTemplateType === m.templateType
+    if (hasData && !isSameType) {
+      setPendingTypeChange({ laborRelation: m.laborRelation, templateType: m.templateType, label: guide.label })
+    } else {
+      handleRelationChange(m.laborRelation as LaborRelationType)
+      handleTemplateChange(m.templateType)
+      setShowGuide(false)
+    }
+  }
+
   const set = (key: string, val: unknown) => setForm(f => ({ ...f, [key]: val }))
 
   // 실근로시간 자동계산
@@ -336,14 +360,28 @@ function NewContractPage() {
   async function handleSave() {
     setError('')
     if (blockReason) { setError(blockReason); return }
-    if (!form.workerId || !form.startDate || !form.contractTemplateType) {
-      setError('근로자, 시작일, 계약서 유형은 필수입니다.'); return
-    }
-    if (isDirectEmployment && isEmployment && !form.dailyWage && !form.monthlySalary) {
-      setError('근로계약에는 일당 또는 월급을 입력하세요.'); return
-    }
-    if (!isDirectEmployment && !form.serviceFee && !form.dailyWage) {
-      setError('외주/용역 계약에는 계약 금액을 입력하세요.'); return
+
+    // 3단계 저장 검증 (document-set + type 기반)
+    const genErrors = validateForGenerate({
+      laborRelation:           laborRelation,
+      contractTemplateType:    form.contractTemplateType,
+      workerId:                form.workerId,
+      startDate:               form.startDate,
+      endDate:                 form.endDate,
+      dailyWage:               form.dailyWage,
+      monthlySalary:           form.monthlySalary,
+      serviceFee:              form.serviceFee,
+      checkInTime:             form.checkInTime,
+      checkOutTime:            form.checkOutTime,
+      businessRegistrationNo:  biz.businessRegistrationNo,
+      contractorName:          biz.contractorName,
+      workerViewConfirmed:     false,
+      workerPresignConfirmed:  false,
+    })
+    const blockingErrors = genErrors.filter((e: ValidationError) => e.blocking)
+    if (blockingErrors.length > 0) {
+      setError(blockingErrors.map((e: ValidationError) => e.message).join('\n'))
+      return
     }
 
     setSaving(true)
@@ -438,6 +476,155 @@ function NewContractPage() {
         <div className="bg-red-50 border border-red-200 rounded p-3 text-red-700 text-sm whitespace-pre-wrap">{error}</div>
       )}
 
+      {/* 계약 유형 변경 확인 다이얼로그 */}
+      {pendingTypeChange && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full mx-4">
+            <h3 className="font-bold text-base text-gray-900 mb-2">계약 유형 변경</h3>
+            <p className="text-sm text-gray-600 mb-1">
+              <span className="font-semibold text-orange-700">{pendingTypeChange.label}</span> 유형으로 변경하시겠습니까?
+            </p>
+            <p className="text-xs text-amber-700 bg-amber-50 rounded p-2 mb-4">
+              선택한 유형이 변경되면 일부 입력값이 초기화되거나 적용 기준이 달라질 수 있습니다.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setPendingTypeChange(null)}
+                className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleRelationChange(pendingTypeChange.laborRelation as LaborRelationType)
+                  handleTemplateChange(pendingTypeChange.templateType)
+                  setShowGuide(false)
+                  setPendingTypeChange(null)
+                }}
+                className="px-4 py-2 text-sm bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700"
+              >
+                변경하고 진행
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 근로유형 / 계약유형 선택 안내 — 기본 노출 */}
+      <div className="bg-white border-2 border-blue-200 rounded-lg overflow-hidden">
+        {/* 헤더 (항상 표시) */}
+        <div className="bg-blue-50 px-5 py-4 flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-base font-bold text-blue-900">근로유형 / 계약유형 선택 안내</h2>
+            <p className="text-xs text-blue-700 mt-1 leading-relaxed">
+              근로유형에 따라 계약서 종류, 입력 항목, 근태 기준, 정산 방식이 달라집니다.
+              유형을 잘못 선택하면 문서·근태·정산 처리에 오류가 생길 수 있으므로, 아래 설명을 먼저 확인한 후 진행하세요.
+            </p>
+          </div>
+          <button type="button" onClick={() => setShowGuide(v => !v)}
+            className="shrink-0 text-xs text-blue-600 border border-blue-300 rounded px-3 py-1 hover:bg-blue-100">
+            {showGuide ? '▲ 닫기' : '▼ 펼치기'}
+          </button>
+        </div>
+
+        {showGuide && (
+          <div className="p-5 space-y-5">
+            {/* 비교표 */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="bg-gray-50">
+                    {['유형', '이런 경우 선택', '계약 종료일', '근태/계산 기준', '생성 문서/처리'].map(h => (
+                      <th key={h} className="border border-gray-200 px-3 py-2 text-left font-semibold text-gray-600 whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {ADMIN_TYPE_GUIDES.map(g => (
+                    <tr key={g.code} className="align-top">
+                      <td className="border border-gray-200 px-3 py-2 font-bold whitespace-nowrap" style={{ color: g.accentColor }}>{g.icon} {g.label}</td>
+                      <td className="border border-gray-200 px-3 py-2 text-gray-600">{g.tableRow.whenToSelect}</td>
+                      <td className="border border-gray-200 px-3 py-2 text-gray-600 whitespace-nowrap">{g.tableRow.endDateConcept}</td>
+                      <td className="border border-gray-200 px-3 py-2 text-gray-600">{g.tableRow.calcBasis}</td>
+                      <td className="border border-gray-200 px-3 py-2 text-gray-600">{g.tableRow.documents}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 오선택 방지 경고 */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+              <div className="text-xs font-bold text-amber-800 mb-2">⚠ 오선택 방지 — 반드시 확인하세요</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                {ADMIN_TYPE_WARNINGS.map((w, i) => (
+                  <div key={i} className="text-xs text-amber-700">• {w}</div>
+                ))}
+              </div>
+            </div>
+
+            {/* 유형별 카드 + 진행 버튼 */}
+            {(() => {
+              const selectedContractType = (() => {
+                const matched = ADMIN_TYPE_GUIDES.find(g =>
+                  g.contractMapping.laborRelation === laborRelation &&
+                  g.contractMapping.templateType === form.contractTemplateType
+                )
+                return matched?.code ?? null
+              })()
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {ADMIN_TYPE_GUIDES.map(guide => {
+                    const isSelected = guide.code === selectedContractType
+                    return (
+                      <div
+                        key={guide.code}
+                        className="border-2 rounded-lg p-4 flex flex-col cursor-pointer transition-all"
+                        style={{
+                          borderColor: isSelected ? guide.accentColor : guide.accentColor + '50',
+                          background: isSelected ? guide.accentColor + '08' : undefined,
+                        }}
+                        onClick={() => handleAdminTypeSelect(guide)}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xl">{guide.icon}</span>
+                          <span className="font-bold text-sm" style={{ color: guide.accentColor }}>{guide.label}</span>
+                          {isSelected && (
+                            <span className="ml-auto text-xs font-bold rounded-full px-2 py-0.5" style={{ color: guide.accentColor, background: guide.accentColor + '18' }}>
+                              ✓ 선택됨
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-600 mb-3 leading-relaxed flex-grow">{guide.detail}</p>
+                        <div className="text-xs text-gray-500 mb-3 space-y-1">
+                          <div className="font-medium text-green-700">✅ 이 유형이 맞는 경우</div>
+                          {guide.whenItFits.map((w, i) => <div key={i}>• {w}</div>)}
+                        </div>
+                        <div className="text-xs text-orange-700 bg-orange-50 rounded p-2 mb-3">⚠ {guide.caution}</div>
+                        <button
+                          type="button"
+                          onClick={e => { e.stopPropagation(); handleAdminTypeSelect(guide) }}
+                          className="w-full py-2 rounded text-sm font-bold transition-opacity hover:opacity-90"
+                          style={{
+                            background: isSelected ? guide.accentColor : 'white',
+                            color: isSelected ? 'white' : guide.accentColor,
+                            border: `1.5px solid ${guide.accentColor}`,
+                          }}
+                        >
+                          {isSelected ? '✓ 선택됨 — 이 유형으로 진행' : guide.buttonLabel}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })()}
+          </div>
+        )}
+      </div>
+
       {/* Step 1: 계약 유형 분류 */}
       <div className="bg-white border rounded-lg p-5 space-y-4">
         <h2 className="font-semibold text-gray-800">1단계: 계약 유형 분류</h2>
@@ -513,6 +700,65 @@ function NewContractPage() {
           )}
         </div>
       )}
+
+      {/* 생성 예정 문서 미리보기 */}
+      {(() => {
+        const docSet = getDocumentSet(laborRelation, form.contractTemplateType)
+        if (!docSet) return null
+        const genErrors = validateForGenerate({
+          laborRelation, contractTemplateType: form.contractTemplateType,
+          workerId: form.workerId, startDate: form.startDate, endDate: form.endDate,
+          dailyWage: form.dailyWage, monthlySalary: form.monthlySalary, serviceFee: form.serviceFee,
+          checkInTime: form.checkInTime, checkOutTime: form.checkOutTime,
+          businessRegistrationNo: biz.businessRegistrationNo, contractorName: biz.contractorName,
+          workerViewConfirmed: false, workerPresignConfirmed: false,
+        })
+        const blockingErrors = genErrors.filter((e: ValidationError) => e.blocking)
+        const warnErrors     = genErrors.filter((e: ValidationError) => !e.blocking)
+        const stageKey = blockingErrors.length > 0 ? 'SAVEABLE' : 'GENERATABLE'
+        const stageInfo = STAGE_LABELS[stageKey]
+        return (
+          <div className="bg-white border rounded-lg p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-gray-800">생성 예정 문서</h2>
+              <span className="text-xs font-semibold rounded-full px-3 py-1" style={{ background: stageInfo.color + '18', color: stageInfo.color }}>
+                {stageInfo.label}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500">
+              현재 선택된 유형 <strong>{docSet.typeLabel}</strong> 으로 등록 시 아래 문서가 생성됩니다.
+            </p>
+            <ul className="space-y-1">
+              {docSet.documents.map((doc, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm">
+                  <span className={doc.required ? 'text-blue-600' : 'text-gray-400'}>
+                    {doc.required ? '●' : '○'}
+                  </span>
+                  <span className={doc.required ? 'text-gray-800' : 'text-gray-400'}>
+                    {doc.label}
+                    {doc.required ? <span className="ml-1 text-xs text-blue-600 font-medium">필수</span> : null}
+                    {doc.note ? <span className="ml-1 text-xs text-gray-400">({doc.note})</span> : null}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {blockingErrors.length > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded p-3 space-y-1">
+                {blockingErrors.map((e: ValidationError, i: number) => (
+                  <div key={i} className="text-xs text-red-700">⛔ {e.message}</div>
+                ))}
+              </div>
+            )}
+            {warnErrors.length > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded p-3 space-y-1">
+                {warnErrors.map((e: ValidationError, i: number) => (
+                  <div key={i} className="text-xs text-amber-700">⚠ {e.message}</div>
+                ))}
+              </div>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Step 2: 공사 및 직종 정보 (직접고용만) */}
       {isDirectEmployment && (
@@ -594,6 +840,17 @@ function NewContractPage() {
                 <option key={w.id} value={w.id}>{w.name} — {w.jobTitle} ({w.phone})</option>
               ))}
             </select>
+            {/* 근로자 등록 유형 vs 계약 템플릿 유형 불일치 경고 */}
+            {form.workerId && (() => {
+              const w = workers.find(w => w.id === form.workerId)
+              if (!w?.employmentType) return null
+              const msg = detectWorkerContractMismatch(w.employmentType, form.contractTemplateType)
+              return msg ? (
+                <div className="mt-1 bg-amber-50 border border-amber-300 rounded p-2 text-xs text-amber-800">
+                  ⚠ {msg}
+                </div>
+              ) : null
+            })()}
           </div>
 
           <div className="col-span-2">
@@ -624,6 +881,12 @@ function NewContractPage() {
                 <option key={t.value} value={t.value}>{t.label}</option>
               ))}
             </select>
+            {/* 외주 선택 시 직접 근로계약 경고 */}
+            {(isSubcontractBiz || isTeamReview) && form.contractKind === 'EMPLOYMENT' && (
+              <div className="mt-1 bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700">
+                ⛔ 외주/협력팀은 자사 직접 근로계약 대상이 아닙니다. 계약서 유형을 다시 확인하세요.
+              </div>
+            )}
           </div>
 
           {/* 계약형태 (월단위/계속근로 — 직접고용 일용직 계열만) */}
@@ -652,9 +915,17 @@ function NewContractPage() {
               className="w-full border rounded px-3 py-2 text-sm" />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">종료일 (무기한이면 비워두기)</label>
+            <label className={`text-xs font-medium block mb-1 ${form.contractTemplateType === 'FIXED_TERM_EMPLOYMENT' ? 'text-orange-600 font-bold' : 'text-gray-600'}`}>
+              종료일 {form.contractTemplateType === 'FIXED_TERM_EMPLOYMENT' ? '* (기간제 필수 입력)' : '(무기한이면 비워두기)'}
+            </label>
             <input type="date" value={form.endDate} onChange={e => set('endDate', e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm" />
+              className={`w-full border rounded px-3 py-2 text-sm ${form.contractTemplateType === 'FIXED_TERM_EMPLOYMENT' && !form.endDate ? 'border-orange-400 ring-1 ring-orange-300' : ''}`} />
+            {form.contractTemplateType === 'FIXED_TERM_EMPLOYMENT' && !form.endDate && (
+              <div className="mt-1 text-xs text-orange-600">기간제는 계약 종료일 입력이 필요합니다.</div>
+            )}
+            {form.contractTemplateType === 'REGULAR_EMPLOYMENT' && form.endDate && (
+              <div className="mt-1 text-xs text-amber-600">⚠ 상용직은 일반적으로 종료일이 없는 형태입니다. 입력값을 다시 확인하세요.</div>
+            )}
           </div>
         </div>
       </div>
@@ -926,6 +1197,30 @@ function NewContractPage() {
           {saving ? '저장 중...' : isTeamReview ? '검토 필요로 저장' : '계약 저장'}
         </button>
       </div>
+
+      {/* FAQ 도우미 플로팅 버튼 */}
+      <button
+        onClick={() => setShowFaqChat(v => !v)}
+        title="노동법 FAQ 도우미"
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center text-xl"
+      >
+        ⚖️
+      </button>
+
+      {/* FAQ 챗 위젯 오버레이 */}
+      {showFaqChat && (
+        <div className="fixed bottom-24 right-6 z-50 w-96 shadow-2xl" style={{ height: '560px' }}>
+          <FaqChatWidget
+            contractType={form.contractTemplateType}
+            page="contract-new"
+            formContext={{
+              hasEndDate:              !!form.endDate,
+              isRepeatedRegistration:  false,
+            }}
+            onClose={() => setShowFaqChat(false)}
+          />
+        </div>
+      )}
     </div>
   )
 }

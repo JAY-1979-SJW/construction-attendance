@@ -1,0 +1,5 @@
+-- EmploymentType enum에 기간제·계속근로형 추가
+-- 기존 값(REGULAR, DAILY_CONSTRUCTION, BUSINESS_33, OTHER) 영향 없음
+
+ALTER TYPE "EmploymentType" ADD VALUE IF NOT EXISTS 'FIXED_TERM';
+ALTER TYPE "EmploymentType" ADD VALUE IF NOT EXISTS 'CONTINUOUS_SITE';

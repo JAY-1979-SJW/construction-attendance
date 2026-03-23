@@ -2,6 +2,11 @@
  * POST /api/admin/contracts/[id]/generate-pdf
  * 계약서 PDF(HTML) 생성 → GeneratedDocument 저장 + 버전 스냅샷 연결
  * 현재는 HTML 텍스트 기반 생성 (인쇄/다운로드용)
+ *
+ * 데이터 소스 원칙:
+ *   - resolveContractDocumentData 를 단일 원천으로 사용
+ *   - workerName / workerPhone 은 ContractVersion.snapshotJson 우선 (snapshot-first)
+ *   - 그 외 계약 필드는 계약 레코드 자체가 버전별 원천
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
@@ -15,83 +20,13 @@ import {
   renderSubcontractBizContract,
   renderNonbizTeamReviewDocs,
   contractToText,
-  type ContractData,
 } from '@/lib/contracts/templates'
 import {
   validateDailyContractDangerPhrases,
   extractContractText,
 } from '@/lib/contracts/validate-contract'
-
-function buildContractData(
-  contract: Record<string, unknown>,
-  worker: { name: string; phone?: string | null },
-  site: { name: string; address?: string | null } | null,
-  today: string,
-): ContractData {
-  return {
-    companyName:    (contract.companyName as string) || '주식회사 해한',
-    companyCeo:     (contract.companyRepName as string) || '대표이사',
-    companyAddress: (contract.companyAddress as string) || '서울특별시',
-    companyBizNo:   contract.companyBizNo as string | undefined,
-    workerName:     worker.name,
-    workerPhone:    worker.phone || undefined,
-    workerBirthDate: contract.workerBirthDate as string | undefined,
-    workerAddress:  contract.workerAddress as string | undefined,
-    siteName:       site?.name || (contract.siteName as string) || '미정',
-    siteAddress:    ((contract as never as Record<string, unknown>).siteAddress as string | undefined) || site?.address as string | undefined,
-    jobTitle:       (contract.notes as string) || '건설일용직',
-    startDate:      contract.startDate as string,
-    endDate:        contract.endDate as string | undefined,
-    checkInTime:    contract.checkInTime as string | undefined,
-    checkOutTime:   contract.checkOutTime as string | undefined,
-    breakStartTime: contract.breakStartTime as string | undefined,
-    breakEndTime:   contract.breakEndTime as string | undefined,
-    workDays:       contract.workDays as string | undefined,
-    weeklyWorkDays: contract.weeklyWorkDays as number | undefined,
-    weeklyWorkHours: contract.weeklyWorkHours ? Number(contract.weeklyWorkHours) : undefined,
-    breakHours:     Number(contract.breakHours) || undefined,
-    holidayRule:    contract.holidayRule as string | undefined,
-    annualLeaveRule: contract.annualLeaveRule as string | undefined,
-    paymentMethod:  contract.paymentMethod as string | undefined,
-    dailyWage:      contract.dailyWage as number | undefined,
-    monthlySalary:  contract.monthlySalary as number | undefined,
-    serviceFee:     contract.serviceFee as number | undefined,
-    paymentDay:     contract.paymentDay as number | undefined,
-    allowanceJson:  contract.allowanceJson as { name: string; amount: number }[] | undefined,
-    probationYn:    contract.probationYn as boolean | undefined,
-    probationMonths: contract.probationMonths as number | undefined,
-    attendanceVerificationMethod: contract.attendanceVerificationMethod as string | undefined,
-    workUnitRule:   contract.workUnitRule as string | undefined,
-    rainDayRule:    contract.rainDayRule as string | undefined,
-    siteStopRule:   contract.siteStopRule as string | undefined,
-    siteChangeAllowed: contract.siteChangeAllowed as boolean | undefined,
-    businessRegistrationNo: contract.businessRegistrationNo as string | undefined,
-    contractorName: contract.contractorName as string | undefined,
-    nationalPensionYn:     (contract.nationalPensionYn as boolean) ?? false,
-    healthInsuranceYn:     (contract.healthInsuranceYn as boolean) ?? false,
-    employmentInsuranceYn: (contract.employmentInsuranceYn as boolean) ?? false,
-    industrialAccidentYn:  (contract.industrialAccidentYn as boolean) ?? true,
-    retirementMutualYn:    (contract.retirementMutualYn as boolean) ?? false,
-    safetyClauseYn:        (contract.safetyClauseYn as boolean) ?? true,
-    specialTerms:          contract.specialTerms as string | undefined,
-    contractDate:          today,
-    // v3.4
-    projectName:           contract.projectName as string | undefined,
-    workType:              contract.workType as string | undefined,
-    workTypeSub:           contract.workTypeSub as string | undefined,
-    jobCategory:           contract.jobCategory as string | undefined,
-    jobCategorySub:        contract.jobCategorySub as string | undefined,
-    contractForm:          contract.contractForm as string | undefined,
-    taskDescription:       contract.taskDescription as string | undefined,
-    // v3.6
-    companyPhone:          contract.companyPhone as string | undefined,
-    workDate:              contract.workDate as string | undefined,
-    workerBankName:        contract.workerBankName as string | undefined,
-    workerAccountNumber:   contract.workerAccountNumber as string | undefined,
-    workerAccountHolder:   contract.workerAccountHolder as string | undefined,
-    managerName:           contract.managerName as string | undefined,
-  }
-}
+import { DANGER_PHRASE_APPLICABLE_TEMPLATES } from '@/lib/policies/contract-policy'
+import { resolveContractDocumentData } from '@/lib/contracts/resolve-document-data'
 
 export async function POST(
   req: NextRequest,
@@ -113,26 +48,42 @@ export async function POST(
   const { docVariant = 'DRAFT' } = body as { docVariant?: 'DRAFT' | 'SIGNED' | 'DELIVERED' }
 
   const today = new Date().toISOString().slice(0, 10)
-  const base  = buildContractData(contract as never, contract.worker, contract.site, today)
-  const tmpl  = (contract as never as Record<string, unknown>).contractTemplateType as string
+
+  // 버전 스냅샷 조회 — workerName/workerPhone 불변성 보장 (snapshot-first 원칙)
+  const existingSnap = await prisma.contractVersion.findUnique({
+    where: { contractId_versionNo: { contractId: params.id, versionNo: contract.currentVersion } },
+    select: { snapshotJson: true },
+  })
+
+  // 공통 resolver — PDF / DOC / 화면 모두 동일한 원천
+  const base = resolveContractDocumentData(
+    contract as never,
+    contract.worker,
+    contract.site,
+    existingSnap?.snapshotJson ?? null,
+    today,
+  )
+
+  const tmpl = (contract as never as Record<string, unknown>).contractTemplateType as string
 
   let rendered
-  if (tmpl === 'REGULAR_EMPLOYMENT')         rendered = renderRegularEmploymentContract(base, false)
-  else if (tmpl === 'FIXED_TERM_EMPLOYMENT') rendered = renderRegularEmploymentContract(base, true)
+  if (tmpl === 'REGULAR_EMPLOYMENT')            rendered = renderRegularEmploymentContract(base, false)
+  else if (tmpl === 'FIXED_TERM_EMPLOYMENT')    rendered = renderRegularEmploymentContract(base, true)
   else if (tmpl === 'MONTHLY_FIXED_EMPLOYMENT') rendered = renderMonthlyFixedContract(base)
-  else if (tmpl === 'CONTINUOUS_EMPLOYMENT') rendered = renderContinuousContract(base)
-  else if (tmpl === 'SUBCONTRACT_WITH_BIZ') rendered = renderSubcontractBizContract(base)
-  else if (tmpl === 'NONBUSINESS_TEAM_REVIEW') rendered = renderNonbizTeamReviewDocs(base)
-  else rendered = renderDailyEmploymentContract(base)
+  else if (tmpl === 'CONTINUOUS_EMPLOYMENT')    rendered = renderContinuousContract(base)
+  else if (tmpl === 'SUBCONTRACT_WITH_BIZ')     rendered = renderSubcontractBizContract(base)
+  else if (tmpl === 'NONBUSINESS_TEAM_REVIEW')  rendered = renderNonbizTeamReviewDocs(base)
+  else                                          rendered = renderDailyEmploymentContract(base)
 
-  // 일용직 계약서: 위험 문구 검출 (계속고용 보장, 상시근로, 정규직 전환 등)
-  // 경고만 반환 — 관리자가 확인 후 수동 보정
-  const dangerCheck = tmpl === 'DAILY_EMPLOYMENT'
+  // 위험 문구 검출 — 적용 대상 계약 유형은 contract-policy에서 관리
+  // DANGER_PHRASE_MODE = 'ADVISORY': 경고만 반환, 생성 차단 없음
+  const dangerCheck = DANGER_PHRASE_APPLICABLE_TEMPLATES.includes(tmpl)
     ? validateDailyContractDangerPhrases(extractContractText(rendered))
     : { hasDanger: false, matches: [] }
 
   const contentText = contractToText(rendered)
-  const fileName    = `${rendered.title}_${contract.worker.name}_${today}_v${contract.currentVersion}.txt`
+  // 파일명도 snapshot 기준 이름 사용 (base.workerName = snapshot-first 해소된 값)
+  const fileName = `${rendered.title}_${base.workerName}_${today}_v${contract.currentVersion}.txt`
 
   const doc = await prisma.generatedDocument.create({
     data: {
@@ -157,11 +108,11 @@ export async function POST(
   if (!existingVersion) {
     await prisma.contractVersion.create({
       data: {
-        contractId:  params.id,
-        versionNo:   contract.currentVersion,
+        contractId:   params.id,
+        versionNo:    contract.currentVersion,
         snapshotJson: contract as never,
-        draftDocId:  doc.id,
-        createdBy:   session.sub,
+        draftDocId:   doc.id,
+        createdBy:    session.sub,
       },
     })
   } else if (docVariant === 'DRAFT') {
@@ -177,11 +128,11 @@ export async function POST(
   }
 
   await writeAdminAuditLog({
-    adminId: session.sub,
+    adminId:    session.sub,
     actionType: 'DOCUMENT_GENERATE',
     targetType: 'WorkerContract',
     targetId:   params.id,
-    description: `계약서 PDF 생성: ${rendered.title} / ${contract.worker.name} / v${contract.currentVersion}`,
+    description: `계약서 PDF 생성: ${rendered.title} / ${base.workerName} / v${contract.currentVersion}`,
   })
 
   return NextResponse.json({

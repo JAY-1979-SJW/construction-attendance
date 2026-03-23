@@ -8,10 +8,11 @@
  * - 산재보험: 건설업 일용 모두 기본 포함
  */
 import { prisma } from '@/lib/db/prisma'
-
-const NP_MIN_DAYS         = 8          // 국민연금 최소 근무일
-const NP_MIN_AMOUNT       = 2_200_000  // 국민연금 최소 소득 (220만원)
-const HEALTH_MIN_MONTHS   = 1          // 건강보험: 1개월 미만 일용 제외
+import {
+  NP_MIN_DAYS,
+  NP_MIN_AMOUNT,
+  INSURANCE_REASON,
+} from '@/lib/policies/insurance-policy'
 
 export interface InsuranceRunOptions {
   monthKey:   string    // 'YYYY-MM'
@@ -76,22 +77,21 @@ export async function runInsuranceEligibility(opts: InsuranceRunOptions): Promis
       let npReason   = ''
       if (isBusiness33) {
         npEligible = false
-        npReason = '3.3% 사업소득 — 국민연금 별도 가입 대상 아님'
+        npReason = INSURANCE_REASON.NP.BUSINESS_33
       } else if (isDaily) {
         if (agg.days >= NP_MIN_DAYS) {
           npEligible = true
-          npReason = `건설일용 월 ${agg.days}일 ≥ ${NP_MIN_DAYS}일 → 사업장가입자`
+          npReason = INSURANCE_REASON.NP.DAILY_ELIGIBLE_DAYS(agg.days)
         } else if (agg.amount >= NP_MIN_AMOUNT) {
           npEligible = true
-          npReason = `건설일용 월 소득 ${agg.amount.toLocaleString()}원 ≥ 220만원 → 사업장가입자`
+          npReason = INSURANCE_REASON.NP.DAILY_ELIGIBLE_AMT(agg.amount)
         } else {
           npEligible = false
-          npReason = `건설일용 월 ${agg.days}일 < ${NP_MIN_DAYS}일 & 소득 < 220만원 → 지역가입자`
+          npReason = INSURANCE_REASON.NP.DAILY_INELIGIBLE(agg.days)
         }
       } else {
-        // 상용
         npEligible = true
-        npReason = '상용근로자 — 사업장가입자'
+        npReason = INSURANCE_REASON.NP.REGULAR
       }
 
       // ── 건강보험 판정 ─────────────────────────────────
@@ -99,16 +99,13 @@ export async function runInsuranceEligibility(opts: InsuranceRunOptions): Promis
       let hiReason   = ''
       if (isBusiness33) {
         hiEligible = false
-        hiReason = '3.3% 사업소득 — 건강보험 별도'
+        hiReason = INSURANCE_REASON.HI.BUSINESS_33
       } else if (isDaily) {
-        // 1개월 미만 일용 제외 → 월 단위 계약이면 1개월로 봄
-        // 실무상: 해당 월에 출역이 있으면 1개월 고용 간주해서 제외 규정 적용 가능
-        // 단순 판정: 일용이면 건강보험 제외
         hiEligible = false
-        hiReason = `건설 일용근로자 — 고용기간 ${HEALTH_MIN_MONTHS}개월 미만 제외 대상`
+        hiReason = INSURANCE_REASON.HI.DAILY_EXEMPT
       } else {
         hiEligible = true
-        hiReason = '상용근로자 — 건강보험 적용'
+        hiReason = INSURANCE_REASON.HI.REGULAR
       }
 
       // ── 고용보험 판정 ─────────────────────────────────
@@ -116,17 +113,17 @@ export async function runInsuranceEligibility(opts: InsuranceRunOptions): Promis
       let eiReason   = ''
       if (isBusiness33) {
         eiEligible = false
-        eiReason = '3.3% 사업소득 — 고용보험 적용 안 됨'
+        eiReason = INSURANCE_REASON.EI.BUSINESS_33
       } else if (agg.days > 0) {
         eiEligible = true
         eiReason = isDaily
-          ? `일용 근로내용확인신고 대상 (월 ${agg.days}일 근무)`
-          : '상용근로자 — 고용보험 피보험자'
+          ? INSURANCE_REASON.EI.DAILY(agg.days)
+          : INSURANCE_REASON.EI.REGULAR
       }
 
       // ── 산재보험 판정 ─────────────────────────────────
       const iaEligible = !isBusiness33 && agg.days > 0
-      const iaReason   = isBusiness33 ? '3.3% 사업소득 제외' : '건설업 당연적용'
+      const iaReason   = isBusiness33 ? INSURANCE_REASON.IA.BUSINESS_33 : INSURANCE_REASON.IA.CONSTRUCTION
 
       // upsert
       const existing = await prisma.insuranceEligibilitySnapshot.findUnique({

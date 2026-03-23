@@ -17,28 +17,45 @@
  */
 import { prisma } from '@/lib/db/prisma'
 import { Decimal } from '@prisma/client/runtime/library'
+import {
+  LUNCH_DEDUCTION_THRESHOLD_MIN,
+  LUNCH_DEDUCTION_MIN,
+  FULL_DAY_MIN_EFFECTIVE_MIN,
+  HALF_DAY_MIN_EFFECTIVE_MIN,
+  ZERO_WORK_PRESENCE_STATUSES,
+  resolveFinalMinutes,
+} from '@/lib/policies/attendance-policy'
+import { resolveEffectiveSiteAttendancePolicy } from '@/lib/labor/resolve-site-policy'
+import { isWorkUnitTarget } from '@/lib/policies/worker-type-policy'
 
 /**
  * 최종 분(workedMinutesRawFinal) 기준 공수 자동 판정
  * - 수동 override가 있으면 그것을 우선 사용
- * - 경과 4시간 초과 시 점심 1시간 차감하여 실근로 계산
+ * - 경과 4시간 초과 시 현장별 breakMinutes 차감하여 실근로 계산
  * - MISSING_CHECKOUT / INVALID presenceStatus는 무조건 INVALID
+ *
+ * @param breakMinutes 현장별 휴게시간(분). 미제공 시 회사 기본값(60분) 사용.
  */
-function calcWorkUnits(
+export function calcWorkUnits(
   workedMinutesRaw: number | null,
   presenceStatus: string,
+  breakMinutes?: number,
 ): { workType: string; workUnits: Decimal } {
-  if (['MISSING_CHECKOUT', 'INVALID'].includes(presenceStatus) || workedMinutesRaw == null) {
+  if (ZERO_WORK_PRESENCE_STATUSES.includes(presenceStatus) || workedMinutesRaw == null) {
     return { workType: 'INVALID', workUnits: new Decimal(0) }
   }
 
-  // 4시간(240분) 초과 시 점심 60분 차감 → 실근로 산출
-  const effectiveMinutes = workedMinutesRaw > 240 ? workedMinutesRaw - 60 : workedMinutesRaw
+  const deduction = breakMinutes ?? LUNCH_DEDUCTION_MIN
 
-  if (effectiveMinutes >= 480) {
+  // 점심 차감 임계값 초과 시 차감 → 실근로 산출
+  const effectiveMinutes = workedMinutesRaw > LUNCH_DEDUCTION_THRESHOLD_MIN
+    ? workedMinutesRaw - deduction
+    : workedMinutesRaw
+
+  if (effectiveMinutes >= FULL_DAY_MIN_EFFECTIVE_MIN) {
     // 실근로 8시간 이상 → 1.0 공수
     return { workType: 'FULL_DAY', workUnits: new Decimal(1) }
-  } else if (effectiveMinutes >= 240) {
+  } else if (effectiveMinutes >= HALF_DAY_MIN_EFFECTIVE_MIN) {
     // 실근로 4~8시간 → 0.5 공수
     return { workType: 'HALF_DAY', workUnits: new Decimal('0.5') }
   } else {
@@ -80,6 +97,16 @@ export async function generateDraftConfirmations(
     include: { worker: true },
   })
 
+  // 현장별 정책 캐시 (동일 siteId 중복 조회 방지)
+  const policyCache = new Map<string, number>()
+
+  async function getBreakMinutes(sid: string): Promise<number> {
+    if (policyCache.has(sid)) return policyCache.get(sid)!
+    const policy = await resolveEffectiveSiteAttendancePolicy(sid)
+    policyCache.set(sid, policy.breakMinutes)
+    return policy.breakMinutes
+  }
+
   for (const day of days) {
     try {
       // 이미 CONFIRMED인 경우 건너뜀
@@ -91,12 +118,24 @@ export async function generateDraftConfirmations(
         continue
       }
 
-      // 공수 판정: 수동 override 우선, 없으면 auto 값 사용
-      // workedMinutesRawFinal = workedMinutesOverride ?? workedMinutesAuto ?? workedMinutesRaw
-      const finalMinutes = day.workedMinutesRawFinal ?? day.workedMinutesOverride ?? day.workedMinutesRaw
+      // 비일용 근로자(상용직·기간제)는 공수 체계 미적용 — 근태 관리 체계 사용
+      // 계속근로형(CONTINUOUS_SITE)은 공수 체계 허용
+      if (!isWorkUnitTarget(day.worker.employmentType)) {
+        console.info(
+          '[work-confirmations] 공수 체계 미적용 근로자 건너뜀',
+          { workerId: day.workerId, employmentType: day.worker.employmentType, dayId: day.id },
+        )
+        result.skipped++
+        continue
+      }
+
+      // 현장 휴게시간 적용 공수 판정
+      const siteBreakMinutes = await getBreakMinutes(day.siteId)
+      const finalMinutes = resolveFinalMinutes(day)
       const { workType: defaultWorkType, workUnits: defaultWorkUnits } = calcWorkUnits(
         finalMinutes,
         day.presenceStatus,
+        siteBreakMinutes,
       )
       const isInvalid = defaultWorkType === 'INVALID'
 

@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { unlink } from 'fs/promises'
+import { TEMP_DOC_DELETE_REASON, TEMP_DOC_EVENT_REASON } from '@/lib/policies/temp-doc-policy'
 
 export async function GET(req: NextRequest) {
   // cron 인증
@@ -51,11 +52,12 @@ export async function GET(req: NextRequest) {
           // 파일 없어도 DB 처리 계속
         }
 
+        const isExpired = expired.includes(doc)
         await prisma.tempSensitiveDocument.update({
           where: { id: doc.id },
           data: {
             deletedAt: now,
-            deleteReason: expired.includes(doc) ? '5일 보관 기간 초과 자동 삭제' : '다운로드 후 24시간 경과 자동 삭제',
+            deleteReason: isExpired ? TEMP_DOC_DELETE_REASON.EXPIRED : TEMP_DOC_DELETE_REASON.POST_DOWNLOAD,
           },
         })
 
@@ -64,7 +66,7 @@ export async function GET(req: NextRequest) {
             documentId: doc.id,
             eventType:  'AUTO_DELETED',
             actorType:  'SYSTEM',
-            reason:     expired.includes(doc) ? '5일 보관 기간 초과' : '다운로드 후 24h 경과',
+            reason:     isExpired ? TEMP_DOC_EVENT_REASON.EXPIRED : TEMP_DOC_EVENT_REASON.POST_DOWNLOAD,
             metadataJson: { triggeredAt: now.toISOString(), workerId: doc.workerId },
           },
         })

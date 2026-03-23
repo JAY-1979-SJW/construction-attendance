@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { DOC_PACKAGES, getDocPackageForTemplate } from '@/lib/contracts/index'
+import { DANGER_PHRASE_UI } from '@/lib/policies/contract-policy'
 
 // ─── 타입 ─────────────────────────────────────────────────────
 
@@ -114,6 +115,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
   const [signerName, setSignerName] = useState('')
   const [deliverMethod, setDeliverMethod] = useState<'EMAIL' | 'KAKAO' | 'PAPER' | 'APP'>('APP')
   const [processing, setProcessing] = useState(false)
+  const [dangerWarnings, setDangerWarnings] = useState<string[]>([])
 
   async function load() {
     const [res1, res2] = await Promise.all([
@@ -149,6 +151,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
   async function generatePdf() {
     setProcessing(true)
     setError('')
+    setDangerWarnings([])
     const res  = await fetch(`/api/admin/contracts/${params.id}/generate-pdf`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -158,6 +161,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
     setProcessing(false)
     if (json.success) {
       setPreviewDoc({ docType: 'CONTRACT', content: json.data.contentText, title: json.data.fileName })
+      if (json.data.warnings?.length) setDangerWarnings(json.data.warnings)
       load()
     } else {
       setError(json.error || '계약서 생성 실패')
@@ -275,6 +279,23 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       </div>
 
       {error && <div className="bg-red-50 border border-red-200 rounded p-3 text-red-700 text-sm">{error}</div>}
+
+      {/* 위험 문구 경고 — 일용직 계약서 생성 후 Advisory 표시 */}
+      {dangerWarnings.length > 0 && (
+        <div className="bg-red-50 border border-red-300 rounded-lg p-4 text-red-800 text-sm space-y-2">
+          <div className="font-semibold">⚠ {DANGER_PHRASE_UI.title}</div>
+          <p className="text-xs text-red-700">{DANGER_PHRASE_UI.description}</p>
+          <ul className="space-y-1 text-xs font-mono bg-red-100 rounded p-3">
+            {dangerWarnings.map((w, i) => (
+              <li key={i} className="border-b border-red-200 pb-1 last:border-b-0 last:pb-0">{w}</li>
+            ))}
+          </ul>
+          <p className="text-xs text-red-600">
+            확인 사항: {DANGER_PHRASE_UI.checklist.map((c, i) => `(${i + 1}) ${c}`).join(' ')}
+          </p>
+          <button onClick={() => setDangerWarnings([])} className="text-xs text-red-500 underline">경고 닫기</button>
+        </div>
+      )}
 
       {/* 검토 플래그 경고 */}
       {reviewFlags.length > 0 && (

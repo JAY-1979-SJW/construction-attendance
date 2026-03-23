@@ -55,6 +55,10 @@ export async function GET(request: NextRequest) {
             include: { site: { select: { id: true, name: true } } },
             take: 3,
           },
+          // 계약 자동채움용 마스킹 계좌 (레거시 bankName/bankAccount 대체)
+          bankAccountSecure: {
+            select: { bankName: true, accountNumberMasked: true },
+          },
         },
       }),
     ])
@@ -75,6 +79,10 @@ export async function GET(request: NextRequest) {
         createdAt: w.createdAt,
         primaryCompany: w.companyAssignments[0]?.company ?? null,
         activeSites: w.siteAssignments.map(a => a.site),
+        // 계약 자동채움용 마스킹 계좌 — 레거시 bankName/bankAccount 응답 제외
+        bankAccountSecure: w.bankAccountSecure
+          ? { bankName: w.bankAccountSecure.bankName, accountNumberMasked: w.bankAccountSecure.accountNumberMasked }
+          : null,
       })),
       total,
       page,
