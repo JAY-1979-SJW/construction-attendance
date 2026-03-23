@@ -34,7 +34,7 @@ function buildContractData(
     workerBirthDate: contract.workerBirthDate as string | undefined,
     workerAddress:  contract.workerAddress as string | undefined,
     siteName:       site?.name || (contract.siteName as string) || '미정',
-    siteAddress:    site?.address as string | undefined,
+    siteAddress:    ((contract as never as Record<string, unknown>).siteAddress as string | undefined) || site?.address as string | undefined,
     jobTitle:       (contract.notes as string) || '건설일용직',
     startDate:      contract.startDate as string,
     endDate:        contract.endDate as string | undefined,
@@ -79,12 +79,6 @@ function buildContractData(
     jobCategorySub:        contract.jobCategorySub as string | undefined,
     contractForm:          contract.contractForm as string | undefined,
     taskDescription:       contract.taskDescription as string | undefined,
-    // v3.5
-    siteAddress:           (contract as never as Record<string, unknown>).siteAddress as string | undefined
-                           || site?.address as string | undefined,
-    attendanceVerificationMethod: (contract as never as Record<string, unknown>).attendanceVerificationMethod as string | undefined,
-    workUnitRule:          (contract as never as Record<string, unknown>).workUnitRule as string | undefined,
-    rainDayRule:           (contract as never as Record<string, unknown>).rainDayRule as string | undefined,
   }
 }
 
