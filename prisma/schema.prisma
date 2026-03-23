@@ -714,6 +714,7 @@ model Site {
   workLogSummaries           SiteWorkLogSummary[]
   accessGroupSites           SiteAccessGroupSite[]
   estimateDocuments          EstimateDocument[]
+  materialRequests           MaterialRequest[]
 
   @@map("sites")
 }
@@ -3430,24 +3431,152 @@ model EstimateAggregationRun {
   @@map("estimate_aggregation_runs")
 }
 
+// ─── 나라장터 자원분류 마스터 ────────────────────────────────────────────────
+// getNetRsceinfoList API 전체 수집 데이터 (E경비/L노무/M재료, 약 58,589건)
+// 수집 스크립트: scripts/collect_nara_resources.py
+model NaraResource {
+  id              Int      @id @default(autoincrement())
+  rsceTyExtrnlCd  String?  // 자원유형 코드 (E/L/M)
+  lvlRsceClsfcNm1 String?  // 대분류명
+  lvlRsceClsfcNm2 String?  // 중분류명
+  netRsceCd       String?  // 자원코드
+  rsceNm          String?  // 자원명
+  rsceSpecNm      String?  // 규격명
+  unit            String?  // 단위
+  lbrcst          Decimal? // 단가 (현재 0)
+  collectedAt     DateTime @default(now())
+
+  @@index([rsceTyExtrnlCd])
+  @@index([lvlRsceClsfcNm1])
+  @@index([rsceNm])
+  @@map("nara_resources")
+}
+
+// ─── 자재청구 Enums ───────────────────────────────────────────────────────────
+
+enum MaterialRequestStatus {
+  DRAFT      // 작성중
+  SUBMITTED  // 제출됨
+  REVIEWED   // 검토됨
+  APPROVED   // 승인됨
+  REJECTED   // 반려됨
+  CANCELLED  // 취소됨
+}
+
+enum MaterialRequestActorType {
+  ADMIN
+  SYSTEM
+}
+
 // 자재 마스터
 model MaterialMaster {
-  id               String    @id @default(cuid())
-  discipline       String?
-  itemCode         String    @unique
-  standardItemName String
-  standardSpec     String?
-  standardUnit     String?
-  itemCategory     String?
-  synonymsJson     String?   @db.Text
-  specAliasesJson  String?   @db.Text
-  approvalRequired Boolean   @default(false)
-  active           Boolean   @default(true)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                      String    @id @default(cuid())
+  discipline              String?
+  itemCode                String    @unique
+  standardItemName        String
+  standardSpec            String?
+  standardUnit            String?
+  itemCategory            String?
+  synonymsJson            String?   @db.Text
+  specAliasesJson         String?   @db.Text
+  approvalRequired        Boolean   @default(false)
+  active                  Boolean   @default(true)
+  // 자재청구 분류 필드
+  disciplineCode          String?   // E/T/M/A/C/ETC
+  subDisciplineCode       String?   // FIRE_MECH/FIRE_ELEC/LANDSCAPE 등
+  searchKeywords          String?   @db.Text
+  isRequestable           Boolean   @default(true)
+  g2bSourceId             String?   // nara_material_catalog 연결 ID
+  classificationUpdatedAt DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  requestItems MaterialRequestItem[]
 
   @@index([discipline])
   @@index([itemCategory])
+  @@index([disciplineCode])
+  @@index([isRequestable])
   @@map("material_master")
+}
+
+// ─── 자재청구서 ───────────────────────────────────────────────────────────────
+
+model MaterialRequest {
+  id           String                 @id @default(cuid())
+  requestNo    String                 @unique // MR-YYYYMMDD-NNNN
+  siteId       String?
+  requestedBy  String                 // Admin userId
+  actorType    MaterialRequestActorType @default(ADMIN)
+  status       MaterialRequestStatus  @default(DRAFT)
+  title        String
+  notes        String?                @db.Text
+  deliveryRequestedAt DateTime?
+  submittedAt  DateTime?
+  reviewedAt   DateTime?
+  reviewedBy   String?
+  approvedAt   DateTime?
+  approvedBy   String?
+  rejectedAt   DateTime?
+  rejectedBy   String?
+  rejectReason String?                @db.Text
+  cancelledAt  DateTime?
+  cancelledBy  String?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  site    Site?                        @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  items   MaterialRequestItem[]
+  history MaterialRequestStatusHistory[]
+
+  @@index([siteId])
+  @@index([status])
+  @@index([requestedBy])
+  @@map("material_requests")
+}
+
+model MaterialRequestItem {
+  id               String   @id @default(cuid())
+  requestId        String
+  materialMasterId String?
+  // 청구 시점 스냅샷
+  itemCode         String
+  itemName         String
+  spec             String?
+  unit             String?
+  disciplineCode   String?
+  subDisciplineCode String?
+  // 수량/금액
+  requestedQty     Decimal  @db.Decimal(15, 4)
+  approvedQty      Decimal? @db.Decimal(15, 4)
+  unitPrice        Decimal? @db.Decimal(15, 2)
+  isUrgent         Boolean  @default(false)
+  allowSubstitute  Boolean  @default(false)
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  request        MaterialRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  materialMaster MaterialMaster?  @relation(fields: [materialMasterId], references: [id], onDelete: SetNull)
+
+  @@index([requestId])
+  @@index([materialMasterId])
+  @@map("material_request_items")
+}
+
+model MaterialRequestStatusHistory {
+  id         String                  @id @default(cuid())
+  requestId  String
+  fromStatus MaterialRequestStatus?
+  toStatus   MaterialRequestStatus
+  actorId    String?
+  actorType  MaterialRequestActorType @default(ADMIN)
+  reason     String?                 @db.Text
+  createdAt  DateTime                @default(now())
+
+  request MaterialRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+  @@map("material_request_status_history")
 }
 
