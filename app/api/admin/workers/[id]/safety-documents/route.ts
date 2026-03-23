@@ -13,7 +13,10 @@ import {
   renderSafetyPledge,
   renderWorkConditionsReceipt,
   renderPrivacyConsent,
+  type PPEItem,
 } from '@/lib/contracts/safety-docs'
+
+type PPECondition = PPEItem['condition']
 import { contractToText } from '@/lib/contracts/templates'
 
 const SAFETY_DOC_TYPES = [
@@ -160,20 +163,29 @@ export async function POST(
       break
 
     case 'PPE_PROVISION': {
-      const resolvedItems = ppeItems
-        ? ppeItems.filter(it => it.issued).map(it => ({
-            name: it.name,
-            quantity: it.qty,
-            condition: (it.condition === '신품' || it.condition === '재사용' ? it.condition : '신품') as '신품' | '재사용',
-            issued: true as const,
-            explanationGiven: it.explanationGiven,
-            needsReplacement: it.needsReplacement,
-            note: it.note,
-          }))
-        : issuedItemsJson || [
-            { name: '안전모', quantity: 1, condition: '신품' as const, issued: true as const },
-            { name: '안전화', quantity: 1, condition: '신품' as const, issued: true as const },
-          ]
+      let resolvedItems: PPEItem[]
+      if (ppeItems) {
+        resolvedItems = ppeItems.filter(it => it.issued).map(it => ({
+          name: it.name,
+          quantity: it.qty,
+          condition: (['신품', '양호', '재사용', '기타'].includes(it.condition) ? it.condition : '신품') as PPECondition,
+          issued: true as const,
+          explanationGiven: it.explanationGiven,
+          needsReplacement: it.needsReplacement,
+          note: it.note,
+        }))
+      } else if (issuedItemsJson) {
+        resolvedItems = issuedItemsJson.map(it => ({
+          ...it,
+          issued: true as const,
+          condition: it.condition as PPECondition,
+        }))
+      } else {
+        resolvedItems = [
+          { name: '안전모', quantity: 1, condition: '신품' as PPECondition, issued: true },
+          { name: '안전화', quantity: 1, condition: '신품' as PPECondition, issued: true },
+        ]
+      }
       rendered = renderPPEProvision({
         ...baseData,
         provisionDate: documentDate || today,
