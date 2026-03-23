@@ -713,6 +713,7 @@ model Site {
   tbmRecords                 SiteTbmRecord[]
   workLogSummaries           SiteWorkLogSummary[]
   accessGroupSites           SiteAccessGroupSite[]
+  estimateDocuments          EstimateDocument[]
 
   @@map("sites")
 }
@@ -3185,5 +3186,198 @@ model SiteTbmRecord {
 
   @@index([siteId, workDate])
   @@map("site_tbm_records")
+}
+
+// ─── 범용 계약내역서 관리 ──────────────────────────────────
+
+enum EstimateParseStatus {
+  UPLOADED
+  PARSING
+  PARSED
+  REVIEW_REQUIRED
+  FAILED
+}
+
+enum EstimateDocumentType {
+  ESTIMATE            // 내역서
+  CHANGE_ESTIMATE     // 설계변경 내역서
+  UNIT_PRICE_SOURCE   // 일위대가
+  PRICE_TABLE         // 단가표
+  OTHER               // 기타
+}
+
+enum SheetType {
+  SUMMARY             // 총괄표, 원가계산
+  TRADE_SUMMARY       // 공종별 집계표
+  DETAIL_BILL         // 내역서 (상세)
+  UNIT_PRICE          // 일위대가
+  PRICE_TABLE         // 단가표, 자재단가
+  REFERENCE           // 참고자료, 개요
+  UNKNOWN             // 미분류
+}
+
+enum NormalizationSource {
+  DICTIONARY
+  SYNONYM
+  MANUAL
+  UNMAPPED
+}
+
+// 계약내역서 문서
+model EstimateDocument {
+  id            String                @id @default(cuid())
+  siteId        String?
+  fileName      String
+  filePath      String
+  fileSize      Int?
+  documentType  EstimateDocumentType  @default(ESTIMATE)
+  uploadedBy    String
+  uploadedAt    DateTime              @default(now())
+  parseStatus   EstimateParseStatus   @default(UPLOADED)
+  parseVersion  Int                   @default(0)
+  sheetCount    Int                   @default(0)
+  errorMessage  String?               @db.Text
+  notes         String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  site    Site?                   @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  sheets  EstimateDocumentSheet[]
+  billRows EstimateBillRow[]
+  aggregateRows MaterialAggregateRow[]
+
+  @@index([siteId])
+  @@index([parseStatus])
+  @@map("estimate_documents")
+}
+
+// 워크북 내 시트 정보
+model EstimateDocumentSheet {
+  id                String      @id @default(cuid())
+  documentId        String
+  sheetName         String
+  sheetIndex        Int
+  sheetType         SheetType   @default(UNKNOWN)
+  discipline        String?     // 자유 분류값 예: "소방전기", "기계설비", "건축" 등
+  maxRows           Int         @default(0)
+  maxCols           Int         @default(0)
+  mergeRangesJson   String?     @db.Text   // [{s:{r,c}, e:{r,c}}] 원본 병합 범위
+  rawDataJson       String?     @db.Text   // 원문 셀 데이터 배열 (rowspan/colspan 렌더링용)
+  isHidden          Boolean     @default(false)
+  needsReview       Boolean     @default(false)
+  headerRowIndex    Int?
+  dataStartRowIndex Int?
+  parseStatus       EstimateParseStatus @default(UPLOADED)
+  rowCount          Int         @default(0)
+  createdAt         DateTime    @default(now())
+
+  document  EstimateDocument  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  billRows  EstimateBillRow[]
+
+  @@index([documentId])
+  @@map("estimate_document_sheets")
+}
+
+// 원본 항목 행 (범용)
+model EstimateBillRow {
+  id             String    @id @default(cuid())
+  documentId     String
+  sheetId        String
+  sheetName      String
+  discipline     String?   // 자유 분류값
+  rowNo          Int
+  sectionName    String?
+  subsectionName String?
+  rawItemName    String?
+  rawSpec        String?
+  rawUnit        String?
+  rawQuantity    String?
+  rawUnitPrice   String?
+  rawAmount      String?
+  rawNote        String?
+  quantity       Decimal?  @db.Decimal(18, 4)
+  unitPrice      Decimal?  @db.Decimal(18, 2)
+  amount         Decimal?  @db.Decimal(18, 2)
+  isSummaryRow   Boolean   @default(false)
+  rowType        String?   // "DATA" | "SECTION" | "SUBSECTION" | "SUMMARY" | "TITLE"
+  parseConfidence Float?
+  createdAt      DateTime  @default(now())
+
+  document    EstimateDocument       @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  sheet       EstimateDocumentSheet  @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  normalized  EstimateBillRowNormalized?
+
+  @@index([documentId])
+  @@index([sheetId])
+  @@map("estimate_bill_rows")
+}
+
+// 정규화 결과
+model EstimateBillRowNormalized {
+  id                    String              @id @default(cuid())
+  billRowId             String              @unique
+  normalizedItemName    String?
+  normalizedSpec        String?
+  normalizedUnit        String?
+  itemCategory          String?
+  itemCode              String?
+  normalizationSource   NormalizationSource @default(UNMAPPED)
+  normalizationConfidence Float?
+  groupKey              String?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  billRow EstimateBillRow @relation(fields: [billRowId], references: [id], onDelete: Cascade)
+
+  @@index([groupKey])
+  @@index([itemCode])
+  @@map("estimate_bill_row_normalized")
+}
+
+// 집계 결과
+model MaterialAggregateRow {
+  id                    String    @id @default(cuid())
+  documentId            String
+  discipline            String?
+  itemCode              String?
+  normalizedItemName    String
+  normalizedSpec        String?
+  normalizedUnit        String?
+  itemCategory          String?
+  totalQuantity         Decimal   @db.Decimal(18, 4)
+  totalAmount           Decimal?  @db.Decimal(18, 2)
+  sourceRowCount        Int       @default(0)
+  sourceRowIdsJson      String?   @db.Text
+  unitPriceInconsistent Boolean   @default(false)
+  groupKey              String
+  createdAt             DateTime  @default(now())
+
+  document EstimateDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([discipline])
+  @@index([groupKey])
+  @@map("material_aggregate_rows")
+}
+
+// 자재 마스터
+model MaterialMaster {
+  id               String    @id @default(cuid())
+  discipline       String?
+  itemCode         String    @unique
+  standardItemName String
+  standardSpec     String?
+  standardUnit     String?
+  itemCategory     String?
+  synonymsJson     String?   @db.Text
+  specAliasesJson  String?   @db.Text
+  approvalRequired Boolean   @default(false)
+  active           Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([discipline])
+  @@index([itemCategory])
+  @@map("material_master")
 }
 

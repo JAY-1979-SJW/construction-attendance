@@ -87,6 +87,7 @@ export default function AdminDashboard() {
           { href: '/admin/filing-exports',       label: '신고자료 내보내기' },
           { href: '/admin/exceptions', label: `예외 승인${summary?.pendingExceptions ? ` (${summary.pendingExceptions})` : ''}` },
           { href: '/admin/device-requests', label: `기기 변경${summary?.pendingDeviceRequests ? ` (${summary.pendingDeviceRequests})` : ''}` },
+          { href: '/admin/materials', label: '자재관리' },
         ].map((item) => (
           <Link key={item.href} href={item.href} style={styles.navItem}>{item.label}</Link>
         ))}
