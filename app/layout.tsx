@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? '해한 현장 출퇴근'
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? '해한Ai Engineering'
 
 export const metadata: Metadata = {
   title: APP_NAME,
