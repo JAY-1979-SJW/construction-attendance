@@ -13,6 +13,8 @@ import {
   renderSafetyPledge,
   renderWorkConditionsReceipt,
   renderPrivacyConsent,
+  renderBasicSafetyEduConfirm,
+  renderSiteSafetyRulesConfirm,
   type PPEItem,
 } from '@/lib/contracts/safety-docs'
 
@@ -26,6 +28,8 @@ const SAFETY_DOC_TYPES = [
   'SAFETY_PLEDGE',
   'WORK_CONDITIONS_RECEIPT',
   'PRIVACY_CONSENT',
+  'BASIC_SAFETY_EDU_CONFIRM',
+  'SITE_SAFETY_RULES_CONFIRM',
 ] as const
 
 type SafetyDocType = typeof SAFETY_DOC_TYPES[number]
@@ -87,6 +91,19 @@ export async function POST(
     issuedItemsJson,
     issuedBy,
     ppeItems,
+    // v3.6 신규 문서용
+    workDate,
+    tradeType,
+    jobType,
+    workPlace,
+    managerName,
+    specialSafetyRules,
+    eduCompletedYn,
+    eduCompletedDate,
+    eduOrganization,
+    eduCertConfirmedYn,
+    eduCertConfirmedDate,
+    confirmerName,
   } = body as {
     documentType: SafetyDocType
     siteId?: string
@@ -102,6 +119,18 @@ export async function POST(
     issuedItemsJson?: { name: string; standard?: string; quantity: number; condition: '신품' | '재사용' }[]
     issuedBy?: string
     ppeItems?: { name: string; qty: number; condition: string; issued: boolean; explanationGiven?: boolean; needsReplacement?: boolean; note?: string }[]
+    workDate?: string
+    tradeType?: string
+    jobType?: string
+    workPlace?: string
+    managerName?: string
+    specialSafetyRules?: string
+    eduCompletedYn?: boolean
+    eduCompletedDate?: string
+    eduOrganization?: string
+    eduCertConfirmedYn?: boolean
+    eduCertConfirmedDate?: string
+    confirmerName?: string
   }
 
   if (!documentType || !SAFETY_DOC_TYPES.includes(documentType)) {
@@ -201,11 +230,40 @@ export async function POST(
       break
 
     case 'WORK_CONDITIONS_RECEIPT':
-      rendered = renderWorkConditionsReceipt(baseData)
+      rendered = renderWorkConditionsReceipt({
+        ...baseData,
+        workDate: workDate || documentDate || today,
+        tradeType,
+        jobType,
+        workPlace: workPlace || site?.name,
+        managerName,
+      })
       break
 
     case 'PRIVACY_CONSENT':
       rendered = renderPrivacyConsent(baseData)
+      break
+
+    case 'BASIC_SAFETY_EDU_CONFIRM':
+      rendered = renderBasicSafetyEduConfirm({
+        ...baseData,
+        workDate: workDate || documentDate || today,
+        eduCompletedYn,
+        eduCompletedDate,
+        eduOrganization,
+        eduCertConfirmedYn,
+        eduCertConfirmedDate,
+        confirmerName: confirmerName || educator,
+      })
+      break
+
+    case 'SITE_SAFETY_RULES_CONFIRM':
+      rendered = renderSiteSafetyRulesConfirm({
+        ...baseData,
+        workDate: workDate || documentDate || today,
+        specialSafetyRules,
+        confirmerName: confirmerName || educator,
+      })
       break
   }
 

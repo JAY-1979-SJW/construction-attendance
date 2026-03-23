@@ -277,83 +277,65 @@ export function renderSafetyPledge(d: ContractData): RenderedContract {
 
 // ─── 5. 근로조건설명 및 계약서수령 확인서 ─────────────────────
 
-export function renderWorkConditionsReceipt(d: ContractData): RenderedContract {
-  const halfDay = d.dailyWage ? Math.floor(d.dailyWage * 0.5) : 0
-  let actualHours = 8
-  if (d.checkInTime && d.checkOutTime) {
-    const [ih, im] = d.checkInTime.split(':').map(Number)
-    const [oh, om] = d.checkOutTime.split(':').map(Number)
-    const total = (oh * 60 + om) - (ih * 60 + im)
-    actualHours = Math.max(1, (total - (d.breakHours ?? 1) * 60) / 60)
-  }
-  const hourlyRef = d.dailyWage ? Math.floor(d.dailyWage / actualHours) : 0
+export function renderWorkConditionsReceipt(d: ContractData & {
+  workDate?: string
+  tradeType?: string
+  jobType?: string
+  workPlace?: string
+  managerName?: string
+  workerBankName?: string
+  workerAccountNumber?: string
+  workerAccountHolder?: string
+}): RenderedContract {
+  const fmtWage = (n?: number) => n ? n.toLocaleString('ko-KR') + '원' : '___________원'
+  const fmtTime = (t?: string) => t || '__:__'
+  const breakDesc = d.breakStartTime && d.breakEndTime
+    ? `${d.breakStartTime} ~ ${d.breakEndTime} (${d.breakHours ?? 1}시간)`
+    : d.breakHours != null ? `${d.breakHours}시간` : '1시간'
 
   return {
     templateType: 'WORK_CONDITIONS_RECEIPT',
-    title:        '근로조건 설명 및 계약서 수령 확인서',
-    subtitle:     '(근로기준법 제17조 — 근로조건 서면 교부·설명 의무)',
-    legalBasis:   '근로기준법 제17조, 동법 시행령 제8조',
+    title: '근로조건 설명 확인서',
+    subtitle: '(근로기준법 제17조 — 근로조건 서면 교부·설명 의무)',
+    legalBasis: '근로기준법 제17조, 동법 시행령 제8조',
     sections: [
       {
         title: '안내',
-        content: `회사는 아래 사항을 근로자에게 설명하였고, 근로자는 설명을 듣고 이해하였으며 근로계약서 1부를 수령하였음을 확인합니다.`,
+        content: `회사는 아래 근로조건을 근로자에게 설명하였고, 근로자는 그 내용을 확인하였습니다.`,
       },
       {
-        title: '1. 공사 및 현장 정보',
-        content: `공사명:   ${(d as {projectName?: string}).projectName || '             '}
-현장명:   ${d.siteName}
-현장주소: ${(d as {siteAddress?: string}).siteAddress || '             '}`,
+        title: '1. 기본 정보',
+        content: `현장명: ${d.siteName}
+공종: ${d.tradeType || d.workType || d.jobTitle}
+직종: ${d.jobType || d.jobCategory || d.jobTitle}
+근로일: ${d.workDate || d.startDate}
+근무장소: ${d.workPlace || d.siteAddress || d.siteName}`,
       },
       {
-        title: '2. 공종 및 담당업무',
-        content: `공종:     ${(d as {workType?: string}).workType || '             '}
-세부공종: ${(d as {workTypeSub?: string}).workTypeSub || '             '}
-직종:     ${(d as {jobCategory?: string}).jobCategory || d.jobTitle}
-세부직종: ${(d as {jobCategorySub?: string}).jobCategorySub || '             '}
-담당업무: ${(d as {taskDescription?: string}).taskDescription || d.jobTitle}`,
+        title: '2. 근로조건',
+        content: `시업 시각: ${fmtTime(d.checkInTime)}
+종업 시각: ${fmtTime(d.checkOutTime)}
+휴게시간: ${breakDesc}
+일급: ${fmtWage(d.dailyWage)}
+임금지급일: 매월 ${d.paymentDay || '말일'}
+임금지급방법: 근로자 본인 명의 계좌 지급`,
       },
       {
-        title: '3. 계약형태',
-        content: `계약형태:   ${(d as {contractForm?: string}).contractForm === 'CONTINUOUS' ? '계속근로형 (기간의 정함 없음)' : '월단위 기간제'}
-계약시작일: ${d.startDate}
-계약종료일: ${(d as {contractForm?: string}).contractForm === 'CONTINUOUS' ? '해당 없음 (계속근로)' : (d.endDate || '             ')}`,
-      },
-      {
-        title: '4. 근무시간 및 휴게시간',
-        content: `출근시간:   ${d.checkInTime || '08:00'}
-퇴근시간:   ${d.checkOutTime || '17:00'}
-휴게시작:   ${d.breakStartTime || '12:00'}
-휴게종료:   ${d.breakEndTime || '13:00'}
-총 휴게시간: ${d.breakHours ?? 1}시간`,
-      },
-      {
-        title: '5. 임금',
-        content: `1일 일당:       ${d.dailyWage ? d.dailyWage.toLocaleString('ko-KR') + '원' : '미정'}
-반공수 참고액:  ${halfDay ? halfDay.toLocaleString('ko-KR') + '원' : '미정'}
-시간환산 참고액: ${hourlyRef ? hourlyRef.toLocaleString('ko-KR') + '원/시간' : '미정'}
-임금지급일:    매월 ${d.paymentDay || '말일'}일
-지급방법:     ${d.paymentMethod || '계좌이체'}`,
-      },
-      {
-        title: '6. 운영기준',
-        content: `출퇴근 인증방식: ${d.attendanceVerificationMethod || 'GPS 위치 기반 앱 인증'}
-공수기준:      ${d.workUnitRule || '출퇴근 기록, 작업기록, 현장확인에 따라 산정한다.'}
-우천/작업중단:  ${d.rainDayRule || '현장 관리자 지시에 따라 처리한다.'}`,
-      },
-      {
-        title: '7. 법정사항 안내',
-        content: `- 연장, 야간, 휴일근로수당은 실제 근로내역과 관계 법령에 따라 처리될 수 있음
-- 주휴, 연차, 퇴직금, 사회보험은 관계 법령 및 실제 근로형태/근로내역에 따라 판단 또는 적용될 수 있음`,
-      },
-      {
-        title: '8. 계약서 교부 확인',
-        content: `근로자는 본 근로계약서 1부를 수령하였음을 확인합니다.`,
+        title: '3. 추가 안내',
+        content: `① 연장근로, 야간근로 또는 휴일근로가 발생하는 경우 관계 법령에 따라 별도로 처리될 수 있습니다.
+② 주휴수당 등 법정수당은 관계 법령 및 실제 근로형태에 따라 발생하는 경우 처리됩니다.
+③ 근로자는 현장 안전수칙, 보호구 착용 의무, 출퇴근 등록 절차를 준수하여야 합니다.`,
       },
     ],
-    signatureBlock: `
-설명자:  __________________ (서명 또는 인)
-근로자:  ${d.workerName}   __________________ (서명 또는 인)
-확인일:  ${d.contractDate}
+    signatureBlock: `위 내용을 설명 듣고 확인하였습니다.
+
+작성일: ${d.contractDate}
+
+회사 또는 현장관리자
+  성명: ${d.managerName || '             '}        (서명)
+
+근로자
+  성명: ${d.workerName}        (서명)
 `,
   }
 }
@@ -363,57 +345,157 @@ export function renderWorkConditionsReceipt(d: ContractData): RenderedContract {
 export function renderPrivacyConsent(d: ContractData): RenderedContract {
   return {
     templateType: 'PRIVACY_CONSENT',
-    title:        '개인정보 수집·이용 동의서',
-    subtitle:     '(개인정보 보호법 제15조 — 수집·이용 동의)',
-    legalBasis:   '개인정보 보호법 제15조, 제17조, 제22조',
+    title: '개인정보 수집·이용 동의서',
+    subtitle: '(개인정보 보호법 제15조 — 수집·이용 동의)',
+    legalBasis: '개인정보 보호법 제15조, 제17조, 제22조',
     sections: [
       {
         title: '안내',
-        content: `${d.companyName}(이하 "회사")는 근로계약 체결 및 이행, 임금지급, 출퇴근 관리, 세무 및 사회보험 처리, 안전관리 및 법정 문서 보존을 위하여 아래와 같이 개인정보를 수집·이용합니다.`,
+        content: `${d.companyName}(이하 "회사")는 근로계약 체결 및 이행, 임금 지급, 4대보험 신고, 출퇴근 및 노무관리, 관계 법령상 의무 이행을 위하여 아래와 같이 개인정보를 수집·이용합니다.`,
       },
       {
         title: '1. 수집 항목',
-        content: `- 성명
-- 생년월일
-- 주소
-- 연락처(휴대전화)
-- 계좌정보 (은행명, 계좌번호, 예금주)
-- 출퇴근기록 (GPS 위치정보 포함)
-- 전자서명 또는 문서 서명 이력
-- 안전교육 및 보호구 지급 관련 기록
-- 계약 및 버전 이력 관리 정보`,
+        content: `• 성명
+• 생년월일
+• 주소
+• 연락처
+• 계좌정보
+• 신분확인정보
+• 보험신고 및 노무관리상 필요한 정보`,
       },
       {
         title: '2. 이용 목적',
-        content: `- 근로계약 체결 및 관리
-- 임금 산정 및 지급
-- 세무 처리 (소득세 신고 등)
-- 사회보험 관련 신고 및 관리 (4대보험)
-- 출퇴근 확인 및 공수 관리
-- 안전교육 및 보호구 지급 관리
-- 관계 법령에 따른 문서 보관 및 분쟁 대응`,
+        content: `• 근로계약 체결 및 관리
+• 임금 지급
+• 4대보험, 세무, 노무 관련 신고 및 처리
+• 출퇴근 및 현장 인원관리
+• 법령상 의무 이행 및 분쟁 대응`,
       },
       {
         title: '3. 보유 및 이용기간',
-        content: `회사는 관계 법령상 보존의무가 있는 기간 또는 계약 및 분쟁 처리에 필요한 기간 동안 개인정보를 보유·이용할 수 있습니다.
-- 근로계약 관련 서류: 근로관계 종료 후 3년 (근로기준법)
-- 세금 관련 서류: 5년 (국세기본법)
-- 산재·고용보험 관련: 3년 (고용보험법)`,
+        content: `관계 법령에서 정한 기간 또는 수집·이용 목적 달성 시까지 보관·이용합니다.`,
       },
       {
-        title: '4. 동의 거부 권리 및 불이익',
-        content: `근로자는 개인정보 수집·이용에 대한 동의를 거부할 수 있습니다.
-다만, 필수 정보에 대한 동의가 없는 경우 근로계약 체결, 임금지급, 법정 신고, 출퇴근 및 안전관리 처리가 제한될 수 있습니다.`,
+        title: '4. 동의 거부 권리',
+        content: `근로자는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다. 다만, 필수정보 제공이 없을 경우 근로계약 체결, 임금 지급, 보험 처리 등에 제한이 있을 수 있습니다.`,
       },
       {
-        title: '5. 확인',
-        content: `본인은 위 내용을 설명받았고, 개인정보 수집·이용에 동의합니다.`,
+        title: '5. 동의',
+        content: `개인정보 수집·이용에 동의합니다.
+
+  [ ] 동의함
+
+  [ ] 동의하지 않음`,
       },
     ],
-    signatureBlock: `
+    signatureBlock: `작성일: ${d.contractDate}
+
+근로자
+  성명: ${d.workerName}        (서명)
+`,
+  }
+}
+
+// ─── 6. 건설업 기초안전보건교육 확인서 ───────────────────────
+export function renderBasicSafetyEduConfirm(d: ContractData & {
+  workDate?: string
+  eduCompletedYn?: boolean
+  eduCompletedDate?: string
+  eduOrganization?: string
+  eduCertConfirmedYn?: boolean
+  eduCertConfirmedDate?: string
+  confirmerName?: string
+}): RenderedContract {
+  const completedYn = d.eduCompletedYn ?? false
+  const certConfirmedYn = d.eduCertConfirmedYn ?? false
+
+  return {
+    templateType: 'BASIC_SAFETY_EDU_CONFIRM',
+    title: '건설업 기초안전보건교육 확인서',
+    subtitle: '(산업안전보건법 제31조 — 건설업 기초안전보건교육)',
+    legalBasis: '산업안전보건법 제31조, 동법 시행규칙 제26조의2',
+    sections: [
+      {
+        title: '근로자 정보',
+        content: `성명: ${d.workerName}
+생년월일: ${d.workerBirthDate || '             '}
+현장명: ${d.siteName}
+근로일: ${d.workDate || d.startDate}`,
+      },
+      {
+        title: '1. 기초안전보건교육 이수 여부',
+        content: `건설업 기초안전보건교육 이수 여부: ${completedYn ? '[√] 이수' : '[ ] 이수   [ ] 미이수'}
+이수일: ${d.eduCompletedDate || '____년 __월 __일'}
+교육기관명: ${d.eduOrganization || '             '}`,
+      },
+      {
+        title: '2. 이수증 확인',
+        content: `이수증 원본 확인 여부: ${certConfirmedYn ? '[√] 확인' : '[ ] 확인   [ ] 미확인'}
+확인일: ${d.eduCertConfirmedDate || '____년 __월 __일'}
+확인자 성명: ${d.confirmerName || '             '}`,
+      },
+      {
+        title: '3. 안내',
+        content: `① 건설업 기초안전보건교육을 이수하지 않은 근로자는 건설현장 출입 및 작업이 제한될 수 있습니다.
+② 미이수 확인 시 현장 입장 전 교육 이수를 완료하여야 합니다.
+③ 이수증은 근로관계 종료 후 3년간 보존합니다.`,
+      },
+    ],
+    signatureBlock: `위 내용을 확인하였습니다.
+
+작성일: ${d.contractDate}
+
+확인자 (현장관리자)
+  성명: ${d.confirmerName || '             '}        (서명)
+
+근로자
+  성명: ${d.workerName}        (서명)
+`,
+  }
+}
+
+// ─── 7. 현장 안전수칙 준수 확인서 ────────────────────────────
+export function renderSiteSafetyRulesConfirm(d: ContractData & {
+  workDate?: string
+  specialSafetyRules?: string
+  confirmerName?: string
+}): RenderedContract {
+  return {
+    templateType: 'SITE_SAFETY_RULES_CONFIRM',
+    title: '현장 안전수칙 준수 확인서',
+    subtitle: '(산업안전보건법 제38조·제39조 — 위험방지 의무)',
+    legalBasis: '산업안전보건법 제38조, 제39조, 제63조',
+    sections: [
+      {
+        title: '기본 정보',
+        content: `현장명: ${d.siteName}
 근로자 성명: ${d.workerName}
-근로자:      __________________ (서명 또는 인)
-일자:        ${d.contractDate}
+근로일: ${d.workDate || d.startDate}`,
+      },
+      {
+        title: '안전수칙 확인 항목',
+        content: `아래 항목을 읽고 준수할 것을 확인합니다.
+
+[√] 보호구(안전모, 안전화, 안전대 등) 착용 의무 준수
+[√] 현장관리자의 안전지시 준수 의무
+[√] 위험구역 무단출입 금지
+[√] 음주 후 작업 금지
+[√] 위험 발견 시 즉시 보고 의무
+[√] 사고 발생 시 즉시 보고 의무
+[√] 출퇴근 등록 절차 준수 의무${d.specialSafetyRules ? `\n[√] 특이 안전수칙: ${d.specialSafetyRules}` : ''}`,
+      },
+      {
+        title: '서약',
+        content: `본인은 위 안전수칙을 숙지하였으며, 현장에서 이를 성실히 준수할 것을 확인합니다.`,
+      },
+    ],
+    signatureBlock: `작성일: ${d.contractDate}
+
+관리자
+  성명: ${d.confirmerName || '             '}        (서명)
+
+근로자
+  성명: ${d.workerName}        (서명)
 `,
   }
 }

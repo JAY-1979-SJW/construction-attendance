@@ -30,12 +30,13 @@ const LABOR_RELATION_OPTIONS: { value: LaborRelationType; label: string; desc: s
 
 const TEMPLATE_BY_RELATION: Record<LaborRelationType, { value: string; label: string }[]> = {
   DIRECT_EMPLOYEE: [
-    { value: 'DAILY_EMPLOYMENT',           label: '일용직 근로계약서' },
-    { value: 'MONTHLY_FIXED_EMPLOYMENT',   label: '월단위 기간제 근로계약서' },
-    { value: 'CONTINUOUS_EMPLOYMENT',      label: '계속근로형 근로계약서' },
+    { value: 'DAILY_EMPLOYMENT',           label: '건설 일용근로자 근로계약서 (기본)' },
     { value: 'REGULAR_EMPLOYMENT',         label: '상용직 근로계약서' },
     { value: 'FIXED_TERM_EMPLOYMENT',      label: '기간제 근로계약서' },
     { value: 'OFFICE_SERVICE',             label: '사무보조 용역계약서' },
+    // 관리자 전용 (운영 정책상 기본 숨김)
+    { value: 'MONTHLY_FIXED_EMPLOYMENT',   label: '[관리자] 월단위 기간제 근로계약서' },
+    { value: 'CONTINUOUS_EMPLOYMENT',      label: '[관리자] 계속근로형 근로계약서' },
   ],
   SUBCONTRACT_BIZ: [
     { value: 'SUBCONTRACT_WITH_BIZ', label: '도급·용역계약서 (사업자 있음)' },
@@ -68,8 +69,9 @@ const JOB_CATEGORY_OPTIONS = [
   '보통인부', '특별인부', '조공', '전공', '기능공', '기사반장', '기타',
 ]
 
-interface Worker { id: string; name: string; phone: string; jobTitle: string }
-interface Site   { id: string; name: string }
+interface Worker { id: string; name: string; phone: string; jobTitle: string; birthDate?: string; bankName?: string; bankAccount?: string; bankAccountSecure?: { bankName: string | null; accountNumberMasked: string | null } | null }
+interface Site   { id: string; name: string; address?: string }
+interface CompanyOpt { id: string; companyName: string; representativeName?: string | null; businessNumber?: string | null; address?: string | null; contactPhone?: string | null }
 
 // ─── 차단 규칙 ────────────────────────────────────────────────
 function getBlockReason(
@@ -129,10 +131,12 @@ function NewContractPage() {
   const searchParams = useSearchParams()
   const preWorkerId  = searchParams.get('workerId') || ''
 
-  const [workers, setWorkers] = useState<Worker[]>([])
-  const [sites, setSites]     = useState<Site[]>([])
-  const [saving, setSaving]   = useState(false)
-  const [error, setError]     = useState('')
+  const [workers, setWorkers]   = useState<Worker[]>([])
+  const [sites, setSites]       = useState<Site[]>([])
+  const [companies, setCompanies] = useState<CompanyOpt[]>([])
+  const [saving, setSaving]     = useState(false)
+  const [error, setError]       = useState('')
+  const [selectedCompanyId, setSelectedCompanyId] = useState('')
 
   // 계약 유형 분류
   const [laborRelation, setLaborRelation] = useState<LaborRelationType>('DIRECT_EMPLOYEE')
@@ -147,10 +151,24 @@ function NewContractPage() {
   })
 
   const [form, setForm] = useState({
+    // 회사 정보 (스냅샷)
+    companyName:          '',
+    companyPhone:         '',
+    companyBizNo:         '',
+    companyAddress:       '',
+    companyRepName:       '',
+    // 근로자
     workerId:             preWorkerId,
+    workerBirthDate:      '',
+    workerBankName:       '',
+    workerAccountNumber:  '',
+    workerAccountHolder:  '',
+    // 현장
     siteId:               '',
+    // 계약
     contractKind:         'EMPLOYMENT',
     contractTemplateType: 'DAILY_EMPLOYMENT',
+    workDate:             '',
     startDate:            '',
     endDate:              '',
     checkInTime:          '08:00',
@@ -194,11 +212,52 @@ function NewContractPage() {
     Promise.all([
       fetch('/api/admin/workers?pageSize=200').then(r => r.json()),
       fetch('/api/admin/sites').then(r => r.json()),
-    ]).then(([w, s]) => {
+      fetch('/api/admin/companies?pageSize=100').then(r => r.json()),
+    ]).then(([w, s, c]) => {
       if (w.success) setWorkers(w.data?.items || w.data || [])
       if (s.success) setSites(s.data?.items || s.data || [])
+      if (c.success) setCompanies(c.data?.items || c.data || [])
     })
   }, [])
+
+  // 회사 선택 → 회사 정보 자동 채움
+  function handleCompanyChange(companyId: string) {
+    setSelectedCompanyId(companyId)
+    const co = companies.find(c => c.id === companyId)
+    if (co) {
+      setForm(f => ({
+        ...f,
+        companyName:    co.companyName,
+        companyPhone:   co.contactPhone || '',
+        companyBizNo:   co.businessNumber || f.companyBizNo,
+        companyAddress: co.address || f.companyAddress,
+        companyRepName: co.representativeName || f.companyRepName,
+      }))
+    }
+  }
+
+  // 근로자 선택 → 근로자 정보 자동 채움
+  function handleWorkerChange(workerId: string) {
+    set('workerId', workerId)
+    const w = workers.find(w => w.id === workerId)
+    if (w) {
+      setForm(f => ({
+        ...f,
+        workerId,
+        workerBirthDate: w.birthDate || '',
+        workerBankName:  w.bankAccountSecure?.bankName || w.bankName || '',
+        workerAccountNumber: w.bankAccountSecure?.accountNumberMasked || w.bankAccount || '',
+        workerAccountHolder: w.name,
+      }))
+    }
+  }
+
+  // 현장 선택 → 현장 주소 자동 채움
+  function handleSiteChange(siteId: string) {
+    set('siteId', siteId)
+    const s = sites.find(s => s.id === siteId)
+    if (s?.address) set('siteAddress', s.address)
+  }
 
   // 유형 변경 시 template 자동 선택
   function handleRelationChange(rel: LaborRelationType) {
@@ -305,6 +364,9 @@ function NewContractPage() {
       specialTerms:         form.specialTerms || null,
       notes:                form.notes || null,
       laborRelationType:    laborRelation,
+      companyBizNo:         form.companyBizNo || null,
+      companyAddress:       form.companyAddress || null,
+      companyRepName:       form.companyRepName || null,
       businessRegistrationNo: biz.businessRegistrationNo || null,
       contractorName:       biz.contractorName || null,
       attendanceControlledByCompany: biz.attendanceControlledByCompany,
@@ -324,6 +386,14 @@ function NewContractPage() {
       attendanceVerificationMethod: form.attendanceVerificationMethod || null,
       workUnitRule:         form.workUnitRule || null,
       rainDayRule:          form.rainDayRule || null,
+      // v3.6
+      companyName:          form.companyName || null,
+      companyPhone:         form.companyPhone || null,
+      workDate:             form.workDate || null,
+      workerBirthDate:      form.workerBirthDate || null,
+      workerBankName:       form.workerBankName || null,
+      workerAccountNumber:  form.workerAccountNumber || null,
+      workerAccountHolder:  form.workerAccountHolder || null,
     }
 
     const res  = await fetch('/api/admin/contracts', {
@@ -481,10 +551,26 @@ function NewContractPage() {
         <h2 className="font-semibold text-gray-800">3단계: 기본 정보</h2>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
+            <label className="text-xs font-medium text-gray-600 block mb-1">회사 (자동채움용)</label>
+            <select value={selectedCompanyId} onChange={e => handleCompanyChange(e.target.value)}
+              className="w-full border rounded px-3 py-2 text-sm">
+              <option value="">선택하면 회사 정보 자동 채움</option>
+              {companies.map(c => (
+                <option key={c.id} value={c.id}>{c.companyName}{c.businessNumber ? ` (${c.businessNumber})` : ''}</option>
+              ))}
+            </select>
+            {form.companyName && (
+              <div className="mt-1 text-xs text-gray-500 bg-gray-50 rounded p-2">
+                {form.companyName} · {form.companyRepName || '대표자미입력'} · {form.companyBizNo || '사업자번호미입력'}
+              </div>
+            )}
+          </div>
+
+          <div className="col-span-2">
             <label className="text-xs font-medium text-gray-600 block mb-1">
               {isSubcontractBiz || isTeamReview ? '팀장·담당자 *' : '근로자 *'}
             </label>
-            <select value={form.workerId} onChange={e => set('workerId', e.target.value)}
+            <select value={form.workerId} onChange={e => handleWorkerChange(e.target.value)}
               className="w-full border rounded px-3 py-2 text-sm">
               <option value="">선택</option>
               {workers.map(w => (
@@ -495,14 +581,23 @@ function NewContractPage() {
 
           <div className="col-span-2">
             <label className="text-xs font-medium text-gray-600 block mb-1">현장 (선택)</label>
-            <select value={form.siteId} onChange={e => set('siteId', e.target.value)}
+            <select value={form.siteId} onChange={e => handleSiteChange(e.target.value)}
               className="w-full border rounded px-3 py-2 text-sm">
               <option value="">현장 미지정</option>
               {sites.map(s => (
-                <option key={s.id} value={s.id}>{s.name}</option>
+                <option key={s.id} value={s.id}>{s.name}{s.address ? ` — ${s.address}` : ''}</option>
               ))}
             </select>
           </div>
+
+          {/* 근로일 (일용직 전용) */}
+          {isDirectEmployment && (
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-gray-600 block mb-1">근로일 (일용직: 해당 날짜)</label>
+              <input type="date" value={form.workDate} onChange={e => set('workDate', e.target.value)}
+                className="w-full border rounded px-3 py-2 text-sm" />
+            </div>
+          )}
 
           <div className="col-span-2">
             <label className="text-xs font-medium text-gray-600 block mb-1">계약서 유형 *</label>

@@ -76,6 +76,13 @@ export interface ContractData {
 
   // 특약
   specialTerms?:     string
+
+  companyPhone?:     string   // 회사 연락처
+  workDate?:         string   // 근로일 (일용직 해당 날짜)
+  workerBankName?:   string   // 은행명
+  workerAccountNumber?: string // 계좌번호
+  workerAccountHolder?: string // 예금주
+  managerName?:      string   // 현장관리자명
 }
 
 export interface ContractSection {
@@ -136,112 +143,115 @@ function timeRange(checkIn?: string, checkOut?: string, breakH?: number, breakS?
 // ─── 1. 일용직 근로계약서 ─────────────────────────────────────
 
 export function renderDailyEmploymentContract(d: ContractData): RenderedContract {
+  const fmtWage = (n?: number) => n ? n.toLocaleString('ko-KR') + '원' : '___________원'
+  const fmtDate = (s?: string) => s ? s.replace(/-/g, '.') : '____년 __월 __일'
+  const fmtTime = (t?: string) => t || '__:__'
+
   const sections: ContractSection[] = [
     {
-      title: '제1조 (계약 당사자)',
-      content: `사용자(이하 "갑")
-  - 상호: ${d.companyName}
-  - 대표자: ${d.companyCeo}
-  - 사업자등록번호: ${d.companyBizNo || '             '}
-  - 주소: ${d.companyAddress}
+      title: '1. 사용자 정보',
+      content: `상호: ${d.companyName}
+대표자: ${d.companyCeo}
+사업자등록번호: ${d.companyBizNo || '___-__-_____'}
+주소: ${d.companyAddress}
+연락처: ${d.companyPhone || '             '}`,
+    },
+    {
+      title: '2. 근로자 정보',
+      content: `성명: ${d.workerName}
+생년월일: ${d.workerBirthDate || '             '}
+주소: ${d.workerAddress || '             '}
+연락처: ${d.workerPhone || '             '}`,
+    },
+    {
+      title: '3. 근로계약 내용',
+      content: `근로일: ${d.workDate || d.startDate}
+현장명: ${d.siteName}
+공종: ${d.workType || d.jobTitle}
+직종: ${d.jobCategory || d.jobTitle}
+근무장소: ${d.siteAddress || d.siteName}
+담당업무: ${d.taskDescription || d.jobTitle}`,
+    },
+    {
+      title: '4. 계약기간 및 고용형태',
+      content: `① 본 계약은 건설현장의 일용근로를 위한 계약으로, 1일 단위 근로를 원칙으로 합니다.
+② 근로자는 회사가 지정한 근로일에 한하여 근로를 제공하며, 해당 근로일의 근로가 종료되면 그날의 근로관계도 종료됩니다.
+③ 다음 근로일의 고용은 회사의 별도 채용 의사 확인 또는 배치 결정이 있는 경우에만 성립하며, 본 계약은 계속적·상시적 고용을 보장하지 않습니다.`,
+    },
+    {
+      title: '5. 근로시간 및 휴게시간',
+      content: `시업 시각: ${fmtTime(d.checkInTime)}
+종업 시각: ${fmtTime(d.checkOutTime)}
+휴게시간: ${d.breakStartTime && d.breakEndTime
+  ? `${d.breakStartTime} ~ ${d.breakEndTime} (${d.breakHours ?? 1}시간)`
+  : d.breakHours != null ? `${d.breakHours}시간`
+  : '1시간 (법정 기준)'}
 
-근로자(이하 "을")
-  - 성명: ${d.workerName}
-  - 생년월일: ${d.workerBirthDate || '             '}
-  - 주소: ${d.workerAddress || '             '}
-  - 연락처: ${d.workerPhone || '             '}`,
+회사는 현장 여건, 기상 상황, 작업 공정에 따라 근로시간을 조정할 수 있으며, 이 경우 관계 법령에 위반되지 않도록 합니다.`,
     },
     {
-      title: '제2조 (취업 장소 및 담당 업무)',
-      content: `① 취업 장소(현장명): ${d.siteName}
-② 현장 주소: ${d.siteAddress || '             '}
-③ 직종: ${d.jobTitle}
-④ 담당 업무: ${d.taskDescription || d.jobTitle}`,
+      title: '6. 휴일',
+      content: `① 주휴일은 관계 법령 및 실제 근로형태에 따라 부여합니다.
+② 근로자의 날은 관계 법령에 따라 유급휴일로 처리합니다.
+③ 그 밖의 휴일은 관계 법령 및 사업장 운영기준에 따라 처리합니다.`,
     },
     {
-      title: '제3조 (근로계약 기간)',
-      content: `① 계약 시작일: ${d.startDate}
-② 계약 종료일: ${dateStr(d.endDate)}
-${d.probationYn ? `③ 수습 기간: 입사일로부터 ${d.probationMonths || 3}개월\n④` : '③'} 일용직의 특성상 당일 출근한 경우에 한해 해당 일의 근로계약이 성립되며, 다음 날 이후의 취업은 보장하지 않는다.`,
+      title: '7. 임금',
+      content: `① 회사는 근로자에게 1일 근로에 대한 임금으로 일급 ${fmtWage(d.dailyWage)}을 지급합니다.
+② 위 일급은 당일의 소정근로시간에 대한 임금입니다.
+③ 소정근로시간을 초과한 연장근로, 야간근로 또는 휴일근로가 발생한 경우에는 관계 법령에 따라 가산임금을 별도로 지급합니다.
+④ 주휴수당, 연차유급휴가수당 등 법정수당·법정급여는 관계 법령 및 실제 근로형태에 따라 발생하는 경우 별도로 처리합니다.
+⑤ 임금은 매월 ${d.paymentDay || '말일'}에 근로자 본인 명의 계좌로 지급합니다.
+⑥ 회사는 임금 지급 시 임금의 구성항목, 계산방법, 공제내역을 확인할 수 있는 임금명세를 제공합니다.`,
     },
     {
-      title: '제4조 (근로시간 및 휴게)',
-      content: `① 1일 소정근로시간
-  - 시업 시각: ${d.checkInTime || '08:00'}
-  - 종업 시각: ${d.checkOutTime || '17:00'}
-  - 휴게 시간: ${
-    d.breakStartTime && d.breakEndTime
-      ? `${d.breakStartTime} ~ ${d.breakEndTime} (${d.breakHours ?? 1}시간)`
-      : d.breakHours != null ? `${d.breakHours}시간 (근로시간 중 부여)`
-      : '1시간 (법정 기준)'
-  }
-② 주 소정근로일: ${d.weeklyWorkDays != null ? d.weeklyWorkDays + '일' : '현장 여건에 따름'}
-③ 주 소정근로시간: ${d.weeklyWorkHours != null ? d.weeklyWorkHours + '시간' : '주 소정근로일 × 일 근로시간'}
-④ 근무 요일: ${d.workDays || '현장 여건에 따름'}
-⑤ 우천·공정 지연 등 불가피한 사유로 작업이 불가한 경우: ${d.rainDayRule || '별도 협의에 따른다.'}`,
+      title: '8. 임금 지급계좌',
+      content: `은행명: ${d.workerBankName || '             '}
+계좌번호: ${d.workerAccountNumber || '             '}
+예금주: ${d.workerAccountHolder || d.workerName}`,
     },
     {
-      title: '제5조 (임금)',
-      content: `① 임금 형태: 일당제
-② 일당: ${won(d.dailyWage)}${
-  d.allowanceJson && d.allowanceJson.length > 0
-    ? '\n③ 수당:\n' + d.allowanceJson.map((a) => `  - ${a.name}: ${won(a.amount)}`).join('\n')
-    : ''
-}
-${d.allowanceJson && d.allowanceJson.length > 0 ? '④' : '③'} 임금 계산 방법: 출근 1일당 일당 전액 지급. 반일 작업의 경우 현장 관리자 확인 하에 공수 비례 지급.
-${d.allowanceJson && d.allowanceJson.length > 0 ? '⑤' : '④'} 지급일: 매월 ${d.paymentDay || '말일'} (해당 월 근무분)
-${d.allowanceJson && d.allowanceJson.length > 0 ? '⑥' : '⑤'} 지급 방법: ${d.paymentMethod || '계좌이체'}
-${d.allowanceJson && d.allowanceJson.length > 0 ? '⑦' : '⑥'} 임금의 구성: 기본 일당에는 주휴수당이 포함되지 아니한다. 주 15시간 이상 소정근로를 개근한 경우 주휴수당을 별도 산정한다.`,
+      title: '9. 4대보험 및 공제',
+      content: `① 회사는 관계 법령에 따라 4대보험, 세금, 기타 법정 공제를 처리합니다.
+② 근로자는 보험 가입, 급여 지급, 노무관리 등에 필요한 정보를 사실대로 제공하여야 합니다.
+③ 4대보험 적용: ${[
+  d.nationalPensionYn ? '국민연금' : null,
+  d.healthInsuranceYn ? '건강보험' : null,
+  d.employmentInsuranceYn ? '고용보험' : null,
+  d.industrialAccidentYn ? '산재보험' : null,
+  d.retirementMutualYn ? '건설업퇴직공제' : null,
+].filter(Boolean).join(', ') || '관계 법령 기준 적용'}`,
     },
     {
-      title: '제6조 (휴일 및 연차유급휴가)',
-      content: `① 주휴일: ${d.holidayRule || '매주 일요일'}
-② 법정 휴일: 근로자의 날(5월 1일) 및 관공서 공휴일에 관한 규정에 따른 공휴일을 법정휴일로 한다.
-③ 연차유급휴가: ${d.annualLeaveRule || '근로기준법 제60조에 따라 1년간 80% 이상 출근한 근로자에게 15일의 유급휴가를 부여한다. 1년 미만 근무 또는 80% 미만 출근 시에는 1개월 개근 시 1일의 유급휴가를 부여한다.'}
-④ 일용직의 특성상 연차유급휴가는 법령이 정하는 요건 충족 시 적용한다.`,
+      title: '10. 안전보건 및 준수사항',
+      content: `① 근로자는 산업안전보건 관계 법령과 현장 안전수칙을 준수하여야 합니다.
+② 근로자는 회사가 지급하거나 착용을 지시한 보호구를 반드시 착용하여야 합니다.
+③ 근로자는 건설업 기초안전보건교육 등 관계 법령상 필요한 교육 이수 여부를 사실대로 확인하여야 합니다.
+④ 근로자는 현장관리자의 정당한 작업지시 및 안전지시를 따라야 합니다.`,
     },
     {
-      title: '제7조 (출퇴근 확인 및 공수 산정)',
-      content: `① 출퇴근 인증 방식: ${d.attendanceVerificationMethod || 'GPS 위치 기반 앱 인증'}
-② 공수 인정 기준: ${d.workUnitRule || '출퇴근 기록, 작업기록, 현장확인에 따라 산정한다.'}
-③ 허위 출퇴근 또는 대리 인증은 재심사 대상이 되며, 확인된 경우 공수에서 제외된다.
-④ 작업중지 시 처리: ${d.siteStopRule || '관리자 지시에 따라 처리하며, 귀책 여부에 따라 임금을 산정한다.'}`,
+      title: '11. 기타',
+      content: `① 본 계약에서 정하지 않은 사항은 근로기준법 등 관계 법령에 따릅니다.
+② 회사는 본 계약서를 작성하여 근로자에게 1부를 교부합니다.${d.specialTerms ? `\n③ 특약사항: ${d.specialTerms}` : ''}`,
     },
-    {
-      title: '제8조 (사회보험)',
-      content: insuranceClause(d),
-    },
-    ...(d.safetyClauseYn ? [{
-      title: '제9조 (안전보건 및 현장 준수사항)',
-      content: safetyClause(),
-    }] : []),
-    {
-      title: `제${d.safetyClauseYn ? 10 : 9}조 (계약서 교부)`,
-      content: `"갑"은 본 계약 체결 즉시 본 계약서 사본을 "을"에게 교부한다(전자문서 포함). 계약서는 근로관계 종료 후 3년간 보존한다.`,
-    },
-    ...(d.specialTerms ? [{
-      title: `제${d.safetyClauseYn ? 11 : 10}조 (특약사항)`,
-      content: d.specialTerms,
-    }] : []),
   ]
 
   return {
     templateType:  'DAILY_EMPLOYMENT',
-    title:         '일용 근로계약서',
-    subtitle:      '(근로기준법 제17조·동법 시행령 제8조에 따른 필수사항 포함)',
+    title:         '건설 일용근로자 근로계약서',
+    subtitle:      '(근로기준법 제17조·동법 시행령 제8조 기준)',
     legalBasis:    '근로기준법 제17조, 동법 시행령 제8조, 산업안전보건법',
     sections,
-    signatureBlock: `
-위와 같이 근로계약을 체결하고, 계약서를 2부 작성하여 "갑"과 "을"이 각 1부씩 보관한다.
+    signatureBlock: `본 계약의 내용을 확인하고 아래와 같이 서명합니다.
 
-계약 체결일: ${d.contractDate}
+계약체결일: ${d.contractDate}
 
-사용자(갑)
+회사(사용자)
   상호: ${d.companyName}
-  대표자: ${d.companyCeo}   (서명 또는 인)
+  대표자: ${d.companyCeo}       (서명 또는 날인)
 
-근로자(을)
-  성명: ${d.workerName}   (서명 또는 인)
+근로자
+  성명: ${d.workerName}        (서명)
 `,
   }
 }

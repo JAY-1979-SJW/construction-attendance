@@ -1103,6 +1103,8 @@ model WorkerContract {
 
   // ── v3.3 계약서 완성 필드 ──────────────────────────────────
   // 사용자(회사) 기본정보
+  companyName              String?               // 회사명 스냅샷
+  companyPhone             String?               // 회사 연락처
   companyBizNo             String?               // 사업자등록번호
   companyAddress           String?               // 사업장 주소
   companyRepName           String?               // 대표자명
@@ -1110,6 +1112,10 @@ model WorkerContract {
   // 근로자 기본정보 (계약서 기입용)
   workerBirthDate          String?               // 생년월일 'YYYY-MM-DD'
   workerAddress            String?               // 근로자 주소
+  workerBankName           String?               // 은행명 스냅샷
+  workerAccountNumber      String?               // 계좌번호 (마스킹)
+  workerAccountHolder      String?               // 예금주
+  workDate                 String?               // 근로일 (일용직: 해당 날짜 'YYYY-MM-DD')
 
   // 근로시간 상세
   breakStartTime           String?               // 휴게 시작 'HH:MM'
@@ -2172,6 +2178,8 @@ enum SafetyDocumentType {
   SAFETY_PLEDGE                // 안전수칙 준수 서약서
   WORK_CONDITIONS_RECEIPT      // 근로조건설명및계약서수령확인서
   PRIVACY_CONSENT              // 개인정보수집이용동의서
+  BASIC_SAFETY_EDU_CONFIRM     // 건설업 기초안전보건교육 확인서
+  SITE_SAFETY_RULES_CONFIRM    // 현장 안전수칙 준수 확인서
 }
 
 enum SafetyDocumentStatus {

@@ -71,6 +71,10 @@ export async function POST(req: NextRequest) {
     weeklyWorkDays, weeklyWorkHours,
     // v3.5 신규 필드
     siteAddress, attendanceVerificationMethod, workUnitRule, rainDayRule,
+    // v3.6 신규 필드
+    companyName, companyPhone, workDate,
+    workerBankName, workerAccountNumber, workerAccountHolder,
+    companyBizNo, companyAddress, companyRepName,
   } = body
 
   if (!workerId || !startDate || !contractKind || !contractTemplateType) {
@@ -154,6 +158,16 @@ export async function POST(req: NextRequest) {
       attendanceVerificationMethod: attendanceVerificationMethod || null,
       workUnitRule:         workUnitRule           || null,
       rainDayRule:          rainDayRule            || null,
+      // v3.6
+      companyName:          companyName            || null,
+      companyPhone:         companyPhone           || null,
+      companyBizNo:         companyBizNo           || null,
+      companyAddress:       companyAddress         || null,
+      companyRepName:       companyRepName         || null,
+      workDate:             workDate               || null,
+      workerBankName:       workerBankName         || null,
+      workerAccountNumber:  workerAccountNumber    || null,
+      workerAccountHolder:  workerAccountHolder    || null,
     } as never,
     include: {
       worker: { select: { id: true, name: true } },

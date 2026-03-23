@@ -79,6 +79,13 @@ function buildContractData(
     jobCategorySub:        contract.jobCategorySub as string | undefined,
     contractForm:          contract.contractForm as string | undefined,
     taskDescription:       contract.taskDescription as string | undefined,
+    // v3.6
+    companyPhone:          contract.companyPhone as string | undefined,
+    workDate:              contract.workDate as string | undefined,
+    workerBankName:        contract.workerBankName as string | undefined,
+    workerAccountNumber:   contract.workerAccountNumber as string | undefined,
+    workerAccountHolder:   contract.workerAccountHolder as string | undefined,
+    managerName:           contract.managerName as string | undefined,
   }
 }
 

@@ -1247,6 +1247,8 @@ const SAFETY_DOC_LABELS: Record<string, string> = {
   SAFETY_PLEDGE:                '안전수칙 서약',
   WORK_CONDITIONS_RECEIPT:      '근로조건설명·계약서수령',
   PRIVACY_CONSENT:              '개인정보수집·이용동의',
+  BASIC_SAFETY_EDU_CONFIRM:     '기초안전보건교육 확인서',
+  SITE_SAFETY_RULES_CONFIRM:    '현장 안전수칙 준수 확인서',
 }
 
 const PPE_ITEM_DEFAULTS = [
@@ -1277,6 +1279,21 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
     educatorName: '',
     siteId: '',
     contractId: '',
+    // v3.6 공통
+    workDate: new Date().toISOString().slice(0, 10),
+    tradeType: '',
+    jobType: '',
+    workPlace: '',
+    managerName: '',
+    // v3.6 기초안전보건교육
+    eduCompletedYn: true,
+    eduCompletedDate: '',
+    eduOrganization: '',
+    eduCertConfirmedYn: false,
+    eduCertConfirmedDate: '',
+    confirmerName: '',
+    // v3.6 현장 안전수칙
+    specialSafetyRules: '',
   })
   const [ppeItems, setPpeItems] = useState<PpeItem[]>(PPE_ITEM_DEFAULTS.map(i => ({ ...i })))
   const [submitting, setSubmitting] = useState(false)
@@ -1412,6 +1429,8 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                 <option value="SAFETY_PLEDGE">안전수칙 준수 서약서</option>
                 <option value="WORK_CONDITIONS_RECEIPT">근로조건설명 및 계약서수령 확인서</option>
                 <option value="PRIVACY_CONSENT">개인정보수집·이용 동의서</option>
+                <option value="BASIC_SAFETY_EDU_CONFIRM">건설업 기초안전보건교육 확인서</option>
+                <option value="SITE_SAFETY_RULES_CONFIRM">현장 안전수칙 준수 확인서</option>
               </select>
             </div>
 
@@ -1503,6 +1522,123 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                   </div>
                 ))}
               </div>
+            )}
+
+            {/* 근로조건설명 확인서 */}
+            {form.documentType === 'WORK_CONDITIONS_RECEIPT' && (
+              <>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>근로일 *</label>
+                  <input type="date" value={form.workDate}
+                    onChange={e => setForm(f => ({ ...f, workDate: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>공종</label>
+                  <input type="text" value={form.tradeType}
+                    onChange={e => setForm(f => ({ ...f, tradeType: e.target.value }))}
+                    placeholder="예: 전기, 소방기계"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>직종</label>
+                  <input type="text" value={form.jobType}
+                    onChange={e => setForm(f => ({ ...f, jobType: e.target.value }))}
+                    placeholder="예: 전공, 보통인부"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>현장관리자명</label>
+                  <input type="text" value={form.managerName}
+                    onChange={e => setForm(f => ({ ...f, managerName: e.target.value }))}
+                    placeholder="현장소장, 관리자명"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                </div>
+              </>
+            )}
+
+            {/* 기초안전보건교육 확인서 */}
+            {form.documentType === 'BASIC_SAFETY_EDU_CONFIRM' && (
+              <>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>근로일 *</label>
+                  <input type="date" value={form.workDate}
+                    onChange={e => setForm(f => ({ ...f, workDate: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={form.eduCompletedYn}
+                      onChange={e => setForm(f => ({ ...f, eduCompletedYn: e.target.checked }))} />
+                    기초안전보건교육 이수 완료
+                  </label>
+                </div>
+                {form.eduCompletedYn && (
+                  <>
+                    <div style={{ marginBottom: 14 }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>이수일</label>
+                      <input type="date" value={form.eduCompletedDate}
+                        onChange={e => setForm(f => ({ ...f, eduCompletedDate: e.target.value }))}
+                        style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    </div>
+                    <div style={{ marginBottom: 14 }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육기관명</label>
+                      <input type="text" value={form.eduOrganization}
+                        onChange={e => setForm(f => ({ ...f, eduOrganization: e.target.value }))}
+                        placeholder="교육기관명"
+                        style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                    </div>
+                  </>
+                )}
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={form.eduCertConfirmedYn}
+                      onChange={e => setForm(f => ({ ...f, eduCertConfirmedYn: e.target.checked }))} />
+                    이수증 원본 확인 완료
+                  </label>
+                </div>
+                {form.eduCertConfirmedYn && (
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>확인일</label>
+                    <input type="date" value={form.eduCertConfirmedDate}
+                      onChange={e => setForm(f => ({ ...f, eduCertConfirmedDate: e.target.value }))}
+                      style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                  </div>
+                )}
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>확인자 (현장관리자)</label>
+                  <input type="text" value={form.confirmerName}
+                    onChange={e => setForm(f => ({ ...f, confirmerName: e.target.value }))}
+                    placeholder="확인자 성명"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                </div>
+              </>
+            )}
+
+            {/* 현장 안전수칙 준수 확인서 */}
+            {form.documentType === 'SITE_SAFETY_RULES_CONFIRM' && (
+              <>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>근로일 *</label>
+                  <input type="date" value={form.workDate}
+                    onChange={e => setForm(f => ({ ...f, workDate: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>특이 안전수칙 (선택)</label>
+                  <textarea value={form.specialSafetyRules}
+                    onChange={e => setForm(f => ({ ...f, specialSafetyRules: e.target.value }))}
+                    rows={2} placeholder="현장 특이 안전수칙이 있으면 입력"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px', resize: 'none' }} />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>관리자 성명</label>
+                  <input type="text" value={form.confirmerName}
+                    onChange={e => setForm(f => ({ ...f, confirmerName: e.target.value }))}
+                    placeholder="관리자 성명"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                </div>
+              </>
             )}
 
             <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
