@@ -11,7 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/db/prisma'
 import { getAdminSession } from '@/lib/auth/guards'
 import { searchFaqByKeyword } from '@/lib/labor-faq/classifier'
 import Anthropic from '@anthropic-ai/sdk'

@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/db/prisma'
 import { getAdminSession } from '@/lib/auth/guards'
 import { evaluateTriggerConditions } from '@/lib/labor-faq/classifier'
 import type { TriggerCondition, TriggerCheckRequest } from '@/lib/labor-faq/types'
