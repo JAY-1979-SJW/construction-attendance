@@ -56,6 +56,12 @@ export async function schedulePresenceChecksForAttendance(
     return
   }
 
+  // 유료 플랜 기능 게이트 — featureAvailable이 false이면 무조건 스킵
+  if (!settings?.presenceCheckFeatureAvailable) {
+    console.info('[presence] skipped: feature not available (paid plan required)', { attendanceLogId })
+    return
+  }
+
   if (!settings?.presenceCheckEnabled) {
     console.info('[presence] skipped: feature disabled', { attendanceLogId })
     return

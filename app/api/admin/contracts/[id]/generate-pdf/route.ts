@@ -17,6 +17,10 @@ import {
   contractToText,
   type ContractData,
 } from '@/lib/contracts/templates'
+import {
+  validateDailyContractDangerPhrases,
+  extractContractText,
+} from '@/lib/contracts/validate-contract'
 
 function buildContractData(
   contract: Record<string, unknown>,
@@ -121,6 +125,12 @@ export async function POST(
   else if (tmpl === 'NONBUSINESS_TEAM_REVIEW') rendered = renderNonbizTeamReviewDocs(base)
   else rendered = renderDailyEmploymentContract(base)
 
+  // 일용직 계약서: 위험 문구 검출 (계속고용 보장, 상시근로, 정규직 전환 등)
+  // 경고만 반환 — 관리자가 확인 후 수동 보정
+  const dangerCheck = tmpl === 'DAILY_EMPLOYMENT'
+    ? validateDailyContractDangerPhrases(extractContractText(rendered))
+    : { hasDanger: false, matches: [] }
+
   const contentText = contractToText(rendered)
   const fileName    = `${rendered.title}_${contract.worker.name}_${today}_v${contract.currentVersion}.txt`
 
@@ -176,6 +186,14 @@ export async function POST(
 
   return NextResponse.json({
     success: true,
-    data: { id: doc.id, fileName, contentText },
+    data: {
+      id: doc.id,
+      fileName,
+      contentText,
+      // 일용직 계약서 위험 문구 경고 (있으면 관리자 수동 검수 필요)
+      ...(dangerCheck.hasDanger ? {
+        warnings: dangerCheck.matches.map(m => `[위험문구] "${m.phrase}" 발견: ${m.context}`),
+      } : {}),
+    },
   }, { status: 201 })
 }

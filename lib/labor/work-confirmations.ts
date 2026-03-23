@@ -3,10 +3,17 @@
  * attendance_days → monthly_work_confirmations (DRAFT 생성)
  * 관리자 확정 → CONFIRMED 상태로 전환, 보수 계산
  *
- * 공수 판정 기준 (07:00~16:00, 점심 1시간, 실근로 8시간 = 1.0 공수)
- *   - 실근로 8시간 이상 (4시간 초과 시 점심 1시간 차감) → FULL_DAY  1.0
- *   - 실근로 4~8시간                                    → HALF_DAY  0.5
- *   - 실근로 4시간 미만 / 미퇴근 / 무효                 → INVALID   0
+ * 공수 판정 기준 (점심 1시간 자동 차감 → 실근로 시간 기준 판정)
+ *   예: 07:00~16:00 근무(9h 경과) → 점심 1h 차감 → 실근로 8h → 1.0 공수
+ *
+ *   판정 규칙 (workedMinutesRawFinal 기준):
+ *   - 경과 4시간(240분) 초과 시 점심 60분 자동 차감 → effectiveMinutes 산출
+ *   - effectiveMinutes ≥ 480분 (8시간) → FULL_DAY  1.0
+ *   - effectiveMinutes ≥ 240분 (4시간) → HALF_DAY  0.5
+ *   - effectiveMinutes <  240분 / 미퇴근 / INVALID presenceStatus → INVALID  0
+ *
+ *   주의: 07:00~16:00은 예시 시나리오. 실제 출근 허용 시간은 .env CHECKIN_ALLOWED_START_TIME 설정.
+ *   임계값(480분/240분)은 근로기준법 기반 고정값이며 관리자 설정으로 변경 불가.
  */
 import { prisma } from '@/lib/db/prisma'
 import { Decimal } from '@prisma/client/runtime/library'
