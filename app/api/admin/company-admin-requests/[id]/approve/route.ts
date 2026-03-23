@@ -4,6 +4,8 @@ import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { badRequest, unauthorized, forbidden } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { sendEmail } from '@/lib/email/send-email'
+import { companyAdminApprovedEmail } from '@/lib/email/templates'
 import bcrypt from 'bcryptjs'
 
 const schema = z.object({
@@ -102,13 +104,24 @@ export async function POST(
       metadataJson: { companyId: company.id, adminUserId: adminUser.id },
     })
 
+    // 이메일로 임시 비밀번호 전달 (이메일 있는 경우)
+    if (req.email) {
+      const tpl = companyAdminApprovedEmail({
+        applicantName: req.applicantName,
+        companyName: req.companyName,
+        temporaryPassword: rawPassword,
+      })
+      await sendEmail({ to: req.email, ...tpl })
+    }
+
     return NextResponse.json({
       success: true,
       message: '업체 관리자 신청이 승인되었습니다.',
       data: {
         companyId: company.id,
         adminUserId: adminUser.id,
-        temporaryPassword: rawPassword,   // 반드시 신청자에게 별도 전달 필요
+        temporaryPassword: rawPassword,   // 신청자 이메일 없는 경우 수동 전달 필요
+        emailSent: !!req.email,
       },
     })
   } catch (err) {

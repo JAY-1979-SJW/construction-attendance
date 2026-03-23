@@ -8,10 +8,28 @@ import {
   SUPER_ADMIN_ONLY_ROLES,
   PLATFORM_ADMIN_ROLES,
   COMPANY_ADMIN_ROLE,
+  SITE_MUTATE_ROLES,
 } from '@/lib/policies/security-policy'
+
+// ─── 현장 접근 권한 공통 함수 재내보내기 ──────────────────────────────────────
+export {
+  canAccessSite,
+  canAccessCompany,
+  getAccessibleSiteIds,
+  getAccessibleCompanyIds,
+  buildSiteScopeWhere,
+  buildWorkerScopeWhere,
+  siteAccessDenied,
+  siteAccessDeniedWithLog,
+  companyAccessDenied,
+  companyAccessDeniedWithLog,
+} from './site-access'
 
 // 변경 작업 허용 역할 (VIEWER 제외) — security-policy 참조
 export const MUTATE_ROLES: readonly string[] = MUTATE_ALLOWED_ROLES
+
+// 현장성 데이터 쓰기 허용 역할 (SITE_ADMIN 포함) — security-policy 참조
+export const SITE_MUTATE_ROLES_EXPORT: readonly string[] = SITE_MUTATE_ROLES
 
 // SUPER_ADMIN 전용 작업 — security-policy 참조
 export const SUPER_ADMIN_ONLY: readonly string[] = SUPER_ADMIN_ONLY_ROLES

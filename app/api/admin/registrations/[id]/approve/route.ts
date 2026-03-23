@@ -3,6 +3,8 @@ import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { unauthorized, forbidden } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { sendEmail } from '@/lib/email/send-email'
+import { workerApprovedEmail } from '@/lib/email/templates'
 
 /**
  * POST /api/admin/registrations/[id]/approve
@@ -51,6 +53,12 @@ export async function POST(
       targetId: id,
       summary: `근로자 회원가입 승인 — ${worker.name} (${worker.phone})`,
     })
+
+    // 이메일 발송 (이메일이 있는 경우에만, 실패해도 API 응답에 영향 없음)
+    if (worker.email) {
+      const tpl = workerApprovedEmail({ name: worker.name })
+      await sendEmail({ to: worker.email, ...tpl })
+    }
 
     return NextResponse.json({ success: true, message: '승인되었습니다.' })
   } catch (err) {

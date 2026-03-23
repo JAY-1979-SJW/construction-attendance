@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import {
   ok,
@@ -10,6 +10,47 @@ import {
   internalError,
 } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+
+// ─── GET /api/admin/sites/[id] — 현장 단건 조회 ──────────────────────────────
+
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getAdminSession()
+    if (!session) return unauthorized()
+
+    const { id } = await params
+
+    if (!await canAccessSite(session, id)) return siteAccessDenied()
+
+    const site = await prisma.site.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        address: true,
+        latitude: true,
+        longitude: true,
+        allowedRadius: true,
+        isActive: true,
+        siteCode: true,
+        openedAt: true,
+        closedAt: true,
+        notes: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
+    if (!site) return notFound('현장을 찾을 수 없습니다.')
+
+    return ok(site)
+  } catch (err) {
+    console.error('[admin/sites/[id] GET]', err)
+    return internalError()
+  }
+}
 
 const patchSchema = z.object({
   name: z.string().min(1).optional(),
@@ -33,10 +74,12 @@ export async function PATCH(
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
-    const deny = requireRole(session, MUTATE_ROLES)
+    const deny = requireRole(session, [...MUTATE_ROLES, 'SITE_ADMIN'])
     if (deny) return deny
 
     const { id } = await params
+
+    if (!await canAccessSite(session, id)) return siteAccessDenied()
 
     const body = await request.json()
     const parsed = patchSchema.safeParse(body)

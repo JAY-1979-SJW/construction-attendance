@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { AttendanceStatus } from '@prisma/client'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, buildSiteScopeWhere, canAccessSite, siteAccessDeniedWithLog } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, unauthorized, internalError } from '@/lib/utils/response'
 import { kstDateStringToDate } from '@/lib/utils/date'
@@ -19,13 +19,27 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') ?? '1', 10)
     const pageSize = parseInt(searchParams.get('pageSize') ?? '50', 10)
 
+    // ── site scope 강제 ──────────────────────────────────────────────────────
+    // siteId 파라미터 지정 시: 접근 가능 여부 먼저 확인
+    // 미지정 시: 접근 가능한 현장 전체로 범위 제한
+    let siteScopeFilter: Record<string, unknown> = {}
+    if (siteId) {
+      if (!await canAccessSite(session, siteId)) return siteAccessDeniedWithLog(session, siteId)
+      siteScopeFilter = { siteId }
+    } else {
+      const scope = await buildSiteScopeWhere(session)
+      if (scope === false) return ok({ items: [], total: 0, page: 1, pageSize, totalPages: 0 })
+      siteScopeFilter = scope as Record<string, unknown>
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     const workDateFilter: { gte?: Date; lte?: Date } = {}
     if (dateFrom) workDateFilter.gte = kstDateStringToDate(dateFrom)
     if (dateTo) workDateFilter.lte = kstDateStringToDate(dateTo)
 
     const where = {
+      ...siteScopeFilter,
       ...(Object.keys(workDateFilter).length > 0 ? { workDate: workDateFilter } : {}),
-      ...(siteId ? { siteId } : {}),
       ...(workerId ? { workerId } : {}),
       ...(status ? { status: status as AttendanceStatus } : {}),
     }

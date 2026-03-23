@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { prisma } from '@/lib/db/prisma'
 import { badRequest, internalError } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { sendEmail } from '@/lib/email/send-email'
+import { companyAdminRequestedEmail } from '@/lib/email/templates'
 
 // 사업자등록번호 형식: 숫자·하이픈 허용, 정규화 후 10자리
 const businessNumberSchema = z
@@ -83,6 +85,12 @@ export async function POST(request: NextRequest) {
       metadataJson: { companyName, businessNumber, applicantName, phone },
       ipAddress: ipAddress ?? undefined,
     })
+
+    // 접수 확인 이메일 (이메일 있는 경우)
+    if (email) {
+      const tpl = companyAdminRequestedEmail({ applicantName, companyName })
+      await sendEmail({ to: email, ...tpl })
+    }
 
     return NextResponse.json({
       success: true,

@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { prisma } from '@/lib/db/prisma'
 import { badRequest, internalError } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { sendEmail } from '@/lib/email/send-email'
+import { workerRegisteredEmail } from '@/lib/email/templates'
 
 const schema = z.object({
   // 기본 정보
@@ -162,6 +164,12 @@ export async function POST(request: NextRequest) {
       ipAddress: ipAddress ?? undefined,
       userAgent: userAgent ?? undefined,
     })
+
+    // 접수 확인 이메일 (이메일 있는 경우)
+    if (email) {
+      const tpl = workerRegisteredEmail({ name })
+      await sendEmail({ to: email, ...tpl })
+    }
 
     return NextResponse.json({
       success: true,

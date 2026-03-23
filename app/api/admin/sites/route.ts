@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES, getAccessibleSiteIds } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, created, badRequest, unauthorized, internalError } from '@/lib/utils/response'
 import { generateToken } from '@/lib/utils/random'
@@ -28,7 +28,13 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') ?? '1', 10)
     const pageSize = parseInt(searchParams.get('pageSize') ?? '200', 10)
 
-    const where = includeInactive ? {} : { isActive: true }
+    // SITE_ADMIN / COMPANY_ADMIN scope 필터
+    const accessibleSiteIds = await getAccessibleSiteIds(session)
+
+    const where = {
+      ...(includeInactive ? {} : { isActive: true }),
+      ...(accessibleSiteIds !== null ? { id: { in: accessibleSiteIds } } : {}),
+    }
     const [total, sites] = await Promise.all([
       prisma.site.count({ where }),
       prisma.site.findMany({
@@ -58,6 +64,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
+    // SITE_ADMIN은 현장 신규 생성 불가 (배정된 현장만 관리)
     const deny = requireRole(session, MUTATE_ROLES)
     if (deny) return deny
 

@@ -19,6 +19,31 @@ export const SUPER_ADMIN_ONLY_ROLES = ['SUPER_ADMIN'] as const
 /** 업체 관리자 역할 */
 export const COMPANY_ADMIN_ROLE = 'COMPANY_ADMIN' as const
 
+/** 현장 관리자 역할 */
+export const SITE_ADMIN_ROLE = 'SITE_ADMIN' as const
+
+/** 외부 현장 관리자 역할 (협력사·파트너 — 접근 그룹으로만 현장 접근, 회사 데이터 완전 차단) */
+export const EXTERNAL_SITE_ADMIN_ROLE = 'EXTERNAL_SITE_ADMIN' as const
+
+/**
+ * 현장 범위 접근 역할 (SITE_ADMIN + EXTERNAL_SITE_ADMIN)
+ * - 현장 운영 데이터 읽기 허용
+ * - 회사 수준 데이터는 각각의 canAccessCompany() 검사로 별도 통제
+ */
+export const SITE_SCOPE_ROLES = ['SITE_ADMIN', 'EXTERNAL_SITE_ADMIN'] as const
+
+/**
+ * /admin 포털 진입 허용 역할 (COMPANY_ADMIN 제외, SITE_ADMIN/EXTERNAL_SITE_ADMIN 포함)
+ * middleware에서 COMPANY_ADMIN만 차단하므로 이 목록은 참조용
+ */
+export const ADMIN_PORTAL_ROLES = ['SUPER_ADMIN', 'ADMIN', 'VIEWER', 'SITE_ADMIN', 'EXTERNAL_SITE_ADMIN'] as const
+
+/**
+ * 현장성 데이터 쓰기 허용 역할 (SITE_ADMIN은 scope 내에서만 허용)
+ * EXTERNAL_SITE_ADMIN은 읽기 전용 — 쓰기 작업에는 포함하지 않음
+ */
+export const SITE_MUTATE_ROLES = ['SUPER_ADMIN', 'ADMIN', 'SITE_ADMIN'] as const
+
 // ─── bankAccount 접근 원칙 ───────────────────────────────────────────────────
 
 /**

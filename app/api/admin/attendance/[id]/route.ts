@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES, canAccessSite, siteAccessDeniedWithLog } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { ok, unauthorized, badRequest, notFound, internalError } from '@/lib/utils/response'
@@ -33,6 +33,12 @@ export async function GET(
     })
 
     if (!log) return notFound('출퇴근 기록을 찾을 수 없습니다.')
+
+    // ── site scope 검증 ──────────────────────────────────────────────────────
+    if (!await canAccessSite(session, log.siteId)) {
+      return siteAccessDeniedWithLog(session, log.siteId)
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     const attendanceDay = await prisma.attendanceDay.findFirst({
       where: { workerId: log.workerId, siteId: log.siteId, workDate: log.workDate.toISOString().slice(0, 10) },
@@ -103,6 +109,12 @@ export async function PATCH(
 
     const log = await prisma.attendanceLog.findUnique({ where: { id: params.id } })
     if (!log) return notFound('출퇴근 기록을 찾을 수 없습니다.')
+
+    // ── site scope 검증 ──────────────────────────────────────────────────────
+    if (!await canAccessSite(session, log.siteId)) {
+      return siteAccessDeniedWithLog(session, log.siteId)
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     const updatedLog = await prisma.attendanceLog.update({
       where: { id: params.id },

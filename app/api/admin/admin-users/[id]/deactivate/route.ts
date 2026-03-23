@@ -1,0 +1,31 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getAdminSession } from '@/lib/auth/guards'
+import { prisma } from '@/lib/db/prisma'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
+
+export async function POST(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getAdminSession()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { id } = await params
+
+  const user = await prisma.adminUser.findUnique({ where: { id } })
+  if (!user) return NextResponse.json({ error: '사용자를 찾을 수 없습니다.' }, { status: 404 })
+
+  await prisma.adminUser.update({ where: { id }, data: { isActive: false } })
+
+  await writeAuditLog({
+    actorUserId: session.sub,
+    actorType: 'ADMIN',
+    actionType: 'ADMIN_USER_DEACTIVATE',
+    targetType: 'AdminUser',
+    targetId: id,
+    summary: `관리자 비활성화: ${user.name} (${user.role})`,
+    metadataJson: { companyId: user.companyId },
+  })
+
+  return NextResponse.json({ success: true })
+}

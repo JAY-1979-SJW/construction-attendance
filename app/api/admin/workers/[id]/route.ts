@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES, buildWorkerScopeWhere } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import {
   ok,
@@ -24,8 +24,13 @@ export async function GET(
 
     const { id } = await params
 
-    const worker = await prisma.worker.findUnique({
-      where: { id },
+    // ── site scope 검증 — worker가 접근 가능한 범위에 있는지 확인 ──────────────
+    const workerScope = await buildWorkerScopeWhere(session)
+    if (workerScope === false) return notFound('근로자를 찾을 수 없습니다.')
+    // ────────────────────────────────────────────────────────────────────────
+
+    const worker = await prisma.worker.findFirst({
+      where: { id, ...workerScope },
       include: {
         _count: { select: { devices: { where: { isActive: true } }, attendanceLogs: true } },
         companyAssignments: {
@@ -90,7 +95,12 @@ export async function PUT(
       return badRequest('수정할 항목이 없습니다.')
     }
 
-    const worker = await prisma.worker.findUnique({ where: { id } })
+    // ── site scope 검증 ──────────────────────────────────────────────────────
+    const workerScope = await buildWorkerScopeWhere(session)
+    if (workerScope === false) return notFound('근로자를 찾을 수 없습니다.')
+    // ────────────────────────────────────────────────────────────────────────
+
+    const worker = await prisma.worker.findFirst({ where: { id, ...workerScope } })
     if (!worker) return notFound('근로자를 찾을 수 없습니다.')
 
     // 전화번호 변경 시 중복 검사

@@ -3,7 +3,7 @@ export interface JwtPayload {
   type: 'worker' | 'admin'
   deviceToken?: string
   role?: string
-  companyId?: string  // COMPANY_ADMIN 전용 — 업체 데이터 스코프 기준
+  companyId?: string  // COMPANY_ADMIN / EXTERNAL_SITE_ADMIN — 업체 데이터 스코프 기준
   iat?: number
   exp?: number
 }

@@ -4,6 +4,8 @@ import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { badRequest, unauthorized, forbidden } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { sendEmail } from '@/lib/email/send-email'
+import { companyAdminRejectedEmail } from '@/lib/email/templates'
 
 const schema = z.object({
   rejectReason: z.string().min(1, '반려 사유를 입력하세요.').max(200),
@@ -57,6 +59,15 @@ export async function POST(
       summary: `업체 관리자 신청 반려 — ${req.companyName} / ${req.applicantName}: ${rejectReason}`,
       reason: rejectReason,
     })
+
+    if (req.email) {
+      const tpl = companyAdminRejectedEmail({
+        applicantName: req.applicantName,
+        companyName: req.companyName,
+        rejectReason,
+      })
+      await sendEmail({ to: req.email, ...tpl })
+    }
 
     return NextResponse.json({ success: true, message: '반려 처리되었습니다.' })
   } catch (err) {

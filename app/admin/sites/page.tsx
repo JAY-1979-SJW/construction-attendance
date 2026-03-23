@@ -510,7 +510,9 @@ export default function SitesPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                   <div>
                     <div style={styles.siteName}>
-                      {site.name}
+                      <Link href={`/admin/sites/${site.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                        {site.name}
+                      </Link>
                       <span style={{ ...styles.statusBadge, background: site.isActive ? '#e8f5e9' : '#f5f5f5', color: site.isActive ? '#2e7d32' : '#999' }}>
                         {site.isActive ? '활성' : '비활성'}
                       </span>

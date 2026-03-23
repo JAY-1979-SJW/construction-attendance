@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES, buildWorkerScopeWhere } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, created, badRequest, unauthorized, internalError } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
@@ -26,15 +26,23 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') ?? '1', 10)
     const pageSize = parseInt(searchParams.get('pageSize') ?? '20', 10)
 
-    const where = search
-      ? {
-          OR: [
-            { name: { contains: search } },
-            { phone: { contains: search } },
-            { jobTitle: { contains: search } },
-          ],
-        }
-      : {}
+    // ── site scope 강제 ──────────────────────────────────────────────────────
+    const workerScope = await buildWorkerScopeWhere(session)
+    if (workerScope === false) return ok({ items: [], total: 0, page: 1, pageSize, totalPages: 0 })
+    // ────────────────────────────────────────────────────────────────────────
+
+    const where = {
+      ...workerScope,
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search } },
+              { phone: { contains: search } },
+              { jobTitle: { contains: search } },
+            ],
+          }
+        : {}),
+    }
 
     const [total, workers] = await Promise.all([
       prisma.worker.count({ where }),

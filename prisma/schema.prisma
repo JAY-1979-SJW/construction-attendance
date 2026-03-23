@@ -46,7 +46,9 @@ enum AdminRole {
   SUPER_ADMIN
   ADMIN
   VIEWER
-  COMPANY_ADMIN   // 업체 관리자 — companyId 필수, /company 포털 전용
+  COMPANY_ADMIN         // 업체 관리자 — companyId 필수, /company 포털 전용
+  SITE_ADMIN            // 현장 관리자 — SiteAdminAssignment로 담당 현장 지정, /admin 포털
+  EXTERNAL_SITE_ADMIN   // 외부 현장 관리자 — UserSiteAccessGroup으로 복수 현장 묶음 접근, 회사 데이터 차단
 }
 
 enum CompanyStatus {
@@ -54,6 +56,20 @@ enum CompanyStatus {
   SUSPENDED   // 일시 정지
   EXPIRED     // 사용기간 만료
   DELETED     // 소프트 삭제
+}
+
+enum CompanyVerificationStatus {
+  DRAFT                // 등록됨, 인증 미신청
+  PENDING_VERIFICATION // 인증 서류 제출, 검토 대기
+  VERIFIED             // 인증 완료
+  REJECTED             // 인증 반려
+  INACTIVE             // 비활성 (인증 취소 등)
+}
+
+enum SiteParticipationStatus {
+  PLANNED  // 참여 예정 (인증 전 또는 준비 중)
+  ACTIVE   // 운영 중 (인증 완료 + 관리자 배정)
+  STOPPED  // 참여 중지
 }
 
 enum TimeBucket {
@@ -384,6 +400,76 @@ enum ComplianceReadyStatus {
   EXEMPT       // 해당 없음
 }
 
+// ─── 현장 운영 기록 Enums ─────────────────────────────────
+
+enum SiteNoticeType {
+  GENERAL_NOTICE       // 일반 공지
+  SAFETY_NOTICE        // 안전 공지
+  SCHEDULE_NOTICE      // 일정 공지
+  INSPECTION_NOTICE    // 검측 공지
+  MATERIAL_NOTICE      // 자재 반입 공지
+  ACCESS_CONTROL_NOTICE // 출입 통제 공지
+  EMERGENCY_NOTICE     // 긴급 공지
+}
+
+enum SiteVisibilityScope {
+  ALL_WORKERS            // 전체 근로자
+  SITE_MANAGERS_ONLY     // 현장 관리자 이상
+  HQ_AND_SITE_MANAGERS   // 본사+현장 관리자
+  SPECIFIC_TEAM_ONLY     // 특정 팀만
+}
+
+enum SiteDailyScheduleType {
+  TBM                // TBM (작업 전 안전교육)
+  INSPECTION         // 검측
+  MATERIAL_DELIVERY  // 자재 반입
+  SAFETY_CHECK       // 안전 점검
+  MEETING            // 회의
+  RESTRICTED_ACCESS  // 출입 통제
+  OTHER              // 기타
+}
+
+enum SiteDailyScheduleStatus {
+  PLANNED     // 예정
+  IN_PROGRESS // 진행 중
+  DONE        // 완료
+  CANCELED    // 취소
+  POSTPONED   // 연기
+}
+
+enum SiteWorkerAttendanceStatus {
+  PRESENT  // 출근
+  ABSENT   // 결근
+  LATE     // 지각
+  UNKNOWN  // 미확인
+}
+
+enum SiteTbmParticipationStatus {
+  ATTENDED      // 참석
+  NOT_ATTENDED  // 미참석
+  UNKNOWN       // 미확인
+}
+
+enum SiteSafetyCheckStatus {
+  COMPLETED      // 완료
+  NOT_COMPLETED  // 미완료
+  UNKNOWN        // 미확인
+}
+
+enum SiteWorkAssignedStatus {
+  ASSIGNED      // 배정됨
+  NOT_ASSIGNED  // 미배정
+  UNKNOWN       // 미확인
+}
+
+enum SiteWorkLogStatus {
+  DRAFT      // 작성 중
+  SUBMITTED  // 제출됨
+  RETURNED   // 반려됨
+  APPROVED   // 승인됨
+  LOCKED     // 확정/잠금
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model AdminUser {
@@ -399,6 +485,8 @@ model AdminUser {
   updatedAt    DateTime  @updatedAt
 
   company                 Company?              @relation("AdminUserCompany", fields: [companyId], references: [id], onDelete: Restrict)
+  siteAdminAssignments    SiteAdminAssignment[]
+  siteAccessGroupUsers    UserSiteAccessGroup[]
   processedDeviceRequests DeviceChangeRequest[] @relation("ProcessedBy")
   auditLogs               AdminAuditLog[]
 
@@ -427,14 +515,21 @@ model Company {
   expiresAt          DateTime?     // 사용기간 만료일
   featureFlagsJson   Json?         // 업체별 기능 ON/OFF
   notes              String?
+  // 외부회사 사업자 인증 (PARTNER/SUBCONTRACTOR 등 외부 업체용)
+  externalVerificationStatus CompanyVerificationStatus?
+  verificationNotes          String?
+  verifiedAt                 DateTime?
+  verifiedBy                 String?
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
   // Relations
   adminUsers            AdminUser[]               @relation("AdminUserCompany")
+  joinRequests          CompanyJoinRequest[]
   workerAssignments     WorkerCompanyAssignment[]
   siteAssignments       SiteCompanyAssignment[]
   workerSiteAssignments WorkerSiteAssignment[]
+  siteAdminAssignments  SiteAdminAssignment[]
   insuranceStatuses     WorkerInsuranceStatus[]
   workerDocuments       WorkerDocument[]
   laborCostSummaries    LaborCostSummary[]
@@ -562,6 +657,8 @@ model Worker {
   noticeRecords              WorkerNoticeRecord[]
   terminationReviews         WorkerTerminationReview[]
   terminationSnapshots       WorkerTerminationSnapshot[]
+  // 현장 운영 기록 (v3)
+  dailyWorkerStatuses        SiteDailyWorkerStatus[]
 
   @@map("workers")
 }
@@ -602,11 +699,20 @@ model Site {
   // v2 관계
   companyAssignments         SiteCompanyAssignment[]
   workerAssignments          WorkerSiteAssignment[]
+  adminAssignments           SiteAdminAssignment[]
   bulkImportRows             BulkSiteImportRow[]
   siteJoinRequests           SiteJoinRequest[]
   safetyDocuments            SafetyDocument[]
   // 근무시간 정책
   attendancePolicy           SiteAttendancePolicy?
+  // 현장 운영 기록 (v3)
+  notices                    SiteNotice[]
+  dailySchedules             SiteDailySchedule[]
+  workLogs                   SiteWorkLog[]
+  dailyWorkerStatuses        SiteDailyWorkerStatus[]
+  tbmRecords                 SiteTbmRecord[]
+  workLogSummaries           SiteWorkLogSummary[]
+  accessGroupSites           SiteAccessGroupSite[]
 
   @@map("sites")
 }
@@ -668,11 +774,12 @@ model SiteCompanyAssignment {
   contractType SiteContractType @default(SUBCONTRACT)
   startDate    DateTime
   endDate      DateTime?
-  managerName  String?
-  managerPhone String?
-  notes        String?
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  managerName         String?
+  managerPhone        String?
+  notes               String?
+  participationStatus SiteParticipationStatus @default(PLANNED)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
 
   site    Site    @relation(fields: [siteId], references: [id], onDelete: Cascade)
   company Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
@@ -680,6 +787,90 @@ model SiteCompanyAssignment {
   @@index([siteId])
   @@index([companyId])
   @@map("site_company_assignments")
+}
+
+// ─── SITE_ADMIN 현장 배정 ─────────────────────────────────────────────────────
+
+model SiteAdminAssignment {
+  id         String    @id @default(cuid())
+  userId     String
+  companyId  String
+  siteId     String
+  isActive   Boolean   @default(true)
+  assignedAt DateTime  @default(now())
+  assignedBy String
+  revokedAt  DateTime?
+  revokedBy  String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user    AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  site    Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, siteId])
+  @@index([userId, isActive])
+  @@index([siteId])
+  @@index([companyId])
+  @@map("site_admin_assignments")
+}
+
+// ─── EXTERNAL_SITE_ADMIN 접근 그룹 ───────────────────────────────────────────
+
+// 현장 접근 그룹 — 복수의 현장(회사 경계 초월 가능)을 하나의 접근 단위로 묶음
+// EXTERNAL_SITE_ADMIN 에게 UserSiteAccessGroup 으로 할당
+model SiteAccessGroup {
+  id              String    @id @default(cuid())
+  name            String    // 그룹 이름 (예: "A건설 2026 협력사 그룹")
+  description     String?
+  ownerCompanyId  String?   // 그룹 소유 업체 (null=플랫폼 소유)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  sites SiteAccessGroupSite[]
+  users UserSiteAccessGroup[]
+
+  @@index([ownerCompanyId])
+  @@map("site_access_groups")
+}
+
+// 접근 그룹 ↔ 현장 매핑
+model SiteAccessGroupSite {
+  id            String   @id @default(cuid())
+  accessGroupId String
+  siteId        String
+  addedAt       DateTime @default(now())
+  addedBy       String
+
+  accessGroup SiteAccessGroup @relation(fields: [accessGroupId], references: [id], onDelete: Cascade)
+  site        Site            @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([accessGroupId, siteId])
+  @@index([siteId])
+  @@map("site_access_group_sites")
+}
+
+// 사용자 ↔ 접근 그룹 매핑 (EXTERNAL_SITE_ADMIN 역할 사용자를 특정 그룹에 할당)
+model UserSiteAccessGroup {
+  id            String    @id @default(cuid())
+  userId        String
+  accessGroupId String
+  isActive      Boolean   @default(true)
+  assignedAt    DateTime  @default(now())
+  assignedBy    String
+  revokedAt     DateTime?
+  revokedBy     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user        AdminUser       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessGroup SiteAccessGroup @relation(fields: [accessGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, accessGroupId])
+  @@index([userId, isActive])
+  @@index([accessGroupId])
+  @@map("user_site_access_groups")
 }
 
 // ─── v2: Worker-Site 배정 이력 ────────────────────────────
@@ -1812,6 +2003,31 @@ model CompanyAdminRequest {
   @@map("company_admin_requests")
 }
 
+// ─── 기존 업체 가입 신청 ────────────────────────────────────
+// 이미 시스템에 등록된 업체에 관리자로 합류 요청
+
+model CompanyJoinRequest {
+  id            String                    @id @default(cuid())
+  companyId     String                    // 가입 희망 업체 ID
+  applicantName String
+  phone         String
+  email         String?
+  jobTitle      String?
+  message       String?                   // 신청 메모 (왜 이 업체 관리자가 필요한지)
+  status        CompanyAdminRequestStatus @default(PENDING)
+  requestedAt   DateTime                  @default(now())
+  reviewedAt    DateTime?
+  reviewedBy    String?                   // AdminUser.id
+  rejectReason  String?
+  createdAdminUserId String?              // 승인 후 생성된 AdminUser.id
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, status])
+  @@index([status])
+  @@map("company_join_requests")
+}
+
 // ─── 출퇴근 사진 증빙 ──────────────────────────────────────
 
 model AttendancePhotoEvidence {
@@ -2781,5 +2997,193 @@ model WorkerTerminationSnapshot {
   @@index([workerId])
   @@index([takenAt])
   @@map("worker_termination_snapshots")
+}
+
+// ─── 현장 운영 기록 모델 (v3) ─────────────────────────────
+
+// 현장 공지
+// 일반/안전/일정/검측/자재반입/출입통제/긴급 공지를 통합 관리
+// visibilityScope 로 근로자/관리자 노출 범위를 분리함
+model SiteNotice {
+  id                String             @id @default(cuid())
+  siteId            String
+  title             String
+  content           String             @db.Text
+  noticeType        SiteNoticeType     @default(GENERAL_NOTICE)
+  visibilityScope   SiteVisibilityScope @default(ALL_WORKERS)
+  targetTeamLabel   String?            // SPECIFIC_TEAM_ONLY 일 때 팀 레이블
+  startDate         DateTime           @db.Date
+  endDate           DateTime?          @db.Date
+  isTodayHighlight  Boolean            @default(false)
+  isActive          Boolean            @default(true)
+  createdById       String             // AdminUser.id (FK 미강제, soft ref)
+  updatedById       String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, isActive])
+  @@index([siteId, startDate, endDate])
+  @@map("site_notices")
+}
+
+// 현장 당일 일정
+// 그날 예정된 TBM / 검측 / 자재반입 / 안전점검 / 회의 / 출입통제 이벤트를 관리
+// 공지(사전 전달)와 달리 실행 예정 이벤트 중심
+model SiteDailySchedule {
+  id                  String                  @id @default(cuid())
+  siteId              String
+  scheduleDate        DateTime                @db.Date
+  scheduleType        SiteDailyScheduleType   @default(OTHER)
+  title               String
+  description         String?                 @db.Text
+  plannedStartAt      DateTime?
+  plannedEndAt        DateTime?
+  location            String?
+  responsiblePersonId String?                 // AdminUser.id (soft ref)
+  targetTeamLabel     String?
+  visibilityScope     SiteVisibilityScope     @default(ALL_WORKERS)
+  status              SiteDailyScheduleStatus @default(PLANNED)
+  createdById         String
+  updatedById         String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, scheduleDate])
+  @@index([siteId, scheduleType])
+  @@map("site_daily_schedules")
+}
+
+// 작업일보 본체
+// 하루 현장 운영 결과를 요약하는 문서
+// 출근자명 나열 문서 아님 — 명수 중심 요약 허브
+// memoInternal 은 관리자 전용 (근로자 API 응답에서 제외 필수)
+model SiteWorkLog {
+  id                    String            @id @default(cuid())
+  siteId                String
+  workDate              DateTime          @db.Date
+  status                SiteWorkLogStatus @default(DRAFT)
+  writtenById           String            // AdminUser.id
+  reviewedById          String?
+  approvedById          String?
+  summaryText           String?           @db.Text  // 당일 운영 요약
+  majorWorkText         String?           @db.Text  // 팀별 주요 작업 내용
+  issueText             String?           @db.Text  // 특이사항
+  // ── TBM 요약 ───────────────────────────────────────────────────────────────
+  tbmSummaryText        String?           @db.Text  // TBM 결과 요약 (전달사항 포함)
+  // ── 안전 요약 ──────────────────────────────────────────────────────────────
+  safetySummaryText     String?           @db.Text  // 안전 전달사항 요약
+  safetyHazardText      String?           @db.Text  // 위험요소
+  safetyActionText      String?           @db.Text  // 조치사항 (보호구·통제·시정 등)
+  safetyIncidentOccurred  Boolean         @default(false)  // 사고/아차사고 발생 여부
+  safetyCorrectionNeeded  Boolean         @default(false)  // 시정 조치 필요 여부
+  safetyCorrectionDone    Boolean         @default(false)  // 시정 완료 여부
+  // ── 검측·자재 (2차에서 확장) ────────────────────────────────────────────
+  inspectionSummaryText String?           @db.Text  // 검측 요약
+  materialSummaryText   String?           @db.Text  // 자재 반입 요약
+  memoInternal          String?           @db.Text  // 관리자 전용 메모 — 공개 API 노출 금지
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  site    Site                @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  summary SiteWorkLogSummary?
+
+  @@unique([siteId, workDate])
+  @@index([siteId, workDate])
+  @@index([status])
+  @@map("site_work_logs")
+}
+
+// 작업일보 요약 집계
+// 빠른 조회·출력용 집계 데이터
+// SiteWorkLog 와 1:1 연결, 또는 독립 집계로도 사용 가능
+model SiteWorkLogSummary {
+  id                          String   @id @default(cuid())
+  siteId                      String
+  workDate                    DateTime @db.Date
+  workLogId                   String?  @unique  // SiteWorkLog 연결 (optional)
+  totalPresentCount           Int      @default(0)
+  directWorkerCount           Int      @default(0)
+  subcontractWorkerCount      Int      @default(0)
+  teamCount                   Int      @default(0)
+  tbmConducted                Boolean  @default(false)
+  tbmAttendedCount            Int      @default(0)
+  tbmAbsentCount              Int      @default(0)
+  safetyIssueCount            Int      @default(0)
+  inspectionPlannedCount      Int      @default(0)
+  inspectionDoneCount         Int      @default(0)
+  materialDeliveryPlannedCount Int     @default(0)
+  materialDeliveryDoneCount   Int      @default(0)
+  issueCount                  Int      @default(0)
+  photoCount                  Int      @default(0)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  site    Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  workLog SiteWorkLog? @relation(fields: [workLogId], references: [id])
+
+  @@unique([siteId, workDate])
+  @@index([siteId, workDate])
+  @@map("site_work_log_summaries")
+}
+
+// 당일 인원별 상태
+// 출근자명 전체는 이 모델에서만 조회 (작업일보 본문 직접 삽입 금지)
+// attendance_logs 기반으로 생성/동기화 가능하도록 attendanceLogId 참조 보유
+model SiteDailyWorkerStatus {
+  id                  String                     @id @default(cuid())
+  siteId              String
+  workDate            DateTime                   @db.Date
+  workerId            String
+  companyId           String?
+  teamLabel           String?                    // 팀/반 레이블 (tradeType 기반)
+  attendanceLogId     String?                    // AttendanceLog 연결 (soft ref)
+  attendanceStatus    SiteWorkerAttendanceStatus @default(UNKNOWN)
+  checkInAt           DateTime?
+  checkOutAt          DateTime?
+  tbmStatus           SiteTbmParticipationStatus @default(UNKNOWN)
+  tbmCheckedAt        DateTime?
+  safetyCheckStatus   SiteSafetyCheckStatus      @default(UNKNOWN)
+  safetyCheckedAt     DateTime?
+  workAssignedStatus  SiteWorkAssignedStatus     @default(UNKNOWN)
+  remarks             String?
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
+
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  worker Worker @relation(fields: [workerId], references: [id])
+
+  @@unique([siteId, workDate, workerId])
+  @@index([siteId, workDate])
+  @@index([workerId])
+  @@map("site_daily_worker_statuses")
+}
+
+// TBM 기록
+// TBM 실시 내용과 참석 집계를 보관
+// 1차: count 기반, 2차에서 attendee 개별 relation 확장 가능
+model SiteTbmRecord {
+  id             String    @id @default(cuid())
+  siteId         String
+  workDate       DateTime  @db.Date
+  title          String
+  content        String?   @db.Text
+  conductedAt    DateTime?
+  conductorId    String?   // AdminUser.id (soft ref)
+  attendeeCount  Int       @default(0)
+  absentCount    Int       @default(0)
+  notes          String?
+  createdById    String
+  updatedById    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, workDate])
+  @@map("site_tbm_records")
 }
 

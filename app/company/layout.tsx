@@ -3,8 +3,13 @@ import LogoutButton from './LogoutButton'
 
 const NAV_ITEMS = [
   { href: '/company', label: '대시보드' },
+  { href: '/company/profile', label: '내 회사 정보' },
+  { href: '/company/managers', label: '관리자 관리' },
   { href: '/company/workers', label: '근로자 관리' },
   { href: '/company/attendance', label: '출퇴근 현황' },
+  { href: '/company/approvals', label: '승인 대기' },
+  { href: '/company/worklogs', label: '작업일보' },
+  { href: '/company/notices', label: '공지/일정' },
   { href: '/company/devices', label: '기기 승인' },
   { href: '/company/payroll', label: '공수/급여' },
   { href: '/company/insurance', label: '4대보험' },

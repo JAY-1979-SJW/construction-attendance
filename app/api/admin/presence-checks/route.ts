@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, buildSiteScopeWhere, canAccessSite, siteAccessDeniedWithLog } from '@/lib/auth/guards'
 import { ok, unauthorized, internalError } from '@/lib/utils/response'
 import { toKSTDateString } from '@/lib/utils/date'
 
@@ -18,11 +18,23 @@ export async function GET(req: NextRequest) {
     const onlyNeedsReview = searchParams.get('onlyNeedsReview') === 'true'
     const onlyNoResponse  = searchParams.get('onlyNoResponse') === 'true'
 
+    // ── site scope 강제 ──────────────────────────────────────────────────────
+    let siteScopeFilter: Record<string, unknown> = {}
+    if (siteId) {
+      if (!await canAccessSite(session, siteId)) return siteAccessDeniedWithLog(session, siteId)
+      siteScopeFilter = { siteId }
+    } else {
+      const scope = await buildSiteScopeWhere(session)
+      if (scope === false) return ok({ items: [], summary: { total: 0, completed: 0, pending: 0, noResponse: 0, needsReview: 0 } })
+      siteScopeFilter = scope as Record<string, unknown>
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     const items = await prisma.presenceCheck.findMany({
       where: {
+        ...siteScopeFilter,
         checkDate: date,
         ...(status          ? { status: status as never }  : {}),
-        ...(siteId          ? { siteId }                   : {}),
         ...(onlyNeedsReview ? { needsReview: true }        : {}),
         ...(onlyNoResponse  ? { status: 'NO_RESPONSE' as never } : {}),
         ...(workerName      ? { worker: { name: { contains: workerName, mode: 'insensitive' as never } } } : {}),

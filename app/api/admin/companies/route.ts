@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
   const q = searchParams.get('q') ?? ''
   const companyType = searchParams.get('companyType') ?? ''
   const isActive = searchParams.get('isActive')
+  const verificationStatus = searchParams.get('verificationStatus') ?? ''
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1'))
   const pageSize = Math.min(200, parseInt(searchParams.get('pageSize') ?? '50'))
 
@@ -24,6 +25,7 @@ export async function GET(req: NextRequest) {
     } : {}),
     ...(companyType ? { companyType: companyType as never } : {}),
     ...(isActive !== null && isActive !== '' ? { isActive: isActive === 'true' } : {}),
+    ...(verificationStatus ? { externalVerificationStatus: verificationStatus as never } : {}),
   }
 
   const [total, items] = await Promise.all([

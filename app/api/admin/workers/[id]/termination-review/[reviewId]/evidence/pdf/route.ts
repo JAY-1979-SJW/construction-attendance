@@ -92,7 +92,7 @@ export async function GET(
     const warnings     = (snapshot.warningsJson      as unknown[])           ?? []
     const explanations = (snapshot.explanationsJson  as unknown[])           ?? []
     const notices      = (snapshot.noticesJson       as unknown[])           ?? []
-    const checklist    = (snapshot.checklistJson     as CheckItem[])         ?? []
+    const checklist    = (snapshot.checklistJson     as unknown as CheckItem[]) ?? []
 
     // 현장명 보조
     const siteAssignment = await prisma.workerSiteAssignment.findFirst({
