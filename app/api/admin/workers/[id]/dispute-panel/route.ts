@@ -41,8 +41,8 @@ export async function GET(
         createdAt:      true,
         companyAssignments: {
           where:   { validTo: null },
-          select:  { company: { select: { id: true, companyName: true } }, assignedFrom: true },
-          orderBy: { assignedFrom: 'desc' },
+          select:  { company: { select: { id: true, companyName: true } }, validFrom: true },
+          orderBy: { validFrom: 'desc' },
           take:    1,
         },
       },
