@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import WorkerDisclaimerBanner from '@/components/worker/WorkerDisclaimerBanner'
+import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
 
 interface TodayStatus {
   id: string
@@ -414,7 +416,10 @@ export default function AttendancePage() {
   }
 
   return (
-    <div style={styles.container}>
+    <div style={{ ...styles.container, paddingBottom: '80px' }}>
+      {/* 법적 고지 배너 */}
+      {!isPreview && <WorkerDisclaimerBanner />}
+
       {/* 미리보기 배너 */}
       {isPreview && (
         <div style={styles.previewBanner}>
@@ -657,11 +662,7 @@ export default function AttendancePage() {
         )}
       </div>
 
-      {!isPreview && (
-        <button onClick={() => router.push('/device/change')} style={styles.changeDeviceBtn}>
-          기기 변경 요청
-        </button>
-      )}
+      {!isPreview && <WorkerBottomNav />}
     </div>
   )
 }

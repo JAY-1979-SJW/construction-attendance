@@ -1,29 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth/jwt'
-
-const ADMIN_PUBLIC_PATHS = ['/admin/login', '/api/admin/auth/login', '/super/login', '/api/super/auth/login']
-const ADMIN_PATHS = ['/admin', '/api/admin', '/super', '/api/super']
-
-const COMPANY_PUBLIC_PATHS = ['/company/login', '/api/company/auth/login']
-const COMPANY_PATHS = ['/company', '/api/company']
-
-const PROTECTED_API_PATHS = [
-  '/api/attendance',
-  '/api/device',
-  '/api/auth/me',
-  '/api/auth/logout',
-  '/api/export',
-  '/api/worker',  // 근로자 전용 API (현장 목록, 내 상태 등)
-]
-
-// 회원가입/로그인은 공개 (토큰 불필요)
-const PUBLIC_API_PATHS = [
-  '/api/auth/login',
-  '/api/auth/register',
-  '/api/health',
-  '/api/sites/list',
-  '/api/policies',  // 정책 문서 공개 조회
-]
+import {
+  ADMIN_PUBLIC_PATHS,
+  ADMIN_PATHS,
+  COMPANY_PUBLIC_PATHS,
+  COMPANY_PATHS,
+  WORKER_PROTECTED_PATHS,
+  ROUTE_REDIRECT,
+} from '@/lib/policies/route-policy'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -45,12 +29,12 @@ export async function middleware(request: NextRequest) {
     try {
       const payload = await verifyToken(token)
       if (!payload || payload.type !== 'admin') throw new Error('Invalid token type')
-      // COMPANY_ADMIN이 /admin 또는 /super 접근 시 /company로 리다이렉트
+      // COMPANY_ADMIN이 /admin 또는 /super 접근 시 → ROUTE_REDIRECT.COMPANY_ADMIN_MISMATCH
       if (payload.role === 'COMPANY_ADMIN') {
         if (pathname.startsWith('/api/')) {
           return NextResponse.json({ success: false, message: '업체 관리자 포털을 이용해주세요.' }, { status: 403 })
         }
-        return NextResponse.redirect(new URL('/company', request.url))
+        return NextResponse.redirect(new URL(ROUTE_REDIRECT.COMPANY_ADMIN_MISMATCH, request.url))
       }
     } catch {
       if (pathname.startsWith('/api/')) {
@@ -77,12 +61,12 @@ export async function middleware(request: NextRequest) {
     try {
       const payload = await verifyToken(token)
       if (!payload || payload.type !== 'admin') throw new Error('Invalid token type')
-      // 플랫폼 관리자가 /company 접근 시 /admin으로 리다이렉트
+      // 플랫폼 관리자가 /company 접근 시 → ROUTE_REDIRECT.PLATFORM_ADMIN_MISMATCH
       if (payload.role !== 'COMPANY_ADMIN') {
         if (pathname.startsWith('/api/')) {
           return NextResponse.json({ success: false, message: '업체 관리자 전용 경로입니다.' }, { status: 403 })
         }
-        return NextResponse.redirect(new URL('/admin', request.url))
+        return NextResponse.redirect(new URL(ROUTE_REDIRECT.PLATFORM_ADMIN_MISMATCH, request.url))
       }
     } catch {
       if (pathname.startsWith('/api/')) {
@@ -93,7 +77,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── Worker API 경로 ──────────────────────────────────────────
-  if (PROTECTED_API_PATHS.some((p) => pathname.startsWith(p))) {
+  if (WORKER_PROTECTED_PATHS.some((p) => pathname.startsWith(p))) {
     const token = request.cookies.get('worker_token')?.value
     if (!token) {
       return NextResponse.json({ success: false, message: '로그인이 필요합니다.' }, { status: 401 })

@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
@@ -51,7 +51,10 @@ export async function GET(
     })
     if (!worker) return notFound('근로자를 찾을 수 없습니다.')
 
-    return ok(worker)
+    // 레거시 bankName / bankAccount 는 응답에서 제거 — 신규 구조(bankAccountSecure)만 반환
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { bankName: _legacyBankName, bankAccount: _legacyBankAccount, ...workerSafe } = worker as typeof worker & { bankName?: string; bankAccount?: string }
+    return ok(workerSafe)
   } catch (err) {
     console.error('[admin/workers/[id] GET]', err)
     return internalError()
@@ -128,61 +131,57 @@ export async function PUT(
   }
 }
 
-// ─── DELETE /api/admin/workers/[id] — 근로자 비활성화(soft delete) ───────────
-
+// ─── DELETE /api/admin/workers/[id] — 종료 처리 체크리스트 미완료 시 차단 ─────
+//
+// 직접 isActive=false 변경은 금지.
+// 반드시 /termination-review/[reviewId]/confirm 을 통해 종료 처리해야 함.
+//
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    const session = await getAdminSession()
-    if (!session) return unauthorized()
-    const deny = requireRole(session, MUTATE_ROLES)
-    if (deny) return deny
+  const session = await getAdminSession()
+  if (!session) return unauthorized()
 
-    const { id } = await params
+  const { id } = await params
 
+  // SUPER_ADMIN은 긴급 상황용으로 직접 비활성화 허용 (단, 감사로그 기록)
+  if (session.role === 'SUPER_ADMIN') {
     const worker = await prisma.worker.findUnique({
       where: { id },
-      include: {
-        _count: { select: { attendanceLogs: true } },
-      },
+      include: { _count: { select: { attendanceLogs: true } } },
     })
     if (!worker) return notFound('근로자를 찾을 수 없습니다.')
+    if (!worker.isActive) return badRequest('이미 비활성화된 근로자입니다.')
 
-    if (!worker.isActive) {
-      return badRequest('이미 비활성화된 근로자입니다.')
-    }
-
-    // 출퇴근 이력이 있으면 hard delete 불가 → soft delete (isActive=false)
-    // 이력이 없더라도 일관성을 위해 soft delete 유지
     await prisma.$transaction([
-      // 활성 기기 모두 비활성화
-      prisma.workerDevice.updateMany({
-        where: { workerId: id, isActive: true },
-        data: { isActive: false },
-      }),
-      // 근로자 비활성화
-      prisma.worker.update({
-        where: { id },
-        data: { isActive: false },
-      }),
+      prisma.workerDevice.updateMany({ where: { workerId: id, isActive: true }, data: { isActive: false } }),
+      prisma.worker.update({ where: { id }, data: { isActive: false, accountStatus: 'SUSPENDED' } }),
     ])
 
     await writeAuditLog({
-      adminId: session.sub,
-      actionType: 'DEACTIVATE_WORKER',
-      targetType: 'Worker',
-      targetId: id,
-      description: `근로자 비활성화: ${worker.name} (${worker.phone}) | 출퇴근 이력 ${worker._count.attendanceLogs}건 보존`,
+      actorUserId: session.sub,
+      actorRole:   session.role,
+      actionType:  'WORKER_FORCE_DEACTIVATED',
+      targetType:  'Worker',
+      targetId:    id,
+      summary:     `[SUPER_ADMIN 긴급 비활성화] ${worker.name} — 종료 체크리스트 미완료`,
     })
 
-    return ok(
-      { id, hasHistory: worker._count.attendanceLogs > 0 },
-      '근로자가 비활성화되었습니다. 출퇴근 이력은 보존됩니다.'
-    )
-  } catch (err) {
-    console.error('[admin/workers/[id] DELETE]', err)
-    return internalError()
+    return ok({ id }, '[SUPER_ADMIN] 근로자가 긴급 비활성화되었습니다. 종료 체크리스트를 사후 처리해 주세요.')
   }
+
+  // 일반 관리자 — 종료 체크리스트 완료 여부 확인
+  const confirmedReview = await prisma.workerTerminationReview.findFirst({
+    where: { workerId: id, status: 'CONFIRMED' },
+  })
+
+  if (!confirmedReview) {
+    return NextResponse.json({
+      error: '종료 처리는 체크리스트를 완료해야 합니다.',
+      redirect: `/admin/workers/${id}/termination`,
+    }, { status: 403 })
+  }
+
+  return ok({ id }, '종료 처리는 체크리스트를 통해 완료되었습니다.')
 }

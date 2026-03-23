@@ -81,6 +81,8 @@ enum EmploymentType {
   REGULAR              // 상용근로자
   DAILY_CONSTRUCTION   // 건설 일용근로자
   BUSINESS_33          // 3.3% 사업소득
+  FIXED_TERM           // 기간제 근로자
+  CONTINUOUS_SITE      // 계속근로형 현장근로자
   OTHER                // 기타
 }
 
@@ -437,6 +439,17 @@ model Company {
   workerDocuments       WorkerDocument[]
   laborCostSummaries    LaborCostSummary[]
   companySettlements    CompanySettlement[]
+  // 분쟁방어 패널
+  disputeCases          DisputeCase[]
+  defensePanelSnapshots DefensePanelSnapshot[]
+  documentDeliveryLogs  DocumentDeliveryLog[]
+  attendanceAdjustmentLogs AttendanceAdjustmentLog[]
+  // 관리행위
+  warningRecords        WorkerWarningRecord[]
+  explanationRequests   WorkerExplanationRequest[]
+  noticeRecords         WorkerNoticeRecord[]
+  terminationReviews    WorkerTerminationReview[]
+  terminationSnapshots  WorkerTerminationSnapshot[]
 
   @@map("companies")
 }
@@ -462,7 +475,11 @@ model Worker {
   residentIdMasked          String?
   foreignerYn               Boolean          @default(false)
   nationalityCode           String?          @default("KR")
+  /// @deprecated — 레거시 평문 은행명. 신규 구조: bankAccountSecure.bankName
+  /// 삭제 준비 완료 (migrate-bank-legacy.mjs 이행 후 bank_legacy_column_drop_PENDING migration 적용)
   bankName                  String?
+  /// @deprecated — 레거시 평문 계좌번호. 보안 원칙상 신규 이행 없음, 재입력 필요
+  /// 삭제 준비 완료 (bank_legacy_column_drop_PENDING migration 참조)
   bankAccount               String?
   employmentType            EmploymentType   @default(DAILY_CONSTRUCTION)
   incomeType                IncomeType       @default(DAILY_WAGE)
@@ -533,6 +550,18 @@ model Worker {
   profile                    WorkerProfile?
   generatedDocuments         GeneratedDocument[]
   safetyDocuments            SafetyDocument[]
+  // 분쟁방어 패널
+  disputeCases               DisputeCase[]
+  defensePanelSnapshots      DefensePanelSnapshot[]
+  documentDeliveryLogs       DocumentDeliveryLog[]
+  attendanceAdjustmentLogs   AttendanceAdjustmentLog[]
+  workerRequests             WorkerRequest[]
+  // 관리행위 (경고·소명·통지·종료)
+  warningRecords             WorkerWarningRecord[]
+  explanationRequests        WorkerExplanationRequest[]
+  noticeRecords              WorkerNoticeRecord[]
+  terminationReviews         WorkerTerminationReview[]
+  terminationSnapshots       WorkerTerminationSnapshot[]
 
   @@map("workers")
 }
@@ -576,8 +605,34 @@ model Site {
   bulkImportRows             BulkSiteImportRow[]
   siteJoinRequests           SiteJoinRequest[]
   safetyDocuments            SafetyDocument[]
+  // 근무시간 정책
+  attendancePolicy           SiteAttendancePolicy?
 
   @@map("sites")
+}
+
+// ─── 현장별 근무시간·휴게시간 정책 ────────────────────────────
+
+// 현장별 출퇴근·휴게 운영 정책
+// null 값 = 회사 기본값 사용 (COMPANY_DEFAULT_* 상수)
+// 실제 적용값은 resolveEffectiveSiteAttendancePolicy(siteId) 를 통해 조회
+// 공수 계산에 직접 영향: breakMinutes / workStartTime·workEndTime 은 표시용
+model SiteAttendancePolicy {
+  id             String   @id @default(cuid())
+  siteId         String   @unique
+
+  workStartTime  String?  // 출근 기준 시각 (HH:mm, 표시용) e.g. "07:00"
+  workEndTime    String?  // 퇴근 기준 시각 (HH:mm, 표시용) e.g. "17:00"
+  breakStartTime String?  // 휴게 시작 시각 (HH:mm, 표시용) e.g. "12:00"
+  breakEndTime   String?  // 휴게 종료 시각 (HH:mm, 표시용) e.g. "13:00"
+  breakMinutes   Int?     // 공수 계산 차감 휴게시간(분), null = 회사 기본값 60분
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  site           Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@map("site_attendance_policies")
 }
 
 // ─── v2: Worker-Company 소속 이력 ─────────────────────────
@@ -2285,5 +2340,446 @@ enum GeneratedDocumentType {
   SITE_INSPECTION_RECORD        // 순회점검 기록
   SUBCONTRACTOR_EDUCATION_RECORD // 수급인 교육실시 확인 기록
   OTHER                          // 기타
+}
+
+// ─── 분쟁방어 패널 Enums ──────────────────────────────────────────────────────
+
+enum DisputeType {
+  WAGE              // 임금 분쟁
+  ATTENDANCE        // 출퇴근 분쟁
+  CONTRACT          // 계약 분쟁
+  TERMINATION       // 종료/해고 분쟁
+  DOCUMENT_DELIVERY // 문서 미교부 분쟁
+}
+
+enum DisputeStatus {
+  OPEN        // 진행 중
+  MONITORING  // 모니터링
+  RESOLVED    // 해결됨
+  CLOSED      // 종결
+}
+
+enum DocumentDeliveryMethod {
+  APP_SIGNATURE    // 앱 서명
+  EMAIL            // 이메일
+  KAKAO            // 카카오톡
+  PAPER            // 서면 교부
+  REGISTERED_MAIL  // 등기우편
+  OTHER            // 기타
+}
+
+enum DocumentDeliveryStatus {
+  DELIVERED   // 교부 완료
+  FAILED      // 교부 실패
+  PENDING     // 교부 대기
+  REJECTED    // 수령 거부
+}
+
+enum WorkerRequestCategory {
+  MISSING_CHECKIN    // 출근 누락
+  MISSING_CHECKOUT   // 퇴근 누락
+  CONTACT_CHANGE     // 연락처 변경
+  CONTRACT_REVIEW    // 계약서 재열람 요청
+  DOCUMENT_REQUEST   // 서류 발급 요청
+  DEVICE_CHANGE      // 기기 변경 요청
+  OTHER              // 기타 문의
+}
+
+enum WorkerRequestStatus {
+  PENDING   // 접수
+  REVIEWED  // 확인됨
+  RESOLVED  // 처리 완료
+  REJECTED  // 반려
+}
+
+// ─── 관리자 노동법 FAQ ──────────────────────────────────────────────────────
+
+model LaborFaq {
+  id                   String   @id @default(cuid())
+  category             String   // CONTRACT_TYPE | DAILY_WORKER | REGULAR | FIXED_TERM | REPEATED_CONTRACT | OUTSOURCING | DOCUMENT_SELECTION | LEGAL_WARNING
+  question             String
+  questionAliases      Json     @default("[]")  // string[]
+  shortAnswer          String
+  fullAnswer           String   @db.Text
+  appRule              String?  // 앱 처리 기준
+  caution              String?  // 주의사항
+  sourceOrg            String   // 출처 기관
+  sourceTitle          String   // 출처 문서명
+  sourceUrl            String?  // 출처 URL
+  effectiveDate        String   // 'YYYY-MM-DD'
+  lastReviewedAt       DateTime?
+  relatedContractTypes Json     @default("[]")  // string[] ('DAILY_EMPLOYMENT', 'REGULAR_EMPLOYMENT', 'FIXED_TERM_EMPLOYMENT', ...)
+  triggerConditions    Json     @default("[]")  // TriggerCondition[]
+  priority             Int      @default(50)    // 1~100, 높을수록 우선 노출
+  status               String   @default("APPROVED") // DRAFT | REVIEWED | APPROVED | INACTIVE
+  isActive             Boolean  @default(true)
+  viewCount            Int      @default(0)
+  createdBy            String?
+  updatedBy            String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  changeLogs LaborFaqChangeLog[]
+
+  @@index([category])
+  @@index([status, isActive])
+  @@index([priority(sort: Desc)])
+  @@map("labor_faqs")
+}
+
+model LaborFaqChangeLog {
+  id             String   @id @default(cuid())
+  faqId          String
+  changedBy      String
+  changedAt      DateTime @default(now())
+  changeType     String   // CREATE | UPDATE | ACTIVATE | DEACTIVATE | STATUS_CHANGE
+  beforeSnapshot Json?
+  afterSnapshot  Json?
+  note           String?
+
+  faq LaborFaq @relation(fields: [faqId], references: [id], onDelete: Cascade)
+
+  @@index([faqId])
+  @@index([changedAt])
+  @@map("labor_faq_change_logs")
+}
+
+// ─── 분쟁방어 패널 ──────────────────────────────────────────────────────────
+
+model DisputeCase {
+  id              String        @id @default(cuid())
+  workerId        String
+  companyId       String
+  siteId          String?
+  disputeType     DisputeType
+  status          DisputeStatus @default(OPEN)
+  title           String
+  summary         String?       @db.Text
+  openedAt        DateTime      @default(now())
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+  openedBy        String        // admin user id
+  defenseScore    Int?          // 0-100, evidence completeness score
+  metadataJson    Json?         // dispute-type specific fields
+
+  worker   Worker  @relation(fields: [workerId], references: [id])
+  company  Company @relation(fields: [companyId], references: [id])
+
+  notes     DisputeCaseNote[]
+  snapshots DefensePanelSnapshot[]
+
+  @@index([workerId])
+  @@index([companyId])
+  @@index([status])
+  @@index([disputeType])
+  @@map("dispute_cases")
+}
+
+model DisputeCaseNote {
+  id          String   @id @default(cuid())
+  caseId      String
+  authorId    String   // admin user id
+  content     String   @db.Text
+  isInternal  Boolean  @default(true) // true = 관리자 내부 메모, false = 처리 결과
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  case DisputeCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@index([createdAt])
+  @@map("dispute_case_notes")
+}
+
+model DefensePanelSnapshot {
+  id          String      @id @default(cuid())
+  caseId      String?
+  workerId    String
+  companyId   String
+  takenBy     String      // admin user id
+  snapshotJson Json       // full panel state at time of export
+  exportedAt  DateTime    @default(now())
+  reason      String?     // why snapshot was taken
+
+  case    DisputeCase? @relation(fields: [caseId], references: [id])
+  worker  Worker       @relation(fields: [workerId], references: [id])
+  company Company      @relation(fields: [companyId], references: [id])
+
+  @@index([workerId])
+  @@index([caseId])
+  @@index([exportedAt])
+  @@map("defense_panel_snapshots")
+}
+
+model DocumentDeliveryLog {
+  id             String                  @id @default(cuid())
+  workerId       String
+  companyId      String
+  documentType   String                  // matches DocumentType enum values
+  contractId     String?
+  deliveryMethod DocumentDeliveryMethod
+  status         DocumentDeliveryStatus
+  deliveredAt    DateTime?
+  deliveredBy    String?                 // admin user id if manually recorded
+  signatureJson  Json?                   // signature data / confirmation blob
+  metadataJson   Json?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  worker  Worker  @relation(fields: [workerId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([workerId])
+  @@index([companyId])
+  @@index([documentType])
+  @@index([status])
+  @@map("document_delivery_logs")
+}
+
+model AttendanceAdjustmentLog {
+  id                  String   @id @default(cuid())
+  attendanceRecordId  String   // WorkAttendance id
+  workerId            String
+  companyId           String
+  adjustedBy          String   // admin user id
+  field               String   // 'checkInAt' | 'checkOutAt' | 'workedMinutes' | 'status'
+  beforeValue         String?
+  afterValue          String?
+  reason              String   @db.Text
+  approvedBy          String?  // second approver if required
+  createdAt           DateTime @default(now())
+
+  worker  Worker  @relation(fields: [workerId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([attendanceRecordId])
+  @@index([workerId])
+  @@index([adjustedBy])
+  @@index([createdAt])
+  @@map("attendance_adjustment_logs")
+}
+
+// ─── 근로자 제한형 요청 ──────────────────────────────────────────────────────
+
+model WorkerRequest {
+  id           String                @id @default(cuid())
+  workerId     String
+  companyId    String?
+  siteId       String?
+  category     WorkerRequestCategory
+  status       WorkerRequestStatus   @default(PENDING)
+  content      String                @db.Text  // max 200자 enforced at app level
+  adminMemo    String?               @db.Text  // admin-only response/note
+  reviewedBy   String?               // admin user id
+  reviewedAt   DateTime?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  worker  Worker   @relation(fields: [workerId], references: [id])
+
+  @@index([workerId])
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+  @@map("worker_requests")
+}
+
+// ─── 관리행위 (경고·소명·통지·종료) Enums ─────────────────────────────────────
+
+enum WarningLevel {
+  VERBAL   // 구두 경고
+  WRITTEN  // 서면 경고
+  FINAL    // 최종 경고 (종료 전)
+}
+
+enum ExplanationStatus {
+  PENDING    // 소명 요청됨
+  SUBMITTED  // 소명 제출됨
+  REVIEWED   // 검토 완료
+  CLOSED     // 종결
+}
+
+enum NoticeType {
+  CONTRACT_END  // 계약만료 통지
+  TERMINATION   // 종료/해고 통지
+  SUSPENSION    // 업무 정지 통지
+  WARNING       // 경고 통지
+  OTHER         // 기타
+}
+
+enum TerminationReason {
+  CONTRACT_EXPIRY      // 계약기간 만료
+  VOLUNTARY_RESIGN     // 자진 퇴사
+  MUTUAL_AGREEMENT     // 합의 종료
+  DISCIPLINARY         // 징계성 종료
+  ABSENCE              // 무단결근 후 종료
+  PERFORMANCE          // 업무 부적합
+  SITE_CLOSURE         // 현장 종료
+  REPEATED_ABSENCE     // 반복 미출근
+  INSTRUCTION_REFUSAL  // 지시 불이행
+  OTHER                // 기타
+}
+
+enum TerminationReviewStatus {
+  DRAFT       // 작성 중
+  IN_PROGRESS // 점검 진행 중
+  CONFIRMED   // 종료 확정
+  CANCELLED   // 취소됨
+}
+
+// ─── 경고 기록 ────────────────────────────────────────────────────────────────
+
+model WorkerWarningRecord {
+  id            String       @id @default(cuid())
+  workerId      String
+  companyId     String
+  issuedBy      String       // admin user id
+  warningLevel  WarningLevel
+  reason        String       @db.Text
+  detailMemo    String?      @db.Text
+  workerAcknowledged Boolean @default(false)
+  acknowledgedAt DateTime?
+  relatedAttendanceDate String?  // 'YYYY-MM-DD' 관련 출근일
+  documentPath  String?      // 첨부 경고장 파일 경로
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  worker  Worker  @relation(fields: [workerId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([workerId])
+  @@index([companyId])
+  @@index([createdAt])
+  @@map("worker_warning_records")
+}
+
+// ─── 소명 요청 ────────────────────────────────────────────────────────────────
+
+model WorkerExplanationRequest {
+  id           String            @id @default(cuid())
+  workerId     String
+  companyId    String
+  requestedBy  String            // admin user id
+  status       ExplanationStatus @default(PENDING)
+  subject      String            // 소명 요청 제목
+  reason       String            @db.Text  // 소명 요청 사유
+  deadline     DateTime?         // 소명 제출 기한
+  workerReply  String?           @db.Text  // 근로자 답변
+  repliedAt    DateTime?
+  reviewNote   String?           @db.Text  // 관리자 검토 결과
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  relatedWarningId String?       // 관련 경고 ID
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  worker  Worker  @relation(fields: [workerId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([workerId])
+  @@index([companyId])
+  @@index([status])
+  @@map("worker_explanation_requests")
+}
+
+// ─── 통지 기록 ────────────────────────────────────────────────────────────────
+
+model WorkerNoticeRecord {
+  id              String     @id @default(cuid())
+  workerId        String
+  companyId       String
+  noticeType      NoticeType
+  issuedBy        String     // admin user id
+  title           String
+  content         String     @db.Text
+  effectiveDate   String?    // 'YYYY-MM-DD'
+  deliveredAt     DateTime?
+  deliveryMethod  String?    // APP | EMAIL | PAPER | KAKAO
+  workerConfirmed Boolean    @default(false)
+  confirmedAt     DateTime?
+  documentPath    String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  worker  Worker  @relation(fields: [workerId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([workerId])
+  @@index([companyId])
+  @@index([noticeType])
+  @@map("worker_notice_records")
+}
+
+// ─── 종료 처리 검토 ───────────────────────────────────────────────────────────
+
+model WorkerTerminationReview {
+  id                    String                  @id @default(cuid())
+  workerId              String
+  companyId             String
+  initiatedBy           String                  // admin user id
+  status                TerminationReviewStatus @default(DRAFT)
+
+  // 6-4. 기본정보
+  terminationReason     TerminationReason?
+  terminationDate       String?                 // 'YYYY-MM-DD'
+  reasonCategory        String?
+  detailReason          String?                 @db.Text
+
+  // 6-5. 자동점검 결과 (JSON: { item: string, passed: boolean, severity: 'OK'|'WARN'|'DANGER'|'CRITICAL' }[])
+  autoCheckResultJson   Json?
+
+  // 6-7. 관리자 최종확인 체크박스
+  confirmCheckedReason        Boolean @default(false)  // 종료 사유 확인
+  confirmCheckedDocuments     Boolean @default(false)  // 관련 문서 확인
+  confirmCheckedDelivery      Boolean @default(false)  // 교부/통지 상태 확인
+  confirmCheckedWage          Boolean @default(false)  // 미정산 여부 확인
+  confirmCheckedDispute       Boolean @default(false)  // 분쟁 가능성 검토
+
+  confirmedBy   String?
+  confirmedAt   DateTime?
+  cancelledBy   String?
+  cancelledAt   DateTime?
+  cancelReason  String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  worker   Worker   @relation(fields: [workerId], references: [id])
+  company  Company  @relation(fields: [companyId], references: [id])
+  snapshot WorkerTerminationSnapshot?
+
+  @@index([workerId])
+  @@index([companyId])
+  @@index([status])
+  @@map("worker_termination_reviews")
+}
+
+// ─── 종료 스냅샷 ─────────────────────────────────────────────────────────────
+
+model WorkerTerminationSnapshot {
+  id         String   @id @default(cuid())
+  reviewId   String   @unique
+  workerId   String
+  companyId  String
+  takenBy    String   // admin user id
+  takenAt    DateTime @default(now())
+
+  // 6-8. 저장 항목 (전체 상태 스냅샷)
+  workerJson          Json  // 근로자 기본정보
+  contractsJson       Json  // 계약 이력
+  attendanceSummaryJson Json // 출퇴근 요약
+  documentsJson       Json  // 문서 목록
+  warningsJson        Json  // 경고 이력
+  explanationsJson    Json  // 소명 이력
+  noticesJson         Json  // 통지 이력
+  checklistJson       Json  // 체크리스트 결과
+
+  review  WorkerTerminationReview @relation(fields: [reviewId], references: [id])
+  worker  Worker                  @relation(fields: [workerId], references: [id])
+  company Company                 @relation(fields: [companyId], references: [id])
+
+  @@index([workerId])
+  @@index([takenAt])
+  @@map("worker_termination_snapshots")
 }
 

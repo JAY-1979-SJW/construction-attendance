@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import WorkerDisclaimerBanner from '@/components/worker/WorkerDisclaimerBanner'
+import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
 
 interface BlockReason {
   code: string
@@ -119,7 +121,8 @@ export default function MyStatusPage() {
   }
 
   return (
-    <div style={s.page}>
+    <div style={{ ...s.page, paddingBottom: '88px' }}>
+      <WorkerDisclaimerBanner />
       <div style={s.container}>
         <h1 style={s.title}>내 상태</h1>
 
@@ -289,10 +292,8 @@ export default function MyStatusPage() {
           </div>
         )}
 
-        <div style={{ textAlign: 'center', marginTop: '8px' }}>
-          <Link href="/" style={s.backLink}>출퇴근 화면으로</Link>
-        </div>
       </div>
+      <WorkerBottomNav />
     </div>
   )
 }

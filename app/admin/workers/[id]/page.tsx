@@ -71,10 +71,7 @@ interface WorkerDetail {
   skillLevel?: string | null
   foreignerYn: boolean
   nationalityCode?: string | null
-  // 레거시 필드 — 신규 계좌는 bankAccountSecure 사용
-  bankName?: string | null
-  bankAccount?: string | null
-  // 신규 암호화 계좌 (마스킹값)
+  // 신규 암호화 계좌 (마스킹값) — 레거시 bankName/bankAccount 제거됨
   bankAccountSecure?: { bankName: string | null; accountNumberMasked: string | null } | null
   retirementMutualStatus: string
   retirementMutualTargetYn: boolean
@@ -90,7 +87,7 @@ interface WorkerDetail {
 
 // ─── 탭 종류 ──────────────────────────────────────────────────────────────────
 
-type Tab = 'info' | 'profile' | 'company' | 'site' | 'insurance' | 'docs' | 'contracts' | 'safety'
+type Tab = 'info' | 'profile' | 'company' | 'site' | 'insurance' | 'docs' | 'contracts' | 'safety' | 'hrActions'
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
@@ -292,14 +289,22 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
               </span>
             </h1>
           </div>
-          <div style={{ fontSize: '13px', color: '#666' }}>
-            {fmtPhone(worker.phone)} · {worker.jobTitle} · 기기 {worker._count.devices}대 · 출퇴근 {worker._count.attendanceLogs}건
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ fontSize: '13px', color: '#666' }}>
+              {fmtPhone(worker.phone)} · {worker.jobTitle} · 기기 {worker._count.devices}대 · 출퇴근 {worker._count.attendanceLogs}건
+            </div>
+            <Link
+              href={`/admin/workers/${worker.id}/dispute-panel`}
+              style={{ fontSize: '13px', fontWeight: 700, color: '#c62828', background: '#fff3e0', border: '1px solid #ffcc80', borderRadius: '8px', padding: '5px 14px', textDecoration: 'none' }}
+            >
+              분쟁방어 패널 →
+            </Link>
           </div>
         </div>
 
         {/* 탭 */}
         <div style={s.tabBar}>
-          {([['info', '기본정보'], ['profile', '분류정보'], ['company', '회사배정'], ['site', '현장배정'], ['insurance', '보험상태'], ['contracts', '계약서'], ['safety', '안전문서'], ['docs', '문서']] as [Tab, string][]).map(([key, label]) => (
+          {([['info', '기본정보'], ['profile', '분류정보'], ['company', '회사배정'], ['site', '현장배정'], ['insurance', '보험상태'], ['contracts', '계약서'], ['safety', '안전문서'], ['docs', '문서'], ['hrActions', '경고·소명']] as [Tab, string][]).map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)} style={{ ...s.tabBtn, ...(tab === key ? s.tabActive : {}) }}>
               {label}
               {key === 'company' && worker.companyAssignments.length > 0 && (
@@ -340,7 +345,29 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
           {tab === 'docs' && <DocsTab workerId={worker.id} />}
           {tab === 'contracts' && <ContractsTab workerId={worker.id} />}
           {tab === 'safety' && <SafetyDocsTab workerId={worker.id} />}
+          {tab === 'hrActions' && <HrActionsTab workerId={worker.id} workerName={worker.name} />}
         </div>
+
+        {/* 종료 처리 */}
+        {worker.isActive && (
+          <div style={{ background: '#fff3e0', border: '1px solid #ffcc80', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px' }}>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: '#e65100' }}>종료 처리</div>
+              <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>체크리스트 완료 후 종료 확정이 가능합니다. 단순 상태 변경은 허용되지 않습니다.</div>
+            </div>
+            <Link
+              href={`/admin/workers/${worker.id}/termination`}
+              style={{ padding: '10px 20px', background: '#e65100', color: '#fff', borderRadius: '8px', fontSize: '13px', fontWeight: 700, textDecoration: 'none', flexShrink: 0 }}
+            >
+              종료 처리 시작 →
+            </Link>
+          </div>
+        )}
+        {!worker.isActive && (
+          <div style={{ background: '#f5f5f5', border: '1px solid #bdbdbd', borderRadius: '12px', padding: '14px 20px', marginTop: '16px', fontSize: '13px', color: '#999', textAlign: 'center' }}>
+            이 근로자는 이미 종료(비활성화) 처리되었습니다.
+          </div>
+        )}
       </main>
 
       {/* ── 회사 배정 모달 ─────────────────────────────────────── */}
@@ -510,7 +537,7 @@ function InfoTab({ worker }: { worker: WorkerDetail }) {
     ['외국인', worker.foreignerYn ? `예 (${worker.nationalityCode ?? '—'})` : '아니오'],
     ['계좌', worker.bankAccountSecure
       ? `${worker.bankAccountSecure.bankName ?? '—'} / ${worker.bankAccountSecure.accountNumberMasked ?? '****'}`
-      : worker.bankName ? `${worker.bankName} / ****` : '미등록 (개인정보 관리에서 입력)'],
+      : '미등록 (개인정보 관리에서 입력)'],
     ['퇴직공제 대상', worker.retirementMutualTargetYn ? '대상' : '비대상'],
     ['퇴직공제 상태', worker.retirementMutualStatus],
     ['4대보험 적용', worker.fourInsurancesEligibleYn ? '적용' : '미적용'],
@@ -1687,6 +1714,243 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// ─── HrActionsTab: 경고·소명·통지 ─────────────────────────────────────────────
+
+function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: string }) {
+  const [warnings,      setWarnings]      = React.useState<Record<string, unknown>[]>([])
+  const [explanations,  setExplanations]  = React.useState<Record<string, unknown>[]>([])
+  const [notices,       setNotices]       = React.useState<Record<string, unknown>[]>([])
+  const [loading,       setLoading]       = React.useState(true)
+  const [showWarning,   setShowWarning]   = React.useState(false)
+  const [showNotice,    setShowNotice]    = React.useState(false)
+  const [showExplain,   setShowExplain]   = React.useState(false)
+
+  // 경고 작성 form
+  const [wForm, setWForm] = React.useState({ warningLevel: 'WRITTEN', reason: '', detailMemo: '' })
+  // 통지 작성 form
+  const [nForm, setNForm] = React.useState({ noticeType: 'TERMINATION', title: '', content: '', effectiveDate: '' })
+  // 소명 작성 form
+  const [eForm, setEForm] = React.useState({ subject: '', reason: '', deadline: '' })
+  const [saving, setSaving] = React.useState(false)
+
+  React.useEffect(() => {
+    Promise.all([
+      fetch(`/api/admin/workers/${workerId}/warnings`).then(r => r.json()),
+      fetch(`/api/admin/workers/${workerId}/explanations`).then(r => r.json()),
+      fetch(`/api/admin/workers/${workerId}/notices`).then(r => r.json()),
+    ]).then(([w, e, n]) => {
+      setWarnings(w.warnings ?? [])
+      setExplanations(e.explanations ?? [])
+      setNotices(n.notices ?? [])
+      setLoading(false)
+    })
+  }, [workerId])
+
+  async function submitWarning() {
+    if (!wForm.reason.trim()) return
+    setSaving(true)
+    await fetch(`/api/admin/workers/${workerId}/warnings`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(wForm),
+    })
+    const res = await fetch(`/api/admin/workers/${workerId}/warnings`).then(r => r.json())
+    setWarnings(res.warnings ?? [])
+    setShowWarning(false)
+    setWForm({ warningLevel: 'WRITTEN', reason: '', detailMemo: '' })
+    setSaving(false)
+  }
+
+  async function submitNotice() {
+    if (!nForm.title.trim() || !nForm.content.trim()) return
+    setSaving(true)
+    await fetch(`/api/admin/workers/${workerId}/notices`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(nForm),
+    })
+    const res = await fetch(`/api/admin/workers/${workerId}/notices`).then(r => r.json())
+    setNotices(res.notices ?? [])
+    setShowNotice(false)
+    setNForm({ noticeType: 'TERMINATION', title: '', content: '', effectiveDate: '' })
+    setSaving(false)
+  }
+
+  async function submitExplanation() {
+    if (!eForm.subject.trim() || !eForm.reason.trim()) return
+    setSaving(true)
+    await fetch(`/api/admin/workers/${workerId}/explanations`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(eForm),
+    })
+    const res = await fetch(`/api/admin/workers/${workerId}/explanations`).then(r => r.json())
+    setExplanations(res.explanations ?? [])
+    setShowExplain(false)
+    setEForm({ subject: '', reason: '', deadline: '' })
+    setSaving(false)
+  }
+
+  const WARNING_LEVEL_LABEL: Record<string, string> = { VERBAL: '구두', WRITTEN: '서면', FINAL: '최종' }
+  const WARNING_LEVEL_COLOR: Record<string, string> = { VERBAL: '#ff9800', WRITTEN: '#e65100', FINAL: '#c62828' }
+  const NOTICE_TYPE_LABEL: Record<string, string>   = { CONTRACT_END: '계약만료', TERMINATION: '종료통지', SUSPENSION: '업무정지', WARNING: '경고통지', OTHER: '기타' }
+  const EXPL_STATUS_LABEL: Record<string, string>   = { PENDING: '요청됨', SUBMITTED: '제출됨', REVIEWED: '검토완료', CLOSED: '종결' }
+
+  const fmtDate = (d: unknown) => d ? new Date(d as string).toLocaleDateString('ko-KR') : '-'
+
+  if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>로딩 중...</div>
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* ── 경고 ─── */}
+      <section>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700 }}>경고 기록 ({warnings.length}건)</h3>
+          <button onClick={() => setShowWarning(true)} style={{ padding: '6px 14px', background: '#e65100', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+            + 경고 발행
+          </button>
+        </div>
+        {warnings.length === 0 ? (
+          <div style={{ color: '#999', fontSize: '13px' }}>경고 기록이 없습니다.</div>
+        ) : (
+          warnings.map((w: Record<string, unknown>) => (
+            <div key={w.id as string} style={{ border: '1px solid #f0f0f0', borderLeft: `4px solid ${WARNING_LEVEL_COLOR[w.warningLevel as string] ?? '#e0e0e0'}`, borderRadius: '8px', padding: '10px 14px', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: WARNING_LEVEL_COLOR[w.warningLevel as string] ?? '#666' }}>
+                  {WARNING_LEVEL_LABEL[w.warningLevel as string] ?? w.warningLevel as string} 경고
+                </span>
+                <span style={{ fontSize: '11px', color: '#bbb' }}>{fmtDate(w.createdAt)}</span>
+              </div>
+              <div style={{ fontSize: '13px', color: '#444' }}>{w.reason as string}</div>
+            </div>
+          ))
+        )}
+
+        {showWarning && (
+          <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
+            <h4 style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700 }}>경고장 발행 — {workerName}</h4>
+            <select value={wForm.warningLevel} onChange={e => setWForm(f => ({ ...f, warningLevel: e.target.value }))}
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px' }}>
+              <option value="VERBAL">구두 경고</option>
+              <option value="WRITTEN">서면 경고</option>
+              <option value="FINAL">최종 경고</option>
+            </select>
+            <textarea value={wForm.reason} onChange={e => setWForm(f => ({ ...f, reason: e.target.value }))}
+              placeholder="경고 사유 *" rows={3}
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
+            <textarea value={wForm.detailMemo} onChange={e => setWForm(f => ({ ...f, detailMemo: e.target.value }))}
+              placeholder="상세 메모 (선택)" rows={2}
+              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setShowWarning(false)} style={{ padding: '8px 16px', border: '1px solid #e0e0e0', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
+              <button onClick={submitWarning} disabled={saving || !wForm.reason.trim()} style={{ padding: '8px 16px', background: saving ? '#bdbdbd' : '#e65100', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                {saving ? '처리 중...' : '발행'}
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ── 소명 요청 ─── */}
+      <section>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700 }}>소명 요청 ({explanations.length}건)</h3>
+          <button onClick={() => setShowExplain(true)} style={{ padding: '6px 14px', background: '#1565c0', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+            + 소명 요청
+          </button>
+        </div>
+        {explanations.length === 0 ? (
+          <div style={{ color: '#999', fontSize: '13px' }}>소명 요청 내역이 없습니다.</div>
+        ) : (
+          explanations.map((e: Record<string, unknown>) => (
+            <div key={e.id as string} style={{ border: '1px solid #f0f0f0', borderRadius: '8px', padding: '10px 14px', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 600 }}>{e.subject as string}</span>
+                <span style={{ fontSize: '11px', color: '#1565c0', background: '#e3f2fd', padding: '1px 8px', borderRadius: '20px', fontWeight: 700 }}>
+                  {EXPL_STATUS_LABEL[e.status as string] ?? e.status as string}
+                </span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#666' }}>{fmtDate(e.createdAt)}{e.deadline ? ` · 기한: ${fmtDate(e.deadline)}` : ''}</div>
+            </div>
+          ))
+        )}
+
+        {showExplain && (
+          <div style={{ background: '#e3f2fd', border: '1px solid #90caf9', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
+            <h4 style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700 }}>소명 요청 — {workerName}</h4>
+            <input value={eForm.subject} onChange={e => setEForm(f => ({ ...f, subject: e.target.value }))}
+              placeholder="소명 요청 제목 *"
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
+            <textarea value={eForm.reason} onChange={e => setEForm(f => ({ ...f, reason: e.target.value }))}
+              placeholder="소명 요청 사유 *" rows={3}
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
+            <input type="date" value={eForm.deadline} onChange={e => setEForm(f => ({ ...f, deadline: e.target.value }))}
+              placeholder="기한 (선택)"
+              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setShowExplain(false)} style={{ padding: '8px 16px', border: '1px solid #e0e0e0', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
+              <button onClick={submitExplanation} disabled={saving || !eForm.subject.trim() || !eForm.reason.trim()} style={{ padding: '8px 16px', background: saving ? '#bdbdbd' : '#1565c0', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                {saving ? '처리 중...' : '요청 전송'}
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ── 통지 ─── */}
+      <section>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700 }}>통지 기록 ({notices.length}건)</h3>
+          <button onClick={() => setShowNotice(true)} style={{ padding: '6px 14px', background: '#37474f', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+            + 통지서 발행
+          </button>
+        </div>
+        {notices.length === 0 ? (
+          <div style={{ color: '#999', fontSize: '13px' }}>통지 기록이 없습니다.</div>
+        ) : (
+          notices.map((n: Record<string, unknown>) => (
+            <div key={n.id as string} style={{ border: '1px solid #f0f0f0', borderRadius: '8px', padding: '10px 14px', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 600 }}>{n.title as string}</span>
+                <span style={{ fontSize: '11px', color: '#666', background: '#f5f5f5', padding: '1px 8px', borderRadius: '20px' }}>
+                  {NOTICE_TYPE_LABEL[n.noticeType as string] ?? n.noticeType as string}
+                </span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#666' }}>발행일: {fmtDate(n.createdAt)}{n.effectiveDate ? ` · 효력일: ${n.effectiveDate}` : ''}</div>
+            </div>
+          ))
+        )}
+
+        {showNotice && (
+          <div style={{ background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
+            <h4 style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700 }}>통지서 발행 — {workerName}</h4>
+            <select value={nForm.noticeType} onChange={e => setNForm(f => ({ ...f, noticeType: e.target.value }))}
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px' }}>
+              <option value="CONTRACT_END">계약만료 통지</option>
+              <option value="TERMINATION">종료/해고 통지</option>
+              <option value="SUSPENSION">업무 정지 통지</option>
+              <option value="WARNING">경고 통지</option>
+              <option value="OTHER">기타</option>
+            </select>
+            <input value={nForm.title} onChange={e => setNForm(f => ({ ...f, title: e.target.value }))}
+              placeholder="통지서 제목 *"
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
+            <textarea value={nForm.content} onChange={e => setNForm(f => ({ ...f, content: e.target.value }))}
+              placeholder="통지 내용 *" rows={4}
+              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
+            <input type="date" value={nForm.effectiveDate} onChange={e => setNForm(f => ({ ...f, effectiveDate: e.target.value }))}
+              placeholder="효력 발생일 (선택)"
+              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setShowNotice(false)} style={{ padding: '8px 16px', border: '1px solid #e0e0e0', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
+              <button onClick={submitNotice} disabled={saving || !nForm.title.trim() || !nForm.content.trim()} style={{ padding: '8px 16px', background: saving ? '#bdbdbd' : '#37474f', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                {saving ? '처리 중...' : '발행'}
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   )
 }
