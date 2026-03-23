@@ -66,6 +66,6 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     triggeredFaqs: triggeredFaqs.slice(0, 5),
     warningLevel,
-    warningTags: [...new Set(warningTags)],
+    warningTags: Array.from(new Set(warningTags)),
   })
 }
