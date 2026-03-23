@@ -487,6 +487,24 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
             <Link href={`/admin/workers/${workerId}/dispute-panel`} style={{ ...linkBtn, background: '#e53935' }}>
               분쟁방어 패널 →
             </Link>
+            {review?.id && (
+              <Link
+                href={`/admin/workers/${workerId}/termination/evidence?reviewId=${review.id}`}
+                style={{ ...linkBtn, background: '#37474f' }}
+              >
+                종료 증빙 패키지 보기
+              </Link>
+            )}
+            {review?.id && (
+              <a
+                href={`/api/admin/workers/${workerId}/termination-review/${review.id}/evidence/pdf`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ ...linkBtn, background: '#4a148c' }}
+              >
+                PDF 다운로드
+              </a>
+            )}
             <button onClick={() => router.push('/admin/workers')} style={{ ...primaryBtn(false), background: '#757575' }}>
               목록으로
             </button>
