@@ -17,7 +17,7 @@ export default function LandingPage() {
               alt="해한Ai Engineering"
               width={160}
               height={32}
-              style={{ height: '32px', width: 'auto' }}
+              style={{ height: '44px', width: 'auto' }}
               priority
             />
           </Link>

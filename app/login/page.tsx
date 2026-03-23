@@ -188,7 +188,7 @@ export default function LoginPage() {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={{ textAlign: 'center', marginBottom: '4px' }}>
-          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={160} height={32} style={{ height: '36px', width: 'auto', margin: '0 auto' }} priority />
+          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={220} height={44} style={{ height: '52px', width: 'auto', margin: '0 auto', display: 'block' }} priority />
           <div style={{ fontSize: '12px', color: '#5a6a7e', marginTop: '8px' }}>현장 출퇴근 관리 시스템</div>
         </div>
         <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '20px 0' }} />

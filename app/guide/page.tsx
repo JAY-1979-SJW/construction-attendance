@@ -32,7 +32,7 @@ export default function GuidePage() {
       <header style={pg.header}>
         <Link href="/" style={pg.backLink}>← 돌아가기</Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={120} height={24} style={{ height: '24px', width: 'auto' }} priority />
+          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={160} height={32} style={{ height: '36px', width: 'auto' }} priority />
           <span style={{ color: '#718096', fontSize: '13px' }}>|</span>
           <span style={pg.headerTitle}>앱 사용 미리보기</span>
         </div>
@@ -108,7 +108,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
       return (
         <div style={sc.container}>
           <div style={{ textAlign: 'center', paddingTop: '40px', marginBottom: '8px' }}>
-            <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={130} height={26} style={{ height: '26px', width: 'auto', margin: '0 auto' }} priority />
+            <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={160} height={32} style={{ height: '36px', width: 'auto', margin: '0 auto', display: 'block' }} priority />
           </div>
           <div style={sc.loginSub}>현장 출퇴근 관리 시스템</div>
           <div style={sc.loginCard}>
