@@ -39,7 +39,7 @@ export default function AdminLoginPage() {
       <div style={styles.card}>
         {/* 브랜드 로고 */}
         <div style={styles.logoWrap}>
-          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={220} height={44} style={{ height: '52px', width: 'auto', margin: '0 auto 12px', display: 'block' }} priority />
+          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} style={{ width: '200px', height: 'auto', margin: '0 auto 12px', display: 'block', borderRadius: '16px' }} priority />
           <div style={styles.logoSub}>관리자 포털</div>
         </div>
 

@@ -8,7 +8,7 @@ export default function RegisterPendingPage() {
     <div style={s.page}>
       <div style={s.card}>
         <div style={{ marginBottom: '20px' }}>
-          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={220} height={44} style={{ height: '52px', width: 'auto', margin: '0 auto', display: 'block' }} priority />
+          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} style={{ width: '160px', height: 'auto', margin: '0 auto', display: 'block', borderRadius: '12px' }} priority />
         </div>
         <div style={s.iconWrap}>
           <div style={s.iconCircle}>⏳</div>

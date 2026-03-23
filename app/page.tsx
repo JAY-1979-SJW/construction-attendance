@@ -13,11 +13,11 @@ export default function LandingPage() {
           {/* 브랜드 로고 */}
           <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <Image
-              src="/logo/logo_dark_1x.png"
+              src="/logo/logo_main.png"
               alt="해한Ai Engineering"
-              width={160}
-              height={32}
-              style={{ height: '44px', width: 'auto' }}
+              width={120}
+              height={90}
+              style={{ height: '48px', width: 'auto', borderRadius: '8px' }}
               priority
             />
           </Link>
@@ -38,6 +38,18 @@ export default function LandingPage() {
       {/* ── 히어로 ─────────────────────────────────────── */}
       <section style={s.hero}>
         <div style={s.heroInner}>
+          {/* 중앙 로고 */}
+          <div style={{ marginBottom: '36px' }}>
+            <Image
+              src="/logo/logo_main.png"
+              alt="해한Ai Engineering"
+              width={320}
+              height={240}
+              style={{ width: '280px', height: 'auto', margin: '0 auto', display: 'block', borderRadius: '24px' }}
+              priority
+            />
+          </div>
+
           <div style={s.badge}>건설현장 출퇴근 관리 솔루션</div>
           <h1 style={s.heroTitle}>
             현장 어디서든<br />

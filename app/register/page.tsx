@@ -123,7 +123,7 @@ export default function RegisterPage() {
     <div style={s.page}>
       <div style={s.card}>
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={220} height={44} style={{ height: '52px', width: 'auto', margin: '0 auto', display: 'block' }} priority />
+          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} style={{ width: '180px', height: 'auto', margin: '0 auto', display: 'block', borderRadius: '16px' }} priority />
         </div>
         <h1 style={s.title}>근로자 회원가입</h1>
         <p style={s.subtitle}>가입 후 관리자 승인을 받아야 출퇴근이 가능합니다.</p>

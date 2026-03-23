@@ -32,7 +32,7 @@ export default function GuidePage() {
       <header style={pg.header}>
         <Link href="/" style={pg.backLink}>← 돌아가기</Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={160} height={32} style={{ height: '36px', width: 'auto' }} priority />
+          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={80} height={60} style={{ height: '40px', width: 'auto', borderRadius: '6px' }} priority />
           <span style={{ color: '#718096', fontSize: '13px' }}>|</span>
           <span style={pg.headerTitle}>앱 사용 미리보기</span>
         </div>
@@ -108,7 +108,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
       return (
         <div style={sc.container}>
           <div style={{ textAlign: 'center', paddingTop: '40px', marginBottom: '8px' }}>
-            <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={160} height={32} style={{ height: '36px', width: 'auto', margin: '0 auto', display: 'block' }} priority />
+            <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={120} height={90} style={{ width: '100px', height: 'auto', margin: '0 auto', display: 'block', borderRadius: '10px' }} priority />
           </div>
           <div style={sc.loginSub}>현장 출퇴근 관리 시스템</div>
           <div style={sc.loginCard}>
