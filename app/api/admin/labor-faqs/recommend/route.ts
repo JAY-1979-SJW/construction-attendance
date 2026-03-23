@@ -34,7 +34,7 @@ const CLASSIFIER_SYSTEM_PROMPT = `당신은 건설현장 관리자 앱의 노동
 CONTRACT_TYPE | DAILY_WORKER | REGULAR_EMPLOYMENT | FIXED_TERM | REPEATED_CONTRACT | OUTSOURCING | DOCUMENT_SELECTION | LEGAL_WARNING`
 
 export async function POST(req: NextRequest) {
-  const session = await getAdminSession(req)
+  const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()

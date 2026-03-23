@@ -13,7 +13,7 @@ import { evaluateTriggerConditions } from '@/lib/labor-faq/classifier'
 import type { TriggerCondition, TriggerCheckRequest } from '@/lib/labor-faq/types'
 
 export async function POST(req: NextRequest) {
-  const session = await getAdminSession(req)
+  const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body: TriggerCheckRequest = await req.json()
