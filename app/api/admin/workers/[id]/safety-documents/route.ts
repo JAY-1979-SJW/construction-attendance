@@ -83,6 +83,7 @@ export async function POST(
     newTask,
     issuedItemsJson,
     issuedBy,
+    ppeItems,
   } = body as {
     documentType: SafetyDocType
     siteId?: string
@@ -97,6 +98,7 @@ export async function POST(
     newTask?: string
     issuedItemsJson?: { name: string; standard?: string; quantity: number; condition: '신품' | '재사용' }[]
     issuedBy?: string
+    ppeItems?: { name: string; qty: number; condition: string; issued: boolean; explanationGiven?: boolean; needsReplacement?: boolean; note?: string }[]
   }
 
   if (!documentType || !SAFETY_DOC_TYPES.includes(documentType)) {
@@ -157,19 +159,30 @@ export async function POST(
       })
       break
 
-    case 'PPE_PROVISION':
+    case 'PPE_PROVISION': {
+      const resolvedItems = ppeItems
+        ? ppeItems.filter(it => it.issued).map(it => ({
+            name: it.name,
+            quantity: it.qty,
+            condition: (it.condition === '신품' || it.condition === '재사용' ? it.condition : '신품') as '신품' | '재사용',
+            issued: true as const,
+            explanationGiven: it.explanationGiven,
+            needsReplacement: it.needsReplacement,
+            note: it.note,
+          }))
+        : issuedItemsJson || [
+            { name: '안전모', quantity: 1, condition: '신품' as const, issued: true as const },
+            { name: '안전화', quantity: 1, condition: '신품' as const, issued: true as const },
+          ]
       rendered = renderPPEProvision({
         ...baseData,
         provisionDate: documentDate || today,
         workType: '건설일용직',
-        ppeItems: issuedItemsJson || [
-          { name: '안전모', standard: 'KCS 산업용', quantity: 1, condition: '신품' as const },
-          { name: '안전화', standard: 'KCS 안전화', quantity: 1, condition: '신품' as const },
-          { name: '안전대', standard: 'KCS 안전대', quantity: 1, condition: '신품' as const },
-        ],
+        ppeItems: resolvedItems,
         issuedBy: issuedBy || educator,
       })
       break
+    }
 
     case 'SAFETY_PLEDGE':
       rendered = renderSafetyPledge(baseData)

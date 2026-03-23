@@ -1152,6 +1152,7 @@ model WorkerContract {
   jobCategorySub           String?               // 세부직종
   contractForm             String?               // MONTHLY_FIXED | CONTINUOUS
   taskDescription          String?               // 담당업무
+  siteAddress              String?               // 현장 주소 (직접 입력)
   // ─────────────────────────────────────────────────────────
 
   createdAt                DateTime     @default(now())

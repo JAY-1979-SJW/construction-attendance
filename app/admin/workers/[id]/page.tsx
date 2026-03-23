@@ -1249,6 +1249,22 @@ const SAFETY_DOC_LABELS: Record<string, string> = {
   PRIVACY_CONSENT:              '개인정보수집·이용동의',
 }
 
+const PPE_ITEM_DEFAULTS = [
+  { name: '안전모',       qty: 1, condition: '신품', issued: true,  explanationGiven: true,  needsReplacement: false, note: '' },
+  { name: '안전화',       qty: 1, condition: '신품', issued: true,  explanationGiven: true,  needsReplacement: false, note: '' },
+  { name: '안전대',       qty: 1, condition: '신품', issued: false, explanationGiven: false, needsReplacement: false, note: '' },
+  { name: '방진마스크',   qty: 1, condition: '신품', issued: true,  explanationGiven: true,  needsReplacement: false, note: '' },
+  { name: '귀마개',       qty: 1, condition: '신품', issued: false, explanationGiven: false, needsReplacement: false, note: '' },
+  { name: '보안경',       qty: 1, condition: '신품', issued: false, explanationGiven: false, needsReplacement: false, note: '' },
+  { name: '용접 차광면',  qty: 1, condition: '신품', issued: false, explanationGiven: false, needsReplacement: false, note: '' },
+  { name: '안전장갑',     qty: 1, condition: '신품', issued: true,  explanationGiven: true,  needsReplacement: false, note: '' },
+  { name: '방수·방한복',  qty: 1, condition: '신품', issued: false, explanationGiven: false, needsReplacement: false, note: '' },
+  { name: '형광조끼',     qty: 1, condition: '신품', issued: true,  explanationGiven: true,  needsReplacement: false, note: '' },
+  { name: '구명조끼',     qty: 1, condition: '신품', issued: false, explanationGiven: false, needsReplacement: false, note: '' },
+]
+
+type PpeItem = typeof PPE_ITEM_DEFAULTS[number]
+
 function SafetyDocsTab({ workerId }: { workerId: string }) {
   const [docs, setDocs] = useState<SafetyDocRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -1262,6 +1278,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
     siteId: '',
     contractId: '',
   })
+  const [ppeItems, setPpeItems] = useState<PpeItem[]>(PPE_ITEM_DEFAULTS.map(i => ({ ...i })))
   const [submitting, setSubmitting] = useState(false)
   const [previewDoc, setPreviewDoc] = useState<SafetyDocRow & { contentText?: string } | null>(null)
 
@@ -1277,10 +1294,13 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
   const handleSubmit = async () => {
     setSubmitting(true)
     try {
+      const payload = form.documentType === 'PPE_PROVISION'
+        ? { ...form, ppeItems }
+        : form
       const res = await fetch(`/api/admin/workers/${workerId}/safety-documents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       })
       const data = await res.json()
       if (!data.success) throw new Error(data.error)
@@ -1425,6 +1445,64 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
                 </div>
               </>
+            )}
+
+            {form.documentType === 'PPE_PROVISION' && (
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 8 }}>보호구 품목별 지급 현황</label>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: 8 }}>지급한 품목에 체크하고 수량·상태·설명 여부를 입력하세요.</div>
+                {ppeItems.map((item, idx) => (
+                  <div key={item.name} style={{ border: '1px solid #e5e7eb', borderRadius: 6, padding: '10px 12px', marginBottom: 8, background: item.issued ? '#f0fdf4' : '#fafafa' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: '13px', cursor: 'pointer', flex: 1 }}>
+                        <input type="checkbox" checked={item.issued}
+                          onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, issued: e.target.checked } : it))} />
+                        {item.name}
+                      </label>
+                      {item.issued && (
+                        <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 600 }}>지급</span>
+                      )}
+                    </div>
+                    {item.issued && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px' }}>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: 2 }}>수량</label>
+                          <input type="number" min={1} value={item.qty}
+                            onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, qty: Number(e.target.value) } : it))}
+                            style={{ width: '100%', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: 4, fontSize: '13px' }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: 2 }}>상태</label>
+                          <select value={item.condition}
+                            onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, condition: e.target.value } : it))}
+                            style={{ width: '100%', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: 4, fontSize: '13px' }}>
+                            <option value="신품">신품</option>
+                            <option value="양호">양호</option>
+                            <option value="재사용">재사용</option>
+                            <option value="기타">기타</option>
+                          </select>
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '12px', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={item.explanationGiven}
+                            onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, explanationGiven: e.target.checked } : it))} />
+                          착용방법 설명 완료
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '12px', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={item.needsReplacement}
+                            onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, needsReplacement: e.target.checked } : it))} />
+                          교체 필요
+                        </label>
+                        <div style={{ gridColumn: 'span 2' }}>
+                          <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: 2 }}>비고</label>
+                          <input type="text" value={item.note} placeholder="규격, 특이사항 등"
+                            onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, note: e.target.value } : it))}
+                            style={{ width: '100%', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: 4, fontSize: '13px' }} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
 
             <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>

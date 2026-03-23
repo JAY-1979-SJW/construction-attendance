@@ -69,6 +69,8 @@ export async function POST(req: NextRequest) {
     contractForm, taskDescription,
     breakStartTime, breakEndTime,
     weeklyWorkDays, weeklyWorkHours,
+    // v3.5 신규 필드
+    siteAddress, attendanceVerificationMethod, workUnitRule, rainDayRule,
   } = body
 
   if (!workerId || !startDate || !contractKind || !contractTemplateType) {
@@ -147,6 +149,11 @@ export async function POST(req: NextRequest) {
       breakEndTime:         breakEndTime           || null,
       weeklyWorkDays:       weeklyWorkDays         || null,
       weeklyWorkHours:      weeklyWorkHours        || null,
+      // v3.5
+      siteAddress:          siteAddress            || null,
+      attendanceVerificationMethod: attendanceVerificationMethod || null,
+      workUnitRule:         workUnitRule           || null,
+      rainDayRule:          rainDayRule            || null,
     } as never,
     include: {
       worker: { select: { id: true, name: true } },

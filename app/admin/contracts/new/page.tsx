@@ -183,6 +183,11 @@ function NewContractPage() {
     jobCategorySub:       '',
     contractForm:         'MONTHLY_FIXED',
     taskDescription:      '',
+    // v3.5
+    siteAddress:          '',
+    attendanceVerificationMethod: 'GPS앱',
+    workUnitRule:         '1일 출근 시 1공수로 인정하며, 오전 또는 오후 반일 출근 시 0.5공수로 인정한다.',
+    rainDayRule:          '기상청 강수 예보 또는 현장소장 판단에 따라 작업 중단 시, 당일 실근로에 비례하여 공수를 인정한다.',
   })
 
   useEffect(() => {
@@ -314,6 +319,11 @@ function NewContractPage() {
       jobCategorySub:       form.jobCategorySub || null,
       contractForm:         form.contractForm || null,
       taskDescription:      form.taskDescription || null,
+      // v3.5
+      siteAddress:          form.siteAddress || null,
+      attendanceVerificationMethod: form.attendanceVerificationMethod || null,
+      workUnitRule:         form.workUnitRule || null,
+      rainDayRule:          form.rainDayRule || null,
     }
 
     const res  = await fetch('/api/admin/contracts', {
@@ -589,6 +599,31 @@ function NewContractPage() {
               <input type="text" value={form.workDays} onChange={e => set('workDays', e.target.value)}
                 placeholder="예: 월~금, 현장 여건에 따름"
                 className="w-full border rounded px-3 py-2 text-sm" />
+            </div>
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-gray-600 block mb-1">현장 주소</label>
+              <input type="text" value={form.siteAddress} onChange={e => set('siteAddress', e.target.value)}
+                placeholder="예: 서울특별시 강남구 ○○동 123"
+                className="w-full border rounded px-3 py-2 text-sm" />
+            </div>
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-gray-600 block mb-1">출퇴근 인증 방식</label>
+              <select value={form.attendanceVerificationMethod} onChange={e => set('attendanceVerificationMethod', e.target.value)}
+                className="w-full border rounded px-3 py-2 text-sm">
+                <option value="GPS앱">GPS 앱</option>
+                <option value="관리자확인">관리자 확인</option>
+                <option value="수기/기타">수기/기타</option>
+              </select>
+            </div>
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-gray-600 block mb-1">공수 산정 기준</label>
+              <textarea value={form.workUnitRule} onChange={e => set('workUnitRule', e.target.value)}
+                rows={2} className="w-full border rounded px-3 py-2 text-sm resize-none" />
+            </div>
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-gray-600 block mb-1">우천·작업 중단 처리 기준</label>
+              <textarea value={form.rainDayRule} onChange={e => set('rainDayRule', e.target.value)}
+                rows={2} className="w-full border rounded px-3 py-2 text-sm resize-none" />
             </div>
           </div>
         </div>

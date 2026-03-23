@@ -79,6 +79,12 @@ function buildContractData(
     jobCategorySub:        contract.jobCategorySub as string | undefined,
     contractForm:          contract.contractForm as string | undefined,
     taskDescription:       contract.taskDescription as string | undefined,
+    // v3.5
+    siteAddress:           (contract as never as Record<string, unknown>).siteAddress as string | undefined
+                           || site?.address as string | undefined,
+    attendanceVerificationMethod: (contract as never as Record<string, unknown>).attendanceVerificationMethod as string | undefined,
+    workUnitRule:          (contract as never as Record<string, unknown>).workUnitRule as string | undefined,
+    rainDayRule:           (contract as never as Record<string, unknown>).rainDayRule as string | undefined,
   }
 }
 
