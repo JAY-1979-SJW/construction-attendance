@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession } from '@/lib/auth/guards'
 
@@ -65,8 +66,8 @@ export async function PATCH(
       faqId:          id,
       changedBy:      session.sub,
       changeType:     'UPDATE',
-      beforeSnapshot: faq   as unknown as Record<string, unknown>,
-      afterSnapshot:  updated as unknown as Record<string, unknown>,
+      beforeSnapshot: faq   as unknown as Prisma.InputJsonValue,
+      afterSnapshot:  updated as unknown as Prisma.InputJsonValue,
       note:           body.note ?? null,
     },
   })
