@@ -457,8 +457,8 @@ export default function AttendancePage() {
       {/* 출퇴근 메시지 */}
       {attendanceMsg && (
         <div style={{
-          background: attendanceMsg.includes('완료') ? '#e8f5e9' : '#fff3e0',
-          color: attendanceMsg.includes('완료') ? '#2e7d32' : '#e65100',
+          background: attendanceMsg.includes('완료') ? 'rgba(46,125,50,0.15)' : 'rgba(244,121,32,0.12)',
+          color: attendanceMsg.includes('완료') ? '#81c784' : '#FFB74D',
           borderRadius: '10px', padding: '12px 16px', marginBottom: '12px', fontSize: '14px', fontWeight: 600,
         }}>
           {attendanceMsg}
@@ -509,9 +509,9 @@ export default function AttendancePage() {
                       .filter(s => s.siteId !== today.currentSiteId)
                       .map(site => (
                         <div key={site.siteId} style={{
-                          border: `2px solid ${site.withinRadius ? '#1565c0' : '#e0e0e0'}`,
+                          border: `2px solid ${site.withinRadius ? '#1565c0' : 'rgba(91,164,217,0.2)'}`,
                           borderRadius: '10px', padding: '12px', marginBottom: '8px',
-                          background: site.withinRadius ? '#e3f2fd' : 'white',
+                          background: site.withinRadius ? 'rgba(21,101,192,0.15)' : '#2a3f5a',
                         }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
@@ -554,7 +554,7 @@ export default function AttendancePage() {
                       value={exceptionReason}
                       onChange={e => setExceptionReason(e.target.value)}
                       rows={3}
-                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', fontSize: '14px', resize: 'none', boxSizing: 'border-box' as const }}
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(91,164,217,0.2)', fontSize: '14px', resize: 'none', boxSizing: 'border-box' as const }}
                     />
                     <button
                       onClick={() => handleDirectCheckOut(exceptionReason)}
@@ -618,9 +618,9 @@ export default function AttendancePage() {
                 <p style={{ fontSize: '14px', color: '#A0AEC0', marginBottom: '12px' }}>배정된 현장을 선택하여 출근하세요.</p>
                 {availableSites.map(site => (
                   <div key={site.siteId} style={{
-                    border: `2px solid ${site.withinRadius ? '#2e7d32' : '#e0e0e0'}`,
+                    border: `2px solid ${site.withinRadius ? '#2e7d32' : 'rgba(91,164,217,0.2)'}`,
                     borderRadius: '12px', padding: '14px', marginBottom: '10px',
-                    background: site.withinRadius ? '#f1f8e9' : 'white',
+                    background: site.withinRadius ? 'rgba(46,125,50,0.12)' : '#2a3f5a',
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <div>
@@ -832,12 +832,12 @@ function PresenceCard({
 /* ── 스타일 ──────────────────────────────────────────────────── */
 const styles: Record<string, React.CSSProperties> = {
   container:       { maxWidth: '480px', margin: '0 auto', padding: '20px', minHeight: '100vh' },
-  previewBanner:   { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff3e0', border: '1px solid #ffb74d', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '13px', color: '#e65100', gap: '8px' },
+  previewBanner:   { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(244,121,32,0.1)', border: '1px solid rgba(244,121,32,0.35)', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '13px', color: '#FFB74D', gap: '8px' },
   previewLoginBtn: { padding: '6px 14px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 700, flexShrink: 0 },
   header:          { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingTop: '8px' },
   workerName:      { fontSize: '18px', fontWeight: 700, color: '#ffffff' },
   workerInfo:      { fontSize: '13px', color: '#A0AEC0', marginTop: '2px' },
-  logoutBtn:       { background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '6px 12px', fontSize: '13px', cursor: 'pointer', color: '#A0AEC0' },
+  logoutBtn:       { background: 'none', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '8px', padding: '6px 12px', fontSize: '13px', cursor: 'pointer', color: '#A0AEC0' },
   card:            { background: '#243144', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
   dateLabel:       { fontSize: '13px', color: '#A0AEC0', marginBottom: '12px' },
   statusBadge:     { display: 'inline-block', color: 'white', fontSize: '13px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', marginBottom: '12px' },
@@ -853,10 +853,10 @@ const styles: Record<string, React.CSSProperties> = {
   guideCard:       { background: 'rgba(91,164,217,0.1)', borderRadius: '12px', padding: '20px', marginBottom: '16px' },
   guideTitle:      { fontSize: '14px', fontWeight: 700, color: '#4A93C8', marginBottom: '12px' },
   guideStep:       { fontSize: '13px', color: '#5BA4D9', marginBottom: '6px' },
-  changeDeviceBtn: { width: '100%', padding: '12px', fontSize: '14px', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', cursor: 'pointer', color: '#A0AEC0' },
+  changeDeviceBtn: { width: '100%', padding: '12px', fontSize: '14px', background: 'none', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '10px', cursor: 'pointer', color: '#A0AEC0' },
   checkInBtn:    { width: '100%', padding: '12px', fontSize: '15px', fontWeight: 700, background: '#2e7d32', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
   checkOutBtn:   { width: '100%', padding: '14px', fontSize: '17px', fontWeight: 700, background: '#E06810', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer' },
-  cancelBtn:     { width: '100%', padding: '10px', fontSize: '14px', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', cursor: 'pointer', color: '#A0AEC0', marginTop: '6px' },
+  cancelBtn:     { width: '100%', padding: '10px', fontSize: '14px', background: 'none', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '8px', cursor: 'pointer', color: '#A0AEC0', marginTop: '6px' },
 }
 
 const pc: Record<string, React.CSSProperties> = {

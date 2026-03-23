@@ -132,7 +132,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: '100%',
     padding: '14px 16px',
     fontSize: '16px',
-    border: '1px solid rgba(255,255,255,0.12)',
+    border: '1px solid rgba(91,164,217,0.25)',
     borderRadius: '10px',
     outline: 'none',
     boxSizing: 'border-box',
@@ -157,7 +157,7 @@ const styles: Record<string, React.CSSProperties> = {
   notice: {
     fontSize: '12px',
     color: '#A0AEC0',
-    background: '#fff8e1',
+    background: 'rgba(244,121,32,0.08)',
     borderRadius: '8px',
     padding: '12px',
     lineHeight: 1.6,

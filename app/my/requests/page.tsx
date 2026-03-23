@@ -72,7 +72,7 @@ export default function MyRequestsPage() {
       </div>
 
       {/* 탭 */}
-      <div style={{ display: 'flex', background: '#ffffff', borderBottom: '1px solid #e0e0e0' }}>
+      <div style={{ display: 'flex', background: '#1B2838', borderBottom: '1px solid rgba(91,164,217,0.2)' }}>
         {(['new', 'history'] as const).map((t) => (
           <button
             key={t}
@@ -84,8 +84,8 @@ export default function MyRequestsPage() {
               background: 'transparent',
               fontSize:   '14px',
               fontWeight: tab === t ? 700 : 400,
-              color:      tab === t ? '#1565c0' : '#666',
-              borderBottom: tab === t ? '2px solid #1565c0' : '2px solid transparent',
+              color:      tab === t ? '#F47920' : '#718096',
+              borderBottom: tab === t ? '2px solid #F47920' : '2px solid transparent',
               cursor:     'pointer',
             }}
           >
@@ -111,8 +111,8 @@ export default function MyRequestsPage() {
                 <div
                   key={req.id}
                   style={{
-                    background:   '#ffffff',
-                    border:       '1px solid #e0e0e0',
+                    background:   '#243144',
+                    border:       '1px solid rgba(91,164,217,0.15)',
                     borderRadius: '10px',
                     padding:      '14px',
                   }}
@@ -137,11 +137,11 @@ export default function MyRequestsPage() {
                   </p>
                   {req.adminMemo && (
                     <div style={{
-                      background:   '#f5f5f5',
+                      background:   'rgba(91,164,217,0.08)',
                       borderRadius: '6px',
                       padding:      '8px 10px',
                       fontSize:     '12px',
-                      color:        '#555',
+                      color:        '#A0AEC0',
                       marginBottom: '6px',
                     }}>
                       <strong>관리자 답변:</strong> {req.adminMemo}

@@ -66,12 +66,12 @@ export default function WorkerRequestForm() {
     <form onSubmit={handleSubmit} style={{ padding: '16px', maxWidth: '480px', margin: '0 auto' }}>
       {/* 안내 문구 */}
       <div style={{
-        background: '#fff8e1',
-        border: '1px solid #ffe082',
+        background: 'rgba(244,121,32,0.1)',
+        border: '1px solid rgba(244,121,32,0.3)',
         borderRadius: '8px',
         padding: '10px 14px',
         fontSize: '12px',
-        color: '#795548',
+        color: '#E8A870',
         marginBottom: '20px',
         lineHeight: '1.6',
       }}>
@@ -81,7 +81,7 @@ export default function WorkerRequestForm() {
 
       {/* 카테고리 선택 */}
       <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '8px', color: '#333' }}>
+        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '8px', color: '#A0AEC0' }}>
           요청 유형 <span style={{ color: '#e53935' }}>*</span>
         </label>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -93,12 +93,12 @@ export default function WorkerRequestForm() {
                 alignItems: 'center',
                 gap:        '10px',
                 padding:    '10px 14px',
-                border:     `1px solid ${category === cat.value ? '#1565c0' : '#e0e0e0'}`,
+                border:     `1px solid ${category === cat.value ? '#F47920' : 'rgba(91,164,217,0.2)'}`,
                 borderRadius: '8px',
-                background:   category === cat.value ? '#e3f2fd' : '#ffffff',
+                background:   category === cat.value ? 'rgba(244,121,32,0.12)' : '#243144',
                 cursor:       'pointer',
                 fontSize:     '14px',
-                color:        '#333',
+                color:        category === cat.value ? '#ffffff' : '#A0AEC0',
               }}
             >
               <input
@@ -107,7 +107,7 @@ export default function WorkerRequestForm() {
                 value={cat.value}
                 checked={category === cat.value}
                 onChange={() => setCategory(cat.value)}
-                style={{ accentColor: '#1565c0' }}
+                style={{ accentColor: '#F47920' }}
               />
               {cat.label}
             </label>
@@ -117,9 +117,9 @@ export default function WorkerRequestForm() {
 
       {/* 내용 입력 */}
       <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '8px', color: '#333' }}>
+        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '8px', color: '#A0AEC0' }}>
           요청 내용 <span style={{ color: '#e53935' }}>*</span>
-          <span style={{ fontWeight: 400, color: '#999', marginLeft: '8px' }}>(최대 {MAX_CONTENT}자)</span>
+          <span style={{ fontWeight: 400, color: '#718096', marginLeft: '8px' }}>(최대 {MAX_CONTENT}자)</span>
         </label>
         <textarea
           value={content}
@@ -128,16 +128,18 @@ export default function WorkerRequestForm() {
           rows={4}
           style={{
             width:        '100%',
-            border:       '1px solid #e0e0e0',
+            border:       '1px solid rgba(91,164,217,0.25)',
             borderRadius: '8px',
             padding:      '10px 12px',
             fontSize:     '14px',
             resize:       'vertical',
             outline:      'none',
             boxSizing:    'border-box',
+            background:   'rgba(255,255,255,0.06)',
+            color:        '#ffffff',
           }}
         />
-        <div style={{ textAlign: 'right', fontSize: '11px', color: content.length >= MAX_CONTENT ? '#e53935' : '#999', marginTop: '4px' }}>
+        <div style={{ textAlign: 'right', fontSize: '11px', color: content.length >= MAX_CONTENT ? '#e53935' : '#718096', marginTop: '4px' }}>
           {content.length} / {MAX_CONTENT}
         </div>
       </div>
@@ -149,9 +151,9 @@ export default function WorkerRequestForm() {
           borderRadius: '8px',
           marginBottom: '14px',
           fontSize:     '13px',
-          background:   result.success ? '#e8f5e9' : '#ffebee',
-          color:        result.success ? '#2e7d32' : '#c62828',
-          border:       `1px solid ${result.success ? '#a5d6a7' : '#ef9a9a'}`,
+          background:   result.success ? 'rgba(46,125,50,0.15)' : 'rgba(198,40,40,0.12)',
+          color:        result.success ? '#81c784' : '#ef9a9a',
+          border:       `1px solid ${result.success ? 'rgba(46,125,50,0.4)' : 'rgba(198,40,40,0.35)'}`,
         }}>
           {result.message}
         </div>
@@ -164,8 +166,8 @@ export default function WorkerRequestForm() {
         style={{
           width:        '100%',
           padding:      '14px',
-          background:   (!category || !content.trim() || loading) ? '#bdbdbd' : '#1565c0',
-          color:        '#ffffff',
+          background:   (!category || !content.trim() || loading) ? 'rgba(255,255,255,0.1)' : '#F47920',
+          color:        (!category || !content.trim() || loading) ? '#718096' : '#ffffff',
           border:       'none',
           borderRadius: '8px',
           fontSize:     '15px',

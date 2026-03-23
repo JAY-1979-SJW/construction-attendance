@@ -129,13 +129,13 @@ export default function MyStatusPage() {
         {/* ── 출퇴근 가능 여부 요약 (최상단) ── */}
         <div style={{
           ...s.eligibilityBox,
-          background: attendanceEligibility.canCheckIn ? '#e8f5e9' : '#fff8e1',
-          borderColor: attendanceEligibility.canCheckIn ? '#a5d6a7' : '#ffe082',
+          background: attendanceEligibility.canCheckIn ? 'rgba(46,125,50,0.12)' : 'rgba(244,121,32,0.1)',
+          borderColor: attendanceEligibility.canCheckIn ? 'rgba(46,125,50,0.4)' : 'rgba(244,121,32,0.4)',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: attendanceEligibility.blockReasons.length > 0 ? '10px' : 0 }}>
             <span style={{ fontSize: '24px' }}>{attendanceEligibility.canCheckIn ? '✅' : '⚠️'}</span>
             <div>
-              <div style={{ fontSize: '15px', fontWeight: 700, color: attendanceEligibility.canCheckIn ? '#2e7d32' : '#e65100' }}>
+              <div style={{ fontSize: '15px', fontWeight: 700, color: attendanceEligibility.canCheckIn ? '#81c784' : '#FFB74D' }}>
                 {attendanceEligibility.canCheckIn ? '출퇴근 가능' : '출퇴근 불가'}
               </div>
               <div style={{ fontSize: '13px', color: '#A0AEC0', marginTop: '2px' }}>{attendanceEligibility.summary}</div>
@@ -275,14 +275,14 @@ export default function MyStatusPage() {
                 ['산재보험', complianceStatus.industrialAccidentStatus],
                 ['퇴직공제', complianceStatus.retirementMutualStatus],
               ].map(([label, status]) => (
-                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f9f9f9', borderRadius: '8px', fontSize: '14px' }}>
+                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: 'rgba(91,164,217,0.06)', borderRadius: '8px', fontSize: '14px' }}>
                   <span style={{ color: '#A0AEC0' }}>{label}</span>
                   <span style={{ fontWeight: 600, color: INSURANCE_STATUS_COLOR[status] ?? '#888' }}>
                     {INSURANCE_STATUS_LABEL[status] ?? status}
                   </span>
                 </div>
               ))}
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f9f9f9', borderRadius: '8px', fontSize: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: 'rgba(91,164,217,0.06)', borderRadius: '8px', fontSize: '14px' }}>
                 <span style={{ color: '#A0AEC0' }}>계좌 등록</span>
                 <span style={{ fontWeight: 600, color: complianceStatus.bankInfoCollected ? '#2e7d32' : '#9e9e9e' }}>
                   {complianceStatus.bankInfoCollected ? '완료' : '미등록'}
@@ -299,27 +299,27 @@ export default function MyStatusPage() {
 }
 
 const s: Record<string, React.CSSProperties> = {
-  page:            { minHeight: '100vh', background: '#1E3350', padding: '24px 16px' },
+  page:            { minHeight: '100vh', background: '#1B2838', padding: '24px 16px' },
   center:          { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontSize: '16px', color: '#A0AEC0' },
   container:       { maxWidth: '520px', margin: '0 auto' },
   title:           { fontSize: '24px', fontWeight: 700, margin: '0 0 16px', color: '#ffffff' },
   eligibilityBox:  { borderRadius: '12px', padding: '16px 18px', marginBottom: '16px', border: '1px solid' },
-  blockReasonRow:  { background: 'rgba(255,255,255,0.6)', borderRadius: '8px', padding: '8px 12px', marginTop: '8px' },
+  blockReasonRow:  { background: 'rgba(91,164,217,0.08)', borderRadius: '8px', padding: '8px 12px', marginTop: '8px' },
   section:         { background: '#243144', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
   sectionTitle:    { fontSize: '12px', fontWeight: 700, color: '#A0AEC0', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 14px' },
   statusRow:       { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' },
   badge:           { display: 'inline-block', color: 'white', fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '20px' },
-  statusMsg:       { fontSize: '14px', color: '#444' },
-  rejectBox:       { background: '#fff0f0', border: '1px solid #ffcccc', borderRadius: '6px', padding: '10px 12px', fontSize: '13px', color: '#c62828', marginTop: '8px' },
+  statusMsg:       { fontSize: '14px', color: '#A0AEC0' },
+  rejectBox:       { background: 'rgba(198,40,40,0.12)', border: '1px solid rgba(198,40,40,0.35)', borderRadius: '6px', padding: '10px 12px', fontSize: '13px', color: '#ef9a9a', marginTop: '8px' },
   infoGrid:        { display: 'grid', gridTemplateColumns: '80px 1fr', gap: '8px 12px', fontSize: '14px', marginTop: '12px' },
   infoLabel:       { color: '#A0AEC0', fontWeight: 600 },
   hint:            { fontSize: '13px', color: '#A0AEC0', margin: '8px 0 0' },
-  siteCard:        { border: '1px solid #eee', borderRadius: '10px', padding: '14px 16px', marginBottom: '10px' },
+  siteCard:        { border: '1px solid rgba(91,164,217,0.2)', borderRadius: '10px', padding: '14px 16px', marginBottom: '10px' },
   siteName:        { fontSize: '15px', fontWeight: 700, color: '#ffffff' },
   siteAddr:        { fontSize: '13px', color: '#A0AEC0', marginTop: '4px' },
   siteInfo:        { fontSize: '13px', color: '#A0AEC0' },
   joinBtn:         { marginTop: '10px', padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
   reapplyBtn:      { marginTop: '10px', padding: '6px 16px', background: '#ff9800', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
-  joinMsg:         { background: '#e8f5e9', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#2e7d32', marginBottom: '12px' },
+  joinMsg:         { background: 'rgba(46,125,50,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#81c784', marginBottom: '12px' },
   backLink:        { color: '#5BA4D9', fontSize: '14px', textDecoration: 'none' },
 }
