@@ -40,7 +40,7 @@ export async function GET(
         accountStatus:  true,
         createdAt:      true,
         companyAssignments: {
-          where:   { isActive: true },
+          where:   { validTo: null },
           select:  { company: { select: { id: true, companyName: true } }, assignedFrom: true },
           orderBy: { assignedFrom: 'desc' },
           take:    1,

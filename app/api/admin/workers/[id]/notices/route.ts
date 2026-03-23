@@ -64,7 +64,7 @@ export async function POST(
 
     const worker = await prisma.worker.findUnique({
       where:  { id: workerId },
-      select: { companyAssignments: { where: { isActive: true }, select: { companyId: true }, take: 1 } },
+      select: { companyAssignments: { where: { validTo: null }, select: { companyId: true }, take: 1 } },
     })
     if (!worker) return notFound()
 
