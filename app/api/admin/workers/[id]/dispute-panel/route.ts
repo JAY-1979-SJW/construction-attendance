@@ -293,7 +293,7 @@ function worstLevel(items: RiskItem[]): RiskLevel {
 }
 
 function buildRiskSections(input: {
-  contracts:        { contractStatus: string; signedAt: Date | null; startDate: string; endDate: string | null }[]
+  contracts:        { contractStatus: string; startDate: string; endDate: string | null }[]
   deliveredTypes:   Set<string>
   recentAttendance: { status: string }[]
   adjustmentLogs:   unknown[]
@@ -301,7 +301,7 @@ function buildRiskSections(input: {
   explanations:     unknown[]
   notices:          { noticeType: string }[]
   terminationReview: { status: string; terminationReason: string | null } | null
-  latestContract:   { contractStatus: string; signedAt: Date | null; startDate: string; endDate: string | null } | undefined
+  latestContract:   { contractStatus: string; startDate: string; endDate: string | null } | undefined
 }): RiskSection[] {
   const { contracts, deliveredTypes, recentAttendance, adjustmentLogs, warnings, notices, terminationReview } = input
 
@@ -317,8 +317,8 @@ function buildRiskSections(input: {
     {
       key:    'contract_signed',
       label:  '계약서 서명 완료',
-      level:  input.latestContract?.signedAt ? 'OK' : (contracts.length > 0 ? 'DANGER' : 'OK'),
-      action: (contracts.length > 0 && !input.latestContract?.signedAt) ? '서명 요청' : undefined,
+      level:  (input.latestContract?.contractStatus === 'SIGNED' || input.latestContract?.contractStatus === 'DELIVERED') ? 'OK' : (contracts.length > 0 ? 'DANGER' : 'OK'),
+      action: (contracts.length > 0 && input.latestContract?.contractStatus === 'DRAFT') ? '서명 요청' : undefined,
     },
     {
       key:    'contract_delivered',
