@@ -5,10 +5,15 @@ import { prisma } from '@/lib/db/prisma'
 export interface AuditLogInput {
   actorUserId?: string
   actorType?: 'ADMIN' | 'WORKER' | 'SYSTEM'
+  actorRole?: string          // SUPER_ADMIN / ADMIN / COMPANY_ADMIN 등
+  companyId?: string          // 업체 스코프
   actionType: string
   targetType?: string
   targetId?: string
   summary?: string
+  beforeJson?: Record<string, unknown>   // 수정 전 상태
+  afterJson?: Record<string, unknown>    // 수정 후 상태
+  reason?: string             // 변경 사유
   metadataJson?: Record<string, unknown>
   ipAddress?: string
   userAgent?: string
@@ -28,10 +33,15 @@ export async function writeAuditLog(input: AuditLogInput): Promise<void> {
       data: {
         actorUserId: actorUserId ?? null,
         actorType,
+        actorRole: input.actorRole ?? null,
+        companyId: input.companyId ?? null,
         actionType: input.actionType,
         targetType: input.targetType ?? null,
         targetId: input.targetId ?? null,
         summary,
+        beforeJson: (input.beforeJson ?? undefined) as Prisma.InputJsonValue | undefined,
+        afterJson: (input.afterJson ?? undefined) as Prisma.InputJsonValue | undefined,
+        reason: input.reason ?? null,
         metadataJson: (input.metadataJson ?? undefined) as Prisma.InputJsonValue | undefined,
         ipAddress: input.ipAddress ?? null,
         userAgent: input.userAgent ?? null,

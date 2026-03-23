@@ -4,7 +4,7 @@
  */
 import { prisma } from '@/lib/db/prisma'
 import { isWithinRadius } from '@/lib/gps/distance'
-import { validateDevice } from '@/lib/auth/device'
+import { validateDeviceDetailed } from '@/lib/auth/device'
 import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
 
 export interface SiteInfo {
@@ -32,11 +32,30 @@ export interface AttendanceEngineInput {
   longitude: number
   isDirectCheckIn?: boolean
   exceptionReason?: string
+  checkInPhotoId?: string   // 출근 증빙 사진 ID (필수 — 없으면 PHOTO_REQUIRED)
 }
+
+/** 정책 차단 에러 코드 */
+export type AttendanceErrorCode =
+  | 'ACCOUNT_INACTIVE'
+  | 'ACCOUNT_PENDING'
+  | 'ACCOUNT_REJECTED'
+  | 'ACCOUNT_SUSPENDED'
+  | 'DEVICE_PENDING'
+  | 'DEVICE_BLOCKED'
+  | 'SITE_INACTIVE'
+  | 'SITE_MEMBERSHIP_REQUIRED'
+  | 'GEO_PERMISSION_DENIED'
+  | 'GEO_OUT_OF_RANGE'
+  | 'PHOTO_REQUIRED'
+  | 'ATTENDANCE_CONFLICT'
+  | 'MOVE_CONFLICT'
 
 export interface AttendanceCheckInResult {
   success: boolean
   message: string
+  errorCode?: AttendanceErrorCode
+  actionRequired?: string  // 사용자에게 안내할 다음 액션
   attendanceId?: string
   distance?: number
   withinRadius?: boolean
@@ -46,6 +65,8 @@ export interface AttendanceCheckInResult {
 export interface AttendanceCheckOutResult {
   success: boolean
   message: string
+  errorCode?: AttendanceErrorCode
+  actionRequired?: string
   distance?: number
   withinRadius?: boolean
   isException?: boolean
@@ -55,7 +76,8 @@ const GPS_EXTRA_TOLERANCE = parseInt(process.env.GPS_EXTRA_TOLERANCE ?? '0', 10)
 
 /** 기기 검증 */
 export async function validateAttendanceDevice(workerId: string, deviceToken: string): Promise<boolean> {
-  return validateDevice(workerId, deviceToken)
+  const result = await validateDeviceDetailed(workerId, deviceToken)
+  return result === 'APPROVED'
 }
 
 /** 근로자의 배정된 현장 목록 조회 */
@@ -121,11 +143,33 @@ export async function processAttendanceCheckIn(
   input: AttendanceEngineInput,
   schedulePresence: (attendanceId: string) => Promise<void>
 ): Promise<AttendanceCheckInResult> {
-  const { workerId, deviceToken, siteId, latitude, longitude, isDirectCheckIn, exceptionReason } = input
+  const { workerId, deviceToken, siteId, latitude, longitude, isDirectCheckIn, exceptionReason, checkInPhotoId } = input
 
-  // 1. 기기 검증
-  if (!(await validateAttendanceDevice(workerId, deviceToken))) {
-    return { success: false, message: '등록된 기기에서만 출퇴근이 가능합니다.' }
+  // 0. 계정 승인 상태 검증
+  const worker = await prisma.worker.findUnique({
+    where: { id: workerId },
+    select: { accountStatus: true, isActive: true },
+  })
+  if (!worker || !worker.isActive) {
+    return { success: false, errorCode: 'ACCOUNT_INACTIVE', message: '비활성 계정입니다. 관리자에게 문의하세요.', actionRequired: '관리자 문의' }
+  }
+  if (worker.accountStatus === 'PENDING') {
+    return { success: false, errorCode: 'ACCOUNT_PENDING', message: '회원가입 승인 대기 중입니다. 승인 완료 후 출퇴근이 가능합니다.', actionRequired: '관리자 승인 대기' }
+  }
+  if (worker.accountStatus === 'REJECTED') {
+    return { success: false, errorCode: 'ACCOUNT_REJECTED', message: '회원가입이 반려된 계정입니다. 관리자에게 문의하세요.', actionRequired: '관리자 문의' }
+  }
+  if (worker.accountStatus === 'SUSPENDED') {
+    return { success: false, errorCode: 'ACCOUNT_SUSPENDED', message: '계정이 정지된 상태입니다. 관리자에게 문의하세요.', actionRequired: '관리자 문의' }
+  }
+
+  // 1. 기기 검증 — BLOCKED와 미승인(PENDING)을 분리
+  const deviceStatus = await validateDeviceDetailed(workerId, deviceToken)
+  if (deviceStatus === 'BLOCKED') {
+    return { success: false, errorCode: 'DEVICE_BLOCKED', message: '차단된 기기입니다. 관리자에게 문의하세요.', actionRequired: '관리자 문의' }
+  }
+  if (deviceStatus === 'NOT_FOUND') {
+    return { success: false, errorCode: 'DEVICE_PENDING', message: '이 기기는 아직 승인되지 않았습니다. 관리자 승인 후 사용 가능합니다.', actionRequired: '기기 승인 대기' }
   }
 
   // 2. 현장 조회
@@ -134,13 +178,13 @@ export async function processAttendanceCheckIn(
     select: { id: true, name: true, latitude: true, longitude: true, allowedRadius: true },
   })
   if (!site) {
-    return { success: false, message: '유효하지 않은 현장입니다.' }
+    return { success: false, errorCode: 'SITE_INACTIVE', message: '유효하지 않은 현장입니다.', actionRequired: '현장 정보 확인' }
   }
 
-  // 3. 현장 배정 검증
+  // 3. 현장 배정 검증 (현장 참여 승인 여부)
   const assignment = await getWorkerSiteAssignment(workerId, siteId)
   if (!assignment) {
-    return { success: false, message: '배정되지 않은 현장입니다. 관리자에게 문의하세요.' }
+    return { success: false, errorCode: 'SITE_MEMBERSHIP_REQUIRED', message: '현장 참여 승인이 필요합니다. 현장 참여를 신청하고 승인을 기다려 주세요.', actionRequired: '현장 참여 신청' }
   }
 
   // 4. GPS 거리 계산
@@ -149,9 +193,31 @@ export async function processAttendanceCheckIn(
   if (!within && !exceptionReason) {
     return {
       success: false,
+      errorCode: 'GEO_OUT_OF_RANGE',
       message: `현장 반경 밖입니다. (거리: ${Math.round(distance)}m, 허용: ${site.allowedRadius}m)`,
+      actionRequired: '현장 위치로 이동하거나 예외 사유를 입력하세요.',
       distance,
       withinRadius: false,
+    }
+  }
+
+  // 4-1. 사진 증빙 검증 (photoId가 있으면 유효한 미사용 사진인지 확인)
+  const photoEnabled = process.env.ATTENDANCE_PHOTO_REQUIRED !== 'false'
+  if (photoEnabled) {
+    if (!checkInPhotoId) {
+      return { success: false, errorCode: 'PHOTO_REQUIRED', message: '출근 사진이 필요합니다. 사진을 촬영해 주세요.', actionRequired: '사진 촬영' }
+    }
+    const photo = await prisma.attendancePhotoEvidence.findFirst({
+      where: {
+        id: checkInPhotoId,
+        workerId,
+        siteId: site.id,
+        photoType: 'CHECK_IN',
+        attendanceLogId: null,  // 아직 다른 출근에 사용되지 않은 사진
+      },
+    })
+    if (!photo) {
+      return { success: false, errorCode: 'PHOTO_REQUIRED', message: '유효한 출근 사진이 필요합니다. 다시 사진을 촬영해 주세요.', actionRequired: '사진 촬영' }
     }
   }
 
@@ -159,34 +225,49 @@ export async function processAttendanceCheckIn(
   const workDateStr = toKSTDateString()
   const workDate = kstDateStringToDate(workDateStr)
 
-  // 6. 중복 출근 체크
-  const existing = await prisma.attendanceLog.findUnique({
-    where: { workerId_siteId_workDate: { workerId, siteId: site.id, workDate } },
+  // 6. 중복 출근 체크 (ADJUSTED는 무효 처리된 기록이므로 재출근 허용)
+  const existing = await prisma.attendanceLog.findFirst({
+    where: { workerId, siteId: site.id, workDate, status: { not: 'ADJUSTED' } },
   })
   if (existing) {
-    return { success: false, message: '이미 오늘 출근 처리되었습니다.' }
+    return { success: false, errorCode: 'ATTENDANCE_CONFLICT', message: '이미 오늘 출근 처리되었습니다.' }
   }
 
-  // 7. 출근 기록 생성 (회사 스냅샷 포함)
-  const log = await prisma.attendanceLog.create({
-    data: {
-      workerId,
-      siteId: site.id,
-      workDate,
-      checkInAt: new Date(),
-      checkInLat: latitude,
-      checkInLng: longitude,
-      checkInDistance: distance,
-      checkInWithinRadius: within,
-      isDirectCheckIn: true,
-      status: 'WORKING',
-      // 회사 스냅샷
-      companyId: assignment.companyId,
-      companyNameSnapshot: assignment.company.companyName,
-      employmentTypeSnapshot: assignment.tradeType ?? null,
-      tradeTypeSnapshot: assignment.tradeType,
-    },
+  // 7. 출근 기록 생성 — ADJUSTED 기록이 있으면 재활성화(UPDATE), 없으면 신규 생성
+  const adjustedLog = await prisma.attendanceLog.findFirst({
+    where: { workerId, siteId: site.id, workDate, status: 'ADJUSTED' },
   })
+
+  const checkInPayload = {
+    checkInAt: new Date(),
+    checkInLat: latitude,
+    checkInLng: longitude,
+    checkInDistance: distance,
+    checkInWithinRadius: within,
+    isDirectCheckIn: true,
+    status: 'WORKING' as const,
+    checkOutAt: null,
+    checkOutLat: null,
+    checkOutLng: null,
+    checkOutDistance: null,
+    checkOutWithinRadius: null,
+    adminNote: null,
+    companyId: assignment.companyId,
+    companyNameSnapshot: assignment.company.companyName,
+    employmentTypeSnapshot: assignment.tradeType ?? null,
+    tradeTypeSnapshot: assignment.tradeType,
+  }
+
+  let log
+  if (adjustedLog) {
+    // 재활성화: 기존 이벤트(이동 기록 등) 삭제 후 UPDATE
+    await prisma.attendanceEvent.deleteMany({ where: { attendanceLogId: adjustedLog.id } })
+    log = await prisma.attendanceLog.update({ where: { id: adjustedLog.id }, data: checkInPayload })
+  } else {
+    log = await prisma.attendanceLog.create({
+      data: { workerId, siteId: site.id, workDate, ...checkInPayload },
+    })
+  }
 
   // 8. 출근 이벤트 생성
   await prisma.attendanceEvent.create({
@@ -205,7 +286,15 @@ export async function processAttendanceCheckIn(
     },
   })
 
-  // 9. PresenceCheck 예약 (실패해도 출근 유지)
+  // 9. 사진 증빙을 출근 기록에 연결
+  if (checkInPhotoId) {
+    await prisma.attendancePhotoEvidence.update({
+      where: { id: checkInPhotoId },
+      data: { attendanceLogId: log.id },
+    }).catch(() => {})  // 연결 실패해도 출근은 유지
+  }
+
+  // 10. PresenceCheck 예약 (실패해도 출근 유지)
   try {
     await schedulePresence(log.id)
   } catch (err) {
@@ -267,10 +356,10 @@ export async function processAttendanceSiteMove(
     return { success: false, message: '현재 근무 중인 현장과 동일합니다.' }
   }
 
-  // 5. 이동 대상 현장 배정 확인
+  // 5. 이동 대상 현장 배정(참여 승인) 확인
   const assignment = await getWorkerSiteAssignment(workerId, targetSiteId)
   if (!assignment) {
-    return { success: false, message: '배정되지 않은 현장입니다. 관리자에게 문의하세요.' }
+    return { success: false, message: '현장 참여 승인이 필요합니다. 현장 참여를 신청하고 승인을 기다려 주세요.' }
   }
 
   // 6. 이동 대상 현장 조회
@@ -326,12 +415,17 @@ export async function processAttendanceCheckOut(
   siteId: string,
   latitude: number,
   longitude: number,
-  exceptionReason?: string
+  exceptionReason?: string,
+  checkOutPhotoId?: string
 ): Promise<AttendanceCheckOutResult> {
 
-  // 1. 기기 검증
-  if (!(await validateAttendanceDevice(workerId, deviceToken))) {
-    return { success: false, message: '등록된 기기에서만 출퇴근이 가능합니다.' }
+  // 1. 기기 검증 — BLOCKED/NOT_FOUND 분리
+  const deviceStatus = await validateDeviceDetailed(workerId, deviceToken)
+  if (deviceStatus === 'BLOCKED') {
+    return { success: false, errorCode: 'DEVICE_BLOCKED', message: '차단된 기기입니다. 관리자에게 문의하세요.' }
+  }
+  if (deviceStatus === 'NOT_FOUND') {
+    return { success: false, errorCode: 'DEVICE_PENDING', message: '등록된 기기에서만 퇴근이 가능합니다.' }
   }
 
   // 2. 현장 조회
@@ -350,9 +444,31 @@ export async function processAttendanceCheckOut(
   if (!within && !exceptionReason) {
     return {
       success: false,
+      errorCode: 'GEO_OUT_OF_RANGE',
       message: `현장 반경 밖입니다. (거리: ${Math.round(distance)}m) 퇴근 사유를 입력해주세요.`,
+      actionRequired: '현장 위치로 이동하거나 예외 사유를 입력하세요.',
       distance,
       withinRadius: false,
+    }
+  }
+
+  // 4-1. 퇴근 사진 증빙 검증
+  const photoEnabled = process.env.ATTENDANCE_PHOTO_REQUIRED !== 'false'
+  if (photoEnabled) {
+    if (!checkOutPhotoId) {
+      return { success: false, errorCode: 'PHOTO_REQUIRED', message: '퇴근 사진이 필요합니다. 사진을 촬영해 주세요.', actionRequired: '사진 촬영' }
+    }
+    const photo = await prisma.attendancePhotoEvidence.findFirst({
+      where: {
+        id: checkOutPhotoId,
+        workerId,
+        siteId,
+        photoType: 'CHECK_OUT',
+        attendanceLogId: null,
+      },
+    })
+    if (!photo) {
+      return { success: false, errorCode: 'PHOTO_REQUIRED', message: '유효한 퇴근 사진이 필요합니다. 다시 사진을 촬영해 주세요.', actionRequired: '사진 촬영' }
     }
   }
 
@@ -411,6 +527,14 @@ export async function processAttendanceCheckOut(
       reason: exceptionReason ?? null,
     },
   })
+
+  // 퇴근 사진 연결
+  if (checkOutPhotoId) {
+    await prisma.attendancePhotoEvidence.update({
+      where: { id: checkOutPhotoId },
+      data: { attendanceLogId: log.id },
+    }).catch(() => {})
+  }
 
   return {
     success: true,

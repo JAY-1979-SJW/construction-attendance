@@ -83,3 +83,52 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   return NextResponse.json({ success: true, data: updated })
 }
+
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getAdminSession()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const body = await req.json().catch(() => ({}))
+  const existing = await prisma.company.findUnique({ where: { id: params.id } })
+  if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  const data: Record<string, unknown> = {}
+  if (body.status !== undefined) data.status = body.status
+  if (body.planType !== undefined) data.planType = body.planType ?? null
+  if (body.expiresAt !== undefined) data.expiresAt = body.expiresAt ? new Date(body.expiresAt) : null
+  if (body.featureFlagsJson !== undefined) data.featureFlagsJson = body.featureFlagsJson ?? null
+  if (body.isActive !== undefined) data.isActive = body.isActive
+
+  const updated = await prisma.company.update({ where: { id: params.id }, data })
+
+  // featureFlagsJson 변경 시 전용 액션 타입으로 분리
+  if (body.featureFlagsJson !== undefined) {
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType:   'ADMIN',
+      actorRole:   session.role ?? 'ADMIN',
+      companyId:   params.id,
+      actionType:  'COMPANY_FEATURE_FLAGS_UPDATE',
+      targetType:  'Company',
+      targetId:    updated.id,
+      summary:     `기능플래그 변경: ${updated.companyName}`,
+      beforeJson:  { featureFlagsJson: existing.featureFlagsJson },
+      afterJson:   { featureFlagsJson: updated.featureFlagsJson },
+    })
+  } else {
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType:   'ADMIN',
+      actorRole:   session.role ?? 'ADMIN',
+      companyId:   params.id,
+      actionType:  'COMPANY_STATUS_UPDATE',
+      targetType:  'Company',
+      targetId:    updated.id,
+      summary:     `회사 상태/설정 변경: ${updated.companyName}`,
+      beforeJson:  { status: existing.status, planType: existing.planType, expiresAt: existing.expiresAt },
+      afterJson:   { status: updated.status, planType: updated.planType, expiresAt: updated.expiresAt },
+    })
+  }
+
+  return NextResponse.json({ success: true, data: updated })
+}

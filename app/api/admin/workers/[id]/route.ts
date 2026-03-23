@@ -43,6 +43,10 @@ export async function GET(
           include: { company: { select: { id: true, companyName: true } } },
           orderBy: { updatedAt: 'desc' },
         },
+        // 신규 암호화 계좌 마스킹값 (레거시 bankAccount 대체)
+        bankAccountSecure: {
+          select: { bankName: true, accountNumberMasked: true },
+        },
       },
     })
     if (!worker) return notFound('근로자를 찾을 수 없습니다.')

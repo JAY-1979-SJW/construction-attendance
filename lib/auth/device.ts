@@ -1,15 +1,26 @@
 import { prisma } from '@/lib/db/prisma'
 
-export async function validateDevice(workerId: string, deviceToken: string): Promise<boolean> {
+export type DeviceValidationResult =
+  | 'APPROVED'
+  | 'BLOCKED'
+  | 'NOT_FOUND'
+
+/**
+ * 기기 검증 — 차단(BLOCKED)과 미승인(NOT_FOUND)을 분리 반환
+ */
+export async function validateDeviceDetailed(
+  workerId: string,
+  deviceToken: string
+): Promise<DeviceValidationResult> {
   const device = await prisma.workerDevice.findFirst({
-    where: {
-      workerId,
-      deviceToken,
-      isActive: true,
-    },
+    where: { workerId, deviceToken, isActive: true },
+    select: { id: true, isBlocked: true },
   })
 
-  if (!device) return false
+  if (!device) return 'NOT_FOUND'
+  if (device.isBlocked) {
+    return 'BLOCKED'
+  }
 
   // 마지막 로그인 시각 갱신
   await prisma.workerDevice.update({
@@ -17,7 +28,16 @@ export async function validateDevice(workerId: string, deviceToken: string): Pro
     data: { lastLoginAt: new Date() },
   })
 
-  return true
+  return 'APPROVED'
+}
+
+/**
+ * 기기 검증 — boolean 반환 (레거시 호환)
+ * isBlocked=true인 기기는 false 반환
+ */
+export async function validateDevice(workerId: string, deviceToken: string): Promise<boolean> {
+  const result = await validateDeviceDetailed(workerId, deviceToken)
+  return result === 'APPROVED'
 }
 
 export async function registerDevice(
@@ -46,7 +66,7 @@ export async function registerDevice(
       workerId,
       deviceToken,
       deviceName,
-      isPrimary: hasPrimary === 0, // 첫 기기는 기본 기기
+      isPrimary: hasPrimary === 0,
       isActive: true,
       lastLoginAt: new Date(),
     },

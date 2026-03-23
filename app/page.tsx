@@ -8,9 +8,11 @@ export default function LandingPage() {
       {/* 헤더 */}
       <header style={s.header}>
         <span style={s.headerLogo}>해한건설</span>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <Link href="/guide" style={{ ...s.headerLogin, background: 'transparent', color: '#1976d2', border: '1px solid #1976d2' }}>앱 미리보기</Link>
-          <Link href="/login" style={s.headerLogin}>로그인 / 등록</Link>
+          <Link href="/register" style={{ ...s.headerLogin, background: '#4caf50' }}>회원가입</Link>
+          <Link href="/login" style={s.headerLogin}>로그인</Link>
+          <Link href="/admin/login" style={s.headerAdminLogin}>관리자</Link>
         </div>
       </header>
 
@@ -19,10 +21,10 @@ export default function LandingPage() {
         <div style={s.heroInner}>
           <div style={s.badge}>현장 출퇴근 관리 시스템</div>
           <h1 style={s.heroTitle}>
-            QR 한 번으로<br />출퇴근 끝
+            GPS 한 번으로<br />출퇴근 끝
           </h1>
           <p style={s.heroSub}>
-            현장에 붙어있는 QR을 스캔하면<br />
+            현장 반경 안에서 버튼만 누르면<br />
             출근·이동·퇴근이 자동으로 기록됩니다.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -37,10 +39,10 @@ export default function LandingPage() {
         <h2 style={s.sectionTitle}>이렇게 사용하세요</h2>
         <div style={s.steps}>
           {[
-            { num: '1', icon: '📱', title: '앱 접속 · 로그인', desc: '휴대폰 번호를 입력하고\n관리자 승인을 받으세요.' },
-            { num: '2', icon: '✅', title: '출근 QR 스캔', desc: '현장에 도착하면\n출근 QR을 스캔하세요.' },
-            { num: '3', icon: '🚶', title: '현장 이동 (선택)', desc: '다른 현장으로 이동 시\n해당 현장 QR을 스캔하세요.' },
-            { num: '4', icon: '🏠', title: '퇴근 QR 스캔', desc: '퇴근 전 반드시\n마지막 현장 QR을 스캔하세요.' },
+            { num: '1', icon: '📱', title: '회원가입 · 승인', desc: '이름·번호·직종으로 가입하고\n관리자 승인을 받으세요.' },
+            { num: '2', icon: '📍', title: 'GPS 출근', desc: '현장 반경 안에서\n출근 버튼을 누르세요.' },
+            { num: '3', icon: '🚶', title: '현장 이동 (선택)', desc: '다른 현장으로 이동 시\n이동 버튼을 눌러 기록하세요.' },
+            { num: '4', icon: '🏠', title: 'GPS 퇴근', desc: '퇴근 전 반드시\n퇴근 버튼을 누르세요.' },
           ].map((step) => (
             <div key={step.num} style={s.stepCard}>
               <div style={s.stepNum}>{step.num}</div>
@@ -57,8 +59,8 @@ export default function LandingPage() {
         <h2 style={s.sectionTitle}>주요 특징</h2>
         <div style={s.features}>
           {[
-            { icon: '📍', title: 'GPS 위치 확인', desc: '현장 반경 내에서만 출퇴근 가능. 허위 기록 방지.' },
-            { icon: '🔒', title: '관리자 승인 방식', desc: '등록된 기기·근로자만 사용 가능. 보안 유지.' },
+            { icon: '📍', title: 'GPS 직접 출퇴근', desc: '현장 반경 안에서만 출퇴근 가능. QR 없이 GPS로 처리.' },
+            { icon: '🔒', title: '관리자 승인 방식', desc: '승인된 기기·근로자만 사용 가능. 보안 유지.' },
             { icon: '📊', title: '실시간 현황', desc: '관리자가 출근 현황을 실시간으로 확인.' },
             { icon: '🔄', title: '자동 퇴근 처리', desc: '퇴근 누락 시 다음날 자동으로 미퇴근 처리.' },
           ].map((f) => (
@@ -78,7 +80,7 @@ export default function LandingPage() {
           {[
             '휴대폰 GPS(위치) 권한을 허용해야 합니다.',
             '최초 1회 관리자 기기 승인이 필요합니다.',
-            '퇴근 스캔을 빠뜨리면 미퇴근으로 처리됩니다.',
+            '퇴근 버튼을 누르지 않으면 미퇴근으로 처리됩니다.',
             '문제 발생 시 현장 관리자에게 바로 알려주세요.',
           ].map((notice) => (
             <div key={notice} style={s.noticeItem}>
@@ -113,6 +115,7 @@ const s: Record<string, React.CSSProperties> = {
   header:        { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', background: 'white', borderBottom: '1px solid #eee', position: 'sticky' as const, top: 0, zIndex: 10 },
   headerLogo:    { fontSize: '18px', fontWeight: 700, color: '#1a1a2e' },
   headerLogin:   { padding: '8px 20px', background: '#1976d2', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 },
+  headerAdminLogin: { padding: '7px 14px', background: '#ff6f00', color: 'white', border: 'none', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 700 },
 
   // 히어로
   hero:          { background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%)', padding: '80px 24px', textAlign: 'center' as const },

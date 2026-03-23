@@ -46,6 +46,14 @@ enum AdminRole {
   SUPER_ADMIN
   ADMIN
   VIEWER
+  COMPANY_ADMIN   // 업체 관리자 — companyId 필수, /company 포털 전용
+}
+
+enum CompanyStatus {
+  ACTIVE
+  SUSPENDED   // 일시 정지
+  EXPIRED     // 사용기간 만료
+  DELETED     // 소프트 삭제
 }
 
 enum TimeBucket {
@@ -299,6 +307,81 @@ enum IdentityAccessAction {
   DELETE
 }
 
+// ─── 사진증빙 Enum ────────────────────────────────────────
+
+enum AttendancePhotoType {
+  CHECK_IN   // 출근 증빙 사진
+  CHECK_OUT  // 퇴근 증빙 사진
+}
+
+// ─── 휴대폰 본인확인 Enum (추후 연동 대비) ────────────────
+
+enum PhoneVerificationStatus {
+  NOT_REQUIRED  // 현 정책: 본인확인 불필요
+  PENDING       // 본인확인 요청 발송 대기
+  VERIFIED      // 본인확인 완료
+  FAILED        // 본인확인 실패
+}
+
+// ─── 정책 문서 Enums ──────────────────────────────────────
+
+enum DocumentType {
+  TERMS_OF_SERVICE   // 서비스 이용약관 (필수)
+  PRIVACY_POLICY     // 개인정보 처리방침 (필수)
+  LOCATION_POLICY    // 위치정보 이용 동의 (필수)
+  MARKETING_NOTICE   // 마케팅 수신 동의 (선택)
+}
+
+// ─── 회원가입·승인 흐름 Enums ─────────────────────────────
+
+enum WorkerAccountStatus {
+  PENDING    // 가입 승인 대기
+  APPROVED   // 승인 완료
+  REJECTED   // 반려
+  SUSPENDED  // 정지
+}
+
+enum ConsentType {
+  TERMS_OF_SERVICE  // 서비스 이용약관 (필수)
+  PRIVACY_POLICY    // 개인정보 수집·이용 (필수)
+  LOCATION_POLICY   // 위치정보 이용 (필수)
+  MARKETING         // 마케팅 수신 (선택)
+}
+
+enum SiteJoinStatus {
+  PENDING   // 참여 승인 대기
+  APPROVED  // 승인 완료
+  REJECTED  // 반려
+}
+
+enum SiteJoinMethod {
+  SITE_LIST    // 현장 목록에서 신청
+  INVITE_CODE  // 초대코드 입력
+  QR_JOIN      // QR 스캔 참여
+}
+
+enum CompanyAdminRequestStatus {
+  PENDING   // 검토 대기
+  APPROVED  // 승인 완료
+  REJECTED  // 반려
+}
+
+// ─── 신분증 확인 방식 Enum ────────────────────────────────
+enum IdVerificationMethod {
+  IN_PERSON        // 대면 확인
+  SECURE_DOCUMENT  // 보안 채널 서류 전달
+  ADMIN_MANUAL     // 관리자 수동 확인
+}
+
+// ─── 노무/보험 준비 상태 Enum ─────────────────────────────
+enum ComplianceReadyStatus {
+  NOT_STARTED  // 미시작
+  IN_PROGRESS  // 진행 중
+  READY        // 준비 완료
+  COMPLETED    // 신고 완료
+  EXEMPT       // 해당 없음
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model AdminUser {
@@ -308,35 +391,45 @@ model AdminUser {
   passwordHash String
   role         AdminRole @default(ADMIN)
   isActive     Boolean   @default(true)
+  companyId    String?   // COMPANY_ADMIN 전용, 플랫폼 관리자는 null
+  lastLoginAt  DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
+  company                 Company?              @relation("AdminUserCompany", fields: [companyId], references: [id], onDelete: Restrict)
   processedDeviceRequests DeviceChangeRequest[] @relation("ProcessedBy")
   auditLogs               AdminAuditLog[]
 
+  @@index([companyId])
   @@map("admin_users")
 }
 
 // ─── v2: Company (Subcontractor 대체) ────────────────────
 
 model Company {
-  id                 String      @id @default(cuid())
-  companyCode        String?     @unique
+  id                 String        @id @default(cuid())
+  companyCode        String?       @unique
   companyName        String
-  businessNumber     String?     @unique
+  businessNumber     String?       @unique
   corpNumber         String?
   representativeName String?
-  companyType        CompanyType @default(OTHER)
+  companyType        CompanyType   @default(OTHER)
   contactName        String?
   contactPhone       String?
   email              String?
   address            String?
-  isActive           Boolean     @default(true)
+  isActive           Boolean       @default(true)
+  // 플랫폼 관리 필드
+  status             CompanyStatus @default(ACTIVE)
+  planType           String?       // 요금제 유형 (free/standard/premium 등)
+  expiresAt          DateTime?     // 사용기간 만료일
+  featureFlagsJson   Json?         // 업체별 기능 ON/OFF
   notes              String?
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
   // Relations
+  adminUsers            AdminUser[]               @relation("AdminUserCompany")
   workerAssignments     WorkerCompanyAssignment[]
   siteAssignments       SiteCompanyAssignment[]
   workerSiteAssignments WorkerSiteAssignment[]
@@ -349,12 +442,21 @@ model Company {
 }
 
 model Worker {
-  id          String   @id @default(cuid())
-  workerCode  String?  @unique
-  name        String
-  phone       String   @unique
-  jobTitle    String
-  isActive    Boolean  @default(true)
+  id            String              @id @default(cuid())
+  workerCode    String?             @unique
+  name          String
+  phone         String              @unique
+  jobTitle      String
+  isActive      Boolean             @default(true)
+  // ── 회원가입·승인 상태 ────────────────────────────────────
+  accountStatus WorkerAccountStatus @default(APPROVED)  // 기존 어드민 생성 계정은 APPROVED
+  username      String?             @unique              // 자가 회원가입 시 아이디 (선택)
+  email         String?                                  // 이메일 (선택)
+  birthDate     String?                                  // 생년월일 YYYYMMDD (선택)
+  // 반려 사유
+  rejectReason  String?
+  reviewedAt    DateTime?
+  reviewedBy    String?
 
   // ── 노무 관리 확장 필드 ──────────────────────────────────
   residentIdMasked          String?
@@ -376,6 +478,11 @@ model Worker {
   insuranceExceptionReason  String?
   taxExceptionYn            Boolean          @default(false)
   taxExceptionReason        String?
+  // ── 휴대폰 본인확인 (추후 NICE/KMC 연동 대비 — 현재 NOT_REQUIRED) ──
+  phoneVerificationStatus   PhoneVerificationStatus @default(NOT_REQUIRED)
+  phoneVerificationProvider String?                 // NICE | KMC | KG | null
+  phoneVerifiedAt           DateTime?
+
   // ── Phase 6 신분증 ─────────────────────────────────────
   idVerificationStatus       IdReviewStatus?
   latestIdentityDocumentId   String?
@@ -410,6 +517,22 @@ model Worker {
   siteAssignments            WorkerSiteAssignment[]
   insuranceStatuses          WorkerInsuranceStatus[]
   workerDocuments            WorkerDocument[]
+  // 회원가입 흐름
+  consents                   UserConsent[]
+  siteJoinRequests           SiteJoinRequest[]
+  // 사진증빙
+  attendancePhotos           AttendancePhotoEvidence[]
+  // 휴대폰 본인확인 이력 (추후)
+  phoneVerifications         FuturePhoneVerification[]
+  // 민감정보 분리 저장
+  sensitiveProfile           WorkerSensitiveProfile?
+  bankAccountSecure          WorkerBankAccountSecure?
+  complianceStatus           WorkerComplianceStatus?
+  tempDocuments              TempSensitiveDocument[]
+  // v3 — 근로형태 분류
+  profile                    WorkerProfile?
+  generatedDocuments         GeneratedDocument[]
+  safetyDocuments            SafetyDocument[]
 
   @@map("workers")
 }
@@ -451,6 +574,8 @@ model Site {
   companyAssignments         SiteCompanyAssignment[]
   workerAssignments          WorkerSiteAssignment[]
   bulkImportRows             BulkSiteImportRow[]
+  siteJoinRequests           SiteJoinRequest[]
+  safetyDocuments            SafetyDocument[]
 
   @@map("sites")
 }
@@ -655,16 +780,22 @@ model AuditLog {
   id           String         @id @default(cuid())
   actorUserId  String?
   actorType    AuditActorType @default(SYSTEM)
+  actorRole    String?        // SUPER_ADMIN / ADMIN / COMPANY_ADMIN 등
+  companyId    String?        // 업체 스코프 (COMPANY_ADMIN 행위는 필수)
   actionType   String
   targetType   String?
   targetId     String?
   summary      String
+  beforeJson   Json?          // 수정 전 상태
+  afterJson    Json?          // 수정 후 상태
+  reason       String?        // 변경 사유
   metadataJson Json?
   ipAddress    String?
   userAgent    String?
   createdAt    DateTime       @default(now())
 
   @@index([actorUserId])
+  @@index([companyId])
   @@index([targetType, targetId])
   @@index([createdAt])
   @@index([actionType])
@@ -679,9 +810,18 @@ model WorkerDevice {
   deviceToken     String    @unique
   deviceName      String
   fingerprintHash String?
+  platform        String?   // iOS | Android | Web
+  browser         String?   // 브라우저/앱 정보
   isPrimary       Boolean   @default(false)
   isActive        Boolean   @default(true)
+  // 차단 상태 (isActive=true이더라도 출퇴근 차단 가능)
+  isBlocked       Boolean   @default(false)
+  blockReason     String?
+  blockedAt       DateTime?
+  blockedBy       String?   // AdminUser.id
   lastLoginAt     DateTime?
+  lastLatitude    Float?    // 마지막 위치 스냅샷
+  lastLongitude   Float?
   fcmToken        String?
   approvedAt      DateTime?
   approvedBy      String?
@@ -693,6 +833,7 @@ model WorkerDevice {
   worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
 
   @@index([workerId])
+  @@index([isBlocked])
   @@map("worker_devices")
 }
 
@@ -806,6 +947,8 @@ model AttendanceEvent {
 model AppSettings {
   id                                String   @id @default("singleton")
   planType                          String   @default("FREE")
+  // 기기 승인 정책: MANUAL(관리자 승인 필요) | AUTO_FIRST(첫 기기 자동 승인)
+  deviceApprovalMode                String   @default("MANUAL")
   presenceCheckFeatureAvailable     Boolean  @default(false)
   presenceCheckEnabled              Boolean  @default(false)
   presenceCheckAmEnabled            Boolean  @default(true)
@@ -925,15 +1068,105 @@ model WorkerContract {
   retirementMutualRuleType String       @default("DEFAULT")
   notes                    String?
   isActive                 Boolean      @default(true)
+
+  // ── v3 확장 컬럼 ─────────────────────────────────────────
+  contractKind             ContractKind?
+  contractTemplateType     ContractTemplateType?
+  contractStatus           ContractStatus        @default(DRAFT)
+  serviceFee               Int?                  // 용역비 (원)
+  paymentDay               Int?                  // 지급일 (1-31)
+  standardWorkHours        Decimal?              @db.Decimal(4, 2)  // 소정근로시간 (일 기준)
+  breakHours               Decimal?              @db.Decimal(4, 2)  // 휴게시간
+  nationalPensionYn        Boolean               @default(false)
+  healthInsuranceYn        Boolean               @default(false)
+  employmentInsuranceYn    Boolean               @default(false)
+  industrialAccidentYn     Boolean               @default(true)
+  retirementMutualYn       Boolean               @default(false)
+  specialTerms             String?               // 특약사항
+  pdfFilePath              String?               // 생성된 PDF 경로
+  signedAt                 DateTime?
+  createdBy                String?               // AdminUser.id
+
+  // ── v3.1 계약 분류 확장 ────────────────────────────────────
+  laborRelationType        String?               // DIRECT_EMPLOYEE | SUBCONTRACT_BIZ | TEAM_NONBIZ_REVIEW
+  businessRegistrationNo   String?               // 사업자등록번호 (외주팀)
+  contractorName           String?               // 수급인 상호 (외주팀)
+  safetyClauseYn           Boolean               @default(true)   // 안전보건 조항 포함
+  checkInTime              String?               // 근무시작시각 'HH:MM'
+  checkOutTime             String?               // 근무종료시각 'HH:MM'
+  workDays                 String?               // 근무요일 문자열
+  paymentMethod            String?               // 지급방법
+  reviewFlags              String?               // 경고 플래그 (comma-separated)
+  attendanceControlledByCompany Boolean?          // 회사가 출퇴근 직접 관리
+  payDecidedByCompany      Boolean?              // 회사가 개인별 급여 직접 결정
+  directPaymentByCompany   Boolean?              // 회사가 개인별 직접 지급
+
+  // ── v3.3 계약서 완성 필드 ──────────────────────────────────
+  // 사용자(회사) 기본정보
+  companyBizNo             String?               // 사업자등록번호
+  companyAddress           String?               // 사업장 주소
+  companyRepName           String?               // 대표자명
+
+  // 근로자 기본정보 (계약서 기입용)
+  workerBirthDate          String?               // 생년월일 'YYYY-MM-DD'
+  workerAddress            String?               // 근로자 주소
+
+  // 근로시간 상세
+  breakStartTime           String?               // 휴게 시작 'HH:MM'
+  breakEndTime             String?               // 휴게 종료 'HH:MM'
+  weeklyWorkDays           Int?                  // 주 소정근로일 (일)
+  weeklyWorkHours          Decimal?              @db.Decimal(4, 2) // 주 소정근로시간
+
+  // 휴일/연차
+  holidayRule              String?               // 주휴일 (예: '일요일')
+  annualLeaveRule          String?               // 연차유급휴가 적용 문구 요약
+
+  // 임금 상세
+  allowanceJson            Json?                 // 수당 항목 [{name, amount}]
+
+  // 수습
+  probationYn              Boolean               @default(false)
+  probationMonths          Int?
+
+  // 현장 특약
+  attendanceVerificationMethod String?           // 출퇴근 인증 방식
+  workUnitRule             String?               // 공수 인정 기준
+  rainDayRule              String?               // 우천 시 처리 기준
+  siteStopRule             String?               // 작업중지 시 처리 기준
+  siteChangeAllowed        Boolean               @default(true)
+
+  // 전자서명/교부
+  electronicDeliveryConsent Boolean              @default(false)
+  signedBy                 String?               // 서명자명
+  deliveredAt              DateTime?
+  deliveredMethod          String?               // EMAIL | KAKAO | PAPER | APP
+
+  // 버전관리
+  currentVersion           Int                   @default(1)
+
+  // v3.4 — 공사·직종·계약형태
+  projectName              String?               // 공사명
+  workType                 String?               // 공종 (전기/소방전기/소방기계/기계설비/통신/기타)
+  workTypeSub              String?               // 세부공종
+  jobCategory              String?               // 직종 (보통인부/특별인부/조공/전공/기능공/기사반장/기타)
+  jobCategorySub           String?               // 세부직종
+  contractForm             String?               // MONTHLY_FIXED | CONTINUOUS
+  taskDescription          String?               // 담당업무
+  // ─────────────────────────────────────────────────────────
+
   createdAt                DateTime     @default(now())
   updatedAt                DateTime     @updatedAt
 
-  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
-  site   Site?  @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  worker             Worker              @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site               Site?               @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  generatedDocuments GeneratedDocument[]
+  contractVersions   ContractVersion[]
+  safetyDocuments    SafetyDocument[]
 
   @@index([workerId])
   @@index([siteId])
   @@index([startDate])
+  @@index([contractStatus])
   @@map("worker_contracts")
 }
 
@@ -944,13 +1177,18 @@ model AttendanceDay {
   workDate                String   // 'YYYY-MM-DD'
   firstCheckInAt          DateTime?
   lastCheckOutAt          DateTime?
-  workedMinutesRaw        Int?
+  workedMinutesRaw        Int?     // 레거시 — workedMinutesAuto와 동일값 유지
+  workedMinutesAuto       Int?     // 시스템 자동 계산값 (원본 보존)
+  workedMinutesOverride   Int?     // 수동 override값 (null이면 자동값 사용)
+  workedMinutesRawFinal   Int?     // 최종값 = override ?? auto (집계·정산 기준)
   presenceStatus          AttendanceDayPresenceStatus @default(NORMAL)
   presenceReviewResult    String?
   attendanceSourceSummary Json?
   hasMoveBetweenSites     Boolean  @default(false)
   manualAdjustedYn        Boolean  @default(false)
   manualAdjustedReason    String?
+  manualAdjustedByUserId  String?  // 수정한 관리자 ID
+  manualAdjustedAt        DateTime? // 수정 시각
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
@@ -1417,3 +1655,620 @@ model IdentityAccessLog {
   @@index([documentId])
   @@map("identity_access_logs")
 }
+
+// ─── 정책 문서 버전 관리 ──────────────────────────────────
+
+model PolicyDocument {
+  id            String       @id @default(cuid())
+  documentType  DocumentType
+  title         String
+  version       String       // 예: "1.0", "1.1", "2.0"
+  effectiveFrom DateTime     // 시행일
+  effectiveTo   DateTime?    // 종료일 (null = 현재 유효)
+  contentMd     String       // 마크다운 본문
+  isActive      Boolean      @default(true)  // 현재 노출 여부
+  isRequired    Boolean      @default(true)  // 필수 동의 여부
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  consents UserConsent[]
+
+  @@index([documentType, isActive])
+  @@index([effectiveFrom])
+  @@map("policy_documents")
+}
+
+// ─── 회원가입 동의 이력 ────────────────────────────────────
+
+model UserConsent {
+  id               String      @id @default(cuid())
+  workerId         String
+  consentType      ConsentType
+  policyDocumentId String?     // 동의한 문서 버전 ID (null = 레거시)
+  documentVersion  String      @default("1.0")
+  isRequired       Boolean     @default(true)
+  agreed           Boolean     @default(true)
+  agreedAt         DateTime    @default(now())
+  ipAddress        String?
+  userAgent        String?
+
+  worker         Worker          @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  policyDocument PolicyDocument? @relation(fields: [policyDocumentId], references: [id], onDelete: SetNull)
+
+  @@index([workerId])
+  @@index([policyDocumentId])
+  @@map("user_consents")
+}
+
+// ─── 현장 참여 신청 ────────────────────────────────────────
+
+model SiteJoinRequest {
+  id           String         @id @default(cuid())
+  workerId     String
+  companyId    String?        // 신청 시 선택한 소속 업체 (없으면 null)
+  siteId       String
+  status       SiteJoinStatus @default(PENDING)
+  joinMethod   SiteJoinMethod @default(SITE_LIST)
+  requestedAt  DateTime       @default(now())
+  reviewedAt   DateTime?
+  reviewedBy   String?        // AdminUser.id
+  rejectReason String?
+  note         String?        // 신청 메모
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([workerId, siteId])
+  @@index([siteId, status])
+  @@index([status])
+  @@map("site_join_requests")
+}
+
+// ─── 업체 관리자 신청 ──────────────────────────────────────
+
+model CompanyAdminRequest {
+  id                    String                    @id @default(cuid())
+  applicantName         String
+  phone                 String
+  email                 String?
+  companyName           String
+  businessNumber        String                    // 숫자만, 10자리
+  representativeName    String?
+  contactPhone          String?
+  jobTitle              String?
+  businessLicensePath   String?                   // 사업자등록증 파일 경로
+  status                CompanyAdminRequestStatus @default(PENDING)
+  requestedAt           DateTime                  @default(now())
+  reviewedAt            DateTime?
+  reviewedBy            String?                   // AdminUser.id
+  rejectReason          String?
+  createdAdminUserId    String?                   // 승인 후 생성된 AdminUser.id
+  notes                 String?
+
+  @@index([status])
+  @@index([businessNumber])
+  @@map("company_admin_requests")
+}
+
+// ─── 출퇴근 사진 증빙 ──────────────────────────────────────
+
+model AttendancePhotoEvidence {
+  id              String              @id @default(cuid())
+  attendanceLogId String?             // 출퇴근 기록 ID (저장 완료 후 연결)
+  workerId        String
+  siteId          String
+  photoType       AttendancePhotoType
+  filePath        String              // 서버 내 저장 경로
+  mimeType        String              @default("image/jpeg")
+  fileSizeBytes   Int?
+  sha256Hash      String?
+  capturedAt      DateTime            @default(now())
+  latitude        Float?
+  longitude       Float?
+  deviceToken     String?             // 기기 스냅샷
+  uploadedAt      DateTime            @default(now())
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@index([workerId])
+  @@index([attendanceLogId])
+  @@index([siteId, capturedAt])
+  @@map("attendance_photo_evidences")
+}
+
+// ─── 휴대폰 본인확인 이력 (추후 NICE/KMC/KG 연동 대비) ────
+
+model FuturePhoneVerification {
+  id               String                  @id @default(cuid())
+  workerId         String
+  provider         String                  @default("NOT_USED") // NICE | KMC | KG | NOT_USED
+  status           PhoneVerificationStatus @default(NOT_REQUIRED)
+  verifiedAt       DateTime?
+  ci               String?   // 연계정보 (CI)
+  di               String?   // 중복가입확인정보 (DI)
+  transactionId    String?   // 본인확인 트랜잭션 ID
+  rawResultRef     String?   // 암호화된 결과 참조키
+  createdAt        DateTime  @default(now())
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@index([workerId])
+  @@map("future_phone_verifications")
+}
+
+// ─── 민감 개인정보 분리보관 (AES-256-GCM 암호화) ────────────
+// 주민등록번호, 휴대폰번호, 주소 — 출퇴근 앱과 별도 보안 흐름
+// 신분증 파일은 저장하지 않음 (본사/노무 담당자 외부 보안 절차로 수집 후 확인 결과만 기록)
+
+model WorkerSensitiveProfile {
+  id                  String              @id @default(cuid())
+  workerId            String              @unique
+
+  // 법적 성명 (한글 전체명)
+  legalName           String?
+
+  // 주민등록번호 — 원문은 암호화 저장, 마스킹은 화면용, 해시는 중복검색용
+  rrnEncrypted        String?             // AES-256-GCM 암호화값
+  rrnMasked           String?             // "800101-1******"
+  rrnHash             String?             // HMAC-SHA256 (중복검색용)
+
+  // 휴대폰번호 원문 (Worker.phone은 마스킹 저장용 — 이쪽이 원문)
+  phoneEncrypted      String?             // AES-256-GCM
+  phoneMasked         String?             // "010-12**-5678"
+  phoneHash           String?             // HMAC-SHA256
+
+  // 주소
+  addressEncrypted    String?             // AES-256-GCM
+  addressMasked       String?             // "서울 강남구 ***"
+
+  // 신분증 확인 결과 (파일은 저장 안 함)
+  idVerified          Boolean             @default(false)
+  idDocumentType      String?             // "주민등록증" | "운전면허증" | "외국인등록증"
+  idVerificationMethod IdVerificationMethod?
+  idVerifiedBy        String?             // AdminUser.id
+  idVerifiedAt        DateTime?
+  idVerificationNote  String?             // 확인 메모
+
+  // 수집/확인 이력
+  collectedBy         String?             // AdminUser.id
+  collectedAt         DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@index([rrnHash])
+  @@index([phoneHash])
+  @@map("worker_sensitive_profiles")
+}
+
+model WorkerBankAccountSecure {
+  id                         String   @id @default(cuid())
+  workerId                   String   @unique
+
+  bankCode                   String?  // 은행 코드 (예: "004" = 국민은행)
+  bankName                   String?  // 은행명 (화면 표시용)
+
+  // 계좌번호 — 원문 암호화, 마스킹, 해시
+  accountNumberEncrypted     String?  // AES-256-GCM
+  accountNumberMasked        String?  // "****5678"
+  accountNumberHash          String?  // HMAC-SHA256 (중복검색용)
+
+  // 예금주명
+  accountHolderNameEncrypted String?  // AES-256-GCM
+  accountHolderNameMasked    String?  // 마스킹
+
+  // 확인 이력
+  verifiedBy                 String?  // AdminUser.id
+  verifiedAt                 DateTime?
+  collectedBy                String?
+  collectedAt                DateTime?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@map("worker_bank_accounts_secure")
+}
+
+model WorkerComplianceStatus {
+  id                      String                @id @default(cuid())
+  workerId                String                @unique
+
+  // 신원 확인
+  basicIdentityChecked    Boolean               @default(false)  // 기본 신원 확인 완료
+  rrnCollected            Boolean               @default(false)  // 주민등록번호 수집 완료
+  addressCollected        Boolean               @default(false)  // 주소 수집 완료
+  bankInfoCollected       Boolean               @default(false)  // 계좌정보 수집 완료
+
+  // 보험 신고 상태
+  nationalPensionStatus   ComplianceReadyStatus @default(NOT_STARTED)   // 국민연금
+  healthInsuranceStatus   ComplianceReadyStatus @default(NOT_STARTED)   // 건강보험
+  employmentInsuranceStatus ComplianceReadyStatus @default(NOT_STARTED) // 고용보험
+  industrialAccidentStatus  ComplianceReadyStatus @default(NOT_STARTED) // 산재보험
+
+  // 퇴직공제
+  retirementMutualStatus  ComplianceReadyStatus @default(NOT_STARTED)
+
+  // 메모
+  notes                   String?
+  updatedBy               String?   // 마지막 수정 AdminUser.id
+  updatedAt               DateTime  @updatedAt
+  createdAt               DateTime  @default(now())
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@map("worker_compliance_statuses")
+}
+
+// ─── 보험요율 버전 관리 ────────────────────────────────────
+
+enum InsuranceRateType {
+  NATIONAL_PENSION        // 국민연금
+  HEALTH_INSURANCE        // 건강보험
+  LONG_TERM_CARE          // 장기요양보험 (건강보험료의 %)
+  EMPLOYMENT_INSURANCE    // 고용보험 (실업급여)
+  EMPLOYMENT_STABILITY    // 고용안정·직업능력개발 (사업주만)
+  INDUSTRIAL_ACCIDENT     // 산재보험 (업종별)
+  RETIREMENT_MUTUAL       // 건설업 퇴직공제
+}
+
+enum InsuranceRateVersionStatus {
+  DRAFT             // 초안 (작성 중)
+  REVIEW_PENDING    // 검토 요청됨
+  REVIEWED          // 검토 완료 (승인 전)
+  APPROVED_FOR_USE  // 사용 승인 (시스템 적용)
+  DEPRECATED        // 구버전 (더 이상 사용 안 함)
+}
+
+enum TempDocEventType {
+  UPLOADED    // 업로드
+  DOWNLOADED  // 다운로드 (사유 기록 필수)
+  DELETED     // 삭제 (관리자 수동)
+  AUTO_DELETED // 자동 삭제 (5일 초과 or 다운로드 후 24h)
+  EXPIRED     // 만료 처리 (삭제 전 상태)
+}
+
+model InsuranceRateVersion {
+  id                       String                     @id @default(cuid())
+  rateType                 InsuranceRateType
+  effectiveYear            Int                        // 적용 연도 (예: 2026)
+  effectiveMonth           Int?                       // 적용 월 (null = 연간 요율)
+
+  // 요율 (%)
+  totalRatePct             Decimal?   @db.Decimal(6,4)  // 합산 요율
+  employeeRatePct          Decimal?   @db.Decimal(6,4)  // 근로자 부담
+  employerRatePct          Decimal?   @db.Decimal(6,4)  // 사업주 부담
+
+  // 산재·퇴직공제: 업종별/지수별 메모
+  rateNote                 String?    // 보조 설명 (업종별 차등 등)
+  industryCode             String?    // 업종 코드 (산재보험 전용)
+
+  // 공식 고시 출처
+  officialSourceName       String?    // 고시 기관명 (예: "보건복지부")
+  officialSourceUrl        String?    // 고시 URL
+  officialAnnouncementDate DateTime?  // 고시 발표일
+  referenceDocumentNo      String?    // 고시 번호
+
+  // 워크플로 상태
+  status                   InsuranceRateVersionStatus @default(DRAFT)
+  reviewNote               String?
+  reviewedBy               String?    // AdminUser.id
+  reviewedAt               DateTime?
+  approvedBy               String?    // AdminUser.id
+  approvedAt               DateTime?
+  deprecatedAt             DateTime?
+
+  createdBy                String?    // AdminUser.id
+  createdAt                DateTime   @default(now())
+  updatedAt                DateTime   @updatedAt
+
+  @@index([rateType, effectiveYear])
+  @@index([status])
+  @@map("insurance_rate_versions")
+}
+
+model InsuranceRateSource {
+  id                       String            @id @default(cuid())
+  rateType                 InsuranceRateType @unique
+
+  sourceName               String            // 공식 기관명 (예: "국민건강보험공단")
+  sourceUrl                String            // 모니터링 URL
+  checkFrequencyDays       Int               @default(30)   // 확인 주기 (일)
+
+  lastCheckedAt            DateTime?          // 마지막 확인 일시
+  lastChangeDetectedAt     DateTime?          // 마지막 변경 감지 일시
+  currentRateNote          String?            // 마지막으로 파악한 요율 메모
+  isActive                 Boolean            @default(true)
+
+  notes                    String?
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+
+  @@map("insurance_rate_sources")
+}
+
+// ─── 임시 민감 서류 (5일 자동삭제) ───────────────────────
+
+model TempSensitiveDocument {
+  id            String    @id @default(cuid())
+  workerId      String
+  documentType  String    // "ID_COPY" | "INSURANCE_CERT" | "CONTRACT" | "OTHER"
+  purpose       String    // 업로드 목적 (필수)
+
+  // 파일 정보
+  fileName      String
+  fileSize      Int       // bytes
+  mimeType      String
+  filePath      String    // 서버 내부 경로 (공개 URL 아님)
+
+  // 수명 관리
+  expiresAt     DateTime  // 업로드 후 최대 5일
+  downloadedAt  DateTime? // 최초 다운로드 시각
+  deleteScheduledAt DateTime? // 다운로드 후 24h (자동 업데이트)
+  deletedAt     DateTime? // 실제 삭제 시각
+  deleteReason  String?   // 삭제 사유 (자동삭제 / 관리자 수동)
+
+  uploadedBy    String    // AdminUser.id
+  uploadedAt    DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  events TempSensitiveDocumentEvent[]
+
+  @@index([workerId])
+  @@index([expiresAt])
+  @@index([deleteScheduledAt])
+  @@map("temp_sensitive_documents")
+}
+
+model TempSensitiveDocumentEvent {
+  id           String           @id @default(cuid())
+  documentId   String
+  eventType    TempDocEventType
+  actorUserId  String?          // AdminUser.id (시스템 자동 삭제 시 null)
+  actorType    String           @default("ADMIN") // ADMIN | SYSTEM
+  reason       String?          // 다운로드 시 필수 (5자 이상)
+  ipAddress    String?
+  metadataJson Json?
+  createdAt    DateTime         @default(now())
+
+  document TempSensitiveDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([createdAt])
+  @@map("temp_sensitive_document_events")
+}
+
+// ═══════════════════════════════════════════════════════════
+//  v3 — 근로형태 분류 · 계약 · 문서 생성
+// ═══════════════════════════════════════════════════════════
+
+// ── 근로자 분류 프로필 (Worker 1:1) ─────────────────────────
+model WorkerProfile {
+  id                    String               @id @default(cuid())
+  workerId              String               @unique
+  workerClass           WorkerClass          @default(EMPLOYEE)
+  employmentMode        EmploymentMode       @default(DAILY)
+  taxMode               TaxMode              @default(DAILY_WAGE)
+  insuranceMode         InsuranceMode        @default(AUTO_RULE)
+  officeWorkerYn        Boolean              @default(false)
+  continuousWorkReview  ContinuousWorkReview @default(OK)
+  classificationNote    String?              // 관리자 판단 메모
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@map("worker_profiles")
+}
+
+// ── 생성 문서 이력 ───────────────────────────────────────────
+model GeneratedDocument {
+  id           String                @id @default(cuid())
+  workerId     String
+  contractId   String?               // worker_contracts.id (계약서 PDF 시)
+  documentType GeneratedDocumentType
+  filePath     String                @default("")
+  fileName     String
+  fileHash     String?               // SHA-256
+  mimeType     String                @default("application/pdf")
+  contentText  String?               // 렌더링된 문서 텍스트 (미리보기용)
+  contentJson  Json?                 // 렌더링된 문서 구조체 (섹션 배열)
+  status       String                @default("DRAFT")  // DRAFT | ISSUED | SIGNED
+  generatedAt  DateTime              @default(now())
+  generatedBy  String                // AdminUser.id
+
+  worker   Worker          @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  contract WorkerContract? @relation(fields: [contractId], references: [id], onDelete: SetNull)
+
+  @@index([workerId])
+  @@index([contractId])
+  @@index([documentType])
+  @@map("generated_documents")
+}
+
+// ── 계약서 버전 이력 ─────────────────────────────────────────
+model ContractVersion {
+  id             String   @id @default(cuid())
+  contractId     String
+  versionNo      Int
+  snapshotJson   Json     // 계약서 전체 데이터 스냅샷
+  changeNote     String?  // 변경 사유
+  draftDocId     String?  // generated_documents.id (초안)
+  signedDocId    String?  // generated_documents.id (서명본)
+  deliveredDocId String?  // generated_documents.id (교부본)
+  createdBy      String   // AdminUser.id
+  createdAt      DateTime @default(now())
+
+  contract WorkerContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@unique([contractId, versionNo])
+  @@index([contractId])
+  @@map("contract_versions")
+}
+
+// ── 안전문서 ─────────────────────────────────────────────────
+model SafetyDocument {
+  id              String               @id @default(cuid())
+  workerId        String
+  siteId          String?
+  contractId      String?
+  documentType    SafetyDocumentType
+  status          SafetyDocumentStatus @default(DRAFT)
+
+  // 공통
+  documentDate    String?              // 문서 작성일 'YYYY-MM-DD'
+  educatorName    String?              // 교육 담당자 / 지급자
+  educationPlace  String?              // 교육 장소
+
+  // 안전교육 공통
+  educationDate   String?              // 교육일 'YYYY-MM-DD'
+  educationHours  Decimal?             @db.Decimal(4, 2)
+  educationItems  Json?                // 교육 내용 항목 [{item, checked}]
+
+  // 작업변경
+  prevTask        String?              // 이전 작업
+  newTask         String?              // 변경 후 작업
+
+  // 보호구 지급
+  issuedItemsJson Json?                // [{name, standard, qty, condition}]
+  issuedBy        String?
+
+  // 문서 내용
+  contentText     String?
+  contentJson     Json?
+
+  // 서명/교부
+  signedAt        DateTime?
+  signedBy        String?              // 서명자명
+  fileId          String?              // generated_documents.id
+
+  createdBy       String               // AdminUser.id
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  worker   Worker          @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site     Site?           @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  contract WorkerContract? @relation(fields: [contractId], references: [id], onDelete: SetNull)
+
+  @@index([workerId])
+  @@index([siteId])
+  @@index([contractId])
+  @@index([documentType])
+  @@map("safety_documents")
+}
+
+// ═══════════════════════════════════════════════════════════
+//  v3 Enums
+// ═══════════════════════════════════════════════════════════
+
+enum SafetyDocumentType {
+  SAFETY_EDUCATION_NEW_HIRE    // 신규채용 안전보건교육 확인서
+  SAFETY_EDUCATION_TASK_CHANGE // 작업변경 교육 확인서
+  PPE_PROVISION                // 보호구 지급 확인서
+  SAFETY_PLEDGE                // 안전수칙 준수 서약서
+  WORK_CONDITIONS_RECEIPT      // 근로조건설명및계약서수령확인서
+  PRIVACY_CONSENT              // 개인정보수집이용동의서
+}
+
+enum SafetyDocumentStatus {
+  DRAFT    // 초안
+  ISSUED   // 발행됨
+  SIGNED   // 서명 완료
+}
+
+enum WorkerClass {
+  EMPLOYEE    // 근로자
+  CONTRACTOR  // 외주/용역
+}
+
+enum EmploymentMode {
+  DAILY          // 일용직
+  REGULAR        // 상용직
+  TEMP           // 단기계약
+  OFFICE_SUPPORT // 사무보조/사무실 상주
+}
+
+enum TaxMode {
+  DAILY_WAGE  // 일용근로소득 (6%)
+  WAGE        // 일반 근로소득
+  BIZ_3P3     // 사업소득 3.3%
+  OTHER_8P8   // 기타소득 8.8%
+}
+
+enum InsuranceMode {
+  AUTO_RULE             // 규정 자동 판정
+  EMPLOYEE_4INSURANCE   // 4대보험 전체
+  EMPLOYMENT_ONLY       // 고용보험만
+  EXCLUDED              // 적용 제외
+  MANUAL_OVERRIDE       // 관리자 수동 지정
+}
+
+enum ContinuousWorkReview {
+  OK               // 이상 없음
+  REVIEW_REQUIRED  // 검토 필요
+}
+
+enum ContractKind {
+  EMPLOYMENT   // 근로계약
+  SERVICE      // 용역계약
+  OUTSOURCING  // 업무위탁
+}
+
+enum ContractTemplateType {
+  DAILY_EMPLOYMENT       // 일용 근로계약서
+  REGULAR_EMPLOYMENT     // 상용 근로계약서
+  FIXED_TERM_EMPLOYMENT  // 기간제 근로계약서
+  FREELANCER_SERVICE     // 프리랜서 용역계약서
+  OFFICE_SERVICE         // 사무보조 용역계약서
+  SUBCONTRACT_WITH_BIZ   // 사업자 있는 외주팀 도급계약서
+  NONBUSINESS_TEAM_REVIEW // 사업자 없는 팀장형 서면 (검토 필요)
+}
+
+enum ContractStatus {
+  DRAFT   // 초안
+  SIGNED  // 서명 완료
+  ACTIVE  // 활성 (이행 중)
+  ENDED   // 종료
+}
+
+enum GeneratedDocumentType {
+  // ── 기존 ────────────────────────────────────────────────
+  ID_CARD           // 신분증 사본
+  BANKBOOK          // 통장 사본
+  DAILY_CONTRACT    // 일용 근로계약서
+  REGULAR_CONTRACT  // 상용 근로계약서
+  SERVICE_CONTRACT  // 용역계약서
+  PAYROLL_DAILY     // 일용직 노임대장
+  PAYROLL_REGULAR   // 상용직 급여대장
+  PAYROLL_3P3       // 3.3% 지급내역서
+  INSURANCE_SUMMARY // 보험계산표
+  // ── A. 원청 직접고용 패키지 ──────────────────────────────
+  SITE_ASSIGNMENT              // 현장배치 확인서
+  WORK_CONDITION_CHANGE        // 근로조건 변경확인서
+  SAFETY_EDUCATION_NEW_HIRE    // 신규채용 안전보건교육 확인서
+  SAFETY_EDUCATION_TASK_CHANGE // 작업변경 교육 확인서
+  PPE_PROVISION                // 보호구 지급 확인서
+  SAFETY_PLEDGE                // 안전수칙 준수 서약서
+  // ── B. 원청 하도급/외주 패키지 ──────────────────────────
+  SUBCONTRACT_CONTRACT         // 하도급·도급·용역계약서
+  SUBCONTRACT_SCOPE            // 공정범위 별첨
+  SUBCONTRACT_PAYMENT_TERMS    // 기성·정산 기준 별첨
+  SUBCONTRACT_SAFETY_PROTOCOL  // 안전보건 책임 및 협의 절차 별첨
+  SUBCONTRACT_DOCUMENT_LIST    // 제출서류 목록
+  SUBCONTRACT_DISTRIBUTION_REF // 내부 배분 참고자료 양식
+  // ── C. 사업자 없는 팀장형 예외 세트 ─────────────────────
+  TEAM_LEADER_RESPONSIBILITY   // 팀장 책임확인서
+  TEAM_SCOPE_CONFIRMATION      // 공정수행 범위 확인서
+  TEAM_SAFETY_COMPLIANCE       // 안전보건 준수확인서
+  TEAM_DISTRIBUTION_SUBMISSION // 내부 배분 참고자료 제출서
+  TEAM_RECLASSIFICATION_WARNING // 직접고용 재분류 경고서
+  // ── 안전관리 공통 ────────────────────────────────────────
+  SAFETY_COUNCIL_MINUTES        // 안전보건협의체 회의록
+  SITE_INSPECTION_RECORD        // 순회점검 기록
+  SUBCONTRACTOR_EDUCATION_RECORD // 수급인 교육실시 확인 기록
+  OTHER                          // 기타
+}
+

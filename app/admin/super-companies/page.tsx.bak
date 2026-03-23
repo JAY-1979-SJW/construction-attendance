@@ -1,0 +1,213 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+
+type CompanyStatus = 'ACTIVE' | 'SUSPENDED' | 'EXPIRED' | 'DELETED'
+
+interface Company {
+  id: string
+  companyName: string
+  companyType: string
+  status: CompanyStatus
+  contactName: string | null
+  contactPhone: string | null
+  email: string | null
+  planType: string | null
+  expiresAt: string | null
+  adminCount: number
+  createdAt: string
+}
+
+const STATUS_LABEL: Record<CompanyStatus, string> = {
+  ACTIVE: '활성',
+  SUSPENDED: '정지',
+  EXPIRED: '만료',
+  DELETED: '삭제',
+}
+const STATUS_COLOR: Record<CompanyStatus, string> = {
+  ACTIVE: '#2e7d32',
+  SUSPENDED: '#e65100',
+  EXPIRED: '#7b1fa2',
+  DELETED: '#616161',
+}
+
+export default function SuperCompaniesPage() {
+  const [companies, setCompanies] = useState<Company[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({ companyName: '', contactName: '', contactPhone: '', email: '', planType: '', status: 'ACTIVE' })
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState('')
+  const [search, setSearch] = useState('')
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    const res = await fetch('/api/admin/companies?limit=200')
+    const data = await res.json()
+    const items = data.data?.items ?? data.data ?? []
+    // Enrich with admin count
+    const adminRes = await fetch('/api/admin/company-admins')
+    const adminData = await adminRes.json()
+    const admins: { companyId: string | null }[] = adminData.data ?? []
+    const countMap: Record<string, number> = {}
+    admins.forEach((a) => { if (a.companyId) countMap[a.companyId] = (countMap[a.companyId] ?? 0) + 1 })
+    setCompanies(items.map((c: Company) => ({ ...c, adminCount: countMap[c.id] ?? 0 })))
+    setLoading(false)
+  }, [])
+
+  useEffect(() => { load() }, [load])
+
+  const handleCreate = async () => {
+    if (!form.companyName) { setMsg('업체명을 입력하세요.'); return }
+    setSaving(true); setMsg('')
+    try {
+      const res = await fetch('/api/admin/companies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyName: form.companyName, contactName: form.contactName || undefined, contactPhone: form.contactPhone || undefined, email: form.email || undefined, companyType: 'PARTNER' }),
+      })
+      const data = await res.json()
+      if (!data.success) { setMsg(data.message); return }
+
+      // status/planType 추가 업데이트
+      if (form.status !== 'ACTIVE' || form.planType) {
+        await fetch(`/api/admin/companies/${data.data?.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: form.status, planType: form.planType || undefined }),
+        })
+      }
+      setMsg('업체가 생성되었습니다.')
+      setShowForm(false)
+      setForm({ companyName: '', contactName: '', contactPhone: '', email: '', planType: '', status: 'ACTIVE' })
+      load()
+    } finally { setSaving(false) }
+  }
+
+  const changeStatus = async (id: string, status: CompanyStatus) => {
+    await fetch(`/api/admin/companies/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    })
+    load()
+  }
+
+  const filtered = companies.filter((c) =>
+    !search || c.companyName.includes(search) || (c.contactName ?? '').includes(search)
+  )
+
+  return (
+    <div style={s.wrap}>
+      <div style={s.header}>
+        <div>
+          <h1 style={s.title}>업체 관리</h1>
+          <p style={{ color: '#888', fontSize: 13, margin: '4px 0 0' }}>전체 {companies.length}개 업체</p>
+        </div>
+        <button style={s.btn} onClick={() => { setShowForm(true); setMsg('') }}>+ 업체 등록</button>
+      </div>
+
+      {msg && <p style={{ color: msg.includes('완료') || msg.includes('생성') ? '#2e7d32' : '#c62828', margin: '0 0 12px', fontSize: 13 }}>{msg}</p>}
+
+      <input
+        style={{ ...s.input, marginBottom: 16, maxWidth: 300 }}
+        placeholder="업체명 / 담당자 검색"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      {showForm && (
+        <div style={s.formBox}>
+          <h3 style={{ margin: '0 0 16px', fontSize: 15 }}>신규 업체 등록</h3>
+          <div style={s.grid}>
+            <label style={s.label}>업체명 *</label>
+            <input style={s.input} value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} placeholder="(주)해한건설" />
+            <label style={s.label}>담당자</label>
+            <input style={s.input} value={form.contactName} onChange={(e) => setForm({ ...form, contactName: e.target.value })} placeholder="홍길동" />
+            <label style={s.label}>연락처</label>
+            <input style={s.input} value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} placeholder="01012345678" />
+            <label style={s.label}>이메일</label>
+            <input style={s.input} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="contact@company.com" />
+            <label style={s.label}>요금제</label>
+            <select style={s.input} value={form.planType} onChange={(e) => setForm({ ...form, planType: e.target.value })}>
+              <option value="">선택 안 함</option>
+              <option value="free">무료</option>
+              <option value="standard">스탠다드</option>
+              <option value="premium">프리미엄</option>
+            </select>
+            <label style={s.label}>상태</label>
+            <select style={s.input} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+              <option value="ACTIVE">활성</option>
+              <option value="SUSPENDED">정지</option>
+            </select>
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+            <button style={s.btn} onClick={handleCreate} disabled={saving}>{saving ? '저장 중...' : '저장'}</button>
+            <button style={{ ...s.btn, background: '#888' }} onClick={() => setShowForm(false)}>취소</button>
+          </div>
+        </div>
+      )}
+
+      {loading ? <p>불러오는 중...</p> : (
+        <table style={s.table}>
+          <thead>
+            <tr>
+              {['업체명', '상태', '요금제', '담당자', '연락처', '관리자 수', '만료일', '생성일', '관리'].map((h) => (
+                <th key={h} style={s.th}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 && (
+              <tr><td colSpan={9} style={{ textAlign: 'center', padding: 32, color: '#888' }}>등록된 업체가 없습니다.</td></tr>
+            )}
+            {filtered.map((c) => (
+              <tr key={c.id}>
+                <td style={{ ...s.td, fontWeight: 600 }}>{c.companyName}</td>
+                <td style={s.td}>
+                  <span style={{ color: STATUS_COLOR[c.status as CompanyStatus] ?? '#333', fontWeight: 600, fontSize: 12 }}>
+                    {STATUS_LABEL[c.status as CompanyStatus] ?? c.status}
+                  </span>
+                </td>
+                <td style={s.td}>{c.planType ?? '-'}</td>
+                <td style={s.td}>{c.contactName ?? '-'}</td>
+                <td style={s.td}>{c.contactPhone ?? '-'}</td>
+                <td style={{ ...s.td, textAlign: 'center' as const }}>{c.adminCount}</td>
+                <td style={s.td}>{c.expiresAt ? new Date(c.expiresAt).toLocaleDateString('ko-KR') : '-'}</td>
+                <td style={s.td}>{new Date(c.createdAt).toLocaleDateString('ko-KR')}</td>
+                <td style={s.td}>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    {c.status === 'ACTIVE' && (
+                      <button style={{ ...s.smallBtn, background: '#e65100' }} onClick={() => changeStatus(c.id, 'SUSPENDED')}>정지</button>
+                    )}
+                    {c.status === 'SUSPENDED' && (
+                      <button style={{ ...s.smallBtn, background: '#2e7d32' }} onClick={() => changeStatus(c.id, 'ACTIVE')}>활성화</button>
+                    )}
+                    {c.status !== 'DELETED' && (
+                      <button style={{ ...s.smallBtn, background: '#616161' }} onClick={() => { if (confirm('삭제하시겠습니까?')) changeStatus(c.id, 'DELETED') }}>삭제</button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  )
+}
+
+const s: Record<string, React.CSSProperties> = {
+  wrap: { padding: 32, maxWidth: 1200, margin: '0 auto' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
+  title: { fontSize: 22, fontWeight: 700, margin: 0 },
+  btn: { padding: '10px 20px', background: '#1a1a2e', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 },
+  smallBtn: { padding: '4px 10px', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 },
+  formBox: { background: '#f5f5f5', border: '1px solid #ddd', borderRadius: 12, padding: 24, marginBottom: 24 },
+  grid: { display: 'grid', gridTemplateColumns: '100px 1fr', gap: '10px 12px', alignItems: 'center' },
+  label: { fontSize: 13, fontWeight: 600, color: '#555' },
+  input: { padding: '10px 12px', fontSize: 14, border: '1px solid #ddd', borderRadius: 8, width: '100%', boxSizing: 'border-box' as const },
+  table: { width: '100%', borderCollapse: 'collapse' as const, fontSize: 14 },
+  th: { padding: '10px 12px', background: '#f5f5f5', border: '1px solid #e0e0e0', textAlign: 'left' as const, fontWeight: 600, whiteSpace: 'nowrap' as const },
+  td: { padding: '10px 12px', border: '1px solid #e0e0e0' },
+}

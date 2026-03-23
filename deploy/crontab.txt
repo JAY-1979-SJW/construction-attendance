@@ -1,0 +1,46 @@
+# ═══════════════════════════════════════════════════════════
+#  해한 현장 출퇴근 시스템 — crontab 설정
+#  서버에서 설정: crontab -e
+#
+#  환경변수 설정 필요 (서버 .env에서 복사):
+#    CRON_SECRET=<값>
+#    APP_URL=http://localhost:3000
+# ═══════════════════════════════════════════════════════════
+
+# 환경변수 (crontab 상단에 선언)
+CRON_SECRET=<서버_CRON_SECRET_값>
+APP_URL=http://localhost:3000
+CURL_OPTS=-s --max-time 30
+
+# ─── 매일 04:00 — 자동 퇴근 처리 ──────────────────────────
+# 퇴근 누락 근로자를 MISSING_CHECKOUT으로 전환
+0 4 * * * curl $CURL_OPTS -X POST "$APP_URL/api/cron/auto-checkout" -H "Authorization: Bearer $CRON_SECRET" >> /var/log/attendance-cron.log 2>&1
+
+# ─── 매 시 정각 — 임시 서류 자동 삭제 ──────────────────────
+# 5일 초과 or 다운로드 후 24h 경과 서류 삭제
+0 * * * * curl $CURL_OPTS "$APP_URL/api/cron/cleanup-temp-docs" -H "Authorization: Bearer $CRON_SECRET" >> /var/log/attendance-cron.log 2>&1
+
+# ─── 매 15분 — 중간 체류 확인 만료 처리 ────────────────────
+*/15 * * * * curl $CURL_OPTS "$APP_URL/api/cron/expire-presence" -H "Authorization: Bearer $CRON_SECRET" >> /var/log/attendance-cron.log 2>&1
+
+# ─── 매 10분 — 중간 체류 확인 푸시 발송 ────────────────────
+*/10 * * * * curl $CURL_OPTS "$APP_URL/api/cron/send-presence-push" -H "Authorization: Bearer $CRON_SECRET" >> /var/log/attendance-cron.log 2>&1
+
+# ─── 매일 01:00 — 공수 집계 ─────────────────────────────────
+0 1 * * * curl $CURL_OPTS -X POST "$APP_URL/api/cron/aggregate-attendance-days" -H "Authorization: Bearer $CRON_SECRET" >> /var/log/attendance-cron.log 2>&1
+
+# ─── 보험요율 공식 고시 소스 모니터링 ───────────────────────
+# 1~7월: 매주 월요일 09:00 (주 1회)
+0 9 * * 1 [ $(date +\%m) -le 7 ] && curl $CURL_OPTS "$APP_URL/api/cron/check-rate-sources" -H "Authorization: Bearer $CRON_SECRET" >> /var/log/attendance-cron.log 2>&1
+# 8~12월: 평일(월~금) 09:00 (평일 매일)
+0 9 * * 1-5 [ $(date +\%m) -gt 7 ] && curl $CURL_OPTS "$APP_URL/api/cron/check-rate-sources" -H "Authorization: Bearer $CRON_SECRET" >> /var/log/attendance-cron.log 2>&1
+
+# ═══════════════════════════════════════════════════════════
+#  설정 방법:
+#    1. crontab -e
+#    2. 위 내용을 붙여넣기 (CRON_SECRET 값은 실제 값으로 교체)
+#    3. 저장 후 확인: crontab -l
+#
+#  로그 확인:
+#    tail -f /var/log/attendance-cron.log
+# ═══════════════════════════════════════════════════════════

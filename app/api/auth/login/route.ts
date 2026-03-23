@@ -16,11 +16,14 @@ const schema = z.object({
  * OTP 없이 phone + deviceToken으로 근로자 상태를 확인하고 JWT를 발급합니다.
  *
  * 응답 status 값:
- *   NOT_REGISTERED  — 미등록 번호
- *   INACTIVE        — 비활성 계정
- *   DEVICE_APPROVED — 승인된 기기, JWT 발급 (worker_token 쿠키 세팅)
- *   DEVICE_PENDING  — 기기 승인 대기 중
- *   DEVICE_REJECTED — 기기 반려됨
+ *   NOT_REGISTERED   — 미등록 번호
+ *   ACCOUNT_PENDING  — 회원가입 승인 대기 중
+ *   ACCOUNT_REJECTED — 회원가입 반려됨
+ *   ACCOUNT_SUSPENDED— 계정 정지
+ *   INACTIVE         — 비활성 계정
+ *   DEVICE_APPROVED  — 승인된 기기, JWT 발급 (worker_token 쿠키 세팅)
+ *   DEVICE_PENDING   — 기기 승인 대기 중
+ *   DEVICE_REJECTED  — 기기 반려됨
  */
 export async function POST(request: NextRequest) {
   try {
@@ -36,11 +39,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: false,
         status: 'NOT_REGISTERED',
-        message: '등록되지 않은 근로자입니다. 관리자에게 문의하세요.',
+        message: '등록되지 않은 근로자입니다. 회원가입 후 승인을 기다려 주세요.',
       })
     }
 
-    // 2. 활성 여부 확인
+    // 2. 계정 승인 상태 확인
+    if (worker.accountStatus === 'PENDING') {
+      return NextResponse.json({
+        success: false,
+        status: 'ACCOUNT_PENDING',
+        message: '회원가입 승인 대기 중입니다. 관리자 승인 후 로그인 가능합니다.',
+      })
+    }
+    if (worker.accountStatus === 'REJECTED') {
+      return NextResponse.json({
+        success: false,
+        status: 'ACCOUNT_REJECTED',
+        message: `회원가입이 반려되었습니다.${worker.rejectReason ? ` 사유: ${worker.rejectReason}` : ''} 관리자에게 문의하세요.`,
+      })
+    }
+    if (worker.accountStatus === 'SUSPENDED') {
+      return NextResponse.json({
+        success: false,
+        status: 'ACCOUNT_SUSPENDED',
+        message: '계정이 정지된 상태입니다. 관리자에게 문의하세요.',
+      })
+    }
+
+    // 3. 활성 여부 확인
     if (!worker.isActive) {
       return NextResponse.json({
         success: false,

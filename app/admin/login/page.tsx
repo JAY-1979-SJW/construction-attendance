@@ -24,7 +24,8 @@ export default function AdminLoginPage() {
         setError(data.message)
         return
       }
-      router.push('/admin')
+      // 역할에 따라 포털 분기
+      router.push(data.portal ?? '/admin')
     } catch {
       setError('네트워크 오류가 발생했습니다.')
     } finally {

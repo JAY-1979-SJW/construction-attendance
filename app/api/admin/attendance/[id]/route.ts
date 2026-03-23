@@ -34,6 +34,10 @@ export async function GET(
 
     if (!log) return notFound('출퇴근 기록을 찾을 수 없습니다.')
 
+    const attendanceDay = await prisma.attendanceDay.findFirst({
+      where: { workerId: log.workerId, siteId: log.siteId, workDate: log.workDate.toISOString().slice(0, 10) },
+    })
+
     return ok({
       id: log.id,
       workerName: log.worker.name,
@@ -57,6 +61,10 @@ export async function GET(
         occurredAt: e.occurredAt.toISOString(),
         distanceFromSite: e.distanceFromSite,
       })),
+      workedMinutesRaw: attendanceDay?.workedMinutesRaw ?? null,
+      manualAdjustedYn: attendanceDay?.manualAdjustedYn ?? false,
+      manualAdjustedReason: attendanceDay?.manualAdjustedReason ?? null,
+      attendanceDayId: attendanceDay?.id ?? null,
     })
   } catch (err) {
     console.error('[admin/attendance/[id] GET]', err)
@@ -69,6 +77,8 @@ const patchSchema = z.object({
   checkOutAt: z.string().datetime({ offset: true }).optional(),
   status: z.nativeEnum(AttendanceStatus).optional(),
   adminNote: z.string().max(500).optional(),
+  workedMinutesOverride: z.number().int().min(0).max(1440).optional().nullable(),
+  manualAdjustedReason: z.string().max(200).optional().nullable(),
 })
 
 /**
@@ -89,7 +99,7 @@ export async function PATCH(
     const parsed = patchSchema.safeParse(body)
     if (!parsed.success) return badRequest(parsed.error.issues[0].message)
 
-    const { checkInAt, checkOutAt, status, adminNote } = parsed.data
+    const { checkInAt, checkOutAt, status, adminNote, workedMinutesOverride, manualAdjustedReason } = parsed.data
 
     const log = await prisma.attendanceLog.findUnique({ where: { id: params.id } })
     if (!log) return notFound('출퇴근 기록을 찾을 수 없습니다.')
@@ -105,12 +115,33 @@ export async function PATCH(
       include: { worker: { select: { name: true } }, checkInSite: { select: { name: true } } },
     })
 
+    if ('workedMinutesOverride' in parsed.data) {
+      const attendanceDay = await prisma.attendanceDay.findFirst({
+        where: { workerId: log.workerId, siteId: log.siteId, workDate: log.workDate.toISOString().slice(0, 10) },
+      })
+      if (attendanceDay) {
+        await prisma.attendanceDay.update({
+          where: { id: attendanceDay.id },
+          data: {
+            workedMinutesRaw: workedMinutesOverride ?? attendanceDay.workedMinutesRaw,
+            manualAdjustedYn: workedMinutesOverride != null,
+            manualAdjustedReason: manualAdjustedReason ?? attendanceDay.manualAdjustedReason,
+          },
+        })
+      }
+    }
+
+    const descParts = [`출퇴근 수정: ${updatedLog.worker.name} / ${updatedLog.checkInSite.name} / ${log.workDate.toISOString().slice(0, 10)}`]
+    if ('workedMinutesOverride' in parsed.data) {
+      descParts.push(`공수(분): ${workedMinutesOverride ?? '자동'}${manualAdjustedReason ? ` (${manualAdjustedReason})` : ''}`)
+    }
+
     await writeAuditLog({
       adminId: session.sub,
       actionType: 'ADJUST_ATTENDANCE',
       targetType: 'AttendanceLog',
       targetId: params.id,
-      description: `출퇴근 수정: ${updatedLog.worker.name} / ${updatedLog.checkInSite.name} / ${log.workDate.toISOString().slice(0, 10)}`,
+      description: descParts.join(' / '),
     })
 
     return NextResponse.json({

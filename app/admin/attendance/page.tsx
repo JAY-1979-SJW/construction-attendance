@@ -20,6 +20,8 @@ interface AttendanceRecord {
   exceptionReason: string | null
   adminNote: string | null
   isAutoCheckout: boolean
+  workedMinutesRaw: number | null
+  checkOutSiteName: string | null
 }
 
 interface DetailRecord {
@@ -40,6 +42,18 @@ interface DetailRecord {
   isAutoCheckout: boolean
   exceptionReason: string | null
   moveEvents: { id: string; siteName: string; occurredAt: string; distanceFromSite: number | null }[]
+  workedMinutesRaw: number | null
+  manualAdjustedYn: boolean
+  manualAdjustedReason: string | null
+  attendanceDayId: string | null
+}
+
+function calcManDay(minutes: number | null): { label: string; value: string; color: string } {
+  if (minutes == null) return { label: '집계 전', value: '-', color: '#999' }
+  const effective = minutes > 240 ? minutes - 60 : minutes
+  if (effective >= 480) return { label: '1.0 공수', value: '1.0', color: '#1565c0' }
+  if (effective >= 240) return { label: '0.5 공수', value: '0.5', color: '#e65100' }
+  return { label: '0 공수', value: '0', color: '#b71c1c' }
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -81,7 +95,10 @@ export default function AdminAttendancePage() {
   // 수동 보정 모달
   const [correcting, setCorrecting] = useState(false)
   const [correctCheckOut, setCorrectCheckOut] = useState('')
+  const [correctCheckIn, setCorrectCheckIn] = useState('')
   const [correctNote, setCorrectNote] = useState('')
+  const [workedMinutesInput, setWorkedMinutesInput] = useState('')
+  const [manualReason, setManualReason] = useState('')
   const [correctSaving, setCorrectSaving] = useState(false)
 
   const load = () => {
@@ -116,20 +133,27 @@ export default function AdminAttendancePage() {
     setDetail(null)
     setCorrecting(false)
     setCorrectCheckOut('')
+    setCorrectCheckIn('')
     setCorrectNote('')
+    setWorkedMinutesInput('')
+    setManualReason('')
   }
 
   const saveCorrection = async () => {
-    if (!detail || !correctCheckOut) return
+    if (!detail) return
+    if (!correctCheckOut && !correctCheckIn && workedMinutesInput === '') return
     setCorrectSaving(true)
+    const body: Record<string, unknown> = {}
+    if (correctCheckOut) body.checkOutAt = new Date(`${detail.workDate}T${correctCheckOut}:00+09:00`).toISOString()
+    if (correctCheckIn) body.checkInAt = new Date(`${detail.workDate}T${correctCheckIn}:00+09:00`).toISOString()
+    if (workedMinutesInput !== '') body.workedMinutesOverride = parseInt(workedMinutesInput)
+    if (manualReason) body.manualAdjustedReason = manualReason
+    if (correctNote) body.adminNote = correctNote
+    if (correctCheckOut || correctCheckIn) body.status = 'ADJUSTED'
     const res = await fetch(`/api/admin/attendance/${detail.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        checkOutAt: new Date(`${detail.workDate}T${correctCheckOut}:00+09:00`).toISOString(),
-        status: 'ADJUSTED',
-        adminNote: correctNote || `수동 보정 (퇴근 시각: ${correctCheckOut})`,
-      }),
+      body: JSON.stringify(body),
     })
     const data = await res.json()
     if (data.success) {
@@ -204,14 +228,14 @@ export default function AdminAttendancePage() {
             <table style={styles.table}>
               <thead>
                 <tr>
-                  {['날짜', '이름', '회사', '직종', '현장', '출근', '퇴근', '출근거리', '퇴근거리', '상태', '자동처리', '예외사유'].map((h) => (
+                  {['날짜', '이름', '회사', '직종', '현장', '출근', '퇴근', '출근거리', '퇴근거리', '공수', '상태', '자동처리', '예외사유'].map((h) => (
                     <th key={h} style={styles.th}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {items.length === 0 ? (
-                  <tr><td colSpan={12} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>데이터가 없습니다.</td></tr>
+                  <tr><td colSpan={13} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>데이터가 없습니다.</td></tr>
                 ) : items.map((item) => (
                   <tr
                     key={item.id}
@@ -234,6 +258,14 @@ export default function AdminAttendancePage() {
                       {item.checkOutDistance != null
                         ? <span style={{ fontSize: '12px', color: item.checkOutDistance > 200 ? '#e65100' : '#555', fontWeight: 600 }}>{item.checkOutDistance}m</span>
                         : <span style={{ fontSize: '11px', color: '#ccc' }}>-</span>}
+                    </td>
+                    <td style={{ ...styles.td, textAlign: 'right' as const }}>
+                      {(() => {
+                        const md = calcManDay(item.workedMinutesRaw ?? null)
+                        return item.workedMinutesRaw != null
+                          ? <span style={{ fontSize: '12px', color: md.color, fontWeight: 600 }}>{md.value}</span>
+                          : <span style={{ fontSize: '11px', color: '#ccc' }}>-</span>
+                      })()}
                     </td>
                     <td style={styles.td}>
                       <span style={{
@@ -336,6 +368,29 @@ export default function AdminAttendancePage() {
                   </div>
                 </div>
 
+                {/* 공수 */}
+                <div style={infoSection}>
+                  <div style={infoTitle}>공수</div>
+                  <div style={infoRow}>
+                    <span style={infoLabel}>실근로(분)</span>
+                    <span style={infoValue}>{detail.workedMinutesRaw != null ? `${detail.workedMinutesRaw}분` : '집계 전'}</span>
+                  </div>
+                  <div style={infoRow}>
+                    <span style={infoLabel}>공수 판정</span>
+                    <span style={{ ...infoValue, color: calcManDay(detail.workedMinutesRaw).color, fontWeight: 700 }}>
+                      {calcManDay(detail.workedMinutesRaw).label}
+                    </span>
+                  </div>
+                  {detail.manualAdjustedYn && (
+                    <div style={infoRow}>
+                      <span style={infoLabel}>수동 조정</span>
+                      <span style={{ fontSize: '12px', color: '#6a1b9a', fontWeight: 600 }}>
+                        수동 보정됨 {detail.manualAdjustedReason ? `· ${detail.manualAdjustedReason}` : ''}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
                 {/* 관리자 메모 */}
                 {detail.adminNote && (
                   <div style={{ ...infoSection, background: '#fff8f8' }}>
@@ -345,39 +400,51 @@ export default function AdminAttendancePage() {
                 )}
 
                 {/* 수동 보정 */}
-                {detail.status === 'MISSING_CHECKOUT' && !correcting && (
+                {!correcting && (
                   <button onClick={() => setCorrecting(true)} style={correctBtn}>
-                    ✏️ 수동 보정 (퇴근 시각 입력)
+                    {detail.status === 'MISSING_CHECKOUT' ? '✏️ 수동 보정 (퇴근 시각 입력)' : '✏️ 출퇴근 시각 / 공수 수정'}
                   </button>
                 )}
 
                 {correcting && (
                   <div style={{ ...infoSection, background: '#f3e5f5' }}>
                     <div style={infoTitle}>수동 보정</div>
+                    {/* 출근 시각 수정 */}
+                    <div style={infoRow}>
+                      <span style={infoLabel}>출근 시각</span>
+                      <input type="time" value={correctCheckIn} onChange={(e) => setCorrectCheckIn(e.target.value)}
+                        style={{ ...styles.filterInput, width: '140px' }} placeholder="변경 시 입력" />
+                      <span style={{ fontSize: '11px', color: '#999' }}>현재: {formatTime(detail.checkInAt)}</span>
+                    </div>
+                    {/* 퇴근 시각 수정 */}
                     <div style={infoRow}>
                       <span style={infoLabel}>퇴근 시각</span>
-                      <input
-                        type="time"
-                        value={correctCheckOut}
-                        onChange={(e) => setCorrectCheckOut(e.target.value)}
-                        style={{ ...styles.filterInput, width: '140px' }}
-                      />
+                      <input type="time" value={correctCheckOut} onChange={(e) => setCorrectCheckOut(e.target.value)}
+                        style={{ ...styles.filterInput, width: '140px' }} placeholder="변경 시 입력" />
+                      <span style={{ fontSize: '11px', color: '#999' }}>현재: {formatTime(detail.checkOutAt)}</span>
                     </div>
+                    {/* 공수 직접 입력 */}
+                    <div style={infoRow}>
+                      <span style={infoLabel}>공수(분)</span>
+                      <input type="number" min="0" max="1440" value={workedMinutesInput}
+                        onChange={(e) => setWorkedMinutesInput(e.target.value)}
+                        style={{ ...styles.filterInput, width: '100px' }} placeholder="분 단위" />
+                      <span style={{ fontSize: '11px', color: '#999' }}>
+                        {workedMinutesInput ? `→ ${calcManDay(parseInt(workedMinutesInput)).label}` : '비워두면 자동 계산'}
+                      </span>
+                    </div>
+                    {/* 수정 사유 */}
                     <div style={{ ...infoRow, marginTop: '8px' }}>
                       <span style={infoLabel}>사유</span>
-                      <input
-                        type="text"
-                        placeholder="보정 사유 (선택)"
-                        value={correctNote}
-                        onChange={(e) => setCorrectNote(e.target.value)}
-                        style={{ ...styles.filterInput, flex: 1 }}
-                      />
+                      <input type="text" placeholder="수정 사유 (선택)" value={manualReason}
+                        onChange={(e) => setManualReason(e.target.value)}
+                        style={{ ...styles.filterInput, flex: 1 }} />
                     </div>
                     <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                       <button
                         onClick={saveCorrection}
-                        disabled={!correctCheckOut || correctSaving}
-                        style={{ ...styles.searchBtn, opacity: !correctCheckOut || correctSaving ? 0.5 : 1 }}
+                        disabled={(!correctCheckOut && !correctCheckIn && workedMinutesInput === '') || correctSaving}
+                        style={{ ...styles.searchBtn, opacity: (!correctCheckOut && !correctCheckIn && workedMinutesInput === '') || correctSaving ? 0.5 : 1 }}
                       >
                         {correctSaving ? '저장 중...' : '보정 저장'}
                       </button>

@@ -71,8 +71,11 @@ interface WorkerDetail {
   skillLevel?: string | null
   foreignerYn: boolean
   nationalityCode?: string | null
+  // 레거시 필드 — 신규 계좌는 bankAccountSecure 사용
   bankName?: string | null
   bankAccount?: string | null
+  // 신규 암호화 계좌 (마스킹값)
+  bankAccountSecure?: { bankName: string | null; accountNumberMasked: string | null } | null
   retirementMutualStatus: string
   retirementMutualTargetYn: boolean
   fourInsurancesEligibleYn: boolean
@@ -87,7 +90,7 @@ interface WorkerDetail {
 
 // ─── 탭 종류 ──────────────────────────────────────────────────────────────────
 
-type Tab = 'info' | 'company' | 'site' | 'insurance' | 'docs'
+type Tab = 'info' | 'profile' | 'company' | 'site' | 'insurance' | 'docs' | 'contracts' | 'safety'
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
@@ -296,7 +299,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
 
         {/* 탭 */}
         <div style={s.tabBar}>
-          {([['info', '기본정보'], ['company', '회사배정'], ['site', '현장배정'], ['insurance', '보험상태'], ['docs', '문서']] as [Tab, string][]).map(([key, label]) => (
+          {([['info', '기본정보'], ['profile', '분류정보'], ['company', '회사배정'], ['site', '현장배정'], ['insurance', '보험상태'], ['contracts', '계약서'], ['safety', '안전문서'], ['docs', '문서']] as [Tab, string][]).map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)} style={{ ...s.tabBtn, ...(tab === key ? s.tabActive : {}) }}>
               {label}
               {key === 'company' && worker.companyAssignments.length > 0 && (
@@ -315,6 +318,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
         {/* 탭 컨텐츠 */}
         <div style={s.card}>
           {tab === 'info' && <InfoTab worker={worker} />}
+          {tab === 'profile' && <ProfileTab workerId={worker.id} />}
           {tab === 'company' && (
             <CompanyTab
               assignments={worker.companyAssignments}
@@ -334,6 +338,8 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
             />
           )}
           {tab === 'docs' && <DocsTab workerId={worker.id} />}
+          {tab === 'contracts' && <ContractsTab workerId={worker.id} />}
+          {tab === 'safety' && <SafetyDocsTab workerId={worker.id} />}
         </div>
       </main>
 
@@ -502,7 +508,9 @@ function InfoTab({ worker }: { worker: WorkerDetail }) {
     ['직접/협력', worker.organizationType === 'DIRECT' ? '직접' : '협력사'],
     ['숙련도', worker.skillLevel ?? '—'],
     ['외국인', worker.foreignerYn ? `예 (${worker.nationalityCode ?? '—'})` : '아니오'],
-    ['은행', worker.bankName ? `${worker.bankName} / ${worker.bankAccount ?? '—'}` : '—'],
+    ['계좌', worker.bankAccountSecure
+      ? `${worker.bankAccountSecure.bankName ?? '—'} / ${worker.bankAccountSecure.accountNumberMasked ?? '****'}`
+      : worker.bankName ? `${worker.bankName} / ****` : '미등록 (개인정보 관리에서 입력)'],
     ['퇴직공제 대상', worker.retirementMutualTargetYn ? '대상' : '비대상'],
     ['퇴직공제 상태', worker.retirementMutualStatus],
     ['4대보험 적용', worker.fourInsurancesEligibleYn ? '적용' : '미적용'],
@@ -963,6 +971,508 @@ function DocsTab({ workerId }: { workerId: string }) {
   )
 }
 
+// ─── 분류정보 탭 (v3) ─────────────────────────────────────────────────────────
+
+const WORKER_CLASS_LABEL: Record<string, string> = { EMPLOYEE: '근로자', CONTRACTOR: '외주/용역' }
+const EMPLOYMENT_MODE_LABEL: Record<string, string> = { DAILY: '일용직', REGULAR: '상용직', TEMP: '단기계약', OFFICE_SUPPORT: '사무보조' }
+const TAX_MODE_LABEL: Record<string, string> = { DAILY_WAGE: '일용근로소득(6%)', WAGE: '일반 근로소득', BIZ_3P3: '사업소득 3.3%', OTHER_8P8: '기타소득 8.8%' }
+const INSURANCE_MODE_LABEL: Record<string, string> = {
+  AUTO_RULE: '자동 판정', EMPLOYEE_4INSURANCE: '4대보험 전체',
+  EMPLOYMENT_ONLY: '고용보험만', EXCLUDED: '적용 제외', MANUAL_OVERRIDE: '수동 지정',
+}
+
+function ProfileTab({ workerId }: { workerId: string }) {
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [editing, setEditing] = useState(false)
+  const [saving,  setSaving]  = useState(false)
+  const [form,    setForm]    = useState<Record<string, unknown>>({})
+  const [msg,     setMsg]     = useState('')
+
+  useEffect(() => {
+    fetch(`/api/admin/workers/${workerId}/profile`)
+      .then(r => r.json())
+      .then(d => { setProfile(d.data); setLoading(false) })
+  }, [workerId])
+
+  function startEdit() {
+    if (profile) {
+      setForm({ ...profile })
+    } else {
+      setForm({
+        workerClass: 'EMPLOYEE', employmentMode: 'DAILY', taxMode: 'DAILY_WAGE',
+        insuranceMode: 'AUTO_RULE', officeWorkerYn: false,
+        continuousWorkReview: 'OK', classificationNote: '',
+      })
+    }
+    setEditing(true)
+  }
+
+  async function handleSave() {
+    setSaving(true); setMsg('')
+    const method = profile ? 'PATCH' : 'POST'
+    const res  = await fetch(`/api/admin/workers/${workerId}/profile`, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    })
+    const json = await res.json()
+    setSaving(false)
+    if (json.success) { setProfile(json.data); setEditing(false); setMsg('저장됨') }
+    else setMsg(json.error || '저장 실패')
+  }
+
+  const f = (key: string) => (form[key] as string) || ''
+  const fb = (key: string) => !!(form[key])
+
+  if (loading) return <div style={{ padding: '32px', color: '#999', textAlign: 'center' }}>로딩 중...</div>
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>근로형태 분류정보</h3>
+        {!editing && (
+          <button onClick={startEdit} style={{ padding: '6px 14px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
+            {profile ? '수정' : '분류 등록'}
+          </button>
+        )}
+      </div>
+
+      {msg && <div style={{ padding: '8px 12px', background: '#e8f5e9', borderRadius: '6px', fontSize: '13px', color: '#2e7d32', marginBottom: '12px' }}>{msg}</div>}
+
+      {!editing && !profile && (
+        <div style={{ padding: '32px', textAlign: 'center', color: '#999', fontSize: '14px' }}>
+          분류정보가 없습니다. "분류 등록" 버튼으로 등록하세요.
+        </div>
+      )}
+
+      {!editing && profile && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          {[
+            ['근로자 구분',  WORKER_CLASS_LABEL[profile.workerClass as string]    || (profile.workerClass as string)],
+            ['근무형태',    EMPLOYMENT_MODE_LABEL[profile.employmentMode as string] || (profile.employmentMode as string)],
+            ['세무형태',    TAX_MODE_LABEL[profile.taxMode as string]            || (profile.taxMode as string)],
+            ['보험형태',    INSURANCE_MODE_LABEL[profile.insuranceMode as string] || (profile.insuranceMode as string)],
+            ['사무실 근무', (profile.officeWorkerYn ? '예' : '아니요')],
+            ['계속근로 검토', profile.continuousWorkReview === 'REVIEW_REQUIRED'
+              ? '⚠️ 검토 필요' : '이상 없음'],
+          ].map(([label, value]) => (
+            <div key={label as string} style={{ padding: '12px', background: '#f9f9f9', borderRadius: '8px' }}>
+              <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>{label}</div>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: profile.continuousWorkReview === 'REVIEW_REQUIRED' && label === '계속근로 검토' ? '#e65100' : '#333' }}>
+                {value as string}
+              </div>
+            </div>
+          ))}
+          {!!profile.classificationNote && (
+            <div style={{ gridColumn: '1/-1', padding: '12px', background: '#fff3e0', borderRadius: '8px' }}>
+              <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>관리자 메모</div>
+              <div style={{ fontSize: '13px' }}>{String(profile.classificationNote)}</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {editing && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          {[
+            { label: '근로자 구분', key: 'workerClass', options: [['EMPLOYEE','근로자'],['CONTRACTOR','외주/용역']] },
+            { label: '근무형태', key: 'employmentMode', options: [['DAILY','일용직'],['REGULAR','상용직'],['TEMP','단기계약'],['OFFICE_SUPPORT','사무보조']] },
+            { label: '세무형태', key: 'taxMode', options: [['DAILY_WAGE','일용근로소득'],['WAGE','일반 근로소득'],['BIZ_3P3','사업소득 3.3%'],['OTHER_8P8','기타소득 8.8%']] },
+            { label: '보험형태', key: 'insuranceMode', options: [['AUTO_RULE','자동 판정'],['EMPLOYEE_4INSURANCE','4대보험 전체'],['EMPLOYMENT_ONLY','고용보험만'],['EXCLUDED','적용 제외'],['MANUAL_OVERRIDE','수동 지정']] },
+            { label: '계속근로 검토', key: 'continuousWorkReview', options: [['OK','이상 없음'],['REVIEW_REQUIRED','검토 필요']] },
+          ].map(({ label, key, options }) => (
+            <div key={key}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 }}>{label}</label>
+              <select value={f(key)} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+                style={{ width: '100%', padding: '8px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px' }}>
+                {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+            </div>
+          ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px' }}>
+            <input type="checkbox" checked={fb('officeWorkerYn')}
+              onChange={e => setForm(p => ({ ...p, officeWorkerYn: e.target.checked }))}
+              style={{ width: '16px', height: '16px' }} />
+            <label style={{ fontSize: '13px', cursor: 'pointer' }}>사무실 근무자</label>
+          </div>
+          <div style={{ gridColumn: '1/-1' }}>
+            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: 600 }}>관리자 메모</label>
+            <input value={f('classificationNote')}
+              onChange={e => setForm(p => ({ ...p, classificationNote: e.target.value }))}
+              placeholder="판단 근거 등 메모"
+              style={{ width: '100%', padding: '8px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '13px' }} />
+          </div>
+          <div style={{ gridColumn: '1/-1', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+            <button onClick={handleSave} disabled={saving}
+              style={{ padding: '8px 20px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
+              {saving ? '저장 중...' : '저장'}
+            </button>
+            <button onClick={() => setEditing(false)}
+              style={{ padding: '8px 16px', background: '#f5f5f5', border: '1px solid #e0e0e0', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
+              취소
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 const filterBtn: React.CSSProperties = {
   padding: '4px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 600,
+}
+
+// ─── 계약서 탭 ────────────────────────────────────────────────────────────────
+
+interface WorkerContractRow {
+  id: string
+  contractType: string
+  contractStatus: string
+  contractTemplateType?: string
+  startDate: string
+  endDate?: string
+  dailyWage?: number
+  monthlySalary?: number
+  signedAt?: string
+  deliveredAt?: string
+  currentVersion?: number
+  site?: { name: string }
+}
+
+function ContractsTab({ workerId }: { workerId: string }) {
+  const [contracts, setContracts] = useState<WorkerContractRow[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch(`/api/admin/contracts?workerId=${workerId}`)
+      .then(r => r.json())
+      .then(d => { if (d.success) setContracts(d.data) })
+      .finally(() => setLoading(false))
+  }, [workerId])
+
+  const CONTRACT_STATUS_LABEL: Record<string, string> = {
+    DRAFT: '초안', ACTIVE: '활성', ENDED: '종료', CANCELLED: '취소',
+  }
+  const CONTRACT_TYPE_LABEL: Record<string, string> = {
+    DAILY: '일용직', REGULAR: '상용직', FIXED_TERM: '기간제', SUBCONTRACT: '외주',
+  }
+
+  if (loading) return <p style={{ color: '#999', padding: '16px' }}>불러오는 중...</p>
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>근로계약서</h3>
+        <a href={`/admin/contracts/new?workerId=${workerId}`}
+          style={{ padding: '6px 14px', background: '#2563eb', color: '#fff', borderRadius: 6, fontSize: '13px', textDecoration: 'none' }}>
+          + 신규 계약
+        </a>
+      </div>
+      {contracts.length === 0 ? (
+        <p style={{ color: '#aaa', fontSize: '14px', textAlign: 'center', padding: '32px 0' }}>계약 이력이 없습니다.</p>
+      ) : (
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+          <thead>
+            <tr style={{ background: '#f8f9fa', borderBottom: '1px solid #e5e7eb' }}>
+              <th style={{ padding: '8px 12px', textAlign: 'left' }}>유형</th>
+              <th style={{ padding: '8px 12px', textAlign: 'left' }}>현장</th>
+              <th style={{ padding: '8px 12px', textAlign: 'left' }}>기간</th>
+              <th style={{ padding: '8px 12px', textAlign: 'right' }}>일당/월급</th>
+              <th style={{ padding: '8px 12px', textAlign: 'center' }}>상태</th>
+              <th style={{ padding: '8px 12px', textAlign: 'center' }}>서명</th>
+              <th style={{ padding: '8px 12px', textAlign: 'center' }}>교부</th>
+              <th style={{ padding: '8px 12px', textAlign: 'center' }}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {contracts.map(c => (
+              <tr key={c.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                <td style={{ padding: '8px 12px' }}>
+                  {CONTRACT_TYPE_LABEL[c.contractType] || c.contractType}
+                  {c.currentVersion && c.currentVersion > 1 && (
+                    <span style={{ marginLeft: 4, fontSize: '11px', color: '#888' }}>v{c.currentVersion}</span>
+                  )}
+                </td>
+                <td style={{ padding: '8px 12px', color: '#555' }}>{c.site?.name || '—'}</td>
+                <td style={{ padding: '8px 12px', color: '#555' }}>
+                  {c.startDate} ~ {c.endDate || '무기한'}
+                </td>
+                <td style={{ padding: '8px 12px', textAlign: 'right' }}>
+                  {c.dailyWage ? c.dailyWage.toLocaleString() + '원' : c.monthlySalary ? c.monthlySalary.toLocaleString() + '원' : '—'}
+                </td>
+                <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                  <span style={{
+                    padding: '2px 8px', borderRadius: 12, fontSize: '11px', fontWeight: 600,
+                    background: c.contractStatus === 'ACTIVE' ? '#dcfce7' : c.contractStatus === 'DRAFT' ? '#fef9c3' : '#f3f4f6',
+                    color: c.contractStatus === 'ACTIVE' ? '#166534' : c.contractStatus === 'DRAFT' ? '#854d0e' : '#6b7280',
+                  }}>
+                    {CONTRACT_STATUS_LABEL[c.contractStatus] || c.contractStatus}
+                  </span>
+                </td>
+                <td style={{ padding: '8px 12px', textAlign: 'center', color: c.signedAt ? '#16a34a' : '#d1d5db' }}>
+                  {c.signedAt ? '✓' : '—'}
+                </td>
+                <td style={{ padding: '8px 12px', textAlign: 'center', color: c.deliveredAt ? '#16a34a' : '#d1d5db' }}>
+                  {c.deliveredAt ? '✓' : '—'}
+                </td>
+                <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                  <a href={`/admin/contracts/${c.id}`} style={{ color: '#2563eb', fontSize: '12px', textDecoration: 'none' }}>상세</a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  )
+}
+
+// ─── 안전문서 탭 ──────────────────────────────────────────────────────────────
+
+interface SafetyDocRow {
+  id: string
+  documentType: string
+  status: string
+  documentDate?: string
+  educationDate?: string
+  signedAt?: string
+  site?: { name: string }
+}
+
+const SAFETY_DOC_LABELS: Record<string, string> = {
+  SAFETY_EDUCATION_NEW_HIRE:    '신규채용 안전보건교육',
+  SAFETY_EDUCATION_TASK_CHANGE: '작업변경 교육',
+  PPE_PROVISION:                '보호구 지급',
+  SAFETY_PLEDGE:                '안전수칙 서약',
+  WORK_CONDITIONS_RECEIPT:      '근로조건설명·계약서수령',
+  PRIVACY_CONSENT:              '개인정보수집·이용동의',
+}
+
+function SafetyDocsTab({ workerId }: { workerId: string }) {
+  const [docs, setDocs] = useState<SafetyDocRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({
+    documentType: 'SAFETY_EDUCATION_NEW_HIRE',
+    educationDate: new Date().toISOString().slice(0, 10),
+    educationHours: 1,
+    educationPlace: '',
+    educatorName: '',
+    siteId: '',
+    contractId: '',
+  })
+  const [submitting, setSubmitting] = useState(false)
+  const [previewDoc, setPreviewDoc] = useState<SafetyDocRow & { contentText?: string } | null>(null)
+
+  const load = () => {
+    fetch(`/api/admin/workers/${workerId}/safety-documents`)
+      .then(r => r.json())
+      .then(d => { if (d.success) setDocs(d.data) })
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { load() }, [workerId])
+
+  const handleSubmit = async () => {
+    setSubmitting(true)
+    try {
+      const res = await fetch(`/api/admin/workers/${workerId}/safety-documents`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+      if (!data.success) throw new Error(data.error)
+      setShowForm(false)
+      load()
+    } catch (e) {
+      alert('오류: ' + (e as Error).message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleSign = async (docId: string, signerName: string) => {
+    const res = await fetch(`/api/admin/safety-documents/${docId}/sign`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ signedBy: signerName }),
+    })
+    const data = await res.json()
+    if (data.success) load()
+    else alert(data.error)
+  }
+
+  const handlePreview = async (docId: string) => {
+    const res = await fetch(`/api/admin/safety-documents/${docId}`)
+    const data = await res.json()
+    if (data.success) setPreviewDoc(data.data)
+  }
+
+  if (loading) return <p style={{ color: '#999', padding: '16px' }}>불러오는 중...</p>
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>안전문서</h3>
+        <button onClick={() => setShowForm(true)}
+          style={{ padding: '6px 14px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: 6, fontSize: '13px', cursor: 'pointer' }}>
+          + 안전문서 생성
+        </button>
+      </div>
+
+      {/* 문서 목록 */}
+      {docs.length === 0 ? (
+        <p style={{ color: '#aaa', fontSize: '14px', textAlign: 'center', padding: '32px 0' }}>안전문서 이력이 없습니다.</p>
+      ) : (
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+          <thead>
+            <tr style={{ background: '#f8f9fa', borderBottom: '1px solid #e5e7eb' }}>
+              <th style={{ padding: '8px 12px', textAlign: 'left' }}>문서 종류</th>
+              <th style={{ padding: '8px 12px', textAlign: 'left' }}>현장</th>
+              <th style={{ padding: '8px 12px', textAlign: 'left' }}>문서일</th>
+              <th style={{ padding: '8px 12px', textAlign: 'center' }}>상태</th>
+              <th style={{ padding: '8px 12px', textAlign: 'center' }}>서명일</th>
+              <th style={{ padding: '8px 12px', textAlign: 'center' }}>동작</th>
+            </tr>
+          </thead>
+          <tbody>
+            {docs.map(d => (
+              <tr key={d.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                <td style={{ padding: '8px 12px' }}>{SAFETY_DOC_LABELS[d.documentType] || d.documentType}</td>
+                <td style={{ padding: '8px 12px', color: '#555' }}>{d.site?.name || '—'}</td>
+                <td style={{ padding: '8px 12px', color: '#555' }}>{d.educationDate || d.documentDate || '—'}</td>
+                <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                  <span style={{
+                    padding: '2px 8px', borderRadius: 12, fontSize: '11px', fontWeight: 600,
+                    background: d.status === 'SIGNED' ? '#dcfce7' : d.status === 'ISSUED' ? '#dbeafe' : '#fef9c3',
+                    color: d.status === 'SIGNED' ? '#166534' : d.status === 'ISSUED' ? '#1e40af' : '#854d0e',
+                  }}>
+                    {d.status === 'SIGNED' ? '서명완료' : d.status === 'ISSUED' ? '발행' : '초안'}
+                  </span>
+                </td>
+                <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: '12px', color: '#555' }}>
+                  {d.signedAt ? new Date(d.signedAt).toLocaleDateString('ko-KR') : '—'}
+                </td>
+                <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                  <button onClick={() => handlePreview(d.id)}
+                    style={{ marginRight: 6, padding: '2px 8px', fontSize: '11px', border: '1px solid #d1d5db', borderRadius: 4, cursor: 'pointer', background: '#fff' }}>
+                    미리보기
+                  </button>
+                  {d.status !== 'SIGNED' && (
+                    <button onClick={() => {
+                      const name = prompt('서명자 이름:')
+                      if (name) handleSign(d.id, name)
+                    }}
+                      style={{ padding: '2px 8px', fontSize: '11px', border: 'none', borderRadius: 4, cursor: 'pointer', background: '#16a34a', color: '#fff' }}>
+                      서명처리
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {/* 생성 폼 모달 */}
+      {showForm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 28, width: 480, maxHeight: '80vh', overflowY: 'auto' }}>
+            <h3 style={{ margin: '0 0 20px', fontSize: '16px' }}>안전문서 생성</h3>
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>문서 종류 *</label>
+              <select value={form.documentType} onChange={e => setForm(f => ({ ...f, documentType: e.target.value }))}
+                style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }}>
+                <option value="SAFETY_EDUCATION_NEW_HIRE">신규채용 안전보건교육 확인서</option>
+                <option value="SAFETY_EDUCATION_TASK_CHANGE">작업변경 교육 확인서</option>
+                <option value="PPE_PROVISION">보호구 지급 확인서</option>
+                <option value="SAFETY_PLEDGE">안전수칙 준수 서약서</option>
+                <option value="WORK_CONDITIONS_RECEIPT">근로조건설명 및 계약서수령 확인서</option>
+                <option value="PRIVACY_CONSENT">개인정보수집·이용 동의서</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육/문서 일자 *</label>
+              <input type="date" value={form.educationDate}
+                onChange={e => setForm(f => ({ ...f, educationDate: e.target.value }))}
+                style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+            </div>
+
+            {(form.documentType === 'SAFETY_EDUCATION_NEW_HIRE' || form.documentType === 'SAFETY_EDUCATION_TASK_CHANGE') && (
+              <>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육 시간 (시간)</label>
+                  <input type="number" value={form.educationHours} min={0.5} step={0.5}
+                    onChange={e => setForm(f => ({ ...f, educationHours: Number(e.target.value) }))}
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육 장소</label>
+                  <input type="text" value={form.educationPlace}
+                    onChange={e => setForm(f => ({ ...f, educationPlace: e.target.value }))}
+                    placeholder="현장 사무소, 현장 내 교육장 등"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육 담당자</label>
+                  <input type="text" value={form.educatorName}
+                    onChange={e => setForm(f => ({ ...f, educatorName: e.target.value }))}
+                    placeholder="현장소장, 안전관리자 등"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '14px' }} />
+                </div>
+              </>
+            )}
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+              <button onClick={() => setShowForm(false)}
+                style={{ flex: 1, padding: '10px', border: '1px solid #d1d5db', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>
+                취소
+              </button>
+              <button onClick={handleSubmit} disabled={submitting}
+                style={{ flex: 1, padding: '10px', border: 'none', borderRadius: 6, background: '#16a34a', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>
+                {submitting ? '생성 중...' : '생성'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 미리보기 모달 */}
+      {previewDoc && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 28, width: 700, maxHeight: '85vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: '16px' }}>{SAFETY_DOC_LABELS[previewDoc.documentType] || previewDoc.documentType}</h3>
+              <button onClick={() => setPreviewDoc(null)} style={{ border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+            </div>
+            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px', background: '#f8f9fa', padding: 16, borderRadius: 6, lineHeight: 1.7 }}>
+              {previewDoc.contentText || '내용 없음'}
+            </pre>
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+              <button onClick={() => {
+                const blob = new Blob([previewDoc.contentText || ''], { type: 'text/plain;charset=utf-8' })
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `${SAFETY_DOC_LABELS[previewDoc.documentType]}.txt`
+                a.click()
+                URL.revokeObjectURL(url)
+              }}
+                style={{ padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: '13px' }}>
+                다운로드
+              </button>
+              <button onClick={() => setPreviewDoc(null)}
+                style={{ padding: '8px 16px', border: '1px solid #d1d5db', borderRadius: 6, background: '#fff', cursor: 'pointer', fontSize: '13px' }}>
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }

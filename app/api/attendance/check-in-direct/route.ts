@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getWorkerSession } from '@/lib/auth/guards'
 import { ok, badRequest, unauthorized, internalError } from '@/lib/utils/response'
@@ -7,10 +7,11 @@ import { schedulePresenceChecksForAttendance } from '@/lib/attendance/presence-s
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 const schema = z.object({
-  siteId: z.string().min(1, '현장 ID가 필요합니다.'),
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
-  deviceToken: z.string().min(1, '기기 토큰이 필요합니다.'),
+  siteId:          z.string().min(1, '현장 ID가 필요합니다.'),
+  latitude:        z.number().min(-90).max(90),
+  longitude:       z.number().min(-180).max(180),
+  deviceToken:     z.string().min(1, '기기 토큰이 필요합니다.'),
+  checkInPhotoId:  z.string().optional(),  // 출근 증빙 사진 ID (ATTENDANCE_PHOTO_REQUIRED=true면 필수)
   exceptionReason: z.string().optional(),
 })
 
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     const parsed = schema.safeParse(body)
     if (!parsed.success) return badRequest(parsed.error.errors[0].message)
 
-    const { siteId, latitude, longitude, deviceToken, exceptionReason } = parsed.data
+    const { siteId, latitude, longitude, deviceToken, checkInPhotoId, exceptionReason } = parsed.data
 
     const result = await processAttendanceCheckIn(
       {
@@ -34,22 +35,26 @@ export async function POST(request: NextRequest) {
         longitude,
         isDirectCheckIn: true,
         exceptionReason,
+        checkInPhotoId,
       },
       (attendanceId) => schedulePresenceChecksForAttendance(attendanceId)
     )
 
     if (!result.success) {
-      return badRequest(result.message)
+      return NextResponse.json(
+        { success: false, message: result.message, errorCode: result.errorCode ?? null, actionRequired: result.actionRequired ?? null },
+        { status: 400 }
+      )
     }
 
     await writeAuditLog({
       actorUserId: session.sub,
       actorType: 'WORKER',
-      actionType: 'ATTENDANCE_CHECK_IN_DIRECT',
+      actionType: 'CHECK_IN_SUCCESS',
       targetType: 'AttendanceLog',
       targetId: result.attendanceId,
       summary: `직접 출근 — 현장: ${siteId}`,
-      metadataJson: { siteId, distance: result.distance, withinRadius: result.withinRadius, companyId: result.companyId },
+      metadataJson: { siteId, distance: result.distance, withinRadius: result.withinRadius, companyId: result.companyId, checkInPhotoId },
     })
 
     return ok(

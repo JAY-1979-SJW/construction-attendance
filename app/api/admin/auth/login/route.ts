@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     const { email, password } = parsed.data
 
-    const admin = await prisma.adminUser.findUnique({ where: { email } })
+    const admin = await prisma.adminUser.findUnique({ where: { email }, select: { id: true, name: true, email: true, passwordHash: true, role: true, isActive: true, companyId: true } })
     if (!admin || !admin.isActive) return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
 
     const valid = await bcrypt.compare(password, admin.passwordHash)
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
       sub: admin.id,
       type: 'admin',
       role: admin.role,
+      companyId: admin.companyId ?? undefined,
     })
 
     await writeAuditLog({
@@ -39,9 +40,13 @@ export async function POST(request: NextRequest) {
       description: `관리자 로그인: ${admin.name} (${admin.email})`,
     })
 
+    // 역할에 따라 리다이렉트 경로 결정
+    const portal = admin.role === 'COMPANY_ADMIN' ? '/company' : '/admin'
+
     const response = NextResponse.json({
       success: true,
-      data: { id: admin.id, name: admin.name, email: admin.email, role: admin.role },
+      data: { id: admin.id, name: admin.name, email: admin.email, role: admin.role, companyId: admin.companyId },
+      portal,
     })
     response.cookies.set('admin_token', token, {
       httpOnly: true,

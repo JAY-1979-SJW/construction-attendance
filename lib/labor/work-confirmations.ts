@@ -12,7 +12,8 @@ import { prisma } from '@/lib/db/prisma'
 import { Decimal } from '@prisma/client/runtime/library'
 
 /**
- * workedMinutesRaw(출근~퇴근 경과 분) 기준 공수 자동 판정
+ * 최종 분(workedMinutesRawFinal) 기준 공수 자동 판정
+ * - 수동 override가 있으면 그것을 우선 사용
  * - 경과 4시간 초과 시 점심 1시간 차감하여 실근로 계산
  * - MISSING_CHECKOUT / INVALID presenceStatus는 무조건 INVALID
  */
@@ -83,9 +84,11 @@ export async function generateDraftConfirmations(
         continue
       }
 
-      // 공수 판정: 실근로 시간 기반 (07:00~16:00, 점심 1시간, 실근로 8시간 = 1.0 공수)
+      // 공수 판정: 수동 override 우선, 없으면 auto 값 사용
+      // workedMinutesRawFinal = workedMinutesOverride ?? workedMinutesAuto ?? workedMinutesRaw
+      const finalMinutes = day.workedMinutesRawFinal ?? day.workedMinutesOverride ?? day.workedMinutesRaw
       const { workType: defaultWorkType, workUnits: defaultWorkUnits } = calcWorkUnits(
-        day.workedMinutesRaw,
+        finalMinutes,
         day.presenceStatus,
       )
       const isInvalid = defaultWorkType === 'INVALID'
@@ -112,7 +115,7 @@ export async function generateDraftConfirmations(
             attendanceDayId:               day.id,
             confirmedWorkType:             defaultWorkType as never,
             confirmedWorkUnits:            defaultWorkUnits,
-            confirmedWorkMinutes:          day.workedMinutesRaw ?? 0,
+            confirmedWorkMinutes:          finalMinutes ?? 0,
             confirmedBaseAmount:           baseAmount,
             confirmedTotalAmount:          baseAmount,
             incomeTypeSnapshot:            day.worker.incomeType,
@@ -132,7 +135,7 @@ export async function generateDraftConfirmations(
             confirmationStatus:            'DRAFT',
             confirmedWorkType:             defaultWorkType as never,
             confirmedWorkUnits:            defaultWorkUnits,
-            confirmedWorkMinutes:          day.workedMinutesRaw ?? 0,
+            confirmedWorkMinutes:          finalMinutes ?? 0,
             confirmedBaseAmount:           baseAmount,
             confirmedTotalAmount:          baseAmount,
             incomeTypeSnapshot:            day.worker.incomeType,

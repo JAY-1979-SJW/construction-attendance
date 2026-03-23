@@ -50,6 +50,20 @@ export async function GET(request: NextRequest) {
       }),
     ])
 
+    // AttendanceDay 일괄 조회 (workedMinutesRaw 포함)
+    const attendanceDays = await prisma.attendanceDay.findMany({
+      where: {
+        OR: logs.map((l) => ({ workerId: l.workerId, siteId: l.siteId, workDate: l.workDate.toISOString().slice(0, 10) })),
+      },
+      select: { workerId: true, siteId: true, workDate: true, workedMinutesRaw: true },
+    })
+    const dayMap = new Map(
+      attendanceDays.map((d) => [
+        `${d.workerId}__${d.siteId}__${d.workDate}`,
+        d.workedMinutesRaw,
+      ])
+    )
+
     return ok({
       items: logs.map((l) => {
         const moveEvents = l.events.map(e => ({
@@ -64,6 +78,8 @@ export async function GET(request: NextRequest) {
         const movePath = moveEvents.length > 0
           ? [checkInSiteName, ...moveEvents.map(e => e.siteName)].join(' → ')
           : null
+
+        const workedMinutesRaw = dayMap.get(`${l.workerId}__${l.siteId}__${l.workDate.toISOString().slice(0, 10)}`) ?? null
 
         return {
           id: l.id,
@@ -86,6 +102,7 @@ export async function GET(request: NextRequest) {
           moveCount: moveEvents.length,
           movePath,
           moveEvents,
+          workedMinutesRaw,
         }
       }),
       total,

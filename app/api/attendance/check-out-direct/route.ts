@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getWorkerSession } from '@/lib/auth/guards'
 import { ok, badRequest, unauthorized, internalError } from '@/lib/utils/response'
@@ -8,9 +8,10 @@ import { prisma } from '@/lib/db/prisma'
 import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
 
 const schema = z.object({
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
-  deviceToken: z.string().min(1, '기기 토큰이 필요합니다.'),
+  latitude:        z.number().min(-90).max(90),
+  longitude:       z.number().min(-180).max(180),
+  deviceToken:     z.string().min(1, '기기 토큰이 필요합니다.'),
+  checkOutPhotoId: z.string().optional(),  // 퇴근 증빙 사진 ID (ATTENDANCE_PHOTO_REQUIRED=true면 필수)
   exceptionReason: z.string().optional(),
 })
 
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     const parsed = schema.safeParse(body)
     if (!parsed.success) return badRequest(parsed.error.errors[0].message)
 
-    const { latitude, longitude, deviceToken, exceptionReason } = parsed.data
+    const { latitude, longitude, deviceToken, checkOutPhotoId, exceptionReason } = parsed.data
 
     // 현재 열린 세션에서 현장 ID 조회
     const workDate = kstDateStringToDate(toKSTDateString())
@@ -45,12 +46,14 @@ export async function POST(request: NextRequest) {
     const currentSiteId = lastMove?.siteId ?? openLog.siteId
 
     const result = await processAttendanceCheckOut(
-      session.sub, deviceToken, currentSiteId, latitude, longitude, exceptionReason
+      session.sub, deviceToken, currentSiteId, latitude, longitude, exceptionReason, checkOutPhotoId
     )
 
     if (!result.success) {
-      const code = result.message.includes('사유') ? 'NEEDS_EXCEPTION_REASON' : undefined
-      return badRequest(result.message, code)
+      return NextResponse.json(
+        { success: false, message: result.message, errorCode: result.errorCode ?? null, actionRequired: result.actionRequired ?? null },
+        { status: 400 }
+      )
     }
 
     await writeAuditLog({
