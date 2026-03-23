@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 type Step = 'loading' | 'form' | 'submitting' | 'done'
 
@@ -122,9 +123,7 @@ export default function RegisterPage() {
     <div style={s.page}>
       <div style={s.card}>
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <div style={{ fontSize: '20px', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px', marginBottom: '4px' }}>
-            해한<span style={{ color: '#F47920' }}>Ai</span> Engineering
-          </div>
+          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={150} height={30} style={{ height: '32px', width: 'auto', margin: '0 auto' }} priority />
         </div>
         <h1 style={s.title}>근로자 회원가입</h1>
         <p style={s.subtitle}>가입 후 관리자 승인을 받아야 출퇴근이 가능합니다.</p>

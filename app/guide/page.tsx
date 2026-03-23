@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 type Step = 'login' | 'pending' | 'home-empty' | 'checkin' | 'home-working' | 'checkout' | 'completed'
 
@@ -30,7 +31,11 @@ export default function GuidePage() {
       {/* 상단 헤더 */}
       <header style={pg.header}>
         <Link href="/" style={pg.backLink}>← 돌아가기</Link>
-        <span style={pg.headerTitle}>앱 사용 미리보기</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={120} height={24} style={{ height: '24px', width: 'auto' }} priority />
+          <span style={{ color: '#718096', fontSize: '13px' }}>|</span>
+          <span style={pg.headerTitle}>앱 사용 미리보기</span>
+        </div>
         <Link href="/login" style={pg.startBtn}>시작하기</Link>
       </header>
 
@@ -102,7 +107,9 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
     case 'login':
       return (
         <div style={sc.container}>
-          <div style={sc.loginLogo}>해한<span style={{ color: '#F47920' }}>Ai</span></div>
+          <div style={{ textAlign: 'center', paddingTop: '40px', marginBottom: '8px' }}>
+            <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={130} height={26} style={{ height: '26px', width: 'auto', margin: '0 auto' }} priority />
+          </div>
           <div style={sc.loginSub}>현장 출퇴근 관리 시스템</div>
           <div style={sc.loginCard}>
             <div style={sc.loginLabel}>전화번호</div>

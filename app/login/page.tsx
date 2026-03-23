@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import {
   generateBrowserFingerprint,
   getStoredDeviceToken,
@@ -187,10 +188,8 @@ export default function LoginPage() {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={{ textAlign: 'center', marginBottom: '4px' }}>
-          <div style={{ fontSize: '28px', fontWeight: 900, color: '#ffffff', letterSpacing: '-1px' }}>
-            해한<span style={{ color: '#F47920' }}>Ai</span> Engineering
-          </div>
-          <div style={{ fontSize: '12px', color: '#5a6a7e', marginTop: '4px' }}>현장 출퇴근 관리 시스템</div>
+          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={160} height={32} style={{ height: '36px', width: 'auto', margin: '0 auto' }} priority />
+          <div style={{ fontSize: '12px', color: '#5a6a7e', marginTop: '8px' }}>현장 출퇴근 관리 시스템</div>
         </div>
         <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '20px 0' }} />
         <h1 style={{ ...styles.title, fontSize: '18px', marginBottom: '4px' }}>로그인</h1>

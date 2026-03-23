@@ -1,11 +1,15 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function RegisterPendingPage() {
   return (
     <div style={s.page}>
       <div style={s.card}>
+        <div style={{ marginBottom: '20px' }}>
+          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={150} height={30} style={{ height: '30px', width: 'auto', margin: '0 auto' }} priority />
+        </div>
         <div style={s.iconWrap}>
           <div style={s.iconCircle}>⏳</div>
         </div>

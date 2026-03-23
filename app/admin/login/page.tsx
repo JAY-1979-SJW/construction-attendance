@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -38,10 +39,7 @@ export default function AdminLoginPage() {
       <div style={styles.card}>
         {/* 브랜드 로고 */}
         <div style={styles.logoWrap}>
-          <div style={styles.logoIcon}>🏗️</div>
-          <div style={styles.logoText}>
-            해한<span style={{ color: '#F47920' }}>Ai</span> Engineering
-          </div>
+          <Image src="/logo/logo_dark_1x.png" alt="해한Ai Engineering" width={160} height={32} style={{ height: '36px', width: 'auto', margin: '0 auto 10px' }} priority />
           <div style={styles.logoSub}>관리자 포털</div>
         </div>
 

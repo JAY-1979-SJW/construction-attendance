@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function LandingPage() {
   return (
@@ -10,9 +11,16 @@ export default function LandingPage() {
       <header style={s.header}>
         <div style={s.headerInner}>
           {/* 브랜드 로고 */}
-          <div style={s.logo}>
-            해한<span style={s.logoAi}>Ai</span> Engineering
-          </div>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <Image
+              src="/logo/logo_dark_1x.png"
+              alt="해한Ai Engineering"
+              width={160}
+              height={32}
+              style={{ height: '32px', width: 'auto' }}
+              priority
+            />
+          </Link>
 
           {/* 네비게이션 */}
           <nav style={s.nav}>
