@@ -6,6 +6,9 @@ RUN npm ci
 COPY . .
 RUN mkdir -p public
 RUN npx prisma generate
+# 빌드 시 DATABASE_URL이 없으면 Prisma 초기화 실패 → dummy URL로 빌드만 통과
+ARG DATABASE_URL="postgresql://build:build@localhost:5432/build_placeholder"
+ENV DATABASE_URL=${DATABASE_URL}
 RUN NODE_OPTIONS="--max-old-space-size=1024" npm run build
 
 FROM node:20-slim AS runner
