@@ -75,6 +75,8 @@ export async function POST(req: NextRequest) {
     companyName, companyPhone, workDate,
     workerBankName, workerAccountNumber, workerAccountHolder,
     companyBizNo, companyAddress, companyRepName,
+    // 상용직 전용
+    probationYn, probationMonths, annualLeaveRule,
   } = body
 
   if (!workerId || !startDate || !contractKind || !contractTemplateType) {
@@ -94,6 +96,16 @@ export async function POST(req: NextRequest) {
   }
   if (contractKind === 'EMPLOYMENT' && !dailyWage && !monthlySalary) {
     return NextResponse.json({ error: '근로계약에는 일당 또는 월급 필수' }, { status: 400 })
+  }
+  // 상용직 추가 validation
+  const REGULAR_TYPES = ['REGULAR_EMPLOYMENT', 'FIXED_TERM_EMPLOYMENT', 'CONTINUOUS_EMPLOYMENT']
+  if (REGULAR_TYPES.includes(contractTemplateType)) {
+    if (!monthlySalary) {
+      return NextResponse.json({ error: '상용직 근로계약에는 기본급(월급) 필수' }, { status: 400 })
+    }
+    if (contractTemplateType === 'FIXED_TERM_EMPLOYMENT' && !endDate) {
+      return NextResponse.json({ error: '기간제 근로계약에는 계약 종료일 필수' }, { status: 400 })
+    }
   }
 
   const legacyType = contractKind === 'EMPLOYMENT'
@@ -168,6 +180,10 @@ export async function POST(req: NextRequest) {
       workerBankName:       workerBankName         || null,
       workerAccountNumber:  workerAccountNumber    || null,
       workerAccountHolder:  workerAccountHolder    || null,
+      // 상용직 전용
+      probationYn:          probationYn            ?? false,
+      probationMonths:      probationMonths        || null,
+      annualLeaveRule:      annualLeaveRule         || null,
     } as never,
     include: {
       worker: { select: { id: true, name: true } },

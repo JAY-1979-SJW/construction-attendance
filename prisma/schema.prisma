@@ -2275,6 +2275,12 @@ enum GeneratedDocumentType {
   TEAM_DISTRIBUTION_SUBMISSION // 내부 배분 참고자료 제출서
   TEAM_RECLASSIFICATION_WARNING // 직접고용 재분류 경고서
   // ── 안전관리 공통 ────────────────────────────────────────
+  // ── 일용직 전용 문서 ─────────────────────────────────────
+  WORK_CONDITIONS_RECEIPT      // 근로조건 설명 확인서
+  PRIVACY_CONSENT              // 개인정보 수집·이용 동의서
+  BASIC_SAFETY_EDU_CONFIRM     // 건설업 기초안전보건교육 확인서
+  SITE_SAFETY_RULES_CONFIRM    // 현장 안전수칙 준수 확인서
+  // ── 안전관리 공통 ────────────────────────────────────────
   SAFETY_COUNCIL_MINUTES        // 안전보건협의체 회의록
   SITE_INSPECTION_RECORD        // 순회점검 기록
   SUBCONTRACTOR_EDUCATION_RECORD // 수급인 교육실시 확인 기록

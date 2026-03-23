@@ -340,6 +340,84 @@ export function renderWorkConditionsReceipt(d: ContractData & {
   }
 }
 
+// ─── 5-B. 근로조건 설명 확인서 (상용직 버전) ─────────────────────
+
+export function renderWorkConditionsReceiptRegular(d: ContractData & {
+  managerName?: string
+}): RenderedContract {
+  const fmtMoney = (n?: number | null) => n ? n.toLocaleString('ko-KR') + '원' : '___________원'
+  const fmtTime  = (t?: string) => t || '__:__'
+  const breakDesc = d.breakStartTime && d.breakEndTime
+    ? `${d.breakStartTime} ~ ${d.breakEndTime} (${d.breakHours ?? 1}시간)`
+    : d.breakHours != null ? `${d.breakHours}시간` : '1시간'
+  const contractPeriod = d.endDate
+    ? `${d.startDate} ~ ${d.endDate}`
+    : `${d.startDate} ~ (기간 정함 없음)`
+  const weeklyWorkInfo = d.weeklyWorkDays || d.weeklyWorkHours
+    ? `주 ${d.weeklyWorkDays ?? '?'}일, 주 ${d.weeklyWorkHours ?? '?'}시간`
+    : '___일, ___시간'
+  const probationText = (d as ContractData & { probationYn?: boolean; probationMonths?: number }).probationYn
+    ? `시용기간 ${(d as ContractData & { probationMonths?: number }).probationMonths || '?'}개월 적용`
+    : '시용기간 없음'
+  const annualLeave = (d as ContractData & { annualLeaveRule?: string }).annualLeaveRule
+    || '근로기준법 제60조에 따라 연차유급휴가를 부여한다.'
+
+  return {
+    templateType: 'WORK_CONDITIONS_RECEIPT_REGULAR' as never,
+    title: '근로조건 설명 확인서',
+    subtitle: '(근로기준법 제17조 — 상용직/기간제 근로조건 서면 교부·설명 의무)',
+    legalBasis: '근로기준법 제17조, 동법 시행령 제8조',
+    sections: [
+      {
+        title: '안내',
+        content: `회사는 아래 근로조건을 근로자에게 설명하였고, 근로자는 그 내용을 확인하였습니다.`,
+      },
+      {
+        title: '1. 기본 정보',
+        content: `현장명: ${d.siteName}
+공종: ${d.workType || d.jobTitle || '___'}
+직종: ${d.jobCategory || d.jobTitle || '___'}
+계약기간: ${contractPeriod}
+근무장소: ${d.siteAddress || d.siteName}
+${probationText}`,
+      },
+      {
+        title: '2. 근로시간',
+        content: `시업 시각: ${fmtTime(d.checkInTime)}
+종업 시각: ${fmtTime(d.checkOutTime)}
+휴게시간: ${breakDesc}
+주 소정근로: ${weeklyWorkInfo}`,
+      },
+      {
+        title: '3. 임금',
+        content: `기본급: ${fmtMoney(d.monthlySalary)} (월)
+임금지급일: 매월 ${d.paymentDay || '말일'}
+임금지급방법: 근로자 본인 명의 계좌 지급`,
+      },
+      {
+        title: '4. 연차유급휴가',
+        content: annualLeave,
+      },
+      {
+        title: '5. 추가 안내',
+        content: `① 연장·야간·휴일근로가 발생하는 경우 관계 법령에 따라 가산수당이 지급됩니다.
+② 4대보험은 가입 요건에 해당하는 경우 법령에 따라 처리됩니다.
+③ 근로자는 현장 안전수칙, 보호구 착용 의무, 출퇴근 등록 절차를 준수하여야 합니다.`,
+      },
+    ],
+    signatureBlock: `위 내용을 설명 듣고 확인하였습니다.
+
+작성일: ${d.contractDate}
+
+회사 또는 현장관리자
+  성명: ${d.managerName || '             '}        (서명)
+
+근로자
+  성명: ${d.workerName}        (서명)
+`,
+  }
+}
+
 // ─── 6. 개인정보수집·이용 동의서 ──────────────────────────────
 
 export function renderPrivacyConsent(d: ContractData): RenderedContract {

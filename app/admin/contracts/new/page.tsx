@@ -206,6 +206,10 @@ function NewContractPage() {
     attendanceVerificationMethod: 'GPS앱',
     workUnitRule:         '1일 출근 시 1공수로 인정하며, 오전 또는 오후 반일 출근 시 0.5공수로 인정한다.',
     rainDayRule:          '기상청 강수 예보 또는 현장소장 판단에 따라 작업 중단 시, 당일 실근로에 비례하여 공수를 인정한다.',
+    // 상용직 전용
+    probationYn:          false,
+    probationMonths:      '',
+    annualLeaveRule:      '',
   })
 
   useEffect(() => {
@@ -276,10 +280,18 @@ function NewContractPage() {
   }
 
   function handleTemplateChange(tmpl: string) {
+    const isRegular = ['REGULAR_EMPLOYMENT', 'FIXED_TERM_EMPLOYMENT', 'CONTINUOUS_EMPLOYMENT'].includes(tmpl)
     setForm(f => ({
       ...f,
       contractTemplateType: tmpl,
       contractKind: CONTRACT_KIND_BY_TEMPLATE[tmpl] || f.contractKind,
+      // 상용직 선택 시 4대보험 전체 ON 자동 설정
+      ...(isRegular ? {
+        nationalPensionYn:     true,
+        healthInsuranceYn:     true,
+        employmentInsuranceYn: true,
+        industrialAccidentYn:  true,
+      } : {}),
     }))
   }
 
@@ -318,7 +330,8 @@ function NewContractPage() {
   const isSubcontractBiz   = laborRelation === 'SUBCONTRACT_BIZ'
   const isTeamReview       = laborRelation === 'TEAM_NONBIZ_REVIEW'
   const isEmployment       = form.contractKind === 'EMPLOYMENT'
-  const isDailyType = ['DAILY_EMPLOYMENT', 'MONTHLY_FIXED_EMPLOYMENT', 'CONTINUOUS_EMPLOYMENT'].includes(form.contractTemplateType)
+  const isDailyType    = ['DAILY_EMPLOYMENT', 'MONTHLY_FIXED_EMPLOYMENT', 'CONTINUOUS_EMPLOYMENT'].includes(form.contractTemplateType)
+  const isRegularType  = ['REGULAR_EMPLOYMENT', 'FIXED_TERM_EMPLOYMENT', 'CONTINUOUS_EMPLOYMENT'].includes(form.contractTemplateType)
 
   async function handleSave() {
     setError('')
@@ -394,6 +407,10 @@ function NewContractPage() {
       workerBankName:       form.workerBankName || null,
       workerAccountNumber:  form.workerAccountNumber || null,
       workerAccountHolder:  form.workerAccountHolder || null,
+      // 상용직 전용
+      probationYn:          form.probationYn,
+      probationMonths:      parseInt(form.probationMonths) || null,
+      annualLeaveRule:      form.annualLeaveRule || null,
     }
 
     const res  = await fetch('/api/admin/contracts', {
@@ -730,15 +747,16 @@ function NewContractPage() {
         <div className="grid grid-cols-3 gap-4">
           {isDirectEmployment && isEmployment && (
             <>
-              <div className="col-span-3">
-                <label className="text-xs font-medium text-gray-600 block mb-1">
-                  {isDailyType ? '일당 (원) *' : '월급 (원) *'}
-                </label>
-                <input type="number" value={form.dailyWage} onChange={e => set('dailyWage', e.target.value)}
-                  placeholder="예: 250000"
-                  className="w-full border rounded px-3 py-2 text-sm" />
-              </div>
-              {/* 자동계산 참고값 */}
+              {/* 일용직: 일당 */}
+              {isDailyType && (
+                <div className="col-span-3">
+                  <label className="text-xs font-medium text-gray-600 block mb-1">일당 (원) *</label>
+                  <input type="number" value={form.dailyWage} onChange={e => set('dailyWage', e.target.value)}
+                    placeholder="예: 250000"
+                    className="w-full border rounded px-3 py-2 text-sm" />
+                </div>
+              )}
+              {/* 일용직: 자동계산 참고값 */}
               {isDailyType && form.dailyWage && (
                 <div className="col-span-3 bg-blue-50 border border-blue-100 rounded p-3 text-sm text-blue-800 grid grid-cols-3 gap-2">
                   <div>
@@ -755,9 +773,10 @@ function NewContractPage() {
                   </div>
                 </div>
               )}
-              {(!isDailyType) && (
-                <div>
-                  <label className="text-xs font-medium text-gray-600 block mb-1">월급 (기본급, 원)</label>
+              {/* 상용직: 기본급 */}
+              {isRegularType && (
+                <div className="col-span-3">
+                  <label className="text-xs font-medium text-gray-600 block mb-1">기본급 (월, 원) *</label>
                   <input type="number" value={form.monthlySalary} onChange={e => set('monthlySalary', e.target.value)}
                     placeholder="예: 3000000"
                     className="w-full border rounded px-3 py-2 text-sm" />
@@ -815,6 +834,41 @@ function NewContractPage() {
           ))}
         </div>
       </div>
+
+      {/* Step 6.5: 상용직 전용 — 시용기간 및 연차 */}
+      {isDirectEmployment && isRegularType && (
+        <div className="bg-white border rounded-lg p-5 space-y-4">
+          <h2 className="font-semibold text-gray-800">상용직 추가 조건</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" checked={form.probationYn}
+                  onChange={e => set('probationYn', e.target.checked)}
+                  className="w-4 h-4" />
+                <span className="text-sm font-medium">시용기간 적용</span>
+              </label>
+            </div>
+            {form.probationYn && (
+              <div>
+                <label className="text-xs font-medium text-gray-600 block mb-1">시용기간 (개월)</label>
+                <input type="number" min="1" max="6" value={form.probationMonths}
+                  onChange={e => set('probationMonths', e.target.value)}
+                  placeholder="예: 3"
+                  className="w-full border rounded px-3 py-2 text-sm" />
+              </div>
+            )}
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-gray-600 block mb-1">연차유급휴가 적용 방식</label>
+              <select value={form.annualLeaveRule} onChange={e => set('annualLeaveRule', e.target.value)}
+                className="w-full border rounded px-3 py-2 text-sm">
+                <option value="">선택 (미입력 시 근로기준법 기준 적용)</option>
+                <option value="근로기준법 제60조에 따라 연차유급휴가를 부여한다.">근로기준법 제60조 기준</option>
+                <option value="1년 미만 근로자는 매월 1일의 연차를 부여하며, 1년 이상 근로자는 근로기준법 제60조에 따른다.">1년 미만 월 1일 + 이후 법정기준</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Step 7: 안전보건 조항 */}
       <div className="bg-white border rounded-lg p-5 space-y-3">

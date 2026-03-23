@@ -24,6 +24,11 @@ import {
   renderSafetyCouncilMinutes,
   renderSiteInspection,
   renderSubcontractorEducationRecord,
+  renderWorkConditionsReceipt,
+  renderWorkConditionsReceiptRegular,
+  renderPrivacyConsent,
+  renderBasicSafetyEduConfirm,
+  renderSiteSafetyRulesConfirm,
   type SafetyEducationData,
   type PPEProvisionData,
   type SiteAssignmentData,
@@ -58,25 +63,35 @@ function contractToTemplateData(
   today: string,
 ): ContractData {
   return {
-    companyName:    '주식회사 해한', // TODO: 시스템 설정에서 읽기
-    companyCeo:     '대표이사',
-    companyAddress: '서울특별시',
+    companyName:    (contract.companyName as string) || '주식회사 해한',
+    companyCeo:     (contract.companyRepName as string) || '대표이사',
+    companyAddress: (contract.companyAddress as string) || '서울특별시',
+    companyBizNo:   contract.companyBizNo as string | undefined,
     workerName:     worker.name,
     workerPhone:    worker.phone || undefined,
-    siteName:       site?.name || '미정',
-    siteAddress:    (site as Record<string, unknown>)?.address as string | undefined,
+    workerBirthDate: contract.workerBirthDate as string | undefined,
+    workerAddress:  contract.workerAddress as string | undefined,
+    siteName:       site?.name || (contract.siteName as string) || '미정',
+    siteAddress:    (contract.siteAddress as string | undefined) || site?.address as string | undefined,
     jobTitle:       (contract.notes as string) || '건설일용직',
     startDate:      contract.startDate as string,
     endDate:        contract.endDate as string | undefined,
     checkInTime:    contract.checkInTime as string | undefined,
     checkOutTime:   contract.checkOutTime as string | undefined,
+    breakStartTime: contract.breakStartTime as string | undefined,
+    breakEndTime:   contract.breakEndTime as string | undefined,
     workDays:       contract.workDays as string | undefined,
+    weeklyWorkDays: contract.weeklyWorkDays as number | undefined,
+    weeklyWorkHours: contract.weeklyWorkHours ? Number(contract.weeklyWorkHours) : undefined,
     paymentMethod:  contract.paymentMethod as string | undefined,
     dailyWage:      contract.dailyWage as number | undefined,
     monthlySalary:  contract.monthlySalary as number | undefined,
     serviceFee:     contract.serviceFee as number | undefined,
     paymentDay:     contract.paymentDay as number | undefined,
     breakHours:     Number(contract.breakHours) || undefined,
+    attendanceVerificationMethod: contract.attendanceVerificationMethod as string | undefined,
+    workUnitRule:   contract.workUnitRule as string | undefined,
+    rainDayRule:    contract.rainDayRule as string | undefined,
     businessRegistrationNo: contract.businessRegistrationNo as string | undefined,
     contractorName: contract.contractorName as string | undefined,
     nationalPensionYn:     (contract.nationalPensionYn as boolean) ?? false,
@@ -87,6 +102,21 @@ function contractToTemplateData(
     safetyClauseYn:        (contract.safetyClauseYn as boolean) ?? true,
     specialTerms:          contract.specialTerms as string | undefined,
     contractDate:          today,
+    // v3.4
+    projectName:           contract.projectName as string | undefined,
+    workType:              contract.workType as string | undefined,
+    workTypeSub:           contract.workTypeSub as string | undefined,
+    jobCategory:           contract.jobCategory as string | undefined,
+    jobCategorySub:        contract.jobCategorySub as string | undefined,
+    contractForm:          contract.contractForm as string | undefined,
+    taskDescription:       contract.taskDescription as string | undefined,
+    // v3.6
+    companyPhone:          contract.companyPhone as string | undefined,
+    workDate:              contract.workDate as string | undefined,
+    workerBankName:        contract.workerBankName as string | undefined,
+    workerAccountNumber:   contract.workerAccountNumber as string | undefined,
+    workerAccountHolder:   contract.workerAccountHolder as string | undefined,
+    managerName:           contract.managerName as string | undefined,
   }
 }
 
@@ -268,6 +298,54 @@ function renderDoc(
 
     case 'TEAM_RECLASSIFICATION_WARNING':
       return renderReclassificationWarning(buildTeamData(base, contract))
+
+    // ── 안전·동의 문서 (일용직/상용직 분기) ─────────────────────
+    case 'WORK_CONDITIONS_RECEIPT_REGULAR': {
+      const cd = base as ContractData & { probationYn?: boolean; probationMonths?: number; annualLeaveRule?: string }
+      return renderWorkConditionsReceiptRegular({
+        ...base,
+        managerName: (extra.managerName as string) || cd.managerName,
+        probationYn:     cd.probationYn,
+        probationMonths: cd.probationMonths,
+        annualLeaveRule: cd.annualLeaveRule,
+      })
+    }
+
+    case 'WORK_CONDITIONS_RECEIPT':
+      return renderWorkConditionsReceipt({
+        ...base,
+        workDate:              (extra.workDate as string)              || (base as ContractData).workDate,
+        tradeType:             (extra.tradeType as string)             || undefined,
+        jobType:               (extra.jobType as string)               || undefined,
+        workPlace:             (extra.workPlace as string)             || undefined,
+        managerName:           (extra.managerName as string)           || (base as ContractData).managerName,
+        workerBankName:        (extra.workerBankName as string)        || (base as ContractData).workerBankName,
+        workerAccountNumber:   (extra.workerAccountNumber as string)   || (base as ContractData).workerAccountNumber,
+        workerAccountHolder:   (extra.workerAccountHolder as string)   || (base as ContractData).workerAccountHolder,
+      })
+
+    case 'PRIVACY_CONSENT':
+      return renderPrivacyConsent(base)
+
+    case 'BASIC_SAFETY_EDU_CONFIRM':
+      return renderBasicSafetyEduConfirm({
+        ...base,
+        workDate:              (extra.workDate as string)              || (base as ContractData).workDate,
+        eduCompletedYn:        (extra.eduCompletedYn as boolean)       ?? false,
+        eduCompletedDate:      (extra.eduCompletedDate as string)      || undefined,
+        eduOrganization:       (extra.eduOrganization as string)       || undefined,
+        eduCertConfirmedYn:    (extra.eduCertConfirmedYn as boolean)   ?? false,
+        eduCertConfirmedDate:  (extra.eduCertConfirmedDate as string)  || undefined,
+        confirmerName:         (extra.confirmerName as string)         || (base as ContractData).managerName,
+      })
+
+    case 'SITE_SAFETY_RULES_CONFIRM':
+      return renderSiteSafetyRulesConfirm({
+        ...base,
+        workDate:            (extra.workDate as string)          || (base as ContractData).workDate,
+        specialSafetyRules:  (extra.specialSafetyRules as string) || undefined,
+        confirmerName:       (extra.confirmerName as string)      || (base as ContractData).managerName,
+      })
 
     // ── 안전관리 공통 ─────────────────────────────────────────
     case 'SAFETY_COUNCIL_MINUTES':

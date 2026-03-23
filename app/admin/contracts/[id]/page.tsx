@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { DOC_PACKAGES, getDocPackageKey } from '@/lib/contracts/index'
+import { DOC_PACKAGES, getDocPackageForTemplate } from '@/lib/contracts/index'
 
 // ─── 타입 ─────────────────────────────────────────────────────
 
@@ -208,7 +208,8 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
   if (loading) return <div className="p-8 text-gray-400 text-center">로딩 중...</div>
   if (!contract) return <div className="p-8 text-red-500 text-center">계약을 찾을 수 없습니다.</div>
 
-  const packageKey = getDocPackageKey(contract.laborRelationType)
+  // contractTemplateType 기준으로 패키지 결정 (상용직/일용직 분리)
+  const packageKey = getDocPackageForTemplate(contract.contractTemplateType)
   const docPackage = DOC_PACKAGES[packageKey] || DOC_PACKAGES.DIRECT_EMPLOYEE
   const generatedMap = new Map(contract.generatedDocuments.map(d => [d.documentType, d]))
   const reviewFlags  = contract.reviewFlags?.split(',').filter(Boolean) || []
@@ -385,7 +386,12 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
         <div className="col-span-2 space-y-4">
           <div className="bg-white border rounded-lg p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-gray-800">문서 패키지 — {packageKey === 'DIRECT_EMPLOYEE' ? 'A. 직접고용' : packageKey === 'SUBCONTRACT_BIZ' ? 'B. 하도급/외주' : 'C. 팀장형'}</h2>
+              <h2 className="font-semibold text-gray-800">문서 패키지 — {
+                packageKey === 'DIRECT_EMPLOYEE'  ? 'A. 직접고용 (일용직)' :
+                packageKey === 'REGULAR_EMPLOYEE' ? 'D. 직접고용 (상용직/기간제)' :
+                packageKey === 'SUBCONTRACT_BIZ'  ? 'B. 하도급/외주' :
+                'C. 팀장형'
+              }</h2>
               <span className="text-xs text-gray-500">
                 {docPackage.filter(d => generatedMap.has(d.type)).length} / {docPackage.length} 생성됨
               </span>
