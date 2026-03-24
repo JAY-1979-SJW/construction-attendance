@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, use, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
@@ -35,7 +35,7 @@ const ORDER_STATUS_COLOR: Record<string, string> = {
   FULL:    '#2e7d32',
 }
 
-export default function NewPurchaseOrderPage() {
+function NewPurchaseOrderInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const materialRequestId = searchParams.get('materialRequestId') ?? ''
@@ -273,6 +273,14 @@ export default function NewPurchaseOrderPage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function NewPurchaseOrderPage() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', minHeight: '100vh', background: '#1B2838', alignItems: 'center', justifyContent: 'center', color: '#A0AEC0' }}>로딩 중...</div>}>
+      <NewPurchaseOrderInner />
+    </Suspense>
   )
 }
 
