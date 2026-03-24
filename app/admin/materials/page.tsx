@@ -146,46 +146,30 @@ export default function MaterialsPage() {
   const totalPages = Math.ceil(total / pageSize)
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      {/* Sidebar */}
-      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-        {[
-          { href: '/admin', label: '대시보드' },
-          { href: '/admin/workers', label: '근로자 관리' },
-          { href: '/admin/companies', label: '회사 관리' },
-          { href: '/admin/sites', label: '현장 관리' },
-          { href: '/admin/attendance', label: '출퇴근 조회' },
-          { href: '/admin/presence-checks', label: '체류확인 현황' },
-          { href: '/admin/presence-report', label: '체류확인 리포트' },
-          { href: '/admin/work-confirmations', label: '근무확정' },
-          { href: '/admin/contracts', label: '인력/계약 관리' },
-          { href: '/admin/insurance-eligibility', label: '보험판정' },
-          { href: '/admin/wage-calculations', label: '세금/노임 계산' },
-          { href: '/admin/filing-exports', label: '신고자료 내보내기' },
-          { href: '/admin/exceptions', label: '예외 승인' },
-          { href: '/admin/device-requests', label: '기기 변경' },
-          { href: '/admin/materials', label: '자재관리' },
-        ].map((item) => (
-          <Link key={item.href} href={item.href}
-            className={item.href === '/admin/materials'
-              ? 'block text-white px-5 py-[10px] text-sm no-underline bg-[rgba(244,121,32,0.15)] border-l-[3px] border-[#F47920]'
-              : 'block text-white/80 px-5 py-[10px] text-sm no-underline'}>
-            {item.label}
-          </Link>
-        ))}
-        <button onClick={handleLogout} className="mx-5 mt-6 p-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
-      </nav>
-
-      {/* Main */}
-      <main className="flex-1 p-8">
+    <div className="p-8">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold m-0 mb-1">자재관리</h1>
             <p className="text-sm text-muted-brand m-0">계약내역서 엑셀 파일을 업로드하여 공종별 자재를 파싱·집계합니다</p>
           </div>
           <button onClick={() => setShowUpload(true)} className="px-5 py-[10px] bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-sm font-semibold">+ 내역서 업로드</button>
+        </div>
+
+        {/* 빠른 링크 */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          {[
+            { href: '/admin/materials/requests',        label: '자재청구', desc: '청구서 작성 · 승인',   color: '#5BA4D9' },
+            { href: '/admin/materials/purchase-orders', label: '발주관리', desc: '발주서 생성 · 발행',   color: '#F47920' },
+            { href: '/admin/materials/inventory',       label: '재고현황', desc: '청구·발주·입고 집계', color: '#66bb6a' },
+          ].map(c => (
+            <a key={c.href} href={c.href} className="no-underline bg-card border border-[rgba(91,164,217,0.15)] rounded-[10px] p-4 flex items-center gap-3 hover:border-[rgba(91,164,217,0.35)] transition-colors">
+              <div className="w-2 h-2 rounded-full shrink-0" style={{ background: c.color }} />
+              <div>
+                <div className="text-[14px] font-semibold text-white">{c.label}</div>
+                <div className="text-[12px] text-muted-brand">{c.desc}</div>
+              </div>
+            </a>
+          ))}
         </div>
 
         {/* Upload Modal */}
@@ -313,7 +297,6 @@ export default function MaterialsPage() {
             </div>
           )}
         </div>
-      </main>
     </div>
   )
 }
