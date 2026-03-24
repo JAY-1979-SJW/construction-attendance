@@ -32,13 +32,11 @@ CREATE TYPE "TerminationReason" AS ENUM ('CONTRACT_EXPIRY', 'VOLUNTARY_RESIGN', 
 CREATE TYPE "TerminationReviewStatus" AS ENUM ('DRAFT', 'IN_PROGRESS', 'CONFIRMED', 'CANCELLED');
 
 -- AlterEnum
-BEGIN;
 CREATE TYPE "ContractTemplateType_new" AS ENUM ('DAILY_EMPLOYMENT', 'REGULAR_EMPLOYMENT', 'FIXED_TERM_EMPLOYMENT', 'FREELANCER_SERVICE', 'OFFICE_SERVICE', 'SUBCONTRACT_WITH_BIZ', 'NONBUSINESS_TEAM_REVIEW');
 ALTER TABLE "worker_contracts" ALTER COLUMN "contractTemplateType" TYPE "ContractTemplateType_new" USING ("contractTemplateType"::text::"ContractTemplateType_new");
 ALTER TYPE "ContractTemplateType" RENAME TO "ContractTemplateType_old";
 ALTER TYPE "ContractTemplateType_new" RENAME TO "ContractTemplateType";
 DROP TYPE "ContractTemplateType_old";
-COMMIT;
 
 -- DropForeignKey
 ALTER TABLE "admin_users" DROP CONSTRAINT "admin_users_company_fk";
