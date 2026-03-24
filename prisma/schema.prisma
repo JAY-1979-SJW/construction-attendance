@@ -3467,6 +3467,7 @@ enum MaterialRequestStatus {
 enum MaterialRequestActorType {
   ADMIN
   SYSTEM
+  WORKER
 }
 
 // 자재 마스터
@@ -3507,9 +3508,10 @@ model MaterialRequest {
   id           String                 @id @default(cuid())
   requestNo    String                 @unique // MR-YYYYMMDD-NNNN
   siteId       String?
-  requestedBy  String                 // Admin userId
-  actorType    MaterialRequestActorType @default(ADMIN)
-  status       MaterialRequestStatus  @default(DRAFT)
+  requestedBy        String                   // Admin userId (WORKER인 경우 'WORKER' 고정값)
+  workerRequesterId  String?                  // actorType=WORKER일 때 Worker.id
+  actorType          MaterialRequestActorType @default(ADMIN)
+  status             MaterialRequestStatus    @default(DRAFT)
   title        String
   notes        String?                @db.Text
   deliveryRequestedAt DateTime?
@@ -3526,14 +3528,16 @@ model MaterialRequest {
   createdAt    DateTime               @default(now())
   updatedAt    DateTime               @updatedAt
 
-  site           Site?                        @relation(fields: [siteId], references: [id], onDelete: SetNull)
-  items          MaterialRequestItem[]
-  history        MaterialRequestStatusHistory[]
-  purchaseOrders PurchaseOrder[]
+  site            Site?                        @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  workerRequester Worker?                      @relation("WorkerMaterialRequests", fields: [workerRequesterId], references: [id], onDelete: SetNull)
+  items           MaterialRequestItem[]
+  history         MaterialRequestStatusHistory[]
+  purchaseOrders  PurchaseOrder[]
 
   @@index([siteId])
   @@index([status])
   @@index([requestedBy])
+  @@index([workerRequesterId])
   @@map("material_requests")
 }
 

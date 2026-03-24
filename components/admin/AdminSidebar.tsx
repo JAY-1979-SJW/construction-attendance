@@ -117,6 +117,7 @@ export default function AdminSidebar() {
   const router = useRouter()
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set())
   const [badges, setBadges] = useState({ exceptions: 0, deviceRequests: 0 })
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin'
@@ -131,6 +132,11 @@ export default function AdminSidebar() {
     })
     setOpenGroups(active)
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname])
+
+  // 페이지 이동 시 모바일 메뉴 닫기
+  useEffect(() => {
+    setMobileOpen(false)
   }, [pathname])
 
   // 뱃지 카운트 로드
@@ -161,113 +167,142 @@ export default function AdminSidebar() {
   }
 
   return (
-    <aside className="fixed top-0 left-0 h-screen w-[240px] bg-brand-deeper flex flex-col z-40 border-r border-[rgba(91,164,217,0.12)]">
-      {/* 상단 오렌지 라인 */}
-      <div className="h-[3px] bg-[#F47920] shrink-0" />
+    <>
+      {/* 모바일 햄버거 버튼 */}
+      <button
+        onClick={() => setMobileOpen(!mobileOpen)}
+        className="lg:hidden fixed top-3 left-4 z-50 flex flex-col gap-[5px] p-2.5 rounded-lg bg-[#071020] border border-[rgba(91,164,217,0.15)] shadow-lg"
+        aria-label="메뉴"
+      >
+        <span className={`block w-5 h-[2px] bg-white transition-all duration-200 ${mobileOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
+        <span className={`block w-5 h-[2px] bg-white transition-all duration-200 ${mobileOpen ? 'opacity-0' : ''}`} />
+        <span className={`block w-5 h-[2px] bg-white transition-all duration-200 ${mobileOpen ? '-rotate-45 -translate-y-[7px]' : ''}`} />
+      </button>
 
-      {/* 로고 */}
-      <div className="h-[53px] flex items-center px-5 border-b border-[rgba(91,164,217,0.12)] shrink-0">
-        <span className="text-[15px] font-bold text-white">
-          해한<span className="text-[#F47920]">Ai</span>
-          <span className="text-[#718096] text-[12px] font-normal ml-1.5">출퇴근관리</span>
-        </span>
-      </div>
+      {/* 모바일 오버레이 */}
+      {mobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/60 z-30 backdrop-blur-sm"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
 
-      {/* 메뉴 스크롤 영역 */}
-      <nav className="flex-1 overflow-y-auto py-2 px-2 scrollbar-thin">
+      {/* 사이드바 */}
+      <aside className={`
+        fixed top-0 left-0 h-screen w-[240px] flex flex-col z-40
+        border-r border-[rgba(91,164,217,0.1)]
+        transition-transform duration-300 ease-in-out
+        lg:translate-x-0
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
+        bg-[#071020]
+      `}>
+        {/* 상단 오렌지 라인 */}
+        <div className="h-[3px] bg-gradient-to-r from-[#F47920] to-[#ff9a4d] shrink-0" />
 
-        {/* 대시보드 (단일) */}
-        <Link
-          href="/admin"
-          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] mb-0.5 transition-colors ${
-            pathname === '/admin'
-              ? 'bg-[rgba(244,121,32,0.15)] text-[#F47920] font-bold'
-              : 'text-[#A0AEC0] hover:text-white hover:bg-[rgba(255,255,255,0.06)]'
-          }`}
-        >
-          <span>🏠</span><span>대시보드</span>
-        </Link>
+        {/* 로고 */}
+        <div className="h-[53px] flex items-center px-5 border-b border-[rgba(91,164,217,0.1)] shrink-0">
+          <span className="text-[15px] font-bold text-white">
+            해한<span className="text-[#F47920]">Ai</span>
+            <span className="text-[#5a6a80] text-[12px] font-normal ml-1.5">출퇴근관리</span>
+          </span>
+        </div>
 
-        {/* 운영 대시보드 (단일) */}
-        <Link
-          href="/admin/operations-dashboard"
-          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] mb-1 transition-colors ${
-            isActive('/admin/operations-dashboard')
-              ? 'bg-[rgba(244,121,32,0.15)] text-[#F47920] font-bold'
-              : 'text-[#A0AEC0] hover:text-white hover:bg-[rgba(255,255,255,0.06)]'
-          }`}
-        >
-          <span>📊</span><span>운영 대시보드</span>
-        </Link>
+        {/* 메뉴 스크롤 영역 */}
+        <nav className="flex-1 overflow-y-auto py-2 px-2 scrollbar-thin">
 
-        <div className="my-2 border-t border-[rgba(91,164,217,0.1)]" />
+          {/* 대시보드 */}
+          <Link
+            href="/admin"
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] mb-0.5 transition-colors ${
+              pathname === '/admin'
+                ? 'bg-[rgba(244,121,32,0.18)] text-[#F47920] font-bold'
+                : 'text-[#8899aa] hover:text-white hover:bg-[rgba(255,255,255,0.06)]'
+            }`}
+          >
+            <span>🏠</span><span>대시보드</span>
+          </Link>
 
-        {/* 그룹 메뉴 */}
-        {NAV_GROUPS.map((group) => {
-          const isOpen = openGroups.has(group.id)
-          const hasActive = group.items.some((item) => isActive(item.href))
+          {/* 운영 대시보드 */}
+          <Link
+            href="/admin/operations-dashboard"
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] mb-1 transition-colors ${
+              isActive('/admin/operations-dashboard')
+                ? 'bg-[rgba(244,121,32,0.18)] text-[#F47920] font-bold'
+                : 'text-[#8899aa] hover:text-white hover:bg-[rgba(255,255,255,0.06)]'
+            }`}
+          >
+            <span>📊</span><span>운영 대시보드</span>
+          </Link>
 
-          return (
-            <div key={group.id} className="mb-0.5">
-              <button
-                onClick={() => toggleGroup(group.id)}
-                className={`w-full flex items-center justify-between px-3 py-[9px] rounded-lg text-[13px] transition-colors ${
-                  hasActive
-                    ? 'text-white font-semibold'
-                    : 'text-[#718096] hover:text-[#A0AEC0] hover:bg-[rgba(255,255,255,0.04)]'
-                }`}
-              >
-                <span className="flex items-center gap-2">
-                  <span>{group.icon}</span>
-                  <span>{group.label}</span>
-                </span>
-                <span
-                  className="text-[11px] text-[#718096] transition-transform duration-200 leading-none"
-                  style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+          <div className="my-2 border-t border-[rgba(91,164,217,0.08)]" />
+
+          {/* 그룹 메뉴 */}
+          {NAV_GROUPS.map((group) => {
+            const isOpen = openGroups.has(group.id)
+            const hasActive = group.items.some((item) => isActive(item.href))
+
+            return (
+              <div key={group.id} className="mb-0.5">
+                <button
+                  onClick={() => toggleGroup(group.id)}
+                  className={`w-full flex items-center justify-between px-3 py-[9px] rounded-lg text-[13px] transition-colors ${
+                    hasActive
+                      ? 'text-white font-semibold'
+                      : 'text-[#5a6a80] hover:text-[#8899aa] hover:bg-[rgba(255,255,255,0.04)]'
+                  }`}
                 >
-                  ›
-                </span>
-              </button>
+                  <span className="flex items-center gap-2">
+                    <span>{group.icon}</span>
+                    <span>{group.label}</span>
+                  </span>
+                  <span
+                    className="text-[11px] text-[#5a6a80] transition-transform duration-200 leading-none"
+                    style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                  >
+                    ›
+                  </span>
+                </button>
 
-              {isOpen && (
-                <div className="ml-5 mt-0.5 mb-1 flex flex-col gap-0.5 border-l border-[rgba(91,164,217,0.12)] pl-2">
-                  {group.items.map((item) => {
-                    const badge = item.badgeKey ? badges[item.badgeKey] : 0
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`flex items-center justify-between px-2 py-[6px] rounded-md text-[12px] transition-colors ${
-                          isActive(item.href)
-                            ? 'bg-[rgba(244,121,32,0.12)] text-[#F47920] font-semibold'
-                            : 'text-[#718096] hover:text-white hover:bg-[rgba(255,255,255,0.05)]'
-                        }`}
-                      >
-                        <span>{item.label}</span>
-                        {badge > 0 && (
-                          <span className="bg-[#e53935] text-white text-[10px] font-bold px-1.5 py-[2px] rounded-full min-w-[18px] text-center leading-none">
-                            {badge}
-                          </span>
-                        )}
-                      </Link>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </nav>
+                {isOpen && (
+                  <div className="ml-5 mt-0.5 mb-1 flex flex-col gap-0.5 border-l border-[rgba(91,164,217,0.1)] pl-2">
+                    {group.items.map((item) => {
+                      const badge = item.badgeKey ? badges[item.badgeKey] : 0
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={`flex items-center justify-between px-2 py-[6px] rounded-md text-[12px] transition-colors ${
+                            isActive(item.href)
+                              ? 'bg-[rgba(244,121,32,0.14)] text-[#F47920] font-semibold'
+                              : 'text-[#5a6a80] hover:text-white hover:bg-[rgba(255,255,255,0.05)]'
+                          }`}
+                        >
+                          <span>{item.label}</span>
+                          {badge > 0 && (
+                            <span className="bg-[#e53935] text-white text-[10px] font-bold px-1.5 py-[2px] rounded-full min-w-[18px] text-center leading-none">
+                              {badge}
+                            </span>
+                          )}
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </nav>
 
-      {/* 하단 로그아웃 */}
-      <div className="px-3 py-3 border-t border-[rgba(91,164,217,0.12)] shrink-0">
-        <button
-          onClick={handleLogout}
-          className="w-full text-[12px] text-[#718096] hover:text-white py-2 px-3 rounded-lg hover:bg-[rgba(255,255,255,0.05)] transition-colors text-left"
-        >
-          로그아웃
-        </button>
-      </div>
-    </aside>
+        {/* 하단 로그아웃 */}
+        <div className="px-3 py-3 border-t border-[rgba(91,164,217,0.08)] shrink-0">
+          <button
+            onClick={handleLogout}
+            className="w-full text-[12px] text-[#5a6a80] hover:text-white py-2 px-3 rounded-lg hover:bg-[rgba(255,255,255,0.05)] transition-colors text-left"
+          >
+            로그아웃
+          </button>
+        </div>
+      </aside>
+    </>
   )
 }

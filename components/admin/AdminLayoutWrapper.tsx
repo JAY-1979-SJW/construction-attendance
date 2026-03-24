@@ -12,7 +12,7 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
   return (
     <div className="flex min-h-screen bg-brand">
       <AdminSidebar />
-      <div className="ml-[240px] flex-1 min-h-screen">
+      <div className="lg:ml-[240px] flex-1 min-h-screen pt-12 lg:pt-0">
         {children}
       </div>
     </div>

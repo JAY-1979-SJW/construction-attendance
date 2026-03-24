@@ -6,10 +6,10 @@
 /* ===== 해한AI 디자인 시스템 — Tailwind v4 테마 ===== */
 @theme {
   /* 브랜드 색상 */
-  --color-brand-bg:              #1B2838;
-  --color-brand-bg-dark:         #141E2A;
-  --color-brand-bg-deeper:       #0F1724;
-  --color-brand-bg-card:         #243144;
+  --color-brand-bg:              #0F1C2E;
+  --color-brand-bg-dark:         #0A1525;
+  --color-brand-bg-deeper:       #071020;
+  --color-brand-bg-card:         #152540;
   --color-brand-accent:          #F47920;
   --color-brand-accent-hover:    #E06810;
   --color-brand-secondary:       #5BA4D9;
@@ -18,7 +18,7 @@
   --color-brand-muted:           #A0AEC0;
   --color-brand-muted2:          #718096;
   --color-brand-light:           #F7FAFC;
-  --color-brand-footer:          #1B2A4A;
+  --color-brand-footer:          #0A1E3A;
 
   /* 폰트 */
   --font-sans:    "Pretendard", "Inter", system-ui, sans-serif;
@@ -27,12 +27,12 @@
 
 /* ===== CSS 변수 ===== */
 :root {
-  --background:   #1B2838;
+  --background:   #0F1C2E;
   --foreground:   #FFFFFF;
   --accent:       #F47920;
   --secondary:    #5BA4D9;
   --muted:        #A0AEC0;
-  --card-bg:      #243144;
+  --card-bg:      #152540;
   --border-color: rgba(91, 164, 217, 0.2);
 }
 
@@ -76,11 +76,11 @@ h1, h2, h3, h4, h5, h6 {
 .text-muted-brand     { color: #A0AEC0; }
 
 /* 배경 */
-.bg-brand       { background-color: #1B2838; }
-.bg-brand-dark  { background-color: #141E2A; }
-.bg-brand-deeper{ background-color: #0F1724; }
-.bg-card        { background-color: #243144; }
-.bg-footer      { background-color: #1B2A4A; }
+.bg-brand       { background-color: #0F1C2E; }
+.bg-brand-dark  { background-color: #0A1525; }
+.bg-brand-deeper{ background-color: #071020; }
+.bg-card        { background-color: #152540; }
+.bg-footer      { background-color: #0A1E3A; }
 
 /* 그라데이션 텍스트 */
 .gradient-text {
@@ -95,7 +95,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* 카드 */
 .card-base {
-  background-color: #243144;
+  background-color: #152540;
   border: 1px solid rgba(91, 164, 217, 0.15);
   border-radius: 0.75rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
