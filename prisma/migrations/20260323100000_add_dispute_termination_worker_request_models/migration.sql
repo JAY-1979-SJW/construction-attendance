@@ -26,76 +26,76 @@ DO $$ BEGIN
 END $$;
 
 -- DropForeignKey
-ALTER TABLE "admin_users" DROP CONSTRAINT "admin_users_company_fk";
+ALTER TABLE "admin_users" DROP CONSTRAINT IF EXISTS "admin_users_company_fk";
 
 -- DropForeignKey
-ALTER TABLE "attendance_days" DROP CONSTRAINT "attendance_days_siteId_fkey";
+ALTER TABLE "attendance_days" DROP CONSTRAINT IF EXISTS "attendance_days_siteId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "attendance_days" DROP CONSTRAINT "attendance_days_workerId_fkey";
+ALTER TABLE "attendance_days" DROP CONSTRAINT IF EXISTS "attendance_days_workerId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "contract_versions" DROP CONSTRAINT "contract_versions_contractId_fkey";
+ALTER TABLE "contract_versions" DROP CONSTRAINT IF EXISTS "contract_versions_contractId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "insurance_eligibility_snapshots" DROP CONSTRAINT "insurance_eligibility_snapshots_workerId_fkey";
+ALTER TABLE "insurance_eligibility_snapshots" DROP CONSTRAINT IF EXISTS "insurance_eligibility_snapshots_workerId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "monthly_work_confirmations" DROP CONSTRAINT "monthly_work_confirmations_attendanceDayId_fkey";
+ALTER TABLE "monthly_work_confirmations" DROP CONSTRAINT IF EXISTS "monthly_work_confirmations_attendanceDayId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "monthly_work_confirmations" DROP CONSTRAINT "monthly_work_confirmations_siteId_fkey";
+ALTER TABLE "monthly_work_confirmations" DROP CONSTRAINT IF EXISTS "monthly_work_confirmations_siteId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "monthly_work_confirmations" DROP CONSTRAINT "monthly_work_confirmations_workerId_fkey";
+ALTER TABLE "monthly_work_confirmations" DROP CONSTRAINT IF EXISTS "monthly_work_confirmations_workerId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "presence_check_audit_logs" DROP CONSTRAINT "presence_check_audit_logs_presence_check_id_fkey";
+ALTER TABLE "presence_check_audit_logs" DROP CONSTRAINT IF EXISTS "presence_check_audit_logs_presence_check_id_fkey";
 
 -- DropForeignKey
-ALTER TABLE "retirement_mutual_daily_records" DROP CONSTRAINT "retirement_mutual_daily_records_siteId_fkey";
+ALTER TABLE "retirement_mutual_daily_records" DROP CONSTRAINT IF EXISTS "retirement_mutual_daily_records_siteId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "retirement_mutual_daily_records" DROP CONSTRAINT "retirement_mutual_daily_records_sourceConfirmationId_fkey";
+ALTER TABLE "retirement_mutual_daily_records" DROP CONSTRAINT IF EXISTS "retirement_mutual_daily_records_sourceConfirmationId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "retirement_mutual_daily_records" DROP CONSTRAINT "retirement_mutual_daily_records_workerId_fkey";
+ALTER TABLE "retirement_mutual_daily_records" DROP CONSTRAINT IF EXISTS "retirement_mutual_daily_records_workerId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "safety_documents" DROP CONSTRAINT "safety_documents_contractId_fkey";
+ALTER TABLE "safety_documents" DROP CONSTRAINT IF EXISTS "safety_documents_contractId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "safety_documents" DROP CONSTRAINT "safety_documents_siteId_fkey";
+ALTER TABLE "safety_documents" DROP CONSTRAINT IF EXISTS "safety_documents_siteId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "safety_documents" DROP CONSTRAINT "safety_documents_workerId_fkey";
+ALTER TABLE "safety_documents" DROP CONSTRAINT IF EXISTS "safety_documents_workerId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "temp_sensitive_document_events" DROP CONSTRAINT "temp_sensitive_document_events_documentId_fkey";
+ALTER TABLE "temp_sensitive_document_events" DROP CONSTRAINT IF EXISTS "temp_sensitive_document_events_documentId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "temp_sensitive_documents" DROP CONSTRAINT "temp_sensitive_documents_workerId_fkey";
+ALTER TABLE "temp_sensitive_documents" DROP CONSTRAINT IF EXISTS "temp_sensitive_documents_workerId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "wage_calculations" DROP CONSTRAINT "wage_calculations_workerId_fkey";
+ALTER TABLE "wage_calculations" DROP CONSTRAINT IF EXISTS "wage_calculations_workerId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "withholding_calculations" DROP CONSTRAINT "withholding_calculations_wageCalculationId_fkey";
+ALTER TABLE "withholding_calculations" DROP CONSTRAINT IF EXISTS "withholding_calculations_wageCalculationId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "withholding_calculations" DROP CONSTRAINT "withholding_calculations_workerId_fkey";
+ALTER TABLE "withholding_calculations" DROP CONSTRAINT IF EXISTS "withholding_calculations_workerId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "worker_contracts" DROP CONSTRAINT "worker_contracts_siteId_fkey";
+ALTER TABLE "worker_contracts" DROP CONSTRAINT IF EXISTS "worker_contracts_siteId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "worker_contracts" DROP CONSTRAINT "worker_contracts_workerId_fkey";
+ALTER TABLE "worker_contracts" DROP CONSTRAINT IF EXISTS "worker_contracts_workerId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "worker_sensitive_identities" DROP CONSTRAINT "worker_sensitive_identities_sourceDocumentId_fkey";
+ALTER TABLE "worker_sensitive_identities" DROP CONSTRAINT IF EXISTS "worker_sensitive_identities_sourceDocumentId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "worker_site_assignments" DROP CONSTRAINT "worker_site_assignments_siteId_fkey";
+ALTER TABLE "worker_site_assignments" DROP CONSTRAINT IF EXISTS "worker_site_assignments_siteId_fkey";
 
 -- DropIndex
 DROP INDEX "labor_cost_summaries_companyId_idx";
