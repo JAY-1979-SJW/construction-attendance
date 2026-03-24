@@ -5,6 +5,20 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import MaterialPickerModal from '@/components/admin/MaterialPickerModal'
 
+interface OrderableItem {
+  id: string
+  itemName: string
+  spec: string | null
+  unit: string | null
+  requestedQty: string
+  orderedQty: string
+  remainingQty: string
+  orderStatus: 'NONE' | 'PARTIAL' | 'FULL'
+}
+
+const ORDER_STATUS_LABEL: Record<string, string> = { NONE: '미발주', PARTIAL: '부분발주', FULL: '발주완료' }
+const ORDER_STATUS_COLOR: Record<string, string> = { NONE: '#607d8b', PARTIAL: '#f9a825', FULL: '#2e7d32' }
+
 interface RequestDetail {
   id: string
   requestNo: string
@@ -100,6 +114,7 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
   const [req, setReq] = useState<RequestDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [showPicker, setShowPicker] = useState(false)
+  const [orderableItems, setOrderableItems] = useState<OrderableItem[]>([])
   const [actionLoading, setActionLoading] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [showRejectModal, setShowRejectModal] = useState(false)
@@ -115,6 +130,11 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
       .then(d => {
         if (!d.success) { router.push('/admin/login'); return }
         setReq(d.data)
+        if (d.data.status === 'APPROVED') {
+          fetch(`/api/admin/materials/requests/${id}/orderable-items`)
+            .then(r2 => r2.json())
+            .then(d2 => { if (d2.success) setOrderableItems(d2.data.items) })
+        }
       })
       .finally(() => setLoading(false))
   }
@@ -241,6 +261,7 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
           { href: '/admin/attendance', label: '출퇴근 조회' },
           { href: '/admin/materials', label: '자재관리' },
           { href: '/admin/materials/requests', label: '└ 자재청구' },
+          { href: '/admin/materials/purchase-orders', label: '└ 발주관리' },
         ].map(item => (
           <Link key={item.href} href={item.href}
             style={item.href === '/admin/materials/requests' ? S.navItemActive : S.navItem}>
@@ -297,6 +318,13 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
             {canCancel && (
               <button onClick={() => handleAction('cancel')} disabled={actionLoading} style={S.cancelBtn}>
                 취소
+              </button>
+            )}
+            {req.status === 'APPROVED' && (
+              <button
+                onClick={() => router.push(`/admin/materials/purchase-orders/new?materialRequestId=${req.id}`)}
+                style={S.orderBtn}>
+                + 발주 생성
               </button>
             )}
           </div>
@@ -388,6 +416,53 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
             </table>
           )}
         </div>
+
+        {/* 발주 현황 — APPROVED 상태에서만 표시 */}
+        {req.status === 'APPROVED' && orderableItems.length > 0 && (
+          <div style={{ ...S.card, marginTop: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>발주 현황</h2>
+              <button
+                onClick={() => router.push(`/admin/materials/purchase-orders/new?materialRequestId=${req.id}`)}
+                style={S.orderBtn}>
+                + 발주 생성
+              </button>
+            </div>
+            <table style={S.table}>
+              <thead>
+                <tr>
+                  {['품목명', '규격', '단위', '청구수량', '발주수량', '잔량', '발주상태'].map(h => (
+                    <th key={h} style={S.th}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {orderableItems.map(item => (
+                  <tr key={item.id}>
+                    <td style={{ ...S.td, fontWeight: 500 }}>{item.itemName}</td>
+                    <td style={{ ...S.td, fontSize: '12px', color: '#A0AEC0' }}>{item.spec ?? '-'}</td>
+                    <td style={S.td}>{item.unit ?? '-'}</td>
+                    <td style={{ ...S.td, textAlign: 'right' as const }}>{Number(item.requestedQty).toLocaleString()}</td>
+                    <td style={{ ...S.td, textAlign: 'right' as const, color: '#5BA4D9' }}>{Number(item.orderedQty).toLocaleString()}</td>
+                    <td style={{ ...S.td, textAlign: 'right' as const, color: Number(item.remainingQty) <= 0 ? '#607d8b' : '#66bb6a', fontWeight: 600 }}>
+                      {Number(item.remainingQty).toLocaleString()}
+                    </td>
+                    <td style={S.td}>
+                      <span style={{
+                        padding: '2px 8px', borderRadius: '10px', fontSize: '11px',
+                        background: ORDER_STATUS_COLOR[item.orderStatus] + '22',
+                        color: ORDER_STATUS_COLOR[item.orderStatus],
+                        border: `1px solid ${ORDER_STATUS_COLOR[item.orderStatus]}44`,
+                      }}>
+                        {ORDER_STATUS_LABEL[item.orderStatus]}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* 상태 이력 */}
         <div style={{ ...S.card, marginTop: '16px' }}>
@@ -488,4 +563,5 @@ const S: Record<string, React.CSSProperties> = {
   rejectBtn: { padding: '8px 18px', background: '#b71c1c', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
   cancelBtn: { padding: '8px 16px', background: 'rgba(255,255,255,0.06)', color: '#607d8b', border: '1px solid rgba(97,125,139,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
   deleteBtn: { padding: '3px 10px', background: 'rgba(183,28,28,0.15)', color: '#ef5350', border: '1px solid rgba(183,28,28,0.3)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
+  orderBtn: { padding: '8px 18px', background: '#0d47a1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
 }

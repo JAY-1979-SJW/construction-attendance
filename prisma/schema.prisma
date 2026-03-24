@@ -3525,9 +3525,10 @@ model MaterialRequest {
   createdAt    DateTime               @default(now())
   updatedAt    DateTime               @updatedAt
 
-  site    Site?                        @relation(fields: [siteId], references: [id], onDelete: SetNull)
-  items   MaterialRequestItem[]
-  history MaterialRequestStatusHistory[]
+  site           Site?                        @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  items          MaterialRequestItem[]
+  history        MaterialRequestStatusHistory[]
+  purchaseOrders PurchaseOrder[]
 
   @@index([siteId])
   @@index([status])
@@ -3556,8 +3557,9 @@ model MaterialRequestItem {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  request        MaterialRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  materialMaster MaterialMaster?  @relation(fields: [materialMasterId], references: [id], onDelete: SetNull)
+  request            MaterialRequest    @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  materialMaster     MaterialMaster?   @relation(fields: [materialMasterId], references: [id], onDelete: SetNull)
+  purchaseOrderItems PurchaseOrderItem[]
 
   @@index([requestId])
   @@index([materialMasterId])
@@ -3578,5 +3580,84 @@ model MaterialRequestStatusHistory {
 
   @@index([requestId])
   @@map("material_request_status_history")
+}
+
+// ─── 발주 ─────────────────────────────────────────────────────────────────────
+
+enum PurchaseOrderStatus {
+  DRAFT               // 작성중
+  ISSUED              // 발행됨
+  PARTIALLY_RECEIVED  // 부분입고
+  RECEIVED            // 전량입고
+  CANCELLED           // 취소됨
+}
+
+model PurchaseOrder {
+  id                    String              @id @default(cuid())
+  orderNo               String              @unique  // PO-YYYYMMDD-NNNN
+  materialRequestId     String
+  siteId                String?
+  vendorId              String?
+  status                PurchaseOrderStatus @default(DRAFT)
+  orderedByUserId       String
+  orderedAt             DateTime?
+  issuedAt              DateTime?
+  cancelledAt           DateTime?
+  deliveryRequestedDate DateTime?           @db.Date
+  memo                  String?             @db.Text
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  materialRequest MaterialRequest              @relation(fields: [materialRequestId], references: [id], onDelete: Restrict)
+  site            Site?                        @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  items           PurchaseOrderItem[]
+  history         PurchaseOrderStatusHistory[]
+
+  @@index([materialRequestId])
+  @@index([status])
+  @@index([siteId])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id                        String   @id @default(cuid())
+  purchaseOrderId           String
+  materialRequestItemId     String
+  materialId                String?
+  orderedQuantity           Decimal  @db.Decimal(15, 4)
+  receivedQuantity          Decimal  @default(0) @db.Decimal(15, 4)
+  note                      String?
+  // 발주 시점 스냅샷
+  itemNameSnapshot          String
+  specSnapshot              String?
+  unitSnapshot              String?
+  disciplineCodeSnapshot    String?
+  subDisciplineCodeSnapshot String?
+  requestQuantitySnapshot   Decimal  @db.Decimal(15, 4)
+  requestNoteSnapshot       String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  purchaseOrder       PurchaseOrder       @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  materialRequestItem MaterialRequestItem @relation(fields: [materialRequestItemId], references: [id], onDelete: Restrict)
+
+  @@index([purchaseOrderId])
+  @@index([materialRequestItemId])
+  @@map("purchase_order_items")
+}
+
+model PurchaseOrderStatusHistory {
+  id              String               @id @default(cuid())
+  purchaseOrderId String
+  fromStatus      PurchaseOrderStatus?
+  toStatus        PurchaseOrderStatus
+  changedByUserId String?
+  reason          String?              @db.Text
+  createdAt       DateTime             @default(now())
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  @@index([purchaseOrderId])
+  @@map("purchase_order_status_histories")
 }
 
