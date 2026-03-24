@@ -1,0 +1,84 @@
+/**
+ * OAuth 완료 후 브릿지 핸들러
+ * NextAuth 세션(이메일)을 읽어 기존 JWT 쿠키(worker_token / admin_token)로 변환
+ */
+import { NextResponse } from 'next/server'
+import { auth } from '@/lib/auth/nextauth'
+import { prisma } from '@/lib/db/prisma'
+import { signToken } from '@/lib/auth/jwt'
+
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '')
+  .split(',').map(e => e.trim()).filter(Boolean)
+
+export const runtime = 'nodejs'
+
+export async function GET(req: Request) {
+  const session = await auth()
+
+  if (!session?.user?.email) {
+    return NextResponse.redirect(new URL('/login?error=no_email', req.url))
+  }
+
+  const email = session.user.email
+  const name = session.user.name ?? '사용자'
+
+  try {
+    // ── 관리자 ─────────────────────────────────────────────
+    if (ADMIN_EMAILS.includes(email)) {
+      let admin = await prisma.adminUser.findUnique({ where: { email } })
+      if (!admin) {
+        admin = await prisma.adminUser.create({
+          data: {
+            name,
+            email,
+            passwordHash: 'oauth_no_password',
+            role: 'SUPER_ADMIN',
+            isActive: true,
+          },
+        })
+      }
+      if (!admin.isActive) {
+        return NextResponse.redirect(new URL('/login?error=inactive', req.url))
+      }
+      await prisma.adminUser.update({
+        where: { id: admin.id },
+        data: { lastLoginAt: new Date() },
+      })
+      const token = await signToken({ sub: admin.id, type: 'admin', role: admin.role })
+      const res = NextResponse.redirect(new URL('/admin', req.url))
+      res.cookies.set('admin_token', token, {
+        httpOnly: true, secure: true, sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7, path: '/',
+      })
+      return res
+    }
+
+    // ── 근로자 ─────────────────────────────────────────────
+    let worker = await prisma.worker.findFirst({ where: { email } })
+    if (!worker) {
+      worker = await prisma.worker.create({
+        data: {
+          name,
+          email,
+          phone: null,
+          jobTitle: '미설정',
+          accountStatus: 'APPROVED',
+          isActive: true,
+        },
+      })
+    }
+    if (!worker.isActive || worker.accountStatus === 'REJECTED') {
+      return NextResponse.redirect(new URL('/login?error=inactive', req.url))
+    }
+    const token = await signToken({ sub: worker.id, type: 'worker' })
+    const res = NextResponse.redirect(new URL('/attendance', req.url))
+    res.cookies.set('worker_token', token, {
+      httpOnly: true, secure: true, sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, path: '/',
+    })
+    return res
+  } catch (err) {
+    console.error('[auth/complete]', err)
+    return NextResponse.redirect(new URL('/login?error=server', req.url))
+  }
+}

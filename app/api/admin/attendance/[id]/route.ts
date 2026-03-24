@@ -98,7 +98,7 @@ export async function PATCH(
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
-    const deny = requireRole(session, MUTATE_ROLES)
+    const deny = requireRole(session, [...MUTATE_ROLES, 'SITE_ADMIN'])
     if (deny) return deny
 
     const body = await request.json()

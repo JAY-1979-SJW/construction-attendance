@@ -4,7 +4,7 @@
  */
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, badRequest, unauthorized, notFound, internalError } from '@/lib/utils/response'
 import { SiteNoticeType, SiteVisibilityScope } from '@prisma/client'
@@ -30,10 +30,12 @@ export async function PATCH(
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
-    const deny = requireRole(session, MUTATE_ROLES)
+    const deny = requireRole(session, [...MUTATE_ROLES, 'SITE_ADMIN'])
     if (deny) return deny
 
     const { id, noticeId } = await params
+
+    if (!await canAccessSite(session, id)) return siteAccessDenied()
 
     const existing = await prisma.siteNotice.findFirst({
       where: { id: noticeId, siteId: id },
@@ -78,10 +80,12 @@ export async function DELETE(
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
-    const deny = requireRole(session, MUTATE_ROLES)
+    const deny = requireRole(session, [...MUTATE_ROLES, 'SITE_ADMIN'])
     if (deny) return deny
 
     const { id, noticeId } = await params
+
+    if (!await canAccessSite(session, id)) return siteAccessDenied()
 
     const existing = await prisma.siteNotice.findFirst({
       where: { id: noticeId, siteId: id },
