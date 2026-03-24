@@ -147,36 +147,53 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
 
   const fmt = (iso: string | null) => iso ? new Date(iso).toLocaleString('ko-KR') : '-'
 
-  if (loading) return <div style={{ padding: '32px' }}>로딩 중...</div>
+  if (loading) return <div className="p-8">로딩 중...</div>
 
   return (
-    <div style={s.layout}>
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0">
+        <div className="text-white text-[16px] font-bold px-5 pb-6">해한 출퇴근</div>
         {[['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/attendance', '출퇴근 조회'],
           ['/admin/device-requests', '기기 승인'], ['/admin/devices', '기기 차단'], ['/admin/policies', '약관 관리']
-        ].map(([href, label]) => <Link key={href} href={href} style={s.navItem}>{label}</Link>)}
+        ].map(([href, label]) => (
+          <Link key={href} href={href} className="block text-white/80 px-5 py-2.5 text-[14px] no-underline">
+            {label}
+          </Link>
+        ))}
       </nav>
 
-      <main style={s.main}>
-        <div style={{ marginBottom: '20px' }}>
-          <Link href={`/admin/workers/${workerId}`} style={{ color: '#A0AEC0', fontSize: '14px' }}>← {workerName}</Link>
-          <h1 style={s.pageTitle}>개인정보 관리 — {workerName}</h1>
+      <main className="flex-1 p-8">
+        <div className="mb-5">
+          <Link href={`/admin/workers/${workerId}`} className="text-muted-brand text-[14px]">← {workerName}</Link>
+          <h1 className="text-[22px] font-bold mt-1 mb-4">개인정보 관리 — {workerName}</h1>
         </div>
 
-        <div style={s.notice}>
+        <div className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-md px-3.5 py-2 text-[13px] text-[#4A93C8] mb-4">
           출퇴근 가능 여부(계정 승인)와 노무/4대보험 완료 상태는 별도로 관리됩니다.
           신분증 파일은 시스템에 저장하지 않습니다.
         </div>
 
-        {msg && <div style={{ ...s.msgBox, background: msg.ok ? '#e8f5e9' : '#ffebee', borderColor: msg.ok ? '#a5d6a7' : '#ef9a9a', color: msg.ok ? '#2e7d32' : '#c62828', marginBottom: '16px' }}>{msg.text}</div>}
+        {msg && (
+          <div className="border rounded-lg px-4 py-3 text-[14px] mb-4"
+            style={{
+              background: msg.ok ? '#e8f5e9' : '#ffebee',
+              borderColor: msg.ok ? '#a5d6a7' : '#ef9a9a',
+              color: msg.ok ? '#2e7d32' : '#c62828',
+            }}>
+            {msg.text}
+          </div>
+        )}
 
-        <div style={s.tabRow}>
+        <div className="flex gap-2 mb-4">
           {[['sensitive', '민감정보'], ['bank', '계좌정보'], ['compliance', '노무/보험 상태'],
             ...(isSuperAdmin ? [['decrypt', '원문 복호화']] : [])
           ].map(([v, label]) => (
             <button key={v} onClick={() => { setActiveTab(v as never); setMsg(null) }}
-              style={{ ...s.tab, ...(activeTab === v ? s.tabActive : {}) }}>
+              className="px-5 py-2 border rounded-md cursor-pointer text-[14px]"
+              style={activeTab === v
+                ? { background: '#1a1a2e', color: 'white', borderColor: '#1a1a2e' }
+                : { background: '#243144', color: '#A0AEC0', borderColor: 'rgba(91,164,217,0.3)' }
+              }>
               {label}
             </button>
           ))}
@@ -184,10 +201,10 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
 
         {/* ── 민감정보 ── */}
         {activeTab === 'sensitive' && (
-          <div style={s.card}>
-            <h3 style={s.sectionTitle}>현재 저장값 (마스킹)</h3>
+          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+            <h3 className="text-[15px] font-bold mt-0 mb-3">현재 저장값 (마스킹)</h3>
             {sensitive ? (
-              <div style={s.rows}>
+              <div className="flex flex-col">
                 <Row k="법적 성명" v={sensitive.legalName} />
                 <Row k="주민등록번호" v={sensitive.rrnMasked} mono />
                 <Row k="휴대폰 원문" v={sensitive.phoneMasked} mono />
@@ -197,34 +214,38 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
                 <Row k="확인 메모" v={sensitive.idVerificationNote} />
                 <Row k="최종 수정" v={fmt(sensitive.updatedAt)} />
               </div>
-            ) : <p style={{ color: '#718096', margin: 0 }}>등록된 정보가 없습니다.</p>}
+            ) : <p className="text-[#718096] m-0">등록된 정보가 없습니다.</p>}
 
             {canMutate && (
               <>
-                <hr style={{ margin: '20px 0', borderColor: '#f0f0f0' }} />
-                <h3 style={s.sectionTitle}>입력/수정</h3>
-                <p style={s.notice}>신분증 파일은 시스템에 저장하지 않습니다. 필요 시 본사 보안 채널로 별도 처리하세요.</p>
-                <div style={s.grid2}>
+                <hr className="my-5 border-[#f0f0f0]" />
+                <h3 className="text-[15px] font-bold mt-0 mb-3">입력/수정</h3>
+                <p className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-md px-3.5 py-2 text-[13px] text-[#4A93C8] mb-4">
+                  신분증 파일은 시스템에 저장하지 않습니다. 필요 시 본사 보안 채널로 별도 처리하세요.
+                </p>
+                <div className="grid grid-cols-2 gap-4 mb-4">
                   <F label="법적 성명" value={sensForm.legalName} onChange={v => setSensForm(f => ({ ...f, legalName: v }))} />
                   <F label="주민등록번호 (13자리)" value={sensForm.rrn} onChange={v => setSensForm(f => ({ ...f, rrn: v }))} type="password" placeholder="갱신 시에만 입력" />
                   <F label="휴대폰 원문 (하이픈 제외)" value={sensForm.phone} onChange={v => setSensForm(f => ({ ...f, phone: v }))} placeholder="갱신 시에만 입력" />
                   <F label="주소" value={sensForm.address} onChange={v => setSensForm(f => ({ ...f, address: v }))} />
                   <F label="신분증 종류" value={sensForm.idDocumentType} onChange={v => setSensForm(f => ({ ...f, idDocumentType: v }))} placeholder="주민등록증, 운전면허증 등" />
                   <div>
-                    <label style={s.label}>확인 방식</label>
-                    <select value={sensForm.idVerificationMethod} onChange={e => setSensForm(f => ({ ...f, idVerificationMethod: e.target.value }))} style={s.select}>
+                    <label className="block text-[12px] text-muted-brand mb-1 font-semibold">확인 방식</label>
+                    <select value={sensForm.idVerificationMethod} onChange={e => setSensForm(f => ({ ...f, idVerificationMethod: e.target.value }))}
+                      className="w-full px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[14px]">
                       <option value="IN_PERSON">대면 확인</option>
                       <option value="SECURE_DOCUMENT">보안 채널 서류</option>
                       <option value="ADMIN_MANUAL">관리자 수동</option>
                     </select>
                   </div>
                   <F label="확인 메모" value={sensForm.idVerificationNote} onChange={v => setSensForm(f => ({ ...f, idVerificationNote: v }))} />
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div className="flex items-center gap-2">
                     <input type="checkbox" id="idVerified" checked={sensForm.idVerified} onChange={e => setSensForm(f => ({ ...f, idVerified: e.target.checked }))} />
-                    <label htmlFor="idVerified" style={{ fontSize: '14px', cursor: 'pointer' }}>신분증 확인 완료</label>
+                    <label htmlFor="idVerified" className="text-[14px] cursor-pointer">신분증 확인 완료</label>
                   </div>
                 </div>
-                <button onClick={handleSensSubmit} disabled={submitting} style={s.btn}>저장</button>
+                <button onClick={handleSensSubmit} disabled={submitting}
+                  className="px-5 py-2 bg-[#1a1a2e] text-white border-none rounded-md cursor-pointer text-[14px]">저장</button>
               </>
             )}
           </div>
@@ -232,28 +253,29 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
 
         {/* ── 계좌정보 ── */}
         {activeTab === 'bank' && (
-          <div style={s.card}>
-            <h3 style={s.sectionTitle}>현재 저장값 (마스킹)</h3>
+          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+            <h3 className="text-[15px] font-bold mt-0 mb-3">현재 저장값 (마스킹)</h3>
             {bank ? (
-              <div style={s.rows}>
+              <div className="flex flex-col">
                 <Row k="은행명" v={bank.bankName} />
                 <Row k="계좌번호" v={bank.accountNumberMasked} mono />
                 <Row k="예금주명" v={bank.accountHolderNameMasked} />
                 <Row k="최종 수정" v={fmt(bank.updatedAt)} />
               </div>
-            ) : <p style={{ color: '#718096', margin: 0 }}>등록된 계좌정보가 없습니다.</p>}
+            ) : <p className="text-[#718096] m-0">등록된 계좌정보가 없습니다.</p>}
 
             {canMutate && (
               <>
-                <hr style={{ margin: '20px 0', borderColor: '#f0f0f0' }} />
-                <h3 style={s.sectionTitle}>계좌 입력/수정</h3>
-                <div style={s.grid2}>
+                <hr className="my-5 border-[#f0f0f0]" />
+                <h3 className="text-[15px] font-bold mt-0 mb-3">계좌 입력/수정</h3>
+                <div className="grid grid-cols-2 gap-4 mb-4">
                   <F label="은행 코드" value={bankForm.bankCode} onChange={v => setBankForm(f => ({ ...f, bankCode: v }))} placeholder="예: 004 (국민은행)" />
                   <F label="은행명" value={bankForm.bankName} onChange={v => setBankForm(f => ({ ...f, bankName: v }))} />
                   <F label="계좌번호 (숫자만)" value={bankForm.accountNumber} onChange={v => setBankForm(f => ({ ...f, accountNumber: v }))} type="password" placeholder="갱신 시에만 입력" />
                   <F label="예금주명" value={bankForm.accountHolderName} onChange={v => setBankForm(f => ({ ...f, accountHolderName: v }))} />
                 </div>
-                <button onClick={handleBankSubmit} disabled={submitting} style={s.btn}>저장</button>
+                <button onClick={handleBankSubmit} disabled={submitting}
+                  className="px-5 py-2 bg-[#1a1a2e] text-white border-none rounded-md cursor-pointer text-[14px]">저장</button>
               </>
             )}
           </div>
@@ -261,49 +283,53 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
 
         {/* ── 노무/보험 상태 ── */}
         {activeTab === 'compliance' && (
-          <div style={s.card}>
-            <div style={s.notice}>출퇴근 가능 여부와 이 상태는 별도입니다. 근로자가 출퇴근 가능해도 보험 미완료일 수 있습니다.</div>
+          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+            <div className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-md px-3.5 py-2 text-[13px] text-[#4A93C8] mb-4">
+              출퇴근 가능 여부와 이 상태는 별도입니다. 근로자가 출퇴근 가능해도 보험 미완료일 수 있습니다.
+            </div>
             {compliance ? (
               <>
-                <div style={s.rows}>
+                <div className="flex flex-col">
                   <Row k="기본 신원 확인" v={compliance.basicIdentityChecked ? '완료' : '미완료'} />
                   <Row k="주민번호 수집" v={compliance.rrnCollected ? '완료' : '미완료'} />
                   <Row k="주소 수집" v={compliance.addressCollected ? '완료' : '미완료'} />
                   <Row k="계좌 수집" v={compliance.bankInfoCollected ? '완료' : '미완료'} />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '12px' }}>
+                <div className="grid grid-cols-2 gap-2 mt-3">
                   {[['국민연금', 'nationalPensionStatus'], ['건강보험', 'healthInsuranceStatus'],
                     ['고용보험', 'employmentInsuranceStatus'], ['산재보험', 'industrialAccidentStatus'],
                     ['퇴직공제', 'retirementMutualStatus']].map(([label, key]) => (
-                    <div key={key} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f9f9f9', borderRadius: '6px', fontSize: '14px' }}>
+                    <div key={key} className="flex justify-between px-3 py-2 bg-[#f9f9f9] rounded-md text-[14px]">
                       <span>{label}</span>
-                      <span style={{ color: STATUS_COLOR[compliance[key as keyof ComplianceStatus] as string] ?? '#888', fontWeight: 600 }}>
+                      <span className="font-semibold" style={{ color: STATUS_COLOR[compliance[key as keyof ComplianceStatus] as string] ?? '#888' }}>
                         {STATUS_LABEL[compliance[key as keyof ComplianceStatus] as string] ?? '-'}
                       </span>
                     </div>
                   ))}
                 </div>
               </>
-            ) : <p style={{ color: '#999' }}>노무/보험 상태가 아직 등록되지 않았습니다.</p>}
+            ) : <p className="text-[#999]">노무/보험 상태가 아직 등록되지 않았습니다.</p>}
 
             {canMutate && (
               <>
-                <hr style={{ margin: '20px 0', borderColor: '#f0f0f0' }} />
-                <h3 style={s.sectionTitle}>상태 갱신</h3>
-                <div style={s.grid2}>
+                <hr className="my-5 border-[#f0f0f0]" />
+                <h3 className="text-[15px] font-bold mt-0 mb-3">상태 갱신</h3>
+                <div className="grid grid-cols-2 gap-4 mb-4">
                   {[['nationalPensionStatus', '국민연금'], ['healthInsuranceStatus', '건강보험'],
                     ['employmentInsuranceStatus', '고용보험'], ['industrialAccidentStatus', '산재보험'],
                     ['retirementMutualStatus', '퇴직공제']].map(([key, label]) => (
                     <div key={key}>
-                      <label style={s.label}>{label}</label>
+                      <label className="block text-[12px] text-muted-brand mb-1 font-semibold">{label}</label>
                       <select value={compForm[key] ?? compliance?.[key as keyof ComplianceStatus] ?? 'NOT_STARTED'}
-                        onChange={e => setCompForm(f => ({ ...f, [key]: e.target.value }))} style={s.select}>
+                        onChange={e => setCompForm(f => ({ ...f, [key]: e.target.value }))}
+                        className="w-full px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[14px]">
                         {Object.entries(STATUS_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                       </select>
                     </div>
                   ))}
                 </div>
-                <button onClick={handleCompSubmit} disabled={submitting} style={s.btn}>저장</button>
+                <button onClick={handleCompSubmit} disabled={submitting}
+                  className="px-5 py-2 bg-[#1a1a2e] text-white border-none rounded-md cursor-pointer text-[14px]">저장</button>
               </>
             )}
           </div>
@@ -311,16 +337,16 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
 
         {/* ── 원문 복호화 (SUPER_ADMIN만) ── */}
         {activeTab === 'decrypt' && isSuperAdmin && (
-          <div style={s.card}>
-            <div style={{ background: '#fff3e0', border: '1px solid #ff9800', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', fontSize: '13px', color: '#e65100' }}>
+          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+            <div className="bg-[#fff3e0] border border-[#ff9800] rounded-lg px-4 py-3 mb-5 text-[13px] text-[#e65100]">
               복호화 조회는 감사로그에 기록됩니다. 반드시 업무상 필요한 경우에만 사용하세요.
               <br />화면 캡처 · 공유 · 재저장을 금지합니다.
             </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={s.label}>조회 항목 (복수 선택)</label>
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
+            <div className="mb-4">
+              <label className="block text-[12px] text-muted-brand mb-1 font-semibold">조회 항목 (복수 선택)</label>
+              <div className="flex gap-4 flex-wrap mt-2">
                 {[['rrn', '주민등록번호'], ['phone', '휴대폰 원문'], ['address', '주소'], ['legalName', '법적 성명']].map(([v, l]) => (
-                  <label key={v} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer' }}>
+                  <label key={v} className="flex items-center gap-1.5 text-[14px] cursor-pointer">
                     <input type="checkbox" checked={decryptFields.includes(v)}
                       onChange={e => setDecryptFields(f => e.target.checked ? [...f, v] : f.filter(x => x !== v))} />
                     {l}
@@ -328,26 +354,27 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
                 ))}
               </div>
             </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={s.label}>복호화 사유 (필수, 5자 이상)</label>
+            <div className="mb-4">
+              <label className="block text-[12px] text-muted-brand mb-1 font-semibold">복호화 사유 (필수, 5자 이상)</label>
               <input value={decryptReason} onChange={e => setDecryptReason(e.target.value)}
-                style={{ ...s.input, width: '100%' }} placeholder="예: 4대보험 신고를 위한 주민등록번호 확인" />
+                className="w-full px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[14px] box-border"
+                placeholder="예: 4대보험 신고를 위한 주민등록번호 확인" />
             </div>
             <button onClick={handleDecrypt}
               disabled={submitting || decryptFields.length === 0 || decryptReason.length < 5}
-              style={{ ...s.btn, background: '#c62828' }}>
+              className="px-5 py-2 bg-[#c62828] text-white border-none rounded-md cursor-pointer text-[14px]">
               원문 조회
             </button>
 
             {decryptResult && (
-              <div style={{ marginTop: '20px', background: '#fff3e0', border: '1px solid #ff9800', borderRadius: '8px', padding: '16px' }}>
-                <div style={{ fontSize: '12px', color: '#e65100', marginBottom: '12px', fontWeight: 600 }}>
+              <div className="mt-5 bg-[#fff3e0] border border-[#ff9800] rounded-lg p-4">
+                <div className="text-[12px] text-[#e65100] mb-3 font-semibold">
                   복호화된 원문 데이터 (페이지를 벗어나면 사라집니다)
                 </div>
                 {Object.entries(decryptResult).map(([k, v]) => (
-                  <div key={k} style={{ display: 'flex', gap: '16px', padding: '6px 0', fontSize: '14px', borderBottom: '1px solid #ffe0b2' }}>
-                    <span style={{ color: '#e65100', minWidth: '120px', fontWeight: 600 }}>{k}</span>
-                    <span style={{ fontFamily: 'monospace' }}>{v ?? '-'}</span>
+                  <div key={k} className="flex gap-4 py-1.5 text-[14px] border-b border-[#ffe0b2]">
+                    <span className="text-[#e65100] min-w-[120px] font-semibold">{k}</span>
+                    <span className="font-mono">{v ?? '-'}</span>
                   </div>
                 ))}
               </div>
@@ -361,8 +388,8 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
 
 function Row({ k, v, mono }: { k: string; v: string | null | undefined; mono?: boolean }) {
   return (
-    <div style={{ display: 'flex', gap: '16px', padding: '8px 0', borderBottom: '1px solid #f0f0f0', fontSize: '14px' }}>
-      <span style={{ color: '#A0AEC0', minWidth: '140px', flexShrink: 0 }}>{k}</span>
+    <div className="flex gap-4 py-2 border-b border-[#f0f0f0] text-[14px]">
+      <span className="text-muted-brand min-w-[140px] shrink-0">{k}</span>
       <span style={{ fontFamily: mono ? 'monospace' : 'inherit' }}>{v ?? '-'}</span>
     </div>
   )
@@ -373,30 +400,9 @@ function F({ label, value, onChange, type = 'text', placeholder = '' }: {
 }) {
   return (
     <div>
-      <label style={s.label}>{label}</label>
-      <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} style={s.input} />
+      <label className="block text-[12px] text-muted-brand mb-1 font-semibold">{label}</label>
+      <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+        className="w-full px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[14px] box-border" />
     </div>
   )
-}
-
-const s: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  main: { flex: 1, padding: '32px' },
-  pageTitle: { fontSize: '22px', fontWeight: 700, margin: '4px 0 16px' },
-  notice: { background: 'rgba(91,164,217,0.1)', border: '1px solid #90caf9', borderRadius: '6px', padding: '8px 14px', fontSize: '13px', color: '#4A93C8', marginBottom: '16px' },
-  msgBox: { border: '1px solid', borderRadius: '8px', padding: '12px 16px', fontSize: '14px' },
-  tabRow: { display: 'flex', gap: '8px', marginBottom: '16px' },
-  tab: { padding: '8px 20px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', background: '#243144', cursor: 'pointer', fontSize: '14px', color: '#A0AEC0' },
-  tabActive: { background: '#1a1a2e', color: 'white', borderColor: '#1a1a2e' },
-  card: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  sectionTitle: { fontSize: '15px', fontWeight: 700, marginTop: 0, marginBottom: '12px' },
-  rows: { display: 'flex', flexDirection: 'column' as const },
-  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' },
-  label: { display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 },
-  input: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' as const },
-  select: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px' },
-  btn: { padding: '8px 20px', background: '#1a1a2e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
 }

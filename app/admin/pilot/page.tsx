@@ -71,15 +71,15 @@ export default function PilotMonitorPage() {
     new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 
   return (
-    <div style={styles.layout}>
+    <div className="flex min-h-screen bg-brand">
       {/* Sidebar */}
-      <nav style={styles.sidebar}>
-        <div style={styles.sidebarTitle}>해한 출퇴근</div>
-        <div style={styles.navSection}>관리</div>
+      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {[
           { href: '/admin',               label: '대시보드' },
           { href: '/admin/workers',       label: '근로자 관리' },
-  { href: '/admin/companies', label: '회사 관리' },
+          { href: '/admin/companies',     label: '회사 관리' },
           { href: '/admin/sites',         label: '현장 관리' },
           { href: '/admin/attendance',    label: '출퇴근 조회' },
           { href: '/admin/labor',         label: '투입현황/노임서류' },
@@ -88,58 +88,58 @@ export default function PilotMonitorPage() {
           { href: '/admin/settings',        label: '⚙️ 시스템 설정' },
           { href: '/admin/pilot',         label: '파일럿 모니터링' },
         ].map((item) => (
-          <Link key={item.href} href={item.href} style={styles.navItem}>{item.label}</Link>
+          <Link key={item.href} href={item.href} className="block text-white/80 px-5 py-[10px] text-[14px] no-underline">{item.label}</Link>
         ))}
       </nav>
 
       {/* Main */}
-      <main style={styles.main}>
-        <div style={styles.header}>
+      <main className="flex-1 p-8">
+        <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 style={styles.pageTitle}>파일럿 운영 모니터링</h1>
-            <p style={styles.dateLabel}>
+            <h1 className="text-2xl font-bold m-0 mb-1">파일럿 운영 모니터링</h1>
+            <p className="text-[13px] text-muted-brand m-0">
               {data?.targetDate} &nbsp;|&nbsp; 마지막 갱신: {lastRefresh ? formatTime(lastRefresh.toISOString()) : '-'}
               &nbsp;
-              <span style={styles.autoTag}>1분 자동 갱신</span>
+              <span className="bg-[rgba(244,121,32,0.12)] text-[#F47920] rounded px-[6px] py-[2px] text-[11px]">1분 자동 갱신</span>
             </p>
           </div>
-          <button onClick={load} style={styles.refreshBtn} disabled={loading}>
+          <button onClick={load} disabled={loading} className="px-5 py-[10px] bg-[#F47920] text-white border-none rounded-lg cursor-pointer text-[14px] font-semibold">
             {loading ? '갱신 중...' : '지금 갱신'}
           </button>
         </div>
 
         {loading && !data ? (
-          <div style={centerStyle}>로딩 중...</div>
+          <div className="flex justify-center py-[60px]">로딩 중...</div>
         ) : (
           <>
-            <div style={styles.grid}>
+            <div className="grid gap-4 mb-6 [grid-template-columns:repeat(auto-fill,minmax(180px,1fr))]">
               {METRIC_CONFIG.map(({ key, label, sub, color, alert }) => {
                 const value = data?.metrics[key] ?? 0
                 const isAlert = alert?.(value)
                 return (
                   <div
                     key={key}
+                    className="bg-card rounded-[10px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)] relative"
                     style={{
-                      ...styles.card,
                       borderTop: `4px solid ${isAlert ? '#d32f2f' : color}`,
-                      background: isAlert ? '#fff8f8' : 'white',
+                      background: isAlert ? '#fff8f8' : undefined,
                     }}
                   >
-                    <div style={{ ...styles.value, color: isAlert ? '#d32f2f' : color }}>
+                    <div className="text-[36px] font-bold mb-1" style={{ color: isAlert ? '#d32f2f' : color }}>
                       {value}
                     </div>
-                    <div style={styles.label}>{label}</div>
-                    <div style={styles.sub}>{sub}</div>
-                    {isAlert && <div style={styles.alertBadge}>확인 필요</div>}
+                    <div className="text-[14px] font-semibold mb-[2px]">{label}</div>
+                    <div className="text-[12px] text-[#aaa]">{sub}</div>
+                    {isAlert && <div className="absolute top-3 right-3 bg-[#d32f2f] text-white text-[10px] px-[6px] py-[2px] rounded font-semibold">확인 필요</div>}
                   </div>
                 )
               })}
             </div>
 
             {/* 운영 기준 안내 */}
-            <div style={styles.guide}>
-              <div style={styles.guideTitle}>운영 기준</div>
-              <ul style={styles.guideList}>
+            <div className="bg-card rounded-[10px] px-6 py-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+              <div className="text-[14px] font-bold mb-3 text-[#444]">운영 기준</div>
+              <ul className="m-0 pl-5 text-[13px] text-muted-brand leading-[2]">
                 <li>승인 대기 30분 이상 방치 금지 — <strong>pendingDevices &gt; 0</strong> 즉시 처리</li>
                 <li>퇴근 전 WORKING 잔존 확인 — <strong>working</strong> = 0 이어야 당일 종료 가능</li>
                 <li>needsReview = MISSING_CHECKOUT 누적 — 익일 오전 전까지 검토 완료</li>
@@ -151,29 +151,4 @@ export default function PilotMonitorPage() {
       </main>
     </div>
   )
-}
-
-const centerStyle: React.CSSProperties = { display: 'flex', justifyContent: 'center', padding: '60px' }
-
-const styles: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
-  navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  main:         { flex: 1, padding: '32px' },
-  header:       { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' },
-  pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 4px' },
-  dateLabel:    { fontSize: '13px', color: '#A0AEC0', margin: 0 },
-  autoTag:      { background: 'rgba(244,121,32,0.12)', color: '#F47920', borderRadius: '4px', padding: '2px 6px', fontSize: '11px' },
-  refreshBtn:   { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  grid:         { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' },
-  card:         { background: '#243144', borderRadius: '10px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', position: 'relative' as const },
-  value:        { fontSize: '36px', fontWeight: 700, marginBottom: '4px' },
-  label:        { fontSize: '14px', fontWeight: 600, marginBottom: '2px' },
-  sub:          { fontSize: '12px', color: '#aaa' },
-  alertBadge:   { position: 'absolute' as const, top: '12px', right: '12px', background: '#d32f2f', color: 'white', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 },
-  guide:        { background: '#243144', borderRadius: '10px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  guideTitle:   { fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#444' },
-  guideList:    { margin: 0, paddingLeft: '20px', fontSize: '13px', color: '#A0AEC0', lineHeight: '2' },
 }

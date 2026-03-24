@@ -200,35 +200,35 @@ export default function WorkersPage() {
     p.length === 11 ? `${p.slice(0, 3)}-${p.slice(3, 7)}-${p.slice(7)}` : p
 
   return (
-    <div style={styles.layout}>
-      <nav style={styles.sidebar}>
-        <div style={styles.sidebarTitle}>해한 출퇴근</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0">
+        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
         {[
           ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'],
           ['/admin/sites', '현장 관리'], ['/admin/attendance', '출퇴근 조회'],
           ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
           ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'], ['/admin/audit-logs', '감사 로그'], ['/admin/site-imports', '현장 엑셀 업로드'],
         ].map(([href, label]) => (
-          <Link key={href} href={href} style={styles.navItem}>{label}</Link>
+          <Link key={href} href={href} className="block text-white/80 px-5 py-[10px] text-sm no-underline">{label}</Link>
         ))}
       </nav>
 
-      <main style={styles.main}>
-        <div style={styles.header}>
-          <h1 style={styles.pageTitle}>근로자 관리 ({total}명)</h1>
-          {canMutate && <button onClick={() => setShowForm(true)} style={styles.addBtn}>+ 근로자 등록</button>}
+      <main className="flex-1 p-8">
+        <div className="flex justify-between items-center mb-5">
+          <h1 className="text-[22px] font-bold m-0 text-white">근로자 관리 ({total}명)</h1>
+          {canMutate && <button onClick={() => setShowForm(true)} className="px-5 py-[10px] bg-[#F47920] text-white border-none rounded-lg cursor-pointer text-sm font-semibold">+ 근로자 등록</button>}
         </div>
 
-        <div style={styles.searchRow}>
+        <div className="flex gap-2 mb-4 flex-wrap">
           <input
             type="text"
             placeholder="이름, 연락처, 회사 검색"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && load()}
-            style={styles.searchInput}
+            className="flex-1 px-[14px] py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-sm max-w-[360px] bg-card text-white"
           />
-          <select value={filterEmpType} onChange={e => setFilterEmpType(e.target.value)} style={styles.filterSelect}>
+          <select value={filterEmpType} onChange={e => setFilterEmpType(e.target.value)} className="px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-card text-white cursor-pointer">
             <option value="">전체 고용형태</option>
             <option value="DAILY_CONSTRUCTION">건설일용</option>
             <option value="REGULAR">상용직</option>
@@ -237,21 +237,21 @@ export default function WorkersPage() {
             <option value="BUSINESS_33">3.3%사업소득</option>
             <option value="OTHER">기타</option>
           </select>
-          <select value={filterOrgType} onChange={e => setFilterOrgType(e.target.value)} style={styles.filterSelect}>
+          <select value={filterOrgType} onChange={e => setFilterOrgType(e.target.value)} className="px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-card text-white cursor-pointer">
             <option value="">전체 소속</option>
             <option value="DIRECT">직영</option>
             <option value="SUBCONTRACTOR">협력사</option>
           </select>
-          <button onClick={() => load()} style={styles.searchBtn}>검색</button>
+          <button onClick={() => load()} className="px-5 py-[10px] bg-brand border border-[rgba(91,164,217,0.3)] rounded-lg cursor-pointer text-sm text-white">검색</button>
         </div>
 
-        {loading ? <p>로딩 중...</p> : (
-          <div style={styles.tableCard}>
-            <table style={styles.table}>
+        {loading ? <p className="text-muted-brand">로딩 중...</p> : (
+          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-x-auto">
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {['이름', '연락처', '소속회사', '직종', '고용형태', '소속구분', '기기', '퇴직공제', '신분증', '상태', '등록일', ''].map((h) => (
-                    <th key={h} style={styles.th}>{h}</th>
+                    <th key={h} className="text-left px-3 py-[10px] text-xs text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -260,68 +260,71 @@ export default function WorkersPage() {
                   (!filterEmpType || w.employmentType === filterEmpType) &&
                   (!filterOrgType || w.organizationType === filterOrgType)
                 ).length === 0 ? (
-                  <tr><td colSpan={12} style={styles.empty}>조건에 맞는 근로자가 없습니다.</td></tr>
+                  <tr><td colSpan={12} className="text-center py-6 text-[#999]">조건에 맞는 근로자가 없습니다.</td></tr>
                 ) : workers.filter(w =>
                   (!filterEmpType || w.employmentType === filterEmpType) &&
                   (!filterOrgType || w.organizationType === filterOrgType)
                 ).map((w) => (
                   <tr key={w.id} style={{ opacity: w.isActive ? 1 : 0.5 }}>
-                    <td style={styles.td}>{w.name}</td>
-                    <td style={styles.td}>{formatPhone(w.phone)}</td>
-                    <td style={styles.td}>{w.primaryCompany?.companyName ?? <span style={{ color: '#bbb' }}>—</span>}</td>
-                    <td style={styles.td}>{w.jobTitle}</td>
-                    <td style={styles.td}>
-                      <span style={{ fontSize: '12px', color: '#A0AEC0' }}>
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{w.name}</td>
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{formatPhone(w.phone)}</td>
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{w.primaryCompany?.companyName ?? <span className="text-[#bbb]">—</span>}</td>
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{w.jobTitle}</td>
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">
+                      <span className="text-xs text-muted-brand">
                         {EMP_LABELS[w.employmentType ?? ''] ?? w.employmentType ?? '—'}
-                        {w.foreignerYn && <span style={{ marginLeft: '4px', color: '#f57c00' }}>외</span>}
+                        {w.foreignerYn && <span className="ml-1 text-[#f57c00]">외</span>}
                       </span>
                     </td>
-                    <td style={styles.td}>
-                      <span style={{ fontSize: '11px', color: w.organizationType === 'SUBCONTRACTOR' ? '#e65100' : '#555',
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">
+                      <span style={{
+                        fontSize: '11px',
+                        color: w.organizationType === 'SUBCONTRACTOR' ? '#e65100' : '#555',
                         background: w.organizationType === 'SUBCONTRACTOR' ? '#fff3e0' : '#f5f5f5',
-                        padding: '1px 6px', borderRadius: '8px' }}>
+                        padding: '1px 6px', borderRadius: '8px'
+                      }}>
                         {w.organizationType === 'SUBCONTRACTOR' ? '협력사' : '직영'}
                       </span>
                     </td>
-                    <td style={styles.td}>{w.deviceCount > 0 ? `${w.deviceCount}대` : '미등록'}</td>
-                    <td style={styles.td}>
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{w.deviceCount > 0 ? `${w.deviceCount}대` : '미등록'}</td>
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">
                       {w.retirementMutualStatus === 'TARGET' && (
-                        <span style={styles.badgeBlue}>대상</span>
+                        <span className="inline-block px-2 py-[2px] rounded text-[11px] font-semibold bg-[rgba(244,121,32,0.12)] text-[#F47920]">대상</span>
                       )}
                       {w.retirementMutualStatus === 'NOT_TARGET' && (
-                        <span style={styles.badgeGray}>비대상</span>
+                        <span className="inline-block px-2 py-[2px] rounded text-[11px] font-semibold bg-brand text-[#757575]">비대상</span>
                       )}
                       {w.retirementMutualStatus === 'PENDING_REVIEW' && (
-                        <span style={styles.badgeOrange}>확인필요</span>
+                        <span className="inline-block px-2 py-[2px] rounded text-[11px] font-semibold bg-[#fff3e0] text-[#e65100]">확인필요</span>
                       )}
                       {!w.retirementMutualStatus && (
-                        <span style={{ fontSize: '12px', color: '#bbb' }}>—</span>
+                        <span className="text-xs text-[#bbb]">—</span>
                       )}
                     </td>
-                    <td style={styles.td}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">
+                      <div className="flex items-center gap-[6px]">
                         <IdVerificationBadge status={w.idVerificationStatus} />
                         <button
                           onClick={() => { setUploadWorkerId(w.id); setUploadWorkerName(w.name); setShowUpload(true) }}
-                          style={{ fontSize: '12px', color: '#5BA4D9', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                          className="text-xs text-secondary-brand bg-none border-none cursor-pointer p-0 underline"
                         >
                           업로드
                         </button>
                       </div>
                     </td>
-                    <td style={styles.td}>
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">
                       <span style={{ color: w.isActive ? '#2e7d32' : '#999', fontSize: '12px', fontWeight: 600 }}>
                         {w.isActive ? '활성' : '비활성'}
                       </span>
                     </td>
-                    <td style={styles.td}>{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
-                    <td style={{ ...styles.td, whiteSpace: 'nowrap' }}>
-                      <Link href={`/admin/workers/${w.id}`} style={{ fontSize: '12px', color: '#5BA4D9', textDecoration: 'none', marginRight: '6px' }}>상세</Link>
-                      {canMutate && <button onClick={() => openEdit(w)} style={styles.editBtn}>수정</button>}
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
+                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white whitespace-nowrap">
+                      <Link href={`/admin/workers/${w.id}`} className="text-xs text-secondary-brand no-underline mr-[6px]">상세</Link>
+                      {canMutate && <button onClick={() => openEdit(w)} className="px-[10px] py-1 text-xs bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer mr-1">수정</button>}
                       {canMutate && w.isActive && (
                         <button
                           onClick={() => { setDeleteTarget(w); setDeleteError('') }}
-                          style={styles.deleteBtn}
+                          className="px-[10px] py-1 text-xs bg-[#ffebee] text-[#c62828] border border-[#ef9a9a] rounded cursor-pointer"
                         >
                           비활성화
                         </button>
@@ -336,38 +339,38 @@ export default function WorkersPage() {
 
         {/* ── 등록 모달 ─────────────────────────────────────── */}
         {showForm && (
-          <div style={styles.modalOverlay}>
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
             {guideStep === 'guide' ? (
               /* ─ 안내 단계 ─ */
-              <div style={{ ...styles.modal, width: '740px', maxHeight: '90vh', overflowY: 'auto' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <h3 style={{ ...styles.modalTitle, margin: 0 }}>근로유형 / 계약유형 선택 안내</h3>
-                  <button onClick={closeRegModal} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#999' }}>✕</button>
+              <div className="bg-card rounded-xl p-8 w-[740px] max-h-[90vh] overflow-y-auto">
+                <div className="flex justify-between items-center mb-[6px]">
+                  <h3 className="text-lg font-bold m-0 text-white">근로유형 / 계약유형 선택 안내</h3>
+                  <button onClick={closeRegModal} className="bg-none border-none text-[20px] cursor-pointer text-[#999]">✕</button>
                 </div>
-                <p style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '16px', lineHeight: '1.6' }}>
+                <p className="text-[13px] text-muted-brand mb-4 leading-[1.6]">
                   근로유형에 따라 계약서 종류, 입력 항목, 근태 기준, 정산 방식이 달라집니다.
                   유형을 잘못 선택하면 문서·근태·정산 처리에 오류가 생길 수 있으므로, 아래 설명을 먼저 확인한 후 진행하세요.
                   근로자 등록 시 선택한 유형에 따라 이후 계약서 종류와 입력 항목이 달라집니다.
                 </p>
 
                 {/* 비교표 */}
-                <div style={{ overflowX: 'auto', marginBottom: '14px' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                <div className="overflow-x-auto mb-[14px]">
+                  <table className="w-full border-collapse text-xs">
                     <thead>
-                      <tr style={{ background: '#1B2838' }}>
+                      <tr className="bg-brand">
                         {['유형', '이런 경우 선택', '계약 종료일', '근태/계산 기준', '생성 문서/처리'].map(h => (
-                          <th key={h} style={{ padding: '7px 10px', border: '1px solid rgba(255,255,255,0.12)', textAlign: 'left', color: '#A0AEC0', fontWeight: 700, whiteSpace: 'nowrap' }}>{h}</th>
+                          <th key={h} className="px-[10px] py-[7px] border border-[rgba(255,255,255,0.12)] text-left text-muted-brand font-bold whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {ADMIN_TYPE_GUIDES.map(g => (
-                        <tr key={g.code} style={{ verticalAlign: 'top' }}>
+                        <tr key={g.code} className="align-top">
                           <td style={{ padding: '7px 10px', border: '1px solid rgba(255,255,255,0.12)', fontWeight: 700, color: g.accentColor, whiteSpace: 'nowrap' }}>{g.icon} {g.label}</td>
-                          <td style={{ padding: '7px 10px', border: '1px solid rgba(255,255,255,0.12)', color: '#444', fontSize: '11px' }}>{g.tableRow.whenToSelect}</td>
-                          <td style={{ padding: '7px 10px', border: '1px solid rgba(255,255,255,0.12)', color: '#444', fontSize: '11px', whiteSpace: 'nowrap' }}>{g.tableRow.endDateConcept}</td>
-                          <td style={{ padding: '7px 10px', border: '1px solid rgba(255,255,255,0.12)', color: '#444', fontSize: '11px' }}>{g.tableRow.calcBasis}</td>
-                          <td style={{ padding: '7px 10px', border: '1px solid rgba(255,255,255,0.12)', color: '#444', fontSize: '11px' }}>{g.tableRow.documents}</td>
+                          <td className="px-[10px] py-[7px] border border-[rgba(255,255,255,0.12)] text-[#444] text-[11px]">{g.tableRow.whenToSelect}</td>
+                          <td className="px-[10px] py-[7px] border border-[rgba(255,255,255,0.12)] text-[#444] text-[11px] whitespace-nowrap">{g.tableRow.endDateConcept}</td>
+                          <td className="px-[10px] py-[7px] border border-[rgba(255,255,255,0.12)] text-[#444] text-[11px]">{g.tableRow.calcBasis}</td>
+                          <td className="px-[10px] py-[7px] border border-[rgba(255,255,255,0.12)] text-[#444] text-[11px]">{g.tableRow.documents}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -375,11 +378,11 @@ export default function WorkersPage() {
                 </div>
 
                 {/* 오선택 방지 경고 */}
-                <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '8px', padding: '10px 14px', marginBottom: '16px' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#795548', marginBottom: '6px' }}>⚠ 오선택 방지 — 반드시 확인하세요</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 16px' }}>
+                <div className="bg-[#fff8e1] border border-[#ffe082] rounded-lg px-[14px] py-[10px] mb-4">
+                  <div className="text-xs font-bold text-[#795548] mb-[6px]">⚠ 오선택 방지 — 반드시 확인하세요</div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-[2px]">
                     {ADMIN_TYPE_WARNINGS.map((w, i) => (
-                      <div key={i} style={{ fontSize: '11px', color: '#795548' }}>• {w}</div>
+                      <div key={i} className="text-[11px] text-[#795548]">• {w}</div>
                     ))}
                   </div>
                 </div>
@@ -391,7 +394,7 @@ export default function WorkersPage() {
                     : form.employmentType || null
                   return (
                     <>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                      <div className="grid grid-cols-2 gap-[10px] mb-[14px]">
                         {ADMIN_TYPE_GUIDES.map(guide => {
                           const isSelected = guide.code === selectedGuideCode
                           return (
@@ -411,8 +414,8 @@ export default function WorkersPage() {
                                 transition: 'border-color 0.15s, background 0.15s',
                               }}
                             >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                                <span style={{ fontSize: '18px' }}>{guide.icon}</span>
+                              <div className="flex items-center gap-[6px] mb-[6px]">
+                                <span className="text-lg">{guide.icon}</span>
                                 <span style={{ fontWeight: 700, fontSize: '14px', color: guide.accentColor }}>{guide.label}</span>
                                 {isSelected && (
                                   <span style={{ marginLeft: 'auto', fontSize: '11px', fontWeight: 700, color: guide.accentColor, background: guide.accentColor + '18', borderRadius: '10px', padding: '2px 8px' }}>
@@ -420,12 +423,12 @@ export default function WorkersPage() {
                                   </span>
                                 )}
                               </div>
-                              <p style={{ fontSize: '12px', color: '#A0AEC0', marginBottom: '8px', lineHeight: '1.5', flexGrow: 1 }}>{guide.detail}</p>
-                              <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '8px' }}>
-                                <div style={{ fontWeight: 600, marginBottom: '3px', color: '#2e7d32' }}>✅ 이 유형이 맞는 경우</div>
-                                {guide.whenItFits.map((w, i) => <div key={i} style={{ marginBottom: '2px' }}>• {w}</div>)}
+                              <p className="text-xs text-muted-brand mb-2 leading-[1.5] grow">{guide.detail}</p>
+                              <div className="text-[11px] text-muted-brand mb-2">
+                                <div className="font-semibold mb-[3px] text-[#2e7d32]">✅ 이 유형이 맞는 경우</div>
+                                {guide.whenItFits.map((w, i) => <div key={i} className="mb-[2px]">• {w}</div>)}
                               </div>
-                              <div style={{ fontSize: '11px', color: '#9a4a00', background: '#fff3e0', borderRadius: '4px', padding: '6px 8px' }}>
+                              <div className="text-[11px] text-[#9a4a00] bg-[#fff3e0] rounded px-2 py-[6px]">
                                 ⚠ {guide.caution}
                               </div>
                             </div>
@@ -433,8 +436,8 @@ export default function WorkersPage() {
                         })}
                       </div>
 
-                      <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
-                        <button onClick={closeRegModal} style={{ ...styles.cancelBtn, flex: 'unset', padding: '8px 20px' }}>취소</button>
+                      <div className="border-t border-[#f0f0f0] pt-3 flex justify-between items-center gap-[10px]">
+                        <button onClick={closeRegModal} className="flex-none px-5 py-2 bg-brand text-white border border-[rgba(91,164,217,0.3)] rounded-lg cursor-pointer text-[13px]">취소</button>
                         <button
                           disabled={!selectedGuideCode}
                           onClick={() => setGuideStep('form')}
@@ -457,33 +460,33 @@ export default function WorkersPage() {
               </div>
             ) : (
               /* ─ 등록 폼 단계 ─ */
-              <div style={styles.modal}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <h3 style={{ ...styles.modalTitle, margin: 0 }}>근로자 등록</h3>
-                  <button onClick={() => setGuideStep('guide')} style={{ background: 'none', border: 'none', fontSize: '13px', cursor: 'pointer', color: '#5BA4D9', textDecoration: 'underline' }}>← 유형 안내</button>
+              <div className="bg-card rounded-xl p-8 w-[400px] max-w-[90vw]">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold m-0 text-white">근로자 등록</h3>
+                  <button onClick={() => setGuideStep('guide')} className="bg-none border-none text-[13px] cursor-pointer text-secondary-brand underline">← 유형 안내</button>
                 </div>
                 {[
                   { label: '이름', key: 'name', placeholder: '홍길동' },
                   { label: '휴대폰', key: 'phone', placeholder: '01012345678 (숫자만)' },
                   { label: '직종/역할', key: 'jobTitle', placeholder: '형틀목공' },
                 ].map(({ label, key, placeholder }) => (
-                  <div key={key} style={styles.fieldRow}>
-                    <label style={styles.label}>{label}</label>
+                  <div key={key} className="mb-3">
+                    <label className="block text-[13px] text-muted-brand mb-1">{label}</label>
                     <input
                       type="text"
                       placeholder={placeholder}
                       value={form[key as keyof typeof form] as string}
                       onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                      style={styles.input}
+                      className="w-full px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-md bg-brand text-white box-border"
                     />
                   </div>
                 ))}
-                <div style={styles.fieldRow}>
-                  <label style={styles.label}>고용형태</label>
+                <div className="mb-3">
+                  <label className="block text-[13px] text-muted-brand mb-1">고용형태</label>
                   <select
                     value={form.employmentType}
                     onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
-                    style={styles.input}
+                    className="w-full px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-md bg-brand text-white box-border"
                   >
                     <option value="DAILY_CONSTRUCTION">건설일용 (일 단위 공수)</option>
                     <option value="REGULAR">상용직 (근태 관리)</option>
@@ -493,37 +496,37 @@ export default function WorkersPage() {
                     <option value="OTHER">기타</option>
                   </select>
                 </div>
-                <div style={styles.fieldRow}>
-                  <label style={styles.label}>소속구분</label>
+                <div className="mb-3">
+                  <label className="block text-[13px] text-muted-brand mb-1">소속구분</label>
                   <select
                     value={form.organizationType}
                     onChange={(e) => setForm({ ...form, organizationType: e.target.value })}
-                    style={styles.input}
+                    className="w-full px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-md bg-brand text-white box-border"
                   >
                     <option value="DIRECT">직영</option>
                     <option value="SUBCONTRACTOR">협력사 소속</option>
                   </select>
                 </div>
                 {detectEmploymentMismatch(form.employmentType, form.organizationType) && (
-                  <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '6px', padding: '10px 12px', marginBottom: '12px', fontSize: '12px', color: '#795548' }}>
+                  <div className="bg-[#fff8e1] border border-[#ffe082] rounded-md px-3 py-[10px] mb-3 text-xs text-[#795548]">
                     ⚠ {detectEmploymentMismatch(form.employmentType, form.organizationType)!.message}
                   </div>
                 )}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <div className="flex items-center gap-2 mb-3">
                   <input
                     type="checkbox"
                     id="foreignerYn"
                     checked={form.foreignerYn as boolean}
                     onChange={(e) => setForm({ ...form, foreignerYn: e.target.checked })}
                   />
-                  <label htmlFor="foreignerYn" style={{ fontSize: '14px' }}>외국인 근로자</label>
+                  <label htmlFor="foreignerYn" className="text-sm text-white">외국인 근로자</label>
                 </div>
-                {formError && <p style={styles.error}>{formError}</p>}
-                <div style={styles.btnRow}>
-                  <button onClick={handleSave} disabled={saving} style={styles.saveBtn}>
+                {formError && <p className="text-[#e53935] text-[13px] m-0 mb-3">{formError}</p>}
+                <div className="flex gap-2 mt-4">
+                  <button onClick={handleSave} disabled={saving} className="flex-1 py-3 bg-[#F47920] text-white border-none rounded-md cursor-pointer font-bold">
                     {saving ? '저장 중...' : '등록'}
                   </button>
-                  <button onClick={closeRegModal} style={styles.cancelBtn}>취소</button>
+                  <button onClick={closeRegModal} className="flex-1 py-3 bg-brand text-[#CBD5E0] border-none rounded-md cursor-pointer">취소</button>
                 </div>
               </div>
             )}
@@ -532,40 +535,40 @@ export default function WorkersPage() {
 
         {/* ── 수정 모달 ─────────────────────────────────────── */}
         {editTarget && (
-          <div style={styles.modalOverlay}>
-            <div style={styles.modal}>
-              <h3 style={styles.modalTitle}>근로자 수정 — {editTarget.name}</h3>
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
+            <div className="bg-card rounded-xl p-8 w-[400px] max-w-[90vw]">
+              <h3 className="text-lg font-bold m-0 mb-5 text-white">근로자 수정 — {editTarget.name}</h3>
               {[
                 { label: '이름', key: 'name', placeholder: '' },
                 { label: '휴대폰', key: 'phone', placeholder: '01012345678' },
                 { label: '직종/역할', key: 'jobTitle', placeholder: '' },
               ].map(({ label, key, placeholder }) => (
-                <div key={key} style={styles.fieldRow}>
-                  <label style={styles.label}>{label}</label>
+                <div key={key} className="mb-3">
+                  <label className="block text-[13px] text-muted-brand mb-1">{label}</label>
                   <input
                     type="text"
                     placeholder={placeholder}
                     value={editForm[key as keyof typeof editForm] as string}
                     onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
-                    style={styles.input}
+                    className="w-full px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-md bg-brand text-white box-border"
                   />
                 </div>
               ))}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <div className="flex items-center gap-2 mb-4">
                 <input
                   type="checkbox"
                   id="editActive"
                   checked={editActive}
                   onChange={(e) => setEditActive(e.target.checked)}
                 />
-                <label htmlFor="editActive" style={{ fontSize: '14px' }}>활성 상태</label>
+                <label htmlFor="editActive" className="text-sm text-white">활성 상태</label>
               </div>
-              {editError && <p style={styles.error}>{editError}</p>}
-              <div style={styles.btnRow}>
-                <button onClick={handleEdit} disabled={editSaving} style={styles.saveBtn}>
+              {editError && <p className="text-[#e53935] text-[13px] m-0 mb-3">{editError}</p>}
+              <div className="flex gap-2 mt-4">
+                <button onClick={handleEdit} disabled={editSaving} className="flex-1 py-3 bg-[#F47920] text-white border-none rounded-md cursor-pointer font-bold">
                   {editSaving ? '저장 중...' : '저장'}
                 </button>
-                <button onClick={() => setEditTarget(null)} style={styles.cancelBtn}>취소</button>
+                <button onClick={() => setEditTarget(null)} className="flex-1 py-3 bg-brand text-[#CBD5E0] border-none rounded-md cursor-pointer">취소</button>
               </div>
             </div>
           </div>
@@ -573,21 +576,21 @@ export default function WorkersPage() {
 
         {/* ── 비활성화 확인 모달 ────────────────────────────── */}
         {deleteTarget && (
-          <div style={styles.modalOverlay}>
-            <div style={{ ...styles.modal, maxWidth: '360px' }}>
-              <h3 style={{ ...styles.modalTitle, color: '#c62828' }}>근로자 비활성화</h3>
-              <p style={{ fontSize: '14px', color: '#A0AEC0', marginBottom: '8px' }}>
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
+            <div className="bg-card rounded-xl p-8 max-w-[360px] w-full">
+              <h3 className="text-lg font-bold m-0 mb-5 text-[#c62828]">근로자 비활성화</h3>
+              <p className="text-sm text-muted-brand mb-2">
                 <strong>{deleteTarget.name}</strong> ({formatPhone(deleteTarget.phone)}) 을 비활성화합니다.
               </p>
-              <p style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '20px' }}>
+              <p className="text-[13px] text-muted-brand mb-5">
                 출퇴근 이력은 보존되며, 기존 기기는 모두 비활성화됩니다.
               </p>
-              {deleteError && <p style={styles.error}>{deleteError}</p>}
-              <div style={styles.btnRow}>
-                <button onClick={handleDelete} disabled={deleting} style={{ ...styles.saveBtn, background: '#c62828' }}>
+              {deleteError && <p className="text-[#e53935] text-[13px] m-0 mb-3">{deleteError}</p>}
+              <div className="flex gap-2 mt-4">
+                <button onClick={handleDelete} disabled={deleting} className="flex-1 py-3 bg-[#c62828] text-white border-none rounded-md cursor-pointer font-bold">
                   {deleting ? '처리 중...' : '비활성화'}
                 </button>
-                <button onClick={() => setDeleteTarget(null)} style={styles.cancelBtn}>취소</button>
+                <button onClick={() => setDeleteTarget(null)} className="flex-1 py-3 bg-brand text-[#CBD5E0] border-none rounded-md cursor-pointer">취소</button>
               </div>
             </div>
           </div>
@@ -616,51 +619,9 @@ export default function WorkersPage() {
   )
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  main: { flex: 1, padding: '32px' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
-  pageTitle: { fontSize: '22px', fontWeight: 700, margin: 0 },
-  addBtn: { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  searchRow: { display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' as const },
-  searchInput: { flex: 1, padding: '10px 14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '14px', maxWidth: '360px' },
-  filterSelect: { padding: '10px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '13px', background: '#243144', cursor: 'pointer' },
-  searchBtn: { padding: '10px 20px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' },
-  tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflowX: 'auto' },
-  table: { width: '100%', borderCollapse: 'collapse' as const },
-  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)' },
-  td: { padding: '12px', fontSize: '14px', borderBottom: '1px solid #f5f5f5' },
-  empty: { textAlign: 'center', padding: '24px', color: '#999' },
-  editBtn: { padding: '4px 10px', fontSize: '12px', background: 'rgba(91,164,217,0.12)', color: '#5BA4D9', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer', marginRight: '4px' },
-  deleteBtn: { padding: '4px 10px', fontSize: '12px', background: '#ffebee', color: '#c62828', border: '1px solid #ef9a9a', borderRadius: '4px', cursor: 'pointer' },
-  modalOverlay: { position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 },
-  modal: { background: '#243144', borderRadius: '12px', padding: '32px', width: '400px', maxWidth: '90vw' },
-  modalTitle: { margin: '0 0 20px', fontSize: '18px', fontWeight: 700 },
-  fieldRow: { marginBottom: '12px' },
-  label: { display: 'block', fontSize: '13px', color: '#A0AEC0', marginBottom: '4px' },
-  input: { width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', boxSizing: 'border-box' as const },
-  error: { color: '#e53935', fontSize: '13px', margin: '0 0 12px' },
-  btnRow: { display: 'flex', gap: '8px', marginTop: '16px' },
-  saveBtn: { flex: 1, padding: '12px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 },
-  cancelBtn: { flex: 1, padding: '12px', background: '#1B2838', color: '#CBD5E0', border: 'none', borderRadius: '6px', cursor: 'pointer' },
-  badgeBlue:   { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: 'rgba(244,121,32,0.12)', color: '#F47920' },
-  badgeGray:   { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#1B2838', color: '#757575' },
-  badgeOrange: { display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#fff3e0', color: '#e65100' },
-}
-
 // ── 신분증 관련 하위 컴포넌트 ─────────────────────────────────────────
 
 function IdVerificationBadge({ status }: { status?: string | null }) {
-  const config: Record<string, { label: string; className: string }> = {
-    VERIFIED: { label: '검토완료', className: 'bg-green-100 text-green-700' },
-    PENDING_REVIEW: { label: '검토대기', className: 'bg-yellow-100 text-yellow-700' },
-    REJECTED: { label: '반려', className: 'bg-red-100 text-red-700' },
-    RESCAN_REQUIRED: { label: '재스캔', className: 'bg-orange-100 text-orange-700' },
-    ARCHIVED: { label: '보관', className: 'bg-gray-100 text-gray-500' },
-  }
   const styleMap: Record<string, React.CSSProperties> = {
     VERIFIED: { background: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: 600 },
     PENDING_REVIEW: { background: '#fef9c3', color: '#a16207', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: 600 },
@@ -668,8 +629,12 @@ function IdVerificationBadge({ status }: { status?: string | null }) {
     RESCAN_REQUIRED: { background: '#ffedd5', color: '#c2410c', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: 600 },
     ARCHIVED: { background: '#f3f4f6', color: '#6b7280', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: 600 },
   }
-  if (!status) return <span style={{ fontSize: '12px', color: '#bbb' }}>미제출</span>
-  const label = config[status]?.label ?? status
+  const labelMap: Record<string, string> = {
+    VERIFIED: '검토완료', PENDING_REVIEW: '검토대기', REJECTED: '반려',
+    RESCAN_REQUIRED: '재스캔', ARCHIVED: '보관',
+  }
+  if (!status) return <span className="text-xs text-[#bbb]">미제출</span>
+  const label = labelMap[status] ?? status
   const s = styleMap[status] ?? { background: '#f3f4f6', color: '#4b5563', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: 600 }
   return <span style={s}>{label}</span>
 }
@@ -705,33 +670,34 @@ function IdentityUploadModal({ workerId, workerName, onClose, onSuccess }: {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}>
-      <div style={{ background: '#243144', borderRadius: '12px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', width: '100%', maxWidth: '480px' }}>
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#1a1a1a' }}>신분증 업로드 — {workerName}</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#718096', lineHeight: 1 }}>✕</button>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-4">
+      <div className="bg-card rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] w-full max-w-[480px]">
+        <div className="px-6 py-5 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between">
+          <h2 className="m-0 text-base font-semibold text-white">신분증 업로드 — {workerName}</h2>
+          <button onClick={onClose} className="bg-none border-none cursor-pointer text-[20px] text-muted-brand leading-none">✕</button>
         </div>
-        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <label style={{ display: 'block' }}>
-            <span style={{ fontSize: '13px', fontWeight: 500, color: '#444', display: 'block', marginBottom: '6px' }}>신분증 이미지 (JPG/PNG, 최대 10MB)</span>
+        <div className="px-6 py-5 flex flex-col gap-4">
+          <label className="block">
+            <span className="text-[13px] font-medium text-muted-brand block mb-[6px]">신분증 이미지 (JPG/PNG, 최대 10MB)</span>
             <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onChange={handleFile}
-              style={{ display: 'block', width: '100%', fontSize: '13px', color: '#A0AEC0' }} />
+              className="block w-full text-[13px] text-muted-brand" />
           </label>
           {preview && (
-            <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+            <div className="border border-[rgba(255,255,255,0.08)] rounded-lg overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={preview} alt="미리보기" style={{ width: '100%', maxHeight: '192px', objectFit: 'contain', background: '#f9fafb', display: 'block' }} />
+              <img src={preview} alt="미리보기" className="w-full max-h-[192px] object-contain bg-brand block" />
             </div>
           )}
-          {error && <p style={{ fontSize: '13px', color: '#dc2626', margin: 0 }}>{error}</p>}
-          <div style={{ fontSize: '12px', color: '#9ca3af', background: '#f9fafb', borderRadius: '6px', padding: '10px 12px' }}>
+          {error && <p className="text-[13px] text-[#dc2626] m-0">{error}</p>}
+          <div className="text-xs text-muted-brand bg-brand rounded-md px-3 py-[10px]">
             ⚠️ 원본 이미지는 암호화 저장되며 관리자만 열람 가능합니다.
           </div>
         </div>
-        <div style={{ padding: '16px 24px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '8px 16px', fontSize: '13px', color: '#A0AEC0', background: '#1B2838', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>취소</button>
+        <div className="px-6 py-4 border-t border-[rgba(255,255,255,0.08)] flex gap-[10px] justify-end">
+          <button onClick={onClose} className="px-4 py-2 text-[13px] text-muted-brand bg-brand border-none rounded-lg cursor-pointer">취소</button>
           <button onClick={handleUpload} disabled={!file || loading}
-            style={{ padding: '8px 20px', fontSize: '13px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', opacity: (!file || loading) ? 0.5 : 1 }}>
+            className="px-5 py-2 text-[13px] bg-[#F47920] text-white border-none rounded-lg cursor-pointer"
+            style={{ opacity: (!file || loading) ? 0.5 : 1 }}>
             {loading ? 'AI 분석 중...' : '업로드 + AI 분석'}
           </button>
         </div>
@@ -784,108 +750,104 @@ function ScanResultModal({ workerId, result, onClose, onVerify, onReject }: {
   ]
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}>
-      <div style={{ background: '#243144', borderRadius: '12px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', width: '100%', maxWidth: '680px', maxHeight: '90vh', overflowY: 'auto' }}>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-4">
+      <div className="bg-card rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] w-full max-w-[680px] max-h-[90vh] overflow-y-auto">
         {/* 헤더 */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#243144', zIndex: 10 }}>
+        <div className="px-6 py-5 border-b border-[rgba(255,255,255,0.08)] flex items-start justify-between sticky top-0 bg-card z-10">
           <div>
-            <h2 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 600, color: '#1a1a1a' }}>AI 분석 결과</h2>
-            <p style={{ margin: 0, fontSize: '12px', color: '#9ca3af' }}>
-              상태: <span style={{ fontWeight: 500 }}>{reviewLabel[result.reviewStatus] ?? result.reviewStatus}</span> · 스캔: {result.scanStatus}
+            <h2 className="m-0 mb-1 text-base font-semibold text-white">AI 분석 결과</h2>
+            <p className="m-0 text-xs text-muted-brand">
+              상태: <span className="font-medium">{reviewLabel[result.reviewStatus] ?? result.reviewStatus}</span> · 스캔: {result.scanStatus}
             </p>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#718096', lineHeight: 1 }}>✕</button>
+          <button onClick={onClose} className="bg-none border-none cursor-pointer text-[20px] text-muted-brand leading-none">✕</button>
         </div>
         {/* 본문 */}
-        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* 문서 종류 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>문서 종류:</span>
-            <span style={{ padding: '2px 10px', fontSize: '12px', background: '#dbeafe', color: '#1d4ed8', borderRadius: '9999px', fontWeight: 500 }}>
+        <div className="px-6 py-5 flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-[13px] font-medium text-white">문서 종류:</span>
+            <span className="px-[10px] py-[2px] text-xs bg-[#dbeafe] text-[#1d4ed8] rounded-full font-medium">
               {docTypeLabel[p.documentType] ?? p.documentType}
             </span>
           </div>
-          {/* 파싱 필드 그리드 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div className="grid grid-cols-2 gap-[10px]">
             {fields.filter(item => item.value).map(item => (
-              <div key={item.label} style={{ background: '#f9fafb', borderRadius: '8px', padding: '10px 12px' }}>
-                <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '2px' }}>{item.label}</div>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: '#1a1a1a', wordBreak: 'break-all' }}>{item.value}</div>
+              <div key={item.label} className="bg-brand rounded-lg px-3 py-[10px]">
+                <div className="text-[11px] text-muted-brand mb-[2px]">{item.label}</div>
+                <div className="text-[13px] font-medium text-white break-all">{item.value}</div>
               </div>
             ))}
           </div>
-          {/* AI 신뢰도 */}
           {p.confidence && Object.keys(p.confidence).length > 0 && (
-            <div style={{ background: '#eff6ff', borderRadius: '8px', padding: '12px' }}>
-              <div style={{ fontSize: '12px', fontWeight: 500, color: '#1d4ed8', marginBottom: '6px' }}>AI 신뢰도</div>
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <div className="bg-[rgba(91,164,217,0.1)] rounded-lg p-3">
+              <div className="text-xs font-medium text-secondary-brand mb-[6px]">AI 신뢰도</div>
+              <div className="flex gap-3 flex-wrap">
                 {Object.entries(p.confidence).map(([k, v]) => (
-                  <span key={k} style={{ fontSize: '12px', color: '#374151' }}>{k}: <strong>{Math.round(Number(v) * 100)}%</strong></span>
+                  <span key={k} className="text-xs text-muted-brand">{k}: <strong>{Math.round(Number(v) * 100)}%</strong></span>
                 ))}
               </div>
             </div>
           )}
-          {/* 마스킹 이미지 */}
-          <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+          <div className="border border-[rgba(255,255,255,0.08)] rounded-lg overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`/api/admin/identity-documents/${result.documentId}/file?variant=masked`}
               alt="마스킹본"
-              style={{ width: '100%', maxHeight: '224px', objectFit: 'contain', background: '#f3f4f6', display: 'block' }}
+              className="w-full max-h-[224px] object-contain bg-brand block"
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
             />
-            <div style={{ padding: '8px', fontSize: '12px', color: '#9ca3af', textAlign: 'center' }}>마스킹본 (민감정보 가림)</div>
+            <div className="px-2 py-2 text-xs text-muted-brand text-center">마스킹본 (민감정보 가림)</div>
           </div>
           <a
             href={`/api/admin/identity-documents/${result.documentId}/file?variant=original`}
             target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: '12px', color: '#6b7280', textDecoration: 'underline' }}
+            className="text-xs text-muted-brand underline"
           >
             원본 보기 (관리자 전용)
           </a>
-          {/* 데이터 반영 */}
-          <div style={{ background: '#f9fafb', borderRadius: '8px', padding: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>근로자 데이터 자동 반영</span>
+          <div className="bg-brand rounded-lg p-[14px]">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[13px] font-medium text-white">근로자 데이터 자동 반영</span>
               <button onClick={handleApply} disabled={applying}
-                style={{ fontSize: '12px', padding: '4px 12px', background: '#4f46e5', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', opacity: applying ? 0.5 : 1 }}>
+                className="text-xs px-3 py-1 bg-[#4f46e5] text-white border-none rounded-md cursor-pointer disabled:opacity-50"
+                style={{ opacity: applying ? 0.5 : 1 }}>
                 {applying ? '반영 중...' : '빈 필드에 반영'}
               </button>
             </div>
-            {applyMsg && <p style={{ fontSize: '12px', color: '#15803d', margin: '0 0 4px' }}>{applyMsg}</p>}
-            <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>기존 데이터가 있는 필드는 덮어쓰지 않습니다.</p>
+            {applyMsg && <p className="text-xs text-[#15803d] m-0 mb-1">{applyMsg}</p>}
+            <p className="text-xs text-muted-brand m-0">기존 데이터가 있는 필드는 덮어쓰지 않습니다.</p>
           </div>
-          {/* 반려 폼 */}
           {showReject && (
-            <div style={{ border: '1px solid #fca5a5', borderRadius: '8px', padding: '14px', background: '#fff5f5', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div className="border border-[#fca5a5] rounded-lg p-[14px] bg-[#fff5f5] flex flex-col gap-2">
               <select value={rejectStatus} onChange={e => setRejectStatus(e.target.value)}
-                style={{ width: '100%', fontSize: '13px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '8px' }}>
+                className="w-full text-[13px] border border-[rgba(91,164,217,0.3)] rounded-md px-2 py-2">
                 <option value="REJECTED">반려</option>
                 <option value="RESCAN_REQUIRED">재스캔 요청</option>
               </select>
               <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)}
                 placeholder="사유 입력 (필수)" rows={2}
-                style={{ width: '100%', fontSize: '13px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '8px', resize: 'none', boxSizing: 'border-box' }} />
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                className="w-full text-[13px] border border-[rgba(91,164,217,0.3)] rounded-md px-2 py-2 resize-none box-border" />
+              <div className="flex gap-2 justify-end">
                 <button onClick={() => setShowReject(false)}
-                  style={{ fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', textDecoration: 'underline' }}>취소</button>
+                  className="text-xs bg-none border-none cursor-pointer text-[#6b7280] underline">취소</button>
                 <button onClick={() => { if (rejectReason) onReject(rejectStatus, rejectReason) }} disabled={!rejectReason}
-                  style={{ fontSize: '12px', padding: '4px 12px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', opacity: !rejectReason ? 0.5 : 1 }}>확인</button>
+                  className="text-xs px-3 py-1 bg-[#dc2626] text-white border-none rounded-md cursor-pointer disabled:opacity-50"
+                  style={{ opacity: !rejectReason ? 0.5 : 1 }}>확인</button>
               </div>
             </div>
           )}
         </div>
         {/* 하단 버튼 */}
-        <div style={{ padding: '16px 24px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '10px', justifyContent: 'space-between', position: 'sticky', bottom: 0, background: '#243144' }}>
+        <div className="px-6 py-4 border-t border-[rgba(255,255,255,0.08)] flex gap-[10px] justify-between sticky bottom-0 bg-card">
           <button onClick={() => setShowReject(!showReject)}
-            style={{ padding: '8px 16px', fontSize: '13px', border: '1px solid #fca5a5', color: '#dc2626', background: '#1E3350', borderRadius: '8px', cursor: 'pointer' }}>
+            className="px-4 py-2 text-[13px] border border-[#fca5a5] text-[#dc2626] bg-[#1E3350] rounded-lg cursor-pointer">
             반려 / 재스캔
           </button>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div className="flex gap-2">
             <button onClick={onClose}
-              style={{ padding: '8px 16px', fontSize: '13px', color: '#A0AEC0', background: '#1B2838', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>닫기</button>
+              className="px-4 py-2 text-[13px] text-muted-brand bg-brand border-none rounded-lg cursor-pointer">닫기</button>
             <button onClick={onVerify}
-              style={{ padding: '8px 20px', fontSize: '13px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>검토 완료</button>
+              className="px-5 py-2 text-[13px] bg-[#16a34a] text-white border-none rounded-lg cursor-pointer">검토 완료</button>
           </div>
         </div>
       </div>

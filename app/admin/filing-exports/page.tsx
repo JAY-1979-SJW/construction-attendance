@@ -87,63 +87,66 @@ export default function FilingExportsPage() {
   }, {})
 
   return (
-    <div style={s.layout}>
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
-        <div style={s.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {NAV_ITEMS.map((item) => (
-          <Link key={item.href} href={item.href} style={{ ...s.navItem, ...(item.href === '/admin/filing-exports' ? s.navActive : {}) }}>
+          <Link key={item.href} href={item.href} className={[
+            'block text-white/80 px-5 py-[10px] text-[13px] no-underline',
+            item.href === '/admin/filing-exports' ? 'bg-white/10 text-white font-bold' : '',
+          ].join(' ')}>
             {item.label}
           </Link>
         ))}
-        <button onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))} style={s.logoutBtn}>로그아웃</button>
+        <button onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))} className="mx-5 mt-6 py-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
       </nav>
 
-      <main style={s.main}>
-        <h1 style={s.pageTitle}>신고자료 내보내기</h1>
-        <p style={{ fontSize: '13px', color: '#A0AEC0', margin: '-12px 0 20px' }}>
+      <main className="flex-1 p-8 overflow-auto">
+        <h1 className="text-2xl font-bold mb-2">신고자료 내보내기</h1>
+        <p className="text-[13px] text-muted-brand mb-5">
           근무확정 → 보험판정 → 세금계산 완료 후 내보내기를 실행하세요
         </p>
 
         {/* 생성 영역 */}
-        <div style={s.generateCard}>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        <div className="bg-card rounded-[12px] p-6 mb-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="flex gap-3 flex-wrap items-end">
             <div>
-              <label style={s.label}>귀속연월</label>
-              <input type="month" value={monthKey} onChange={(e) => setMonthKey(e.target.value)} style={s.input} />
+              <label className="block text-[12px] text-muted-brand mb-1 font-semibold">귀속연월</label>
+              <input type="month" value={monthKey} onChange={(e) => setMonthKey(e.target.value)} className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-brand" />
             </div>
             <div>
-              <label style={s.label}>자료 유형</label>
-              <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} style={{ ...s.input, minWidth: '240px' }}>
+              <label className="block text-[12px] text-muted-brand mb-1 font-semibold">자료 유형</label>
+              <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-brand min-w-[240px]">
                 <option value="">유형 선택</option>
                 {EXPORT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
             </div>
-            <button onClick={handleGenerate} disabled={generating} style={{ ...s.btn, background: '#7b1fa2' }}>
+            <button onClick={handleGenerate} disabled={generating} className="px-4 py-2 bg-[#7b1fa2] text-white border-0 rounded-md cursor-pointer text-[14px] font-semibold">
               {generating ? '생성 중...' : '기초자료 생성'}
             </button>
           </div>
         </div>
 
-        {msg && <div style={s.msg}>{msg}</div>}
+        {msg && <div className="px-4 py-3 bg-[rgba(91,164,217,0.1)] rounded-lg mb-4 text-[14px] text-[#4A93C8]">{msg}</div>}
 
         {/* 미리보기 */}
         {preview && preview.rows.length > 0 && (
-          <div style={{ ...s.tableCard, marginBottom: '24px' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700, fontSize: '14px' }}>미리보기 (전체 {preview.rowCount}건 중 상위 5건)</span>
-              <button onClick={() => handleDownload(preview.exportId)} style={s.btn}>CSV 다운로드</button>
+          <div className="bg-card rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden mb-6">
+            <div className="px-5 py-4 border-b border-[#f0f0f0] flex justify-between items-center">
+              <span className="font-bold text-[14px]">미리보기 (전체 {preview.rowCount}건 중 상위 5건)</span>
+              <button onClick={() => handleDownload(preview.exportId)} className="px-4 py-2 bg-accent text-white border-0 rounded-md cursor-pointer text-[14px] font-semibold">CSV 다운로드</button>
             </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={s.table}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr>{Object.keys(preview.rows[0]).map((h) => <th key={h} style={s.th}>{h}</th>)}</tr>
+                  <tr>{Object.keys(preview.rows[0]).map((h) => <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>)}</tr>
                 </thead>
                 <tbody>
                   {preview.rows.slice(0, 5).map((row, i) => (
-                    <tr key={i} style={s.tr}>
+                    <tr key={i} className="cursor-default">
                       {Object.values(row).map((v, j) => (
-                        <td key={j} style={s.td}>{String(v ?? '-')}</td>
+                        <td key={j} className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{String(v ?? '-')}</td>
                       ))}
                     </tr>
                   ))}
@@ -154,43 +157,44 @@ export default function FilingExportsPage() {
         )}
 
         {/* 이력 */}
-        <div style={s.tableCard}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: '14px' }}>생성 이력</div>
-          {loading ? <div style={{ padding: '32px', textAlign: 'center', color: '#999' }}>로딩 중...</div> : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={s.table}>
+        <div className="bg-card rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+          <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">생성 이력</div>
+          {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr>{['귀속연월', '자료유형', '건수', '버전', '생성일시', ''].map((h) => <th key={h} style={s.th}>{h}</th>)}</tr>
+                  <tr>{['귀속연월', '자료유형', '건수', '버전', '생성일시', ''].map((h) => <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>)}</tr>
                 </thead>
                 <tbody>
                   {items.length === 0 ? (
-                    <tr><td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>이력 없음</td></tr>
+                    <tr><td colSpan={6} className="text-center py-6 text-[#999]">이력 없음</td></tr>
                   ) : items.map((item) => {
                     const typeMonthKey = `${item.monthKey}__${item.exportType}`
                     const isLatest = latestByTypeMonth[typeMonthKey] === item.id
                     return (
-                      <tr key={item.id} style={s.tr}>
-                        <td style={s.td}>{item.monthKey}</td>
-                        <td style={s.td}>
+                      <tr key={item.id} className="cursor-default">
+                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{item.monthKey}</td>
+                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">
                           {EXPORT_TYPES.find((t) => t.value === item.exportType)?.label ?? item.exportType}
                           {!isLatest && (
-                            <span style={{ marginLeft: '6px', fontSize: '11px', background: '#fff3e0', color: '#e65100', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                            <span className="ml-[6px] text-[11px] bg-[#fff3e0] text-[#e65100] px-[6px] py-[1px] rounded font-semibold">
                               구버전
                             </span>
                           )}
                         </td>
-                        <td style={{ ...s.td, textAlign: 'center' as const }}>{item.rowCount}건</td>
-                        <td style={{ ...s.td, textAlign: 'center' as const }}>
-                          <span style={{ fontSize: '12px', color: isLatest ? '#2e7d32' : '#9e9e9e', fontWeight: 600 }}>
+                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top text-center">{item.rowCount}건</td>
+                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                          <span className="text-[12px] font-semibold" style={{ color: isLatest ? '#2e7d32' : '#9e9e9e' }}>
                             v{item.version ?? 1}
-                            {isLatest && <span style={{ marginLeft: '4px', fontSize: '10px', background: '#e8f5e9', color: '#2e7d32', padding: '1px 5px', borderRadius: '3px' }}>최신</span>}
+                            {isLatest && <span className="ml-1 text-[10px] bg-[#e8f5e9] text-[#2e7d32] px-[5px] py-[1px] rounded-[3px]">최신</span>}
                           </span>
                         </td>
-                        <td style={s.td}>{fmtDate(item.createdAt)}</td>
-                        <td style={s.td}>
+                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{fmtDate(item.createdAt)}</td>
+                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">
                           <button
                             onClick={() => handleDownload(item.id)}
-                            style={{ ...s.btn, padding: '4px 12px', fontSize: '12px', background: isLatest ? '#1976d2' : '#9e9e9e' }}
+                            className="px-3 py-1 text-[12px] text-white border-0 rounded-md cursor-pointer font-semibold"
+                            style={{ background: isLatest ? '#1976d2' : '#9e9e9e' }}
                           >
                             다운로드
                           </button>
@@ -228,25 +232,3 @@ const NAV_ITEMS = [
   { href: '/admin/exceptions',            label: '예외 승인' },
   { href: '/admin/device-requests',       label: '기기 변경' },
 ]
-
-const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
-  navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
-  navActive:    { background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 700 },
-  logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main:         { flex: 1, padding: '32px', overflow: 'auto' },
-  pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 8px' },
-  label:        { display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 },
-  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
-  btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  msg:          { padding: '12px 16px', background: 'rgba(91,164,217,0.1)', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', color: '#4A93C8' },
-  generateCard: { background: '#243144', borderRadius: '12px', padding: '24px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
-  table:        { width: '100%', borderCollapse: 'collapse' as const },
-  th:           { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
-  td:           { padding: '12px 16px', fontSize: '13px', color: '#CBD5E0', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
-  tr:           { cursor: 'default' },
-}

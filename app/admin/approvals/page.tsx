@@ -18,9 +18,9 @@ const TABS: { key: TabKey; label: string; api: string }[] = [
 // ─── 공통 타입 ────────────────────────────────────────────────────────────────
 interface ApprovalItem {
   id: string
-  displayName: string    // 요청자명 또는 업체명
-  subName?: string       // 연락처, 이메일 등 부가 정보
-  detail?: string        // 업체명, 현장명 등
+  displayName: string
+  subName?: string
+  detail?: string
   status: string
   requestedAt: string
   rejectReason?: string | null
@@ -130,14 +130,18 @@ function ApprovalsContent() {
   }
 
   return (
-    <div style={styles.page}>
-      <h1 style={styles.title}>승인 대기</h1>
+    <div className="p-8">
+      <h1 className="text-[22px] font-bold text-[#111827] mb-5">승인 대기</h1>
 
-      <div style={styles.tabRow}>
+      <div className="flex border-b border-[#e5e7eb] mb-0 flex-wrap gap-[2px]">
         {TABS.map(t => (
           <button
             key={t.key}
-            style={{ ...styles.tab, ...(activeTab === t.key ? styles.tabActive : {}) }}
+            className={`px-[18px] py-[10px] border-none border-b-2 bg-transparent cursor-pointer text-sm -mb-px transition-colors ${
+              activeTab === t.key
+                ? 'text-[#1d4ed8] border-b-[#1d4ed8] font-semibold border-solid'
+                : 'text-[#6b7280] border-transparent'
+            }`}
             onClick={() => switchTab(t.key)}
           >
             {t.label}
@@ -151,7 +155,7 @@ function ApprovalsContent() {
 }
 
 export default function ApprovalsPage() {
-  return <Suspense fallback={<div style={{ padding: 32 }}>로딩 중...</div>}><ApprovalsContent /></Suspense>
+  return <Suspense fallback={<div className="p-8">로딩 중...</div>}><ApprovalsContent /></Suspense>
 }
 
 // ─── 개별 탭 컴포넌트 ─────────────────────────────────────────────────────────
@@ -168,14 +172,12 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
 
   const load = useCallback(() => {
     setLoading(true)
-    // ext-companies: verificationStatus이미 URL에 포함, status 파라미터 추가 불필요
     const url = tab === 'ext-companies'
       ? tabDef.api
       : `${tabDef.api}?status=${statusFilter}`
     fetch(url)
       .then(r => r.json())
       .then(d => {
-        // companies API는 d.data.items, 나머지는 d.items 또는 d.data
         const rawItems: Record<string, unknown>[] =
           d.data?.items ?? d.items ?? (Array.isArray(d.data) ? d.data : [])
         setItems(rawItems.map(raw => adaptItem(tab, raw)))
@@ -230,95 +232,111 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
   const pendingCount = items.filter(i => i.status === 'PENDING').length
 
   return (
-    <div style={styles.tabContent}>
-      {/* 상태 필터 (ext-companies는 URL에 이미 필터 내장 — 숨김) */}
-      <div style={styles.filterRow}>
+    <div className="bg-white rounded-b-lg border border-[#e5e7eb] border-t-0 p-6">
+      {/* 상태 필터 */}
+      <div className="flex gap-2 mb-4 items-center flex-wrap">
         {tab !== 'ext-companies' && ['PENDING', 'APPROVED', 'REJECTED'].map(s => (
           <button
             key={s}
-            style={{ ...styles.filterBtn, ...(statusFilter === s ? styles.filterBtnActive : {}) }}
+            className={`px-[14px] py-[6px] border rounded-md cursor-pointer text-[13px] flex items-center gap-[6px] transition-colors ${
+              statusFilter === s
+                ? 'bg-[#eff6ff] border-[#1d4ed8] text-[#1d4ed8] font-semibold'
+                : 'bg-white border-[rgba(91,164,217,0.3)] text-[#374151]'
+            }`}
             onClick={() => setStatusFilter(s)}
           >
             {s === 'PENDING' ? '대기' : s === 'APPROVED' ? '승인' : '반려'}
             {s === 'PENDING' && pendingCount > 0 && (
-              <span style={styles.badge}>{pendingCount}</span>
+              <span className="bg-[#dc2626] text-white rounded-[10px] px-[6px] text-[11px] min-w-[18px] text-center">
+                {pendingCount}
+              </span>
             )}
           </button>
         ))}
-        <button style={styles.refreshBtn} onClick={load}>↻ 새로고침</button>
+        <button
+          className="px-3 py-[6px] border border-[rgba(91,164,217,0.3)] rounded-md bg-white cursor-pointer text-[13px] text-[#6b7280] ml-auto"
+          onClick={load}
+        >
+          ↻ 새로고침
+        </button>
       </div>
 
       {/* 알림 */}
       {msg && (
-        <div style={{ ...styles.alert, background: msg.type === 'success' ? '#d1fae5' : '#fee2e2', color: msg.type === 'success' ? '#065f46' : '#991b1b' }}>
+        <div className={`px-4 py-[10px] rounded-md mb-3 text-sm ${
+          msg.type === 'success' ? 'bg-[#d1fae5] text-[#065f46]' : 'bg-[#fee2e2] text-[#991b1b]'
+        }`}>
           {msg.text}
         </div>
       )}
 
-      {/* 승인 결과 모달 (임시비밀번호 등) */}
+      {/* 승인 결과 모달 */}
       {approveResult && (
-        <div style={styles.resultBox}>
+        <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg px-5 py-4 mb-4">
           <strong>✅ 승인 완료</strong>
           {approveResult.temporaryPassword != null && (
-            <p>임시 비밀번호: <code style={styles.code}>{String(approveResult.temporaryPassword)}</code></p>
+            <p>임시 비밀번호: <code className="bg-[#e0f2fe] px-2 py-[2px] rounded font-mono font-bold text-[#0369a1]">{String(approveResult.temporaryPassword)}</code></p>
           )}
           {!(approveResult.emailSent as boolean) && (
-            <p style={{ color: '#b45309' }}>⚠️ 이메일 없음 — 수동으로 전달 필요</p>
+            <p className="text-[#b45309]">⚠️ 이메일 없음 — 수동으로 전달 필요</p>
           )}
-          <button style={styles.closeBtn} onClick={() => setApproveResult(null)}>닫기</button>
+          <button
+            className="mt-2 px-3 py-[5px] border border-[rgba(91,164,217,0.3)] rounded-[5px] cursor-pointer text-[13px] bg-white"
+            onClick={() => setApproveResult(null)}
+          >닫기</button>
         </div>
       )}
 
       {/* 테이블 */}
       {loading ? (
-        <p style={styles.muted}>로딩 중...</p>
+        <p className="text-[#6b7280] text-sm">로딩 중...</p>
       ) : items.length === 0 ? (
-        <div style={styles.emptyState}>
+        <div className="text-center py-12 text-[#6b7280]">
           <p>{statusFilter === 'PENDING' ? '승인 대기 항목이 없습니다.' : '항목이 없습니다.'}</p>
         </div>
       ) : (
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr style={styles.thead}>
-                <th style={styles.th}>신청일</th>
-                <th style={styles.th}>이름/업체</th>
-                <th style={styles.th}>상세</th>
-                <th style={styles.th}>상태</th>
-                {statusFilter === 'PENDING' && <th style={styles.th}>액션</th>}
+        <div className="border border-[#e5e7eb] rounded-lg overflow-hidden">
+          <table className="w-full border-collapse">
+            <thead className="bg-[#f9fafb]">
+              <tr>
+                <th className="px-[14px] py-[11px] text-left text-xs font-semibold text-[#6b7280] border-b border-[#e5e7eb]">신청일</th>
+                <th className="px-[14px] py-[11px] text-left text-xs font-semibold text-[#6b7280] border-b border-[#e5e7eb]">이름/업체</th>
+                <th className="px-[14px] py-[11px] text-left text-xs font-semibold text-[#6b7280] border-b border-[#e5e7eb]">상세</th>
+                <th className="px-[14px] py-[11px] text-left text-xs font-semibold text-[#6b7280] border-b border-[#e5e7eb]">상태</th>
+                {statusFilter === 'PENDING' && <th className="px-[14px] py-[11px] text-left text-xs font-semibold text-[#6b7280] border-b border-[#e5e7eb]">액션</th>}
               </tr>
             </thead>
             <tbody>
               {items.map(item => (
-                <tr key={item.id} style={styles.tr}>
-                  <td style={{ ...styles.td, color: '#9ca3af', fontSize: '12px', whiteSpace: 'nowrap' }}>
+                <tr key={item.id} className="border-b border-[#f3f4f6] hover:bg-[rgba(91,164,217,0.05)] transition-colors">
+                  <td className="px-[14px] py-[13px] text-sm text-[#1f2937] align-top text-[#9ca3af] text-xs whitespace-nowrap">
                     {new Date(item.requestedAt).toLocaleDateString('ko-KR')}
                   </td>
-                  <td style={styles.td}>
-                    <div style={{ fontWeight: 600 }}>{item.displayName}</div>
-                    {item.subName && <div style={{ fontSize: '12px', color: '#6b7280' }}>{item.subName}</div>}
+                  <td className="px-[14px] py-[13px] text-sm text-[#1f2937] align-top">
+                    <div className="font-semibold">{item.displayName}</div>
+                    {item.subName && <div className="text-xs text-[#6b7280]">{item.subName}</div>}
                   </td>
-                  <td style={{ ...styles.td, color: '#6b7280', fontSize: '13px' }}>
+                  <td className="px-[14px] py-[13px] text-sm text-[#6b7280] align-top text-[13px]">
                     {item.detail}
                     {item.rejectReason && (
-                      <div style={{ color: '#dc2626', fontSize: '12px' }}>사유: {item.rejectReason}</div>
+                      <div className="text-[#dc2626] text-xs">사유: {item.rejectReason}</div>
                     )}
                   </td>
-                  <td style={styles.td}>
+                  <td className="px-[14px] py-[13px] text-sm text-[#1f2937] align-top">
                     <StatusBadge status={item.status} />
                   </td>
                   {statusFilter === 'PENDING' && (
-                    <td style={styles.td}>
-                      <div style={styles.actionButtons}>
+                    <td className="px-[14px] py-[13px] text-sm text-[#1f2937] align-top">
+                      <div className="flex gap-[6px]">
                         <button
-                          style={styles.approveBtn}
+                          className="px-3 py-[5px] bg-[#059669] text-white border-none rounded-[5px] cursor-pointer text-xs font-semibold disabled:opacity-50"
                           disabled={processing === item.id}
                           onClick={() => handleApprove(item.id)}
                         >
                           {processing === item.id ? '처리 중...' : '승인'}
                         </button>
                         <button
-                          style={styles.rejectBtn}
+                          className="px-3 py-[5px] bg-[#dc2626] text-white border-none rounded-[5px] cursor-pointer text-xs font-semibold disabled:opacity-50"
                           disabled={processing === item.id}
                           onClick={() => { setRejectTarget(item.id); setRejectReason('') }}
                         >
@@ -336,20 +354,23 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
 
       {/* 반려 사유 모달 */}
       {rejectTarget && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modal}>
-            <h3 style={styles.modalTitle}>반려 사유 입력</h3>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]">
+          <div className="bg-white rounded-[10px] p-7 w-[400px] max-w-[90vw]">
+            <h3 className="text-base font-bold text-[#111827] mb-4 mt-0">반려 사유 입력</h3>
             <textarea
-              style={styles.textarea}
+              className="w-full p-[10px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm resize-y box-border"
               rows={4}
               placeholder="반려 사유를 입력하세요. (필수)"
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
             />
-            <div style={styles.modalActions}>
-              <button style={styles.cancelBtn} onClick={() => setRejectTarget(null)}>취소</button>
+            <div className="flex gap-2 justify-end mt-4">
               <button
-                style={{ ...styles.rejectBtn, opacity: rejectReason.trim() ? 1 : 0.5 }}
+                className="px-4 py-[7px] bg-white border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-sm"
+                onClick={() => setRejectTarget(null)}
+              >취소</button>
+              <button
+                className="px-3 py-[5px] bg-[#dc2626] text-white border-none rounded-[5px] cursor-pointer text-xs font-semibold disabled:opacity-50"
                 disabled={!rejectReason.trim() || processing === rejectTarget}
                 onClick={handleReject}
               >
@@ -375,82 +396,9 @@ function StatusBadge({ status }: { status: string }) {
     INACTIVE:             { label: '비활성',    bg: '#f3f4f6', color: '#6b7280' },
   }
   const s = map[status] ?? { label: status, bg: '#f3f4f6', color: '#6b7280' }
-  return <span style={{ ...styles.statusBadge, background: s.bg, color: s.color }}>{s.label}</span>
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '32px' },
-  title: { fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '20px' },
-  tabRow: {
-    display: 'flex',
-    borderBottom: '1px solid #e5e7eb',
-    marginBottom: '0',
-    flexWrap: 'wrap',
-    gap: '2px',
-  },
-  tab: {
-    padding: '10px 18px',
-    border: 'none',
-    borderBottom: '2px solid transparent',
-    background: 'none',
-    cursor: 'pointer',
-    fontSize: '14px',
-    color: '#6b7280',
-    marginBottom: '-1px',
-  },
-  tabActive: { color: '#1d4ed8', borderBottom: '2px solid #1d4ed8', fontWeight: 600 },
-  tabContent: { background: '#fff', borderRadius: '0 0 8px 8px', border: '1px solid #e5e7eb', borderTop: 'none', padding: '24px' },
-  filterRow: { display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center', flexWrap: 'wrap' },
-  filterBtn: {
-    padding: '6px 14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px',
-    background: '#fff', cursor: 'pointer', fontSize: '13px', color: '#374151',
-    display: 'flex', alignItems: 'center', gap: '6px',
-  },
-  filterBtnActive: { background: '#eff6ff', borderColor: '#1d4ed8', color: '#1d4ed8', fontWeight: 600 },
-  badge: {
-    background: '#dc2626', color: '#fff', borderRadius: '10px',
-    padding: '0 6px', fontSize: '11px', minWidth: '18px', textAlign: 'center',
-  },
-  refreshBtn: {
-    padding: '6px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px',
-    background: '#fff', cursor: 'pointer', fontSize: '13px', color: '#6b7280',
-    marginLeft: 'auto',
-  },
-  alert: { padding: '10px 16px', borderRadius: '6px', marginBottom: '12px', fontSize: '14px' },
-  resultBox: {
-    background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px',
-    padding: '16px 20px', marginBottom: '16px',
-  },
-  code: { background: '#e0f2fe', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace', fontWeight: 700, color: '#0369a1' },
-  closeBtn: { marginTop: '8px', padding: '5px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '5px', cursor: 'pointer', fontSize: '13px', background: '#fff' },
-  emptyState: { textAlign: 'center', padding: '48px 0', color: '#6b7280' },
-  tableWrap: { border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  thead: { background: '#f9fafb' },
-  th: { padding: '11px 14px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6b7280', borderBottom: '1px solid #e5e7eb' },
-  tr: { borderBottom: '1px solid #f3f4f6' },
-  td: { padding: '13px 14px', fontSize: '14px', color: '#1f2937', verticalAlign: 'top' },
-  statusBadge: { fontSize: '11px', padding: '3px 8px', borderRadius: '4px', fontWeight: 500 },
-  actionButtons: { display: 'flex', gap: '6px' },
-  approveBtn: {
-    padding: '5px 12px', background: '#059669', color: '#fff',
-    border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px', fontWeight: 600,
-  },
-  rejectBtn: {
-    padding: '5px 12px', background: '#dc2626', color: '#fff',
-    border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px', fontWeight: 600,
-  },
-  cancelBtn: {
-    padding: '7px 16px', background: '#fff', border: '1px solid rgba(91,164,217,0.3)',
-    borderRadius: '6px', cursor: 'pointer', fontSize: '14px',
-  },
-  modalOverlay: {
-    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-    background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
-  },
-  modal: { background: '#fff', borderRadius: '10px', padding: '28px', width: '400px', maxWidth: '90vw' },
-  modalTitle: { fontSize: '16px', fontWeight: 700, color: '#111827', marginBottom: '16px', marginTop: 0 },
-  textarea: { width: '100%', padding: '10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', resize: 'vertical', boxSizing: 'border-box' },
-  modalActions: { display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' },
-  muted: { color: '#6b7280', fontSize: '14px' },
+  return (
+    <span className="text-[11px] px-2 py-[3px] rounded font-medium" style={{ background: s.bg, color: s.color }}>
+      {s.label}
+    </span>
+  )
 }

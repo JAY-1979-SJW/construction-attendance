@@ -101,17 +101,17 @@ export default function WorkerContractConfirmPage() {
   // ── 로딩 / 에러 ────────────────────────────────────────────
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1B2838' }}>
-        <p style={{ color: '#A0AEC0', fontSize: '14px' }}>계약 정보를 불러오는 중...</p>
+      <div className="min-h-screen flex items-center justify-center bg-brand">
+        <p className="text-muted-brand text-[14px]">계약 정보를 불러오는 중...</p>
       </div>
     )
   }
 
   if (error || !contract) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#1B2838', gap: '12px', padding: '24px' }}>
-        <p style={{ color: '#c62828', fontSize: '14px', textAlign: 'center' }}>{error || '계약 정보를 찾을 수 없습니다.'}</p>
-        <button onClick={() => router.back()} style={{ padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer' }}>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-brand gap-3 px-6">
+        <p className="text-[#c62828] text-[14px] text-center">{error || '계약 정보를 찾을 수 없습니다.'}</p>
+        <button onClick={() => router.back()} className="px-5 py-2 bg-[#F47920] text-white border-none rounded-lg text-[13px] cursor-pointer">
           돌아가기
         </button>
       </div>
@@ -125,11 +125,11 @@ export default function WorkerContractConfirmPage() {
   // ── 완료 화면 ──────────────────────────────────────────────
   if (step === 'done') {
     return (
-      <div style={{ minHeight: '100vh', background: '#1B2838', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', gap: '16px' }}>
-        <div style={{ background: '#243144', borderRadius: '16px', padding: '32px 24px', maxWidth: '440px', width: '100%', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-          <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
-          <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1b5e20', marginBottom: '8px' }}>확인 완료</h2>
-          <p style={{ fontSize: '13px', color: '#A0AEC0', lineHeight: '1.6' }}>
+      <div className="min-h-screen bg-brand flex flex-col items-center justify-center p-6 gap-4">
+        <div className="bg-card rounded-2xl py-8 px-6 max-w-[440px] w-full text-center shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
+          <div className="text-[48px] mb-3">✅</div>
+          <h2 className="text-[18px] font-bold text-[#1b5e20] mb-2">확인 완료</h2>
+          <p className="text-[13px] text-muted-brand leading-[1.6]">
             계약 내용 확인 절차가 완료되었습니다.<br />
             관리자가 다음 단계를 안내해 드릴 것입니다.
           </p>
@@ -139,27 +139,28 @@ export default function WorkerContractConfirmPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#1B2838', paddingBottom: '40px' }}>
-      {/* 헤더 */}
-      <div style={{ background: accent, color: 'white', padding: '20px 20px 16px', position: 'sticky', top: 0, zIndex: 10 }}>
-        <p style={{ fontSize: '11px', opacity: 0.8, marginBottom: '4px' }}>
+    <div className="min-h-screen bg-brand pb-10">
+      {/* 헤더 — background depends on dynamic accent, keep as inline */}
+      <div style={{ background: accent }} className="text-white px-5 pt-5 pb-4 sticky top-0 z-10">
+        <p className="text-[11px] opacity-80 mb-1">
           {step === 'view' ? '1단계 / 2단계' : '2단계 / 2단계'}
         </p>
-        <h1 style={{ fontSize: '17px', fontWeight: 700, margin: 0 }}>
+        <h1 className="text-[17px] font-bold m-0">
           {step === 'view' ? '계약 내용 확인' : '서명 전 최종 확인'}
         </h1>
       </div>
 
-      <div style={{ padding: '16px', maxWidth: '540px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <div className="px-4 max-w-[540px] mx-auto flex flex-col gap-[14px] pt-4">
 
         {/* 계약 요약 카드 */}
-        <div style={{ background: '#243144', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 700, color: accent, background: accent + '15', borderRadius: '6px', padding: '3px 10px' }}>
+        <div className="bg-card rounded-xl p-[18px] shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
+          <div className="flex items-center gap-2 mb-3">
+            {/* color and background depend on dynamic accent */}
+            <span style={{ color: accent, background: accent + '15' }} className="text-[13px] font-bold rounded-md px-[10px] py-[3px]">
               {guide?.title ?? '계약 정보'}
             </span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', fontSize: '13px' }}>
+          <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-[13px]">
             {[
               { label: '이름',   value: contract.workerName },
               { label: '회사',   value: contract.companyName || '-' },
@@ -169,8 +170,8 @@ export default function WorkerContractConfirmPage() {
               { label: '종료일', value: contract.endDate || '별도 없음' },
             ].map(({ label, value }) => (
               <div key={label}>
-                <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '2px' }}>{label}</div>
-                <div style={{ fontWeight: 600, color: '#222' }}>{value}</div>
+                <div className="text-[11px] text-muted-brand mb-[2px]">{label}</div>
+                <div className="font-semibold text-[#222]">{value}</div>
               </div>
             ))}
           </div>
@@ -180,22 +181,22 @@ export default function WorkerContractConfirmPage() {
         {step === 'view' && guide && (
           <>
             {/* 유형 설명 */}
-            <div style={{ background: '#243144', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#222', marginBottom: '8px' }}>근로유형 안내</h3>
-              <p style={{ fontSize: '13px', color: '#A0AEC0', lineHeight: '1.7', marginBottom: '12px' }}>{guide.description}</p>
-              <div style={{ background: '#f8f8f8', borderRadius: '8px', padding: '12px' }}>
-                <div style={{ fontSize: '12px', fontWeight: 600, color: '#444', marginBottom: '6px' }}>확인사항</div>
+            <div className="bg-card rounded-xl p-[18px] shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
+              <h3 className="text-[14px] font-bold text-[#222] mb-2">근로유형 안내</h3>
+              <p className="text-[13px] text-muted-brand leading-[1.7] mb-3">{guide.description}</p>
+              <div className="bg-[#f8f8f8] rounded-lg p-3">
+                <div className="text-[12px] font-semibold text-[#444] mb-[6px]">확인사항</div>
                 {guide.checkPoints.map((pt, i) => (
-                  <div key={i} style={{ fontSize: '12px', color: '#A0AEC0', marginBottom: '4px' }}>• {pt}</div>
+                  <div key={i} className="text-[12px] text-muted-brand mb-1">• {pt}</div>
                 ))}
               </div>
             </div>
 
             {/* 체크박스 동의 */}
-            <div style={{ background: '#243144', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#222', marginBottom: '12px' }}>내용 확인</h3>
+            <div className="bg-card rounded-xl p-[18px] shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
+              <h3 className="text-[14px] font-bold text-[#222] mb-3">내용 확인</h3>
               {guide.checkboxes.map((label, i) => (
-                <label key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '12px', cursor: 'pointer' }}>
+                <label key={i} className="flex items-start gap-[10px] mb-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={viewChecks[i] ?? false}
@@ -204,23 +205,24 @@ export default function WorkerContractConfirmPage() {
                       next[i] = e.target.checked
                       setViewChecks(next)
                     }}
-                    style={{ width: '18px', height: '18px', marginTop: '1px', accentColor: accent, flexShrink: 0 }}
+                    className="w-[18px] h-[18px] mt-px shrink-0"
+                    style={{ accentColor: accent }}
                   />
-                  <span style={{ fontSize: '13px', color: '#CBD5E0', lineHeight: '1.5' }}>{label}</span>
+                  <span className="text-[13px] text-[#CBD5E0] leading-[1.5]">{label}</span>
                 </label>
               ))}
             </div>
 
-            {error && <div style={{ background: '#ffeef0', border: '1px solid #f5c2c7', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#c62828' }}>{error}</div>}
+            {error && <div className="bg-[#ffeef0] border border-[#f5c2c7] rounded-lg px-[14px] py-[10px] text-[13px] text-[#c62828]">{error}</div>}
 
             <button
               disabled={!allViewChecked || submitting}
               onClick={() => handleConfirm('VIEW')}
+              className="w-full py-[15px] rounded-[10px] text-[15px] font-bold text-white border-none transition-[background] duration-200"
               style={{
-                width: '100%', padding: '15px', borderRadius: '10px', fontSize: '15px', fontWeight: 700,
-                border: 'none', cursor: allViewChecked && !submitting ? 'pointer' : 'not-allowed',
-                background: allViewChecked ? accent : '#ccc', color: 'white',
-                opacity: allViewChecked ? 1 : 0.6, transition: 'background 0.2s',
+                cursor: allViewChecked && !submitting ? 'pointer' : 'not-allowed',
+                background: allViewChecked ? accent : '#ccc',
+                opacity: allViewChecked ? 1 : 0.6,
               }}
             >
               {submitting ? '처리 중...' : '확인 완료 — 다음 단계로'}
@@ -231,37 +233,38 @@ export default function WorkerContractConfirmPage() {
         {/* ── 2단계: 서명 전 최종 확인 ──────────────────────── */}
         {step === 'presign' && guide && (
           <>
-            <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '12px', padding: '16px' }}>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#e65100', marginBottom: '6px' }}>⚠ 서명 전 최종 확인</div>
-              <p style={{ fontSize: '13px', color: '#5d4037', lineHeight: '1.6', margin: 0 }}>
+            <div className="bg-[#fff8e1] border border-[#ffe082] rounded-xl p-4">
+              <div className="text-[13px] font-bold text-[#e65100] mb-[6px]">⚠ 서명 전 최종 확인</div>
+              <p className="text-[13px] text-[#5d4037] leading-[1.6] m-0">
                 아래 내용을 확인하고 동의하셔야 계약 처리가 진행됩니다.
                 동의 후에는 내용 변경이 어려울 수 있으니 신중하게 확인하세요.
               </p>
             </div>
 
-            <div style={{ background: '#243144', borderRadius: '12px', padding: '18px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#222', marginBottom: '14px' }}>최종 동의</h3>
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+            <div className="bg-card rounded-xl p-[18px] shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
+              <h3 className="text-[14px] font-bold text-[#222] mb-[14px]">최종 동의</h3>
+              <label className="flex items-start gap-[10px] cursor-pointer">
                 <input
                   type="checkbox"
                   checked={presignChecked}
                   onChange={e => setPresignChecked(e.target.checked)}
-                  style={{ width: '18px', height: '18px', marginTop: '2px', accentColor: accent, flexShrink: 0 }}
+                  className="w-[18px] h-[18px] mt-[2px] shrink-0"
+                  style={{ accentColor: accent }}
                 />
-                <span style={{ fontSize: '13px', color: '#CBD5E0', lineHeight: '1.6' }}>{guide.finalCheckText}</span>
+                <span className="text-[13px] text-[#CBD5E0] leading-[1.6]">{guide.finalCheckText}</span>
               </label>
             </div>
 
-            {error && <div style={{ background: '#ffeef0', border: '1px solid #f5c2c7', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#c62828' }}>{error}</div>}
+            {error && <div className="bg-[#ffeef0] border border-[#f5c2c7] rounded-lg px-[14px] py-[10px] text-[13px] text-[#c62828]">{error}</div>}
 
             <button
               disabled={!presignChecked || submitting}
               onClick={() => handleConfirm('PRESIGN')}
+              className="w-full py-[15px] rounded-[10px] text-[15px] font-bold text-white border-none transition-[background] duration-200"
               style={{
-                width: '100%', padding: '15px', borderRadius: '10px', fontSize: '15px', fontWeight: 700,
-                border: 'none', cursor: presignChecked && !submitting ? 'pointer' : 'not-allowed',
-                background: presignChecked ? accent : '#ccc', color: 'white',
-                opacity: presignChecked ? 1 : 0.6, transition: 'background 0.2s',
+                cursor: presignChecked && !submitting ? 'pointer' : 'not-allowed',
+                background: presignChecked ? accent : '#ccc',
+                opacity: presignChecked ? 1 : 0.6,
               }}
             >
               {submitting ? '처리 중...' : '최종 동의 완료'}

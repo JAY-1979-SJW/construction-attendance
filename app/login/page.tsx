@@ -123,20 +123,20 @@ export default function LoginPage() {
   // ── 승인 대기 화면 ──────────────────────────────────────────
   if (phase === 'pending') {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
-          <div style={styles.icon}>⏳</div>
-          <h1 style={styles.title}>승인 대기 중</h1>
-          <p style={styles.body}>
+      <div className="min-h-screen flex items-center justify-center p-5 bg-[linear-gradient(135deg,#0F1724_0%,#1B2838_60%,#141E2A_100%)]">
+        <div className="bg-[#243144] rounded-2xl px-8 py-10 w-full max-w-[400px] shadow-[0_8px_40px_rgba(0,0,0,0.4)] border border-[rgba(91,164,217,0.15)] border-t-[3px] border-t-[#F47920]">
+          <div className="text-5xl text-center mb-4">⏳</div>
+          <h1 className="text-2xl font-bold text-white text-center mb-2">승인 대기 중</h1>
+          <p className="text-sm text-[#A0AEC0] text-center leading-[1.7] mb-3">
             기기 등록 요청이 접수되었습니다.
             <br />
             관리자 승인 후 출퇴근이 가능합니다.
           </p>
-          <p style={styles.phoneLabel}>{formatPhone(phone)}</p>
+          <p className="text-lg font-bold text-white text-center mb-6 tracking-[1px]">{formatPhone(phone)}</p>
           <button
             onClick={handleRefreshStatus}
             disabled={loading}
-            style={{ ...styles.button, opacity: loading ? 0.6 : 1 }}
+            className="block w-full py-4 text-lg font-bold bg-[#F47920] text-white border-none rounded-[10px] cursor-pointer mt-2 disabled:opacity-60"
           >
             {loading ? '확인 중...' : '승인 여부 확인'}
           </button>
@@ -147,7 +147,7 @@ export default function LoginPage() {
               setPhone('')
               setError('')
             }}
-            style={styles.secondaryButton}
+            className="block w-full py-3 text-sm bg-transparent text-[#A0AEC0] border border-[rgba(91,164,217,0.2)] rounded-[10px] cursor-pointer mt-[10px]"
           >
             다른 번호로 시도
           </button>
@@ -159,11 +159,11 @@ export default function LoginPage() {
   // ── 반려 화면 ────────────────────────────────────────────────
   if (phase === 'rejected') {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
-          <div style={styles.icon}>✗</div>
-          <h1 style={styles.title}>기기 등록 반려</h1>
-          <p style={styles.body}>
+      <div className="min-h-screen flex items-center justify-center p-5 bg-[linear-gradient(135deg,#0F1724_0%,#1B2838_60%,#141E2A_100%)]">
+        <div className="bg-[#243144] rounded-2xl px-8 py-10 w-full max-w-[400px] shadow-[0_8px_40px_rgba(0,0,0,0.4)] border border-[rgba(91,164,217,0.15)] border-t-[3px] border-t-[#F47920]">
+          <div className="text-5xl text-center mb-4">✗</div>
+          <h1 className="text-2xl font-bold text-white text-center mb-2">기기 등록 반려</h1>
+          <p className="text-sm text-[#A0AEC0] text-center leading-[1.7] mb-3">
             기기 등록 요청이 반려되었습니다.
             <br />
             관리자에게 문의하세요.
@@ -174,7 +174,7 @@ export default function LoginPage() {
               setPhone('')
               setError('')
             }}
-            style={{ ...styles.button, marginTop: '24px' }}
+            className="block w-full py-4 text-lg font-bold bg-[#F47920] text-white border-none rounded-[10px] cursor-pointer mt-6"
           >
             확인
           </button>
@@ -185,18 +185,18 @@ export default function LoginPage() {
 
   // ── 번호 입력 화면 (기본) ────────────────────────────────────
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <div style={{ textAlign: 'center', marginBottom: '4px' }}>
-          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} style={{ width: '200px', height: 'auto', margin: '0 auto', display: 'block', borderRadius: '16px' }} priority />
-          <div style={{ fontSize: '12px', color: '#5a6a7e', marginTop: '8px' }}>현장 출퇴근 관리 시스템</div>
+    <div className="min-h-screen flex items-center justify-center p-5 bg-[linear-gradient(135deg,#0F1724_0%,#1B2838_60%,#141E2A_100%)]">
+      <div className="bg-[#243144] rounded-2xl px-8 py-10 w-full max-w-[400px] shadow-[0_8px_40px_rgba(0,0,0,0.4)] border border-[rgba(91,164,217,0.15)] border-t-[3px] border-t-[#F47920]">
+        <div className="text-center mb-1">
+          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} className="w-[200px] h-auto mx-auto block rounded-2xl" priority />
+          <div className="text-xs text-[#5a6a7e] mt-2">현장 출퇴근 관리 시스템</div>
         </div>
-        <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '20px 0' }} />
-        <h1 style={{ ...styles.title, fontSize: '18px', marginBottom: '4px' }}>로그인</h1>
-        <p style={styles.subtitle}>휴대폰 번호를 입력하세요</p>
+        <div className="h-px bg-[rgba(255,255,255,0.08)] my-5" />
+        <h1 className="text-lg font-bold text-white text-center mb-1">로그인</h1>
+        <p className="text-sm text-[#A0AEC0] text-center mb-8">휴대폰 번호를 입력하세요</p>
 
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>휴대폰 번호</label>
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-[#A0AEC0] mb-2">휴대폰 번호</label>
           <input
             type="tel"
             inputMode="numeric"
@@ -207,125 +207,21 @@ export default function LoginPage() {
               setError('')
             }}
             onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-            style={styles.input}
+            className="w-full px-4 py-[14px] text-lg border border-[rgba(91,164,217,0.25)] rounded-[10px] outline-none box-border tracking-[2px] bg-[rgba(255,255,255,0.06)] text-white"
             maxLength={13}
           />
         </div>
 
-        {error && <p style={styles.error}>{error}</p>}
+        {error && <p className="text-[#f56565] text-[13px] mb-4">{error}</p>}
 
         <button
           onClick={handleLogin}
           disabled={loading}
-          style={{ ...styles.button, opacity: loading ? 0.6 : 1 }}
+          className="block w-full py-4 text-lg font-bold bg-[#F47920] text-white border-none rounded-[10px] cursor-pointer mt-2 disabled:opacity-60"
         >
           {loading ? '확인 중...' : '로그인'}
         </button>
       </div>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    background: 'linear-gradient(135deg, #0F1724 0%, #1B2838 60%, #141E2A 100%)',
-  },
-  card: {
-    background: '#243144',
-    borderRadius: '16px',
-    padding: '40px 32px',
-    width: '100%',
-    maxWidth: '400px',
-    boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
-    border: '1px solid rgba(91,164,217,0.15)',
-    borderTop: '3px solid #F47920',
-  },
-  icon: {
-    fontSize: '48px',
-    textAlign: 'center',
-    marginBottom: '16px',
-  },
-  title: {
-    fontSize: '24px',
-    fontWeight: 700,
-    color: '#ffffff',
-    margin: '0 0 8px',
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: '14px',
-    color: '#A0AEC0',
-    textAlign: 'center',
-    margin: '0 0 32px',
-  },
-  body: {
-    fontSize: '14px',
-    color: '#A0AEC0',
-    textAlign: 'center',
-    lineHeight: 1.7,
-    margin: '0 0 12px',
-  },
-  phoneLabel: {
-    fontSize: '18px',
-    fontWeight: 700,
-    color: '#ffffff',
-    textAlign: 'center',
-    margin: '0 0 24px',
-    letterSpacing: '1px',
-  },
-  inputGroup: { marginBottom: '16px' },
-  label: {
-    display: 'block',
-    fontSize: '14px',
-    fontWeight: 600,
-    color: '#A0AEC0',
-    marginBottom: '8px',
-  },
-  input: {
-    width: '100%',
-    padding: '14px 16px',
-    fontSize: '18px',
-    border: '1px solid rgba(91,164,217,0.25)',
-    borderRadius: '10px',
-    outline: 'none',
-    boxSizing: 'border-box',
-    letterSpacing: '2px',
-    background: 'rgba(255,255,255,0.06)',
-    color: '#ffffff',
-  },
-  error: {
-    color: '#f56565',
-    fontSize: '13px',
-    margin: '0 0 16px',
-  },
-  button: {
-    display: 'block',
-    width: '100%',
-    padding: '16px',
-    fontSize: '18px',
-    fontWeight: 700,
-    background: '#F47920',
-    color: 'white',
-    border: 'none',
-    borderRadius: '10px',
-    cursor: 'pointer',
-    marginTop: '8px',
-  },
-  secondaryButton: {
-    display: 'block',
-    width: '100%',
-    padding: '12px',
-    fontSize: '14px',
-    background: 'none',
-    color: '#A0AEC0',
-    border: '1px solid rgba(91,164,217,0.2)',
-    borderRadius: '10px',
-    cursor: 'pointer',
-    marginTop: '10px',
-  },
 }

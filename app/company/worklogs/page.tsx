@@ -70,12 +70,12 @@ export default function CompanyWorklogsPage() {
   useEffect(() => { if (siteId) load() }, [siteId, load])
 
   return (
-    <div style={styles.page}>
-      <h1 style={styles.title}>작업일보</h1>
+    <div className="p-8 font-sans">
+      <h1 className="text-[22px] font-bold text-[#111827] mb-5">작업일보</h1>
 
-      <div style={styles.filterRow}>
+      <div className="flex gap-2 items-center mb-5 flex-wrap">
         <select
-          style={styles.select}
+          className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] min-w-[160px]"
           value={siteId}
           onChange={(e) => setSiteId(e.target.value)}
         >
@@ -84,62 +84,59 @@ export default function CompanyWorklogsPage() {
             <option key={s.id} value={s.id}>{s.name}</option>
           ))}
         </select>
-        <input type="date" style={styles.dateInput} value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-        <span style={{ color: '#9ca3af', fontSize: '13px' }}>~</span>
-        <input type="date" style={styles.dateInput} value={toDate} onChange={(e) => setToDate(e.target.value)} />
-        <button onClick={load} style={styles.searchBtn}>조회</button>
+        <input type="date" className="px-[10px] py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+        <span className="text-[#9ca3af] text-[13px]">~</span>
+        <input type="date" className="px-[10px] py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+        <button onClick={load} className="px-4 py-2 bg-[#0f4c75] text-white border-none rounded-md cursor-pointer text-[13px]">조회</button>
       </div>
 
       {!siteId && (
-        <div style={styles.empty}>현장을 선택하면 작업일보를 확인할 수 있습니다.</div>
+        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">현장을 선택하면 작업일보를 확인할 수 있습니다.</div>
       )}
 
-      {msg && <div style={styles.errorMsg}>{msg}</div>}
+      {msg && <div className="px-[14px] py-[10px] bg-[#fee2e2] text-[#991b1b] rounded-md text-[13px] mb-3">{msg}</div>}
 
       {loading ? (
-        <p style={{ color: '#9ca3af', textAlign: 'center', padding: '40px 0' }}>불러오는 중...</p>
+        <p className="text-[#9ca3af] text-center py-10">불러오는 중...</p>
       ) : siteId && logs.length === 0 ? (
-        <div style={styles.empty}>해당 기간에 작업일보가 없습니다.</div>
+        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">해당 기간에 작업일보가 없습니다.</div>
       ) : logs.length > 0 ? (
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr style={styles.thead}>
-                <th style={styles.th}>날짜</th>
-                <th style={styles.th}>전체 인원</th>
-                <th style={styles.th}>정상 출근</th>
-                <th style={styles.th}>결근</th>
-                <th style={styles.th}>날씨</th>
-                <th style={styles.th}>안전 사고</th>
-                <th style={styles.th}>상태</th>
-                <th style={styles.th}>요약</th>
+        <div className="bg-card border border-[#e5e7eb] rounded-lg overflow-auto">
+          <table className="w-full border-collapse text-[13px]">
+            <thead className="bg-[#f9fafb]">
+              <tr>
+                {['날짜', '전체 인원', '정상 출근', '결근', '날씨', '안전 사고', '상태', '요약'].map(h => (
+                  <th key={h} className="px-[14px] py-[10px] text-left text-[12px] text-[#6b7280] font-semibold border-b border-[#e5e7eb]">{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {logs.map(log => (
-                <tr key={log.id} style={styles.tr}>
-                  <td style={styles.td}>{fmtDate(log.workDate)}</td>
-                  <td style={{ ...styles.td, textAlign: 'center' }}>{log.totalWorkers}</td>
-                  <td style={{ ...styles.td, textAlign: 'center' }}>{log.normalWorkers}</td>
-                  <td style={{ ...styles.td, textAlign: 'center' }}>{log.absentWorkers}</td>
-                  <td style={styles.td}>{log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '—'}</td>
-                  <td style={styles.td}>
+                <tr key={log.id} className="border-b border-[#f3f4f6]">
+                  <td className="px-[14px] py-[10px] text-[#374151] align-middle">{fmtDate(log.workDate)}</td>
+                  <td className="px-[14px] py-[10px] text-[#374151] align-middle text-center">{log.totalWorkers}</td>
+                  <td className="px-[14px] py-[10px] text-[#374151] align-middle text-center">{log.normalWorkers}</td>
+                  <td className="px-[14px] py-[10px] text-[#374151] align-middle text-center">{log.absentWorkers}</td>
+                  <td className="px-[14px] py-[10px] text-[#374151] align-middle">{log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '—'}</td>
+                  <td className="px-[14px] py-[10px] text-[#374151] align-middle">
                     {log.safetyIncident ? (
-                      <span style={{ color: '#dc2626', fontSize: '12px', fontWeight: 600 }}>발생</span>
+                      <span className="text-[#dc2626] text-[12px] font-semibold">발생</span>
                     ) : (
-                      <span style={{ color: '#9ca3af', fontSize: '12px' }}>없음</span>
+                      <span className="text-[#9ca3af] text-[12px]">없음</span>
                     )}
                   </td>
-                  <td style={styles.td}>
-                    <span style={{
-                      fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
-                      background: log.isFinalized ? '#d1fae5' : '#fef3c7',
-                      color: log.isFinalized ? '#065f46' : '#92400e',
-                    }}>
+                  <td className="px-[14px] py-[10px] text-[#374151] align-middle">
+                    <span
+                      className="text-[11px] px-2 py-[2px] rounded"
+                      style={{
+                        background: log.isFinalized ? '#d1fae5' : '#fef3c7',
+                        color: log.isFinalized ? '#065f46' : '#92400e',
+                      }}
+                    >
                       {log.isFinalized ? '마감' : '작성중'}
                     </span>
                   </td>
-                  <td style={{ ...styles.td, maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <td className="px-[14px] py-[10px] text-[#374151] align-middle max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                     {log.workSummary ?? '—'}
                   </td>
                 </tr>
@@ -150,27 +147,4 @@ export default function CompanyWorklogsPage() {
       ) : null}
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '32px', fontFamily: 'sans-serif' },
-  title: { fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '20px' },
-  filterRow: { display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap' },
-  select: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', minWidth: '160px' },
-  dateInput: { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px' },
-  searchBtn: {
-    padding: '8px 16px', background: '#0f4c75', color: 'white',
-    border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
-  },
-  empty: {
-    textAlign: 'center', color: '#9ca3af', padding: '48px 0',
-    background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px',
-  },
-  errorMsg: { padding: '10px 14px', background: '#fee2e2', color: '#991b1b', borderRadius: '6px', fontSize: '13px', marginBottom: '12px' },
-  tableWrap: { background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'auto' },
-  table: { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
-  thead: { background: '#f9fafb' },
-  th: { padding: '10px 14px', textAlign: 'left', fontSize: '12px', color: '#6b7280', fontWeight: 600, borderBottom: '1px solid #e5e7eb' },
-  tr: { borderBottom: '1px solid #f3f4f6' },
-  td: { padding: '10px 14px', color: '#374151', verticalAlign: 'middle' },
 }

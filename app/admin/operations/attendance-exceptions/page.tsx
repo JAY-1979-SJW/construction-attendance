@@ -103,16 +103,16 @@ export default function AttendanceExceptionsPage() {
   const totalPages = Math.ceil(total / 30)
 
   return (
-    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '24px 16px', fontFamily: 'system-ui, sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 800 }}>출퇴근 예외/누락 처리 센터</h1>
+    <div className="max-w-[960px] mx-auto px-4 py-6 font-[system-ui,sans-serif]">
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="m-0 text-[20px] font-black">출퇴근 예외/누락 처리 센터</h1>
         <button onClick={load} disabled={loading} style={btnStyle('#1565c0', loading)}>
           {loading ? '조회 중...' : '새로고침'}
         </button>
       </div>
 
       {/* 타입 탭 */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+      <div className="flex gap-2 mb-4">
         {(['ALL', 'EXCEPTION', 'MISSING_CHECKOUT'] as const).map(t => (
           <button
             key={t}
@@ -127,69 +127,69 @@ export default function AttendanceExceptionsPage() {
             {t === 'ALL' ? '전체' : t === 'EXCEPTION' ? '예외' : '퇴근누락'}
           </button>
         ))}
-        <span style={{ marginLeft: 'auto', fontSize: '13px', color: '#A0AEC0', alignSelf: 'center' }}>
+        <span className="ml-auto text-[13px] text-muted-brand self-center">
           총 {total}건
         </span>
       </div>
 
       {error && (
-        <div style={{ background: '#ffebee', border: '1px solid #ef9a9a', borderRadius: '8px', padding: '12px', marginBottom: '12px', color: '#c62828', fontSize: '13px' }}>
+        <div className="bg-[#ffebee] border border-[#ef9a9a] rounded-lg p-3 mb-3 text-[#c62828] text-[13px]">
           {error}
         </div>
       )}
 
       {/* 목록 */}
-      <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+      <div className="bg-white border border-white/10 rounded-[10px] overflow-hidden">
+        <table className="w-full border-collapse text-[13px]">
           <thead>
-            <tr style={{ background: '#263238', color: '#fff' }}>
-              <th style={th}>근로자</th>
-              <th style={th}>소속</th>
-              <th style={th}>현장</th>
-              <th style={th}>작업일</th>
-              <th style={th}>출근</th>
-              <th style={th}>퇴근</th>
-              <th style={th}>상태</th>
-              <th style={th}>경과일</th>
-              <th style={th}>처리</th>
+            <tr className="bg-[#263238] text-white">
+              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">근로자</th>
+              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">소속</th>
+              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">현장</th>
+              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">작업일</th>
+              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">출근</th>
+              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">퇴근</th>
+              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">상태</th>
+              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">경과일</th>
+              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">처리</th>
             </tr>
           </thead>
           <tbody>
             {items.length === 0 ? (
               <tr>
-                <td colSpan={9} style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                <td colSpan={9} className="text-center py-10 text-[#999]">
                   {loading ? '조회 중...' : '처리 대기 항목이 없습니다.'}
                 </td>
               </tr>
             ) : (
               items.map((item, i) => (
                 <tr key={item.id} style={{ background: i % 2 === 1 ? '#fafafa' : '#fff' }}>
-                  <td style={td}>
-                    <div style={{ fontWeight: 700 }}>{item.workerName}</div>
-                    <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{item.workerPhone}</div>
+                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">
+                    <div className="font-bold">{item.workerName}</div>
+                    <div className="text-[11px] text-muted-brand">{item.workerPhone}</div>
                   </td>
-                  <td style={td}>{item.company || '—'}</td>
-                  <td style={td}>{item.siteName}</td>
-                  <td style={td}>{item.workDate}</td>
-                  <td style={td}>{fmtTime(item.checkInAt)}</td>
-                  <td style={td}>{fmtTime(item.checkOutAt)}</td>
-                  <td style={td}>
+                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">{item.company || '—'}</td>
+                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">{item.siteName}</td>
+                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">{item.workDate}</td>
+                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">{fmtTime(item.checkInAt)}</td>
+                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">{fmtTime(item.checkOutAt)}</td>
+                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">
                     <span style={{ color: STATUS_COLOR[item.status] ?? '#333', fontWeight: 700 }}>
                       {STATUS_LABEL[item.status] ?? item.status}
                     </span>
                     {item.exceptionReason && (
-                      <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{item.exceptionReason}</div>
+                      <div className="text-[11px] text-muted-brand">{item.exceptionReason}</div>
                     )}
                   </td>
-                  <td style={{ ...td, textAlign: 'center' }}>
+                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top text-center">
                     <span style={{ color: item.daysBehind > 3 ? '#c62828' : item.daysBehind > 0 ? '#e65100' : '#333', fontWeight: item.daysBehind > 3 ? 700 : 400 }}>
                       {item.daysBehind}일
                     </span>
                   </td>
-                  <td style={td}>
+                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">
                     <button
                       onClick={() => { setTarget(item); setAction(''); setCheckOut(''); setNote('') }}
-                      style={{ padding: '4px 12px', background: '#E06810', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', fontWeight: 700 }}
+                      className="px-3 py-1 bg-[#E06810] text-white border-0 rounded text-[12px] cursor-pointer font-bold"
                     >
                       처리
                     </button>
@@ -203,11 +203,11 @@ export default function AttendanceExceptionsPage() {
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '16px' }}>
+        <div className="flex gap-2 justify-center mt-4">
           <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={pageBtnStyle(page === 1)}>
             이전
           </button>
-          <span style={{ fontSize: '13px', alignSelf: 'center', color: '#A0AEC0' }}>{page} / {totalPages}</span>
+          <span className="text-[13px] self-center text-muted-brand">{page} / {totalPages}</span>
           <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={pageBtnStyle(page === totalPages)}>
             다음
           </button>
@@ -216,16 +216,16 @@ export default function AttendanceExceptionsPage() {
 
       {/* 처리 모달 */}
       {target && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: '12px', padding: '28px', width: '460px', maxWidth: '95vw' }}>
-            <h2 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: 800 }}>출퇴근 처리</h2>
-            <div style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '20px' }}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
+          <div className="bg-white rounded-xl p-7 w-[460px] max-w-[95vw]">
+            <h2 className="m-0 mb-[6px] text-base font-black">출퇴근 처리</h2>
+            <div className="text-[13px] text-muted-brand mb-5">
               {target.workerName} · {target.workDate} · {target.siteName}
             </div>
 
-            <div style={{ marginBottom: '14px' }}>
-              <label style={labelStyle}>처리 유형 *</label>
-              <select value={action} onChange={e => setAction(e.target.value)} style={inputStyle}>
+            <div className="mb-[14px]">
+              <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">처리 유형 *</label>
+              <select value={action} onChange={e => setAction(e.target.value)} className="w-full px-3 py-[9px] border border-white/10 rounded-[7px] text-sm outline-none box-border">
                 <option value="">선택하세요</option>
                 {target.status === 'MISSING_CHECKOUT' && (
                   <option value="SET_CHECKOUT">퇴근시간 설정</option>
@@ -241,30 +241,30 @@ export default function AttendanceExceptionsPage() {
             </div>
 
             {(action === 'SET_CHECKOUT' || action === 'APPROVE_EXCEPTION') && (
-              <div style={{ marginBottom: '14px' }}>
-                <label style={labelStyle}>퇴근 시간 (설정 시)</label>
+              <div className="mb-[14px]">
+                <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">퇴근 시간 (설정 시)</label>
                 <input
                   type="datetime-local"
                   value={checkOut}
                   onChange={e => setCheckOut(e.target.value)}
-                  style={inputStyle}
+                  className="w-full px-3 py-[9px] border border-white/10 rounded-[7px] text-sm outline-none box-border"
                 />
               </div>
             )}
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={labelStyle}>처리 사유 / 메모</label>
+            <div className="mb-5">
+              <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">처리 사유 / 메모</label>
               <textarea
                 value={note}
                 onChange={e => setNote(e.target.value)}
                 placeholder="처리 사유를 입력하세요 (감사로그에 기록됨)"
                 rows={3}
-                style={{ ...inputStyle, resize: 'vertical' }}
+                className="w-full px-3 py-[9px] border border-white/10 rounded-[7px] text-sm outline-none box-border resize-y"
               />
             </div>
 
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={() => setTarget(null)} style={{ flex: 1, padding: '12px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', background: '#fff', cursor: 'pointer', fontSize: '14px' }}>
+            <div className="flex gap-[10px]">
+              <button onClick={() => setTarget(null)} className="flex-1 py-3 border border-white/10 rounded-lg bg-white cursor-pointer text-sm">
                 취소
               </button>
               <button
@@ -281,11 +281,6 @@ export default function AttendanceExceptionsPage() {
     </div>
   )
 }
-
-const th: React.CSSProperties = { padding: '10px 12px', textAlign: 'left', fontWeight: 700, fontSize: '12px', whiteSpace: 'nowrap' }
-const td: React.CSSProperties = { padding: '10px 12px', borderBottom: '1px solid #f0f0f0', verticalAlign: 'top' }
-const inputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '7px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px', color: '#A0AEC0' }
 
 function btnStyle(bg: string, disabled: boolean): React.CSSProperties {
   return { padding: '8px 16px', background: disabled ? '#bdbdbd' : bg, color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', cursor: disabled ? 'not-allowed' : 'pointer', fontWeight: 700 }

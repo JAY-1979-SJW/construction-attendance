@@ -259,43 +259,43 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
     setShowInsuranceForm(false); load(); setFormSaving(false)
   }
 
-  if (loading) return <div style={s.page}><p style={{ padding: '40px' }}>로딩 중...</p></div>
-  if (error) return <div style={s.page}><p style={{ padding: '40px', color: 'red' }}>{error}</p></div>
+  if (loading) return <div className="font-sans"><p className="p-10">로딩 중...</p></div>
+  if (error) return <div className="font-sans"><p className="p-10 text-red-600">{error}</p></div>
   if (!worker) return null
 
   return (
-    <div style={s.layout}>
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
+    <div className="flex min-h-screen bg-brand font-sans">
+      <nav className="w-[200px] bg-[#1a1a2e] py-5 flex-shrink-0">
+        <div className="text-white text-sm font-bold px-5 pb-5 border-b border-white/10 mb-3">해한 출퇴근</div>
         {[
           ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'],
           ['/admin/sites', '현장 관리'], ['/admin/attendance', '출퇴근 조회'],
           ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
           ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'],
         ].map(([href, label]) => (
-          <Link key={href} href={href} style={s.navItem}>{label}</Link>
+          <Link key={href} href={href} className="block text-white/75 px-5 py-2.5 no-underline text-[13px]">{label}</Link>
         ))}
       </nav>
 
-      <main style={s.main}>
+      <main className="flex-1 p-7 max-w-[1100px]">
         {/* 헤더 */}
-        <div style={s.header}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button onClick={() => router.push('/admin/workers')} style={s.backBtn}>← 목록</button>
-            <h1 style={s.pageTitle}>
+        <div className="mb-5">
+          <div className="flex items-center gap-3">
+            <button onClick={() => router.push('/admin/workers')} className="px-3 py-1.5 bg-white border border-secondary-brand/30 rounded-md cursor-pointer text-[13px]">← 목록</button>
+            <h1 className="m-0 text-xl font-bold inline-flex items-baseline gap-1.5">
               {worker.name}
-              <span style={{ marginLeft: '8px', fontSize: '14px', fontWeight: 400, color: worker.isActive ? '#2e7d32' : '#999' }}>
+              <span className={`ml-2 text-sm font-normal ${worker.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>
                 {worker.isActive ? '활성' : '비활성'}
               </span>
             </h1>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-            <div style={{ fontSize: '13px', color: '#A0AEC0' }}>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="text-[13px] text-muted-brand">
               {fmtPhone(worker.phone)} · {worker.jobTitle} · 기기 {worker._count.devices}대 · 출퇴근 {worker._count.attendanceLogs}건
             </div>
             <Link
               href={`/admin/workers/${worker.id}/dispute-panel`}
-              style={{ fontSize: '13px', fontWeight: 700, color: '#c62828', background: '#fff3e0', border: '1px solid #ffcc80', borderRadius: '8px', padding: '5px 14px', textDecoration: 'none' }}
+              className="text-[13px] font-bold text-[#c62828] bg-[#fff3e0] border border-[#ffcc80] rounded-lg px-3.5 py-1.5 no-underline flex-shrink-0"
             >
               분쟁방어 패널 →
             </Link>
@@ -303,25 +303,25 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* 탭 */}
-        <div style={s.tabBar}>
+        <div className="flex gap-1 mb-4 border-b border-[#e0e0e0] pb-0">
           {([['info', '기본정보'], ['profile', '분류정보'], ['company', '회사배정'], ['site', '현장배정'], ['insurance', '보험상태'], ['contracts', '계약서'], ['safety', '안전문서'], ['docs', '문서'], ['hrActions', '경고·소명']] as [Tab, string][]).map(([key, label]) => (
-            <button key={key} onClick={() => setTab(key)} style={{ ...s.tabBtn, ...(tab === key ? s.tabActive : {}) }}>
+            <button key={key} onClick={() => setTab(key)} className={`px-[18px] py-2 bg-transparent border-none border-b-2 cursor-pointer text-[13px] font-medium flex items-center gap-1.5 -mb-px ${tab === key ? 'border-[#1976d2] text-secondary-brand font-bold' : 'border-transparent text-muted-brand'}`}>
               {label}
               {key === 'company' && worker.companyAssignments.length > 0 && (
-                <span style={s.tabBadge}>{worker.companyAssignments.length}</span>
+                <span className="bg-accent text-white rounded-[10px] px-1.5 py-px text-[11px] font-bold">{worker.companyAssignments.length}</span>
               )}
               {key === 'site' && worker.siteAssignments.length > 0 && (
-                <span style={s.tabBadge}>{worker.siteAssignments.length}</span>
+                <span className="bg-accent text-white rounded-[10px] px-1.5 py-px text-[11px] font-bold">{worker.siteAssignments.length}</span>
               )}
               {key === 'insurance' && worker.insuranceStatuses.length > 0 && (
-                <span style={s.tabBadge}>{worker.insuranceStatuses.length}</span>
+                <span className="bg-accent text-white rounded-[10px] px-1.5 py-px text-[11px] font-bold">{worker.insuranceStatuses.length}</span>
               )}
             </button>
           ))}
         </div>
 
         {/* 탭 컨텐츠 */}
-        <div style={s.card}>
+        <div className="bg-white rounded-lg p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {tab === 'info' && <InfoTab worker={worker} />}
           {tab === 'profile' && <ProfileTab workerId={worker.id} />}
           {tab === 'company' && (
@@ -350,21 +350,21 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
 
         {/* 종료 처리 */}
         {worker.isActive && (
-          <div style={{ background: '#fff3e0', border: '1px solid #ffcc80', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px' }}>
+          <div className="bg-[#fff3e0] border border-[#ffcc80] rounded-xl px-5 py-4 flex items-center justify-between mt-4">
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: '#e65100' }}>종료 처리</div>
-              <div style={{ fontSize: '12px', color: '#718096', marginTop: '2px' }}>체크리스트 완료 후 종료 확정이 가능합니다. 단순 상태 변경은 허용되지 않습니다.</div>
+              <div className="text-sm font-bold text-[#e65100]">종료 처리</div>
+              <div className="text-xs text-[#718096] mt-0.5">체크리스트 완료 후 종료 확정이 가능합니다. 단순 상태 변경은 허용되지 않습니다.</div>
             </div>
             <Link
               href={`/admin/workers/${worker.id}/termination`}
-              style={{ padding: '10px 20px', background: '#e65100', color: '#fff', borderRadius: '8px', fontSize: '13px', fontWeight: 700, textDecoration: 'none', flexShrink: 0 }}
+              className="px-5 py-2.5 bg-[#e65100] text-white rounded-lg text-[13px] font-bold no-underline flex-shrink-0"
             >
               종료 처리 시작 →
             </Link>
           </div>
         )}
         {!worker.isActive && (
-          <div style={{ background: '#1B2838', border: '1px solid #bdbdbd', borderRadius: '12px', padding: '14px 20px', marginTop: '16px', fontSize: '13px', color: '#718096', textAlign: 'center' }}>
+          <div className="bg-brand border border-[#bdbdbd] rounded-xl px-5 py-3.5 mt-4 text-[13px] text-[#718096] text-center">
             이 근로자는 이미 종료(비활성화) 처리되었습니다.
           </div>
         )}
@@ -374,20 +374,20 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
       {showCompanyForm && (
         <Modal title="회사 배정 등록" onClose={() => setShowCompanyForm(false)}>
           <Field label="회사 *">
-            <select value={companyForm.companyId} onChange={e => setCompanyForm(f => ({ ...f, companyId: e.target.value }))} style={s.input}>
+            <select value={companyForm.companyId} onChange={e => setCompanyForm(f => ({ ...f, companyId: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]">
               <option value="">선택하세요</option>
               {companies.map(c => <option key={c.id} value={c.id}>{c.companyName}</option>)}
             </select>
           </Field>
           <Field label="고용형태">
-            <select value={companyForm.employmentType} onChange={e => setCompanyForm(f => ({ ...f, employmentType: e.target.value }))} style={s.input}>
+            <select value={companyForm.employmentType} onChange={e => setCompanyForm(f => ({ ...f, employmentType: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]">
               <option value="DAILY">일용직</option>
               <option value="REGULAR">상용직</option>
               <option value="OUTSOURCE">외주</option>
             </select>
           </Field>
           <Field label="계약 단계">
-            <select value={companyForm.contractorTier} onChange={e => setCompanyForm(f => ({ ...f, contractorTier: e.target.value }))} style={s.input}>
+            <select value={companyForm.contractorTier} onChange={e => setCompanyForm(f => ({ ...f, contractorTier: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]">
               <option value="PRIME">원청</option>
               <option value="SUB1">1차 협력</option>
               <option value="SUB2">2차 협력</option>
@@ -395,27 +395,27 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
             </select>
           </Field>
           <Field label="역할/직책">
-            <input value={companyForm.roleTitle} onChange={e => setCompanyForm(f => ({ ...f, roleTitle: e.target.value }))} style={s.input} placeholder="현장 소장" />
+            <input value={companyForm.roleTitle} onChange={e => setCompanyForm(f => ({ ...f, roleTitle: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" placeholder="현장 소장" />
           </Field>
           <Field label="시작일 *">
-            <input type="date" value={companyForm.validFrom} onChange={e => setCompanyForm(f => ({ ...f, validFrom: e.target.value }))} style={s.input} />
+            <input type="date" value={companyForm.validFrom} onChange={e => setCompanyForm(f => ({ ...f, validFrom: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" />
           </Field>
           <Field label="종료일">
-            <input type="date" value={companyForm.validTo} onChange={e => setCompanyForm(f => ({ ...f, validTo: e.target.value }))} style={s.input} />
+            <input type="date" value={companyForm.validTo} onChange={e => setCompanyForm(f => ({ ...f, validTo: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" />
           </Field>
           <Field label="">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={companyForm.isPrimary} onChange={e => setCompanyForm(f => ({ ...f, isPrimary: e.target.checked }))} />
               주 소속 (Primary)
             </label>
           </Field>
           <Field label="메모">
-            <input value={companyForm.notes} onChange={e => setCompanyForm(f => ({ ...f, notes: e.target.value }))} style={s.input} />
+            <input value={companyForm.notes} onChange={e => setCompanyForm(f => ({ ...f, notes: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" />
           </Field>
-          {formError && <p style={s.err}>{formError}</p>}
-          <div style={s.modalBtns}>
-            <button onClick={() => setShowCompanyForm(false)} style={s.cancelBtn}>취소</button>
-            <button onClick={saveCompanyAssignment} disabled={formSaving || !companyForm.companyId || !companyForm.validFrom} style={s.saveBtn}>
+          {formError && <p className="text-[#c62828] text-[13px] mb-3">{formError}</p>}
+          <div className="flex justify-end gap-2 mt-5">
+            <button onClick={() => setShowCompanyForm(false)} className="px-[18px] py-2 bg-brand border border-secondary-brand/30 rounded-md cursor-pointer text-[13px]">취소</button>
+            <button onClick={saveCompanyAssignment} disabled={formSaving || !companyForm.companyId || !companyForm.validFrom} className="px-[18px] py-2 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold">
               {formSaving ? '저장 중...' : '저장'}
             </button>
           </div>
@@ -426,39 +426,39 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
       {showSiteForm && (
         <Modal title="현장 배정 등록" onClose={() => setShowSiteForm(false)}>
           <Field label="현장 *">
-            <select value={siteForm.siteId} onChange={e => setSiteForm(f => ({ ...f, siteId: e.target.value }))} style={s.input}>
+            <select value={siteForm.siteId} onChange={e => setSiteForm(f => ({ ...f, siteId: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]">
               <option value="">선택하세요</option>
               {sites.map(st => <option key={st.id} value={st.id}>{st.name}</option>)}
             </select>
           </Field>
           <Field label="소속회사 *">
-            <select value={siteForm.companyId} onChange={e => setSiteForm(f => ({ ...f, companyId: e.target.value }))} style={s.input}>
+            <select value={siteForm.companyId} onChange={e => setSiteForm(f => ({ ...f, companyId: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]">
               <option value="">선택하세요</option>
               {companies.map(c => <option key={c.id} value={c.id}>{c.companyName}</option>)}
             </select>
           </Field>
           <Field label="직종/공종">
-            <input value={siteForm.tradeType} onChange={e => setSiteForm(f => ({ ...f, tradeType: e.target.value }))} style={s.input} placeholder="형틀목공" />
+            <input value={siteForm.tradeType} onChange={e => setSiteForm(f => ({ ...f, tradeType: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" placeholder="형틀목공" />
           </Field>
           <Field label="배정일 *">
-            <input type="date" value={siteForm.assignedFrom} onChange={e => setSiteForm(f => ({ ...f, assignedFrom: e.target.value }))} style={s.input} />
+            <input type="date" value={siteForm.assignedFrom} onChange={e => setSiteForm(f => ({ ...f, assignedFrom: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" />
           </Field>
           <Field label="종료일">
-            <input type="date" value={siteForm.assignedTo} onChange={e => setSiteForm(f => ({ ...f, assignedTo: e.target.value }))} style={s.input} />
+            <input type="date" value={siteForm.assignedTo} onChange={e => setSiteForm(f => ({ ...f, assignedTo: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" />
           </Field>
           <Field label="">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={siteForm.isPrimary} onChange={e => setSiteForm(f => ({ ...f, isPrimary: e.target.checked }))} />
               주 현장 (Primary)
             </label>
           </Field>
           <Field label="메모">
-            <input value={siteForm.notes} onChange={e => setSiteForm(f => ({ ...f, notes: e.target.value }))} style={s.input} />
+            <input value={siteForm.notes} onChange={e => setSiteForm(f => ({ ...f, notes: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" />
           </Field>
-          {formError && <p style={s.err}>{formError}</p>}
-          <div style={s.modalBtns}>
-            <button onClick={() => setShowSiteForm(false)} style={s.cancelBtn}>취소</button>
-            <button onClick={saveSiteAssignment} disabled={formSaving || !siteForm.siteId || !siteForm.companyId || !siteForm.assignedFrom} style={s.saveBtn}>
+          {formError && <p className="text-[#c62828] text-[13px] mb-3">{formError}</p>}
+          <div className="flex justify-end gap-2 mt-5">
+            <button onClick={() => setShowSiteForm(false)} className="px-[18px] py-2 bg-brand border border-secondary-brand/30 rounded-md cursor-pointer text-[13px]">취소</button>
+            <button onClick={saveSiteAssignment} disabled={formSaving || !siteForm.siteId || !siteForm.companyId || !siteForm.assignedFrom} className="px-[18px] py-2 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold">
               {formSaving ? '저장 중...' : '저장'}
             </button>
           </div>
@@ -469,7 +469,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
       {showInsuranceForm && (
         <Modal title="보험 상태 등록/수정" onClose={() => setShowInsuranceForm(false)}>
           <Field label="회사 *">
-            <select value={insuranceForm.companyId} onChange={e => setInsuranceForm(f => ({ ...f, companyId: e.target.value }))} style={s.input}>
+            <select value={insuranceForm.companyId} onChange={e => setInsuranceForm(f => ({ ...f, companyId: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]">
               <option value="">선택하세요</option>
               {companies.map(c => <option key={c.id} value={c.id}>{c.companyName}</option>)}
             </select>
@@ -481,7 +481,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
             ['industrialAccidentStatus', '산재보험'],
           ] as [keyof typeof insuranceForm, string][]).map(([key, label]) => (
             <Field key={key} label={label}>
-              <select value={insuranceForm[key] as string} onChange={e => setInsuranceForm(f => ({ ...f, [key]: e.target.value }))} style={s.input}>
+              <select value={insuranceForm[key] as string} onChange={e => setInsuranceForm(f => ({ ...f, [key]: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]">
                 <option value="UNKNOWN">미확인</option>
                 <option value="ENROLLED">가입</option>
                 <option value="LOSS">상실</option>
@@ -490,13 +490,13 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
             </Field>
           ))}
           <Field label="취득일">
-            <input type="date" value={insuranceForm.acquisitionDate} onChange={e => setInsuranceForm(f => ({ ...f, acquisitionDate: e.target.value }))} style={s.input} />
+            <input type="date" value={insuranceForm.acquisitionDate} onChange={e => setInsuranceForm(f => ({ ...f, acquisitionDate: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" />
           </Field>
           <Field label="상실일">
-            <input type="date" value={insuranceForm.lossDate} onChange={e => setInsuranceForm(f => ({ ...f, lossDate: e.target.value }))} style={s.input} />
+            <input type="date" value={insuranceForm.lossDate} onChange={e => setInsuranceForm(f => ({ ...f, lossDate: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" />
           </Field>
           <Field label="신고 상태">
-            <select value={insuranceForm.reportingStatus} onChange={e => setInsuranceForm(f => ({ ...f, reportingStatus: e.target.value }))} style={s.input}>
+            <select value={insuranceForm.reportingStatus} onChange={e => setInsuranceForm(f => ({ ...f, reportingStatus: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]">
               <option value="NOT_CHECKED">미확인</option>
               <option value="REPORTED">신고완료</option>
               <option value="PENDING">신고대기</option>
@@ -504,15 +504,15 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
             </select>
           </Field>
           <Field label="확인일">
-            <input type="date" value={insuranceForm.verificationDate} onChange={e => setInsuranceForm(f => ({ ...f, verificationDate: e.target.value }))} style={s.input} />
+            <input type="date" value={insuranceForm.verificationDate} onChange={e => setInsuranceForm(f => ({ ...f, verificationDate: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" />
           </Field>
           <Field label="메모">
-            <input value={insuranceForm.notes} onChange={e => setInsuranceForm(f => ({ ...f, notes: e.target.value }))} style={s.input} />
+            <input value={insuranceForm.notes} onChange={e => setInsuranceForm(f => ({ ...f, notes: e.target.value }))} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]" />
           </Field>
-          {formError && <p style={s.err}>{formError}</p>}
-          <div style={s.modalBtns}>
-            <button onClick={() => setShowInsuranceForm(false)} style={s.cancelBtn}>취소</button>
-            <button onClick={saveInsuranceStatus} disabled={formSaving || !insuranceForm.companyId} style={s.saveBtn}>
+          {formError && <p className="text-[#c62828] text-[13px] mb-3">{formError}</p>}
+          <div className="flex justify-end gap-2 mt-5">
+            <button onClick={() => setShowInsuranceForm(false)} className="px-[18px] py-2 bg-brand border border-secondary-brand/30 rounded-md cursor-pointer text-[13px]">취소</button>
+            <button onClick={saveInsuranceStatus} disabled={formSaving || !insuranceForm.companyId} className="px-[18px] py-2 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold">
               {formSaving ? '저장 중...' : '저장'}
             </button>
           </div>
@@ -548,13 +548,13 @@ function InfoTab({ worker }: { worker: WorkerDetail }) {
 
   return (
     <div>
-      <h3 style={s.tabTitle}>기본 정보</h3>
-      <table style={s.infoTable}>
+      <h3 className="mt-0 mb-4 text-sm font-bold text-[#CBD5E0]">기본 정보</h3>
+      <table className="w-full border-collapse">
         <tbody>
           {rows.map(([label, value]) => (
             <tr key={label}>
-              <td style={s.infoLabel}>{label}</td>
-              <td style={s.infoValue}>{value}</td>
+              <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px] align-top">{label}</td>
+              <td className="py-2 text-[13px] text-[#CBD5E0]">{value}</td>
             </tr>
           ))}
         </tbody>
@@ -568,31 +568,31 @@ function InfoTab({ worker }: { worker: WorkerDetail }) {
 function CompanyTab({ assignments, onAdd }: { assignments: CompanyAssignment[]; onAdd: () => void }) {
   return (
     <div>
-      <div style={s.tabHeader}>
-        <h3 style={s.tabTitle}>회사 배정 이력</h3>
-        <button onClick={onAdd} style={s.addBtn}>+ 회사 배정</button>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="mt-0 mb-0 text-sm font-bold text-[#CBD5E0]">회사 배정 이력</h3>
+        <button onClick={onAdd} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold">+ 회사 배정</button>
       </div>
       {assignments.length === 0 ? (
-        <p style={s.empty}>배정된 회사가 없습니다.</p>
+        <p className="text-[#718096] py-6 text-center text-[13px]">배정된 회사가 없습니다.</p>
       ) : (
-        <table style={s.table}>
+        <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr>
               {['회사명', '유형', '고용형태', '시작일', '종료일', '주소속', '메모'].map(h => (
-                <th key={h} style={s.th}>{h}</th>
+                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-[#e0e0e0] text-muted-brand">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {assignments.map(a => (
               <tr key={a.id}>
-                <td style={s.td}>{a.company.companyName}</td>
-                <td style={s.td}><span style={s.badge}>{a.company.companyType ?? '—'}</span></td>
-                <td style={s.td}>{a.employmentType}</td>
-                <td style={s.td}>{fmtDate(a.validFrom)}</td>
-                <td style={s.td}>{fmtDate(a.validTo)}</td>
-                <td style={s.td}>{a.isPrimary ? <span style={s.badgePrimary}>주소속</span> : '—'}</td>
-                <td style={s.td}>{a.notes ?? '—'}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.company.companyName}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]"><span className="bg-accent/12 text-accent px-2 py-0.5 rounded text-[11px]">{a.company.companyType ?? '—'}</span></td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.employmentType}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{fmtDate(a.validFrom)}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{fmtDate(a.validTo)}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.isPrimary ? <span className="bg-[#e8f5e9] text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주소속</span> : '—'}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.notes ?? '—'}</td>
               </tr>
             ))}
           </tbody>
@@ -607,35 +607,35 @@ function CompanyTab({ assignments, onAdd }: { assignments: CompanyAssignment[]; 
 function SiteTab({ assignments, onAdd }: { assignments: SiteAssignment[]; onAdd: () => void }) {
   return (
     <div>
-      <div style={s.tabHeader}>
-        <h3 style={s.tabTitle}>현장 배정 이력</h3>
-        <button onClick={onAdd} style={s.addBtn}>+ 현장 배정</button>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="mt-0 mb-0 text-sm font-bold text-[#CBD5E0]">현장 배정 이력</h3>
+        <button onClick={onAdd} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold">+ 현장 배정</button>
       </div>
       {assignments.length === 0 ? (
-        <p style={s.empty}>배정된 현장이 없습니다.</p>
+        <p className="text-[#718096] py-6 text-center text-[13px]">배정된 현장이 없습니다.</p>
       ) : (
-        <table style={s.table}>
+        <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr>
               {['현장명', '소속회사', '직종/공종', '배정일', '종료일', '상태', '주현장'].map(h => (
-                <th key={h} style={s.th}>{h}</th>
+                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-[#e0e0e0] text-muted-brand">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {assignments.map(a => (
               <tr key={a.id} style={{ opacity: a.isActive ? 1 : 0.6 }}>
-                <td style={s.td}>{a.site.name}</td>
-                <td style={s.td}>{a.company.companyName}</td>
-                <td style={s.td}>{a.tradeType ?? '—'}</td>
-                <td style={s.td}>{fmtDate(a.assignedFrom)}</td>
-                <td style={s.td}>{fmtDate(a.assignedTo)}</td>
-                <td style={s.td}>
-                  <span style={{ color: a.isActive ? '#2e7d32' : '#999', fontSize: '12px', fontWeight: 600 }}>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.site.name}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.company.companyName}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.tradeType ?? '—'}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{fmtDate(a.assignedFrom)}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{fmtDate(a.assignedTo)}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
+                  <span className={`text-xs font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>
                     {a.isActive ? '활성' : '비활성'}
                   </span>
                 </td>
-                <td style={s.td}>{a.isPrimary ? <span style={s.badgePrimary}>주현장</span> : '—'}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.isPrimary ? <span className="bg-[#e8f5e9] text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주현장</span> : '—'}</td>
               </tr>
             ))}
           </tbody>
@@ -657,32 +657,29 @@ function InsuranceTab({ statuses, onAdd }: { statuses: InsuranceStatus[]; onAdd:
 
   return (
     <div>
-      <div style={s.tabHeader}>
-        <h3 style={s.tabTitle}>4대보험 상태</h3>
-        <button onClick={onAdd} style={s.addBtn}>+ 보험 등록/수정</button>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="mt-0 mb-0 text-sm font-bold text-[#CBD5E0]">4대보험 상태</h3>
+        <button onClick={onAdd} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold">+ 보험 등록/수정</button>
       </div>
       {statuses.length === 0 ? (
-        <p style={s.empty}>등록된 보험 정보가 없습니다.</p>
+        <p className="text-[#718096] py-6 text-center text-[13px]">등록된 보험 정보가 없습니다.</p>
       ) : statuses.map(st => (
-        <div key={st.id} style={s.insCard}>
-          <div style={s.insHeader}>
+        <div key={st.id} className="border border-white/12 rounded-lg p-4 mb-3">
+          <div className="flex justify-between items-center mb-3">
             <strong>{st.company.companyName}</strong>
-            <span style={{ fontSize: '12px', color: '#A0AEC0' }}>최종 수정: {fmtDate(st.updatedAt)}</span>
+            <span className="text-xs text-muted-brand">최종 수정: {fmtDate(st.updatedAt)}</span>
           </div>
-          <div style={s.ins4Grid}>
+          <div className="grid grid-cols-4 gap-2 mb-2.5">
             {ins4(st).map(([label, val]) => (
-              <div key={label} style={s.ins4Cell}>
-                <div style={s.ins4Label}>{label}</div>
-                <div style={{
-                  ...s.ins4Value,
-                  color: val === 'ENROLLED' ? '#2e7d32' : val === 'LOSS' ? '#c62828' : val === 'EXEMPT' ? '#f57c00' : '#999',
-                }}>
+              <div key={label} className="bg-[#f9f9f9] rounded-md p-2.5 text-center">
+                <div className="text-[11px] text-muted-brand mb-1">{label}</div>
+                <div className={`text-[13px] font-bold ${val === 'ENROLLED' ? 'text-[#2e7d32]' : val === 'LOSS' ? 'text-[#c62828]' : val === 'EXEMPT' ? 'text-[#f57c00]' : 'text-[#999]'}`}>
                   {INSURANCE_STATUS_LABELS[val] ?? val}
                 </div>
               </div>
             ))}
           </div>
-          <div style={s.insMeta}>
+          <div className="flex gap-4 text-xs text-muted-brand flex-wrap">
             <span>취득일: {fmtDate(st.acquisitionDate)}</span>
             <span>상실일: {fmtDate(st.lossDate)}</span>
             <span>신고: {st.reportingStatus}</span>
@@ -698,11 +695,11 @@ function InsuranceTab({ statuses, onAdd }: { statuses: InsuranceStatus[]; onAdd:
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
-    <div style={s.overlay}>
-      <div style={s.modal}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ margin: 0, fontSize: '16px' }}>{title}</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#A0AEC0' }}>✕</button>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]">
+      <div className="bg-white rounded-xl p-7 w-[480px] max-h-[80vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-5">
+          <h3 className="m-0 text-base">{title}</h3>
+          <button onClick={onClose} className="bg-transparent border-none text-lg cursor-pointer text-muted-brand">✕</button>
         </div>
         {children}
       </div>
@@ -712,59 +709,13 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={s.fieldRow}>
-      {label && <label style={s.fieldLabel}>{label}</label>}
+    <div className="flex items-center mb-3.5 gap-3">
+      {label && <label className="w-[90px] flex-shrink-0 text-[13px] font-semibold text-muted-brand">{label}</label>}
       {children}
     </div>
   )
 }
 
-// ─── 스타일 ──────────────────────────────────────────────────────────────────
-
-const s: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838', fontFamily: 'system-ui, sans-serif' },
-  sidebar: { width: '200px', background: '#1a1a2e', padding: '20px 0', flexShrink: 0 },
-  sidebarTitle: { color: '#fff', fontSize: '14px', fontWeight: 700, padding: '0 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '12px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.75)', padding: '10px 20px', textDecoration: 'none', fontSize: '13px' },
-  main: { flex: 1, padding: '28px', maxWidth: '1100px' },
-  page: { fontFamily: 'system-ui, sans-serif' },
-  header: { marginBottom: '20px' },
-  pageTitle: { margin: 0, fontSize: '20px', fontWeight: 700, display: 'inline-flex', alignItems: 'baseline', gap: '6px' },
-  backBtn: { padding: '6px 12px', background: '#fff', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
-  tabBar: { display: 'flex', gap: '4px', marginBottom: '16px', borderBottom: '1px solid #e0e0e0', paddingBottom: '0' },
-  tabBtn: { padding: '8px 18px', background: 'none', border: 'none', borderBottom: '2px solid transparent', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#A0AEC0', display: 'flex', alignItems: 'center', gap: '6px' },
-  tabActive: { borderBottom: '2px solid #1976d2', color: '#5BA4D9', fontWeight: 700 },
-  tabBadge: { background: '#F47920', color: '#fff', borderRadius: '10px', padding: '1px 6px', fontSize: '11px', fontWeight: 700 },
-  card: { background: '#fff', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' },
-  tabTitle: { margin: '0 0 16px', fontSize: '14px', fontWeight: 700, color: '#CBD5E0' },
-  tabHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' },
-  addBtn: { padding: '7px 14px', background: '#F47920', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  infoTable: { width: '100%', borderCollapse: 'collapse' },
-  infoLabel: { padding: '8px 16px 8px 0', fontWeight: 600, fontSize: '13px', color: '#A0AEC0', width: '140px', verticalAlign: 'top' },
-  infoValue: { padding: '8px 0', fontSize: '13px', color: '#CBD5E0' },
-  table: { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
-  th: { padding: '10px 12px', background: '#f8f8f8', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #e0e0e0', color: '#A0AEC0' },
-  td: { padding: '10px 12px', borderBottom: '1px solid #f0f0f0', color: '#CBD5E0' },
-  empty: { color: '#718096', padding: '24px 0', textAlign: 'center', fontSize: '13px' },
-  badge: { background: 'rgba(244,121,32,0.12)', color: '#F47920', padding: '2px 8px', borderRadius: '4px', fontSize: '11px' },
-  badgePrimary: { background: '#e8f5e9', color: '#2e7d32', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600 },
-  insCard: { border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '16px', marginBottom: '12px' },
-  insHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' },
-  ins4Grid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '10px' },
-  ins4Cell: { background: '#f9f9f9', borderRadius: '6px', padding: '10px', textAlign: 'center' },
-  ins4Label: { fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' },
-  ins4Value: { fontSize: '13px', fontWeight: 700 },
-  insMeta: { display: 'flex', gap: '16px', fontSize: '12px', color: '#A0AEC0', flexWrap: 'wrap' },
-  overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modal: { background: '#fff', borderRadius: '12px', padding: '28px', width: '480px', maxHeight: '80vh', overflowY: 'auto' },
-  fieldRow: { display: 'flex', alignItems: 'center', marginBottom: '14px', gap: '12px' },
-  fieldLabel: { width: '90px', flexShrink: 0, fontSize: '13px', fontWeight: 600, color: '#A0AEC0' },
-  input: { flex: 1, padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px' },
-  err: { color: '#c62828', fontSize: '13px', marginBottom: '12px' },
-  modalBtns: { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' },
-  cancelBtn: { padding: '8px 18px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
-  saveBtn: { padding: '8px 18px', background: '#F47920', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-}
 
 // ─── 문서 탭 ─────────────────────────────────────────────────────────────────
 
@@ -872,117 +823,116 @@ function DocsTab({ workerId }: { workerId: string }) {
   return (
     <div>
       {/* 업로드 폼 */}
-      <div style={{ background: '#1B2838', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
-        <div style={{ fontWeight: 700, fontSize: '13px', marginBottom: '12px', color: '#CBD5E0' }}>문서 업로드</div>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, alignItems: 'flex-end' }}>
+      <div className="bg-brand rounded-lg p-4 mb-5">
+        <div className="font-bold text-[13px] mb-3 text-[#CBD5E0]">문서 업로드</div>
+        <div className="flex gap-2.5 flex-wrap items-end">
           <div>
-            <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>문서 유형</div>
-            <select value={docType} onChange={(e) => setDocType(e.target.value)} style={s.input}>
+            <div className="text-[11px] text-muted-brand mb-1">문서 유형</div>
+            <select value={docType} onChange={(e) => setDocType(e.target.value)} className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px]">
               {Object.entries(DOC_TYPE_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
           </div>
           <div>
-            <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>파일</div>
+            <div className="text-[11px] text-muted-brand mb-1">파일</div>
             <input ref={fileInputRef} type="file"
               accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
-              style={{ fontSize: '13px' }}
+              className="text-[13px]"
             />
           </div>
           <div>
-            <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>만료일 (선택)</div>
-            <input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} style={{ ...s.input, width: '140px' }} />
+            <div className="text-[11px] text-muted-brand mb-1">만료일 (선택)</div>
+            <input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} className="px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px] w-[140px]" />
           </div>
           <div>
-            <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>비고 (선택)</div>
-            <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="비고" style={{ ...s.input, width: '160px' }} />
+            <div className="text-[11px] text-muted-brand mb-1">비고 (선택)</div>
+            <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="비고" className="px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px] w-[160px]" />
           </div>
-          <button onClick={handleUpload} disabled={uploading} style={{ ...s.addBtn, opacity: uploading ? 0.6 : 1 }}>
+          <button onClick={handleUpload} disabled={uploading} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold" style={{ opacity: uploading ? 0.6 : 1 }}>
             {uploading ? '업로드 중...' : '업로드'}
           </button>
         </div>
         {uploadMsg && (
-          <div style={{ marginTop: '8px', fontSize: '13px', fontWeight: 600,
-            color: uploadMsg.includes('완료') ? '#2e7d32' : '#b71c1c' }}>
+          <div className={`mt-2 text-[13px] font-semibold ${uploadMsg.includes('완료') ? 'text-[#2e7d32]' : 'text-[#b71c1c]'}`}>
             {uploadMsg}
           </div>
         )}
-        <div style={{ marginTop: '8px', fontSize: '11px', color: '#aaa' }}>
+        <div className="mt-2 text-[11px] text-[#aaa]">
           지원 형식: JPG, PNG, PDF, DOC, DOCX, XLS, XLSX · 최대 20MB · 신분증은 SUPER_ADMIN/ADMIN만 열람 가능
         </div>
       </div>
 
       {/* 필터 */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' as const }}>
-        <button onClick={() => setFilterType('')} style={{ ...filterBtn, background: filterType === '' ? '#1976d2' : '#f0f0f0', color: filterType === '' ? 'white' : '#666' }}>전체</button>
+      <div className="flex gap-2 mb-3.5 flex-wrap">
+        <button onClick={() => setFilterType('')} className={`px-3 py-1 rounded-2xl border-none cursor-pointer text-xs font-semibold ${filterType === '' ? 'bg-[#1976d2] text-white' : 'bg-[#f0f0f0] text-[#666]'}`}>전체</button>
         {Object.entries(DOC_TYPE_LABEL).map(([v, l]) => (
-          <button key={v} onClick={() => setFilterType(v)} style={{ ...filterBtn, background: filterType === v ? '#1976d2' : '#f0f0f0', color: filterType === v ? 'white' : '#666' }}>{l}</button>
+          <button key={v} onClick={() => setFilterType(v)} className={`px-3 py-1 rounded-2xl border-none cursor-pointer text-xs font-semibold ${filterType === v ? 'bg-[#1976d2] text-white' : 'bg-[#f0f0f0] text-[#666]'}`}>{l}</button>
         ))}
       </div>
 
       {/* 문서 목록 */}
-      {loading ? <p style={s.empty}>로딩 중...</p> : docs.length === 0 ? (
-        <p style={s.empty}>문서가 없습니다.</p>
+      {loading ? <p className="text-[#718096] py-6 text-center text-[13px]">로딩 중...</p> : docs.length === 0 ? (
+        <p className="text-[#718096] py-6 text-center text-[13px]">문서가 없습니다.</p>
       ) : (
-        <table style={s.table}>
+        <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr>
               {['유형', '파일명', '크기', '업로드일', '만료일', '상태', '검토자/일', '비고', '열람', '다운로드', '상태변경'].map((h) => (
-                <th key={h} style={s.th}>{h}</th>
+                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-[#e0e0e0] text-muted-brand">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {docs.map((doc) => (
               <tr key={doc.id}>
-                <td style={s.td}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, background: 'rgba(244,121,32,0.12)', color: '#F47920', padding: '2px 8px', borderRadius: '8px' }}>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
+                  <span className="text-[11px] font-bold bg-accent/12 text-accent px-2 py-0.5 rounded-lg">
                     {DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
                   </span>
                 </td>
-                <td style={{ ...s.td, maxWidth: '180px', fontSize: '12px', color: '#CBD5E0', wordBreak: 'break-all' as const }}>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] max-w-[180px] text-xs text-[#CBD5E0] break-all">
                   {/* 파일명만 노출 — 민감문서는 내용 미노출 */}
                   {doc.file.originalFilename}
                 </td>
-                <td style={{ ...s.td, fontSize: '11px', color: '#A0AEC0' }}>{fmtBytes(doc.file.sizeBytes)}</td>
-                <td style={{ ...s.td, fontSize: '11px', color: '#A0AEC0', whiteSpace: 'nowrap' as const }}>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[11px] text-muted-brand">{fmtBytes(doc.file.sizeBytes)}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[11px] text-muted-brand whitespace-nowrap">
                   {new Date(doc.file.uploadedAt).toLocaleDateString('ko-KR')}
                 </td>
-                <td style={{ ...s.td, fontSize: '11px', color: doc.expiresAt && new Date(doc.expiresAt) < new Date() ? '#b71c1c' : '#555' }}>
+                <td className={`px-3 py-2.5 border-b border-[#f0f0f0] text-[11px] ${doc.expiresAt && new Date(doc.expiresAt) < new Date() ? 'text-[#b71c1c]' : 'text-[#555]'}`}>
                   {doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString('ko-KR') : '—'}
                 </td>
-                <td style={s.td}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '10px',
-                    color: DOC_STATUS_COLOR[doc.status], background: DOC_STATUS_BG[doc.status] }}>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
+                    style={{ color: DOC_STATUS_COLOR[doc.status], background: DOC_STATUS_BG[doc.status] }}>
                     {DOC_STATUS_LABEL[doc.status] ?? doc.status}
                   </span>
                 </td>
-                <td style={{ ...s.td, fontSize: '11px', color: '#A0AEC0', whiteSpace: 'nowrap' as const }}>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[11px] text-muted-brand whitespace-nowrap">
                   {doc.reviewedBy ? `${doc.reviewedBy.slice(-6)} / ${doc.reviewedAt ? new Date(doc.reviewedAt).toLocaleDateString('ko-KR') : '—'}` : '—'}
                 </td>
-                <td style={{ ...s.td, fontSize: '11px', color: '#A0AEC0', maxWidth: '120px' }}>{doc.notes ?? '—'}</td>
-                <td style={s.td}>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[11px] text-muted-brand max-w-[120px]">{doc.notes ?? '—'}</td>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
                   <a
                     href={`/api/admin/workers/${workerId}/documents/${doc.id}/download?inline=1`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ fontSize: '12px', color: '#5BA4D9', textDecoration: 'underline' }}
+                    className="text-xs text-secondary-brand underline"
                   >
                     열람
                   </a>
                 </td>
-                <td style={s.td}>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
                   <a
                     href={`/api/admin/workers/${workerId}/documents/${doc.id}/download`}
-                    style={{ fontSize: '12px', color: '#A0AEC0', textDecoration: 'underline' }}
+                    className="text-xs text-muted-brand underline"
                   >
                     다운로드
                   </a>
                 </td>
-                <td style={s.td}>
+                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
                   <select
                     value={doc.status}
                     onChange={(e) => changeStatus(doc.id, e.target.value)}
-                    style={{ fontSize: '12px', padding: '4px 6px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px' }}
+                    className="text-xs px-1.5 py-1 border border-secondary-brand/30 rounded"
                   >
                     {Object.entries(DOC_STATUS_LABEL).map(([v, l]) => (
                       <option key={v} value={v}>{l}</option>
@@ -1052,29 +1002,29 @@ function ProfileTab({ workerId }: { workerId: string }) {
   const f = (key: string) => (form[key] as string) || ''
   const fb = (key: string) => !!(form[key])
 
-  if (loading) return <div style={{ padding: '32px', color: '#718096', textAlign: 'center' }}>로딩 중...</div>
+  if (loading) return <div className="py-8 text-[#718096] text-center">로딩 중...</div>
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>근로형태 분류정보</h3>
+      <div className="flex justify-between items-center mb-5">
+        <h3 className="m-0 text-[15px] font-bold">근로형태 분류정보</h3>
         {!editing && (
-          <button onClick={startEdit} style={{ padding: '6px 14px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
+          <button onClick={startEdit} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px]">
             {profile ? '수정' : '분류 등록'}
           </button>
         )}
       </div>
 
-      {msg && <div style={{ padding: '8px 12px', background: '#e8f5e9', borderRadius: '6px', fontSize: '13px', color: '#2e7d32', marginBottom: '12px' }}>{msg}</div>}
+      {msg && <div className="px-3 py-2 bg-[#e8f5e9] rounded-md text-[13px] text-[#2e7d32] mb-3">{msg}</div>}
 
       {!editing && !profile && (
-        <div style={{ padding: '32px', textAlign: 'center', color: '#718096', fontSize: '14px' }}>
+        <div className="py-8 text-center text-[#718096] text-sm">
           분류정보가 없습니다. "분류 등록" 버튼으로 등록하세요.
         </div>
       )}
 
       {!editing && profile && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div className="grid grid-cols-2 gap-4">
           {[
             ['근로자 구분',  WORKER_CLASS_LABEL[profile.workerClass as string]    || (profile.workerClass as string)],
             ['근무형태',    EMPLOYMENT_MODE_LABEL[profile.employmentMode as string] || (profile.employmentMode as string)],
@@ -1084,24 +1034,24 @@ function ProfileTab({ workerId }: { workerId: string }) {
             ['계속근로 검토', profile.continuousWorkReview === 'REVIEW_REQUIRED'
               ? '⚠️ 검토 필요' : '이상 없음'],
           ].map(([label, value]) => (
-            <div key={label as string} style={{ padding: '12px', background: '#f9f9f9', borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>{label}</div>
-              <div style={{ fontSize: '14px', fontWeight: 600, color: profile.continuousWorkReview === 'REVIEW_REQUIRED' && label === '계속근로 검토' ? '#e65100' : '#333' }}>
+            <div key={label as string} className="p-3 bg-[#f9f9f9] rounded-lg">
+              <div className="text-[11px] text-muted-brand mb-1">{label}</div>
+              <div className={`text-sm font-semibold ${profile.continuousWorkReview === 'REVIEW_REQUIRED' && label === '계속근로 검토' ? 'text-[#e65100]' : 'text-[#333]'}`}>
                 {value as string}
               </div>
             </div>
           ))}
           {!!profile.classificationNote && (
-            <div style={{ gridColumn: '1/-1', padding: '12px', background: '#fff3e0', borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>관리자 메모</div>
-              <div style={{ fontSize: '13px' }}>{String(profile.classificationNote)}</div>
+            <div className="col-span-2 p-3 bg-[#fff3e0] rounded-lg">
+              <div className="text-[11px] text-muted-brand mb-1">관리자 메모</div>
+              <div className="text-[13px]">{String(profile.classificationNote)}</div>
             </div>
           )}
         </div>
       )}
 
       {editing && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div className="grid grid-cols-2 gap-4">
           {[
             { label: '근로자 구분', key: 'workerClass', options: [['EMPLOYEE','근로자'],['CONTRACTOR','외주/용역']] },
             { label: '근무형태', key: 'employmentMode', options: [['DAILY','일용직'],['REGULAR','상용직'],['TEMP','단기계약'],['OFFICE_SUPPORT','사무보조']] },
@@ -1110,33 +1060,33 @@ function ProfileTab({ workerId }: { workerId: string }) {
             { label: '계속근로 검토', key: 'continuousWorkReview', options: [['OK','이상 없음'],['REVIEW_REQUIRED','검토 필요']] },
           ].map(({ label, key, options }) => (
             <div key={key}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 }}>{label}</label>
+              <label className="block text-xs text-muted-brand mb-1 font-semibold">{label}</label>
               <select value={f(key)} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }}>
+                className="w-full px-2.5 py-2 border border-secondary-brand/20 rounded-md text-[13px]">
                 {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
             </div>
           ))}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px' }}>
+          <div className="flex items-center gap-2 p-2">
             <input type="checkbox" checked={fb('officeWorkerYn')}
               onChange={e => setForm(p => ({ ...p, officeWorkerYn: e.target.checked }))}
-              style={{ width: '16px', height: '16px' }} />
-            <label style={{ fontSize: '13px', cursor: 'pointer' }}>사무실 근무자</label>
+              className="w-4 h-4" />
+            <label className="text-[13px] cursor-pointer">사무실 근무자</label>
           </div>
-          <div style={{ gridColumn: '1/-1' }}>
-            <label style={{ display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 }}>관리자 메모</label>
+          <div className="col-span-2">
+            <label className="block text-xs text-muted-brand mb-1 font-semibold">관리자 메모</label>
             <input value={f('classificationNote')}
               onChange={e => setForm(p => ({ ...p, classificationNote: e.target.value }))}
               placeholder="판단 근거 등 메모"
-              style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }} />
+              className="w-full px-2.5 py-2 border border-secondary-brand/20 rounded-md text-[13px]" />
           </div>
-          <div style={{ gridColumn: '1/-1', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <div className="col-span-2 flex gap-2 justify-end">
             <button onClick={handleSave} disabled={saving}
-              style={{ padding: '8px 20px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
+              className="px-5 py-2 bg-[#2e7d32] text-white border-none rounded-md cursor-pointer text-[13px]">
               {saving ? '저장 중...' : '저장'}
             </button>
             <button onClick={() => setEditing(false)}
-              style={{ padding: '8px 16px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
+              className="px-4 py-2 bg-brand border border-secondary-brand/20 rounded-md cursor-pointer text-[13px]">
               취소
             </button>
           </div>
@@ -1144,10 +1094,6 @@ function ProfileTab({ workerId }: { workerId: string }) {
       )}
     </div>
   )
-}
-
-const filterBtn: React.CSSProperties = {
-  padding: '4px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 600,
 }
 
 // ─── 계약서 탭 ────────────────────────────────────────────────────────────────
@@ -1185,66 +1131,66 @@ function ContractsTab({ workerId }: { workerId: string }) {
     DAILY: '일용직', REGULAR: '상용직', FIXED_TERM: '기간제', SUBCONTRACT: '외주',
   }
 
-  if (loading) return <p style={{ color: '#718096', padding: '16px' }}>불러오는 중...</p>
+  if (loading) return <p className="text-[#718096] px-4 py-4">불러오는 중...</p>
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>근로계약서</h3>
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="m-0 text-[15px] font-bold">근로계약서</h3>
         <a href={`/admin/contracts/new?workerId=${workerId}`}
-          style={{ padding: '6px 14px', background: '#2563eb', color: '#fff', borderRadius: 6, fontSize: '13px', textDecoration: 'none' }}>
+          className="px-3.5 py-1.5 bg-[#2563eb] text-white rounded-md text-[13px] no-underline">
           + 신규 계약
         </a>
       </div>
       {contracts.length === 0 ? (
-        <p style={{ color: '#aaa', fontSize: '14px', textAlign: 'center', padding: '32px 0' }}>계약 이력이 없습니다.</p>
+        <p className="text-[#aaa] text-[14px] text-center py-8">계약 이력이 없습니다.</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+        <table className="w-full border-collapse text-[13px]">
           <thead>
-            <tr style={{ background: '#1B2838', borderBottom: '1px solid #e5e7eb' }}>
-              <th style={{ padding: '8px 12px', textAlign: 'left' }}>유형</th>
-              <th style={{ padding: '8px 12px', textAlign: 'left' }}>현장</th>
-              <th style={{ padding: '8px 12px', textAlign: 'left' }}>기간</th>
-              <th style={{ padding: '8px 12px', textAlign: 'right' }}>일당/월급</th>
-              <th style={{ padding: '8px 12px', textAlign: 'center' }}>상태</th>
-              <th style={{ padding: '8px 12px', textAlign: 'center' }}>서명</th>
-              <th style={{ padding: '8px 12px', textAlign: 'center' }}>교부</th>
-              <th style={{ padding: '8px 12px', textAlign: 'center' }}></th>
+            <tr className="bg-brand border-b border-[#e5e7eb]">
+              <th className="px-3 py-2 text-left">유형</th>
+              <th className="px-3 py-2 text-left">현장</th>
+              <th className="px-3 py-2 text-left">기간</th>
+              <th className="px-3 py-2 text-right">일당/월급</th>
+              <th className="px-3 py-2 text-center">상태</th>
+              <th className="px-3 py-2 text-center">서명</th>
+              <th className="px-3 py-2 text-center">교부</th>
+              <th className="px-3 py-2 text-center"></th>
             </tr>
           </thead>
           <tbody>
             {contracts.map(c => (
-              <tr key={c.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                <td style={{ padding: '8px 12px' }}>
+              <tr key={c.id} className="border-b border-[#f0f0f0]">
+                <td className="px-3 py-2">
                   {CONTRACT_TYPE_LABEL[c.contractType] || c.contractType}
                   {c.currentVersion && c.currentVersion > 1 && (
-                    <span style={{ marginLeft: 4, fontSize: '11px', color: '#A0AEC0' }}>v{c.currentVersion}</span>
+                    <span className="ml-1 text-[11px] text-muted-brand">v{c.currentVersion}</span>
                   )}
                 </td>
-                <td style={{ padding: '8px 12px', color: '#A0AEC0' }}>{c.site?.name || '—'}</td>
-                <td style={{ padding: '8px 12px', color: '#A0AEC0' }}>
+                <td className="px-3 py-2 text-muted-brand">{c.site?.name || '—'}</td>
+                <td className="px-3 py-2 text-muted-brand">
                   {c.startDate} ~ {c.endDate || '무기한'}
                 </td>
-                <td style={{ padding: '8px 12px', textAlign: 'right' }}>
+                <td className="px-3 py-2 text-right">
                   {c.dailyWage ? c.dailyWage.toLocaleString() + '원' : c.monthlySalary ? c.monthlySalary.toLocaleString() + '원' : '—'}
                 </td>
-                <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                  <span style={{
-                    padding: '2px 8px', borderRadius: 12, fontSize: '11px', fontWeight: 600,
-                    background: c.contractStatus === 'ACTIVE' ? '#dcfce7' : c.contractStatus === 'DRAFT' ? '#fef9c3' : '#f3f4f6',
-                    color: c.contractStatus === 'ACTIVE' ? '#166534' : c.contractStatus === 'DRAFT' ? '#854d0e' : '#6b7280',
-                  }}>
+                <td className="px-3 py-2 text-center">
+                  <span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${
+                    c.contractStatus === 'ACTIVE' ? 'bg-[#dcfce7] text-[#166534]'
+                    : c.contractStatus === 'DRAFT' ? 'bg-[#fef9c3] text-[#854d0e]'
+                    : 'bg-[#f3f4f6] text-[#6b7280]'
+                  }`}>
                     {CONTRACT_STATUS_LABEL[c.contractStatus] || c.contractStatus}
                   </span>
                 </td>
-                <td style={{ padding: '8px 12px', textAlign: 'center', color: c.signedAt ? '#16a34a' : '#d1d5db' }}>
+                <td className={`px-3 py-2 text-center ${c.signedAt ? 'text-[#16a34a]' : 'text-[#d1d5db]'}`}>
                   {c.signedAt ? '✓' : '—'}
                 </td>
-                <td style={{ padding: '8px 12px', textAlign: 'center', color: c.deliveredAt ? '#16a34a' : '#d1d5db' }}>
+                <td className={`px-3 py-2 text-center ${c.deliveredAt ? 'text-[#16a34a]' : 'text-[#d1d5db]'}`}>
                   {c.deliveredAt ? '✓' : '—'}
                 </td>
-                <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                  <a href={`/admin/contracts/${c.id}`} style={{ color: '#2563eb', fontSize: '12px', textDecoration: 'none' }}>상세</a>
+                <td className="px-3 py-2 text-center">
+                  <a href={`/admin/contracts/${c.id}`} className="text-[#2563eb] text-[12px] no-underline">상세</a>
                 </td>
               </tr>
             ))}
@@ -1374,54 +1320,54 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
     if (data.success) setPreviewDoc(data.data)
   }
 
-  if (loading) return <p style={{ color: '#718096', padding: '16px' }}>불러오는 중...</p>
+  if (loading) return <p className="text-[#718096] px-4 py-4">불러오는 중...</p>
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>안전문서</h3>
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="m-0 text-[15px] font-bold">안전문서</h3>
         <button onClick={() => setShowForm(true)}
-          style={{ padding: '6px 14px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: 6, fontSize: '13px', cursor: 'pointer' }}>
+          className="px-3.5 py-1.5 bg-[#16a34a] text-white border-none rounded-md text-[13px] cursor-pointer">
           + 안전문서 생성
         </button>
       </div>
 
       {/* 문서 목록 */}
       {docs.length === 0 ? (
-        <p style={{ color: '#aaa', fontSize: '14px', textAlign: 'center', padding: '32px 0' }}>안전문서 이력이 없습니다.</p>
+        <p className="text-[#aaa] text-[14px] text-center py-8">안전문서 이력이 없습니다.</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+        <table className="w-full border-collapse text-[13px]">
           <thead>
-            <tr style={{ background: '#1B2838', borderBottom: '1px solid #e5e7eb' }}>
-              <th style={{ padding: '8px 12px', textAlign: 'left' }}>문서 종류</th>
-              <th style={{ padding: '8px 12px', textAlign: 'left' }}>현장</th>
-              <th style={{ padding: '8px 12px', textAlign: 'left' }}>문서일</th>
-              <th style={{ padding: '8px 12px', textAlign: 'center' }}>상태</th>
-              <th style={{ padding: '8px 12px', textAlign: 'center' }}>서명일</th>
-              <th style={{ padding: '8px 12px', textAlign: 'center' }}>동작</th>
+            <tr className="bg-brand border-b border-[#e5e7eb]">
+              <th className="px-3 py-2 text-left">문서 종류</th>
+              <th className="px-3 py-2 text-left">현장</th>
+              <th className="px-3 py-2 text-left">문서일</th>
+              <th className="px-3 py-2 text-center">상태</th>
+              <th className="px-3 py-2 text-center">서명일</th>
+              <th className="px-3 py-2 text-center">동작</th>
             </tr>
           </thead>
           <tbody>
             {docs.map(d => (
-              <tr key={d.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                <td style={{ padding: '8px 12px' }}>{SAFETY_DOC_LABELS[d.documentType] || d.documentType}</td>
-                <td style={{ padding: '8px 12px', color: '#A0AEC0' }}>{d.site?.name || '—'}</td>
-                <td style={{ padding: '8px 12px', color: '#A0AEC0' }}>{d.educationDate || d.documentDate || '—'}</td>
-                <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                  <span style={{
-                    padding: '2px 8px', borderRadius: 12, fontSize: '11px', fontWeight: 600,
-                    background: d.status === 'SIGNED' ? '#dcfce7' : d.status === 'ISSUED' ? '#dbeafe' : '#fef9c3',
-                    color: d.status === 'SIGNED' ? '#166534' : d.status === 'ISSUED' ? '#1e40af' : '#854d0e',
-                  }}>
+              <tr key={d.id} className="border-b border-[#f0f0f0]">
+                <td className="px-3 py-2">{SAFETY_DOC_LABELS[d.documentType] || d.documentType}</td>
+                <td className="px-3 py-2 text-muted-brand">{d.site?.name || '—'}</td>
+                <td className="px-3 py-2 text-muted-brand">{d.educationDate || d.documentDate || '—'}</td>
+                <td className="px-3 py-2 text-center">
+                  <span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${
+                    d.status === 'SIGNED' ? 'bg-[#dcfce7] text-[#166534]'
+                    : d.status === 'ISSUED' ? 'bg-[#dbeafe] text-[#1e40af]'
+                    : 'bg-[#fef9c3] text-[#854d0e]'
+                  }`}>
                     {d.status === 'SIGNED' ? '서명완료' : d.status === 'ISSUED' ? '발행' : '초안'}
                   </span>
                 </td>
-                <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: '12px', color: '#A0AEC0' }}>
+                <td className="px-3 py-2 text-center text-[12px] text-muted-brand">
                   {d.signedAt ? new Date(d.signedAt).toLocaleDateString('ko-KR') : '—'}
                 </td>
-                <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                <td className="px-3 py-2 text-center">
                   <button onClick={() => handlePreview(d.id)}
-                    style={{ marginRight: 6, padding: '2px 8px', fontSize: '11px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 4, cursor: 'pointer', background: '#fff' }}>
+                    className="mr-1.5 px-2 py-0.5 text-[11px] border border-secondary-brand/30 rounded cursor-pointer bg-white">
                     미리보기
                   </button>
                   {d.status !== 'SIGNED' && (
@@ -1429,7 +1375,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                       const name = prompt('서명자 이름:')
                       if (name) handleSign(d.id, name)
                     }}
-                      style={{ padding: '2px 8px', fontSize: '11px', border: 'none', borderRadius: 4, cursor: 'pointer', background: '#16a34a', color: '#fff' }}>
+                      className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#16a34a] text-white">
                       서명처리
                     </button>
                   )}
@@ -1442,14 +1388,14 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
 
       {/* 생성 폼 모달 */}
       {showForm && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 28, width: 480, maxHeight: '80vh', overflowY: 'auto' }}>
-            <h3 style={{ margin: '0 0 20px', fontSize: '16px' }}>안전문서 생성</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
+          <div className="bg-white rounded-xl p-7 w-[480px] max-h-[80vh] overflow-y-auto">
+            <h3 className="mt-0 mb-5 text-[16px]">안전문서 생성</h3>
 
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>문서 종류 *</label>
+            <div className="mb-3.5">
+              <label className="block text-[13px] font-semibold mb-1">문서 종류 *</label>
               <select value={form.documentType} onChange={e => setForm(f => ({ ...f, documentType: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }}>
+                className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]">
                 <option value="SAFETY_EDUCATION_NEW_HIRE">신규채용 안전보건교육 확인서</option>
                 <option value="SAFETY_EDUCATION_TASK_CHANGE">작업변경 교육 확인서</option>
                 <option value="PPE_PROVISION">보호구 지급 확인서</option>
@@ -1461,88 +1407,88 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
               </select>
             </div>
 
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육/문서 일자 *</label>
+            <div className="mb-3.5">
+              <label className="block text-[13px] font-semibold mb-1">교육/문서 일자 *</label>
               <input type="date" value={form.educationDate}
                 onChange={e => setForm(f => ({ ...f, educationDate: e.target.value }))}
-                style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
             </div>
 
             {(form.documentType === 'SAFETY_EDUCATION_NEW_HIRE' || form.documentType === 'SAFETY_EDUCATION_TASK_CHANGE') && (
               <>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육 시간 (시간)</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">교육 시간 (시간)</label>
                   <input type="number" value={form.educationHours} min={0.5} step={0.5}
                     onChange={e => setForm(f => ({ ...f, educationHours: Number(e.target.value) }))}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                 </div>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육 장소</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">교육 장소</label>
                   <input type="text" value={form.educationPlace}
                     onChange={e => setForm(f => ({ ...f, educationPlace: e.target.value }))}
                     placeholder="현장 사무소, 현장 내 교육장 등"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                 </div>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육 담당자</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">교육 담당자</label>
                   <input type="text" value={form.educatorName}
                     onChange={e => setForm(f => ({ ...f, educatorName: e.target.value }))}
                     placeholder="현장소장, 안전관리자 등"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                 </div>
               </>
             )}
 
             {form.documentType === 'PPE_PROVISION' && (
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 8 }}>보호구 품목별 지급 현황</label>
-                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: 8 }}>지급한 품목에 체크하고 수량·상태·설명 여부를 입력하세요.</div>
+              <div className="mb-3.5">
+                <label className="block text-[13px] font-semibold mb-2">보호구 품목별 지급 현황</label>
+                <div className="text-[11px] text-[#6b7280] mb-2">지급한 품목에 체크하고 수량·상태·설명 여부를 입력하세요.</div>
                 {ppeItems.map((item, idx) => (
-                  <div key={item.name} style={{ border: '1px solid #e5e7eb', borderRadius: 6, padding: '10px 12px', marginBottom: 8, background: item.issued ? '#f0fdf4' : '#fafafa' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: '13px', cursor: 'pointer', flex: 1 }}>
+                  <div key={item.name} className={`border border-[#e5e7eb] rounded-md px-3 py-2.5 mb-2 ${item.issued ? 'bg-[#f0fdf4]' : 'bg-[#fafafa]'}`}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <label className="flex items-center gap-1.5 font-semibold text-[13px] cursor-pointer flex-1">
                         <input type="checkbox" checked={item.issued}
                           onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, issued: e.target.checked } : it))} />
                         {item.name}
                       </label>
                       {item.issued && (
-                        <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 600 }}>지급</span>
+                        <span className="text-[11px] text-[#16a34a] font-semibold">지급</span>
                       )}
                     </div>
                     {item.issued && (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px' }}>
+                      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
                         <div>
-                          <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: 2 }}>수량</label>
+                          <label className="text-[11px] text-[#6b7280] block mb-0.5">수량</label>
                           <input type="number" min={1} value={item.qty}
                             onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, qty: Number(e.target.value) } : it))}
-                            style={{ width: '100%', padding: '4px 8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 4, fontSize: '13px' }} />
+                            className="w-full px-2 py-1 border border-secondary-brand/30 rounded text-[13px]" />
                         </div>
                         <div>
-                          <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: 2 }}>상태</label>
+                          <label className="text-[11px] text-[#6b7280] block mb-0.5">상태</label>
                           <select value={item.condition}
                             onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, condition: e.target.value } : it))}
-                            style={{ width: '100%', padding: '4px 8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 4, fontSize: '13px' }}>
+                            className="w-full px-2 py-1 border border-secondary-brand/30 rounded text-[13px]">
                             <option value="신품">신품</option>
                             <option value="양호">양호</option>
                             <option value="재사용">재사용</option>
                             <option value="기타">기타</option>
                           </select>
                         </div>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '12px', cursor: 'pointer' }}>
+                        <label className="flex items-center gap-1.5 text-[12px] cursor-pointer">
                           <input type="checkbox" checked={item.explanationGiven}
                             onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, explanationGiven: e.target.checked } : it))} />
                           착용방법 설명 완료
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '12px', cursor: 'pointer' }}>
+                        <label className="flex items-center gap-1.5 text-[12px] cursor-pointer">
                           <input type="checkbox" checked={item.needsReplacement}
                             onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, needsReplacement: e.target.checked } : it))} />
                           교체 필요
                         </label>
-                        <div style={{ gridColumn: 'span 2' }}>
-                          <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: 2 }}>비고</label>
+                        <div className="col-span-2">
+                          <label className="text-[11px] text-[#6b7280] block mb-0.5">비고</label>
                           <input type="text" value={item.note} placeholder="규격, 특이사항 등"
                             onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, note: e.target.value } : it))}
-                            style={{ width: '100%', padding: '4px 8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 4, fontSize: '13px' }} />
+                            className="w-full px-2 py-1 border border-secondary-brand/30 rounded text-[13px]" />
                         </div>
                       </div>
                     )}
@@ -1554,32 +1500,32 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
             {/* 근로조건설명 확인서 */}
             {form.documentType === 'WORK_CONDITIONS_RECEIPT' && (
               <>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>근로일 *</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">근로일 *</label>
                   <input type="date" value={form.workDate}
                     onChange={e => setForm(f => ({ ...f, workDate: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                 </div>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>공종</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">공종</label>
                   <input type="text" value={form.tradeType}
                     onChange={e => setForm(f => ({ ...f, tradeType: e.target.value }))}
                     placeholder="예: 전기, 소방기계"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                 </div>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>직종</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">직종</label>
                   <input type="text" value={form.jobType}
                     onChange={e => setForm(f => ({ ...f, jobType: e.target.value }))}
                     placeholder="예: 전공, 보통인부"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                 </div>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>현장관리자명</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">현장관리자명</label>
                   <input type="text" value={form.managerName}
                     onChange={e => setForm(f => ({ ...f, managerName: e.target.value }))}
                     placeholder="현장소장, 관리자명"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                 </div>
               </>
             )}
@@ -1587,14 +1533,14 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
             {/* 기초안전보건교육 확인서 */}
             {form.documentType === 'BASIC_SAFETY_EDU_CONFIRM' && (
               <>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>근로일 *</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">근로일 *</label>
                   <input type="date" value={form.workDate}
                     onChange={e => setForm(f => ({ ...f, workDate: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                 </div>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                <div className="mb-3.5">
+                  <label className="flex items-center gap-2 text-[13px] font-semibold cursor-pointer">
                     <input type="checkbox" checked={form.eduCompletedYn}
                       onChange={e => setForm(f => ({ ...f, eduCompletedYn: e.target.checked }))} />
                     기초안전보건교육 이수 완료
@@ -1602,42 +1548,42 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                 </div>
                 {form.eduCompletedYn && (
                   <>
-                    <div style={{ marginBottom: 14 }}>
-                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>이수일</label>
+                    <div className="mb-3.5">
+                      <label className="block text-[13px] font-semibold mb-1">이수일</label>
                       <input type="date" value={form.eduCompletedDate}
                         onChange={e => setForm(f => ({ ...f, eduCompletedDate: e.target.value }))}
-                        style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                        className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                     </div>
-                    <div style={{ marginBottom: 14 }}>
-                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>교육기관명</label>
+                    <div className="mb-3.5">
+                      <label className="block text-[13px] font-semibold mb-1">교육기관명</label>
                       <input type="text" value={form.eduOrganization}
                         onChange={e => setForm(f => ({ ...f, eduOrganization: e.target.value }))}
                         placeholder="교육기관명"
-                        style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                        className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                     </div>
                   </>
                 )}
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                <div className="mb-3.5">
+                  <label className="flex items-center gap-2 text-[13px] font-semibold cursor-pointer">
                     <input type="checkbox" checked={form.eduCertConfirmedYn}
                       onChange={e => setForm(f => ({ ...f, eduCertConfirmedYn: e.target.checked }))} />
                     이수증 원본 확인 완료
                   </label>
                 </div>
                 {form.eduCertConfirmedYn && (
-                  <div style={{ marginBottom: 14 }}>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>확인일</label>
+                  <div className="mb-3.5">
+                    <label className="block text-[13px] font-semibold mb-1">확인일</label>
                     <input type="date" value={form.eduCertConfirmedDate}
                       onChange={e => setForm(f => ({ ...f, eduCertConfirmedDate: e.target.value }))}
-                      style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                      className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                   </div>
                 )}
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>확인자 (현장관리자)</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">확인자 (현장관리자)</label>
                   <input type="text" value={form.confirmerName}
                     onChange={e => setForm(f => ({ ...f, confirmerName: e.target.value }))}
                     placeholder="확인자 성명"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                 </div>
               </>
             )}
@@ -1645,36 +1591,36 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
             {/* 현장 안전수칙 준수 확인서 */}
             {form.documentType === 'SITE_SAFETY_RULES_CONFIRM' && (
               <>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>근로일 *</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">근로일 *</label>
                   <input type="date" value={form.workDate}
                     onChange={e => setForm(f => ({ ...f, workDate: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                 </div>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>특이 안전수칙 (선택)</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">특이 안전수칙 (선택)</label>
                   <textarea value={form.specialSafetyRules}
                     onChange={e => setForm(f => ({ ...f, specialSafetyRules: e.target.value }))}
                     rows={2} placeholder="현장 특이 안전수칙이 있으면 입력"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px', resize: 'none' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px] resize-none" />
                 </div>
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: 4 }}>관리자 성명</label>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold mb-1">관리자 성명</label>
                   <input type="text" value={form.confirmerName}
                     onChange={e => setForm(f => ({ ...f, confirmerName: e.target.value }))}
                     placeholder="관리자 성명"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, fontSize: '14px' }} />
+                    className="w-full px-2.5 py-2 border border-secondary-brand/30 rounded-md text-[14px]" />
                 </div>
               </>
             )}
 
-            <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+            <div className="flex gap-2.5 mt-5">
               <button onClick={() => setShowForm(false)}
-                style={{ flex: 1, padding: '10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>
+                className="flex-1 py-2.5 border border-secondary-brand/30 rounded-md bg-white cursor-pointer">
                 취소
               </button>
               <button onClick={handleSubmit} disabled={submitting}
-                style={{ flex: 1, padding: '10px', border: 'none', borderRadius: 6, background: '#16a34a', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>
+                className="flex-1 py-2.5 border-none rounded-md bg-[#16a34a] text-white cursor-pointer font-semibold">
                 {submitting ? '생성 중...' : '생성'}
               </button>
             </div>
@@ -1684,16 +1630,16 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
 
       {/* 미리보기 모달 */}
       {previewDoc && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 28, width: 700, maxHeight: '85vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: '16px' }}>{SAFETY_DOC_LABELS[previewDoc.documentType] || previewDoc.documentType}</h3>
-              <button onClick={() => setPreviewDoc(null)} style={{ border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
+          <div className="bg-white rounded-xl p-7 w-[700px] max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="m-0 text-[16px]">{SAFETY_DOC_LABELS[previewDoc.documentType] || previewDoc.documentType}</h3>
+              <button onClick={() => setPreviewDoc(null)} className="border-none bg-transparent text-[20px] cursor-pointer">✕</button>
             </div>
-            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px', background: '#1B2838', padding: 16, borderRadius: 6, lineHeight: 1.7 }}>
+            <pre className="whitespace-pre-wrap font-mono text-[12px] bg-brand p-4 rounded-md leading-[1.7]">
               {previewDoc.contentText || '내용 없음'}
             </pre>
-            <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+            <div className="flex gap-2.5 mt-4">
               <button onClick={() => {
                 const blob = new Blob([previewDoc.contentText || ''], { type: 'text/plain;charset=utf-8' })
                 const url = URL.createObjectURL(blob)
@@ -1703,11 +1649,11 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                 a.click()
                 URL.revokeObjectURL(url)
               }}
-                style={{ padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: '13px' }}>
+                className="px-4 py-2 bg-[#2563eb] text-white border-none rounded-md cursor-pointer text-[13px]">
                 다운로드
               </button>
               <button onClick={() => setPreviewDoc(null)}
-                style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 6, background: '#fff', cursor: 'pointer', fontSize: '13px' }}>
+                className="px-4 py-2 border border-secondary-brand/30 rounded-md bg-white cursor-pointer text-[13px]">
                 닫기
               </button>
             </div>
@@ -1799,52 +1745,58 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
 
   const fmtDate = (d: unknown) => d ? new Date(d as string).toLocaleDateString('ko-KR') : '-'
 
-  if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>로딩 중...</div>
+  if (loading) return <div className="py-10 text-center text-[#999]">로딩 중...</div>
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="flex flex-col gap-6">
       {/* ── 경고 ─── */}
       <section>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700 }}>경고 기록 ({warnings.length}건)</h3>
-          <button onClick={() => setShowWarning(true)} style={{ padding: '6px 14px', background: '#e65100', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="m-0 text-[14px] font-bold">경고 기록 ({warnings.length}건)</h3>
+          <button onClick={() => setShowWarning(true)}
+            className="px-3.5 py-1.5 bg-[#e65100] text-white border-none rounded-md text-[12px] font-bold cursor-pointer">
             + 경고 발행
           </button>
         </div>
         {warnings.length === 0 ? (
-          <div style={{ color: '#718096', fontSize: '13px' }}>경고 기록이 없습니다.</div>
+          <div className="text-[#718096] text-[13px]">경고 기록이 없습니다.</div>
         ) : (
           warnings.map((w: Record<string, unknown>) => (
-            <div key={w.id as string} style={{ border: '1px solid #f0f0f0', borderLeft: `4px solid ${WARNING_LEVEL_COLOR[w.warningLevel as string] ?? '#e0e0e0'}`, borderRadius: '8px', padding: '10px 14px', marginBottom: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: WARNING_LEVEL_COLOR[w.warningLevel as string] ?? '#666' }}>
+            <div key={w.id as string}
+              className="border border-[#f0f0f0] rounded-lg px-3.5 py-2.5 mb-2"
+              style={{ borderLeft: `4px solid ${WARNING_LEVEL_COLOR[w.warningLevel as string] ?? '#e0e0e0'}` }}>
+              <div className="flex justify-between mb-1">
+                <span className="text-[12px] font-bold" style={{ color: WARNING_LEVEL_COLOR[w.warningLevel as string] ?? '#666' }}>
                   {WARNING_LEVEL_LABEL[w.warningLevel as string] ?? w.warningLevel as string} 경고
                 </span>
-                <span style={{ fontSize: '11px', color: '#bbb' }}>{fmtDate(w.createdAt)}</span>
+                <span className="text-[11px] text-[#bbb]">{fmtDate(w.createdAt)}</span>
               </div>
-              <div style={{ fontSize: '13px', color: '#444' }}>{w.reason as string}</div>
+              <div className="text-[13px] text-[#444]">{w.reason as string}</div>
             </div>
           ))
         )}
 
         {showWarning && (
-          <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
-            <h4 style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700 }}>경고장 발행 — {workerName}</h4>
+          <div className="bg-[#fff8e1] border border-[#ffe082] rounded-[10px] p-4 mt-3">
+            <h4 className="mt-0 mb-3 text-[13px] font-bold">경고장 발행 — {workerName}</h4>
             <select value={wForm.warningLevel} onChange={e => setWForm(f => ({ ...f, warningLevel: e.target.value }))}
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }}>
+              className="w-full px-2 py-2 mb-2 border border-secondary-brand/20 rounded-md text-[13px]">
               <option value="VERBAL">구두 경고</option>
               <option value="WRITTEN">서면 경고</option>
               <option value="FINAL">최종 경고</option>
             </select>
             <textarea value={wForm.reason} onChange={e => setWForm(f => ({ ...f, reason: e.target.value }))}
               placeholder="경고 사유 *" rows={3}
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
+              className="w-full px-2 py-2 mb-2 border border-secondary-brand/20 rounded-md text-[13px] resize-y box-border" />
             <textarea value={wForm.detailMemo} onChange={e => setWForm(f => ({ ...f, detailMemo: e.target.value }))}
               placeholder="상세 메모 (선택)" rows={2}
-              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setShowWarning(false)} style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
-              <button onClick={submitWarning} disabled={saving || !wForm.reason.trim()} style={{ padding: '8px 16px', background: saving ? '#bdbdbd' : '#e65100', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+              className="w-full px-2 py-2 mb-2.5 border border-secondary-brand/20 rounded-md text-[13px] resize-y box-border" />
+            <div className="flex gap-2">
+              <button onClick={() => setShowWarning(false)}
+                className="px-4 py-2 border border-secondary-brand/20 rounded-md bg-white cursor-pointer text-[13px]">취소</button>
+              <button onClick={submitWarning} disabled={saving || !wForm.reason.trim()}
+                className="px-4 py-2 text-white border-none rounded-md text-[13px] font-bold cursor-pointer"
+                style={{ background: saving ? '#bdbdbd' : '#e65100' }}>
                 {saving ? '처리 중...' : '발행'}
               </button>
             </div>
@@ -1854,43 +1806,47 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
 
       {/* ── 소명 요청 ─── */}
       <section>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700 }}>소명 요청 ({explanations.length}건)</h3>
-          <button onClick={() => setShowExplain(true)} style={{ padding: '6px 14px', background: '#E06810', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="m-0 text-[14px] font-bold">소명 요청 ({explanations.length}건)</h3>
+          <button onClick={() => setShowExplain(true)}
+            className="px-3.5 py-1.5 bg-[#E06810] text-white border-none rounded-md text-[12px] font-bold cursor-pointer">
             + 소명 요청
           </button>
         </div>
         {explanations.length === 0 ? (
-          <div style={{ color: '#718096', fontSize: '13px' }}>소명 요청 내역이 없습니다.</div>
+          <div className="text-[#718096] text-[13px]">소명 요청 내역이 없습니다.</div>
         ) : (
           explanations.map((e: Record<string, unknown>) => (
-            <div key={e.id as string} style={{ border: '1px solid #f0f0f0', borderRadius: '8px', padding: '10px 14px', marginBottom: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 600 }}>{e.subject as string}</span>
-                <span style={{ fontSize: '11px', color: '#4A93C8', background: 'rgba(91,164,217,0.1)', padding: '1px 8px', borderRadius: '20px', fontWeight: 700 }}>
+            <div key={e.id as string} className="border border-[#f0f0f0] rounded-lg px-3.5 py-2.5 mb-2">
+              <div className="flex justify-between mb-1">
+                <span className="text-[13px] font-semibold">{e.subject as string}</span>
+                <span className="text-[11px] text-[#4A93C8] bg-secondary-brand/10 px-2 py-px rounded-[20px] font-bold">
                   {EXPL_STATUS_LABEL[e.status as string] ?? e.status as string}
                 </span>
               </div>
-              <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{fmtDate(e.createdAt)}{e.deadline ? ` · 기한: ${fmtDate(e.deadline)}` : ''}</div>
+              <div className="text-[12px] text-muted-brand">{fmtDate(e.createdAt)}{e.deadline ? ` · 기한: ${fmtDate(e.deadline)}` : ''}</div>
             </div>
           ))
         )}
 
         {showExplain && (
-          <div style={{ background: 'rgba(91,164,217,0.1)', border: '1px solid #90caf9', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
-            <h4 style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700 }}>소명 요청 — {workerName}</h4>
+          <div className="bg-secondary-brand/10 border border-[#90caf9] rounded-[10px] p-4 mt-3">
+            <h4 className="mt-0 mb-3 text-[13px] font-bold">소명 요청 — {workerName}</h4>
             <input value={eForm.subject} onChange={e => setEForm(f => ({ ...f, subject: e.target.value }))}
               placeholder="소명 요청 제목 *"
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
+              className="w-full px-2 py-2 mb-2 border border-secondary-brand/20 rounded-md text-[13px] box-border" />
             <textarea value={eForm.reason} onChange={e => setEForm(f => ({ ...f, reason: e.target.value }))}
               placeholder="소명 요청 사유 *" rows={3}
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
+              className="w-full px-2 py-2 mb-2 border border-secondary-brand/20 rounded-md text-[13px] resize-y box-border" />
             <input type="date" value={eForm.deadline} onChange={e => setEForm(f => ({ ...f, deadline: e.target.value }))}
               placeholder="기한 (선택)"
-              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setShowExplain(false)} style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
-              <button onClick={submitExplanation} disabled={saving || !eForm.subject.trim() || !eForm.reason.trim()} style={{ padding: '8px 16px', background: saving ? '#bdbdbd' : '#1565c0', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+              className="w-full px-2 py-2 mb-2.5 border border-secondary-brand/20 rounded-md text-[13px] box-border" />
+            <div className="flex gap-2">
+              <button onClick={() => setShowExplain(false)}
+                className="px-4 py-2 border border-secondary-brand/20 rounded-md bg-white cursor-pointer text-[13px]">취소</button>
+              <button onClick={submitExplanation} disabled={saving || !eForm.subject.trim() || !eForm.reason.trim()}
+                className="px-4 py-2 text-white border-none rounded-md text-[13px] font-bold cursor-pointer"
+                style={{ background: saving ? '#bdbdbd' : '#1565c0' }}>
                 {saving ? '처리 중...' : '요청 전송'}
               </button>
             </div>
@@ -1900,33 +1856,34 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
 
       {/* ── 통지 ─── */}
       <section>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700 }}>통지 기록 ({notices.length}건)</h3>
-          <button onClick={() => setShowNotice(true)} style={{ padding: '6px 14px', background: '#37474f', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="m-0 text-[14px] font-bold">통지 기록 ({notices.length}건)</h3>
+          <button onClick={() => setShowNotice(true)}
+            className="px-3.5 py-1.5 bg-[#37474f] text-white border-none rounded-md text-[12px] font-bold cursor-pointer">
             + 통지서 발행
           </button>
         </div>
         {notices.length === 0 ? (
-          <div style={{ color: '#718096', fontSize: '13px' }}>통지 기록이 없습니다.</div>
+          <div className="text-[#718096] text-[13px]">통지 기록이 없습니다.</div>
         ) : (
           notices.map((n: Record<string, unknown>) => (
-            <div key={n.id as string} style={{ border: '1px solid #f0f0f0', borderRadius: '8px', padding: '10px 14px', marginBottom: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 600 }}>{n.title as string}</span>
-                <span style={{ fontSize: '11px', color: '#A0AEC0', background: '#1B2838', padding: '1px 8px', borderRadius: '20px' }}>
+            <div key={n.id as string} className="border border-[#f0f0f0] rounded-lg px-3.5 py-2.5 mb-2">
+              <div className="flex justify-between mb-1">
+                <span className="text-[13px] font-semibold">{n.title as string}</span>
+                <span className="text-[11px] text-muted-brand bg-brand px-2 py-px rounded-[20px]">
                   {NOTICE_TYPE_LABEL[n.noticeType as string] ?? n.noticeType as string}
                 </span>
               </div>
-              <div style={{ fontSize: '12px', color: '#A0AEC0' }}>발행일: {fmtDate(n.createdAt)}{n.effectiveDate ? ` · 효력일: ${n.effectiveDate}` : ''}</div>
+              <div className="text-[12px] text-muted-brand">발행일: {fmtDate(n.createdAt)}{n.effectiveDate ? ` · 효력일: ${n.effectiveDate}` : ''}</div>
             </div>
           ))
         )}
 
         {showNotice && (
-          <div style={{ background: '#1B2838', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '16px', marginTop: '12px' }}>
-            <h4 style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700 }}>통지서 발행 — {workerName}</h4>
+          <div className="bg-brand border border-white/[0.12] rounded-[10px] p-4 mt-3">
+            <h4 className="mt-0 mb-3 text-[13px] font-bold">통지서 발행 — {workerName}</h4>
             <select value={nForm.noticeType} onChange={e => setNForm(f => ({ ...f, noticeType: e.target.value }))}
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }}>
+              className="w-full px-2 py-2 mb-2 border border-secondary-brand/20 rounded-md text-[13px]">
               <option value="CONTRACT_END">계약만료 통지</option>
               <option value="TERMINATION">종료/해고 통지</option>
               <option value="SUSPENSION">업무 정지 통지</option>
@@ -1935,16 +1892,19 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
             </select>
             <input value={nForm.title} onChange={e => setNForm(f => ({ ...f, title: e.target.value }))}
               placeholder="통지서 제목 *"
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
+              className="w-full px-2 py-2 mb-2 border border-secondary-brand/20 rounded-md text-[13px] box-border" />
             <textarea value={nForm.content} onChange={e => setNForm(f => ({ ...f, content: e.target.value }))}
               placeholder="통지 내용 *" rows={4}
-              style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }} />
+              className="w-full px-2 py-2 mb-2 border border-secondary-brand/20 rounded-md text-[13px] resize-y box-border" />
             <input type="date" value={nForm.effectiveDate} onChange={e => setNForm(f => ({ ...f, effectiveDate: e.target.value }))}
               placeholder="효력 발생일 (선택)"
-              style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }} />
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setShowNotice(false)} style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>취소</button>
-              <button onClick={submitNotice} disabled={saving || !nForm.title.trim() || !nForm.content.trim()} style={{ padding: '8px 16px', background: saving ? '#bdbdbd' : '#37474f', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+              className="w-full px-2 py-2 mb-2.5 border border-secondary-brand/20 rounded-md text-[13px] box-border" />
+            <div className="flex gap-2">
+              <button onClick={() => setShowNotice(false)}
+                className="px-4 py-2 border border-secondary-brand/20 rounded-md bg-white cursor-pointer text-[13px]">취소</button>
+              <button onClick={submitNotice} disabled={saving || !nForm.title.trim() || !nForm.content.trim()}
+                className="px-4 py-2 text-white border-none rounded-md text-[13px] font-bold cursor-pointer"
+                style={{ background: saving ? '#bdbdbd' : '#37474f' }}>
                 {saving ? '처리 중...' : '발행'}
               </button>
             </div>

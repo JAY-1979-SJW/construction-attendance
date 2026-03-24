@@ -35,50 +35,43 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
+    <div className="min-h-screen flex items-center justify-center bg-[linear-gradient(160deg,#0d1b2a_0%,#1B2838_60%,#141E2A_100%)]">
+      <div className="bg-[#243144] rounded-[20px] px-10 py-11 w-full max-w-[420px] shadow-[0_8px_40px_rgba(0,0,0,0.4)] border border-[rgba(91,164,217,0.15)] border-t-[3px] border-t-[#F47920]">
         {/* 브랜드 로고 */}
-        <div style={styles.logoWrap}>
-          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} style={{ width: '200px', height: 'auto', margin: '0 auto 12px', display: 'block', borderRadius: '16px' }} priority />
-          <div style={styles.logoSub}>관리자 포털</div>
+        <div className="text-center mb-7">
+          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} className="w-[200px] h-auto mx-auto mb-3 block rounded-2xl" priority />
+          <div className="text-[13px] text-[#A0AEC0] bg-[rgba(255,255,255,0.06)] inline-block px-3 py-[3px] rounded-[20px]">관리자 포털</div>
         </div>
 
-        <div style={styles.divider} />
+        <div className="h-px bg-[rgba(255,255,255,0.08)] mb-6" />
 
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>이메일</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={styles.input} placeholder="admin@example.com" />
+        <div className="mb-4">
+          <label className="block text-[13px] font-semibold text-[#A0AEC0] mb-[6px]">이메일</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-[13px] text-[15px] border border-[rgba(91,164,217,0.25)] rounded-[10px] outline-none box-border bg-[rgba(255,255,255,0.06)] text-white" placeholder="admin@example.com" />
         </div>
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>비밀번호</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleLogin()} style={styles.input} />
+        <div className="mb-4">
+          <label className="block text-[13px] font-semibold text-[#A0AEC0] mb-[6px]">비밀번호</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleLogin()} className="w-full px-4 py-[13px] text-[15px] border border-[rgba(91,164,217,0.25)] rounded-[10px] outline-none box-border bg-[rgba(255,255,255,0.06)] text-white" />
         </div>
 
-        {error && <div style={styles.errorBox}>{error}</div>}
+        {error && (
+          <div className="bg-[rgba(229,57,53,0.12)] border border-[rgba(229,57,53,0.35)] rounded-[10px] px-[14px] py-[10px] text-[#ef9a9a] text-[13px] mb-[14px]">
+            {error}
+          </div>
+        )}
 
-        <button onClick={handleLogin} disabled={loading} style={{ ...styles.button, opacity: loading ? 0.6 : 1 }}>
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          className="w-full py-[15px] text-base font-bold bg-[#F47920] text-white border-none rounded-[10px] cursor-pointer shadow-[0_4px_14px_rgba(244,121,32,0.35)] mt-1 disabled:opacity-60"
+        >
           {loading ? '로그인 중...' : '로그인'}
         </button>
 
-        <p style={styles.hint}>근로자 로그인은 <a href="/login" style={{ color: '#5BA4D9', textDecoration: 'none' }}>여기</a>에서</p>
+        <p className="text-center text-[13px] text-[#718096] mt-5 mb-0">
+          근로자 로그인은 <a href="/login" className="text-[#5BA4D9] no-underline">여기</a>에서
+        </p>
       </div>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  container:  { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(160deg, #0d1b2a 0%, #1B2838 60%, #141E2A 100%)' },
-  card:       { background: '#243144', borderRadius: '20px', padding: '44px 40px', width: '100%', maxWidth: '420px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)', border: '1px solid rgba(91,164,217,0.15)', borderTop: '3px solid #F47920' },
-  logoWrap:   { textAlign: 'center' as const, marginBottom: '28px' },
-  logoIcon:   { fontSize: '36px', marginBottom: '12px' },
-  logoText:   { fontSize: '22px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px', marginBottom: '6px' },
-  logoSub:    { fontSize: '13px', color: '#A0AEC0', background: 'rgba(255,255,255,0.06)', display: 'inline-block', padding: '3px 12px', borderRadius: '20px' },
-  divider:    { height: '1px', background: 'rgba(255,255,255,0.08)', margin: '0 0 24px' },
-  inputGroup: { marginBottom: '16px' },
-  label:      { display: 'block', fontSize: '13px', fontWeight: 600, color: '#A0AEC0', marginBottom: '6px' },
-  input:      { width: '100%', padding: '13px 16px', fontSize: '15px', border: '1px solid rgba(91,164,217,0.25)', borderRadius: '10px', outline: 'none', boxSizing: 'border-box' as const, background: 'rgba(255,255,255,0.06)', color: '#ffffff' },
-  errorBox:   { background: 'rgba(229,57,53,0.12)', border: '1px solid rgba(229,57,53,0.35)', borderRadius: '10px', padding: '10px 14px', color: '#ef9a9a', fontSize: '13px', marginBottom: '14px' },
-  error:      { color: '#ef9a9a', fontSize: '13px', marginBottom: '12px' },
-  button:     { width: '100%', padding: '15px', fontSize: '16px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(244,121,32,0.35)', marginTop: '4px' },
-  hint:       { textAlign: 'center' as const, fontSize: '13px', color: '#718096', marginTop: '20px', marginBottom: 0 },
 }

@@ -85,31 +85,36 @@ export default function DevicesPage() {
   const fmtPhone = (p: string) => p.length === 11 ? `${p.slice(0,3)}-${p.slice(3,7)}-${p.slice(7)}` : p
 
   return (
-    <div style={styles.layout}>
-      <nav style={styles.sidebar}>
-        <div style={styles.sidebarTitle}>해한 출퇴근</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
         {[
           ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'], ['/admin/sites', '현장 관리'],
           ['/admin/attendance', '출퇴근 조회'], ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
           ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 승인'], ['/admin/devices', '기기 차단 관리'],
-        ].map(([href, label]) => <Link key={href} href={href} style={styles.navItem}>{label}</Link>)}
+        ].map(([href, label]) => (
+          <Link key={href} href={href}
+            className="block text-white/80 px-5 py-2.5 text-sm no-underline hover:text-white">
+            {label}
+          </Link>
+        ))}
       </nav>
 
-      <main style={styles.main}>
-        <h1 style={styles.pageTitle}>기기 차단 관리 ({total}건)</h1>
+      <main className="flex-1 p-8">
+        <h1 className="text-[22px] font-bold m-0 mb-5">기기 차단 관리 ({total}건)</h1>
 
         {msg && (
-          <div style={{ ...styles.msgBox, background: msg.ok ? '#e8f5e9' : '#ffebee', borderColor: msg.ok ? '#a5d6a7' : '#ef9a9a', color: msg.ok ? '#2e7d32' : '#c62828' }}>
+          <div className={`border rounded-lg px-4 py-3 text-sm mb-4 ${msg.ok ? 'bg-[#e8f5e9] border-[#a5d6a7] text-[#2e7d32]' : 'bg-[#ffebee] border-[#ef9a9a] text-[#c62828]'}`}>
             {msg.text}
           </div>
         )}
 
-        <div style={styles.tabRow}>
+        <div className="flex gap-2 mb-4">
           {([['all', '전체'], ['blocked', '차단됨'], ['normal', '정상']] as const).map(([v, label]) => (
             <button
               key={v}
               onClick={() => { setFilterBlocked(v); load(v) }}
-              style={{ ...styles.tab, ...(filterBlocked === v ? styles.tabActive : {}) }}
+              className={`px-5 py-2 border rounded-md cursor-pointer text-sm transition-colors ${filterBlocked === v ? 'bg-[#1a1a2e] text-white border-[#1a1a2e]' : 'border-[rgba(91,164,217,0.3)] bg-card text-muted-brand'}`}
             >
               {label}
             </button>
@@ -117,39 +122,42 @@ export default function DevicesPage() {
         </div>
 
         {loading ? <p>로딩 중...</p> : (
-          <div style={styles.tableCard}>
-            <table style={styles.table}>
+          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
               <thead>
-                <tr>
+                <tr className="border-b-2 border-[rgba(91,164,217,0.2)]">
                   {['근로자', '연락처', '기기명', '기기토큰', '플랫폼', '마지막 로그인', '상태', '차단 사유', '처리'].map(h => (
-                    <th key={h} style={styles.th}>{h}</th>
+                    <th key={h} className="text-left px-3 py-2.5 text-xs text-muted-brand">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {items.length === 0 ? (
-                  <tr><td colSpan={9} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>기기가 없습니다.</td></tr>
+                  <tr><td colSpan={9} className="text-center py-6 text-[#999]">기기가 없습니다.</td></tr>
                 ) : items.map(item => (
-                  <tr key={item.id} style={{ ...styles.tr, background: item.isBlocked ? '#fff8f8' : 'white' }}>
-                    <td style={styles.td}>
-                      <div style={{ fontWeight: 600 }}>{item.workerName}</div>
-                      {item.isPrimary && <span style={styles.primaryBadge}>주기기</span>}
-                    </td>
-                    <td style={styles.td}>{fmtPhone(item.workerPhone)}</td>
-                    <td style={styles.td}>{item.deviceName}</td>
-                    <td style={{ ...styles.td, fontSize: '11px', color: '#A0AEC0', fontFamily: 'monospace' }}>{item.deviceToken}</td>
-                    <td style={styles.td}>{item.platform ?? '-'}</td>
-                    <td style={styles.td}>{fmt(item.lastLoginAt)}</td>
-                    <td style={styles.td}>
-                      {item.isBlocked ? (
-                        <span style={styles.blockedBadge}>차단됨</span>
-                      ) : (
-                        <span style={styles.normalBadge}>정상</span>
+                  <tr key={item.id} className="border-b border-[rgba(91,164,217,0.1)]"
+                    style={{ background: item.isBlocked ? '#fff8f8' : 'transparent' }}>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
+                      <div className="font-semibold">{item.workerName}</div>
+                      {item.isPrimary && (
+                        <span className="text-[10px] bg-[rgba(244,121,32,0.12)] text-accent px-1.5 py-0.5 rounded-lg mt-0.5 inline-block">주기기</span>
                       )}
                     </td>
-                    <td style={styles.td}>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{fmtPhone(item.workerPhone)}</td>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{item.deviceName}</td>
+                    <td className="px-3 py-3 text-[11px] text-muted-brand font-mono">{item.deviceToken}</td>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{item.platform ?? '-'}</td>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{fmt(item.lastLoginAt)}</td>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
                       {item.isBlocked ? (
-                        <span style={{ fontSize: '12px', color: '#c62828' }}>{item.blockReason ?? '-'}</span>
+                        <span className="text-[11px] bg-[#ffebee] text-[#c62828] px-2 py-0.5 rounded-[10px] font-bold">차단됨</span>
+                      ) : (
+                        <span className="text-[11px] bg-[#e8f5e9] text-[#2e7d32] px-2 py-0.5 rounded-[10px] font-bold">정상</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
+                      {item.isBlocked ? (
+                        <span className="text-xs text-[#c62828]">{item.blockReason ?? '-'}</span>
                       ) : (
                         canMutate && (
                           <input
@@ -157,18 +165,18 @@ export default function DevicesPage() {
                             placeholder="차단 사유 (선택)"
                             value={blockReasonInput[item.id] ?? ''}
                             onChange={e => setBlockReasonInput(prev => ({ ...prev, [item.id]: e.target.value }))}
-                            style={styles.reasonInput}
+                            className="px-2 py-1 border border-[rgba(91,164,217,0.3)] rounded text-xs w-[120px] bg-transparent text-white"
                           />
                         )
                       )}
                     </td>
-                    <td style={styles.td}>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
                       {canMutate && (
                         item.isBlocked ? (
                           <button
                             onClick={() => handleUnblock(item.id)}
                             disabled={processing === item.id}
-                            style={styles.unblockBtn}
+                            className="px-3 py-1 bg-[#37474f] text-white border-none rounded cursor-pointer text-xs disabled:opacity-50"
                           >
                             차단 해제
                           </button>
@@ -176,7 +184,7 @@ export default function DevicesPage() {
                           <button
                             onClick={() => handleBlock(item.id)}
                             disabled={processing === item.id}
-                            style={styles.blockBtn}
+                            className="px-3 py-1 bg-[#c62828] text-white border-none rounded cursor-pointer text-xs disabled:opacity-50"
                           >
                             차단
                           </button>
@@ -192,28 +200,4 @@ export default function DevicesPage() {
       </main>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  main: { flex: 1, padding: '32px' },
-  pageTitle: { fontSize: '22px', fontWeight: 700, margin: '0 0 20px' },
-  msgBox: { border: '1px solid', borderRadius: '8px', padding: '12px 16px', fontSize: '14px', marginBottom: '16px' },
-  tabRow: { display: 'flex', gap: '8px', marginBottom: '16px' },
-  tab: { padding: '8px 20px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', background: '#243144', cursor: 'pointer', fontSize: '14px', color: '#A0AEC0' },
-  tabActive: { background: '#1a1a2e', color: 'white', borderColor: '#1a1a2e' },
-  tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflowX: 'auto' },
-  table: { width: '100%', borderCollapse: 'collapse' as const },
-  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)' },
-  td: { padding: '12px', fontSize: '14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' },
-  tr: {},
-  primaryBadge: { fontSize: '10px', background: 'rgba(244,121,32,0.12)', color: '#F47920', padding: '1px 6px', borderRadius: '8px', marginTop: '2px', display: 'inline-block' },
-  blockedBadge: { fontSize: '11px', background: '#ffebee', color: '#c62828', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 },
-  normalBadge: { fontSize: '11px', background: '#e8f5e9', color: '#2e7d32', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 },
-  blockBtn: { padding: '5px 12px', background: '#c62828', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px' },
-  unblockBtn: { padding: '5px 12px', background: '#37474f', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px' },
-  reasonInput: { padding: '4px 8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', fontSize: '12px', width: '120px' },
 }

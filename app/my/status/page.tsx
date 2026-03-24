@@ -107,7 +107,11 @@ export default function MyStatusPage() {
     }
   }
 
-  if (loading) return <div style={s.center}>로딩 중...</div>
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen text-base text-muted-brand">
+      로딩 중...
+    </div>
+  )
   if (!data) return null
 
   const { worker, accountStatus, deviceStatus, joinRequests, assignedSites, attendanceEligibility, complianceStatus } = data
@@ -124,112 +128,138 @@ export default function MyStatusPage() {
   return (
     <>
       <WorkerTopBar />
-      <div style={{ ...s.page, paddingBottom: '88px', paddingTop: '80px' }}>
+      <div className="min-h-screen bg-brand px-4 pt-20 pb-[88px]">
       <WorkerDisclaimerBanner />
-      <div style={s.container}>
-        <h1 style={s.title}>내 상태</h1>
+      <div className="max-w-[520px] mx-auto">
+        <h1 className="text-2xl font-bold mb-4 text-white">내 상태</h1>
 
         {/* ── 출퇴근 가능 여부 요약 (최상단) ── */}
-        <div style={{
-          ...s.eligibilityBox,
-          background: attendanceEligibility.canCheckIn ? 'rgba(46,125,50,0.12)' : 'rgba(244,121,32,0.1)',
-          borderColor: attendanceEligibility.canCheckIn ? 'rgba(46,125,50,0.4)' : 'rgba(244,121,32,0.4)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: attendanceEligibility.blockReasons.length > 0 ? '10px' : 0 }}>
-            <span style={{ fontSize: '24px' }}>{attendanceEligibility.canCheckIn ? '✅' : '⚠️'}</span>
+        <div
+          className="rounded-xl px-[18px] py-4 mb-4 border"
+          style={{
+            background: attendanceEligibility.canCheckIn ? 'rgba(46,125,50,0.12)' : 'rgba(244,121,32,0.1)',
+            borderColor: attendanceEligibility.canCheckIn ? 'rgba(46,125,50,0.4)' : 'rgba(244,121,32,0.4)',
+          }}
+        >
+          <div
+            className="flex items-center gap-[10px]"
+            style={{ marginBottom: attendanceEligibility.blockReasons.length > 0 ? '10px' : 0 }}
+          >
+            <span className="text-2xl">{attendanceEligibility.canCheckIn ? '✅' : '⚠️'}</span>
             <div>
-              <div style={{ fontSize: '15px', fontWeight: 700, color: attendanceEligibility.canCheckIn ? '#81c784' : '#FFB74D' }}>
+              <div
+                className="text-[15px] font-bold"
+                style={{ color: attendanceEligibility.canCheckIn ? '#81c784' : '#FFB74D' }}
+              >
                 {attendanceEligibility.canCheckIn ? '출퇴근 가능' : '출퇴근 불가'}
               </div>
-              <div style={{ fontSize: '13px', color: '#A0AEC0', marginTop: '2px' }}>{attendanceEligibility.summary}</div>
+              <div className="text-[13px] text-muted-brand mt-0.5">{attendanceEligibility.summary}</div>
             </div>
           </div>
           {attendanceEligibility.blockReasons.map((r, i) => (
-            <div key={i} style={s.blockReasonRow}>
-              <div style={{ fontWeight: 600, color: '#c62828', fontSize: '13px' }}>❌ {r.message}</div>
-              <div style={{ color: '#A0AEC0', fontSize: '12px', marginTop: '2px' }}>→ {r.actionRequired}</div>
+            <div key={i} className="bg-[rgba(91,164,217,0.08)] rounded-lg px-3 py-2 mt-2">
+              <div className="font-semibold text-[#c62828] text-[13px]">❌ {r.message}</div>
+              <div className="text-muted-brand text-xs mt-0.5">→ {r.actionRequired}</div>
             </div>
           ))}
         </div>
 
         {/* 계정 상태 */}
-        <div style={s.section}>
-          <h2 style={s.sectionTitle}>계정 상태</h2>
-          <div style={s.statusRow}>
-            <span style={{ ...s.badge, background: ACCOUNT_STATUS_COLOR[accountStatus.status] }}>
+        <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">계정 상태</h2>
+          <div className="flex items-center gap-[10px] mb-[10px] flex-wrap">
+            <span
+              className="inline-block text-white text-xs font-bold px-[10px] py-1 rounded-[20px]"
+              style={{ background: ACCOUNT_STATUS_COLOR[accountStatus.status] }}
+            >
               {ACCOUNT_STATUS_LABEL[accountStatus.status] ?? accountStatus.status}
             </span>
-            <span style={s.statusMsg}>{accountStatus.message}</span>
+            <span className="text-sm text-muted-brand">{accountStatus.message}</span>
           </div>
           {accountStatus.rejectReason && (
-            <div style={s.rejectBox}>반려 사유: {accountStatus.rejectReason}</div>
+            <div className="bg-[rgba(198,40,40,0.12)] border border-[rgba(198,40,40,0.35)] rounded-md px-3 py-[10px] text-[13px] text-[#ef9a9a] mt-2">
+              반려 사유: {accountStatus.rejectReason}
+            </div>
           )}
-          <div style={s.infoGrid}>
-            <span style={s.infoLabel}>이름</span><span>{worker.name}</span>
-            <span style={s.infoLabel}>전화번호</span><span>{worker.phone}</span>
-            <span style={s.infoLabel}>직종</span><span>{worker.jobTitle}</span>
-            <span style={s.infoLabel}>가입일</span><span>{new Date(worker.createdAt).toLocaleDateString('ko-KR')}</span>
+          <div className="grid grid-cols-[80px_1fr] gap-x-3 gap-y-2 text-sm mt-3">
+            <span className="text-muted-brand font-semibold">이름</span><span>{worker.name}</span>
+            <span className="text-muted-brand font-semibold">전화번호</span><span>{worker.phone}</span>
+            <span className="text-muted-brand font-semibold">직종</span><span>{worker.jobTitle}</span>
+            <span className="text-muted-brand font-semibold">가입일</span><span>{new Date(worker.createdAt).toLocaleDateString('ko-KR')}</span>
           </div>
         </div>
 
         {/* 기기 상태 */}
-        <div style={s.section}>
-          <h2 style={s.sectionTitle}>기기 승인 상태</h2>
-          <div style={s.statusRow}>
-            <span style={{ ...s.badge, background: DEVICE_STATUS_COLOR[deviceStatus.status] ?? '#999' }}>
+        <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">기기 승인 상태</h2>
+          <div className="flex items-center gap-[10px] mb-[10px] flex-wrap">
+            <span
+              className="inline-block text-white text-xs font-bold px-[10px] py-1 rounded-[20px]"
+              style={{ background: DEVICE_STATUS_COLOR[deviceStatus.status] ?? '#999' }}
+            >
               {DEVICE_STATUS_LABEL[deviceStatus.status] ?? deviceStatus.status}
             </span>
-            {deviceStatus.deviceName && <span style={s.statusMsg}>{deviceStatus.deviceName}</span>}
+            {deviceStatus.deviceName && <span className="text-sm text-muted-brand">{deviceStatus.deviceName}</span>}
           </div>
           {deviceStatus.status === 'PENDING' && (
-            <p style={s.hint}>관리자가 기기를 승인해야 출퇴근이 가능합니다.</p>
+            <p className="text-[13px] text-muted-brand mt-2">관리자가 기기를 승인해야 출퇴근이 가능합니다.</p>
           )}
           {deviceStatus.status === 'REJECTED' && (
-            <p style={{ ...s.hint, color: '#c62828' }}>기기 등록이 반려되었습니다. 관리자에게 문의하세요.</p>
+            <p className="text-[13px] text-[#c62828] mt-2">기기 등록이 반려되었습니다. 관리자에게 문의하세요.</p>
           )}
           {deviceStatus.status === 'NO_DEVICE' && (
-            <p style={s.hint}>앱에서 로그인하면 기기 등록 요청이 자동으로 접수됩니다.</p>
+            <p className="text-[13px] text-muted-brand mt-2">앱에서 로그인하면 기기 등록 요청이 자동으로 접수됩니다.</p>
           )}
         </div>
 
         {/* 현장 참여 현황 */}
         {(joinRequests.length > 0 || assignedSites.length > 0) && (
-          <div style={s.section}>
-            <h2 style={s.sectionTitle}>현장 참여 현황</h2>
+          <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+            <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">현장 참여 현황</h2>
 
             {assignedSites.map(a => (
-              <div key={a.siteId} style={s.siteCard}>
-                <div style={s.siteName}>{a.siteName}</div>
-                <div style={s.siteAddr}>{a.address}</div>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ ...s.badge, background: a.isActive ? '#2e7d32' : '#999' }}>
+              <div key={a.siteId} className="border border-[rgba(91,164,217,0.2)] rounded-[10px] px-4 py-[14px] mb-[10px]">
+                <div className="text-[15px] font-bold text-white">{a.siteName}</div>
+                <div className="text-[13px] text-muted-brand mt-1">{a.address}</div>
+                <div className="flex gap-2 mt-2 items-center flex-wrap">
+                  <span
+                    className="inline-block text-white text-xs font-bold px-[10px] py-1 rounded-[20px]"
+                    style={{ background: a.isActive ? '#2e7d32' : '#999' }}
+                  >
                     {a.isActive ? '출퇴근 가능 현장' : '비활성 현장'}
                   </span>
-                  <span style={s.siteInfo}>{a.companyName}</span>
+                  <span className="text-[13px] text-muted-brand">{a.companyName}</span>
                 </div>
               </div>
             ))}
 
             {joinRequests.map(j => (
-              <div key={j.requestId} style={s.siteCard}>
-                <div style={s.siteName}>{j.siteName}</div>
-                <div style={s.siteAddr}>{j.address}</div>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
-                  <span style={{ ...s.badge, background: JOIN_STATUS_COLOR[j.status] }}>
+              <div key={j.requestId} className="border border-[rgba(91,164,217,0.2)] rounded-[10px] px-4 py-[14px] mb-[10px]">
+                <div className="text-[15px] font-bold text-white">{j.siteName}</div>
+                <div className="text-[13px] text-muted-brand mt-1">{j.address}</div>
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  <span
+                    className="inline-block text-white text-xs font-bold px-[10px] py-1 rounded-[20px]"
+                    style={{ background: JOIN_STATUS_COLOR[j.status] }}
+                  >
                     {JOIN_STATUS_LABEL[j.status] ?? j.status}
                   </span>
-                  <span style={s.siteInfo}>{new Date(j.requestedAt).toLocaleDateString('ko-KR')} 신청</span>
+                  <span className="text-[13px] text-muted-brand">{new Date(j.requestedAt).toLocaleDateString('ko-KR')} 신청</span>
                 </div>
                 {j.status === 'PENDING' && (
-                  <p style={s.hint}>관리자 승인 후 이 현장에서 출퇴근할 수 있습니다.</p>
+                  <p className="text-[13px] text-muted-brand mt-2">관리자 승인 후 이 현장에서 출퇴근할 수 있습니다.</p>
                 )}
                 {j.rejectReason && (
-                  <div style={s.rejectBox}>
+                  <div className="bg-[rgba(198,40,40,0.12)] border border-[rgba(198,40,40,0.35)] rounded-md px-3 py-[10px] text-[13px] text-[#ef9a9a] mt-2">
                     <strong>반려 사유:</strong> {j.rejectReason}
                   </div>
                 )}
                 {j.status === 'REJECTED' && (
-                  <button style={s.reapplyBtn} onClick={() => requestJoin(j.siteId)} disabled={joiningId === j.siteId}>
+                  <button
+                    className="mt-[10px] px-4 py-[6px] bg-[#ff9800] text-white border-none rounded-lg text-[13px] font-semibold cursor-pointer"
+                    onClick={() => requestJoin(j.siteId)}
+                    disabled={joiningId === j.siteId}
+                  >
                     재신청
                   </button>
                 )}
@@ -240,18 +270,23 @@ export default function MyStatusPage() {
 
         {/* 현장 참여 신청 — 계정 승인된 경우만 */}
         {accountStatus.status === 'APPROVED' && (
-          <div style={s.section}>
-            <h2 style={s.sectionTitle}>현장 참여 신청</h2>
-            {joinMsg && <div style={s.joinMsg}>{joinMsg}</div>}
+          <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+            <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">현장 참여 신청</h2>
+            {joinMsg && (
+              <div className="bg-[rgba(46,125,50,0.15)] rounded-lg px-[14px] py-[10px] text-[13px] text-[#81c784] mb-3">
+                {joinMsg}
+              </div>
+            )}
             {sites.filter(site => site.canJoin).length === 0 ? (
-              <p style={s.hint}>참여 신청 가능한 현장이 없습니다.<br />이미 신청한 현장이 있거나 등록된 현장이 없습니다.</p>
+              <p className="text-[13px] text-muted-brand mt-2">참여 신청 가능한 현장이 없습니다.<br />이미 신청한 현장이 있거나 등록된 현장이 없습니다.</p>
             ) : (
               sites.filter(site => site.canJoin).map(site => (
-                <div key={site.siteId} style={s.siteCard}>
-                  <div style={s.siteName}>{site.siteName}</div>
-                  <div style={s.siteAddr}>{site.address}</div>
+                <div key={site.siteId} className="border border-[rgba(91,164,217,0.2)] rounded-[10px] px-4 py-[14px] mb-[10px]">
+                  <div className="text-[15px] font-bold text-white">{site.siteName}</div>
+                  <div className="text-[13px] text-muted-brand mt-1">{site.address}</div>
                   <button
-                    style={{ ...s.joinBtn, opacity: joiningId === site.siteId ? 0.6 : 1 }}
+                    className="mt-[10px] px-5 py-2 bg-accent text-white border-none rounded-lg text-[13px] font-semibold cursor-pointer"
+                    style={{ opacity: joiningId === site.siteId ? 0.6 : 1 }}
                     disabled={joiningId === site.siteId}
                     onClick={() => requestJoin(site.siteId)}
                   >
@@ -265,12 +300,12 @@ export default function MyStatusPage() {
 
         {/* 노무/보험 상태 */}
         {complianceStatus && (
-          <div style={s.section}>
-            <h2 style={s.sectionTitle}>노무·보험 처리 현황</h2>
-            <p style={{ fontSize: '12px', color: '#718096', margin: '0 0 12px' }}>
+          <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+            <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">노무·보험 처리 현황</h2>
+            <p className="text-xs text-[#718096] mb-3">
               출퇴근 가능 여부와 별도입니다. 출퇴근이 가능해도 보험 미처리 상태일 수 있습니다.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div className="flex flex-col gap-[6px]">
               {[
                 ['국민연금', complianceStatus.nationalPensionStatus],
                 ['건강보험', complianceStatus.healthInsuranceStatus],
@@ -278,16 +313,22 @@ export default function MyStatusPage() {
                 ['산재보험', complianceStatus.industrialAccidentStatus],
                 ['퇴직공제', complianceStatus.retirementMutualStatus],
               ].map(([label, status]) => (
-                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: 'rgba(91,164,217,0.06)', borderRadius: '8px', fontSize: '14px' }}>
-                  <span style={{ color: '#A0AEC0' }}>{label}</span>
-                  <span style={{ fontWeight: 600, color: INSURANCE_STATUS_COLOR[status] ?? '#888' }}>
+                <div key={label} className="flex justify-between px-3 py-2 bg-[rgba(91,164,217,0.06)] rounded-lg text-sm">
+                  <span className="text-muted-brand">{label}</span>
+                  <span
+                    className="font-semibold"
+                    style={{ color: INSURANCE_STATUS_COLOR[status] ?? '#888' }}
+                  >
                     {INSURANCE_STATUS_LABEL[status] ?? status}
                   </span>
                 </div>
               ))}
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: 'rgba(91,164,217,0.06)', borderRadius: '8px', fontSize: '14px' }}>
-                <span style={{ color: '#A0AEC0' }}>계좌 등록</span>
-                <span style={{ fontWeight: 600, color: complianceStatus.bankInfoCollected ? '#2e7d32' : '#9e9e9e' }}>
+              <div className="flex justify-between px-3 py-2 bg-[rgba(91,164,217,0.06)] rounded-lg text-sm">
+                <span className="text-muted-brand">계좌 등록</span>
+                <span
+                  className="font-semibold"
+                  style={{ color: complianceStatus.bankInfoCollected ? '#2e7d32' : '#9e9e9e' }}
+                >
                   {complianceStatus.bankInfoCollected ? '완료' : '미등록'}
                 </span>
               </div>
@@ -300,30 +341,4 @@ export default function MyStatusPage() {
     </div>
     </>
   )
-}
-
-const s: Record<string, React.CSSProperties> = {
-  page:            { minHeight: '100vh', background: '#1B2838', padding: '24px 16px' },
-  center:          { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontSize: '16px', color: '#A0AEC0' },
-  container:       { maxWidth: '520px', margin: '0 auto' },
-  title:           { fontSize: '24px', fontWeight: 700, margin: '0 0 16px', color: '#ffffff' },
-  eligibilityBox:  { borderRadius: '12px', padding: '16px 18px', marginBottom: '16px', border: '1px solid' },
-  blockReasonRow:  { background: 'rgba(91,164,217,0.08)', borderRadius: '8px', padding: '8px 12px', marginTop: '8px' },
-  section:         { background: '#243144', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  sectionTitle:    { fontSize: '12px', fontWeight: 700, color: '#A0AEC0', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 14px' },
-  statusRow:       { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' },
-  badge:           { display: 'inline-block', color: 'white', fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '20px' },
-  statusMsg:       { fontSize: '14px', color: '#A0AEC0' },
-  rejectBox:       { background: 'rgba(198,40,40,0.12)', border: '1px solid rgba(198,40,40,0.35)', borderRadius: '6px', padding: '10px 12px', fontSize: '13px', color: '#ef9a9a', marginTop: '8px' },
-  infoGrid:        { display: 'grid', gridTemplateColumns: '80px 1fr', gap: '8px 12px', fontSize: '14px', marginTop: '12px' },
-  infoLabel:       { color: '#A0AEC0', fontWeight: 600 },
-  hint:            { fontSize: '13px', color: '#A0AEC0', margin: '8px 0 0' },
-  siteCard:        { border: '1px solid rgba(91,164,217,0.2)', borderRadius: '10px', padding: '14px 16px', marginBottom: '10px' },
-  siteName:        { fontSize: '15px', fontWeight: 700, color: '#ffffff' },
-  siteAddr:        { fontSize: '13px', color: '#A0AEC0', marginTop: '4px' },
-  siteInfo:        { fontSize: '13px', color: '#A0AEC0' },
-  joinBtn:         { marginTop: '10px', padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
-  reapplyBtn:      { marginTop: '10px', padding: '6px 16px', background: '#ff9800', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
-  joinMsg:         { background: 'rgba(46,125,50,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#81c784', marginBottom: '12px' },
-  backLink:        { color: '#5BA4D9', fontSize: '14px', textDecoration: 'none' },
 }

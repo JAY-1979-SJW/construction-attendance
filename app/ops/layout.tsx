@@ -57,69 +57,31 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
       : '내부 운영'
 
   return (
-    <div style={styles.layout}>
-      <nav style={styles.sidebar}>
-        <div style={styles.sidebarTitle}>현장출근관리</div>
-        <div style={styles.sidebarSubtitle}>{roleLabel}</div>
+    <div className="flex min-h-screen font-sans">
+      <nav className="w-[200px] min-w-[200px] bg-[#1e3a5f] text-white flex flex-col py-6">
+        <div className="text-base font-bold text-white px-5 pb-1 mb-0.5">현장출근관리</div>
+        <div className="text-[11px] text-white/60 px-5 pb-2.5 border-b border-white/15 mb-2">
+          {roleLabel}
+        </div>
         {isReadOnly && (
-          <div style={styles.readOnlyBadge}>읽기 전용 모드</div>
+          <div className="mx-4 mb-2.5 px-2 py-1 bg-[rgba(251,191,36,0.2)] border border-[rgba(251,191,36,0.4)] rounded text-[11px] text-[#fbbf24] text-center">
+            읽기 전용 모드
+          </div>
         )}
         {NAV_ITEMS.map(({ href, label }) => (
-          <Link key={href} href={href} style={styles.navItem}>
+          <Link
+            key={href}
+            href={href}
+            className="block px-5 py-2.5 text-white/85 no-underline text-sm"
+          >
             {label}
           </Link>
         ))}
-        <div style={styles.spacer} />
-        <div style={styles.userInfo}>{session.name}</div>
+        <div className="flex-1" />
+        <div className="text-[12px] text-white/50 px-5 pb-2 text-center">{session.name}</div>
         <OpsLogoutButton />
       </nav>
-      <main style={styles.main}>{children}</main>
+      <main className="flex-1 bg-[#f5f6f8] overflow-auto">{children}</main>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', fontFamily: 'sans-serif' },
-  sidebar: {
-    width: '200px',
-    minWidth: '200px',
-    background: '#1e3a5f',
-    color: 'white',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '24px 0',
-  },
-  sidebarTitle: { fontSize: '16px', fontWeight: 700, color: 'white', padding: '0 20px 4px', marginBottom: '2px' },
-  sidebarSubtitle: {
-    fontSize: '11px',
-    color: 'rgba(255,255,255,0.6)',
-    padding: '0 20px 10px',
-    borderBottom: '1px solid rgba(255,255,255,0.15)',
-    marginBottom: '8px',
-  },
-  readOnlyBadge: {
-    margin: '0 16px 10px',
-    padding: '4px 8px',
-    background: 'rgba(251,191,36,0.2)',
-    border: '1px solid rgba(251,191,36,0.4)',
-    borderRadius: '4px',
-    fontSize: '11px',
-    color: '#fbbf24',
-    textAlign: 'center',
-  },
-  navItem: {
-    display: 'block',
-    padding: '10px 20px',
-    color: 'rgba(255,255,255,0.85)',
-    textDecoration: 'none',
-    fontSize: '14px',
-  },
-  spacer: { flex: 1 },
-  userInfo: {
-    fontSize: '12px',
-    color: 'rgba(255,255,255,0.5)',
-    padding: '0 20px 8px',
-    textAlign: 'center',
-  },
-  main: { flex: 1, background: '#f5f6f8', overflow: 'auto' },
 }

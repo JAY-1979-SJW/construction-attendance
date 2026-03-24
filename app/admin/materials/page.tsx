@@ -146,11 +146,11 @@ export default function MaterialsPage() {
   const totalPages = Math.ceil(total / pageSize)
 
   return (
-    <div style={styles.layout}>
+    <div className="flex min-h-screen bg-brand">
       {/* Sidebar */}
-      <nav style={styles.sidebar}>
-        <div style={styles.sidebarTitle}>해한 출퇴근</div>
-        <div style={styles.navSection}>관리</div>
+      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {[
           { href: '/admin', label: '대시보드' },
           { href: '/admin/workers', label: '근로자 관리' },
@@ -168,44 +168,49 @@ export default function MaterialsPage() {
           { href: '/admin/device-requests', label: '기기 변경' },
           { href: '/admin/materials', label: '자재관리' },
         ].map((item) => (
-          <Link key={item.href} href={item.href} style={item.href === '/admin/materials' ? styles.navItemActive : styles.navItem}>{item.label}</Link>
+          <Link key={item.href} href={item.href}
+            className={item.href === '/admin/materials'
+              ? 'block text-white px-5 py-[10px] text-sm no-underline bg-[rgba(244,121,32,0.15)] border-l-[3px] border-[#F47920]'
+              : 'block text-white/80 px-5 py-[10px] text-sm no-underline'}>
+            {item.label}
+          </Link>
         ))}
-        <button onClick={handleLogout} style={styles.logoutBtn}>로그아웃</button>
+        <button onClick={handleLogout} className="mx-5 mt-6 p-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
       </nav>
 
       {/* Main */}
-      <main style={styles.main}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+      <main className="flex-1 p-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 style={styles.pageTitle}>자재관리</h1>
-            <p style={styles.pageDesc}>계약내역서 엑셀 파일을 업로드하여 공종별 자재를 파싱·집계합니다</p>
+            <h1 className="text-2xl font-bold m-0 mb-1">자재관리</h1>
+            <p className="text-sm text-muted-brand m-0">계약내역서 엑셀 파일을 업로드하여 공종별 자재를 파싱·집계합니다</p>
           </div>
-          <button onClick={() => setShowUpload(true)} style={styles.primaryBtn}>+ 내역서 업로드</button>
+          <button onClick={() => setShowUpload(true)} className="px-5 py-[10px] bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-sm font-semibold">+ 내역서 업로드</button>
         </div>
 
         {/* Upload Modal */}
         {showUpload && (
-          <div style={styles.modalOverlay}>
-            <div style={styles.modal}>
-              <h2 style={{ margin: '0 0 20px', fontSize: '18px', fontWeight: 700 }}>내역서 업로드</h2>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
+            <div className="bg-card rounded-[12px] p-8 w-[480px] max-w-[90vw] shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+              <h2 className="m-0 mb-5 text-[18px] font-bold">내역서 업로드</h2>
 
-              <label style={styles.formLabel}>파일 선택 (xlsx / xls)</label>
+              <label className="block text-[13px] font-semibold text-muted-brand mb-[6px] mt-4">파일 선택 (xlsx / xls)</label>
               <input
                 ref={fileInputRef}
                 type="file"
                 accept=".xlsx,.xls"
                 onChange={e => setUploadFile(e.target.files?.[0] ?? null)}
-                style={styles.fileInput}
+                className="block w-full p-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm"
               />
 
-              <label style={styles.formLabel}>현장 (선택)</label>
-              <select value={uploadSiteId} onChange={e => setUploadSiteId(e.target.value)} style={styles.select}>
+              <label className="block text-[13px] font-semibold text-muted-brand mb-[6px] mt-4">현장 (선택)</label>
+              <select value={uploadSiteId} onChange={e => setUploadSiteId(e.target.value)} className="w-full px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-card">
                 <option value="">-- 현장 선택 안함 --</option>
                 {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
 
-              <label style={styles.formLabel}>문서 유형</label>
-              <select value={uploadDocType} onChange={e => setUploadDocType(e.target.value)} style={styles.select}>
+              <label className="block text-[13px] font-semibold text-muted-brand mb-[6px] mt-4">문서 유형</label>
+              <select value={uploadDocType} onChange={e => setUploadDocType(e.target.value)} className="w-full px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-card">
                 <option value="ESTIMATE">내역서</option>
                 <option value="CHANGE_ESTIMATE">설계변경 내역서</option>
                 <option value="UNIT_PRICE_SOURCE">일위대가</option>
@@ -213,20 +218,22 @@ export default function MaterialsPage() {
                 <option value="OTHER">기타</option>
               </select>
 
-              <label style={styles.formLabel}>메모 (선택)</label>
+              <label className="block text-[13px] font-semibold text-muted-brand mb-[6px] mt-4">메모 (선택)</label>
               <textarea
                 value={uploadNotes}
                 onChange={e => setUploadNotes(e.target.value)}
                 placeholder="내역서에 대한 메모를 입력하세요"
                 rows={3}
-                style={styles.textarea}
+                className="w-full px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm resize-y box-border"
               />
 
-              {uploadError && <div style={styles.errorMsg}>{uploadError}</div>}
+              {uploadError && (
+                <div className="bg-[#ffebee] text-[#b71c1c] px-[14px] py-[10px] rounded-md text-[13px] mt-3">{uploadError}</div>
+              )}
 
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '20px' }}>
-                <button onClick={() => { setShowUpload(false); setUploadError('') }} style={styles.cancelBtn} disabled={uploading}>취소</button>
-                <button onClick={handleUpload} style={styles.primaryBtn} disabled={uploading}>
+              <div className="flex gap-3 justify-end mt-5">
+                <button onClick={() => { setShowUpload(false); setUploadError('') }} className="px-5 py-[10px] bg-[#e0e0e0] text-[#CBD5E0] border-0 rounded-md cursor-pointer text-sm" disabled={uploading}>취소</button>
+                <button onClick={handleUpload} className="px-5 py-[10px] bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-sm font-semibold" disabled={uploading}>
                   {uploading ? '업로드 중...' : '업로드'}
                 </button>
               </div>
@@ -235,63 +242,59 @@ export default function MaterialsPage() {
         )}
 
         {/* Filters */}
-        <div style={styles.filterRow}>
-          <select value={siteFilter} onChange={e => { setSiteFilter(e.target.value); setPage(1) }} style={styles.filterSelect}>
+        <div className="flex gap-3 items-center mb-4">
+          <select value={siteFilter} onChange={e => { setSiteFilter(e.target.value); setPage(1) }} className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-card">
             <option value="">전체 현장</option>
             {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
-          <span style={{ color: '#A0AEC0', fontSize: '14px' }}>총 {total}건</span>
+          <span className="text-muted-brand text-sm">총 {total}건</span>
         </div>
 
         {/* Table */}
-        <div style={styles.tableCard}>
+        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
           {loading ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#A0AEC0' }}>로딩 중...</div>
+            <div className="py-10 text-center text-muted-brand">로딩 중...</div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={styles.table}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
                 <thead>
                   <tr>
                     {['파일명', '현장', '유형', '상태', '시트수', '업로드일', '액션'].map(h => (
-                      <th key={h} style={styles.th}>{h}</th>
+                      <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {docs.length === 0 ? (
-                    <tr><td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#999' }}>업로드된 내역서가 없습니다</td></tr>
+                    <tr><td colSpan={7} className="text-center py-10 text-[#999]">업로드된 내역서가 없습니다</td></tr>
                   ) : docs.map(doc => (
-                    <tr key={doc.id} style={styles.tr}>
-                      <td style={styles.td}>
-                        <div style={{ fontWeight: 600, fontSize: '14px' }}>{doc.fileName}</div>
-                        <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{formatFileSize(doc.fileSize)}{doc.notes ? ` · ${doc.notes}` : ''}</div>
+                    <tr key={doc.id}>
+                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
+                        <div className="font-semibold text-sm">{doc.fileName}</div>
+                        <div className="text-[12px] text-muted-brand">{formatFileSize(doc.fileSize)}{doc.notes ? ` · ${doc.notes}` : ''}</div>
                       </td>
-                      <td style={styles.td}>{doc.site?.name ?? '-'}</td>
-                      <td style={styles.td}>
-                        <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '10px', background: '#e8f5e9', color: '#2e7d32' }}>
+                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">{doc.site?.name ?? '-'}</td>
+                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
+                        <span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-[#e8f5e9] text-[#2e7d32]">
                           {DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
                         </span>
                       </td>
-                      <td style={styles.td}>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '2px 10px',
-                          borderRadius: '20px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          background: `${STATUS_COLOR[doc.parseStatus]}20`,
-                          color: STATUS_COLOR[doc.parseStatus],
-                        }}>
+                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
+                        <span className="inline-block px-[10px] py-[2px] rounded-[20px] text-[12px] font-semibold"
+                          style={{
+                            background: `${STATUS_COLOR[doc.parseStatus]}20`,
+                            color: STATUS_COLOR[doc.parseStatus],
+                          }}>
                           {STATUS_LABEL[doc.parseStatus] ?? doc.parseStatus}
                         </span>
                       </td>
-                      <td style={styles.td}>{doc.sheetCount}</td>
-                      <td style={styles.td}>{new Date(doc.uploadedAt).toLocaleDateString('ko-KR')}</td>
-                      <td style={styles.td}>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <Link href={`/admin/materials/estimates/${doc.id}`} style={styles.actionBtn}>보기</Link>
-                          <button onClick={() => handleReparse(doc.id)} style={styles.actionBtnSecondary}>재파싱</button>
-                          <button onClick={() => handleDelete(doc.id)} style={styles.actionBtnDanger}>삭제</button>
+                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">{doc.sheetCount}</td>
+                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(doc.uploadedAt).toLocaleDateString('ko-KR')}</td>
+                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
+                        <div className="flex gap-2">
+                          <Link href={`/admin/materials/estimates/${doc.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-[#5BA4D9] border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
+                          <button onClick={() => handleReparse(doc.id)} className="px-[10px] py-1 bg-[#f3e5f5] text-[#7b1fa2] border border-[#ce93d8] rounded cursor-pointer text-[12px] font-semibold">재파싱</button>
+                          <button onClick={() => handleDelete(doc.id)} className="px-[10px] py-1 bg-[#ffebee] text-[#b71c1c] border border-[#ef9a9a] rounded cursor-pointer text-[12px] font-semibold">삭제</button>
                         </div>
                       </td>
                     </tr>
@@ -303,47 +306,14 @@ export default function MaterialsPage() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', padding: '20px 0 4px' }}>
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={styles.pageBtn}>이전</button>
-              <span style={{ padding: '6px 12px', fontSize: '14px', color: '#A0AEC0' }}>{page} / {totalPages}</span>
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={styles.pageBtn}>다음</button>
+            <div className="flex gap-2 justify-center py-5 pb-1">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-[14px] py-[6px] border border-[rgba(91,164,217,0.3)] rounded bg-card cursor-pointer text-[13px]">이전</button>
+              <span className="px-3 py-[6px] text-sm text-muted-brand">{page} / {totalPages}</span>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-[14px] py-[6px] border border-[rgba(91,164,217,0.3)] rounded bg-card cursor-pointer text-[13px]">다음</button>
             </div>
           )}
         </div>
       </main>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection: { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navItemActive: { display: 'block', color: 'white', padding: '10px 20px', fontSize: '14px', textDecoration: 'none', background: 'rgba(244,121,32,0.15)', borderLeft: '3px solid #F47920' },
-  logoutBtn: { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main: { flex: 1, padding: '32px' },
-  pageTitle: { fontSize: '24px', fontWeight: 700, margin: '0 0 4px' },
-  pageDesc: { fontSize: '14px', color: '#A0AEC0', margin: 0 },
-  primaryBtn: { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  cancelBtn: { padding: '10px 20px', background: '#e0e0e0', color: '#CBD5E0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
-  filterRow: { display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' },
-  filterSelect: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
-  tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  th: { textAlign: 'left', padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' },
-  td: { padding: '12px', fontSize: '14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' },
-  tr: {},
-  actionBtn: { padding: '4px 10px', background: 'rgba(91,164,217,0.12)', color: '#5BA4D9', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'inline-block' },
-  actionBtnSecondary: { padding: '4px 10px', background: '#f3e5f5', color: '#7b1fa2', border: '1px solid #ce93d8', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 },
-  actionBtnDanger: { padding: '4px 10px', background: '#ffebee', color: '#b71c1c', border: '1px solid #ef9a9a', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 },
-  pageBtn: { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', background: '#243144', cursor: 'pointer', fontSize: '13px' },
-  modalOverlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modal: { background: '#243144', borderRadius: '12px', padding: '32px', width: '480px', maxWidth: '90vw', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' },
-  formLabel: { display: 'block', fontSize: '13px', fontWeight: 600, color: '#A0AEC0', marginBottom: '6px', marginTop: '16px' },
-  fileInput: { display: 'block', width: '100%', padding: '8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px' },
-  select: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
-  textarea: { width: '100%', padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', resize: 'vertical', boxSizing: 'border-box' },
-  errorMsg: { background: '#ffebee', color: '#b71c1c', padding: '10px 14px', borderRadius: '6px', fontSize: '13px', marginTop: '12px' },
 }

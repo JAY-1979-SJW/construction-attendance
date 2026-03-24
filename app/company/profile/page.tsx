@@ -31,14 +31,6 @@ const VERIFICATION_STATUS_LABELS: Record<string, string> = {
   REJECTED: '반려', INACTIVE: '비활성',
 }
 
-const VERIFICATION_STATUS_COLORS: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-500',
-  PENDING_VERIFICATION: 'bg-yellow-100 text-yellow-700',
-  VERIFIED: 'bg-green-100 text-green-700',
-  REJECTED: 'bg-red-100 text-red-600',
-  INACTIVE: 'bg-gray-100 text-gray-400',
-}
-
 function fmtDate(d?: string | null) {
   return d ? new Date(d).toLocaleDateString('ko-KR') : '—'
 }
@@ -98,37 +90,47 @@ export default function CompanyProfilePage() {
     } finally { setSaving(false) }
   }
 
-  if (loading) return <div style={styles.container}><p style={{ color: '#9ca3af' }}>불러오는 중...</p></div>
-  if (!profile) return <div style={styles.container}><p style={{ color: '#ef4444' }}>회사 정보를 불러올 수 없습니다.</p></div>
+  if (loading) return <div className="p-8 max-w-[800px] mx-auto font-sans"><p className="text-[#9ca3af]">불러오는 중...</p></div>
+  if (!profile) return <div className="p-8 max-w-[800px] mx-auto font-sans"><p className="text-[#ef4444]">회사 정보를 불러올 수 없습니다.</p></div>
 
   const vs = profile.externalVerificationStatus
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>내 회사 정보</h1>
+    <div className="p-8 max-w-[800px] mx-auto font-sans">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-[22px] font-bold text-[#111827] m-0">내 회사 정보</h1>
         {!editing && (
-          <button onClick={startEdit} style={styles.editBtn}>수정</button>
+          <button
+            onClick={startEdit}
+            className="px-4 py-2 bg-card border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px] text-[#374151]"
+          >
+            수정
+          </button>
         )}
       </div>
 
       {msg && (
-        <div style={{ ...styles.msg, background: msg.type === 'success' ? '#d1fae5' : '#fee2e2', color: msg.type === 'success' ? '#065f46' : '#991b1b' }}>
+        <div
+          className="px-[14px] py-[10px] rounded-md mb-4 text-[13px]"
+          style={{
+            background: msg.type === 'success' ? '#d1fae5' : '#fee2e2',
+            color: msg.type === 'success' ? '#065f46' : '#991b1b',
+          }}
+        >
           {msg.text}
         </div>
       )}
 
       {/* 인증 상태 배너 */}
       {vs && (
-        <div style={{
-          padding: '12px 16px',
-          borderRadius: '8px',
-          marginBottom: '20px',
-          fontSize: '13px',
-          background: vs === 'VERIFIED' ? '#d1fae5' : vs === 'PENDING_VERIFICATION' ? '#fef3c7' : '#f3f4f6',
-          color: vs === 'VERIFIED' ? '#065f46' : vs === 'PENDING_VERIFICATION' ? '#92400e' : '#374151',
-          border: `1px solid ${vs === 'VERIFIED' ? '#6ee7b7' : vs === 'PENDING_VERIFICATION' ? '#fde047' : '#d1d5db'}`,
-        }}>
+        <div
+          className="px-4 py-3 rounded-lg mb-5 text-[13px]"
+          style={{
+            background: vs === 'VERIFIED' ? '#d1fae5' : vs === 'PENDING_VERIFICATION' ? '#fef3c7' : '#f3f4f6',
+            color: vs === 'VERIFIED' ? '#065f46' : vs === 'PENDING_VERIFICATION' ? '#92400e' : '#374151',
+            border: `1px solid ${vs === 'VERIFIED' ? '#6ee7b7' : vs === 'PENDING_VERIFICATION' ? '#fde047' : '#d1d5db'}`,
+          }}
+        >
           <strong>사업자 인증 상태:</strong> {VERIFICATION_STATUS_LABELS[vs] ?? vs}
           {vs === 'PENDING_VERIFICATION' && ' — 관리자 검토 중입니다.'}
           {vs === 'REJECTED' && ` — 반려 사유를 확인하고 재신청해 주세요.`}
@@ -136,14 +138,14 @@ export default function CompanyProfilePage() {
         </div>
       )}
 
-      <div style={styles.card}>
+      <div className="bg-card border border-[#e5e7eb] rounded-xl p-6">
         {editing ? (
           <div>
-            <h2 style={styles.sectionTitle}>연락처 정보 수정</h2>
-            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '16px' }}>
+            <h2 className="text-[15px] font-semibold text-[#111827] mb-4 mt-0">연락처 정보 수정</h2>
+            <p className="text-[12px] text-[#6b7280] mb-4">
               회사명·사업자번호 등 공식 정보는 관리자에게 수정을 요청하세요.
             </p>
-            <div style={styles.grid}>
+            <div className="grid grid-cols-2 gap-4">
               {[
                 { key: 'contactName', label: '담당자명' },
                 { key: 'contactPhone', label: '담당자 연락처' },
@@ -151,35 +153,44 @@ export default function CompanyProfilePage() {
                 { key: 'address', label: '주소' },
               ].map(({ key, label }) => (
                 <div key={key}>
-                  <label style={styles.label}>{label}</label>
+                  <label className="block text-[12px] text-[#6b7280] mb-1">{label}</label>
                   <input
-                    style={styles.input}
+                    className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
                     value={(form as Record<string, string>)[key]}
                     onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
                   />
                 </div>
               ))}
-              <div style={{ gridColumn: '1 / -1' }}>
-                <label style={styles.label}>메모</label>
+              <div className="col-span-2">
+                <label className="block text-[12px] text-[#6b7280] mb-1">메모</label>
                 <textarea
                   rows={3}
-                  style={{ ...styles.input, resize: 'vertical' }}
+                  className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
                   value={form.notes}
                   onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
                 />
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-              <button onClick={handleSave} disabled={saving} style={styles.saveBtn}>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="px-5 py-2 bg-[#0f4c75] text-white border-none rounded-md cursor-pointer text-[13px]"
+              >
                 {saving ? '저장 중...' : '저장'}
               </button>
-              <button onClick={() => setEditing(false)} style={styles.cancelBtn}>취소</button>
+              <button
+                onClick={() => setEditing(false)}
+                className="px-4 py-2 bg-card border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px] text-[#374151]"
+              >
+                취소
+              </button>
             </div>
           </div>
         ) : (
           <div>
-            <h2 style={styles.sectionTitle}>회사 기본정보</h2>
-            <div style={styles.infoGrid}>
+            <h2 className="text-[15px] font-semibold text-[#111827] mb-4 mt-0">회사 기본정보</h2>
+            <div className="grid grid-cols-2 gap-4">
               <InfoRow label="회사명" value={profile.companyName} />
               <InfoRow label="사업자번호" value={profile.businessNumber} />
               <InfoRow label="법인번호" value={profile.corpNumber} />
@@ -192,15 +203,15 @@ export default function CompanyProfilePage() {
               <InfoRow label="주소" value={profile.address} fullWidth />
               {profile.notes && <InfoRow label="메모" value={profile.notes} fullWidth />}
               <div>
-                <span style={styles.infoLabel}>인증 상태</span>
+                <span className="block text-[11px] text-[#9ca3af] mb-1">인증 상태</span>
                 {vs ? (
-                  <span style={{
-                    fontSize: '12px', padding: '2px 8px', borderRadius: '4px', fontWeight: 600,
-                    ...vsStyle(vs),
-                  }}>
+                  <span
+                    className="text-[12px] px-2 py-[2px] rounded font-semibold"
+                    style={vsStyle(vs)}
+                  >
                     {VERIFICATION_STATUS_LABELS[vs] ?? vs}
                   </span>
-                ) : <span style={styles.infoValue}>해당 없음</span>}
+                ) : <span className="block text-[14px] text-[#374151]">해당 없음</span>}
               </div>
               <InfoRow label="등록일" value={fmtDate(profile.createdAt)} />
             </div>
@@ -224,42 +235,9 @@ function vsStyle(vs: string): React.CSSProperties {
 
 function InfoRow({ label, value, fullWidth }: { label: string; value: string | null | undefined; fullWidth?: boolean }) {
   return (
-    <div style={fullWidth ? { gridColumn: '1 / -1' } : {}}>
-      <span style={styles.infoLabel}>{label}</span>
-      <span style={styles.infoValue}>{value ?? '—'}</span>
+    <div className={fullWidth ? 'col-span-2' : ''}>
+      <span className="block text-[11px] text-[#9ca3af] mb-1">{label}</span>
+      <span className="block text-[14px] text-[#374151]">{value ?? '—'}</span>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  container: { padding: '32px', maxWidth: '800px', margin: '0 auto', fontFamily: 'sans-serif' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' },
-  title: { fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 },
-  editBtn: {
-    padding: '8px 16px', background: '#243144', border: '1px solid rgba(91,164,217,0.3)',
-    borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#374151',
-  },
-  card: {
-    background: '#243144', border: '1px solid #e5e7eb', borderRadius: '12px',
-    padding: '24px',
-  },
-  sectionTitle: { fontSize: '15px', fontWeight: 600, color: '#111827', marginBottom: '16px', marginTop: 0 },
-  infoGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' },
-  infoLabel: { display: 'block', fontSize: '11px', color: '#9ca3af', marginBottom: '4px' },
-  infoValue: { display: 'block', fontSize: '14px', color: '#374151' },
-  grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' },
-  label: { display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '4px' },
-  input: {
-    width: '100%', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px',
-    padding: '8px 10px', fontSize: '13px', boxSizing: 'border-box',
-  },
-  saveBtn: {
-    padding: '8px 20px', background: '#0f4c75', color: 'white',
-    border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
-  },
-  cancelBtn: {
-    padding: '8px 16px', background: '#243144', border: '1px solid rgba(91,164,217,0.3)',
-    borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#374151',
-  },
-  msg: { padding: '10px 14px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px' },
 }

@@ -23,9 +23,9 @@ export default function PrintCenterPage() {
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 16px', fontFamily: 'system-ui, sans-serif' }}>
-      <h1 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800 }}>관리자 출력물 센터</h1>
-      <p style={{ margin: '0 0 28px', fontSize: '13px', color: '#A0AEC0' }}>
+    <div className="max-w-[800px] mx-auto px-4 py-6 font-[system-ui,sans-serif]">
+      <h1 className="m-0 mb-[6px] text-[22px] font-extrabold">관리자 출력물 센터</h1>
+      <p className="m-0 mb-7 text-[13px] text-muted-brand">
         출력물을 선택하고 인쇄 또는 PDF로 저장하세요. 모든 출력물은 Ctrl+P (또는 인쇄 버튼)으로 PDF 저장 가능합니다.
       </p>
 
@@ -35,27 +35,31 @@ export default function PrintCenterPage() {
         description="특정 날짜의 전체 출퇴근 기록을 출력합니다. 현장별 필터 가능."
         icon="📋"
       >
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        <div className="flex gap-[10px] flex-wrap items-end">
           <div>
-            <label style={labelStyle}>날짜 *</label>
+            <label className="block text-[12px] font-bold mb-[5px] text-muted-brand">날짜 *</label>
             <input
               type="date"
               value={dailyDate}
               onChange={e => setDailyDate(e.target.value)}
-              style={inputStyle}
+              className="px-3 py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[13px] outline-none"
             />
           </div>
           <div>
-            <label style={labelStyle}>현장 ID (선택)</label>
+            <label className="block text-[12px] font-bold mb-[5px] text-muted-brand">현장 ID (선택)</label>
             <input
               type="text"
               value={dailySiteId}
               onChange={e => setDailySiteId(e.target.value)}
               placeholder="비우면 전체"
-              style={{ ...inputStyle, width: '160px' }}
+              className="w-[160px] px-3 py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[13px] outline-none"
             />
           </div>
-          <button onClick={openDailyAttendance} disabled={!dailyDate} style={printBtnStyle(!dailyDate)}>
+          <button
+            onClick={openDailyAttendance}
+            disabled={!dailyDate}
+            className={`px-5 py-[9px] text-white border-none rounded-md text-[13px] font-bold ${!dailyDate ? 'bg-[#bdbdbd] cursor-not-allowed' : 'bg-[#263238] cursor-pointer'}`}
+          >
             출력 열기 →
           </button>
         </div>
@@ -69,7 +73,7 @@ export default function PrintCenterPage() {
       >
         <a
           href="/admin/operations/labor-review"
-          style={{ ...printBtnStyle(false), textDecoration: 'none', display: 'inline-block' }}
+          className="inline-block px-5 py-[9px] bg-[#263238] text-white border-none rounded-md text-[13px] font-bold no-underline"
         >
           공수 검토 화면으로 →
         </a>
@@ -83,7 +87,7 @@ export default function PrintCenterPage() {
       >
         <a
           href="/admin/operations/today-tasks"
-          style={{ ...printBtnStyle(false), textDecoration: 'none', display: 'inline-block' }}
+          className="inline-block px-5 py-[9px] bg-[#263238] text-white border-none rounded-md text-[13px] font-bold no-underline"
         >
           오늘 할 일 보기 →
         </a>
@@ -97,18 +101,18 @@ export default function PrintCenterPage() {
       >
         <a
           href="/admin/operations/attendance-exceptions"
-          style={{ ...printBtnStyle(false), textDecoration: 'none', display: 'inline-block' }}
+          className="inline-block px-5 py-[9px] bg-[#263238] text-white border-none rounded-md text-[13px] font-bold no-underline"
         >
           예외 처리 센터로 →
         </a>
       </PrintCard>
 
       {/* 5. 종료 증빙 패키지 안내 */}
-      <div style={{ background: '#1B2838', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '18px 20px', marginTop: '16px' }}>
-        <div style={{ fontSize: '14px', color: '#A0AEC0' }}>
+      <div className="bg-brand border border-white/[0.12] rounded-[10px] px-5 py-[18px] mt-4">
+        <div className="text-[14px] text-muted-brand">
           💼 <strong>종료 증빙 패키지</strong>는 개별 근로자 종료 처리 화면에서 출력할 수 있습니다.
           <br />
-          <span style={{ fontSize: '12px' }}>경로: 관리자 → 근로자 상세 → 종료 처리 → 종료 완료 후 &ldquo;종료 증빙 패키지 보기&rdquo; 버튼</span>
+          <span className="text-[12px]">경로: 관리자 → 근로자 상세 → 종료 처리 → 종료 완료 후 &ldquo;종료 증빙 패키지 보기&rdquo; 버튼</span>
         </div>
       </div>
     </div>
@@ -122,26 +126,15 @@ function PrintCard({ title, description, icon, children }: {
   children: React.ReactNode
 }) {
   return (
-    <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '20px', marginBottom: '16px' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-        <div style={{ fontSize: '28px', flexShrink: 0 }}>{icon}</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '15px', fontWeight: 800, marginBottom: '4px' }}>{title}</div>
-          <div style={{ fontSize: '13px', color: '#777', marginBottom: '14px' }}>{description}</div>
+    <div className="bg-white border border-white/[0.12] rounded-[10px] p-5 mb-4">
+      <div className="flex items-start gap-[14px]">
+        <div className="text-[28px] flex-shrink-0">{icon}</div>
+        <div className="flex-1">
+          <div className="text-[15px] font-extrabold mb-1">{title}</div>
+          <div className="text-[13px] text-[#777] mb-[14px]">{description}</div>
           {children}
         </div>
       </div>
     </div>
   )
-}
-
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px', color: '#A0AEC0' }
-const inputStyle: React.CSSProperties = { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px', outline: 'none' }
-
-function printBtnStyle(disabled: boolean): React.CSSProperties {
-  return {
-    padding: '9px 20px', background: disabled ? '#bdbdbd' : '#263238', color: '#fff',
-    border: 'none', borderRadius: '6px', fontSize: '13px', cursor: disabled ? 'not-allowed' : 'pointer',
-    fontWeight: 700,
-  }
 }

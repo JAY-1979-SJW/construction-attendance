@@ -13,29 +13,11 @@ import Image from 'next/image'
  */
 export default function WorkerTopBar() {
   return (
-    <div
-      style={{
-        position:    'fixed',
-        top:         0,
-        left:        0,
-        right:       0,
-        zIndex:      50,
-      }}
-    >
+    <div className="fixed top-0 left-0 right-0 z-50">
       {/* 상단 3px 오렌지 라인 */}
-      <div style={{ height: '3px', background: '#F47920' }} />
+      <div className="h-[3px] w-full bg-[#F47920]" />
       {/* 로고 바 */}
-      <div
-        style={{
-          height:       '53px',
-          background:   '#0F1724',
-          borderBottom: '1px solid rgba(91,164,217,0.15)',
-          display:      'flex',
-          alignItems:   'center',
-          justifyContent: 'center',
-          boxShadow:    '0 2px 16px rgba(0,0,0,0.35)',
-        }}
-      >
+      <div className="h-[53px] bg-brand-deeper border-b border-[rgba(91,164,217,0.15)] flex items-center justify-center shadow-[0_2px_16px_rgba(0,0,0,0.35)]">
         <Image
           src="/logo/logo_main.png"
           alt="해한Ai Engineering"

@@ -83,39 +83,40 @@ export default function DevicesAnomalyPage() {
   const low    = anomalies.filter(a => a.severity === 'LOW').length
 
   return (
-    <div style={s.layout}>
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
-        <div style={s.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {NAV_ITEMS.map(item => (
           <Link key={item.href} href={item.href}
-            style={{ ...s.navItem, ...(item.href === '/admin/devices-anomaly' ? s.navActive : {}) }}>
+            className={`block px-5 py-2.5 text-[13px] no-underline ${item.href === '/admin/devices-anomaly' ? 'bg-white/10 text-white font-bold' : 'text-white/80'}`}>
             {item.label}
           </Link>
         ))}
         <button
           onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))}
-          style={s.logoutBtn}
+          className="mx-5 mt-6 py-2.5 bg-white/10 border-none rounded-md text-white/60 cursor-pointer text-[13px]"
         >로그아웃</button>
       </nav>
 
-      <main style={s.main}>
+      <main className="flex-1 p-8 overflow-auto">
         {/* 헤더 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+        <div className="flex justify-between items-center mb-6 flex-wrap gap-3">
           <div>
-            <h1 style={s.pageTitle}>이상행위 탐지</h1>
-            <p style={{ fontSize: '13px', color: '#A0AEC0', margin: '4px 0 0' }}>최근 30일간 기기 승인 + 공수 수정에서 이상 패턴을 탐지합니다.</p>
+            <h1 className="text-2xl font-bold m-0">이상행위 탐지</h1>
+            <p className="text-[13px] text-muted-brand mt-1 mb-0">최근 30일간 기기 승인 + 공수 수정에서 이상 패턴을 탐지합니다.</p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="flex items-center gap-3">
             {lastFetched && (
-              <span style={{ fontSize: '12px', color: '#aaa' }}>
+              <span className="text-[12px] text-[#aaa]">
                 마지막 조회: {lastFetched.toLocaleTimeString('ko-KR')}
               </span>
             )}
             <button
               onClick={load}
               disabled={loading}
-              style={{ ...s.btn, opacity: loading ? 0.6 : 1 }}
+              className="px-5 py-2.5 bg-[#F47920] text-white border-none rounded-lg cursor-pointer text-[14px] font-semibold"
+              style={{ opacity: loading ? 0.6 : 1 }}
             >
               {loading ? '조회 중...' : '새로고침'}
             </button>
@@ -123,60 +124,50 @@ export default function DevicesAnomalyPage() {
         </div>
 
         {msg && (
-          <div style={{ background: '#ffebee', color: '#c62828', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', fontSize: '14px' }}>
+          <div className="bg-[#ffebee] text-[#c62828] rounded-lg px-4 py-3 mb-4 text-[14px]">
             {msg}
           </div>
         )}
 
         {/* 요약 카운트 */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        <div className="flex gap-3 mb-6 flex-wrap">
           {[
             { label: 'HIGH', count: high,   style: SEVERITY_STYLE.HIGH },
             { label: 'MEDIUM', count: medium, style: SEVERITY_STYLE.MEDIUM },
             { label: 'LOW',  count: low,   style: SEVERITY_STYLE.LOW },
           ].map(({ label, count, style }) => (
-            <div key={label} style={{
-              background: style.bg,
-              border: `1px solid ${style.color}30`,
-              borderRadius: '10px',
-              padding: '14px 24px',
-              minWidth: '120px',
-              textAlign: 'center',
-            }}>
-              <div style={{ fontSize: '28px', fontWeight: 700, color: style.color }}>{count}</div>
-              <div style={{ fontSize: '12px', color: style.color, fontWeight: 600 }}>{label}</div>
+            <div key={label} className="rounded-[10px] px-6 py-[14px] min-w-[120px] text-center"
+              style={{
+                background: style.bg,
+                border: `1px solid ${style.color}30`,
+              }}>
+              <div className="text-[28px] font-bold" style={{ color: style.color }}>{count}</div>
+              <div className="text-[12px] font-semibold" style={{ color: style.color }}>{label}</div>
             </div>
           ))}
-          <div style={{
-            background: '#1B2838',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: '10px',
-            padding: '14px 24px',
-            minWidth: '120px',
-            textAlign: 'center',
-          }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#A0AEC0' }}>{anomalies.length}</div>
-            <div style={{ fontSize: '12px', color: '#A0AEC0', fontWeight: 600 }}>전체</div>
+          <div className="bg-brand border border-white/10 rounded-[10px] px-6 py-[14px] min-w-[120px] text-center">
+            <div className="text-[28px] font-bold text-muted-brand">{anomalies.length}</div>
+            <div className="text-[12px] font-semibold text-muted-brand">전체</div>
           </div>
         </div>
 
         {/* 테이블 */}
-        <div style={s.tableCard}>
+        <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
           {loading ? (
-            <div style={{ padding: '48px', textAlign: 'center', color: '#999' }}>탐지 중...</div>
+            <div className="py-12 text-center text-[#999]">탐지 중...</div>
           ) : anomalies.length === 0 ? (
-            <div style={{ padding: '48px', textAlign: 'center', color: '#999' }}>
-              <div style={{ fontSize: '40px', marginBottom: '12px' }}>✓</div>
-              <div style={{ fontWeight: 600, marginBottom: '4px' }}>이상 행위가 탐지되지 않았습니다.</div>
-              <div style={{ fontSize: '13px' }}>최근 30일간 기기 승인 및 공수 수정 패턴이 정상입니다.</div>
+            <div className="py-12 text-center text-[#999]">
+              <div className="text-[40px] mb-3">✓</div>
+              <div className="font-semibold mb-1">이상 행위가 탐지되지 않았습니다.</div>
+              <div className="text-[13px]">최근 30일간 기기 승인 및 공수 수정 패턴이 정상입니다.</div>
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={s.table}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px]">
                 <thead>
                   <tr>
                     {['유형', '심각도', '업체/관리자', '근로자', '기기정보', '발생시각', '상세내용'].map(h => (
-                      <th key={h} style={s.th}>{h}</th>
+                      <th key={h} className="bg-brand px-[14px] py-3 text-left font-semibold text-muted-brand border-b border-[#e0e0e0] whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -186,7 +177,7 @@ export default function DevicesAnomalyPage() {
                     const typ = TYPE_STYLE[a.type]
                     return (
                       <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                        <td style={s.td}>
+                        <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle">
                           <span style={{
                             background: typ.bg,
                             color: typ.color,
@@ -199,7 +190,7 @@ export default function DevicesAnomalyPage() {
                             {TYPE_LABELS[a.type]}
                           </span>
                         </td>
-                        <td style={s.td}>
+                        <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle">
                           <span style={{
                             background: sev.bg,
                             color: sev.color,
@@ -212,24 +203,24 @@ export default function DevicesAnomalyPage() {
                             {sev.label}
                           </span>
                         </td>
-                        <td style={s.td}>
-                          <div style={{ fontWeight: 600, fontSize: '13px' }}>{a.companyName}</div>
-                          <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{a.adminName}</div>
+                        <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle">
+                          <div className="font-semibold text-[13px]">{a.companyName}</div>
+                          <div className="text-[12px] text-muted-brand">{a.adminName}</div>
                         </td>
-                        <td style={{ ...s.td, fontSize: '13px', maxWidth: '160px' }}>
-                          <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[13px] max-w-[160px]">
+                          <div className="overflow-hidden text-ellipsis whitespace-nowrap">
                             {a.workerName}
                           </div>
                         </td>
-                        <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0', maxWidth: '160px' }}>
-                          <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[12px] text-muted-brand max-w-[160px]">
+                          <div className="overflow-hidden text-ellipsis whitespace-nowrap">
                             {a.deviceInfo}
                           </div>
                         </td>
-                        <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0', whiteSpace: 'nowrap' }}>
+                        <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[12px] text-muted-brand whitespace-nowrap">
                           {new Date(a.occurredAt).toLocaleString('ko-KR')}
                         </td>
-                        <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0', maxWidth: '240px' }}>
+                        <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[12px] text-muted-brand max-w-[240px]">
                           {a.description}
                         </td>
                       </tr>
@@ -268,20 +259,3 @@ const NAV_ITEMS = [
   { href: '/admin/device-requests',           label: '기기 변경' },
   { href: '/admin/devices-anomaly',           label: '기기 이상 감지' },
 ]
-
-const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
-  navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
-  navActive:    { background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 700 },
-  logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main:         { flex: 1, padding: '32px', overflow: 'auto' },
-  pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0' },
-  btn:          { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden' },
-  table:        { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
-  th:           { background: '#1B2838', padding: '12px 14px', textAlign: 'left', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' },
-  td:           { padding: '12px 14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' },
-}

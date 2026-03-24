@@ -208,20 +208,24 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
   const hasCritical  = criticals.length > 0
 
   return (
-    <div style={{ maxWidth: '720px', margin: '0 auto', padding: '24px 16px', fontFamily: 'system-ui, sans-serif' }}>
+    <div className="max-w-[720px] mx-auto px-4 py-6 font-[system-ui,sans-serif]">
       {/* 뒤로가기 */}
-      <div style={{ marginBottom: '16px' }}>
-        <Link href={`/admin/workers/${workerId}`} style={{ color: '#4A93C8', fontSize: '14px', textDecoration: 'none' }}>
+      <div className="mb-4">
+        <Link href={`/admin/workers/${workerId}`} className="text-[#4A93C8] text-[14px] no-underline">
           ← 근로자 상세로 돌아가기
         </Link>
       </div>
 
       {/* 헤더 */}
-      <div style={{ background: done ? '#e8f5e9' : '#fff3e0', border: `1px solid ${done ? '#a5d6a7' : '#ffcc80'}`, borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
-        <h1 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800, color: done ? '#2e7d32' : '#e65100' }}>
+      <div className="rounded-xl p-5 mb-5"
+        style={{
+          background: done ? '#e8f5e9' : '#fff3e0',
+          border: `1px solid ${done ? '#a5d6a7' : '#ffcc80'}`,
+        }}>
+        <h1 className="m-0 mb-1.5 text-[22px] font-black" style={{ color: done ? '#2e7d32' : '#e65100' }}>
           {done ? '✅ 종료 처리 완료' : '⚠️ 종료 처리 체크리스트'}
         </h1>
-        <p style={{ margin: 0, fontSize: '13px', color: '#A0AEC0' }}>
+        <p className="m-0 text-[13px] text-muted-brand">
           {done
             ? '종료 확정 및 스냅샷이 저장되었습니다. 분쟁방어 패널에서 확인할 수 있습니다.'
             : '단순 상태 변경은 금지됩니다. 아래 절차를 완료해야 종료 처리됩니다.'}
@@ -230,23 +234,22 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 
       {/* 단계 표시 */}
       {!done && (
-        <div style={{ display: 'flex', gap: '0', marginBottom: '24px' }}>
+        <div className="flex gap-0 mb-6">
           {(['기본정보', '자동점검', '보완액션', '최종확인', '완료'] as const).map((label, i) => {
             const n = (i + 1) as Step
             const active  = step === n
             const passed  = step > n
             return (
-              <div key={n} style={{ flex: 1, textAlign: 'center' }}>
-                <div style={{
-                  width: '28px', height: '28px', borderRadius: '50%', margin: '0 auto 4px',
-                  background: passed ? '#2e7d32' : active ? '#1565c0' : '#e0e0e0',
-                  color: (passed || active) ? '#fff' : '#999',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '13px', fontWeight: 700,
-                }}>
+              <div key={n} className="flex-1 text-center">
+                <div className="w-7 h-7 rounded-full mx-auto mb-1 flex items-center justify-center text-[13px] font-bold"
+                  style={{
+                    background: passed ? '#2e7d32' : active ? '#1565c0' : '#e0e0e0',
+                    color: (passed || active) ? '#fff' : '#999',
+                  }}>
                   {passed ? '✓' : n}
                 </div>
-                <div style={{ fontSize: '11px', color: active ? '#1565c0' : passed ? '#2e7d32' : '#999', fontWeight: active ? 700 : 400 }}>
+                <div className="text-[11px]"
+                  style={{ color: active ? '#1565c0' : passed ? '#2e7d32' : '#999', fontWeight: active ? 700 : 400 }}>
                   {label}
                 </div>
               </div>
@@ -257,21 +260,21 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 
       {/* 에러 */}
       {error && (
-        <div style={{ background: '#ffebee', border: '1px solid #ef9a9a', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#c62828', fontSize: '14px' }}>
+        <div className="bg-[#ffebee] border border-[#ef9a9a] rounded-lg px-4 py-3 mb-4 text-[#c62828] text-[14px]">
           {error}
         </div>
       )}
 
       {/* ── Step 1: 기본정보 ─────────────────────────────────────────────────── */}
       {step === 1 && (
-        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '24px' }}>
-          <h2 style={{ margin: '0 0 20px', fontSize: '16px', fontWeight: 700 }}>Step 1 — 종료 기본정보 입력</h2>
+        <div className="bg-white border border-white/[0.12] rounded-xl p-6">
+          <h2 className="m-0 mb-5 text-[16px] font-bold">Step 1 — 종료 기본정보 입력</h2>
 
           <Field label="종료 유형" required>
             <select
               value={form.terminationReason}
               onChange={e => setForm(f => ({ ...f, terminationReason: e.target.value }))}
-              style={selectStyle}
+              className="w-full px-3 py-2.5 border border-white/[0.12] rounded-lg text-[14px] outline-none box-border bg-white"
             >
               <option value="">선택하세요</option>
               {TERMINATION_REASONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -283,7 +286,7 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
               type="date"
               value={form.terminationDate}
               onChange={e => setForm(f => ({ ...f, terminationDate: e.target.value }))}
-              style={inputStyle}
+              className="w-full px-3 py-2.5 border border-white/[0.12] rounded-lg text-[14px] outline-none box-border"
             />
           </Field>
 
@@ -292,7 +295,7 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
               value={form.reasonCategory}
               onChange={e => setForm(f => ({ ...f, reasonCategory: e.target.value }))}
               placeholder="예: 계약만료, 현장종료, 자진퇴사"
-              style={inputStyle}
+              className="w-full px-3 py-2.5 border border-white/[0.12] rounded-lg text-[14px] outline-none box-border"
             />
           </Field>
 
@@ -302,14 +305,18 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
               onChange={e => setForm(f => ({ ...f, detailReason: e.target.value }))}
               placeholder="구체적인 종료 경위와 사유를 입력하세요."
               rows={4}
-              style={{ ...inputStyle, resize: 'vertical' }}
+              className="w-full px-3 py-2.5 border border-white/[0.12] rounded-lg text-[14px] outline-none box-border resize-y"
             />
           </Field>
 
           <button
             onClick={handleStartReview}
             disabled={loading || !form.terminationReason || !form.terminationDate || !form.detailReason.trim()}
-            style={primaryBtn(loading || !form.terminationReason || !form.terminationDate || !form.detailReason.trim())}
+            className="flex-1 w-full py-3.5 border-none rounded-lg text-white text-[14px] font-bold"
+            style={{
+              background: (loading || !form.terminationReason || !form.terminationDate || !form.detailReason.trim()) ? '#bdbdbd' : '#1565c0',
+              cursor: (loading || !form.terminationReason || !form.terminationDate || !form.detailReason.trim()) ? 'not-allowed' : 'pointer',
+            }}
           >
             {loading ? '자동점검 실행 중...' : '자동점검 시작 →'}
           </button>
@@ -318,34 +325,39 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 
       {/* ── Step 2: 자동점검 결과 ────────────────────────────────────────────── */}
       {step === 2 && (
-        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '24px' }}>
-          <h2 style={{ margin: '0 0 20px', fontSize: '16px', fontWeight: 700 }}>Step 2 — 자동점검 결과</h2>
+        <div className="bg-white border border-white/[0.12] rounded-xl p-6">
+          <h2 className="m-0 mb-5 text-[16px] font-bold">Step 2 — 자동점검 결과</h2>
 
           {hasCritical && (
-            <div style={{ background: '#ffebee', border: '2px solid #e53935', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px' }}>
-              <div style={{ fontSize: '15px', fontWeight: 800, color: '#c62828', marginBottom: '8px' }}>
+            <div className="bg-[#ffebee] border-2 border-[#e53935] rounded-[10px] px-4 py-3.5 mb-5">
+              <div className="text-[15px] font-black text-[#c62828] mb-2">
                 🚨 치명 리스크 {criticals.length}건 — 즉시 보완이 필요합니다
               </div>
               {criticals.map(c => (
-                <div key={c.key} style={{ fontSize: '13px', color: '#c62828', marginBottom: '4px' }}>· {c.label}</div>
+                <div key={c.key} className="text-[13px] text-[#c62828] mb-1">· {c.label}</div>
               ))}
             </div>
           )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+          <div className="flex flex-col gap-2 mb-5">
             {checks.map(c => {
               const cfg = SEVERITY_CONFIG[c.severity]
               return (
-                <div key={c.key} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: c.passed ? '#fafafa' : cfg.bg, border: `1px solid ${c.passed ? '#e0e0e0' : cfg.border}`, borderRadius: '8px' }}>
-                  <span style={{ fontSize: '16px', width: '20px', flexShrink: 0 }}>{c.passed ? '✅' : cfg.icon}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: c.passed ? '#333' : cfg.color }}>{c.label}</div>
+                <div key={c.key} className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg"
+                  style={{
+                    background: c.passed ? '#fafafa' : cfg.bg,
+                    border: `1px solid ${c.passed ? '#e0e0e0' : cfg.border}`,
+                  }}>
+                  <span className="text-[16px] w-5 shrink-0">{c.passed ? '✅' : cfg.icon}</span>
+                  <div className="flex-1">
+                    <div className="text-[13px] font-semibold" style={{ color: c.passed ? '#333' : cfg.color }}>{c.label}</div>
                     {!c.passed && (
-                      <div style={{ fontSize: '11px', color: cfg.color, marginTop: '2px' }}>{cfg.label} — {c.action ? ACTION_LABEL[c.action] ?? c.action : '관리자 확인 필요'}</div>
+                      <div className="text-[11px] mt-0.5" style={{ color: cfg.color }}>{cfg.label} — {c.action ? ACTION_LABEL[c.action] ?? c.action : '관리자 확인 필요'}</div>
                     )}
                   </div>
                   {!c.passed && (
-                    <span style={{ fontSize: '11px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, padding: '2px 8px', borderRadius: '20px', fontWeight: 700, flexShrink: 0 }}>
+                    <span className="text-[11px] px-2 py-0.5 rounded-full font-bold shrink-0"
+                      style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
                       {cfg.label}
                     </span>
                   )}
@@ -354,9 +366,9 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
             })}
           </div>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => setStep(1)} style={secondaryBtn}>← 수정</button>
-            <button onClick={handleCheckReviewed} style={primaryBtn(false)}>
+          <div className="flex gap-2.5">
+            <button onClick={() => setStep(1)} className="px-5 py-3.5 border border-white/[0.12] rounded-lg bg-white cursor-pointer text-[14px] text-muted-brand">← 수정</button>
+            <button onClick={handleCheckReviewed} className="flex-1 py-3.5 border-none rounded-lg bg-[#1565c0] text-white text-[14px] font-bold cursor-pointer">
               {(criticals.length + dangers.length) > 0 ? '누락항목 보완하기 →' : '최종 확인으로 →'}
             </button>
           </div>
@@ -365,23 +377,25 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 
       {/* ── Step 3: 누락항목 보완 ────────────────────────────────────────────── */}
       {step === 3 && (
-        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '24px' }}>
-          <h2 style={{ margin: '0 0 16px', fontSize: '16px', fontWeight: 700 }}>Step 3 — 누락항목 보완</h2>
-          <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#A0AEC0' }}>
+        <div className="bg-white border border-white/[0.12] rounded-xl p-6">
+          <h2 className="m-0 mb-4 text-[16px] font-bold">Step 3 — 누락항목 보완</h2>
+          <p className="m-0 mb-5 text-[13px] text-muted-brand">
             아래 항목들을 보완한 후 재점검을 실행하세요. 치명 항목은 반드시 처리해 주세요.
           </p>
 
           {[...criticals, ...dangers].map(c => {
             const cfg = SEVERITY_CONFIG[c.severity]
             return (
-              <div key={c.key} style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, borderRadius: '10px', padding: '14px 16px', marginBottom: '12px' }}>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: cfg.color, marginBottom: '8px' }}>
+              <div key={c.key} className="rounded-[10px] px-4 py-3.5 mb-3"
+                style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                <div className="text-[13px] font-bold mb-2" style={{ color: cfg.color }}>
                   {cfg.icon} {c.label}
                 </div>
                 {c.action && (
                   <Link
                     href={getActionHref(c.action, workerId)}
-                    style={{ display: 'inline-block', padding: '6px 16px', background: cfg.color, color: '#fff', borderRadius: '6px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}
+                    className="inline-block px-4 py-1.5 text-white rounded-md text-[13px] font-bold no-underline"
+                    style={{ background: cfg.color }}
                   >
                     {ACTION_LABEL[c.action] ?? c.action} →
                   </Link>
@@ -390,9 +404,11 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
             )
           })}
 
-          <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-            <button onClick={() => setStep(2)} style={secondaryBtn}>← 점검결과 보기</button>
-            <button onClick={handleRecheck} disabled={loading} style={primaryBtn(loading)}>
+          <div className="flex gap-2.5 mt-2">
+            <button onClick={() => setStep(2)} className="px-5 py-3.5 border border-white/[0.12] rounded-lg bg-white cursor-pointer text-[14px] text-muted-brand">← 점검결과 보기</button>
+            <button onClick={handleRecheck} disabled={loading}
+              className="flex-1 py-3.5 border-none rounded-lg text-white text-[14px] font-bold"
+              style={{ background: loading ? '#bdbdbd' : '#1565c0', cursor: loading ? 'not-allowed' : 'pointer' }}>
               {loading ? '재점검 중...' : '재점검 후 계속 →'}
             </button>
           </div>
@@ -401,40 +417,37 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 
       {/* ── Step 4: 최종 확인 ────────────────────────────────────────────────── */}
       {step === 4 && (
-        <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '24px' }}>
-          <h2 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: 700 }}>Step 4 — 관리자 최종 확인</h2>
-          <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#A0AEC0' }}>
+        <div className="bg-white border border-white/[0.12] rounded-xl p-6">
+          <h2 className="m-0 mb-1.5 text-[16px] font-bold">Step 4 — 관리자 최종 확인</h2>
+          <p className="m-0 mb-5 text-[13px] text-muted-brand">
             아래 항목을 모두 확인한 후 종료를 확정할 수 있습니다.
           </p>
 
           {hasCritical && (
-            <div style={{ background: '#ffebee', border: '2px solid #e53935', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px', fontSize: '13px', color: '#c62828', fontWeight: 700 }}>
+            <div className="bg-[#ffebee] border-2 border-[#e53935] rounded-[10px] px-4 py-3 mb-4 text-[13px] text-[#c62828] font-bold">
               🚨 치명 리스크 {criticals.length}건이 미해결 상태입니다. 확정 전 반드시 보완하세요.
             </div>
           )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+          <div className="flex flex-col gap-2.5 mb-6">
             {CONFIRM_CHECKS.map(({ field, label }) => (
               <label
                 key={field}
                 onClick={() => toggleConfirm(field)}
+                className="flex items-center gap-3 p-3.5 rounded-[10px] cursor-pointer"
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '12px',
-                  padding: '14px', borderRadius: '10px', cursor: 'pointer',
                   background: review?.[field] ? '#e8f5e9' : '#fafafa',
                   border: `1px solid ${review?.[field] ? '#a5d6a7' : '#e0e0e0'}`,
                 }}
               >
-                <div style={{
-                  width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0,
-                  background: review?.[field] ? '#2e7d32' : '#fff',
-                  border: `2px solid ${review?.[field] ? '#2e7d32' : '#ccc'}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff', fontSize: '13px', fontWeight: 700,
-                }}>
+                <div className="w-[22px] h-[22px] rounded-full shrink-0 flex items-center justify-center text-white text-[13px] font-bold"
+                  style={{
+                    background: review?.[field] ? '#2e7d32' : '#fff',
+                    border: `2px solid ${review?.[field] ? '#2e7d32' : '#ccc'}`,
+                  }}>
                   {review?.[field] ? '✓' : ''}
                 </div>
-                <span style={{ fontSize: '14px', color: review?.[field] ? '#2e7d32' : '#333', fontWeight: review?.[field] ? 700 : 400 }}>
+                <span className="text-[14px]" style={{ color: review?.[field] ? '#2e7d32' : '#333', fontWeight: review?.[field] ? 700 : 400 }}>
                   {label}
                 </span>
               </label>
@@ -442,28 +455,29 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
           </div>
 
           {/* 종료정보 요약 */}
-          <div style={{ background: '#1B2838', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px', fontSize: '13px', color: '#A0AEC0' }}>
-            <div style={{ fontWeight: 700, marginBottom: '8px', color: '#CBD5E0' }}>종료 처리 요약</div>
+          <div className="bg-brand rounded-[10px] px-4 py-3.5 mb-5 text-[13px] text-muted-brand">
+            <div className="font-bold mb-2 text-[#CBD5E0]">종료 처리 요약</div>
             <div>사유: <strong>{TERMINATION_REASONS.find(r => r.value === form.terminationReason)?.label}</strong></div>
             <div>종료일: <strong>{form.terminationDate}</strong></div>
-            <div style={{ marginTop: '4px', color: '#777' }}>{form.detailReason}</div>
+            <div className="mt-1 text-[#777]">{form.detailReason}</div>
           </div>
 
           {/* 치명 경고 반복 표시 (확정 버튼 근처) */}
           {hasCritical && (
-            <div style={{ background: '#ffebee', border: '2px solid #e53935', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px', fontSize: '13px', color: '#c62828' }}>
+            <div className="bg-[#ffebee] border-2 border-[#e53935] rounded-[10px] px-4 py-3 mb-4 text-[13px] text-[#c62828]">
               🚨 <strong>치명 리스크 미해결 — 종료 후 분쟁 발생 시 불리할 수 있습니다.</strong>
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => setStep(3)} style={secondaryBtn}>← 보완 액션으로</button>
+          <div className="flex gap-2.5">
+            <button onClick={() => setStep(3)} className="px-5 py-3.5 border border-white/[0.12] rounded-lg bg-white cursor-pointer text-[14px] text-muted-brand">← 보완 액션으로</button>
             <button
               onClick={handleConfirm}
               disabled={!allChecked || saving}
+              className="flex-1 py-3.5 border-none rounded-lg text-white text-[14px] font-bold"
               style={{
-                ...primaryBtn(!allChecked || saving),
                 background: (!allChecked || saving) ? '#bdbdbd' : '#c62828',
+                cursor: (!allChecked || saving) ? 'not-allowed' : 'pointer',
               }}
             >
               {saving ? '처리 중...' : allChecked ? '종료 확정' : `확인 항목 ${CONFIRM_CHECKS.filter(c => !review?.[c.field]).length}개 남음`}
@@ -474,23 +488,25 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 
       {/* ── Step 5: 완료 ─────────────────────────────────────────────────────── */}
       {(step === 5 || done) && (
-        <div style={{ background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: '12px', padding: '32px', textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
-          <h2 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 800, color: '#2e7d32' }}>종료 처리 완료</h2>
-          <p style={{ margin: '0 0 24px', fontSize: '14px', color: '#A0AEC0' }}>
+        <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-xl p-8 text-center">
+          <div className="text-[48px] mb-3">✅</div>
+          <h2 className="m-0 mb-2 text-[20px] font-black text-[#2e7d32]">종료 처리 완료</h2>
+          <p className="m-0 mb-6 text-[14px] text-muted-brand">
             종료 스냅샷이 저장되었으며 감사로그가 기록되었습니다.
           </p>
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href={`/admin/workers/${workerId}`} style={{ ...linkBtn, background: '#1565c0' }}>
+          <div className="flex gap-2.5 justify-center flex-wrap">
+            <Link href={`/admin/workers/${workerId}`}
+              className="inline-block px-5 py-3 rounded-lg text-white text-[14px] font-bold no-underline bg-[#1565c0]">
               근로자 상세 보기
             </Link>
-            <Link href={`/admin/workers/${workerId}/dispute-panel`} style={{ ...linkBtn, background: '#e53935' }}>
+            <Link href={`/admin/workers/${workerId}/dispute-panel`}
+              className="inline-block px-5 py-3 rounded-lg text-white text-[14px] font-bold no-underline bg-[#e53935]">
               분쟁방어 패널 →
             </Link>
             {review?.id && (
               <Link
                 href={`/admin/workers/${workerId}/termination/evidence?reviewId=${review.id}`}
-                style={{ ...linkBtn, background: '#37474f' }}
+                className="inline-block px-5 py-3 rounded-lg text-white text-[14px] font-bold no-underline bg-[#37474f]"
               >
                 종료 증빙 패키지 보기
               </Link>
@@ -500,12 +516,13 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
                 href={`/api/admin/workers/${workerId}/termination-review/${review.id}/evidence/pdf`}
                 target="_blank"
                 rel="noreferrer"
-                style={{ ...linkBtn, background: '#4a148c' }}
+                className="inline-block px-5 py-3 rounded-lg text-white text-[14px] font-bold no-underline bg-[#4a148c]"
               >
                 PDF 다운로드
               </a>
             )}
-            <button onClick={() => router.push('/admin/workers')} style={{ ...primaryBtn(false), background: '#757575' }}>
+            <button onClick={() => router.push('/admin/workers')}
+              className="flex-1 py-3.5 border-none rounded-lg text-white text-[14px] font-bold cursor-pointer bg-[#757575]">
               목록으로
             </button>
           </div>
@@ -519,9 +536,9 @@ export default function TerminationPage({ params }: { params: Promise<{ id: stri
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: '16px' }}>
-      <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '6px', color: '#CBD5E0' }}>
-        {label} {required && <span style={{ color: '#e53935' }}>*</span>}
+    <div className="mb-4">
+      <label className="block text-[13px] font-bold mb-1.5 text-[#CBD5E0]">
+        {label} {required && <span className="text-[#e53935]">*</span>}
       </label>
       {children}
     </div>
@@ -537,27 +554,4 @@ function getActionHref(action: string, workerId: string): string {
     case 'REDELIVER_DOCUMENT': return `/admin/workers/${workerId}?tab=docs`
     default:                   return `/admin/workers/${workerId}`
   }
-}
-
-const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '10px 12px', border: '1px solid rgba(255,255,255,0.12)',
-  borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box',
-}
-const selectStyle: React.CSSProperties = { ...inputStyle, background: '#fff' }
-
-function primaryBtn(disabled: boolean): React.CSSProperties {
-  return {
-    flex: 1, padding: '13px', border: 'none', borderRadius: '8px',
-    background: disabled ? '#bdbdbd' : '#1565c0',
-    color: '#fff', fontSize: '14px', fontWeight: 700,
-    cursor: disabled ? 'not-allowed' : 'pointer',
-  }
-}
-const secondaryBtn: React.CSSProperties = {
-  padding: '13px 20px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px',
-  background: '#fff', fontSize: '14px', cursor: 'pointer', color: '#A0AEC0',
-}
-const linkBtn: React.CSSProperties = {
-  display: 'inline-block', padding: '12px 20px', borderRadius: '8px',
-  color: '#fff', fontSize: '14px', fontWeight: 700, textDecoration: 'none',
 }

@@ -53,12 +53,12 @@ export default function TodayTasksPage() {
   useEffect(() => { load() }, [])
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 16px', fontFamily: 'system-ui, sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div className="max-w-[800px] mx-auto px-4 py-6 font-[system-ui,sans-serif]">
+      <div className="flex justify-between items-center mb-5">
         <div>
-          <h1 style={{ margin: 0, fontSize: '22px', fontWeight: 800 }}>오늘 처리할 일</h1>
+          <h1 className="m-0 text-[22px] font-black">오늘 처리할 일</h1>
           {data && (
-            <div style={{ fontSize: '13px', color: '#A0AEC0', marginTop: '4px' }}>
+            <div className="text-[13px] text-muted-brand mt-1">
               {data.todayStr} 기준 · {new Date(data.generatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 조회
             </div>
           )}
@@ -66,14 +66,15 @@ export default function TodayTasksPage() {
         <button
           onClick={load}
           disabled={loading}
-          style={{ padding: '8px 16px', background: '#E06810', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}
+          style={{ opacity: loading ? 0.6 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
+          className="px-4 py-2 bg-[#E06810] text-white border-0 rounded-md text-[13px]"
         >
           {loading ? '조회 중...' : '새로고침'}
         </button>
       </div>
 
       {error && (
-        <div style={{ background: '#ffebee', border: '1px solid #ef9a9a', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#c62828', fontSize: '14px' }}>
+        <div className="bg-[#ffebee] border border-[#ef9a9a] rounded-lg px-4 py-3 mb-4 text-[#c62828] text-sm">
           {error}
         </div>
       )}
@@ -81,13 +82,14 @@ export default function TodayTasksPage() {
       {data && (
         <>
           {/* 요약 배너 */}
-          <div style={{
-            background: data.summary.totalPending > 0 ? (data.summary.highCount > 0 ? '#ffebee' : '#fff8e1') : '#e8f5e9',
-            border: `1px solid ${data.summary.totalPending > 0 ? (data.summary.highCount > 0 ? '#ef9a9a' : '#ffe082') : '#a5d6a7'}`,
-            borderRadius: '10px', padding: '16px 20px', marginBottom: '20px',
-            display: 'flex', alignItems: 'center', gap: '16px',
-          }}>
-            <div style={{ fontSize: '36px' }}>
+          <div
+            className="rounded-[10px] px-5 py-4 mb-5 flex items-center gap-4"
+            style={{
+              background: data.summary.totalPending > 0 ? (data.summary.highCount > 0 ? '#ffebee' : '#fff8e1') : '#e8f5e9',
+              border: `1px solid ${data.summary.totalPending > 0 ? (data.summary.highCount > 0 ? '#ef9a9a' : '#ffe082') : '#a5d6a7'}`,
+            }}
+          >
+            <div className="text-[36px]">
               {data.summary.totalPending === 0 ? '✅' : data.summary.highCount > 0 ? '🚨' : '⚠️'}
             </div>
             <div>
@@ -97,30 +99,28 @@ export default function TodayTasksPage() {
                   : `미처리 ${data.summary.totalPending}건${data.summary.highCount > 0 ? ` (즉시처리 ${data.summary.highCount}개 카테고리)` : ''}`
                 }
               </div>
-              <div style={{ fontSize: '12px', color: '#A0AEC0', marginTop: '2px' }}>
+              <div className="text-[12px] text-muted-brand mt-[2px]">
                 6개 카테고리 기준 · 즉시처리 항목을 우선 처리하세요
               </div>
             </div>
           </div>
 
           {/* 카테고리 목록 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="flex flex-col gap-[10px]">
             {data.tasks.map(task => {
               const cfg = URGENCY_CONFIG[task.urgency]
               return (
                 <Link
                   key={task.key}
                   href={task.href}
+                  className="block no-underline rounded-[10px] px-5 py-4 transition-shadow"
                   style={{
-                    display: 'block', textDecoration: 'none',
                     background: task.count > 0 ? cfg.bg : '#fafafa',
                     border: `1px solid ${task.count > 0 ? cfg.border : '#e0e0e0'}`,
-                    borderRadius: '10px', padding: '16px 20px',
-                    transition: 'box-shadow 0.15s',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ flex: 1 }}>
+                  <div className="flex justify-between items-center">
+                    <div className="flex-1">
                       <div style={{ fontSize: '15px', fontWeight: 700, color: task.count > 0 ? cfg.color : '#333' }}>
                         {task.label}
                         {task.count > 0 && (
@@ -129,13 +129,13 @@ export default function TodayTasksPage() {
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: '12px', color: '#A0AEC0', marginTop: '3px' }}>{task.description}</div>
+                      <div className="text-[12px] text-muted-brand mt-[3px]">{task.description}</div>
                     </div>
-                    <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: '20px' }}>
+                    <div className="text-right shrink-0 ml-5">
                       <div style={{ fontSize: '28px', fontWeight: 800, color: task.count > 0 ? cfg.color : '#ccc' }}>
                         {task.count}
                       </div>
-                      <div style={{ fontSize: '11px', color: '#aaa' }}>건</div>
+                      <div className="text-[11px] text-[#aaa]">건</div>
                     </div>
                   </div>
                 </Link>
@@ -144,29 +144,22 @@ export default function TodayTasksPage() {
           </div>
 
           {/* 출력물 센터 링크 */}
-          <div style={{ marginTop: '24px', padding: '16px 20px', background: '#1B2838', borderRadius: '10px', border: '1px solid #e0e0e0' }}>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: '#CBD5E0', marginBottom: '10px' }}>관련 화면 바로가기</div>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <Link href="/admin/operations/attendance-exceptions" style={quickLink('#37474f')}>출퇴근 처리 센터</Link>
-              <Link href="/admin/operations/labor-review" style={quickLink('#1b5e20')}>공수 검토 화면</Link>
-              <Link href="/admin/operations/print-center" style={quickLink('#4a148c')}>출력물 센터</Link>
+          <div className="mt-6 px-5 py-4 bg-brand rounded-[10px] border border-[#e0e0e0]">
+            <div className="text-sm font-bold text-[#CBD5E0] mb-[10px]">관련 화면 바로가기</div>
+            <div className="flex gap-[10px] flex-wrap">
+              <Link href="/admin/operations/attendance-exceptions" className="inline-block px-4 py-2 bg-[#37474f] text-white rounded-md text-[13px] font-bold no-underline">출퇴근 처리 센터</Link>
+              <Link href="/admin/operations/labor-review" className="inline-block px-4 py-2 bg-[#1b5e20] text-white rounded-md text-[13px] font-bold no-underline">공수 검토 화면</Link>
+              <Link href="/admin/operations/print-center" className="inline-block px-4 py-2 bg-[#4a148c] text-white rounded-md text-[13px] font-bold no-underline">출력물 센터</Link>
             </div>
           </div>
         </>
       )}
 
       {loading && !data && (
-        <div style={{ textAlign: 'center', color: '#A0AEC0', padding: '60px', fontSize: '14px' }}>
+        <div className="text-center text-muted-brand py-[60px] text-sm">
           조회 중...
         </div>
       )}
     </div>
   )
-}
-
-function quickLink(bg: string): React.CSSProperties {
-  return {
-    display: 'inline-block', padding: '8px 16px', background: bg, color: '#fff',
-    borderRadius: '6px', fontSize: '13px', fontWeight: 700, textDecoration: 'none',
-  }
 }

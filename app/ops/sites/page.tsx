@@ -39,15 +39,15 @@ export default function OpsSiteList() {
   }, [search])
 
   return (
-    <div style={styles.page}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>내 담당 현장</h1>
-        <span style={styles.count}>{total}개</span>
+    <div className="p-8">
+      <div className="flex items-center gap-3 mb-5">
+        <h1 className="text-[22px] font-bold text-[#111827] m-0">내 담당 현장</h1>
+        <span className="text-[14px] text-[#6b7280] bg-[#f3f4f6] px-[10px] py-[2px] rounded-xl">{total}개</span>
       </div>
 
-      <div style={styles.filterBar}>
+      <div className="mb-4">
         <input
-          style={styles.searchInput}
+          className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[14px] w-[240px] outline-none"
           placeholder="현장명 검색"
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -55,41 +55,51 @@ export default function OpsSiteList() {
       </div>
 
       {loading ? (
-        <p style={styles.loading}>로딩 중...</p>
+        <p className="text-[#6b7280]">로딩 중...</p>
       ) : sites.length === 0 ? (
-        <div style={styles.emptyState}>
+        <div className="text-center py-[60px] px-5 bg-white rounded-lg text-[#6b7280] border border-[#e5e7eb]">
           <p>배정된 현장이 없습니다.</p>
-          <p style={styles.emptyHint}>관리자에게 현장 배정을 요청하세요.</p>
+          <p className="text-[13px] mt-2 text-[#9ca3af]">관리자에게 현장 배정을 요청하세요.</p>
         </div>
       ) : (
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
+        <div className="bg-white rounded-lg border border-[#e5e7eb] overflow-hidden">
+          <table className="w-full border-collapse">
             <thead>
-              <tr style={styles.thead}>
-                <th style={styles.th}>현장명</th>
-                <th style={styles.th}>주소</th>
-                <th style={styles.th}>상태</th>
-                <th style={styles.th}>작업자 수</th>
-                <th style={styles.th}></th>
+              <tr className="bg-[#f9fafb]">
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">현장명</th>
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">주소</th>
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">상태</th>
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">작업자 수</th>
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]"></th>
               </tr>
             </thead>
             <tbody>
               {sites.map(site => {
                 const s = STATUS_LABELS[site.status] ?? { label: site.status, bg: '#f3f4f6', color: '#6b7280' }
                 return (
-                  <tr key={site.id} style={styles.tr}>
-                    <td style={styles.td}>
-                      <span style={styles.siteName}>{site.name}</span>
+                  <tr key={site.id} className="border-b border-[#f3f4f6]">
+                    <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
+                      <span className="font-semibold">{site.name}</span>
                     </td>
-                    <td style={{ ...styles.td, color: '#6b7280', fontSize: '13px' }}>
+                    <td className="px-4 py-[14px] text-[13px] text-[#6b7280]">
                       {site.address ?? '—'}
                     </td>
-                    <td style={styles.td}>
-                      <span style={{ ...styles.badge, background: s.bg, color: s.color }}>{s.label}</span>
+                    <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
+                      <span
+                        className="text-[11px] px-2 py-[3px] rounded font-medium"
+                        style={{ background: s.bg, color: s.color }}
+                      >
+                        {s.label}
+                      </span>
                     </td>
-                    <td style={{ ...styles.td, textAlign: 'center' }}>{site.workerCount ?? '—'}</td>
-                    <td style={styles.td}>
-                      <Link href={`/ops/sites/${site.id}`} style={styles.viewBtn}>상세 보기</Link>
+                    <td className="px-4 py-[14px] text-[14px] text-[#1f2937] text-center">{site.workerCount ?? '—'}</td>
+                    <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
+                      <Link
+                        href={`/ops/sites/${site.id}`}
+                        className="px-3 py-[5px] bg-[#eff6ff] text-[#1d4ed8] rounded-[5px] no-underline text-[13px] font-medium"
+                      >
+                        상세 보기
+                      </Link>
                     </td>
                   </tr>
                 )
@@ -100,47 +110,4 @@ export default function OpsSiteList() {
       )}
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '32px' },
-  header: { display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' },
-  title: { fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 },
-  count: { fontSize: '14px', color: '#6b7280', background: '#f3f4f6', padding: '2px 10px', borderRadius: '12px' },
-  filterBar: { marginBottom: '16px' },
-  searchInput: {
-    padding: '8px 12px',
-    border: '1px solid rgba(91,164,217,0.3)',
-    borderRadius: '6px',
-    fontSize: '14px',
-    width: '240px',
-    outline: 'none',
-  },
-  loading: { color: '#6b7280' },
-  emptyState: {
-    textAlign: 'center',
-    padding: '60px 20px',
-    background: '#fff',
-    borderRadius: '8px',
-    color: '#6b7280',
-    border: '1px solid #e5e7eb',
-  },
-  emptyHint: { fontSize: '13px', marginTop: '8px', color: '#9ca3af' },
-  tableWrap: { background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  thead: { background: '#f9fafb' },
-  th: { padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6b7280', borderBottom: '1px solid #e5e7eb' },
-  tr: { borderBottom: '1px solid #f3f4f6' },
-  td: { padding: '14px 16px', fontSize: '14px', color: '#1f2937' },
-  siteName: { fontWeight: 600 },
-  badge: { fontSize: '11px', padding: '3px 8px', borderRadius: '4px', fontWeight: 500 },
-  viewBtn: {
-    padding: '5px 12px',
-    background: '#eff6ff',
-    color: '#1d4ed8',
-    borderRadius: '5px',
-    textDecoration: 'none',
-    fontSize: '13px',
-    fontWeight: 500,
-  },
 }

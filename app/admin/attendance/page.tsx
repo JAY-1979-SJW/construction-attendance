@@ -88,11 +88,9 @@ export default function AdminAttendancePage() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
 
-  // 상세 모달
   const [detail, setDetail] = useState<DetailRecord | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
-  // 수동 보정 모달
   const [correcting, setCorrecting] = useState(false)
   const [correctCheckOut, setCorrectCheckOut] = useState('')
   const [correctCheckIn, setCorrectCheckIn] = useState('')
@@ -175,33 +173,36 @@ export default function AdminAttendancePage() {
   const formatDateTime = (iso: string | null) =>
     iso ? new Date(iso).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-'
 
+  // shared input style for filter inputs
+  const filterInputCls = "px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-[#243144] text-white"
+
   return (
-    <div style={styles.layout}>
-      <nav style={styles.sidebar}>
-        <div style={styles.sidebarTitle}>해한 출퇴근</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-dark py-6 shrink-0">
+        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
         {[
           ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'], ['/admin/sites', '현장 관리'],
           ['/admin/attendance', '출퇴근 조회'], ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
           ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'], ['/admin/audit-logs', '감사 로그'], ['/admin/site-imports', '현장 엑셀 업로드'],
-        ].map(([href, label]) => <Link key={href} href={href} style={styles.navItem}>{label}</Link>)}
+        ].map(([href, label]) => <Link key={href} href={href} className="block text-white/80 px-5 py-[10px] text-sm no-underline hover:text-white transition-colors">{label}</Link>)}
       </nav>
 
-      <main style={styles.main}>
-        <h1 style={styles.pageTitle}>출퇴근 조회</h1>
+      <main className="flex-1 p-8">
+        <h1 className="text-[22px] font-bold mb-5">출퇴근 조회</h1>
 
         {/* 필터 */}
-        <div style={styles.filterRow}>
-          <div style={styles.filterGroup}>
-            <label style={styles.filterLabel}>시작일</label>
-            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={styles.filterInput} />
+        <div className="flex gap-3 items-end mb-4 flex-wrap">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-brand">시작일</label>
+            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className={filterInputCls} />
           </div>
-          <div style={styles.filterGroup}>
-            <label style={styles.filterLabel}>종료일</label>
-            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={styles.filterInput} />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-brand">종료일</label>
+            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className={filterInputCls} />
           </div>
-          <div style={styles.filterGroup}>
-            <label style={styles.filterLabel}>상태</label>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={styles.filterInput}>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-brand">상태</label>
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={filterInputCls}>
               <option value="">전체</option>
               <option value="WORKING">근무중</option>
               <option value="COMPLETED">완료</option>
@@ -210,64 +211,65 @@ export default function AdminAttendancePage() {
               <option value="ADJUSTED">보정</option>
             </select>
           </div>
-          <button onClick={load} style={styles.searchBtn}>조회</button>
-          <button onClick={handleExport} style={styles.exportBtn}>엑셀 다운로드</button>
+          <button onClick={load} className="px-5 py-2 bg-accent text-white border-none rounded-md cursor-pointer text-sm">조회</button>
+          <button onClick={handleExport} className="px-5 py-2 bg-[#2e7d32] text-white border-none rounded-md cursor-pointer text-sm">엑셀 다운로드</button>
         </div>
 
-        <div style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '12px' }}>
+        <div className="text-[13px] text-muted-brand mb-3">
           총 {total}건
           {statusFilter === 'MISSING_CHECKOUT' && (
-            <span style={{ marginLeft: '12px', color: '#b71c1c', fontWeight: 600 }}>
+            <span className="ml-3 text-[#b71c1c] font-semibold">
               ⚠ 미퇴근 건은 수동 보정이 필요합니다. 행을 클릭하세요.
             </span>
           )}
         </div>
 
         {loading ? <p>로딩 중...</p> : (
-          <div style={{ ...styles.tableCard, overflowX: 'auto' }}>
-            <table style={styles.table}>
+          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-x-auto">
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {['날짜', '이름', '회사', '직종', '현장', '출근', '퇴근', '출근거리', '퇴근거리', '공수', '상태', '자동처리', '예외사유'].map((h) => (
-                    <th key={h} style={styles.th}>{h}</th>
+                    <th key={h} className="text-left px-3 py-[10px] text-xs text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {items.length === 0 ? (
-                  <tr><td colSpan={13} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>데이터가 없습니다.</td></tr>
+                  <tr><td colSpan={13} className="text-center py-6 text-[#999]">데이터가 없습니다.</td></tr>
                 ) : items.map((item) => (
                   <tr
                     key={item.id}
-                    style={{ ...styles.tr, cursor: 'pointer', background: item.status === 'MISSING_CHECKOUT' ? '#fff8f8' : 'white' }}
+                    className="cursor-pointer hover:bg-[rgba(91,164,217,0.05)] transition-colors"
+                    style={{ background: item.status === 'MISSING_CHECKOUT' ? '#fff8f8' : 'white' }}
                     onClick={() => openDetail(item.id)}
                   >
-                    <td style={styles.td}>{item.workDate}</td>
-                    <td style={styles.td}>{item.workerName}</td>
-                    <td style={styles.td}>{item.company}</td>
-                    <td style={styles.td}>{item.jobTitle}</td>
-                    <td style={styles.td}>{item.siteName}</td>
-                    <td style={styles.td}>{formatTime(item.checkInAt)}</td>
-                    <td style={styles.td}>{formatTime(item.checkOutAt)}</td>
-                    <td style={{ ...styles.td, textAlign: 'right' as const }}>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">{item.workDate}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">{item.workerName}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">{item.company}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">{item.jobTitle}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">{item.siteName}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">{formatTime(item.checkInAt)}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">{formatTime(item.checkOutAt)}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap text-right">
                       {item.checkInDistance != null
-                        ? <span style={{ fontSize: '12px', color: item.checkInDistance > 200 ? '#e65100' : '#2e7d32', fontWeight: 600 }}>{item.checkInDistance}m</span>
-                        : <span style={{ fontSize: '11px', color: '#ccc' }}>-</span>}
+                        ? <span className="text-xs font-semibold" style={{ color: item.checkInDistance > 200 ? '#e65100' : '#2e7d32' }}>{item.checkInDistance}m</span>
+                        : <span className="text-[11px] text-[#ccc]">-</span>}
                     </td>
-                    <td style={{ ...styles.td, textAlign: 'right' as const }}>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap text-right">
                       {item.checkOutDistance != null
-                        ? <span style={{ fontSize: '12px', color: item.checkOutDistance > 200 ? '#e65100' : '#555', fontWeight: 600 }}>{item.checkOutDistance}m</span>
-                        : <span style={{ fontSize: '11px', color: '#ccc' }}>-</span>}
+                        ? <span className="text-xs font-semibold" style={{ color: item.checkOutDistance > 200 ? '#e65100' : '#555' }}>{item.checkOutDistance}m</span>
+                        : <span className="text-[11px] text-[#ccc]">-</span>}
                     </td>
-                    <td style={{ ...styles.td, textAlign: 'right' as const }}>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap text-right">
                       {(() => {
                         const md = calcManDay(item.workedMinutesRaw ?? null)
                         return item.workedMinutesRaw != null
-                          ? <span style={{ fontSize: '12px', color: md.color, fontWeight: 600 }}>{md.value}</span>
-                          : <span style={{ fontSize: '11px', color: '#ccc' }}>-</span>
+                          ? <span className="text-xs font-semibold" style={{ color: md.color }}>{md.value}</span>
+                          : <span className="text-[11px] text-[#ccc]">-</span>
                       })()}
                     </td>
-                    <td style={styles.td}>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">
                       <span style={{
                         color: STATUS_COLOR[item.status],
                         background: STATUS_BG[item.status],
@@ -279,16 +281,14 @@ export default function AdminAttendancePage() {
                         {STATUS_LABEL[item.status] ?? item.status}
                       </span>
                     </td>
-                    <td style={styles.td}>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">
                       {item.isAutoCheckout && (
-                        <span style={{ fontSize: '11px', background: '#ffebee', color: '#b71c1c', padding: '2px 6px', borderRadius: '4px' }}>
-                          AUTO
-                        </span>
+                        <span className="text-[11px] bg-[#ffebee] text-[#b71c1c] px-[6px] py-[2px] rounded">AUTO</span>
                       )}
                     </td>
-                    <td style={styles.td}>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">
                       {item.exceptionReason
-                        ? <span style={{ fontSize: '11px', background: '#fff3e0', color: '#e65100', padding: '2px 8px', borderRadius: '10px', fontWeight: 600, whiteSpace: 'nowrap' as const }}>{item.exceptionReason}</span>
+                        ? <span className="text-[11px] bg-[#fff3e0] text-[#e65100] px-2 py-[2px] rounded-[10px] font-semibold whitespace-nowrap">{item.exceptionReason}</span>
                         : null}
                     </td>
                   </tr>
@@ -301,22 +301,28 @@ export default function AdminAttendancePage() {
 
       {/* 상세 모달 */}
       {(detail || detailLoading) && (
-        <div style={overlay} onClick={closeDetail}>
-          <div style={modal} onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 bg-black/40 z-[1000] flex items-center justify-center"
+          onClick={closeDetail}
+        >
+          <div
+            className="bg-card rounded-2xl p-8 w-[540px] max-w-[95vw] max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             {detailLoading ? (
-              <p style={{ textAlign: 'center', padding: '40px', color: '#A0AEC0' }}>로딩 중...</p>
+              <p className="text-center py-10 text-muted-brand">로딩 중...</p>
             ) : detail && (
               <>
-                <div style={modalHeader}>
+                <div className="flex justify-between items-start mb-4">
                   <div>
-                    <div style={{ fontSize: '18px', fontWeight: 700 }}>{detail.workerName} 상세</div>
-                    <div style={{ fontSize: '13px', color: '#A0AEC0', marginTop: '2px' }}>{detail.workDate} · {detail.company} · {detail.jobTitle}</div>
+                    <div className="text-[18px] font-bold">{detail.workerName} 상세</div>
+                    <div className="text-[13px] text-muted-brand mt-[2px]">{detail.workDate} · {detail.company} · {detail.jobTitle}</div>
                   </div>
-                  <button onClick={closeDetail} style={closeBtn}>✕</button>
+                  <button onClick={closeDetail} className="bg-none border-none text-[20px] cursor-pointer text-[#718096] px-1">✕</button>
                 </div>
 
                 {/* 상태 배지 */}
-                <div style={{ marginBottom: '20px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="mb-5 flex gap-2 items-center">
                   <span style={{
                     color: STATUS_COLOR[detail.status],
                     background: STATUS_BG[detail.status],
@@ -328,63 +334,63 @@ export default function AdminAttendancePage() {
                     {STATUS_LABEL[detail.status] ?? detail.status}
                   </span>
                   {detail.isAutoCheckout && (
-                    <span style={{ fontSize: '11px', background: '#ffebee', color: '#b71c1c', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                    <span className="text-[11px] bg-[#ffebee] text-[#b71c1c] px-2 py-[3px] rounded font-semibold">
                       AUTO 자동처리
                     </span>
                   )}
                 </div>
 
                 {/* 현장 정보 */}
-                <div style={infoSection}>
-                  <div style={infoTitle}>현장 이력</div>
-                  <div style={infoRow}>
-                    <span style={infoLabel}>출근 현장</span>
-                    <span style={infoValue}>{detail.checkInSite.name}</span>
+                <div className="bg-brand rounded-[10px] p-4 mb-3">
+                  <div className="text-[11px] text-[#718096] font-semibold uppercase tracking-[0.5px] mb-[10px]">현장 이력</div>
+                  <div className="flex gap-3 items-center mb-[6px]">
+                    <span className="text-xs text-muted-brand w-[70px] shrink-0">출근 현장</span>
+                    <span className="text-[13px] text-[#CBD5E0] font-medium">{detail.checkInSite.name}</span>
                   </div>
                   {detail.moveEvents.map((mv, i) => (
-                    <div key={mv.id} style={infoRow}>
-                      <span style={infoLabel}>이동 {i + 1}</span>
-                      <span style={infoValue}>→ {mv.siteName} ({formatDateTime(mv.occurredAt)})</span>
+                    <div key={mv.id} className="flex gap-3 items-center mb-[6px]">
+                      <span className="text-xs text-muted-brand w-[70px] shrink-0">이동 {i + 1}</span>
+                      <span className="text-[13px] text-[#CBD5E0] font-medium">→ {mv.siteName} ({formatDateTime(mv.occurredAt)})</span>
                     </div>
                   ))}
-                  <div style={infoRow}>
-                    <span style={infoLabel}>퇴근 현장</span>
-                    <span style={infoValue}>{detail.checkOutSite?.name ?? detail.checkInSite.name}</span>
+                  <div className="flex gap-3 items-center mb-[6px]">
+                    <span className="text-xs text-muted-brand w-[70px] shrink-0">퇴근 현장</span>
+                    <span className="text-[13px] text-[#CBD5E0] font-medium">{detail.checkOutSite?.name ?? detail.checkInSite.name}</span>
                   </div>
                 </div>
 
                 {/* 시간 정보 */}
-                <div style={infoSection}>
-                  <div style={infoTitle}>출퇴근 시각</div>
-                  <div style={infoRow}>
-                    <span style={infoLabel}>출근</span>
-                    <span style={infoValue}>{formatDateTime(detail.checkInAt)} {detail.checkInDistance != null ? `(${detail.checkInDistance}m)` : ''}</span>
+                <div className="bg-brand rounded-[10px] p-4 mb-3">
+                  <div className="text-[11px] text-[#718096] font-semibold uppercase tracking-[0.5px] mb-[10px]">출퇴근 시각</div>
+                  <div className="flex gap-3 items-center mb-[6px]">
+                    <span className="text-xs text-muted-brand w-[70px] shrink-0">출근</span>
+                    <span className="text-[13px] text-[#CBD5E0] font-medium">{formatDateTime(detail.checkInAt)} {detail.checkInDistance != null ? `(${detail.checkInDistance}m)` : ''}</span>
                   </div>
-                  <div style={infoRow}>
-                    <span style={infoLabel}>퇴근</span>
-                    <span style={infoValue}>
+                  <div className="flex gap-3 items-center mb-[6px]">
+                    <span className="text-xs text-muted-brand w-[70px] shrink-0">퇴근</span>
+                    <span className="text-[13px] text-[#CBD5E0] font-medium">
                       {detail.checkOutAt ? `${formatDateTime(detail.checkOutAt)} ${detail.checkOutDistance != null ? `(${detail.checkOutDistance}m)` : ''}` : '미기록'}
                     </span>
                   </div>
                 </div>
 
                 {/* 공수 */}
-                <div style={infoSection}>
-                  <div style={infoTitle}>공수</div>
-                  <div style={infoRow}>
-                    <span style={infoLabel}>실근로(분)</span>
-                    <span style={infoValue}>{detail.workedMinutesRaw != null ? `${detail.workedMinutesRaw}분` : '집계 전'}</span>
+                <div className="bg-brand rounded-[10px] p-4 mb-3">
+                  <div className="text-[11px] text-[#718096] font-semibold uppercase tracking-[0.5px] mb-[10px]">공수</div>
+                  <div className="flex gap-3 items-center mb-[6px]">
+                    <span className="text-xs text-muted-brand w-[70px] shrink-0">실근로(분)</span>
+                    <span className="text-[13px] text-[#CBD5E0] font-medium">{detail.workedMinutesRaw != null ? `${detail.workedMinutesRaw}분` : '집계 전'}</span>
                   </div>
-                  <div style={infoRow}>
-                    <span style={infoLabel}>공수 판정</span>
-                    <span style={{ ...infoValue, color: calcManDay(detail.workedMinutesRaw).color, fontWeight: 700 }}>
+                  <div className="flex gap-3 items-center mb-[6px]">
+                    <span className="text-xs text-muted-brand w-[70px] shrink-0">공수 판정</span>
+                    <span className="text-[13px] font-bold" style={{ color: calcManDay(detail.workedMinutesRaw).color }}>
                       {calcManDay(detail.workedMinutesRaw).label}
                     </span>
                   </div>
                   {detail.manualAdjustedYn && (
-                    <div style={infoRow}>
-                      <span style={infoLabel}>수동 조정</span>
-                      <span style={{ fontSize: '12px', color: '#6a1b9a', fontWeight: 600 }}>
+                    <div className="flex gap-3 items-center mb-[6px]">
+                      <span className="text-xs text-muted-brand w-[70px] shrink-0">수동 조정</span>
+                      <span className="text-xs text-[#6a1b9a] font-semibold">
                         수동 보정됨 {detail.manualAdjustedReason ? `· ${detail.manualAdjustedReason}` : ''}
                       </span>
                     </div>
@@ -393,64 +399,64 @@ export default function AdminAttendancePage() {
 
                 {/* 관리자 메모 */}
                 {detail.adminNote && (
-                  <div style={{ ...infoSection, background: '#fff8f8' }}>
-                    <div style={infoTitle}>처리 메모</div>
-                    <div style={{ fontSize: '13px', color: '#A0AEC0', lineHeight: 1.6 }}>{detail.adminNote}</div>
+                  <div className="rounded-[10px] p-4 mb-3 bg-[#fff8f8]">
+                    <div className="text-[11px] text-[#718096] font-semibold uppercase tracking-[0.5px] mb-[10px]">처리 메모</div>
+                    <div className="text-[13px] text-muted-brand leading-relaxed">{detail.adminNote}</div>
                   </div>
                 )}
 
-                {/* 수동 보정 */}
+                {/* 수동 보정 버튼 */}
                 {!correcting && (
-                  <button onClick={() => setCorrecting(true)} style={correctBtn}>
+                  <button
+                    onClick={() => setCorrecting(true)}
+                    className="w-full py-[14px] bg-[#6a1b9a] text-white border-none rounded-[10px] cursor-pointer text-sm font-semibold mb-2"
+                  >
                     {detail.status === 'MISSING_CHECKOUT' ? '✏️ 수동 보정 (퇴근 시각 입력)' : '✏️ 출퇴근 시각 / 공수 수정'}
                   </button>
                 )}
 
                 {correcting && (
-                  <div style={{ ...infoSection, background: '#f3e5f5' }}>
-                    <div style={infoTitle}>수동 보정</div>
-                    {/* 출근 시각 수정 */}
-                    <div style={infoRow}>
-                      <span style={infoLabel}>출근 시각</span>
+                  <div className="rounded-[10px] p-4 mb-3 bg-[#f3e5f5]">
+                    <div className="text-[11px] text-[#718096] font-semibold uppercase tracking-[0.5px] mb-[10px]">수동 보정</div>
+                    <div className="flex gap-3 items-center mb-[6px]">
+                      <span className="text-xs text-muted-brand w-[70px] shrink-0">출근 시각</span>
                       <input type="time" value={correctCheckIn} onChange={(e) => setCorrectCheckIn(e.target.value)}
-                        style={{ ...styles.filterInput, width: '140px' }} placeholder="변경 시 입력" />
-                      <span style={{ fontSize: '11px', color: '#999' }}>현재: {formatTime(detail.checkInAt)}</span>
+                        className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm w-[140px]" placeholder="변경 시 입력" />
+                      <span className="text-[11px] text-[#999]">현재: {formatTime(detail.checkInAt)}</span>
                     </div>
-                    {/* 퇴근 시각 수정 */}
-                    <div style={infoRow}>
-                      <span style={infoLabel}>퇴근 시각</span>
+                    <div className="flex gap-3 items-center mb-[6px]">
+                      <span className="text-xs text-muted-brand w-[70px] shrink-0">퇴근 시각</span>
                       <input type="time" value={correctCheckOut} onChange={(e) => setCorrectCheckOut(e.target.value)}
-                        style={{ ...styles.filterInput, width: '140px' }} placeholder="변경 시 입력" />
-                      <span style={{ fontSize: '11px', color: '#999' }}>현재: {formatTime(detail.checkOutAt)}</span>
+                        className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm w-[140px]" placeholder="변경 시 입력" />
+                      <span className="text-[11px] text-[#999]">현재: {formatTime(detail.checkOutAt)}</span>
                     </div>
-                    {/* 공수 직접 입력 */}
-                    <div style={infoRow}>
-                      <span style={infoLabel}>공수(분)</span>
+                    <div className="flex gap-3 items-center mb-[6px]">
+                      <span className="text-xs text-muted-brand w-[70px] shrink-0">공수(분)</span>
                       <input type="number" min="0" max="1440" value={workedMinutesInput}
                         onChange={(e) => setWorkedMinutesInput(e.target.value)}
-                        style={{ ...styles.filterInput, width: '100px' }} placeholder="분 단위" />
-                      <span style={{ fontSize: '11px', color: '#999' }}>
+                        className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm w-[100px]" placeholder="분 단위" />
+                      <span className="text-[11px] text-[#999]">
                         {workedMinutesInput ? `→ ${calcManDay(parseInt(workedMinutesInput)).label}` : '비워두면 자동 계산'}
                       </span>
                     </div>
-                    {/* 수정 사유 */}
-                    <div style={{ ...infoRow, marginTop: '8px' }}>
-                      <span style={infoLabel}>사유</span>
+                    <div className="flex gap-3 items-center mb-2 mt-2">
+                      <span className="text-xs text-muted-brand w-[70px] shrink-0">사유</span>
                       <input type="text" placeholder="수정 사유 (선택)" value={manualReason}
                         onChange={(e) => setManualReason(e.target.value)}
-                        style={{ ...styles.filterInput, flex: 1 }} />
+                        className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm flex-1" />
                     </div>
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                    <div className="flex gap-2 mt-3">
                       <button
                         onClick={saveCorrection}
                         disabled={(!correctCheckOut && !correctCheckIn && workedMinutesInput === '') || correctSaving}
-                        style={{ ...styles.searchBtn, opacity: (!correctCheckOut && !correctCheckIn && workedMinutesInput === '') || correctSaving ? 0.5 : 1 }}
+                        className="px-5 py-2 bg-accent text-white border-none rounded-md cursor-pointer text-sm disabled:opacity-50"
+                        style={{ opacity: (!correctCheckOut && !correctCheckIn && workedMinutesInput === '') || correctSaving ? 0.5 : 1 }}
                       >
                         {correctSaving ? '저장 중...' : '보정 저장'}
                       </button>
-                      <button onClick={() => setCorrecting(false)} style={styles.exportBtn}>취소</button>
+                      <button onClick={() => setCorrecting(false)} className="px-5 py-2 bg-[#2e7d32] text-white border-none rounded-md cursor-pointer text-sm">취소</button>
                     </div>
-                    <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '8px' }}>
+                    <div className="text-[11px] text-muted-brand mt-2">
                       * 보정 이력은 감사 로그에 기록됩니다. 상태: ADJUSTED
                     </div>
                   </div>
@@ -462,68 +468,4 @@ export default function AdminAttendancePage() {
       )}
     </div>
   )
-}
-
-const overlay: React.CSSProperties = {
-  position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000,
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-}
-
-const modal: React.CSSProperties = {
-  background: '#243144', borderRadius: '16px', padding: '32px',
-  width: '540px', maxWidth: '95vw', maxHeight: '85vh', overflowY: 'auto',
-}
-
-const modalHeader: React.CSSProperties = {
-  display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px',
-}
-
-const closeBtn: React.CSSProperties = {
-  background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#718096', padding: '0 4px',
-}
-
-const infoSection: React.CSSProperties = {
-  background: '#1B2838', borderRadius: '10px', padding: '16px', marginBottom: '12px',
-}
-
-const infoTitle: React.CSSProperties = {
-  fontSize: '11px', color: '#718096', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px',
-}
-
-const infoRow: React.CSSProperties = {
-  display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '6px',
-}
-
-const infoLabel: React.CSSProperties = {
-  fontSize: '12px', color: '#A0AEC0', width: '70px', flexShrink: 0,
-}
-
-const infoValue: React.CSSProperties = {
-  fontSize: '13px', color: '#CBD5E0', fontWeight: 500,
-}
-
-const correctBtn: React.CSSProperties = {
-  width: '100%', padding: '14px', background: '#6a1b9a', color: 'white',
-  border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600,
-  marginBottom: '8px',
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  main: { flex: 1, padding: '32px' },
-  pageTitle: { fontSize: '22px', fontWeight: 700, margin: '0 0 20px' },
-  filterRow: { display: 'flex', gap: '12px', alignItems: 'flex-end', marginBottom: '16px', flexWrap: 'wrap' as const },
-  filterGroup: { display: 'flex', flexDirection: 'column' as const, gap: '4px' },
-  filterLabel: { fontSize: '12px', color: '#A0AEC0' },
-  filterInput: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px' },
-  searchBtn: { padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
-  exportBtn: { padding: '8px 20px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
-  tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  table: { width: '100%', borderCollapse: 'collapse' as const },
-  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
-  td: { padding: '10px 12px', fontSize: '13px', borderBottom: '1px solid #f5f5f5', whiteSpace: 'nowrap' as const },
-  tr: {},
 }

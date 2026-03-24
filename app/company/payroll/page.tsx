@@ -92,31 +92,37 @@ export default function CompanyPayrollPage() {
   })
 
   return (
-    <div style={s.page}>
-      <div style={s.header}>
+    <div className="p-8 max-w-[1200px]">
+      <div className="flex justify-between items-start mb-6 flex-wrap gap-3">
         <div>
-          <h1 style={s.title}>공수 · 급여 현황</h1>
-          <p style={s.sub}>월별 근로자별 공수 확정 및 임금 집계를 조회합니다.</p>
+          <h1 className="text-[22px] font-bold m-0">공수 · 급여 현황</h1>
+          <p className="text-[13px] text-muted-brand mt-1 mb-0">월별 근로자별 공수 확정 및 임금 집계를 조회합니다.</p>
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={monthKey} onChange={e => setMonthKey(e.target.value)} style={s.select}>
+        <div className="flex gap-[10px] items-center">
+          <select value={monthKey} onChange={e => setMonthKey(e.target.value)} className="px-3 py-2 rounded-md border border-white/[0.12] text-[14px] cursor-pointer">
             {months.map(m => <option key={m} value={m}>{m}</option>)}
           </select>
-          <button onClick={load} disabled={loading} style={s.btn}>
+          <button onClick={load} disabled={loading} className="px-5 py-2 bg-[#0f4c75] text-white border-none rounded-md cursor-pointer text-[14px] font-semibold">
             {loading ? '조회중...' : '조회'}
           </button>
         </div>
       </div>
 
       {msg && (
-        <div style={{ background: blocked ? '#fff3e0' : '#ffebee', color: blocked ? '#e65100' : '#c62828', padding: '14px 18px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
+        <div
+          className="px-[18px] py-[14px] rounded-lg mb-4 text-[14px]"
+          style={{
+            background: blocked ? '#fff3e0' : '#ffebee',
+            color: blocked ? '#e65100' : '#c62828',
+          }}
+        >
           {msg}
-          {blocked && <div style={{ marginTop: '6px', fontSize: '13px' }}>관리자(슈퍼관리자)에게 기능 활성화를 요청하세요.</div>}
+          {blocked && <div className="mt-[6px] text-[13px]">관리자(슈퍼관리자)에게 기능 활성화를 요청하세요.</div>}
         </div>
       )}
 
       {!blocked && totals && (
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <div className="flex gap-3 mb-5 flex-wrap">
           {[
             { label: '대상 근로자', value: `${totalWorkers}명` },
             { label: '공수 집계 근로자', value: `${totals.workerCount}명` },
@@ -125,57 +131,57 @@ export default function CompanyPayrollPage() {
             { label: '총 세금', value: fmt(totals.taxAmount) },
             { label: '총 실지급', value: fmt(totals.netAmount) },
           ].map(({ label, value }) => (
-            <div key={label} style={s.statCard}>
-              <div style={s.statValue}>{value}</div>
-              <div style={s.statLabel}>{label}</div>
+            <div key={label} className="bg-card rounded-[10px] px-5 py-[14px] min-w-[130px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] text-center">
+              <div className="text-[18px] font-bold text-[#1a237e] mb-1">{value}</div>
+              <div className="text-[12px] text-muted-brand">{label}</div>
             </div>
           ))}
         </div>
       )}
 
-      <div style={s.tableCard}>
+      <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
         {loading ? (
-          <div style={s.empty}>조회 중...</div>
+          <div className="px-12 py-12 text-center text-[#999]">조회 중...</div>
         ) : blocked ? (
-          <div style={s.empty}>
-            <div style={{ fontSize: '32px', marginBottom: '10px' }}>🔒</div>
-            <div style={{ fontWeight: 600 }}>급여 조회 기능이 비활성화되어 있습니다.</div>
+          <div className="px-12 py-12 text-center text-[#999]">
+            <div className="text-[32px] mb-[10px]">🔒</div>
+            <div className="font-semibold">급여 조회 기능이 비활성화되어 있습니다.</div>
           </div>
         ) : items.length === 0 ? (
-          <div style={s.empty}>
-            <div style={{ fontWeight: 600 }}>{monthKey} 공수 데이터가 없습니다.</div>
-            <div style={{ fontSize: '13px', color: '#aaa', marginTop: '4px' }}>근무 확정 후 조회 가능합니다.</div>
+          <div className="px-12 py-12 text-center text-[#999]">
+            <div className="font-semibold">{monthKey} 공수 데이터가 없습니다.</div>
+            <div className="text-[13px] text-[#aaa] mt-1">근무 확정 후 조회 가능합니다.</div>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={s.table}>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-[13px]">
               <thead>
                 <tr>
                   {['근로자명', '고용형태', '소득유형', '근무일수', '공수(일)', '지급총액', '소득세', '지방세', '실지급액', '임금계산'].map(h => (
-                    <th key={h} style={s.th}>{h}</th>
+                    <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-[#e0e0e0] whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {items.map((row, i) => (
                   <tr key={row.workerId} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                    <td style={{ ...s.td, fontWeight: 600 }}>{row.workerName}</td>
-                    <td style={s.td}>{EMP_LABEL[row.employmentType] ?? row.employmentType}</td>
-                    <td style={s.td}>{INCOME_LABEL[row.incomeType] ?? row.incomeType}</td>
-                    <td style={{ ...s.td, textAlign: 'right' }}>{row.workDays}일</td>
-                    <td style={{ ...s.td, textAlign: 'right' }}>{row.workUnits.toFixed(2)}</td>
-                    <td style={{ ...s.td, textAlign: 'right' }}>{fmt(row.grossAmount)}</td>
-                    <td style={{ ...s.td, textAlign: 'right', color: '#c62828' }}>{fmt(row.incomeTax)}</td>
-                    <td style={{ ...s.td, textAlign: 'right', color: '#c62828' }}>{fmt(row.localTax)}</td>
-                    <td style={{ ...s.td, textAlign: 'right', fontWeight: 600 }}>{fmt(row.netAmount)}</td>
-                    <td style={s.td}>
-                      <span style={{
-                        fontSize: '11px',
-                        padding: '2px 8px',
-                        borderRadius: '8px',
-                        background: row.hasWageCalc ? '#e8f5e9' : '#f5f5f5',
-                        color: row.hasWageCalc ? '#2e7d32' : '#999',
-                      }}>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle font-semibold">{row.workerName}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle">{EMP_LABEL[row.employmentType] ?? row.employmentType}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle">{INCOME_LABEL[row.incomeType] ?? row.incomeType}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.workDays}일</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.workUnits.toFixed(2)}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{fmt(row.grossAmount)}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right text-[#c62828]">{fmt(row.incomeTax)}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right text-[#c62828]">{fmt(row.localTax)}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right font-semibold">{fmt(row.netAmount)}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle">
+                      <span
+                        className="text-[11px] px-2 py-[2px] rounded-lg"
+                        style={{
+                          background: row.hasWageCalc ? '#e8f5e9' : '#f5f5f5',
+                          color: row.hasWageCalc ? '#2e7d32' : '#999',
+                        }}
+                      >
                         {row.hasWageCalc ? '계산 완료' : '미계산'}
                       </span>
                     </td>
@@ -184,15 +190,15 @@ export default function CompanyPayrollPage() {
               </tbody>
               {totals && (
                 <tfoot>
-                  <tr style={{ background: '#f0f4ff', fontWeight: 700 }}>
-                    <td style={s.td} colSpan={3}>합계</td>
-                    <td style={{ ...s.td, textAlign: 'right' }}></td>
-                    <td style={{ ...s.td, textAlign: 'right' }}>{totals.workUnits.toFixed(2)}</td>
-                    <td style={{ ...s.td, textAlign: 'right' }}>{fmt(totals.grossAmount)}</td>
-                    <td style={{ ...s.td, textAlign: 'right', color: '#c62828' }}>{fmt(totals.taxAmount)}</td>
-                    <td style={{ ...s.td, textAlign: 'right', color: '#c62828' }}></td>
-                    <td style={{ ...s.td, textAlign: 'right' }}>{fmt(totals.netAmount)}</td>
-                    <td style={s.td}></td>
+                  <tr className="bg-[#f0f4ff] font-bold">
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle" colSpan={3}>합계</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right"></td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{totals.workUnits.toFixed(2)}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{fmt(totals.grossAmount)}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right text-[#c62828]">{fmt(totals.taxAmount)}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right text-[#c62828]"></td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{fmt(totals.netAmount)}</td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle"></td>
                   </tr>
                 </tfoot>
               )}
@@ -202,21 +208,4 @@ export default function CompanyPayrollPage() {
       </div>
     </div>
   )
-}
-
-const s: Record<string, React.CSSProperties> = {
-  page:       { padding: '32px', maxWidth: '1200px' },
-  header:     { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' },
-  title:      { fontSize: '22px', fontWeight: 700, margin: 0 },
-  sub:        { fontSize: '13px', color: '#A0AEC0', margin: '4px 0 0' },
-  select:     { padding: '8px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.12)', fontSize: '14px', cursor: 'pointer' },
-  btn:        { padding: '8px 20px', background: '#0f4c75', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  statCard:   { background: '#243144', borderRadius: '10px', padding: '14px 20px', minWidth: '130px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', textAlign: 'center' },
-  statValue:  { fontSize: '18px', fontWeight: 700, color: '#1a237e', marginBottom: '4px' },
-  statLabel:  { fontSize: '12px', color: '#A0AEC0' },
-  tableCard:  { background: '#243144', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
-  table:      { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
-  th:         { background: '#1B2838', padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' },
-  td:         { padding: '10px 12px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' },
-  empty:      { padding: '48px', textAlign: 'center', color: '#999' },
 }

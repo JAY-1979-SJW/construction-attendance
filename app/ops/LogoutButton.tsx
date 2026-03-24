@@ -11,22 +11,11 @@ export default function OpsLogoutButton() {
   }
 
   return (
-    <button onClick={handleLogout} style={styles.btn}>
+    <button
+      onClick={handleLogout}
+      className="mx-4 py-[9px] bg-[rgba(255,255,255,0.15)] text-white border border-[rgba(255,255,255,0.25)] rounded-md cursor-pointer text-[13px] w-[calc(100%-32px)]"
+    >
       로그아웃
     </button>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  btn: {
-    margin: '0 16px',
-    padding: '9px 0',
-    background: 'rgba(255,255,255,0.15)',
-    color: 'white',
-    border: '1px solid rgba(255,255,255,0.25)',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '13px',
-    width: 'calc(100% - 32px)',
-  },
 }

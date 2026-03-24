@@ -27,19 +27,19 @@ export default function CompanyDashboardPage() {
   }, [router])
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>대시보드</h1>
+    <div className="p-8">
+      <h1 className="text-[22px] font-bold m-0 mb-6 text-white">대시보드</h1>
       {loading ? (
-        <p style={styles.loading}>불러오는 중...</p>
+        <p className="text-muted-brand text-[15px]">불러오는 중...</p>
       ) : data ? (
-        <div style={styles.cards}>
+        <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
           <StatCard label="소속 근로자 수" value={data.totalWorkers} unit="명" color="#0f4c75" />
           <StatCard label="오늘 출근" value={data.todayCheckedIn} unit="명" color="#2e7d32" />
           <StatCard label="오늘 퇴근 완료" value={data.todayCompleted} unit="명" color="#1565c0" />
           <StatCard label="기기 승인 대기" value={data.pendingDevices} unit="건" color="#e65100" />
         </div>
       ) : (
-        <p style={styles.loading}>데이터를 불러올 수 없습니다.</p>
+        <p className="text-muted-brand text-[15px]">데이터를 불러올 수 없습니다.</p>
       )}
     </div>
   )
@@ -47,28 +47,15 @@ export default function CompanyDashboardPage() {
 
 function StatCard({ label, value, unit, color }: { label: string; value: number; unit: string; color: string }) {
   return (
-    <div style={styles.card}>
-      <div style={{ ...styles.cardAccent, background: color }} />
-      <div style={styles.cardBody}>
-        <div style={styles.cardLabel}>{label}</div>
-        <div style={{ ...styles.cardValue, color }}>
+    <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] overflow-hidden flex flex-row">
+      <div className="w-1.5 shrink-0" style={{ background: color }} />
+      <div className="p-5">
+        <div className="text-[13px] text-[#777] mb-2 font-medium">{label}</div>
+        <div className="text-[32px] font-bold" style={{ color }}>
           {value}
-          <span style={styles.cardUnit}>{unit}</span>
+          <span className="text-sm font-medium ml-1">{unit}</span>
         </div>
       </div>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  container: { padding: '32px' },
-  title: { fontSize: '22px', fontWeight: 700, margin: '0 0 24px', color: '#ffffff' },
-  loading: { color: '#A0AEC0', fontSize: '15px' },
-  cards: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' },
-  card: { background: '#243144', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden', display: 'flex', flexDirection: 'row' },
-  cardAccent: { width: '6px', flexShrink: 0 },
-  cardBody: { padding: '20px 20px' },
-  cardLabel: { fontSize: '13px', color: '#777', marginBottom: '8px', fontWeight: 500 },
-  cardValue: { fontSize: '32px', fontWeight: 700 },
-  cardUnit: { fontSize: '14px', fontWeight: 500, marginLeft: '4px' },
 }

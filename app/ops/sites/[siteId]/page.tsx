@@ -52,46 +52,54 @@ export default function OpsSiteDetail() {
   const isReadOnly = session?.role === 'EXTERNAL_SITE_ADMIN'
   const canMutateAttendance = session?.role === 'SITE_ADMIN' || session?.role === 'ADMIN' || session?.role === 'SUPER_ADMIN'
 
-  if (loading) return <div style={styles.page}><p style={styles.muted}>로딩 중...</p></div>
+  if (loading) return (
+    <div className="p-8"><p className="text-[#6b7280] text-[14px]">로딩 중...</p></div>
+  )
   if (error === 'ACCESS_DENIED') return (
-    <div style={styles.page}>
-      <div style={styles.errorBox}>
+    <div className="p-8">
+      <div className="bg-[#fef2f2] border border-[#fca5a5] rounded-lg p-8 text-center text-[#991b1b]">
         <strong>접근 권한이 없습니다</strong>
         <p>이 현장에 대한 접근 권한이 없습니다.</p>
-        <Link href="/ops/sites" style={styles.backLink}>← 현장 목록으로</Link>
+        <Link href="/ops/sites" className="text-[#1d4ed8] no-underline text-[14px] mt-3 block">← 현장 목록으로</Link>
       </div>
     </div>
   )
-  if (!site) return <div style={styles.page}><p style={styles.muted}>현장을 찾을 수 없습니다.</p></div>
+  if (!site) return (
+    <div className="p-8"><p className="text-[#6b7280] text-[14px]">현장을 찾을 수 없습니다.</p></div>
+  )
 
   return (
-    <div style={styles.page}>
-      <div style={styles.breadcrumb}>
-        <Link href="/ops/sites" style={styles.breadLink}>← 현장 목록</Link>
+    <div className="p-8">
+      <div className="mb-3">
+        <Link href="/ops/sites" className="text-[#6b7280] no-underline text-[13px]">← 현장 목록</Link>
       </div>
 
-      <div style={styles.header}>
-        <h1 style={styles.title}>{site.name}</h1>
+      <div className="flex items-center gap-3 mb-5 flex-wrap">
+        <h1 className="text-[22px] font-bold text-[#111827] m-0">{site.name}</h1>
         {isReadOnly && (
-          <span style={styles.readOnlyBadge}>읽기 전용</span>
+          <span className="text-[11px] px-[10px] py-[3px] bg-[#fef3c7] text-[#92400e] border border-[#f59e0b] rounded">읽기 전용</span>
         )}
         <StatusBadge status={site.status} />
       </div>
 
       {/* 탭 */}
-      <div style={styles.tabRow}>
+      <div className="flex gap-1 border-b border-[#e5e7eb] mb-6 flex-wrap">
         {TABS.map(({ key, label }) => (
           <button
             key={key}
-            style={{ ...styles.tab, ...(tab === key ? styles.tabActive : {}) }}
             onClick={() => setTab(key as Tab)}
+            className={`px-4 py-2 border-none bg-transparent cursor-pointer text-[14px] border-b-2 transition-colors ${
+              tab === key
+                ? 'text-[#1d4ed8] border-b-[#1d4ed8] font-semibold'
+                : 'text-[#6b7280] border-b-transparent'
+            }`}
           >
             {label}
           </button>
         ))}
       </div>
 
-      <div style={styles.tabContent}>
+      <div className="bg-white rounded-lg p-6 border border-[#e5e7eb]">
         {tab === 'info' && <InfoTab site={site} isReadOnly={isReadOnly} siteId={siteId} />}
         {tab === 'attendance' && <AttendanceTab siteId={siteId} canMutate={canMutateAttendance} />}
         {tab === 'worklogs' && <WorklogsTab siteId={siteId} isReadOnly={isReadOnly} />}
@@ -114,7 +122,7 @@ const TABS = [
 function InfoTab({ site, isReadOnly, siteId }: { site: SiteInfo; isReadOnly: boolean; siteId: string }) {
   return (
     <div>
-      <div style={styles.infoGrid}>
+      <div className="grid grid-cols-2 gap-3">
         <InfoRow label="현장명" value={site.name} />
         <InfoRow label="주소" value={site.address ?? '—'} />
         <InfoRow label="상태" value={site.status} />
@@ -123,8 +131,8 @@ function InfoTab({ site, isReadOnly, siteId }: { site: SiteInfo; isReadOnly: boo
         {site.description && <InfoRow label="설명" value={site.description} />}
       </div>
       {!isReadOnly && (
-        <div style={{ marginTop: '16px' }}>
-          <Link href={`/admin/sites/${siteId}`} style={styles.adminLink}>
+        <div className="mt-4">
+          <Link href={`/admin/sites/${siteId}`} className="text-[#1d4ed8] text-[13px] no-underline">
             ↗ 관리자 상세 페이지에서 수정
           </Link>
         </div>
@@ -135,9 +143,9 @@ function InfoTab({ site, isReadOnly, siteId }: { site: SiteInfo; isReadOnly: boo
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div style={styles.infoRow}>
-      <span style={styles.infoLabel}>{label}</span>
-      <span style={styles.infoValue}>{value}</span>
+    <div className="flex flex-col gap-1">
+      <span className="text-[12px] text-[#9ca3af] font-medium">{label}</span>
+      <span className="text-[14px] text-[#1f2937]">{value}</span>
     </div>
   )
 }
@@ -159,32 +167,43 @@ function AttendanceTab({ siteId, canMutate }: { siteId: string; canMutate: boole
 
   return (
     <div>
-      <div style={styles.filterBar}>
-        <input type="date" value={date} onChange={e => setDate(e.target.value)} style={styles.dateInput} />
-        {!canMutate && <span style={styles.readOnlyNote}>이 현장의 출퇴근은 읽기 전용입니다.</span>}
+      <div className="flex gap-3 items-center mb-4 flex-wrap">
+        <input
+          type="date"
+          value={date}
+          onChange={e => setDate(e.target.value)}
+          className="px-[10px] py-[6px] border border-[rgba(91,164,217,0.3)] rounded-md text-[14px]"
+        />
+        {!canMutate && (
+          <span className="text-[12px] text-[#b45309] bg-[#fef3c7] px-3 py-[6px] rounded">
+            이 현장의 출퇴근은 읽기 전용입니다.
+          </span>
+        )}
       </div>
-      {loading ? <p style={styles.muted}>로딩 중...</p> : (
+      {loading ? <p className="text-[#6b7280] text-[14px]">로딩 중...</p> : (
         items.length === 0 ? (
-          <p style={styles.muted}>출퇴근 기록이 없습니다.</p>
+          <p className="text-[#6b7280] text-[14px]">출퇴근 기록이 없습니다.</p>
         ) : (
-          <table style={styles.table}>
-            <thead><tr style={styles.thead}>
-              <th style={styles.th}>작업자</th>
-              <th style={styles.th}>출근</th>
-              <th style={styles.th}>퇴근</th>
-              <th style={styles.th}>상태</th>
-              {canMutate && <th style={styles.th}></th>}
-            </tr></thead>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[#f9fafb]">
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">작업자</th>
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">출근</th>
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">퇴근</th>
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">상태</th>
+                {canMutate && <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]"></th>}
+              </tr>
+            </thead>
             <tbody>
               {items.map((item) => (
-                <tr key={item.id as string} style={styles.tr}>
-                  <td style={styles.td}>{item.workerName as string}</td>
-                  <td style={styles.td}>{formatTime(item.checkInAt as string | null)}</td>
-                  <td style={styles.td}>{formatTime(item.checkOutAt as string | null)}</td>
-                  <td style={styles.td}><AttStatusBadge status={item.status as string} /></td>
+                <tr key={item.id as string} className="border-b border-[#f3f4f6]">
+                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{item.workerName as string}</td>
+                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{formatTime(item.checkInAt as string | null)}</td>
+                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{formatTime(item.checkOutAt as string | null)}</td>
+                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]"><AttStatusBadge status={item.status as string} /></td>
                   {canMutate && (
-                    <td style={styles.td}>
-                      <Link href={`/admin/attendance/${item.id}`} style={styles.adminLink}>수정</Link>
+                    <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">
+                      <Link href={`/admin/attendance/${item.id}`} className="text-[#1d4ed8] text-[13px] no-underline">수정</Link>
                     </td>
                   )}
                 </tr>
@@ -201,11 +220,15 @@ function AttendanceTab({ siteId, canMutate }: { siteId: string; canMutate: boole
 function WorklogsTab({ siteId, isReadOnly }: { siteId: string; isReadOnly: boolean }) {
   return (
     <div>
-      <p style={styles.muted}>
+      <p className="text-[#6b7280] text-[14px]">
         작업일보 기능은 현장 상세 페이지에서 이용하세요.{' '}
-        <Link href={`/admin/sites/${siteId}`} style={styles.adminLink}>관리자 현장 페이지 →</Link>
+        <Link href={`/admin/sites/${siteId}`} className="text-[#1d4ed8] text-[13px] no-underline">관리자 현장 페이지 →</Link>
       </p>
-      {isReadOnly && <p style={styles.readOnlyNote}>지정 현장 운영형은 작업일보 작성이 제한됩니다.</p>}
+      {isReadOnly && (
+        <p className="text-[12px] text-[#b45309] bg-[#fef3c7] px-3 py-[6px] rounded inline-block">
+          지정 현장 운영형은 작업일보 작성이 제한됩니다.
+        </p>
+      )}
     </div>
   )
 }
@@ -224,15 +247,15 @@ function NoticesTab({ siteId, isReadOnly }: { siteId: string; isReadOnly: boolea
 
   return (
     <div>
-      {loading ? <p style={styles.muted}>로딩 중...</p> : (
+      {loading ? <p className="text-[#6b7280] text-[14px]">로딩 중...</p> : (
         notices.length === 0 ? (
-          <p style={styles.muted}>등록된 공지가 없습니다.</p>
+          <p className="text-[#6b7280] text-[14px]">등록된 공지가 없습니다.</p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="flex flex-col gap-3">
             {notices.map(n => (
-              <div key={n.id as string} style={styles.noticeCard}>
-                <strong style={{ color: '#1f2937' }}>{n.title as string}</strong>
-                <p style={{ fontSize: '13px', color: '#6b7280', margin: '4px 0 0' }}>
+              <div key={n.id as string} className="px-4 py-[14px] border border-[#e5e7eb] rounded-md bg-[#fafafa]">
+                <strong className="text-[#1f2937]">{n.title as string}</strong>
+                <p className="text-[13px] text-[#6b7280] mt-1 mb-0">
                   {(n.startDate as string)?.slice(0, 10)}
                 </p>
               </div>
@@ -241,8 +264,8 @@ function NoticesTab({ siteId, isReadOnly }: { siteId: string; isReadOnly: boolea
         )
       )}
       {!isReadOnly && (
-        <div style={{ marginTop: '12px' }}>
-          <Link href={`/admin/sites/${siteId}`} style={styles.adminLink}>↗ 공지 작성은 관리자 페이지에서</Link>
+        <div className="mt-3">
+          <Link href={`/admin/sites/${siteId}`} className="text-[#1d4ed8] text-[13px] no-underline">↗ 공지 작성은 관리자 페이지에서</Link>
         </div>
       )}
     </div>
@@ -263,22 +286,24 @@ function SchedulesTab({ siteId, isReadOnly }: { siteId: string; isReadOnly: bool
 
   return (
     <div>
-      {loading ? <p style={styles.muted}>로딩 중...</p> : (
+      {loading ? <p className="text-[#6b7280] text-[14px]">로딩 중...</p> : (
         schedules.length === 0 ? (
-          <p style={styles.muted}>등록된 일정이 없습니다.</p>
+          <p className="text-[#6b7280] text-[14px]">등록된 일정이 없습니다.</p>
         ) : (
-          <table style={styles.table}>
-            <thead><tr style={styles.thead}>
-              <th style={styles.th}>날짜</th>
-              <th style={styles.th}>구분</th>
-              <th style={styles.th}>제목</th>
-            </tr></thead>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[#f9fafb]">
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">날짜</th>
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">구분</th>
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">제목</th>
+              </tr>
+            </thead>
             <tbody>
               {schedules.map(s => (
-                <tr key={s.id as string} style={styles.tr}>
-                  <td style={styles.td}>{(s.scheduleDate as string)?.slice(0, 10)}</td>
-                  <td style={styles.td}>{s.scheduleType as string}</td>
-                  <td style={styles.td}>{s.title as string}</td>
+                <tr key={s.id as string} className="border-b border-[#f3f4f6]">
+                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{(s.scheduleDate as string)?.slice(0, 10)}</td>
+                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{s.scheduleType as string}</td>
+                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{s.title as string}</td>
                 </tr>
               ))}
             </tbody>
@@ -286,8 +311,8 @@ function SchedulesTab({ siteId, isReadOnly }: { siteId: string; isReadOnly: bool
         )
       )}
       {!isReadOnly && (
-        <div style={{ marginTop: '12px' }}>
-          <Link href={`/admin/sites/${siteId}`} style={styles.adminLink}>↗ 일정 작성은 관리자 페이지에서</Link>
+        <div className="mt-3">
+          <Link href={`/admin/sites/${siteId}`} className="text-[#1d4ed8] text-[13px] no-underline">↗ 일정 작성은 관리자 페이지에서</Link>
         </div>
       )}
     </div>
@@ -302,7 +327,14 @@ function StatusBadge({ status }: { status: string }) {
     CLOSED: { label: '종료', bg: '#f3f4f6', color: '#6b7280' },
   }
   const s = map[status] ?? { label: status, bg: '#f3f4f6', color: '#6b7280' }
-  return <span style={{ ...styles.badge, background: s.bg, color: s.color }}>{s.label}</span>
+  return (
+    <span
+      className="text-[12px] px-2 py-[3px] rounded font-medium"
+      style={{ background: s.bg, color: s.color }}
+    >
+      {s.label}
+    </span>
+  )
 }
 
 function AttStatusBadge({ status }: { status: string }) {
@@ -314,7 +346,10 @@ function AttStatusBadge({ status }: { status: string }) {
     ADJUSTED: '#fef3c7',
   }
   return (
-    <span style={{ ...styles.badge, background: map[status] ?? '#f3f4f6', color: '#374151' }}>
+    <span
+      className="text-[12px] px-2 py-[3px] rounded font-medium text-[#374151]"
+      style={{ background: map[status] ?? '#f3f4f6' }}
+    >
       {status}
     </span>
   )
@@ -323,49 +358,4 @@ function AttStatusBadge({ status }: { status: string }) {
 function formatTime(iso: string | null): string {
   if (!iso) return '—'
   return new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '32px' },
-  breadcrumb: { marginBottom: '12px' },
-  breadLink: { color: '#6b7280', textDecoration: 'none', fontSize: '13px' },
-  header: { display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' },
-  title: { fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 },
-  readOnlyBadge: {
-    fontSize: '11px', padding: '3px 10px', background: '#fef3c7', color: '#92400e',
-    border: '1px solid #f59e0b', borderRadius: '4px',
-  },
-  badge: { fontSize: '12px', padding: '3px 8px', borderRadius: '4px', fontWeight: 500 },
-  tabRow: { display: 'flex', gap: '4px', borderBottom: '1px solid #e5e7eb', marginBottom: '24px', flexWrap: 'wrap' },
-  tab: {
-    padding: '8px 16px', border: 'none', background: 'none', cursor: 'pointer',
-    fontSize: '14px', color: '#6b7280', borderBottom: '2px solid transparent',
-  },
-  tabActive: { color: '#1d4ed8', borderBottom: '2px solid #1d4ed8', fontWeight: 600 },
-  tabContent: { background: '#fff', borderRadius: '8px', padding: '24px', border: '1px solid #e5e7eb' },
-  infoGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' },
-  infoRow: { display: 'flex', flexDirection: 'column', gap: '4px' },
-  infoLabel: { fontSize: '12px', color: '#9ca3af', fontWeight: 500 },
-  infoValue: { fontSize: '14px', color: '#1f2937' },
-  filterBar: { display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' },
-  dateInput: { padding: '6px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  thead: { background: '#f9fafb' },
-  th: { padding: '10px 14px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6b7280', borderBottom: '1px solid #e5e7eb' },
-  tr: { borderBottom: '1px solid #f3f4f6' },
-  td: { padding: '12px 14px', fontSize: '14px', color: '#1f2937' },
-  noticeCard: {
-    padding: '14px 16px',
-    border: '1px solid #e5e7eb',
-    borderRadius: '6px',
-    background: '#fafafa',
-  },
-  muted: { color: '#6b7280', fontSize: '14px' },
-  readOnlyNote: { fontSize: '12px', color: '#b45309', background: '#fef3c7', padding: '6px 12px', borderRadius: '4px' },
-  adminLink: { color: '#1d4ed8', fontSize: '13px', textDecoration: 'none' },
-  errorBox: {
-    background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '8px',
-    padding: '32px', textAlign: 'center', color: '#991b1b',
-  },
-  backLink: { color: '#1d4ed8', textDecoration: 'none', fontSize: '14px', marginTop: '12px', display: 'block' },
 }

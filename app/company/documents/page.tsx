@@ -79,45 +79,62 @@ export default function CompanyDocumentsPage() {
   }
 
   return (
-    <div style={s.page}>
-      <div style={s.header}>
+    <div className="p-8 max-w-[1200px]">
+      <div className="flex justify-between items-start mb-6 flex-wrap gap-3">
         <div>
-          <h1 style={s.title}>노임서류 · 집계</h1>
-          <p style={s.sub}>월별 노임비 집계 및 근무 확정 요약을 조회합니다.</p>
+          <h1 className="text-[22px] font-bold m-0">노임서류 · 집계</h1>
+          <p className="text-[13px] text-muted-brand mt-1 mb-0">월별 노임비 집계 및 근무 확정 요약을 조회합니다.</p>
         </div>
-        <button onClick={() => load(selectedMonth || undefined)} disabled={loading} style={s.btn}>
+        <button onClick={() => load(selectedMonth || undefined)} disabled={loading} className="px-5 py-2 bg-[#0f4c75] text-white border-none rounded-md cursor-pointer text-[14px] font-semibold">
           {loading ? '조회중...' : '새로고침'}
         </button>
       </div>
 
       {msg && (
-        <div style={{ background: blocked ? '#fff3e0' : '#ffebee', color: blocked ? '#e65100' : '#c62828', padding: '14px 18px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
+        <div
+          className="px-[18px] py-[14px] rounded-lg mb-4 text-[14px]"
+          style={{
+            background: blocked ? '#fff3e0' : '#ffebee',
+            color: blocked ? '#e65100' : '#c62828',
+          }}
+        >
           {msg}
-          {blocked && <div style={{ marginTop: '6px', fontSize: '13px' }}>관리자(슈퍼관리자)에게 기능 활성화를 요청하세요.</div>}
+          {blocked && <div className="mt-[6px] text-[13px]">관리자(슈퍼관리자)에게 기능 활성화를 요청하세요.</div>}
         </div>
       )}
 
       {blocked ? (
-        <div style={{ ...s.tableCard, padding: '48px', textAlign: 'center', color: '#999' }}>
-          <div style={{ fontSize: '32px', marginBottom: '10px' }}>🔒</div>
-          <div style={{ fontWeight: 600 }}>노임서류 기능이 비활성화되어 있습니다.</div>
+        <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden px-12 py-12 text-center text-[#999]">
+          <div className="text-[32px] mb-[10px]">🔒</div>
+          <div className="font-semibold">노임서류 기능이 비활성화되어 있습니다.</div>
         </div>
       ) : data && (
         <>
           {/* 이용 가능 월 필터 */}
           {data.availableMonths.length > 0 && (
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '8px', fontWeight: 600 }}>월 선택</div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <div className="mb-5">
+              <div className="text-[13px] text-muted-brand mb-2 font-semibold">월 선택</div>
+              <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => handleMonthFilter('')}
-                  style={{ ...s.monthBtn, ...(selectedMonth === '' ? s.monthBtnActive : {}) }}
+                  className="px-[14px] py-[6px] border border-[rgba(91,164,217,0.3)] rounded-[16px] cursor-pointer text-[13px]"
+                  style={{
+                    background: selectedMonth === '' ? '#0f4c75' : '#243144',
+                    color: selectedMonth === '' ? 'white' : '#A0AEC0',
+                    borderColor: selectedMonth === '' ? '#0f4c75' : undefined,
+                  }}
                 >
                   전체
                 </button>
                 {data.availableMonths.map(m => (
                   <button key={m} onClick={() => handleMonthFilter(m)}
-                    style={{ ...s.monthBtn, ...(selectedMonth === m ? s.monthBtnActive : {}) }}>
+                    className="px-[14px] py-[6px] border border-[rgba(91,164,217,0.3)] rounded-[16px] cursor-pointer text-[13px]"
+                    style={{
+                      background: selectedMonth === m ? '#0f4c75' : '#243144',
+                      color: selectedMonth === m ? 'white' : '#A0AEC0',
+                      borderColor: selectedMonth === m ? '#0f4c75' : undefined,
+                    }}
+                  >
                     {m}
                   </button>
                 ))}
@@ -126,29 +143,29 @@ export default function CompanyDocumentsPage() {
           )}
 
           {/* 근무 확정 요약 */}
-          <div style={{ marginBottom: '24px' }}>
-            <h2 style={s.sectionTitle}>근무 확정 요약</h2>
+          <div className="mb-6">
+            <h2 className="text-[16px] font-bold m-0 mb-[10px]">근무 확정 요약</h2>
             {data.confirmationSummary.length === 0 ? (
-              <div style={{ ...s.tableCard, padding: '24px', textAlign: 'center', color: '#aaa', fontSize: '14px' }}>
+              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden px-6 py-6 text-center text-[#aaa] text-[14px]">
                 확정된 근무 기록이 없습니다.
               </div>
             ) : (
-              <div style={s.tableCard}>
-                <table style={s.table}>
+              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+                <table className="w-full border-collapse text-[13px]">
                   <thead>
                     <tr>
                       {['월', '확정 건수', '총 공수', '총 금액'].map(h => (
-                        <th key={h} style={s.th}>{h}</th>
+                        <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-[#e0e0e0] whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {data.confirmationSummary.map((row, i) => (
                       <tr key={row.monthKey} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                        <td style={{ ...s.td, fontWeight: 600 }}>{row.monthKey}</td>
-                        <td style={{ ...s.td, textAlign: 'right' }}>{row.confirmedCount}건</td>
-                        <td style={{ ...s.td, textAlign: 'right' }}>{row.totalWorkUnits.toFixed(2)}일</td>
-                        <td style={{ ...s.td, textAlign: 'right' }}>{fmt(row.totalAmount)}</td>
+                        <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle font-semibold">{row.monthKey}</td>
+                        <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.confirmedCount}건</td>
+                        <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.totalWorkUnits.toFixed(2)}일</td>
+                        <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{fmt(row.totalAmount)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -159,41 +176,45 @@ export default function CompanyDocumentsPage() {
 
           {/* 노임비 집계 */}
           <div>
-            <h2 style={s.sectionTitle}>노임비 집계표</h2>
+            <h2 className="text-[16px] font-bold m-0 mb-[10px]">노임비 집계표</h2>
             {data.laborSummaries.length === 0 ? (
-              <div style={{ ...s.tableCard, padding: '24px', textAlign: 'center', color: '#aaa', fontSize: '14px' }}>
+              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden px-6 py-6 text-center text-[#aaa] text-[14px]">
                 노임비 집계 데이터가 없습니다.
-                <div style={{ fontSize: '12px', marginTop: '4px' }}>슈퍼관리자 메뉴 → 노무비 집계 실행 후 조회 가능합니다.</div>
+                <div className="text-[12px] mt-1">슈퍼관리자 메뉴 → 노무비 집계 실행 후 조회 가능합니다.</div>
               </div>
             ) : (
-              <div style={s.tableCard}>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={s.table}>
+              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-[13px]">
                     <thead>
                       <tr>
                         {['월', '현장', '구분', '근로자수', '공수', '지급총액', '원천세', '퇴직공제(일)', '생성일'].map(h => (
-                          <th key={h} style={s.th}>{h}</th>
+                          <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-[#e0e0e0] whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {data.laborSummaries.map((row, i) => (
                         <tr key={row.id} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                          <td style={{ ...s.td, fontWeight: 600 }}>{row.monthKey}</td>
-                          <td style={s.td}>{row.siteName}</td>
-                          <td style={s.td}>
-                            <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '8px',
-                              background: row.organizationType === 'DIRECT' ? '#e3f2fd' : '#fce4ec',
-                              color: row.organizationType === 'DIRECT' ? '#1565c0' : '#880e4f' }}>
+                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle font-semibold">{row.monthKey}</td>
+                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle">{row.siteName}</td>
+                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle">
+                            <span
+                              className="text-[11px] px-2 py-[2px] rounded-lg"
+                              style={{
+                                background: row.organizationType === 'DIRECT' ? '#e3f2fd' : '#fce4ec',
+                                color: row.organizationType === 'DIRECT' ? '#1565c0' : '#880e4f',
+                              }}
+                            >
                               {ORG_LABEL[row.organizationType] ?? row.organizationType}
                             </span>
                           </td>
-                          <td style={{ ...s.td, textAlign: 'right' }}>{row.workerCount}명</td>
-                          <td style={{ ...s.td, textAlign: 'right' }}>{row.confirmedWorkUnits.toFixed(2)}</td>
-                          <td style={{ ...s.td, textAlign: 'right' }}>{fmt(row.grossAmount)}</td>
-                          <td style={{ ...s.td, textAlign: 'right', color: '#c62828' }}>{fmt(row.withholdingTaxAmount)}</td>
-                          <td style={{ ...s.td, textAlign: 'right' }}>{row.retirementMutualTargetDays}일</td>
-                          <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0' }}>
+                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.workerCount}명</td>
+                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.confirmedWorkUnits.toFixed(2)}</td>
+                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{fmt(row.grossAmount)}</td>
+                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right text-[#c62828]">{fmt(row.withholdingTaxAmount)}</td>
+                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.retirementMutualTargetDays}일</td>
+                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-[12px] text-muted-brand">
                             {new Date(row.createdAt).toLocaleDateString('ko-KR')}
                           </td>
                         </tr>
@@ -208,19 +229,4 @@ export default function CompanyDocumentsPage() {
       )}
     </div>
   )
-}
-
-const s: Record<string, React.CSSProperties> = {
-  page:          { padding: '32px', maxWidth: '1200px' },
-  header:        { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' },
-  title:         { fontSize: '22px', fontWeight: 700, margin: 0 },
-  sub:           { fontSize: '13px', color: '#A0AEC0', margin: '4px 0 0' },
-  btn:           { padding: '8px 20px', background: '#0f4c75', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  monthBtn:      { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '16px', background: '#243144', cursor: 'pointer', fontSize: '13px', color: '#A0AEC0' },
-  monthBtnActive:{ background: '#0f4c75', color: 'white', borderColor: '#0f4c75' },
-  sectionTitle:  { fontSize: '16px', fontWeight: 700, margin: '0 0 10px' },
-  tableCard:     { background: '#243144', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
-  table:         { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
-  th:            { background: '#1B2838', padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' },
-  td:            { padding: '10px 12px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' },
 }

@@ -66,27 +66,36 @@ export default function DeviceRequestsPage() {
   const getTypeColor = (item: DeviceRequest) => item.oldDeviceToken === null ? '#1565c0' : '#6a1b9a'
 
   return (
-    <div style={styles.layout}>
-      <nav style={styles.sidebar}>
-        <div style={styles.sidebarTitle}>해한 출퇴근</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
         {[
           ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'], ['/admin/sites', '현장 관리'],
           ['/admin/attendance', '출퇴근 조회'], ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
           ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 승인'],
-        ].map(([href, label]) => <Link key={href} href={href} style={styles.navItem}>{label}</Link>)}
+        ].map(([href, label]) => (
+          <Link key={href} href={href}
+            className="block text-white/80 px-5 py-2.5 text-sm no-underline hover:text-white">
+            {label}
+          </Link>
+        ))}
       </nav>
-      <main style={styles.main}>
-        <h1 style={styles.pageTitle}>기기 등록/변경 요청 ({total}건)</h1>
+      <main className="flex-1 p-8">
+        <h1 className="text-[22px] font-bold m-0 mb-5">기기 등록/변경 요청 ({total}건)</h1>
 
-        {msg && <div style={styles.msgBox}>{msg}</div>}
+        {msg && (
+          <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-lg px-4 py-3 text-sm text-[#2e7d32] mb-4">
+            {msg}
+          </div>
+        )}
 
         {/* 상태 탭 */}
-        <div style={styles.tabRow}>
+        <div className="flex gap-2 mb-4">
           {[['PENDING', '대기중'], ['APPROVED', '승인'], ['REJECTED', '반려']].map(([s, label]) => (
             <button
               key={s}
               onClick={() => { setStatusFilter(s); load(s) }}
-              style={{ ...styles.tab, ...(statusFilter === s ? styles.tabActive : {}) }}
+              className={`px-5 py-2 border rounded-md cursor-pointer text-sm transition-colors ${statusFilter === s ? 'bg-[#1a1a2e] text-white border-[#1a1a2e]' : 'border-[rgba(91,164,217,0.3)] bg-card text-muted-brand'}`}
             >
               {label}
             </button>
@@ -94,17 +103,21 @@ export default function DeviceRequestsPage() {
         </div>
 
         {loading ? <p>로딩 중...</p> : (
-          <div style={styles.tableCard}>
-            <table style={styles.table}>
+          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
               <thead>
-                <tr>{['유형', '근로자', '연락처', '회사', '새 기기명', '변경 사유', '요청일', '상태', '처리'].map((h) => <th key={h} style={styles.th}>{h}</th>)}</tr>
+                <tr className="border-b-2 border-[rgba(91,164,217,0.2)]">
+                  {['유형', '근로자', '연락처', '회사', '새 기기명', '변경 사유', '요청일', '상태', '처리'].map((h) => (
+                    <th key={h} className="text-left px-3 py-2.5 text-xs text-muted-brand">{h}</th>
+                  ))}
+                </tr>
               </thead>
               <tbody>
                 {items.length === 0 ? (
-                  <tr><td colSpan={9} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>요청이 없습니다.</td></tr>
+                  <tr><td colSpan={9} className="text-center py-6 text-[#999]">요청이 없습니다.</td></tr>
                 ) : items.map((item) => (
-                  <tr key={item.id} style={styles.tr}>
-                    <td style={styles.td}>
+                  <tr key={item.id} className="border-b border-[rgba(91,164,217,0.1)]">
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
                       <span style={{
                         fontSize: '11px',
                         fontWeight: 700,
@@ -117,41 +130,41 @@ export default function DeviceRequestsPage() {
                         {getRequestType(item)}
                       </span>
                     </td>
-                    <td style={styles.td}>{item.workerName}</td>
-                    <td style={styles.td}>{formatPhone(item.workerPhone)}</td>
-                    <td style={styles.td}>{item.company}</td>
-                    <td style={styles.td}>{item.newDeviceName}</td>
-                    <td style={styles.td}><span style={{ fontSize: '12px' }}>{item.reason}</span></td>
-                    <td style={styles.td}>{formatDt(item.requestedAt)}</td>
-                    <td style={styles.td}>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{item.workerName}</td>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{formatPhone(item.workerPhone)}</td>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{item.company}</td>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{item.newDeviceName}</td>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]"><span className="text-xs">{item.reason}</span></td>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{formatDt(item.requestedAt)}</td>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
                       <span style={{ color: STATUS_COLOR[item.status], fontWeight: 600, fontSize: '12px' }}>
                         {STATUS_LABEL[item.status]}
                       </span>
                     </td>
-                    <td style={styles.td}>
+                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
                       {item.status === 'PENDING' && canMutate && (
-                        <div style={{ display: 'flex', gap: '6px' }}>
+                        <div className="flex gap-1.5">
                           <button
                             onClick={() => handleAction(item.id, 'APPROVE')}
                             disabled={processing === item.id}
-                            style={styles.approveBtn}
+                            className="px-3 py-1 bg-[#2e7d32] text-white border-none rounded cursor-pointer text-xs disabled:opacity-50"
                           >
                             승인
                           </button>
                           <button
                             onClick={() => handleAction(item.id, 'REJECT')}
                             disabled={processing === item.id}
-                            style={styles.rejectBtn}
+                            className="px-3 py-1 bg-[#e53935] text-white border-none rounded cursor-pointer text-xs disabled:opacity-50"
                           >
                             반려
                           </button>
                         </div>
                       )}
                       {item.status === 'PENDING' && !canMutate && (
-                        <span style={{ fontSize: '12px', color: '#bbb' }}>조회 전용</span>
+                        <span className="text-xs text-[#bbb]">조회 전용</span>
                       )}
                       {item.processedAt && (
-                        <span style={{ fontSize: '11px', color: '#999' }}>{formatDt(item.processedAt)}</span>
+                        <span className="text-[11px] text-[#999]">{formatDt(item.processedAt)}</span>
                       )}
                     </td>
                   </tr>
@@ -163,24 +176,4 @@ export default function DeviceRequestsPage() {
       </main>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  main: { flex: 1, padding: '32px' },
-  pageTitle: { fontSize: '22px', fontWeight: 700, margin: '0 0 20px' },
-  msgBox: { background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: '8px', padding: '12px 16px', fontSize: '14px', color: '#2e7d32', marginBottom: '16px' },
-  tabRow: { display: 'flex', gap: '8px', marginBottom: '16px' },
-  tab: { padding: '8px 20px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', background: '#243144', cursor: 'pointer', fontSize: '14px', color: '#A0AEC0' },
-  tabActive: { background: '#1a1a2e', color: 'white', borderColor: '#1a1a2e' },
-  tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflowX: 'auto' },
-  table: { width: '100%', borderCollapse: 'collapse' as const },
-  th: { textAlign: 'left' as const, padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)' },
-  td: { padding: '12px', fontSize: '14px', borderBottom: '1px solid #f5f5f5' },
-  tr: {},
-  approveBtn: { padding: '5px 12px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px' },
-  rejectBtn: { padding: '5px 12px', background: '#e53935', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px' },
 }

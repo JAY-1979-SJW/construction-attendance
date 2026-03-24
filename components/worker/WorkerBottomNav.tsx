@@ -33,44 +33,26 @@ export default function WorkerBottomNav() {
   const router    = useRouter()
 
   return (
-    <nav
-      style={{
-        position:       'fixed',
-        bottom:         0,
-        left:           0,
-        right:          0,
-        background:     '#0F1724',
-        borderTop:      '1px solid rgba(91,164,217,0.15)',
-        display:        'flex',
-        height:         '64px',
-        zIndex:         100,
-        boxShadow:      '0 -4px 20px rgba(0,0,0,0.3)',
-      }}
-    >
+    <nav className="fixed bottom-0 left-0 right-0 bg-brand-deeper border-t border-[rgba(91,164,217,0.15)] flex h-16 z-[100] shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
       {NAV_ITEMS.map((item) => {
         const isActive = item.match.some((m) => pathname === m || pathname.startsWith(m + '/'))
         return (
           <button
             key={item.href}
             onClick={() => router.push(item.href)}
+            className="flex-1 flex flex-col items-center justify-center gap-[3px] border-none bg-transparent cursor-pointer py-2 transition-colors duration-[150ms]"
             style={{
-              flex:           1,
-              display:        'flex',
-              flexDirection:  'column',
-              alignItems:     'center',
-              justifyContent: 'center',
-              gap:            '3px',
-              border:         'none',
-              background:     'transparent',
-              cursor:         'pointer',
-              color:          isActive ? '#F47920' : '#5a6a7e',
-              padding:        '8px 0',
-              borderTop:      isActive ? '2px solid #F47920' : '2px solid transparent',
-              transition:     'color 0.15s',
+              color:      isActive ? '#F47920' : '#5a6a7e',
+              borderTop:  isActive ? '2px solid #F47920' : '2px solid transparent',
             }}
           >
-            <span style={{ fontSize: '20px', lineHeight: 1 }}>{item.icon}</span>
-            <span style={{ fontSize: '10px', fontWeight: isActive ? 700 : 400, letterSpacing: '0.3px' }}>{item.label}</span>
+            <span className="text-[20px] leading-none">{item.icon}</span>
+            <span
+              className="text-[10px] tracking-[0.3px]"
+              style={{ fontWeight: isActive ? 700 : 400 }}
+            >
+              {item.label}
+            </span>
           </button>
         )
       })}

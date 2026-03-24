@@ -280,15 +280,15 @@ export default function PresenceChecksPage() {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div style={s.layout}>
+    <div className="flex min-h-screen bg-brand relative">
       {/* ── Sidebar ── */}
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
-        <div style={s.navSection}>관리</div>
+      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {[
           { href: '/admin',                label: '대시보드' },
           { href: '/admin/workers',         label: '근로자 관리' },
-  { href: '/admin/companies', label: '회사 관리' },
+          { href: '/admin/companies', label: '회사 관리' },
           { href: '/admin/sites',           label: '현장 관리' },
           { href: '/admin/attendance',      label: '출퇴근 조회' },
           { href: '/admin/presence-checks', label: '체류확인 현황' },
@@ -298,35 +298,39 @@ export default function PresenceChecksPage() {
           { href: '/admin/device-requests', label: '기기 변경' },
           { href: '/admin/settings',        label: '설정' },
         ].map((item) => (
-          <Link key={item.href} href={item.href} style={{
-            ...s.navItem,
-            ...(item.href === '/admin/presence-checks' ? s.navActive : {}),
-          }}>{item.label}</Link>
+          <Link key={item.href} href={item.href}
+            className={`block px-5 py-2.5 text-[14px] no-underline ${item.href === '/admin/presence-checks' ? 'bg-white/10 text-white border-l-[3px] border-[#4fc3f7]' : 'text-white/80'}`}>
+            {item.label}
+          </Link>
         ))}
-        <button onClick={handleLogout} style={s.logoutBtn}>로그아웃</button>
+        <button onClick={handleLogout}
+          className="mx-5 mt-6 py-2.5 bg-white/10 border-none rounded-md text-white/60 cursor-pointer text-[13px]">
+          로그아웃
+        </button>
       </nav>
 
       {/* ── Main ── */}
-      <main style={{ ...s.main, marginRight: selected ? 420 : 0 }}>
+      <main className="flex-1 p-8 min-w-0" style={{ marginRight: selected ? 420 : 0, transition: 'margin-right 0.2s' }}>
         {/* Header */}
-        <div style={s.header}>
+        <div className="flex justify-between items-start mb-4">
           <div>
-            <h1 style={s.pageTitle}>체류확인 현황</h1>
-            <p style={s.subtitle}>GPS 체류확인 응답 내역 및 검토 처리</p>
+            <h1 className="text-2xl font-bold mb-1 mt-0">체류확인 현황</h1>
+            <p className="text-[14px] text-muted-brand m-0">GPS 체류확인 응답 내역 및 검토 처리</p>
           </div>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={s.datePicker} />
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
+            className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-lg text-[14px]" />
         </div>
 
         {/* 미처리 건 알림 */}
         {!loading && summary && (summary.review > 0 || summary.noResponse > 0) && (
-          <div style={s.alertBar}>
+          <div className="flex gap-2.5 flex-wrap mb-3 items-center">
             {summary.review > 0 && (
-              <span style={{ ...s.alertChip, background: '#fff8e1', color: '#f57f17', border: '1px solid #ffcc80' }}>
+              <span className="px-[14px] py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#fff8e1] text-[#f57f17] border border-[#ffcc80]">
                 검토필요 {summary.review}건 — 즉시 처리 필요
               </span>
             )}
             {summary.noResponse > 0 && (
-              <span style={{ ...s.alertChip, background: '#fff3f3', color: '#b71c1c', border: '1px solid #ef9a9a' }}>
+              <span className="px-[14px] py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#fff3f3] text-[#b71c1c] border border-[#ef9a9a]">
                 미응답 {summary.noResponse}건
               </span>
             )}
@@ -334,12 +338,14 @@ export default function PresenceChecksPage() {
         )}
 
         {/* Filter row */}
-        <div style={s.filterRow}>
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={s.select}>
+        <div className="flex gap-2.5 flex-wrap mb-4 items-center">
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-[#1E3048] text-[#E2E8F0]">
             <option value="">전체 상태</option>
             {Object.entries(STATUS_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
-          <select value={siteFilter} onChange={(e) => setSiteFilter(e.target.value)} style={s.select}>
+          <select value={siteFilter} onChange={(e) => setSiteFilter(e.target.value)}
+            className="px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-[#1E3048] text-[#E2E8F0]">
             <option value="">전체 현장</option>
             {sites.map((site) => <option key={site.id} value={site.id}>{site.name}</option>)}
           </select>
@@ -348,13 +354,13 @@ export default function PresenceChecksPage() {
             placeholder="근로자 검색"
             value={workerSearch}
             onChange={(e) => setWorkerSearch(e.target.value)}
-            style={s.searchInput}
+            className="px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] w-[140px]"
           />
-          <label style={s.toggle}>
+          <label className="flex items-center text-[13px] cursor-pointer text-[#444] whitespace-nowrap">
             <input type="checkbox" checked={onlyReview} onChange={(e) => setOnlyReview(e.target.checked)} />
             &nbsp;검토필요만
           </label>
-          <label style={s.toggle}>
+          <label className="flex items-center text-[13px] cursor-pointer text-[#444] whitespace-nowrap">
             <input type="checkbox" checked={onlyNoResponse} onChange={(e) => setOnlyNoResponse(e.target.checked)} />
             &nbsp;미응답만
           </label>
@@ -362,7 +368,7 @@ export default function PresenceChecksPage() {
 
         {/* Summary cards */}
         {summary && (
-          <div style={s.cards}>
+          <div className="grid gap-3 mb-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
             {[
               { label: '전체',     value: summary.total,       color: '#37474f' },
               { label: '완료',     value: summary.completed,   color: '#2e7d32' },
@@ -371,33 +377,36 @@ export default function PresenceChecksPage() {
               { label: '위치이탈', value: summary.outOfFence,  color: '#e65100' },
               { label: '검토필요', value: summary.review,      color: '#f57f17' },
             ].map((c) => (
-              <div key={c.label} style={{ ...s.card, borderTop: `4px solid ${c.color}` }}>
-                <div style={{ ...s.cardVal, color: c.color }}>{c.value}</div>
-                <div style={s.cardLabel}>{c.label}</div>
+              <div key={c.label} className="bg-card rounded-[10px] p-[14px] shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
+                style={{ borderTop: `4px solid ${c.color}` }}>
+                <div className="text-[26px] font-bold mb-0.5" style={{ color: c.color }}>{c.value}</div>
+                <div className="text-[12px] text-muted-brand">{c.label}</div>
               </div>
             ))}
           </div>
         )}
 
         {/* Table */}
-        <div style={s.tableCard}>
-          <div style={s.tableTitle}>
+        <div className="bg-card rounded-[10px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="text-[15px] font-bold mb-[14px] flex items-center gap-2.5">
             {date} 체류확인 목록
             {summary && summary.review > 0 && (
-              <span style={s.reviewBadge}>{summary.review}건 검토필요</span>
+              <span className="bg-[#fff3e0] text-[#e65100] text-[12px] font-semibold px-[10px] py-[3px] rounded-xl border border-[#ffcc80]">
+                {summary.review}건 검토필요
+              </span>
             )}
           </div>
           {loading ? (
-            <div style={s.empty}>로딩 중...</div>
+            <div className="text-center py-8 text-[#718096] text-[14px]">로딩 중...</div>
           ) : items.length === 0 ? (
-            <div style={s.empty}>해당 조건에 맞는 기록이 없습니다.</div>
+            <div className="text-center py-8 text-[#718096] text-[14px]">해당 조건에 맞는 기록이 없습니다.</div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={s.table}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
                 <thead>
                   <tr>
                     {['이름', '현장', '구분', '예약', '만료', '응답', '거리(m)', 'GPS(m)', '상태', '메모'].map((h) => (
-                      <th key={h} style={s.th}>{h}</th>
+                      <th key={h} className="text-left px-[10px] py-[9px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -407,55 +416,66 @@ export default function PresenceChecksPage() {
                       key={item.id}
                       onClick={() => openDetail(item.id)}
                       style={{
-                        ...s.tr,
                         background:   ROW_BG[item.status] ?? undefined,
                         cursor:       'pointer',
                         outline:      selected?.id === item.id ? '2px solid #1976d2' : undefined,
+                        transition:   'background 0.1s',
                       }}
                     >
-                      <td style={s.td}>
-                        <div style={{ fontWeight: 600 }}>{item.workerName}</div>
-                        <div style={{ fontSize: '11px', color: '#999' }}>{item.workerCompany}</div>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
+                        <div className="font-semibold">{item.workerName}</div>
+                        <div className="text-[11px] text-[#999]">{item.workerCompany}</div>
                       </td>
-                      <td style={s.td}>{item.siteName}</td>
-                      <td style={s.td}>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{item.siteName}</td>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
                         <span style={{
-                          ...s.slotBadge,
+                          padding: '2px 7px',
+                          borderRadius: '10px',
+                          fontSize: '12px',
+                          fontWeight: 600,
                           background: item.slot === 'AM' ? '#e3f2fd' : '#fff3e0',
                           color:      item.slot === 'AM' ? '#1565c0' : '#e65100',
                         }}>
                           {item.slot === 'AM' ? '오전' : '오후'}
                         </span>
                       </td>
-                      <td style={s.td}>{fmt(item.scheduledAt)}</td>
-                      <td style={s.td}>{fmt(item.expiresAt)}</td>
-                      <td style={s.td}>{fmt(item.respondedAt)}</td>
-                      <td style={{ ...s.td, textAlign: 'right' as const }}>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{fmt(item.scheduledAt)}</td>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{fmt(item.expiresAt)}</td>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{fmt(item.respondedAt)}</td>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-right">
                         {item.distanceMeters != null ? (
                           <span style={{ color: item.distanceMeters > 100 ? '#b71c1c' : undefined }}>
                             {Math.round(item.distanceMeters)}
                           </span>
                         ) : '-'}
                       </td>
-                      <td style={{ ...s.td, textAlign: 'right' as const }}>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-right">
                         {item.accuracyMeters != null ? (
                           <span style={{ color: item.accuracyMeters >= 80 ? '#e65100' : undefined }}>
                             {item.accuracyMeters >= 80 && '⚠ '}{Math.round(item.accuracyMeters)}
                           </span>
                         ) : '-'}
                       </td>
-                      <td style={s.td}>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
                         <span style={{ color: STATUS_COLOR[item.status] ?? '#333', fontWeight: 600, fontSize: '13px' }}>
                           {STATUS_LABEL[item.status] ?? item.status}
                         </span>
                         {item.reissueCount > 0 && (
-                          <span style={s.reissueTag}>재{item.reissueCount}</span>
+                          <span className="inline-block ml-1 bg-[#e8eaf6] text-[#3949ab] text-[11px] px-1.5 py-[1px] rounded-lg">
+                            재{item.reissueCount}
+                          </span>
                         )}
                       </td>
-                      <td style={s.td}>
-                        {item.adminNote && <span style={s.noteTag}>메모</span>}
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
+                        {item.adminNote && (
+                          <span className="inline-block mr-1 bg-[rgba(244,121,32,0.12)] text-accent text-[11px] px-1.5 py-[1px] rounded-lg">
+                            메모
+                          </span>
+                        )}
                         {item.needsReview && item.status === 'REVIEW_REQUIRED' && (
-                          <span style={s.reviewTag}>검토</span>
+                          <span className="inline-block bg-[#fce4ec] text-[#c62828] text-[11px] px-1.5 py-[1px] rounded-lg font-semibold">
+                            검토
+                          </span>
                         )}
                       </td>
                     </tr>
@@ -469,27 +489,33 @@ export default function PresenceChecksPage() {
 
       {/* ── Detail Panel ── */}
       {(selected || detailLoading) && (
-        <aside style={s.panel}>
-          <div style={s.panelHeader}>
-            <span style={s.panelTitle}>체류확인 상세</span>
-            <button onClick={() => setSelected(null)} style={s.closeBtn}>✕</button>
+        <aside className="fixed right-0 top-0 w-[420px] h-screen bg-card border-l border-[#e0e0e0] shadow-[-4px_0_20px_rgba(0,0,0,0.08)] flex flex-col z-[100] overflow-hidden">
+          <div className="flex justify-between items-center px-5 py-4 border-b border-[#f0f0f0] flex-shrink-0">
+            <span className="text-base font-bold">체류확인 상세</span>
+            <button onClick={() => setSelected(null)}
+              className="bg-transparent border-none cursor-pointer text-[18px] text-muted-brand px-2 py-1">
+              ✕
+            </button>
           </div>
 
-          {detailLoading && <div style={s.empty}>로딩 중...</div>}
+          {detailLoading && <div className="text-center py-8 text-[#718096] text-[14px]">로딩 중...</div>}
 
           {selected && !detailLoading && (
-            <div style={s.panelBody}>
+            <div className="flex-1 overflow-y-auto px-5 py-4">
               {/* Status */}
-              <div style={s.statusRow}>
+              <div className="flex items-center gap-2.5 mb-4">
                 <span style={{
-                  ...s.statusChip,
+                  padding: '4px 12px',
+                  borderRadius: '16px',
+                  fontSize: '13px',
+                  fontWeight: 700,
                   background: STATUS_COLOR[selected.status] + '22',
                   color:      STATUS_COLOR[selected.status] ?? '#333',
                   border:     `1px solid ${STATUS_COLOR[selected.status] ?? '#ccc'}`,
                 }}>
                   {STATUS_LABEL[selected.status] ?? selected.status}
                 </span>
-                <span style={{ fontSize: '12px', color: '#A0AEC0' }}>
+                <span className="text-[12px] text-muted-brand">
                   {selected.slot === 'AM' ? '오전' : '오후'} · {selected.checkDate}
                 </span>
               </div>
@@ -541,15 +567,16 @@ export default function PresenceChecksPage() {
                 </Section>
               )}
 
-              {/* Actions — only for actionable statuses */}
+              {/* Actions */}
               {(canConfirm || canReject || canReissue) && (
                 <Section title="관리자 판정">
-                  <div style={s.actionGroup}>
+                  <div className="flex gap-2 mb-2.5">
                     {canConfirm && (
                       <button
                         onClick={doConfirm}
                         disabled={actionLoading}
-                        style={{ ...s.actionBtn, background: '#2e7d32', color: 'white' }}
+                        className="px-4 py-2 border-none rounded-md cursor-pointer text-[13px] font-semibold mb-1.5 text-white"
+                        style={{ background: '#2e7d32' }}
                       >
                         정상 승인
                       </button>
@@ -558,36 +585,38 @@ export default function PresenceChecksPage() {
                       <button
                         onClick={doReject}
                         disabled={actionLoading}
-                        style={{ ...s.actionBtn, background: '#b71c1c', color: 'white' }}
+                        className="px-4 py-2 border-none rounded-md cursor-pointer text-[13px] font-semibold mb-1.5 text-white"
+                        style={{ background: '#b71c1c' }}
                       >
                         이탈 확정
                       </button>
                     )}
                   </div>
                   {canReissue && (
-                    <div style={s.reissueForm}>
-                      <div style={s.reissueLabel}>재확인 요청 (최대 2회)</div>
-                      <div style={s.reissueInputRow}>
+                    <div className="bg-brand rounded-lg p-2.5 mt-1.5">
+                      <div className="text-[12px] text-muted-brand mb-2">재확인 요청 (최대 2회)</div>
+                      <div className="flex gap-1.5 items-center">
                         <input
                           type="number"
                           min={2}
                           max={60}
                           value={reissueMinutes}
                           onChange={(e) => setReissueMinutes(Number(e.target.value))}
-                          style={{ ...s.miniInput, width: '60px' }}
+                          className="px-2 py-1.5 border border-[rgba(91,164,217,0.3)] rounded-[5px] text-[13px] w-[60px]"
                         />
-                        <span style={{ fontSize: '13px', color: '#A0AEC0' }}>분</span>
+                        <span className="text-[13px] text-muted-brand">분</span>
                         <input
                           type="text"
                           placeholder="사유 (선택)"
                           value={reissueReason}
                           onChange={(e) => setReissueReason(e.target.value)}
-                          style={{ ...s.miniInput, flex: 1 }}
+                          className="px-2 py-1.5 border border-[rgba(91,164,217,0.3)] rounded-[5px] text-[13px] flex-1"
                         />
                         <button
                           onClick={doReissue}
                           disabled={actionLoading}
-                          style={{ ...s.actionBtn, background: '#E06810', color: 'white', margin: 0 }}
+                          className="px-4 py-2 border-none rounded-md cursor-pointer text-[13px] font-semibold text-white"
+                          style={{ background: '#E06810' }}
                         >
                           요청
                         </button>
@@ -604,12 +633,13 @@ export default function PresenceChecksPage() {
                   onChange={(e) => setNoteText(e.target.value)}
                   rows={3}
                   placeholder="운영 판단 근거, 현장소장 확인 내용 등"
-                  style={s.textarea}
+                  className="w-full px-2 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] resize-y font-[inherit] box-border block mb-1.5"
                 />
                 <button
                   onClick={doSaveNote}
                   disabled={actionLoading}
-                  style={{ ...s.actionBtn, background: '#546e7a', color: 'white' }}
+                  className="px-4 py-2 border-none rounded-md cursor-pointer text-[13px] font-semibold mb-1.5 text-white"
+                  style={{ background: '#546e7a' }}
                 >
                   메모 저장
                 </button>
@@ -619,14 +649,14 @@ export default function PresenceChecksPage() {
               {selected.auditLogs.length > 0 && (
                 <Section title="이력">
                   {selected.auditLogs.map((log) => (
-                    <div key={log.id} style={s.auditRow}>
-                      <div style={s.auditMeta}>
-                        <span style={s.auditAction}>{ACTION_LABEL[log.action] ?? log.action}</span>
-                        <span style={s.auditTime}>{fmtFull(log.createdAt)}</span>
+                    <div key={log.id} className="py-2 border-b border-[#f0f0f0] text-[12px]">
+                      <div className="flex justify-between mb-0.5">
+                        <span className="font-semibold text-[#CBD5E0]">{ACTION_LABEL[log.action] ?? log.action}</span>
+                        <span className="text-[#aaa]">{fmtFull(log.createdAt)}</span>
                       </div>
-                      {log.message && <div style={s.auditMsg}>{log.message}</div>}
+                      {log.message && <div className="text-muted-brand">{log.message}</div>}
                       {log.actorNameSnapshot && (
-                        <div style={s.auditActor}>{log.actorType === 'ADMIN' ? '관리자' : log.actorType}: {log.actorNameSnapshot}</div>
+                        <div className="text-muted-brand text-[11px]">{log.actorType === 'ADMIN' ? '관리자' : log.actorType}: {log.actorNameSnapshot}</div>
                       )}
                     </div>
                   ))}
@@ -644,8 +674,8 @@ export default function PresenceChecksPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: '16px' }}>
-      <div style={{ fontSize: '11px', fontWeight: 700, color: '#A0AEC0', textTransform: 'uppercase' as const, letterSpacing: '0.8px', marginBottom: '8px' }}>
+    <div className="mb-4">
+      <div className="text-[11px] font-bold text-muted-brand uppercase tracking-[0.8px] mb-2">
         {title}
       </div>
       {children}
@@ -655,78 +685,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #f0f0f0', fontSize: '13px' }}>
-      <span style={{ color: '#A0AEC0', flexShrink: 0, marginRight: '8px' }}>{label}</span>
-      <span style={{ fontWeight: 500, textAlign: 'right' as const, wordBreak: 'break-all' as const }}>{value ?? '-'}</span>
+    <div className="flex justify-between py-[5px] border-b border-[#f0f0f0] text-[13px]">
+      <span className="text-muted-brand flex-shrink-0 mr-2">{label}</span>
+      <span className="font-medium text-right break-all">{value ?? '-'}</span>
     </div>
   )
-}
-
-// ─── Styles ──────────────────────────────────────────────────────────────────
-
-const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838', position: 'relative' },
-  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
-  navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navActive:    { background: 'rgba(255,255,255,0.1)', color: 'white', borderLeft: '3px solid #4fc3f7' },
-  logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-
-  main:         { flex: 1, padding: '32px', transition: 'margin-right 0.2s', minWidth: 0 },
-  header:       { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' },
-  pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 4px' },
-  subtitle:     { fontSize: '14px', color: '#A0AEC0', margin: 0 },
-  datePicker:   { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '14px' },
-
-  alertBar:     { display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '12px', alignItems: 'center' },
-  alertChip:    { padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 600 },
-  filterRow:    { display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px', alignItems: 'center' },
-  select:       { padding: '7px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', background: '#1E3048', color: '#E2E8F0' },
-  searchInput:  { padding: '7px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', width: '140px' },
-  toggle:       { display: 'flex', alignItems: 'center', fontSize: '13px', cursor: 'pointer', color: '#444', whiteSpace: 'nowrap' },
-
-  cards:        { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px', marginBottom: '20px' },
-  card:         { background: '#243144', borderRadius: '10px', padding: '14px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  cardVal:      { fontSize: '26px', fontWeight: 700, marginBottom: '2px' },
-  cardLabel:    { fontSize: '12px', color: '#A0AEC0' },
-
-  tableCard:    { background: '#243144', borderRadius: '10px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  tableTitle:   { fontSize: '15px', fontWeight: 700, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' },
-  reviewBadge:  { background: '#fff3e0', color: '#e65100', fontSize: '12px', fontWeight: 600, padding: '3px 10px', borderRadius: '12px', border: '1px solid #ffcc80' },
-  table:        { width: '100%', borderCollapse: 'collapse' },
-  th:           { textAlign: 'left', padding: '9px 10px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' },
-  td:           { padding: '10px', fontSize: '13px', borderBottom: '1px solid #f5f5f5', whiteSpace: 'nowrap' },
-  tr:           { transition: 'background 0.1s' },
-  slotBadge:    { padding: '2px 7px', borderRadius: '10px', fontSize: '12px', fontWeight: 600 },
-  reissueTag:   { display: 'inline-block', marginLeft: '4px', background: '#e8eaf6', color: '#3949ab', fontSize: '11px', padding: '1px 5px', borderRadius: '8px' },
-  noteTag:      { display: 'inline-block', marginRight: '4px', background: 'rgba(244,121,32,0.12)', color: '#F47920', fontSize: '11px', padding: '1px 5px', borderRadius: '8px' },
-  reviewTag:    { display: 'inline-block', background: '#fce4ec', color: '#c62828', fontSize: '11px', padding: '1px 5px', borderRadius: '8px', fontWeight: 600 },
-  empty:        { textAlign: 'center', padding: '32px', color: '#718096', fontSize: '14px' },
-
-  // Detail panel
-  panel:        { position: 'fixed', right: 0, top: 0, width: '420px', height: '100vh', background: '#243144', borderLeft: '1px solid #e0e0e0', boxShadow: '-4px 0 20px rgba(0,0,0,0.08)', display: 'flex', flexDirection: 'column', zIndex: 100, overflow: 'hidden' },
-  panelHeader:  { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #f0f0f0', flexShrink: 0 },
-  panelTitle:   { fontSize: '16px', fontWeight: 700 },
-  closeBtn:     { background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#A0AEC0', padding: '4px 8px' },
-  panelBody:    { flex: 1, overflowY: 'auto', padding: '16px 20px' },
-  statusRow:    { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' },
-  statusChip:   { padding: '4px 12px', borderRadius: '16px', fontSize: '13px', fontWeight: 700 },
-
-  actionGroup:  { display: 'flex', gap: '8px', marginBottom: '10px' },
-  actionBtn:    { padding: '8px 16px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, margin: '0 0 6px' },
-
-  reissueForm:       { background: '#1B2838', borderRadius: '8px', padding: '10px', marginTop: '6px' },
-  reissueLabel:      { fontSize: '12px', color: '#A0AEC0', marginBottom: '8px' },
-  reissueInputRow:   { display: 'flex', gap: '6px', alignItems: 'center' },
-  miniInput:         { padding: '6px 8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '5px', fontSize: '13px' },
-
-  textarea:     { width: '100%', padding: '8px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box', display: 'block', marginBottom: '6px' },
-
-  auditRow:    { padding: '8px 0', borderBottom: '1px solid #f0f0f0', fontSize: '12px' },
-  auditMeta:   { display: 'flex', justifyContent: 'space-between', marginBottom: '2px' },
-  auditAction: { fontWeight: 600, color: '#CBD5E0' },
-  auditTime:   { color: '#aaa' },
-  auditMsg:    { color: '#A0AEC0' },
-  auditActor:  { color: '#A0AEC0', fontSize: '11px' },
 }

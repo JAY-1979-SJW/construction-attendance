@@ -79,50 +79,71 @@ export default function CompanyWorkersPage() {
   const formatPhone = (p: string) => p.length === 11 ? `${p.slice(0,3)}-${p.slice(3,7)}-${p.slice(7)}` : p
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>근로자 관리 ({total}명)</h1>
-        <button onClick={() => { setShowForm(true); setFormError('') }} style={styles.primaryBtn}>
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-5">
+        <h1 className="text-[22px] font-bold m-0 text-white">근로자 관리 ({total}명)</h1>
+        <button
+          onClick={() => { setShowForm(true); setFormError('') }}
+          className="px-4 py-2 bg-[#0f4c75] text-white border-none rounded-[7px] cursor-pointer text-sm font-semibold"
+        >
           + 근로자 등록
         </button>
       </div>
 
-      {msg && <p style={styles.successMsg}>{msg}</p>}
+      {msg && (
+        <p className="bg-[#e8f5e9] text-[#2e7d32] px-3.5 py-2.5 rounded-[6px] mb-4 text-sm">{msg}</p>
+      )}
 
-      <form onSubmit={handleSearch} style={styles.searchRow}>
+      <form onSubmit={handleSearch} className="flex gap-2 mb-4">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="이름으로 검색"
-          style={styles.searchInput}
+          className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-[7px] text-sm w-[220px] outline-none"
         />
-        <button type="submit" style={styles.searchBtn}>검색</button>
+        <button
+          type="submit"
+          className="px-4 py-2 bg-[#555] text-white border-none rounded-[7px] cursor-pointer text-sm"
+        >
+          검색
+        </button>
       </form>
 
       {loading ? (
-        <p style={styles.loading}>불러오는 중...</p>
+        <p className="text-muted-brand text-[15px]">불러오는 중...</p>
       ) : (
-        <div style={styles.tableWrapper}>
-          <table style={styles.table}>
+        <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] overflow-auto">
+          <table className="w-full border-collapse">
             <thead>
               <tr>
                 {['이름', '연락처', '직종', '고용형태', '출근현장', '상태'].map((h) => (
-                  <th key={h} style={styles.th}>{h}</th>
+                  <th
+                    key={h}
+                    className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[#eee] bg-[#fafafa] whitespace-nowrap"
+                  >
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {workers.length === 0 ? (
-                <tr><td colSpan={6} style={styles.empty}>근로자가 없습니다.</td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-[#aaa] text-sm">근로자가 없습니다.</td></tr>
               ) : workers.map((w) => (
-                <tr key={w.id} style={styles.tr}>
-                  <td style={styles.td}>{w.name}</td>
-                  <td style={styles.td}>{formatPhone(w.phone)}</td>
-                  <td style={styles.td}>{w.jobTitle}</td>
-                  <td style={styles.td}>{EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType}</td>
-                  <td style={styles.td}>{w.activeSites?.map((s) => s.name).join(', ') || '-'}</td>
-                  <td style={styles.td}>
-                    <span style={{ ...styles.badge, background: w.isActive ? '#e8f5e9' : '#fafafa', color: w.isActive ? '#2e7d32' : '#888' }}>
+                <tr key={w.id} className="border-b border-[#f0f0f0]">
+                  <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">{w.name}</td>
+                  <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">{formatPhone(w.phone)}</td>
+                  <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">{w.jobTitle}</td>
+                  <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">{EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType}</td>
+                  <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">{w.activeSites?.map((s) => s.name).join(', ') || '-'}</td>
+                  <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">
+                    <span
+                      className="px-2 py-0.5 rounded text-[12px] font-semibold"
+                      style={{
+                        background: w.isActive ? '#e8f5e9' : '#fafafa',
+                        color: w.isActive ? '#2e7d32' : '#888',
+                      }}
+                    >
                       {w.isActive ? '활성' : '비활성'}
                     </span>
                   </td>
@@ -134,34 +155,63 @@ export default function CompanyWorkersPage() {
       )}
 
       {showForm && (
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
-            <h2 style={styles.modalTitle}>근로자 등록</h2>
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>이름</label>
-              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={styles.input} placeholder="홍길동" />
+        <div className="fixed inset-0 bg-black/45 flex items-center justify-center z-[1000]">
+          <div className="bg-card rounded-xl p-8 w-full max-w-[420px] shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
+            <h2 className="text-lg font-bold m-0 mb-5 text-white">근로자 등록</h2>
+            <div className="mb-3.5">
+              <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">이름</label>
+              <input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="input-base w-full"
+                placeholder="홍길동"
+              />
             </div>
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>연락처</label>
-              <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} style={styles.input} placeholder="01012345678" />
+            <div className="mb-3.5">
+              <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">연락처</label>
+              <input
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                className="input-base w-full"
+                placeholder="01012345678"
+              />
             </div>
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>직종</label>
-              <input value={form.jobTitle} onChange={(e) => setForm({ ...form, jobTitle: e.target.value })} style={styles.input} placeholder="철근공" />
+            <div className="mb-3.5">
+              <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">직종</label>
+              <input
+                value={form.jobTitle}
+                onChange={(e) => setForm({ ...form, jobTitle: e.target.value })}
+                className="input-base w-full"
+                placeholder="철근공"
+              />
             </div>
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>고용형태</label>
-              <select value={form.employmentType} onChange={(e) => setForm({ ...form, employmentType: e.target.value })} style={styles.select}>
+            <div className="mb-3.5">
+              <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">고용형태</label>
+              <select
+                value={form.employmentType}
+                onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
+                className="w-full px-3 py-2.5 text-sm border border-[rgba(91,164,217,0.3)] rounded-[7px] outline-none bg-card box-border"
+              >
                 <option value="DAILY_CONSTRUCTION">일용직</option>
                 <option value="REGULAR">정규직</option>
                 <option value="BUSINESS_33">사업소득(3.3%)</option>
                 <option value="OTHER">기타</option>
               </select>
             </div>
-            {formError && <p style={styles.error}>{formError}</p>}
-            <div style={styles.modalBtns}>
-              <button onClick={() => setShowForm(false)} style={styles.cancelBtn}>취소</button>
-              <button onClick={handleSave} disabled={saving} style={{ ...styles.primaryBtn, opacity: saving ? 0.6 : 1 }}>
+            {formError && <p className="text-[#e53935] text-[13px] mb-2.5">{formError}</p>}
+            <div className="flex gap-2.5 justify-end mt-5">
+              <button
+                onClick={() => setShowForm(false)}
+                className="px-4 py-2 bg-[#eee] text-muted-brand border-none rounded-[7px] cursor-pointer text-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="px-4 py-2 bg-[#0f4c75] text-white border-none rounded-[7px] cursor-pointer text-sm font-semibold"
+                style={{ opacity: saving ? 0.6 : 1 }}
+              >
                 {saving ? '저장 중...' : '등록'}
               </button>
             </div>
@@ -170,33 +220,4 @@ export default function CompanyWorkersPage() {
       )}
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  container: { padding: '32px' },
-  header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' },
-  title: { fontSize: '22px', fontWeight: 700, margin: 0, color: '#ffffff' },
-  primaryBtn: { padding: '9px 18px', background: '#0f4c75', color: 'white', border: 'none', borderRadius: '7px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  successMsg: { background: '#e8f5e9', color: '#2e7d32', padding: '10px 14px', borderRadius: '6px', marginBottom: '16px', fontSize: '14px' },
-  searchRow: { display: 'flex', gap: '8px', marginBottom: '16px' },
-  searchInput: { padding: '9px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '7px', fontSize: '14px', width: '220px', outline: 'none' },
-  searchBtn: { padding: '9px 16px', background: '#555', color: 'white', border: 'none', borderRadius: '7px', cursor: 'pointer', fontSize: '14px' },
-  loading: { color: '#A0AEC0', fontSize: '15px' },
-  tableWrapper: { background: '#243144', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'auto' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  th: { padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid #eee', background: '#fafafa', whiteSpace: 'nowrap' as const },
-  tr: { borderBottom: '1px solid #f0f0f0' },
-  td: { padding: '12px 16px', fontSize: '14px', color: '#CBD5E0', whiteSpace: 'nowrap' as const },
-  empty: { padding: '32px', textAlign: 'center', color: '#aaa', fontSize: '14px' },
-  badge: { padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 },
-  overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modal: { background: '#243144', borderRadius: '12px', padding: '32px', width: '100%', maxWidth: '420px', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' },
-  modalTitle: { fontSize: '18px', fontWeight: 700, margin: '0 0 20px', color: '#ffffff' },
-  fieldGroup: { marginBottom: '14px' },
-  label: { display: 'block', fontSize: '13px', fontWeight: 600, color: '#A0AEC0', marginBottom: '5px' },
-  input: { width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '7px', outline: 'none', boxSizing: 'border-box' as const },
-  select: { width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '7px', outline: 'none', background: '#243144', boxSizing: 'border-box' as const },
-  error: { color: '#e53935', fontSize: '13px', marginBottom: '10px' },
-  modalBtns: { display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' },
-  cancelBtn: { padding: '9px 18px', background: '#eee', color: '#A0AEC0', border: 'none', borderRadius: '7px', cursor: 'pointer', fontSize: '14px' },
 }

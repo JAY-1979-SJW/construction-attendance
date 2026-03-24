@@ -68,35 +68,54 @@ export default function RegistrationsPage() {
   }
 
   return (
-    <div style={s.page}>
-      <h1 style={s.title}>회원가입 신청 관리</h1>
+    <div className="px-6 py-8 max-w-[1000px] mx-auto font-['Malgun_Gothic',sans-serif]">
+      <h1 className="text-[22px] font-bold mb-6 text-white">회원가입 신청 관리</h1>
 
       {/* 필터 탭 */}
-      <div style={s.tabs}>
+      <div className="flex gap-2 mb-5">
         {['PENDING', 'APPROVED', 'REJECTED', 'SUSPENDED'].map(st => (
-          <button key={st} style={{ ...s.tab, ...(filter === st ? s.tabActive : {}) }} onClick={() => setFilter(st)}>
+          <button
+            key={st}
+            className={`px-[18px] py-2 rounded-[20px] border text-sm cursor-pointer transition-colors ${
+              filter === st
+                ? 'bg-[#F47920] text-white border-[#1976d2] font-bold'
+                : 'bg-card border-white/[0.12] text-muted-brand'
+            }`}
+            onClick={() => setFilter(st)}
+          >
             {STATUS_LABEL[st]}
           </button>
         ))}
       </div>
 
-      {msg && <div style={s.msgBox}>{msg}</div>}
+      {msg && (
+        <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-lg px-4 py-3 mb-4 text-[#2e7d32] text-sm">
+          {msg}
+        </div>
+      )}
 
       {/* 반려 사유 입력 모달 */}
       {rejectId && (
-        <div style={s.overlay}>
-          <div style={s.modal}>
-            <h3 style={{ margin: '0 0 16px' }}>반려 사유 입력</h3>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
+          <div className="bg-card rounded-xl p-7 w-[360px] shadow-[0_8px_32px_rgba(0,0,0,0.15)]">
+            <h3 className="m-0 mb-4 text-base font-bold">반려 사유 입력</h3>
             <textarea
-              style={s.textarea}
+              className="w-full px-[10px] py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-sm mb-4 box-border resize-y"
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
               placeholder="반려 사유를 입력하세요."
               rows={4}
             />
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button style={s.cancelBtn} onClick={() => { setRejectId(null); setRejectReason('') }}>취소</button>
-              <button style={s.rejectBtn} onClick={() => reject(rejectId)} disabled={processing === rejectId}>
+            <div className="flex gap-2 justify-end">
+              <button
+                className="px-4 py-2 bg-[#eee] border-none rounded-lg text-sm cursor-pointer"
+                onClick={() => { setRejectId(null); setRejectReason('') }}
+              >취소</button>
+              <button
+                className="px-4 py-2 bg-[#c62828] text-white border-none rounded-lg text-sm cursor-pointer font-bold disabled:opacity-50"
+                onClick={() => reject(rejectId)}
+                disabled={processing === rejectId}
+              >
                 {processing === rejectId ? '처리 중...' : '반려'}
               </button>
             </div>
@@ -105,42 +124,51 @@ export default function RegistrationsPage() {
       )}
 
       {loading ? (
-        <div style={s.empty}>로딩 중...</div>
+        <div className="text-center py-[60px] text-muted-brand text-[15px]">로딩 중...</div>
       ) : data.length === 0 ? (
-        <div style={s.empty}>{STATUS_LABEL[filter]} 상태의 신청이 없습니다.</div>
+        <div className="text-center py-[60px] text-muted-brand text-[15px]">{STATUS_LABEL[filter]} 상태의 신청이 없습니다.</div>
       ) : (
-        <div style={s.tableWrap}>
-          <table style={s.table}>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 {['이름', '전화번호', '직종', '아이디', '상태', '신청일', ''].map(h => (
-                  <th key={h} style={s.th}>{h}</th>
+                  <th
+                    key={h}
+                    className="bg-[#1E3350] px-[14px] py-3 text-left font-bold text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]"
+                  >{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {data.map(r => (
-                <tr key={r.id} style={s.tr}>
-                  <td style={s.td}>{r.name}</td>
-                  <td style={s.td}>{r.phone}</td>
-                  <td style={s.td}>{r.jobTitle}</td>
-                  <td style={s.td}>{r.username ?? '-'}</td>
-                  <td style={s.td}>
-                    <span style={{ ...s.badge, background: STATUS_COLOR[r.accountStatus] }}>
+                <tr key={r.id} className="border-b border-[#f0f0f0]">
+                  <td className="px-[14px] py-3 align-middle">{r.name}</td>
+                  <td className="px-[14px] py-3 align-middle">{r.phone}</td>
+                  <td className="px-[14px] py-3 align-middle">{r.jobTitle}</td>
+                  <td className="px-[14px] py-3 align-middle">{r.username ?? '-'}</td>
+                  <td className="px-[14px] py-3 align-middle">
+                    <span
+                      className="inline-block text-white text-[11px] font-bold px-2 py-[3px] rounded-xl"
+                      style={{ background: STATUS_COLOR[r.accountStatus] }}
+                    >
                       {STATUS_LABEL[r.accountStatus]}
                     </span>
-                    {r.rejectReason && <div style={s.rejectNote}>{r.rejectReason}</div>}
+                    {r.rejectReason && <div className="text-[11px] text-[#c62828] mt-1 max-w-[160px]">{r.rejectReason}</div>}
                   </td>
-                  <td style={s.td}>{new Date(r.createdAt).toLocaleDateString()}</td>
-                  <td style={s.td}>
+                  <td className="px-[14px] py-3 align-middle">{new Date(r.createdAt).toLocaleDateString()}</td>
+                  <td className="px-[14px] py-3 align-middle">
                     {r.accountStatus === 'PENDING' && (
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <button style={s.approveBtn} onClick={() => approve(r.id)} disabled={processing === r.id}>
-                          승인
-                        </button>
-                        <button style={s.rejectBtnSm} onClick={() => { setRejectId(r.id); setRejectReason('') }}>
-                          반려
-                        </button>
+                      <div className="flex gap-[6px]">
+                        <button
+                          className="px-3 py-[6px] bg-[#2e7d32] text-white border-none rounded-md text-xs cursor-pointer font-semibold disabled:opacity-50"
+                          onClick={() => approve(r.id)}
+                          disabled={processing === r.id}
+                        >승인</button>
+                        <button
+                          className="px-3 py-[6px] bg-[#c62828] text-white border-none rounded-md text-xs cursor-pointer font-semibold"
+                          onClick={() => { setRejectId(r.id); setRejectReason('') }}
+                        >반려</button>
                       </div>
                     )}
                   </td>
@@ -152,28 +180,4 @@ export default function RegistrationsPage() {
       )}
     </div>
   )
-}
-
-const s: Record<string, React.CSSProperties> = {
-  page:       { padding: '32px 24px', maxWidth: '1000px', margin: '0 auto', fontFamily: '"Malgun Gothic",sans-serif' },
-  title:      { fontSize: '22px', fontWeight: 700, margin: '0 0 24px', color: '#ffffff' },
-  tabs:       { display: 'flex', gap: '8px', marginBottom: '20px' },
-  tab:        { padding: '8px 18px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', background: '#243144', fontSize: '14px', cursor: 'pointer', color: '#A0AEC0' },
-  tabActive:  { background: '#F47920', color: 'white', border: '1px solid #1976d2', fontWeight: 700 },
-  msgBox:     { background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#2e7d32', fontSize: '14px' },
-  empty:      { textAlign: 'center' as const, padding: '60px', color: '#A0AEC0', fontSize: '15px' },
-  tableWrap:  { overflowX: 'auto' as const },
-  table:      { width: '100%', borderCollapse: 'collapse' as const, fontSize: '14px' },
-  th:         { background: '#1E3350', padding: '12px 14px', textAlign: 'left' as const, fontWeight: 700, color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)' },
-  tr:         { borderBottom: '1px solid #f0f0f0' },
-  td:         { padding: '12px 14px', verticalAlign: 'middle' as const },
-  badge:      { display: 'inline-block', color: 'white', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '12px' },
-  rejectNote: { fontSize: '11px', color: '#c62828', marginTop: '4px', maxWidth: '160px' },
-  approveBtn: { padding: '6px 12px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 600 },
-  rejectBtnSm:{ padding: '6px 12px', background: '#c62828', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 600 },
-  overlay:    { position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 },
-  modal:      { background: '#243144', borderRadius: '12px', padding: '28px', width: '360px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' },
-  textarea:   { width: '100%', padding: '10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '14px', marginBottom: '16px', boxSizing: 'border-box' as const, resize: 'vertical' as const },
-  cancelBtn:  { padding: '8px 16px', background: '#eee', border: 'none', borderRadius: '8px', fontSize: '14px', cursor: 'pointer' },
-  rejectBtn:  { padding: '8px 16px', background: '#c62828', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', cursor: 'pointer', fontWeight: 700 },
 }

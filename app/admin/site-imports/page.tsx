@@ -71,9 +71,9 @@ export default function SiteImportsPage() {
     new Date(iso).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
 
   return (
-    <div style={styles.layout}>
-      <nav style={styles.sidebar}>
-        <div style={styles.sidebarTitle}>해한 출퇴근</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0">
+        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
         {[
           ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'],
           ['/admin/sites', '현장 관리'], ['/admin/attendance', '출퇴근 조회'],
@@ -81,97 +81,96 @@ export default function SiteImportsPage() {
           ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'],
           ['/admin/audit-logs', '감사 로그'], ['/admin/site-imports', '현장 엑셀 업로드'],
         ].map(([href, label]) => (
-          <Link key={href} href={href} style={{ ...styles.navItem, ...(href === '/admin/site-imports' ? styles.navActive : {}) }}>
+          <Link key={href} href={href} className={[
+            'block text-white/80 px-5 py-[10px] text-[14px] no-underline',
+            href === '/admin/site-imports' ? 'bg-white/10 text-white font-bold' : '',
+          ].join(' ')}>
             {label}
           </Link>
         ))}
       </nav>
 
-      <main style={styles.main}>
-        <h1 style={styles.pageTitle}>현장 엑셀 업로드</h1>
-        <p style={{ fontSize: '13px', color: '#A0AEC0', marginTop: '-12px', marginBottom: '24px' }}>
+      <main className="flex-1 p-8 min-w-0">
+        <h1 className="text-[22px] font-bold m-0 mb-1">현장 엑셀 업로드</h1>
+        <p className="text-[13px] text-muted-brand mt-[-12px] mb-6">
           xlsx 파일 업로드 → 자동 지오코딩 → 검수 → 승인된 현장만 등록
         </p>
 
         {/* 업로드 카드 */}
-        <div style={styles.uploadCard}>
-          <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '8px' }}>새 파일 업로드</div>
-          <div style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '16px' }}>
+        <div className="bg-card rounded-[12px] p-6 mb-7 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="font-bold text-[15px] mb-2">새 파일 업로드</div>
+          <div className="text-[13px] text-muted-brand mb-4">
             필수 컬럼: <strong>현장명</strong>, <strong>주소</strong> / 선택: 허용반경(m), 현장코드
           </div>
 
           {/* 엑셀 샘플 형식 안내 */}
-          <div style={{ background: '#1B2838', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', fontSize: '12px', color: '#A0AEC0' }}>
-            <div style={{ fontWeight: 600, marginBottom: '6px' }}>📋 엑셀 헤더 예시 (1행)</div>
-            <code style={{ display: 'block', color: '#5BA4D9' }}>현장명 | 주소 | 허용반경(m) | 현장코드</code>
-            <div style={{ marginTop: '4px', color: '#A0AEC0' }}>※ 지오코딩 API 미설정 시 좌표는 검수 화면에서 직접 입력</div>
+          <div className="bg-brand rounded-lg px-4 py-3 mb-4 text-[12px] text-muted-brand">
+            <div className="font-semibold mb-[6px]">📋 엑셀 헤더 예시 (1행)</div>
+            <code className="block text-[#5BA4D9]">현장명 | 주소 | 허용반경(m) | 현장코드</code>
+            <div className="mt-1 text-muted-brand">※ 지오코딩 API 미설정 시 좌표는 검수 화면에서 직접 입력</div>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' as const }}>
-            <input ref={fileRef} type="file" accept=".xlsx,.xls" style={styles.fileInput} />
-            <button onClick={handleUpload} disabled={uploading} style={{ ...styles.uploadBtn, opacity: uploading ? 0.6 : 1 }}>
+          <div className="flex gap-3 items-center flex-wrap">
+            <input ref={fileRef} type="file" accept=".xlsx,.xls" className="border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-[6px] text-[13px]" />
+            <button onClick={handleUpload} disabled={uploading} className={`px-6 py-[10px] bg-[#F47920] text-white border-none rounded-lg cursor-pointer text-[14px] font-semibold ${uploading ? 'opacity-60' : ''}`}>
               {uploading ? '업로드 중 (지오코딩 포함)...' : '업로드 및 파싱'}
             </button>
           </div>
 
           {uploadMsg && (
-            <div style={{
-              marginTop: '12px', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
-              background: uploadMsg.includes('완료') ? '#e8f5e9' : '#ffebee',
-              color: uploadMsg.includes('완료') ? '#2e7d32' : '#b71c1c',
-            }}>
+            <div className={`mt-3 px-[14px] py-[10px] rounded-lg text-[13px] font-semibold ${uploadMsg.includes('완료') ? 'bg-[#e8f5e9] text-[#2e7d32]' : 'bg-[#ffebee] text-[#b71c1c]'}`}>
               {uploadMsg}
             </div>
           )}
 
           {uploading && (
-            <div style={{ marginTop: '12px', fontSize: '12px', color: '#A0AEC0' }}>
+            <div className="mt-3 text-[12px] text-muted-brand">
               ⏳ 주소별 지오코딩 중입니다. 행 수에 따라 최대 수 분이 소요될 수 있습니다.
             </div>
           )}
         </div>
 
         {/* 작업 목록 */}
-        <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '12px' }}>업로드 이력</div>
-        {loading ? <p style={{ color: '#A0AEC0' }}>로딩 중...</p> : (
-          <div style={styles.tableCard}>
-            <table style={styles.table}>
+        <div className="font-bold text-[15px] mb-3">업로드 이력</div>
+        {loading ? <p className="text-muted-brand">로딩 중...</p> : (
+          <div className="bg-card rounded-[10px] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {['업로드일시', '파일명', '상태', '전체', 'READY', '검수필요/실패', '승인', '등록완료', ''].map((h) => (
-                    <th key={h} style={styles.th}>{h}</th>
+                    <th key={h} className="text-left px-[14px] py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] bg-[#fafafa] whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {jobs.length === 0 ? (
-                  <tr><td colSpan={9} style={{ textAlign: 'center', padding: '32px', color: '#999' }}>업로드 이력이 없습니다.</td></tr>
+                  <tr><td colSpan={9} className="text-center py-8 text-[#999]">업로드 이력이 없습니다.</td></tr>
                 ) : jobs.map((j) => (
-                  <tr key={j.id} style={styles.tr}>
-                    <td style={styles.td}>{formatDT(j.createdAt)}</td>
-                    <td style={styles.td}>
-                      <span style={{ fontSize: '13px', color: '#CBD5E0' }}>{j.originalFilename}</span>
+                  <tr key={j.id}>
+                    <td className="px-[14px] py-[10px] text-[13px] border-b border-[#f5f5f5]">{formatDT(j.createdAt)}</td>
+                    <td className="px-[14px] py-[10px] text-[13px] border-b border-[#f5f5f5]">
+                      <span className="text-[13px] text-[#CBD5E0]">{j.originalFilename}</span>
                     </td>
-                    <td style={styles.td}>
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: JOB_STATUS_COLOR[j.status] ?? '#888' }}>
+                    <td className="px-[14px] py-[10px] text-[13px] border-b border-[#f5f5f5]">
+                      <span className="text-[11px] font-bold" style={{ color: JOB_STATUS_COLOR[j.status] ?? '#888' }}>
                         {JOB_STATUS_LABEL[j.status] ?? j.status}
                       </span>
                     </td>
-                    <td style={{ ...styles.td, textAlign: 'center' as const }}>{j.totalRows}</td>
-                    <td style={{ ...styles.td, textAlign: 'center' as const }}>
-                      <span style={{ color: '#2e7d32', fontWeight: 600 }}>{j.readyRows}</span>
+                    <td className="px-[14px] py-[10px] text-[13px] border-b border-[#f5f5f5] text-center">{j.totalRows}</td>
+                    <td className="px-[14px] py-[10px] text-[13px] border-b border-[#f5f5f5] text-center">
+                      <span className="text-[#2e7d32] font-semibold">{j.readyRows}</span>
                     </td>
-                    <td style={{ ...styles.td, textAlign: 'center' as const }}>
-                      <span style={{ color: j.failedRows > 0 ? '#e65100' : '#888', fontWeight: j.failedRows > 0 ? 600 : 400 }}>{j.failedRows}</span>
+                    <td className="px-[14px] py-[10px] text-[13px] border-b border-[#f5f5f5] text-center">
+                      <span className={j.failedRows > 0 ? 'text-[#e65100] font-semibold' : 'text-[#888]'}>{j.failedRows}</span>
                     </td>
-                    <td style={{ ...styles.td, textAlign: 'center' as const }}>
-                      <span style={{ color: '#4A93C8', fontWeight: 600 }}>{j.approvedRows}</span>
+                    <td className="px-[14px] py-[10px] text-[13px] border-b border-[#f5f5f5] text-center">
+                      <span className="text-[#4A93C8] font-semibold">{j.approvedRows}</span>
                     </td>
-                    <td style={{ ...styles.td, textAlign: 'center' as const }}>
-                      <span style={{ color: '#4a148c', fontWeight: 600 }}>{j.importedRows}</span>
+                    <td className="px-[14px] py-[10px] text-[13px] border-b border-[#f5f5f5] text-center">
+                      <span className="text-[#4a148c] font-semibold">{j.importedRows}</span>
                     </td>
-                    <td style={styles.td}>
-                      <Link href={`/admin/site-imports/${j.id}`} style={styles.reviewLink}>검수</Link>
+                    <td className="px-[14px] py-[10px] text-[13px] border-b border-[#f5f5f5]">
+                      <Link href={`/admin/site-imports/${j.id}`} className="text-[#5BA4D9] underline text-[13px] font-semibold">검수</Link>
                     </td>
                   </tr>
                 ))}
@@ -182,23 +181,4 @@ export default function SiteImportsPage() {
       </main>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  layout:      { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:     { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
-  sidebarTitle:{ color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
-  navItem:     { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navActive:   { color: 'white', background: 'rgba(255,255,255,0.1)', fontWeight: 700 },
-  main:        { flex: 1, padding: '32px', minWidth: 0 },
-  pageTitle:   { fontSize: '22px', fontWeight: 700, margin: '0 0 4px' },
-  uploadCard:  { background: '#243144', borderRadius: '12px', padding: '24px', marginBottom: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  fileInput:   { border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '6px 10px', fontSize: '13px' },
-  uploadBtn:   { padding: '10px 24px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  tableCard:   { background: '#243144', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  table:       { width: '100%', borderCollapse: 'collapse' as const },
-  th:          { textAlign: 'left' as const, padding: '10px 14px', fontSize: '11px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', background: '#fafafa', whiteSpace: 'nowrap' as const },
-  td:          { padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #f5f5f5' },
-  tr:          {},
-  reviewLink:  { color: '#5BA4D9', textDecoration: 'underline', fontSize: '13px', fontWeight: 600 },
 }

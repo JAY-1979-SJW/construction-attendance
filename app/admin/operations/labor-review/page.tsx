@@ -115,17 +115,21 @@ export default function LaborReviewPage() {
   const totalPages = Math.ceil(total / 50)
 
   return (
-    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '24px 16px', fontFamily: 'system-ui, sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-        <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 800 }}>공수/정산 사전 검토</h1>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+    <div className="max-w-[1100px] mx-auto px-4 py-6 font-[system-ui,sans-serif]">
+      <div className="flex justify-between items-center mb-5 flex-wrap gap-3">
+        <h1 className="m-0 text-[20px] font-black">공수/정산 사전 검토</h1>
+        <div className="flex gap-[10px] items-center">
           <input
             type="month"
             value={monthKey}
             onChange={e => { setMonthKey(e.target.value); setPage(1) }}
-            style={{ padding: '7px 12px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '13px' }}
+            className="px-3 py-[7px] border border-[rgba(91,164,217,0.2)] rounded-md text-[13px] bg-card text-white"
           />
-          <button onClick={load} disabled={loading} style={btnStyle('#1565c0', loading)}>
+          <button
+            onClick={load}
+            disabled={loading}
+            className={`px-4 py-2 text-white border-none rounded-md text-[13px] font-bold ${loading ? 'bg-[#bdbdbd] cursor-not-allowed' : 'bg-[#1565c0] cursor-pointer'}`}
+          >
             {loading ? '조회 중...' : '조회'}
           </button>
         </div>
@@ -133,13 +137,16 @@ export default function LaborReviewPage() {
 
       {/* 요약 */}
       {summary && (
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <div className="flex gap-3 mb-5 flex-wrap">
           <SummaryCard label="전체" value={summary.totalItems} />
           <SummaryCard label="미확정 (DRAFT)" value={summary.totalDraft} color={summary.totalDraft > 0 ? '#e65100' : '#2e7d32'} />
           <SummaryCard label="확정 완료" value={summary.totalConfirmed} color="#2e7d32" />
-          <div style={{ marginLeft: 'auto', alignSelf: 'center' }}>
+          <div className="ml-auto self-center">
             {items.length > 0 && (
-              <button onClick={confirmAll} style={btnStyle('#2e7d32', loading)}>
+              <button
+                onClick={confirmAll}
+                className={`px-4 py-2 text-white border-none rounded-md text-[13px] font-bold ${loading ? 'bg-[#bdbdbd] cursor-not-allowed' : 'bg-[#2e7d32] cursor-pointer'}`}
+              >
                 현재 페이지 전체 확정 ({items.length}건)
               </button>
             )}
@@ -148,32 +155,32 @@ export default function LaborReviewPage() {
       )}
 
       {error && (
-        <div style={{ background: '#ffebee', border: '1px solid #ef9a9a', borderRadius: '8px', padding: '12px', marginBottom: '12px', color: '#c62828', fontSize: '13px' }}>
+        <div className="bg-[#ffebee] border border-[#ef9a9a] rounded-lg p-3 mb-3 text-[#c62828] text-[13px]">
           {error}
         </div>
       )}
 
       {/* 목록 */}
-      <div style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: '900px' }}>
+      <div className="bg-white border border-white/10 rounded-[10px] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-[13px] min-w-[900px]">
             <thead>
-              <tr style={{ background: '#263238', color: '#fff' }}>
-                <th style={th}>근로자</th>
-                <th style={th}>현장</th>
-                <th style={th}>작업일</th>
-                <th style={th}>공수</th>
-                <th style={th}>자동계산</th>
-                <th style={th}>최종시간</th>
-                <th style={th}>기본급</th>
-                <th style={th}>수정여부</th>
-                <th style={th}>확정</th>
+              <tr className="bg-[#263238] text-white">
+                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">근로자</th>
+                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">현장</th>
+                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">작업일</th>
+                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">공수</th>
+                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">자동계산</th>
+                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">최종시간</th>
+                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">기본급</th>
+                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">수정여부</th>
+                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">확정</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan={9} style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                  <td colSpan={9} className="text-center py-10 text-[#999]">
                     {loading ? '조회 중...' : '미확정 항목이 없습니다.'}
                   </td>
                 </tr>
@@ -182,41 +189,41 @@ export default function LaborReviewPage() {
                   const isConfirming = confirming.has(item.id)
                   return (
                     <tr key={item.id} style={{ background: item.isZeroMinutes ? '#fff8e1' : item.hasOverride ? '#f3e5f5' : i % 2 === 1 ? '#fafafa' : '#fff' }}>
-                      <td style={td}>
-                        <div style={{ fontWeight: 700 }}>{item.workerName}</div>
-                        <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{item.workerPhone}</div>
+                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">
+                        <div className="font-bold">{item.workerName}</div>
+                        <div className="text-[11px] text-muted-brand">{item.workerPhone}</div>
                       </td>
-                      <td style={td}>{item.siteName}</td>
-                      <td style={td}>{item.workDate}</td>
-                      <td style={td}>
-                        <span style={{ fontWeight: 700 }}>{item.confirmedWorkUnits > 0 ? `${item.confirmedWorkUnits}공수` : '—'}</span>
+                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">{item.siteName}</td>
+                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">{item.workDate}</td>
+                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">
+                        <span className="font-bold">{item.confirmedWorkUnits > 0 ? `${item.confirmedWorkUnits}공수` : '—'}</span>
                         {item.confirmedWorkType && (
-                          <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{item.confirmedWorkType}</div>
+                          <div className="text-[11px] text-muted-brand">{item.confirmedWorkType}</div>
                         )}
                       </td>
-                      <td style={td}>{fmtMinutes(item.workedMinutesAuto)}</td>
-                      <td style={{ ...td, color: item.isZeroMinutes ? '#c62828' : item.hasOverride ? '#6a1b9a' : '#333', fontWeight: item.isZeroMinutes ? 700 : 400 }}>
+                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">{fmtMinutes(item.workedMinutesAuto)}</td>
+                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top" style={{ color: item.isZeroMinutes ? '#c62828' : item.hasOverride ? '#6a1b9a' : '#333', fontWeight: item.isZeroMinutes ? 700 : 400 }}>
                         {fmtMinutes(item.workedMinutesFinal)}
-                        {item.isZeroMinutes && <span style={{ fontSize: '10px', marginLeft: '4px' }}>⚠️0</span>}
+                        {item.isZeroMinutes && <span className="text-[10px] ml-1">⚠️0</span>}
                       </td>
-                      <td style={td}>{fmtAmount(item.confirmedBaseAmount)}</td>
-                      <td style={td}>
+                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">{fmtAmount(item.confirmedBaseAmount)}</td>
+                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">
                         {item.hasOverride ? (
-                          <span style={{ color: '#6a1b9a', fontSize: '11px', fontWeight: 700 }}>수동수정</span>
+                          <span className="text-[#6a1b9a] text-[11px] font-bold">수동수정</span>
                         ) : (
-                          <span style={{ color: '#718096', fontSize: '11px' }}>자동</span>
+                          <span className="text-[#718096] text-[11px]">자동</span>
                         )}
                         {item.manualAdjustedReason && (
-                          <div style={{ fontSize: '10px', color: '#A0AEC0', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div className="text-[10px] text-muted-brand max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">
                             {item.manualAdjustedReason}
                           </div>
                         )}
                       </td>
-                      <td style={td}>
+                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">
                         <button
                           onClick={() => confirmOne(item.id)}
                           disabled={isConfirming}
-                          style={{ padding: '5px 12px', background: isConfirming ? '#bdbdbd' : '#2e7d32', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '12px', cursor: isConfirming ? 'not-allowed' : 'pointer', fontWeight: 700 }}
+                          className={`px-3 py-[5px] text-white border-none rounded text-xs font-bold ${isConfirming ? 'bg-[#bdbdbd] cursor-not-allowed' : 'bg-[#2e7d32] cursor-pointer'}`}
                         >
                           {isConfirming ? '처리중' : '확정'}
                         </button>
@@ -232,10 +239,10 @@ export default function LaborReviewPage() {
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '16px' }}>
-          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={pageBtnStyle(page === 1)}>이전</button>
-          <span style={{ fontSize: '13px', alignSelf: 'center', color: '#A0AEC0' }}>{page} / {totalPages}</span>
-          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={pageBtnStyle(page === totalPages)}>다음</button>
+        <div className="flex gap-2 justify-center mt-4">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className={`px-[14px] py-[6px] border border-[rgba(91,164,217,0.2)] rounded-md text-[13px] ${page === 1 ? 'bg-[#f5f5f5] text-[#bbb] cursor-not-allowed' : 'bg-white text-[#333] cursor-pointer'}`}>이전</button>
+          <span className="text-[13px] self-center text-muted-brand">{page} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className={`px-[14px] py-[6px] border border-[rgba(91,164,217,0.2)] rounded-md text-[13px] ${page === totalPages ? 'bg-[#f5f5f5] text-[#bbb] cursor-not-allowed' : 'bg-white text-[#333] cursor-pointer'}`}>다음</button>
         </div>
       )}
     </div>
@@ -244,19 +251,10 @@ export default function LaborReviewPage() {
 
 function SummaryCard({ label, value, color = '#1565c0' }: { label: string; value: number; color?: string }) {
   return (
-    <div style={{ background: '#1B2838', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '10px 16px', minWidth: '100px' }}>
-      <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{label}</div>
+    <div className="bg-brand border border-white/10 rounded-lg px-4 py-[10px] min-w-[100px]">
+      <div className="text-[11px] text-muted-brand">{label}</div>
       <div style={{ fontSize: '22px', fontWeight: 800, color }}>{value}</div>
     </div>
   )
 }
 
-const th: React.CSSProperties = { padding: '10px 12px', textAlign: 'left', fontWeight: 700, fontSize: '12px', whiteSpace: 'nowrap' }
-const td: React.CSSProperties = { padding: '9px 12px', borderBottom: '1px solid #f0f0f0', verticalAlign: 'top' }
-
-function btnStyle(bg: string, disabled: boolean): React.CSSProperties {
-  return { padding: '8px 16px', background: disabled ? '#bdbdbd' : bg, color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', cursor: disabled ? 'not-allowed' : 'pointer', fontWeight: 700 }
-}
-function pageBtnStyle(disabled: boolean): React.CSSProperties {
-  return { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: disabled ? '#f5f5f5' : '#fff', color: disabled ? '#bbb' : '#333', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: '13px' }
-}

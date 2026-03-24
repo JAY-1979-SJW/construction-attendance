@@ -105,19 +105,19 @@ export default function CompanyNoticesPage() {
   }
 
   return (
-    <div style={styles.page}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={styles.title}>공지/일정</h1>
+    <div className="p-8 max-w-[900px] font-sans">
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="text-[22px] font-bold text-[#111827] m-0">공지/일정</h1>
         {siteId && (
-          <button onClick={() => setShowForm(v => !v)} style={styles.addBtn}>
+          <button onClick={() => setShowForm(v => !v)} className="px-4 py-2 bg-[#0f4c75] text-white border-none rounded-md cursor-pointer text-[13px]">
             {showForm ? '취소' : '+ 공지 등록'}
           </button>
         )}
       </div>
 
-      <div style={styles.filterRow}>
+      <div className="flex gap-2 items-center mb-5">
         <select
-          style={styles.select}
+          className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] min-w-[180px]"
           value={siteId}
           onChange={(e) => { setSiteId(e.target.value); setShowForm(false) }}
         >
@@ -129,115 +129,144 @@ export default function CompanyNoticesPage() {
       </div>
 
       {msg && (
-        <div style={{
-          padding: '10px 14px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px',
-          background: msg.type === 'success' ? '#d1fae5' : '#fee2e2',
-          color: msg.type === 'success' ? '#065f46' : '#991b1b',
-        }}>
+        <div
+          className="px-[14px] py-[10px] rounded-md mb-4 text-[13px]"
+          style={{
+            background: msg.type === 'success' ? '#d1fae5' : '#fee2e2',
+            color: msg.type === 'success' ? '#065f46' : '#991b1b',
+          }}
+        >
           {msg.text}
         </div>
       )}
 
       {/* 공지 등록 폼 */}
       {showForm && (
-        <div style={styles.formCard}>
-          <h3 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: 600, color: '#1e40af' }}>새 공지 등록</h3>
-          <div style={styles.grid}>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <label style={styles.label}>제목 *</label>
-              <input style={styles.input} placeholder="공지 제목" value={form.title}
-                onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} />
+        <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-[10px] p-5 mb-5">
+          <h3 className="m-0 mb-4 text-[14px] font-semibold text-[#1e40af]">새 공지 등록</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2">
+              <label className="block text-[12px] text-[#6b7280] mb-1">제목 *</label>
+              <input
+                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
+                placeholder="공지 제목"
+                value={form.title}
+                onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))}
+              />
             </div>
             <div>
-              <label style={styles.label}>공지 유형</label>
-              <select style={styles.input} value={form.noticeType}
-                onChange={(e) => setForm(f => ({ ...f, noticeType: e.target.value }))}>
+              <label className="block text-[12px] text-[#6b7280] mb-1">공지 유형</label>
+              <select
+                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
+                value={form.noticeType}
+                onChange={(e) => setForm(f => ({ ...f, noticeType: e.target.value }))}
+              >
                 {Object.entries(NOTICE_TYPE_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label style={styles.label}>노출 대상</label>
-              <select style={styles.input} value={form.visibilityScope}
-                onChange={(e) => setForm(f => ({ ...f, visibilityScope: e.target.value }))}>
+              <label className="block text-[12px] text-[#6b7280] mb-1">노출 대상</label>
+              <select
+                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
+                value={form.visibilityScope}
+                onChange={(e) => setForm(f => ({ ...f, visibilityScope: e.target.value }))}
+              >
                 <option value="ALL_WORKERS">전체 근로자</option>
                 <option value="SITE_MANAGERS_ONLY">현장 관리자 이상</option>
                 <option value="HQ_AND_SITE_MANAGERS">본사+현장 관리자</option>
               </select>
             </div>
             <div>
-              <label style={styles.label}>시작일</label>
-              <input type="date" style={styles.input} value={form.startDate}
-                onChange={(e) => setForm(f => ({ ...f, startDate: e.target.value }))} />
+              <label className="block text-[12px] text-[#6b7280] mb-1">시작일</label>
+              <input
+                type="date"
+                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
+                value={form.startDate}
+                onChange={(e) => setForm(f => ({ ...f, startDate: e.target.value }))}
+              />
             </div>
             <div>
-              <label style={styles.label}>종료일</label>
-              <input type="date" style={styles.input} value={form.endDate}
-                onChange={(e) => setForm(f => ({ ...f, endDate: e.target.value }))} />
+              <label className="block text-[12px] text-[#6b7280] mb-1">종료일</label>
+              <input
+                type="date"
+                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
+                value={form.endDate}
+                onChange={(e) => setForm(f => ({ ...f, endDate: e.target.value }))}
+              />
             </div>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <label style={styles.label}>내용</label>
-              <textarea rows={4} style={{ ...styles.input, resize: 'vertical' }} value={form.content}
-                onChange={(e) => setForm(f => ({ ...f, content: e.target.value }))} />
+            <div className="col-span-2">
+              <label className="block text-[12px] text-[#6b7280] mb-1">내용</label>
+              <textarea
+                rows={4}
+                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
+                value={form.content}
+                onChange={(e) => setForm(f => ({ ...f, content: e.target.value }))}
+              />
             </div>
-            <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input type="checkbox" id="highlight" checked={form.isTodayHighlight}
-                onChange={(e) => setForm(f => ({ ...f, isTodayHighlight: e.target.checked }))} />
-              <label htmlFor="highlight" style={{ fontSize: '13px', color: '#374151' }}>오늘 하이라이트 표시</label>
+            <div className="col-span-2 flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="highlight"
+                checked={form.isTodayHighlight}
+                onChange={(e) => setForm(f => ({ ...f, isTodayHighlight: e.target.checked }))}
+              />
+              <label htmlFor="highlight" className="text-[13px] text-[#374151]">오늘 하이라이트 표시</label>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-            <button onClick={handleSubmit} disabled={saving} style={styles.saveBtn}>
+          <div className="flex gap-2 mt-4">
+            <button onClick={handleSubmit} disabled={saving} className="px-5 py-2 bg-[#0f4c75] text-white border-none rounded-md cursor-pointer text-[13px]">
               {saving ? '등록 중...' : '등록'}
             </button>
-            <button onClick={() => setShowForm(false)} style={styles.cancelBtn}>취소</button>
+            <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-card text-[#374151] border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px]">취소</button>
           </div>
         </div>
       )}
 
       {!siteId ? (
-        <div style={styles.empty}>현장을 선택하면 공지 목록을 확인할 수 있습니다.</div>
+        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">현장을 선택하면 공지 목록을 확인할 수 있습니다.</div>
       ) : loading ? (
-        <p style={{ color: '#9ca3af', textAlign: 'center', padding: '40px 0' }}>불러오는 중...</p>
+        <p className="text-[#9ca3af] text-center py-10">불러오는 중...</p>
       ) : notices.length === 0 ? (
-        <div style={styles.empty}>등록된 공지가 없습니다.</div>
+        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">등록된 공지가 없습니다.</div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="flex flex-col gap-2">
           {notices.map(n => (
-            <div key={n.id} style={{ ...styles.noticeCard, ...(!n.isActive ? { opacity: 0.5 } : {}) }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{
-                  fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
-                  ...(NOTICE_TYPE_COLORS[n.noticeType] ?? { background: '#f3f4f6', color: '#374151' }),
-                }}>
+            <div
+              key={n.id}
+              className="bg-card border border-[#e5e7eb] rounded-lg px-4 py-[14px]"
+              style={{ opacity: n.isActive ? 1 : 0.5 }}
+            >
+              <div className="flex gap-2 items-center mb-[6px]">
+                <span
+                  className="text-[11px] px-2 py-[2px] rounded"
+                  style={NOTICE_TYPE_COLORS[n.noticeType] ?? { background: '#f3f4f6', color: '#374151' }}
+                >
                   {NOTICE_TYPE_LABELS[n.noticeType] ?? n.noticeType}
                 </span>
                 {n.isTodayHighlight && (
-                  <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', background: '#fef9c3', color: '#713f12' }}>
+                  <span className="text-[11px] px-2 py-[2px] rounded bg-[#fef9c3] text-[#713f12]">
                     오늘 강조
                   </span>
                 )}
                 {!n.isActive && (
-                  <span style={{ fontSize: '11px', color: '#9ca3af' }}>비활성</span>
+                  <span className="text-[11px] text-[#9ca3af]">비활성</span>
                 )}
               </div>
               <div
-                style={{ cursor: 'pointer' }}
+                className="cursor-pointer"
                 onClick={() => setExpanded(expanded === n.id ? null : n.id)}
               >
-                <div style={{ fontWeight: 600, fontSize: '14px', color: '#111827', marginBottom: '4px' }}>
+                <div className="font-semibold text-[14px] text-[#111827] mb-1">
                   {n.title}
                 </div>
-                <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                <div className="text-[12px] text-[#9ca3af]">
                   {fmtDate(n.startDate)}{n.endDate && ` ~ ${fmtDate(n.endDate)}`} · {fmtDate(n.createdAt)} 등록
                 </div>
               </div>
               {expanded === n.id && (
-                <div style={{
-                  marginTop: '10px', padding: '10px', background: '#f9fafb',
-                  borderRadius: '6px', fontSize: '13px', color: '#374151', whiteSpace: 'pre-wrap',
-                }}>
+                <div className="mt-[10px] p-[10px] bg-[#f9fafb] rounded-md text-[13px] text-[#374151] whitespace-pre-wrap">
                   {n.content || '내용 없음'}
                 </div>
               )}
@@ -247,41 +276,4 @@ export default function CompanyNoticesPage() {
       )}
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '32px', maxWidth: '900px', fontFamily: 'sans-serif' },
-  title: { fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 },
-  filterRow: { display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '20px' },
-  select: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', minWidth: '180px' },
-  addBtn: {
-    padding: '8px 16px', background: '#0f4c75', color: 'white',
-    border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
-  },
-  empty: {
-    textAlign: 'center', color: '#9ca3af', padding: '48px 0',
-    background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px',
-  },
-  formCard: {
-    background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px',
-    padding: '20px', marginBottom: '20px',
-  },
-  grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' },
-  label: { display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '4px' },
-  input: {
-    width: '100%', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px',
-    padding: '8px 10px', fontSize: '13px', boxSizing: 'border-box',
-  },
-  saveBtn: {
-    padding: '8px 20px', background: '#0f4c75', color: 'white',
-    border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
-  },
-  cancelBtn: {
-    padding: '8px 16px', background: '#243144', color: '#374151',
-    border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
-  },
-  noticeCard: {
-    background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px',
-    padding: '14px 16px',
-  },
 }

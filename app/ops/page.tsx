@@ -47,14 +47,18 @@ export default function OpsDashboard() {
     }).finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <div style={styles.page}><p style={styles.loading}>로딩 중...</p></div>
+  if (loading) return (
+    <div className="p-8">
+      <p className="text-[#6b7280]">로딩 중...</p>
+    </div>
+  )
 
   return (
-    <div style={styles.page}>
-      <h1 style={styles.title}>대시보드</h1>
+    <div className="p-8">
+      <h1 className="text-[22px] font-bold text-[#111827] mb-6">대시보드</h1>
 
       {/* 요약 카드 */}
-      <div style={styles.cardRow}>
+      <div className="flex gap-4 mb-8 flex-wrap">
         <SummaryCard label="담당 현장" value={data?.siteCount ?? 0} href="/ops/sites" color="#1a56db" />
         <SummaryCard label="오늘 출근" value={data?.todayAttendance ?? 0} href="/ops/attendance" color="#0e9f6e" />
         <SummaryCard label="미작성 일보" value={data?.pendingWorklogs ?? 0} href="/ops/worklogs" color="#e3a008" />
@@ -62,21 +66,25 @@ export default function OpsDashboard() {
       </div>
 
       {/* 현장 카드 목록 */}
-      <h2 style={styles.sectionTitle}>내 담당 현장</h2>
+      <h2 className="text-[17px] font-semibold text-[#1f2937] mb-4">내 담당 현장</h2>
       {data?.sites.length === 0 ? (
-        <div style={styles.emptyState}>
+        <div className="text-center px-5 py-[60px] bg-white rounded-lg text-[#6b7280]">
           <p>배정된 현장이 없습니다.</p>
-          <p style={styles.emptyHint}>관리자에게 현장 배정을 요청하세요.</p>
+          <p className="text-[13px] mt-2 text-[#9ca3af]">관리자에게 현장 배정을 요청하세요.</p>
         </div>
       ) : (
-        <div style={styles.siteGrid}>
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
           {data?.sites.map(site => (
-            <Link key={site.id} href={`/ops/sites/${site.id}`} style={styles.siteCard}>
-              <div style={styles.siteCardHeader}>
-                <span style={styles.siteName}>{site.name}</span>
+            <Link
+              key={site.id}
+              href={`/ops/sites/${site.id}`}
+              className="block bg-white rounded-lg p-5 no-underline shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#e5e7eb] transition-shadow duration-150"
+            >
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-[15px] font-semibold text-[#111827]">{site.name}</span>
                 <StatusBadge status={site.status} />
               </div>
-              <div style={styles.siteCardBody}>
+              <div className="flex flex-col gap-1 text-[13px] text-[#374151]">
                 <span>오늘 출근: <strong>{site.todayCheckedIn}명</strong></span>
                 <span>전체 작업자: <strong>{site.totalWorkers}명</strong></span>
               </div>
@@ -90,9 +98,13 @@ export default function OpsDashboard() {
 
 function SummaryCard({ label, value, href, color }: { label: string; value: number; href: string; color: string }) {
   return (
-    <Link href={href} style={{ ...styles.card, borderTop: `3px solid ${color}` }}>
-      <div style={{ ...styles.cardValue, color }}>{value}</div>
-      <div style={styles.cardLabel}>{label}</div>
+    <Link
+      href={href}
+      className="flex-[1_1_160px] block bg-white rounded-lg p-5 no-underline shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+      style={{ borderTop: `3px solid ${color}` }}
+    >
+      <div className="text-[32px] font-bold mb-1.5" style={{ color }}>{value}</div>
+      <div className="text-[13px] text-[#6b7280]">{label}</div>
     </Link>
   )
 }
@@ -106,42 +118,11 @@ function StatusBadge({ status }: { status: string }) {
   }
   const s = map[status] ?? { label: status, bg: '#f3f4f6', color: '#6b7280' }
   return (
-    <span style={{ ...styles.badge, background: s.bg, color: s.color }}>{s.label}</span>
+    <span
+      className="text-[11px] px-2 py-0.5 rounded font-medium"
+      style={{ background: s.bg, color: s.color }}
+    >
+      {s.label}
+    </span>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '32px' },
-  title: { fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '24px' },
-  loading: { color: '#6b7280' },
-  cardRow: { display: 'flex', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' },
-  card: {
-    flex: '1 1 160px',
-    background: '#fff',
-    borderRadius: '8px',
-    padding: '20px',
-    textDecoration: 'none',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-    display: 'block',
-  },
-  cardValue: { fontSize: '32px', fontWeight: 700, marginBottom: '6px' },
-  cardLabel: { fontSize: '13px', color: '#6b7280' },
-  sectionTitle: { fontSize: '17px', fontWeight: 600, color: '#1f2937', marginBottom: '16px' },
-  siteGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' },
-  siteCard: {
-    background: '#fff',
-    borderRadius: '8px',
-    padding: '20px',
-    textDecoration: 'none',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-    display: 'block',
-    border: '1px solid #e5e7eb',
-    transition: 'box-shadow 0.15s',
-  },
-  siteCardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' },
-  siteName: { fontSize: '15px', fontWeight: 600, color: '#111827' },
-  siteCardBody: { display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', color: '#374151' },
-  badge: { fontSize: '11px', padding: '2px 8px', borderRadius: '4px', fontWeight: 500 },
-  emptyState: { textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: '8px', color: '#6b7280' },
-  emptyHint: { fontSize: '13px', marginTop: '8px', color: '#9ca3af' },
 }

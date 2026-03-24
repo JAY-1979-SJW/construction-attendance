@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
@@ -120,17 +120,17 @@ function NewPurchaseOrderInner() {
 
   if (!materialRequestId) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh', background: '#1B2838', alignItems: 'center', justifyContent: 'center', color: '#A0AEC0' }}>
+      <div className="flex min-h-screen bg-brand items-center justify-center text-muted-brand">
         청구서 ID가 필요합니다.
       </div>
     )
   }
 
   return (
-    <div style={S.layout}>
-      <nav style={S.sidebar}>
-        <div style={S.sidebarTitle}>해한 출퇴근</div>
-        <div style={S.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand text-white">
+      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {[
           { href: '/admin', label: '대시보드' },
           { href: '/admin/materials', label: '자재관리' },
@@ -138,20 +138,22 @@ function NewPurchaseOrderInner() {
           { href: '/admin/materials/purchase-orders', label: '└ 발주관리' },
         ].map(item => (
           <Link key={item.href} href={item.href}
-            style={item.href === '/admin/materials/purchase-orders' ? S.navItemActive : S.navItem}>
+            className={item.href === '/admin/materials/purchase-orders'
+              ? 'block text-white px-5 py-[10px] text-sm no-underline bg-[rgba(244,121,32,0.15)] border-l-[3px] border-[#F47920]'
+              : 'block text-white/80 px-5 py-[10px] text-sm no-underline'}>
             {item.label}
           </Link>
         ))}
-        <button onClick={handleLogout} style={S.logoutBtn}>로그아웃</button>
+        <button onClick={handleLogout} className="mx-5 mt-6 p-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
       </nav>
 
-      <main style={S.main}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-          <Link href="/admin/materials/purchase-orders" style={S.backBtn}>← 목록</Link>
+      <main className="flex-1 p-8 overflow-x-auto">
+        <div className="flex items-center gap-3 mb-6">
+          <Link href="/admin/materials/purchase-orders" className="text-muted-brand no-underline text-[13px] px-3 py-[6px] border border-[rgba(91,164,217,0.2)] rounded whitespace-nowrap">← 목록</Link>
           <div>
-            <h1 style={S.pageTitle}>발주서 작성</h1>
+            <h1 className="text-[22px] font-bold m-0">발주서 작성</h1>
             {requestInfo && (
-              <p style={S.pageDesc}>
+              <p className="text-[13px] text-muted-brand mt-1 mb-0">
                 청구서: {requestInfo.requestNo} — {requestInfo.title}
               </p>
             )}
@@ -159,38 +161,38 @@ function NewPurchaseOrderInner() {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '48px', color: '#A0AEC0' }}>로딩 중...</div>
+          <div className="text-center py-12 text-muted-brand">로딩 중...</div>
         ) : (
           <form onSubmit={handleSubmit}>
             {/* 기본 정보 */}
-            <div style={S.card}>
-              <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '16px', color: 'white' }}>발주 정보</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div style={S.formGroup}>
-                  <label style={S.label}>납품 요청일</label>
-                  <input type="date" value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} style={S.input} />
+            <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+              <div className="text-sm font-semibold mb-4 text-white">발주 정보</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[12px] text-muted-brand font-medium">납품 요청일</label>
+                  <input type="date" value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} className="px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-brand text-white" />
                 </div>
-                <div style={{ ...S.formGroup, gridColumn: '1 / -1' }}>
-                  <label style={S.label}>메모</label>
+                <div className="flex flex-col gap-[6px] col-span-2">
+                  <label className="text-[12px] text-muted-brand font-medium">메모</label>
                   <textarea value={memo} onChange={e => setMemo(e.target.value)} rows={2}
-                    style={{ ...S.input, resize: 'vertical' }} placeholder="발주 관련 메모 (선택)" />
+                    className="px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-brand text-white resize-y" placeholder="발주 관련 메모 (선택)" />
                 </div>
               </div>
             </div>
 
             {/* 품목 선택 */}
-            <div style={{ ...S.card, marginTop: '16px' }}>
-              <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '16px', color: 'white' }}>
+            <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-4">
+              <div className="text-sm font-semibold mb-4 text-white">
                 발주 품목 선택
-                <span style={{ fontSize: '12px', color: '#A0AEC0', fontWeight: 400, marginLeft: '8px' }}>
+                <span className="text-[12px] text-muted-brand font-normal ml-2">
                   잔량 0 항목은 선택 불가
                 </span>
               </div>
-              <table style={S.table}>
+              <table className="w-full border-collapse">
                 <thead>
                   <tr>
                     {['선택', '품목명', '규격', '단위', '요청수량', '기발주', '잔량', '발주수량', '상태'].map(h => (
-                      <th key={h} style={S.th}>{h}</th>
+                      <th key={h} className="text-left px-3 py-2 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -207,7 +209,7 @@ function NewPurchaseOrderInner() {
                         opacity: isDisabled ? 0.4 : 1,
                         background: sel?.checked && !isDisabled ? 'rgba(244,121,32,0.06)' : 'transparent',
                       }}>
-                        <td style={{ ...S.td, textAlign: 'center' as const }}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-center">
                           <input
                             type="checkbox"
                             checked={!!sel?.checked && !isDisabled}
@@ -218,18 +220,19 @@ function NewPurchaseOrderInner() {
                             }))}
                           />
                         </td>
-                        <td style={S.td}>
-                          <div style={{ fontWeight: 500 }}>{item.itemName}</div>
-                          {item.isUrgent && <span style={{ fontSize: '10px', color: '#ef5350' }}>긴급</span>}
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
+                          <div className="font-medium">{item.itemName}</div>
+                          {item.isUrgent && <span className="text-[10px] text-[#ef5350]">긴급</span>}
                         </td>
-                        <td style={{ ...S.td, fontSize: '12px', color: '#A0AEC0' }}>{item.spec ?? '-'}</td>
-                        <td style={S.td}>{item.unit ?? '-'}</td>
-                        <td style={{ ...S.td, textAlign: 'right' as const }}>{Number(item.requestedQty).toLocaleString()}</td>
-                        <td style={{ ...S.td, textAlign: 'right' as const, color: '#A0AEC0' }}>{Number(item.orderedQty).toLocaleString()}</td>
-                        <td style={{ ...S.td, textAlign: 'right' as const, color: remaining <= 0 ? '#607d8b' : '#66bb6a', fontWeight: 600 }}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.spec ?? '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.unit ?? '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right">{Number(item.requestedQty).toLocaleString()}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right text-muted-brand">{Number(item.orderedQty).toLocaleString()}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right font-semibold"
+                          style={{ color: remaining <= 0 ? '#607d8b' : '#66bb6a' }}>
                           {Number(item.remainingQty).toLocaleString()}
                         </td>
-                        <td style={S.td}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
                           <input
                             type="number" min="0.01" step="0.01"
                             value={sel?.qty ?? ''}
@@ -239,13 +242,14 @@ function NewPurchaseOrderInner() {
                               [item.id]: { ...prev[item.id], qty: e.target.value },
                             }))}
                             style={{
-                              ...S.qtyInput,
-                              borderColor: isOver ? '#ef5350' : 'rgba(91,164,217,0.3)',
+                              width: '80px', padding: '5px 8px', borderRadius: '4px',
+                              background: '#1B2838', color: 'white', fontSize: '13px',
+                              border: `1px solid ${isOver ? '#ef5350' : 'rgba(91,164,217,0.3)'}`,
                             }}
                           />
-                          {isOver && <div style={{ fontSize: '10px', color: '#ef5350', marginTop: '2px' }}>잔량 초과</div>}
+                          {isOver && <div className="text-[10px] text-[#ef5350] mt-[2px]">잔량 초과</div>}
                         </td>
-                        <td style={S.td}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
                           <span style={{
                             padding: '2px 6px', borderRadius: '10px', fontSize: '11px',
                             background: ORDER_STATUS_COLOR[item.orderStatus] + '22',
@@ -261,11 +265,15 @@ function NewPurchaseOrderInner() {
               </table>
             </div>
 
-            {error && <div style={S.errorMsg}>{error}</div>}
+            {error && (
+              <div className="mt-3 px-[14px] py-[10px] bg-[rgba(183,28,28,0.15)] border border-[rgba(183,28,28,0.4)] rounded-md text-[#ef5350] text-[13px]">
+                {error}
+              </div>
+            )}
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <Link href="/admin/materials/purchase-orders" style={S.cancelBtn}>취소</Link>
-              <button type="submit" disabled={submitting} style={S.primaryBtn}>
+            <div className="flex gap-3 justify-end mt-5">
+              <Link href="/admin/materials/purchase-orders" className="px-5 py-[10px] bg-white/[0.08] text-muted-brand border-0 rounded-md cursor-pointer text-sm no-underline inline-flex items-center">취소</Link>
+              <button type="submit" disabled={submitting} className="px-6 py-[10px] bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-sm font-semibold">
                 {submitting ? '생성 중...' : '발주서 생성'}
               </button>
             </div>
@@ -278,33 +286,8 @@ function NewPurchaseOrderInner() {
 
 export default function NewPurchaseOrderPage() {
   return (
-    <Suspense fallback={<div style={{ display: 'flex', minHeight: '100vh', background: '#1B2838', alignItems: 'center', justifyContent: 'center', color: '#A0AEC0' }}>로딩 중...</div>}>
+    <Suspense fallback={<div className="flex min-h-screen bg-brand items-center justify-center text-muted-brand">로딩 중...</div>}>
       <NewPurchaseOrderInner />
     </Suspense>
   )
-}
-
-const S: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838', color: 'white' },
-  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection: { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navItemActive: { display: 'block', color: 'white', padding: '10px 20px', fontSize: '14px', textDecoration: 'none', background: 'rgba(244,121,32,0.15)', borderLeft: '3px solid #F47920' },
-  logoutBtn: { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main: { flex: 1, padding: '32px', overflowX: 'auto' },
-  pageTitle: { fontSize: '22px', fontWeight: 700, margin: 0 },
-  pageDesc: { fontSize: '13px', color: '#A0AEC0', margin: '4px 0 0' },
-  backBtn: { color: '#A0AEC0', textDecoration: 'none', fontSize: '13px', padding: '6px 12px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '4px', whiteSpace: 'nowrap' as const },
-  card: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  formGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: { fontSize: '12px', color: '#A0AEC0', fontWeight: 500 },
-  input: { padding: '9px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: '#1B2838', color: 'white' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  th: { textAlign: 'left', padding: '8px 12px', fontSize: '11px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)' },
-  td: { padding: '10px 12px', fontSize: '13px', borderBottom: '1px solid rgba(91,164,217,0.08)', color: 'white' },
-  qtyInput: { width: '80px', padding: '5px 8px', borderRadius: '4px', background: '#1B2838', color: 'white', fontSize: '13px', border: '1px solid rgba(91,164,217,0.3)' },
-  errorMsg: { marginTop: '12px', padding: '10px 14px', background: 'rgba(183,28,28,0.15)', border: '1px solid rgba(183,28,28,0.4)', borderRadius: '6px', color: '#ef5350', fontSize: '13px' },
-  primaryBtn: { padding: '10px 24px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  cancelBtn: { padding: '10px 20px', background: 'rgba(255,255,255,0.08)', color: '#A0AEC0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' },
 }

@@ -18,49 +18,23 @@ const NAV_ITEMS = [
 
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div style={styles.layout}>
-      <nav style={styles.sidebar}>
-        <div style={styles.sidebarTitle}>해한 출퇴근</div>
-        <div style={styles.sidebarSubtitle}>업체 관리</div>
+    <div className="flex min-h-screen font-sans">
+      <nav className="w-[200px] min-w-[200px] bg-[#0f4c75] text-white flex flex-col py-6">
+        <div className="text-base font-bold text-white px-5 pb-1 mb-0.5">해한 출퇴근</div>
+        <div className="text-[11px] text-white/60 px-5 pb-4 border-b border-white/15 mb-2">업체 관리</div>
         {NAV_ITEMS.map(({ href, label }) => (
-          <Link key={href} href={href} style={styles.navItem}>
+          <Link
+            key={href}
+            href={href}
+            className="block px-5 py-2.5 text-white/85 no-underline text-sm"
+          >
             {label}
           </Link>
         ))}
-        <div style={styles.spacer} />
+        <div className="flex-1" />
         <LogoutButton />
       </nav>
-      <main style={styles.main}>{children}</main>
+      <main className="flex-1 bg-[#f5f6f8] overflow-auto">{children}</main>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', fontFamily: 'sans-serif' },
-  sidebar: {
-    width: '200px',
-    minWidth: '200px',
-    background: '#0f4c75',
-    color: 'white',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '24px 0',
-  },
-  sidebarTitle: { fontSize: '16px', fontWeight: 700, color: 'white', padding: '0 20px 4px', marginBottom: '2px' },
-  sidebarSubtitle: {
-    fontSize: '11px',
-    color: 'rgba(255,255,255,0.6)',
-    padding: '0 20px 16px',
-    borderBottom: '1px solid rgba(255,255,255,0.15)',
-    marginBottom: '8px',
-  },
-  navItem: {
-    display: 'block',
-    padding: '10px 20px',
-    color: 'rgba(255,255,255,0.85)',
-    textDecoration: 'none',
-    fontSize: '14px',
-  },
-  spacer: { flex: 1 },
-  main: { flex: 1, background: '#f5f6f8', overflow: 'auto' },
 }

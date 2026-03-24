@@ -81,21 +81,27 @@ export default function CompanyManagersPage() {
   }
 
   return (
-    <div style={styles.page}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>관리자 관리</h1>
-        <button style={styles.inviteBtn} onClick={() => setShowInvite(true)}>+ 관리자 추가</button>
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-[22px] font-bold text-[#111827] m-0">관리자 관리</h1>
+        <button className="px-4 py-2 bg-[#1d4ed8] text-white border-none rounded-md cursor-pointer text-[14px] font-semibold" onClick={() => setShowInvite(true)}>+ 관리자 추가</button>
       </div>
 
       {msg && (
-        <div style={{ ...styles.alert, background: msg.type === 'success' ? '#d1fae5' : '#fee2e2', color: msg.type === 'success' ? '#065f46' : '#991b1b' }}>
+        <div
+          className="px-4 py-[10px] rounded-md mb-4 text-[14px]"
+          style={{
+            background: msg.type === 'success' ? '#d1fae5' : '#fee2e2',
+            color: msg.type === 'success' ? '#065f46' : '#991b1b',
+          }}
+        >
           {msg.text}
         </div>
       )}
 
-      <div style={styles.infoBox}>
+      <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-lg px-4 py-[14px] mb-5 text-[14px] text-[#1e40af]">
         <strong>관리 범위 안내</strong>
-        <ul style={{ margin: '6px 0 0', paddingLeft: '18px', fontSize: '13px', color: '#374151' }}>
+        <ul className="mt-[6px] mb-0 pl-[18px] text-[13px] text-[#374151]">
           <li><strong>전체 현장 관리</strong> — 회사 전체 현장 접근</li>
           <li><strong>담당 현장 관리</strong> — 배정된 현장만 접근</li>
           <li><strong>지정 현장 운영형</strong> — 그룹 지정 현장 접근 (읽기 위주)</li>
@@ -103,43 +109,52 @@ export default function CompanyManagersPage() {
       </div>
 
       {loading ? (
-        <p style={styles.muted}>로딩 중...</p>
+        <p className="text-[#6b7280]">로딩 중...</p>
       ) : (
-        <div style={styles.tableWrap}>
-          <table style={styles.table}>
-            <thead>
-              <tr style={styles.thead}>
-                <th style={styles.th}>이름</th>
-                <th style={styles.th}>이메일</th>
-                <th style={styles.th}>관리 범위</th>
-                <th style={styles.th}>최근 로그인</th>
-                <th style={styles.th}>상태</th>
-                <th style={styles.th}></th>
+        <div className="border border-[#e5e7eb] rounded-lg overflow-hidden">
+          <table className="w-full border-collapse">
+            <thead className="bg-[#f9fafb]">
+              <tr>
+                {['이름', '이메일', '관리 범위', '최근 로그인', '상태', ''].map(h => (
+                  <th key={h} className="px-[14px] py-[11px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {managers.map(m => {
                 const rc = ROLE_COLOR[m.role] ?? { bg: '#f3f4f6', color: '#6b7280' }
                 return (
-                  <tr key={m.id} style={styles.tr}>
-                    <td style={styles.td}><span style={{ fontWeight: 600 }}>{m.name}</span></td>
-                    <td style={{ ...styles.td, color: '#6b7280', fontSize: '13px' }}>{m.email}</td>
-                    <td style={styles.td}>
-                      <span style={{ ...styles.badge, background: rc.bg, color: rc.color }}>
+                  <tr key={m.id} className="border-b border-[#f3f4f6]">
+                    <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle"><span className="font-semibold">{m.name}</span></td>
+                    <td className="px-[14px] py-[13px] text-[13px] text-[#6b7280] align-middle">{m.email}</td>
+                    <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
+                      <span
+                        className="text-[11px] px-2 py-[3px] rounded font-medium"
+                        style={{ background: rc.bg, color: rc.color }}
+                      >
                         {ROLE_LABEL[m.role] ?? m.role}
                       </span>
                     </td>
-                    <td style={{ ...styles.td, color: '#9ca3af', fontSize: '12px' }}>
+                    <td className="px-[14px] py-[13px] text-[12px] text-[#9ca3af] align-middle">
                       {m.lastLoginAt ? new Date(m.lastLoginAt).toLocaleDateString('ko-KR') : '없음'}
                     </td>
-                    <td style={styles.td}>
-                      <span style={{ ...styles.badge, background: m.isActive ? '#d1fae5' : '#f3f4f6', color: m.isActive ? '#065f46' : '#9ca3af' }}>
+                    <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
+                      <span
+                        className="text-[11px] px-2 py-[3px] rounded font-medium"
+                        style={{
+                          background: m.isActive ? '#d1fae5' : '#f3f4f6',
+                          color: m.isActive ? '#065f46' : '#9ca3af',
+                        }}
+                      >
                         {m.isActive ? '활성' : '비활성'}
                       </span>
                     </td>
-                    <td style={styles.td}>
+                    <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
                       {m.isActive && (
-                        <button style={styles.deactivateBtn} onClick={() => handleDeactivate(m.id, m.name)}>
+                        <button
+                          className="px-[10px] py-1 bg-white border border-[rgba(91,164,217,0.3)] rounded-[5px] cursor-pointer text-[12px] text-[#6b7280]"
+                          onClick={() => handleDeactivate(m.id, m.name)}
+                        >
                           비활성화
                         </button>
                       )}
@@ -154,28 +169,52 @@ export default function CompanyManagersPage() {
 
       {/* 관리자 추가 모달 */}
       {showInvite && (
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
-            <h3 style={styles.modalTitle}>관리자 추가</h3>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>이름 *</label>
-              <input style={styles.input} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="담당자명" />
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]">
+          <div className="bg-white rounded-[10px] px-7 py-7 w-[380px] max-w-[90vw]">
+            <h3 className="text-[16px] font-bold text-[#111827] mb-5 mt-0">관리자 추가</h3>
+            <div className="mb-4">
+              <label className="block text-[13px] font-medium text-[#374151] mb-[6px]">이름 *</label>
+              <input
+                className="w-full px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-[14px] box-border"
+                value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="담당자명"
+              />
             </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>이메일 *</label>
-              <input style={styles.input} type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="이메일 주소" />
+            <div className="mb-4">
+              <label className="block text-[13px] font-medium text-[#374151] mb-[6px]">이메일 *</label>
+              <input
+                className="w-full px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-[14px] box-border"
+                type="email"
+                value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                placeholder="이메일 주소"
+              />
             </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>관리 범위</label>
-              <select style={styles.input} value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
+            <div className="mb-4">
+              <label className="block text-[13px] font-medium text-[#374151] mb-[6px]">관리 범위</label>
+              <select
+                className="w-full px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-[14px] box-border"
+                value={form.role}
+                onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
+              >
                 <option value="SITE_ADMIN">담당 현장 관리</option>
                 <option value="EXTERNAL_SITE_ADMIN">지정 현장 운영형</option>
                 <option value="COMPANY_ADMIN">전체 현장 관리</option>
               </select>
             </div>
-            <div style={styles.modalActions}>
-              <button style={styles.cancelBtn} onClick={() => setShowInvite(false)}>취소</button>
-              <button style={styles.confirmBtn} disabled={inviting || !form.name || !form.email} onClick={handleInvite}>
+            <div className="flex gap-2 justify-end mt-5">
+              <button
+                className="px-4 py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md bg-white cursor-pointer text-[14px]"
+                onClick={() => setShowInvite(false)}
+              >
+                취소
+              </button>
+              <button
+                className="px-4 py-[7px] bg-[#1d4ed8] text-white border-none rounded-md cursor-pointer text-[14px] font-semibold"
+                disabled={inviting || !form.name || !form.email}
+                onClick={handleInvite}
+              >
                 {inviting ? '처리 중...' : '추가'}
               </button>
             </div>
@@ -184,31 +223,4 @@ export default function CompanyManagersPage() {
       )}
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '32px' },
-  header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' },
-  title: { fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 },
-  inviteBtn: { padding: '8px 16px', background: '#1d4ed8', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  alert: { padding: '10px 16px', borderRadius: '6px', marginBottom: '16px', fontSize: '14px' },
-  infoBox: { background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '14px 16px', marginBottom: '20px', fontSize: '14px', color: '#1e40af' },
-  muted: { color: '#6b7280' },
-  tableWrap: { border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  thead: { background: '#f9fafb' },
-  th: { padding: '11px 14px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6b7280', borderBottom: '1px solid #e5e7eb' },
-  tr: { borderBottom: '1px solid #f3f4f6' },
-  td: { padding: '13px 14px', fontSize: '14px', color: '#1f2937', verticalAlign: 'middle' },
-  badge: { fontSize: '11px', padding: '3px 8px', borderRadius: '4px', fontWeight: 500 },
-  deactivateBtn: { padding: '4px 10px', background: '#fff', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '5px', cursor: 'pointer', fontSize: '12px', color: '#6b7280' },
-  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modal: { background: '#fff', borderRadius: '10px', padding: '28px', width: '380px', maxWidth: '90vw' },
-  modalTitle: { fontSize: '16px', fontWeight: 700, color: '#111827', marginBottom: '20px', marginTop: 0 },
-  formGroup: { marginBottom: '16px' },
-  label: { display: 'block', fontSize: '13px', fontWeight: 500, color: '#374151', marginBottom: '6px' },
-  input: { width: '100%', padding: '9px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' },
-  modalActions: { display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '20px' },
-  cancelBtn: { padding: '7px 16px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', background: '#fff', cursor: 'pointer', fontSize: '14px' },
-  confirmBtn: { padding: '7px 16px', background: '#1d4ed8', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
 }

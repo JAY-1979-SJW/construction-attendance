@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
+import './globals.css'
 
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? '해한Ai Engineering'
 
@@ -41,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
         />
       </head>
-      <body style={{ margin: 0, fontFamily: "'Pretendard', 'Pretendard Variable', system-ui, sans-serif", background: '#1B2838' }}>
+      <body>
         {children}
         {/* Service Worker 등록 */}
         <Script id="sw-register" strategy="afterInteractive">

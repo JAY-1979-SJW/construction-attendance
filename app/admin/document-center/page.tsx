@@ -163,48 +163,48 @@ export default function DocumentCenterPage() {
   const downloadBlocked = preflight !== null && !preflight.canDownload
 
   return (
-    <div style={s.layout}>
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
-        <div style={s.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {NAV_ITEMS.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            style={{ ...s.navItem, ...(item.href === '/admin/document-center' ? s.navActive : {}) }}
+            className={`block px-5 py-2.5 text-[13px] no-underline ${item.href === '/admin/document-center' ? 'bg-white/10 text-white font-bold' : 'text-white/80'}`}
           >
             {item.label}
           </Link>
         ))}
         <button
           onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))}
-          style={s.logoutBtn}
+          className="mt-6 mx-5 py-2.5 bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]"
         >
           로그아웃
         </button>
       </nav>
 
-      <main style={s.main}>
-        <h1 style={s.pageTitle}>서식 출력 센터</h1>
+      <main className="flex-1 p-8 overflow-auto">
+        <h1 className="text-2xl font-bold mb-6">서식 출력 센터</h1>
 
-        <div style={s.card}>
+        <div className="bg-card rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-5">
           {/* 귀속연월 + 현장 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+          <div className="grid grid-cols-2 gap-4 mb-5">
             <div>
-              <label style={s.label}>귀속연월</label>
+              <label className="block text-xs text-muted-brand mb-1 font-semibold">귀속연월</label>
               <input
                 type="month"
                 value={monthKey}
                 onChange={e => setMonthKey(e.target.value)}
-                style={s.input}
+                className="px-2.5 py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-sm bg-card"
               />
             </div>
             <div>
-              <label style={s.label}>현장 (선택)</label>
+              <label className="block text-xs text-muted-brand mb-1 font-semibold">현장 (선택)</label>
               <select
                 value={siteId}
                 onChange={e => setSiteId(e.target.value)}
-                style={{ ...s.input, width: '100%' }}
+                className="w-full px-2.5 py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-sm bg-card"
               >
                 <option value="">전체 현장</option>
                 {sites.map(site => (
@@ -215,39 +215,40 @@ export default function DocumentCenterPage() {
           </div>
 
           {/* 서식 종류 선택 */}
-          <div style={{ marginBottom: '20px' }}>
+          <div className="mb-5">
             {/* 서식 레이블 + XLSX 지원 배지 */}
-            <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <label style={{ ...s.label, margin: 0 }}>서식 종류</label>
+            <div className="flex items-center gap-2 mb-2">
+              <label className="text-xs text-muted-brand font-semibold">서식 종류</label>
               {XLSX_SUPPORTED.includes(docType) ? (
-                <span style={{ fontSize: '11px', padding: '1px 8px', background: '#e8f5e9', color: '#2e7d32', borderRadius: '999px', fontWeight: 600 }}>
+                <span className="text-[11px] px-2 py-0.5 bg-[#e8f5e9] text-[#2e7d32] rounded-full font-semibold">
                   XLSX 지원
                 </span>
               ) : (
-                <span style={{ fontSize: '11px', padding: '1px 8px', background: '#1B2838', color: '#9e9e9e', borderRadius: '999px', fontWeight: 600 }}>
+                <span className="text-[11px] px-2 py-0.5 bg-brand text-[#9e9e9e] rounded-full font-semibold">
                   CSV만
                 </span>
               )}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <div className="grid grid-cols-2 gap-2">
               {DOC_TYPES.map(d => (
                 <button
                   key={d.value}
                   onClick={() => setDocType(d.value)}
-                  style={{
-                    ...s.docTypeBtn,
-                    ...(docType === d.value ? s.docTypeBtnActive : {}),
-                  }}
+                  className={`text-left px-3.5 py-3 rounded-lg border cursor-pointer transition-all ${
+                    docType === d.value
+                      ? 'bg-[rgba(91,164,217,0.1)] border-[#1976d2] text-[#4A93C8]'
+                      : 'bg-card border-white/10'
+                  }`}
                 >
-                  <div style={{ fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div className="font-semibold text-sm flex items-center gap-1.5">
                     {d.label}
                     {XLSX_SUPPORTED.includes(d.value) && (
-                      <span style={{ fontSize: '10px', background: '#e8f5e9', color: '#2e7d32', padding: '1px 5px', borderRadius: '3px', fontWeight: 700 }}>
+                      <span className="text-[10px] bg-[#e8f5e9] text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
                         XLSX
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: '12px', color: docType === d.value ? '#1565c0' : '#9e9e9e', marginTop: '2px' }}>
+                  <div className={`text-xs mt-0.5 ${docType === d.value ? 'text-[#1565c0]' : 'text-[#9e9e9e]'}`}>
                     {d.desc}
                   </div>
                 </button>
@@ -257,10 +258,10 @@ export default function DocumentCenterPage() {
 
           {/* 선택된 서식 설명 */}
           {selectedDoc && (
-            <div style={s.infoBox}>
+            <div className="bg-[rgba(91,164,217,0.1)] rounded-md px-3.5 py-2.5 mb-4 text-sm text-[#4A93C8]">
               <strong>{selectedDoc.label}</strong>: {selectedDoc.desc}
               {hasXlsx && (
-                <span style={{ marginLeft: '8px', fontSize: '12px', color: '#2e7d32', fontWeight: 600 }}>
+                <span className="ml-2 text-xs text-[#2e7d32] font-semibold">
                   (XLSX 실서식 출력 지원)
                 </span>
               )}
@@ -268,64 +269,60 @@ export default function DocumentCenterPage() {
           )}
 
           {/* 사전검사 버튼 */}
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+          <div className="flex gap-2.5 mb-4">
             <button
               onClick={handlePreflight}
               disabled={preflightLoading}
-              style={{ ...s.preflightBtn, opacity: preflightLoading ? 0.6 : 1 }}
+              className="px-4 py-2 bg-[#455a64] text-white border-0 rounded-lg cursor-pointer text-sm font-semibold"
+              style={{ opacity: preflightLoading ? 0.6 : 1 }}
             >
               {preflightLoading ? '검사 중...' : '사전검사 실행'}
             </button>
           </div>
 
-          {/* 사전검사 결과 패널 (전면 교체) */}
+          {/* 사전검사 결과 패널 */}
           {preflight ? (
-            <div style={{ marginBottom: '16px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', overflow: 'hidden' }}>
+            <div className="mb-4 border border-white/10 rounded-lg overflow-hidden">
               {/* 헤더 - 결과 요약 */}
-              <div style={{
-                padding: '14px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                borderBottom: '1px solid #e0e0e0',
-                background: preflight.summary.errorCount > 0
-                  ? '#fff5f5'
+              <div className={`px-4 py-3.5 flex items-center justify-between border-b border-[#e0e0e0] ${
+                preflight.summary.errorCount > 0
+                  ? 'bg-[#fff5f5]'
                   : preflight.summary.warningCount > 0
-                    ? '#fffde7'
-                    : '#f1f8e9',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '18px' }}>
+                    ? 'bg-[#fffde7]'
+                    : 'bg-[#f1f8e9]'
+              }`}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[18px]">
                     {preflight.summary.errorCount > 0 ? '❌' : preflight.summary.warningCount > 0 ? '⚠️' : '✅'}
                   </span>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: '14px' }}>
+                    <div className="font-bold text-sm">
                       {preflight.canDownload ? '다운로드 가능' : '다운로드 차단됨'}
                     </div>
-                    <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '2px' }}>
+                    <div className="text-[11px] text-muted-brand mt-0.5">
                       {preflightCheckedAt && `${preflightCheckedAt.toLocaleTimeString('ko-KR')} 검사 완료`}
                     </div>
                   </div>
                 </div>
                 {/* 배지 요약 */}
-                <div style={{ display: 'flex', gap: '6px' }}>
+                <div className="flex gap-1.5">
                   {preflight.summary.errorCount > 0 && (
-                    <span style={{ padding: '2px 10px', fontSize: '11px', fontWeight: 700, background: '#ffebee', color: '#c62828', borderRadius: '999px' }}>
+                    <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[#ffebee] text-[#c62828] rounded-full">
                       오류 {preflight.summary.errorCount}
                     </span>
                   )}
                   {preflight.summary.warningCount > 0 && (
-                    <span style={{ padding: '2px 10px', fontSize: '11px', fontWeight: 700, background: '#fff8e1', color: '#f57f17', borderRadius: '999px' }}>
+                    <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[#fff8e1] text-[#f57f17] rounded-full">
                       경고 {preflight.summary.warningCount}
                     </span>
                   )}
                   {preflight.summary.infoCount > 0 && (
-                    <span style={{ padding: '2px 10px', fontSize: '11px', fontWeight: 700, background: 'rgba(244,121,32,0.12)', color: '#F47920', borderRadius: '999px' }}>
+                    <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[rgba(244,121,32,0.12)] text-accent rounded-full">
                       정보 {preflight.summary.infoCount}
                     </span>
                   )}
                   {preflight.summary.errorCount === 0 && preflight.summary.warningCount === 0 && (
-                    <span style={{ padding: '2px 10px', fontSize: '11px', fontWeight: 700, background: '#e8f5e9', color: '#2e7d32', borderRadius: '999px' }}>
+                    <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[#e8f5e9] text-[#2e7d32] rounded-full">
                       이상 없음
                     </span>
                   )}
@@ -334,81 +331,65 @@ export default function DocumentCenterPage() {
 
               {/* 이슈 목록 */}
               {preflight.issues.length > 0 ? (
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                <ul className="m-0 p-0 list-none">
                   {preflight.issues.map((issue, i) => (
-                    <li key={i} style={{
-                      padding: '10px 14px',
-                      borderBottom: i < preflight.issues.length - 1 ? '1px solid #f5f5f5' : 'none',
-                      display: 'flex',
-                      gap: '10px',
-                      alignItems: 'flex-start',
-                    }}>
-                      <span style={{
-                        marginTop: '1px',
-                        flexShrink: 0,
-                        width: '20px',
-                        height: '20px',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        background: issue.severity === 'ERROR' ? '#ffebee' : issue.severity === 'WARNING' ? '#fff8e1' : '#e3f2fd',
-                        color: issue.severity === 'ERROR' ? '#c62828' : issue.severity === 'WARNING' ? '#f57f17' : '#1565c0',
-                      }}>
+                    <li key={i} className={`px-3.5 py-2.5 flex gap-2.5 items-start ${i < preflight.issues.length - 1 ? 'border-b border-[#f5f5f5]' : ''}`}>
+                      <span className={`mt-px flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                        issue.severity === 'ERROR'
+                          ? 'bg-[#ffebee] text-[#c62828]'
+                          : issue.severity === 'WARNING'
+                            ? 'bg-[#fff8e1] text-[#f57f17]'
+                            : 'bg-[#e3f2fd] text-[#1565c0]'
+                      }`}>
                         {issue.severity === 'ERROR' ? '!' : issue.severity === 'WARNING' ? '△' : 'i'}
                       </span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#CBD5E0' }}>{issue.message}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[13px] font-semibold text-[#CBD5E0]">{issue.message}</div>
                         {issue.detail && (
-                          <div style={{ fontSize: '12px', color: '#A0AEC0', marginTop: '2px' }}>{issue.detail}</div>
+                          <div className="text-xs text-muted-brand mt-0.5">{issue.detail}</div>
                         )}
                         {issue.workerIds && issue.workerIds.length > 0 && (
-                          <div style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>
+                          <div className="text-[11px] text-[#aaa] mt-0.5">
                             대상 근로자 {issue.workerIds.length}명
                           </div>
                         )}
-                        <div style={{ fontSize: '11px', color: '#bbb', marginTop: '2px', fontFamily: 'monospace' }}>{issue.code}</div>
+                        <div className="text-[11px] text-[#bbb] mt-0.5 font-mono">{issue.code}</div>
                       </div>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <div style={{ padding: '16px', fontSize: '13px', color: '#aaa', textAlign: 'center' }}>
+                <div className="px-4 py-4 text-[13px] text-[#aaa] text-center">
                   검사 항목 없음 (모두 정상)
                 </div>
               )}
 
               {/* 재실행 버튼 */}
-              <div style={{ padding: '10px 14px', background: '#fafafa', borderTop: '1px solid #f0f0f0', display: 'flex', justifyContent: 'flex-end' }}>
+              <div className="px-3.5 py-2.5 bg-[#fafafa] border-t border-[#f0f0f0] flex justify-end">
                 <button
                   onClick={handlePreflight}
                   disabled={preflightLoading}
-                  style={{ fontSize: '12px', color: '#5BA4D9', background: 'none', border: 'none', cursor: 'pointer', opacity: preflightLoading ? 0.5 : 1 }}
+                  className="text-xs text-[#5BA4D9] bg-transparent border-0 cursor-pointer"
+                  style={{ opacity: preflightLoading ? 0.5 : 1 }}
                 >
                   {preflightLoading ? '검사 중...' : '↻ 사전검사 재실행'}
                 </button>
               </div>
             </div>
           ) : (
-            <div style={{ marginBottom: '16px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '16px', background: '#fafafa', fontSize: '13px', color: '#aaa', textAlign: 'center' }}>
+            <div className="mb-4 border border-white/10 rounded-lg px-4 py-4 bg-[#fafafa] text-[13px] text-[#aaa] text-center">
               사전검사를 실행하면 결과가 여기에 표시됩니다.
             </div>
           )}
 
           {/* 다운로드 버튼 영역 */}
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div className="flex gap-2.5">
             {/* CSV 다운로드 */}
             <button
               onClick={handleDownload}
               disabled={loading || downloadBlocked}
-              style={{
-                ...s.downloadBtn,
-                flex: hasXlsx ? '1' : undefined,
-                width: hasXlsx ? undefined : '100%',
-                opacity: (loading || downloadBlocked) ? 0.5 : 1,
-              }}
+              className={`py-3 bg-[#F47920] text-white border-0 rounded-lg cursor-pointer text-[15px] font-bold ${hasXlsx ? 'flex-1' : 'w-full'}`}
+              style={{ opacity: (loading || downloadBlocked) ? 0.5 : 1 }}
             >
               {loading ? '생성 중...' : downloadBlocked ? '오류 해결 필요 (CSV)' : 'CSV 다운로드'}
             </button>
@@ -418,9 +399,8 @@ export default function DocumentCenterPage() {
               <button
                 onClick={handleXlsxDownload}
                 disabled={xlsxLoading || downloadBlocked}
+                className="flex-1 py-3 text-white border-0 rounded-lg cursor-pointer text-[15px] font-bold"
                 style={{
-                  ...s.downloadBtn,
-                  flex: 1,
                   background: downloadBlocked ? '#bdbdbd' : '#2e7d32',
                   opacity: (xlsxLoading || downloadBlocked) ? 0.5 : 1,
                 }}
@@ -432,31 +412,27 @@ export default function DocumentCenterPage() {
 
           {/* 다운로드 차단 안내 */}
           {preflight && !preflight.canDownload && (
-            <p style={{ fontSize: '12px', color: '#c62828', marginTop: '6px' }}>
+            <p className="text-xs text-[#c62828] mt-1.5">
               오류를 해결한 후 다운로드하세요.
             </p>
           )}
 
           {/* 결과 메시지 */}
           {msg && (
-            <div style={{
-              ...s.msgBox,
-              background: isSuccess ? '#e8f5e9' : '#ffebee',
-              color: isSuccess ? '#2e7d32' : '#c62828',
-            }}>
+            <div className={`mt-3 px-3.5 py-2.5 rounded-md text-[13px] ${isSuccess ? 'bg-[#e8f5e9] text-[#2e7d32]' : 'bg-[#ffebee] text-[#c62828]'}`}>
               {msg}
             </div>
           )}
         </div>
 
         {/* 서식 안내 테이블 */}
-        <div style={s.card}>
-          <h2 style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 16px' }}>서식별 포함 내용</h2>
-          <table style={s.table}>
+        <div className="bg-card rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-5">
+          <h2 className="text-base font-bold mb-4">서식별 포함 내용</h2>
+          <table className="w-full border-collapse">
             <thead>
               <tr>
                 {['서식명', '포함 내용', '주요 활용', '형식'].map(h => (
-                  <th key={h} style={s.th}>{h}</th>
+                  <th key={h} className="px-3 py-2.5 text-left text-xs text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -470,13 +446,13 @@ export default function DocumentCenterPage() {
                 { label: '협력사 정산서', desc: '협력사별 노무비 정산 기초자료', use: '협력사 노무비 지급', xlsx: true },
               ].map(row => (
                 <tr key={row.label}>
-                  <td style={{ ...s.td, fontWeight: 600 }}>{row.label}</td>
-                  <td style={s.td}>{row.desc}</td>
-                  <td style={{ ...s.td, color: '#A0AEC0' }}>{row.use}</td>
-                  <td style={s.td}>
-                    <span style={{ fontSize: '12px', color: '#A0AEC0' }}>CSV</span>
+                  <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5] font-semibold">{row.label}</td>
+                  <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5]">{row.desc}</td>
+                  <td className="px-3 py-3 text-[13px] text-muted-brand border-b border-[#f5f5f5]">{row.use}</td>
+                  <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5]">
+                    <span className="text-xs text-muted-brand">CSV</span>
                     {row.xlsx && (
-                      <span style={{ marginLeft: '6px', fontSize: '12px', background: '#e8f5e9', color: '#2e7d32', padding: '1px 6px', borderRadius: '3px', fontWeight: 700 }}>
+                      <span className="ml-1.5 text-xs bg-[#e8f5e9] text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
                         XLSX
                       </span>
                     )}
@@ -514,27 +490,3 @@ const NAV_ITEMS = [
   { href: '/admin/exceptions',              label: '예외 승인' },
   { href: '/admin/device-requests',         label: '기기 변경' },
 ]
-
-const s: Record<string, React.CSSProperties> = {
-  layout:           { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:          { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle:     { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection:       { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
-  navItem:          { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
-  navActive:        { background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 700 },
-  logoutBtn:        { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main:             { flex: 1, padding: '32px', overflow: 'auto' },
-  pageTitle:        { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
-  card:             { background: '#243144', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', marginBottom: '20px' },
-  label:            { display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 },
-  input:            { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
-  docTypeBtn:       { textAlign: 'left', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', background: '#243144', transition: 'all 0.1s' },
-  docTypeBtnActive: { background: 'rgba(91,164,217,0.1)', borderColor: '#1976d2', color: '#4A93C8' },
-  infoBox:          { background: 'rgba(91,164,217,0.1)', borderRadius: '6px', padding: '10px 14px', marginBottom: '16px', fontSize: '13px', color: '#4A93C8' },
-  preflightBtn:     { padding: '9px 18px', background: '#455a64', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  downloadBtn:      { padding: '12px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: 700 },
-  msgBox:           { marginTop: '12px', padding: '10px 14px', borderRadius: '6px', fontSize: '13px' },
-  table:            { width: '100%', borderCollapse: 'collapse' },
-  th:               { padding: '10px 12px', textAlign: 'left', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' },
-  td:               { padding: '12px', fontSize: '13px', color: '#CBD5E0', borderBottom: '1px solid #f5f5f5' },
-}

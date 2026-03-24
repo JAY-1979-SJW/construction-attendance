@@ -410,7 +410,7 @@ export default function AttendancePage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+      <div className="flex justify-center items-center min-h-screen">
         <p>불러오는 중...</p>
       </div>
     )
@@ -419,27 +419,27 @@ export default function AttendancePage() {
   return (
     <>
       <WorkerTopBar />
-      <div style={{ ...styles.container, paddingBottom: '80px', paddingTop: '76px' }}>
+      <div className="max-w-[480px] mx-auto px-5 min-h-screen pb-20 pt-[76px]">
       {/* 법적 고지 배너 */}
       {!isPreview && <WorkerDisclaimerBanner />}
 
       {/* 미리보기 배너 */}
       {isPreview && (
-        <div style={styles.previewBanner}>
+        <div className="flex items-center justify-between bg-[rgba(244,121,32,0.1)] border border-[rgba(244,121,32,0.35)] rounded-[10px] px-[14px] py-[10px] mb-3 text-[13px] text-[#FFB74D] gap-2">
           <span>👀 미리보기 모드 — 실제 사용하려면</span>
-          <button onClick={() => router.push('/login')} style={styles.previewLoginBtn}>로그인하기</button>
+          <button onClick={() => router.push('/login')} className="px-[14px] py-[6px] bg-accent text-white border-none rounded-md cursor-pointer text-xs font-bold shrink-0">로그인하기</button>
         </div>
       )}
 
       {/* 헤더 */}
-      <div style={styles.header}>
+      <div className="flex justify-between items-center mb-6 pt-2">
         <div>
-          <div style={styles.workerName}>{worker?.name}</div>
-          <div style={styles.workerInfo}>{worker?.company} · {worker?.jobTitle}</div>
+          <div className="text-lg font-bold text-white">{worker?.name}</div>
+          <div className="text-[13px] text-muted-brand mt-0.5">{worker?.company} · {worker?.jobTitle}</div>
         </div>
         <button
           onClick={() => isPreview ? router.push('/login') : fetch('/api/auth/logout', { method: 'POST' }).then(() => router.push('/login'))}
-          style={styles.logoutBtn}
+          className="bg-transparent border border-[rgba(91,164,217,0.2)] rounded-lg px-3 py-[6px] text-[13px] cursor-pointer text-muted-brand"
         >
           {isPreview ? '로그인' : '로그아웃'}
         </button>
@@ -457,85 +457,89 @@ export default function AttendancePage() {
         />
       )}
 
-      {/* 출퇴근 메시지 */}
+      {/* 출퇴근 메시지 — background/color depend on runtime string value, keep dynamic */}
       {attendanceMsg && (
         <div style={{
           background: attendanceMsg.includes('완료') ? 'rgba(46,125,50,0.15)' : 'rgba(244,121,32,0.12)',
           color: attendanceMsg.includes('완료') ? '#81c784' : '#FFB74D',
-          borderRadius: '10px', padding: '12px 16px', marginBottom: '12px', fontSize: '14px', fontWeight: 600,
-        }}>
+        }} className="rounded-[10px] px-4 py-3 mb-3 text-[14px] font-semibold">
           {attendanceMsg}
         </div>
       )}
 
       {/* 오늘 현황 + 직접 출퇴근 */}
-      <div style={styles.card}>
-        <div style={styles.dateLabel}>오늘의 출퇴근</div>
+      <div className="bg-card rounded-2xl p-6 mb-4">
+        <div className="text-[13px] text-muted-brand mb-3">오늘의 출퇴근</div>
         {today ? (
           <>
-            <div style={{ ...styles.statusBadge, background: STATUS_COLOR[today.status] }}>
+            {/* STATUS_COLOR is a runtime lookup — keep background dynamic */}
+            <div className="inline-block text-white text-[13px] font-bold py-1 px-3 rounded-[20px] mb-3" style={{ background: STATUS_COLOR[today.status] }}>
               {STATUS_LABEL[today.status]}
             </div>
-            <div style={styles.siteName}>
+            <div className="text-lg font-bold text-white mb-1">
               {today.moveEvents?.length > 0 ? today.currentSiteName : today.siteName}
             </div>
             {today.moveEvents?.length > 0 && (
-              <div style={{ fontSize: '12px', color: '#A0AEC0', marginBottom: '4px' }}>
+              <div className="text-xs text-[#A0AEC0] mb-1">
                 출근: {today.siteName} → 현재: {today.currentSiteName}
               </div>
             )}
-            <div style={styles.siteAddress}>{today.siteAddress}</div>
-            <div style={styles.timeRow}>
-              <div style={styles.timeBox}>
-                <div style={styles.timeLabel}>출근</div>
-                <div style={styles.timeValue}>{formatTime(today.checkInAt)}</div>
-                {today.checkInDistance != null && <div style={styles.distanceLabel}>{Math.round(today.checkInDistance)}m</div>}
+            <div className="text-[13px] text-muted-brand mb-5">{today.siteAddress}</div>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 text-center">
+                <div className="text-xs text-[#718096] mb-1">출근</div>
+                <div className="text-2xl font-bold text-white">{formatTime(today.checkInAt)}</div>
+                {today.checkInDistance != null && <div className="text-[11px] text-[#aaa] mt-1">{Math.round(today.checkInDistance)}m</div>}
               </div>
-              <div style={styles.timeDivider}>→</div>
-              <div style={styles.timeBox}>
-                <div style={styles.timeLabel}>퇴근</div>
-                <div style={styles.timeValue}>{formatTime(today.checkOutAt)}</div>
-                {today.checkOutDistance != null && <div style={styles.distanceLabel}>{Math.round(today.checkOutDistance)}m</div>}
+              <div className="text-xl text-[#ccc]">→</div>
+              <div className="flex-1 text-center">
+                <div className="text-xs text-[#718096] mb-1">퇴근</div>
+                <div className="text-2xl font-bold text-white">{formatTime(today.checkOutAt)}</div>
+                {today.checkOutDistance != null && <div className="text-[11px] text-[#aaa] mt-1">{Math.round(today.checkOutDistance)}m</div>}
               </div>
             </div>
 
             {/* 퇴근 버튼 + 현장 이동 버튼 (근무 중일 때) */}
             {!isPreview && today.status === 'WORKING' && (
-              <div style={{ marginTop: '20px' }}>
+              <div className="mt-5">
                 {/* 현장 이동 패널 */}
                 {showMovePanel ? (
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '10px', color: '#4A93C8' }}>
+                    <div className="text-sm font-semibold mb-[10px] text-[#4A93C8]">
                       이동할 현장을 선택하세요
                     </div>
                     {availableSites
                       .filter(s => s.siteId !== today.currentSiteId)
                       .map(site => (
-                        <div key={site.siteId} style={{
-                          border: `2px solid ${site.withinRadius ? '#1565c0' : 'rgba(91,164,217,0.2)'}`,
-                          borderRadius: '10px', padding: '12px', marginBottom: '8px',
-                          background: site.withinRadius ? 'rgba(21,101,192,0.15)' : '#2a3f5a',
-                        }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div
+                          key={site.siteId}
+                          className="rounded-[10px] p-3 mb-2"
+                          style={{
+                            border: `2px solid ${site.withinRadius ? '#1565c0' : 'rgba(91,164,217,0.2)'}`,
+                            background: site.withinRadius ? 'rgba(21,101,192,0.15)' : '#2a3f5a',
+                          }}
+                        >
+                          <div className="flex justify-between items-center">
                             <div>
-                              <div style={{ fontSize: '14px', fontWeight: 700 }}>{site.siteName}</div>
-                              <div style={{ fontSize: '11px', color: '#A0AEC0' }}>{site.companyName}</div>
+                              <div className="text-sm font-bold">{site.siteName}</div>
+                              <div className="text-[11px] text-[#A0AEC0]">{site.companyName}</div>
                             </div>
                             {site.distanceMeters !== null && (
-                              <div style={{ textAlign: 'right' as const, fontSize: '12px', color: site.withinRadius ? '#1565c0' : '#999' }}>
+                              <div
+                                className="text-[12px] text-right"
+                                style={{ color: site.withinRadius ? '#1565c0' : '#999' }}
+                              >
                                 {site.distanceMeters}m<br/>
-                                <span style={{ fontSize: '10px' }}>{site.withinRadius ? '반경 내' : `허용 ${site.allowedRadiusMeters}m`}</span>
+                                <span className="text-[10px]">{site.withinRadius ? '반경 내' : `허용 ${site.allowedRadiusMeters}m`}</span>
                               </div>
                             )}
                           </div>
                           <button
                             onClick={() => handleSiteMove(site.siteId)}
                             disabled={moveLoading}
+                            className="mt-2 w-full py-[10px] text-white border-none rounded-lg text-[14px] font-semibold cursor-pointer"
                             style={{
-                              marginTop: '8px', width: '100%', padding: '10px',
                               background: site.withinRadius ? '#1565c0' : '#9e9e9e',
-                              color: 'white', border: 'none', borderRadius: '8px',
-                              fontSize: '14px', fontWeight: 600, cursor: 'pointer',
                               opacity: moveLoading ? 0.6 : 1,
                             }}
                           >
@@ -544,11 +548,11 @@ export default function AttendancePage() {
                         </div>
                       ))}
                     {availableSites.filter(s => s.siteId !== today.currentSiteId).length === 0 && (
-                      <div style={{ fontSize: '13px', color: '#A0AEC0', padding: '10px 0' }}>
+                      <div className="text-[13px] text-[#A0AEC0] py-[10px]">
                         이동 가능한 다른 배정 현장이 없습니다.
                       </div>
                     )}
-                    <button onClick={() => setShowMovePanel(false)} style={styles.cancelBtn}>취소</button>
+                    <button onClick={() => setShowMovePanel(false)} className="w-full py-[10px] text-sm bg-transparent border border-[rgba(91,164,217,0.2)] rounded-lg cursor-pointer text-muted-brand mt-[6px]">취소</button>
                   </div>
                 ) : needsException ? (
                   <>
@@ -557,34 +561,32 @@ export default function AttendancePage() {
                       value={exceptionReason}
                       onChange={e => setExceptionReason(e.target.value)}
                       rows={3}
-                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(91,164,217,0.2)', fontSize: '14px', resize: 'none', boxSizing: 'border-box' as const }}
+                      className="w-full px-[10px] py-[10px] rounded-lg border border-[rgba(91,164,217,0.2)] text-[14px] resize-none box-border"
                     />
                     <button
                       onClick={() => handleDirectCheckOut(exceptionReason)}
                       disabled={!exceptionReason.trim() || checkOutLoading}
-                      style={{ ...styles.checkOutBtn, marginTop: '8px', opacity: !exceptionReason.trim() || checkOutLoading ? 0.6 : 1 }}
+                      className="w-full py-[14px] text-[17px] font-bold bg-[#E06810] text-white border-none rounded-xl cursor-pointer mt-2"
+                      style={{ opacity: !exceptionReason.trim() || checkOutLoading ? 0.6 : 1 }}
                     >
                       {checkOutLoading ? '퇴근 처리 중...' : '사유 입력 후 퇴근'}
                     </button>
-                    <button onClick={() => setNeedsException(false)} style={styles.cancelBtn}>취소</button>
+                    <button onClick={() => setNeedsException(false)} className="w-full py-[10px] text-sm bg-transparent border border-[rgba(91,164,217,0.2)] rounded-lg cursor-pointer text-muted-brand mt-[6px]">취소</button>
                   </>
                 ) : (
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div className="flex gap-2">
                     <button
                       onClick={() => handleDirectCheckOut()}
                       disabled={checkOutLoading}
-                      style={{ ...styles.checkOutBtn, flex: 1, opacity: checkOutLoading ? 0.6 : 1 }}
+                      className="w-full py-[14px] text-[17px] font-bold bg-[#E06810] text-white border-none rounded-xl cursor-pointer flex-1"
+                      style={{ opacity: checkOutLoading ? 0.6 : 1 }}
                     >
                       {checkOutLoading ? '퇴근 처리 중...' : '퇴근하기'}
                     </button>
                     {availableSites.filter(s => s.siteId !== today.currentSiteId).length > 0 && (
                       <button
                         onClick={() => setShowMovePanel(true)}
-                        style={{
-                          padding: '14px 16px', background: '#E06810', color: 'white',
-                          border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600,
-                          cursor: 'pointer', whiteSpace: 'nowrap' as const,
-                        }}
+                        className="py-[14px] px-4 bg-[#E06810] text-white border-none rounded-xl text-[14px] font-semibold cursor-pointer whitespace-nowrap"
                       >
                         현장 이동
                       </button>
@@ -599,18 +601,18 @@ export default function AttendancePage() {
             {/* 배정 현장 목록 + 출근 버튼 */}
             {/* GPS 상태 표시 */}
             {!isPreview && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  {gpsStatus === 'loading' && <><span style={{ color: '#5BA4D9' }}>📡</span><span style={{ color: '#5BA4D9' }}>위치 조회 중...</span></>}
-                  {gpsStatus === 'ok' && <><span style={{ color: '#2e7d32' }}>📍</span><span style={{ color: '#2e7d32' }}>위치 확인됨</span></>}
-                  {gpsStatus === 'denied' && <><span style={{ color: '#e65100' }}>🚫</span><span style={{ color: '#e65100' }}>위치 권한 거부됨</span></>}
-                  {gpsStatus === 'error' && <><span style={{ color: '#e65100' }}>⚠️</span><span style={{ color: '#e65100' }}>위치 오류</span></>}
-                  {gpsStatus === 'idle' && <><span style={{ color: '#aaa' }}>📍</span><span style={{ color: '#aaa' }}>위치 미확인</span></>}
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-xs flex items-center gap-[6px]">
+                  {gpsStatus === 'loading' && <><span className="text-secondary-brand">📡</span><span className="text-secondary-brand">위치 조회 중...</span></>}
+                  {gpsStatus === 'ok' && <><span className="text-[#2e7d32]">📍</span><span className="text-[#2e7d32]">위치 확인됨</span></>}
+                  {gpsStatus === 'denied' && <><span className="text-[#e65100]">🚫</span><span className="text-[#e65100]">위치 권한 거부됨</span></>}
+                  {gpsStatus === 'error' && <><span className="text-[#e65100]">⚠️</span><span className="text-[#e65100]">위치 오류</span></>}
+                  {gpsStatus === 'idle' && <><span className="text-[#aaa]">📍</span><span className="text-[#aaa]">위치 미확인</span></>}
                 </div>
                 <button
                   onClick={loadAvailableSites}
                   disabled={gpsStatus === 'loading' || checkInLoading}
-                  style={{ fontSize: '12px', padding: '4px 10px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', color: '#A0AEC0' }}
+                  className="text-xs px-[10px] py-1 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-muted-brand"
                 >
                   새로고침
                 </button>
@@ -618,24 +620,33 @@ export default function AttendancePage() {
             )}
             {!isPreview && availableSites.length > 0 ? (
               <div>
-                <p style={{ fontSize: '14px', color: '#A0AEC0', marginBottom: '12px' }}>배정된 현장을 선택하여 출근하세요.</p>
+                <p className="text-sm text-[#A0AEC0] mb-3">배정된 현장을 선택하여 출근하세요.</p>
                 {availableSites.map(site => (
-                  <div key={site.siteId} style={{
-                    border: `2px solid ${site.withinRadius ? '#2e7d32' : 'rgba(91,164,217,0.2)'}`,
-                    borderRadius: '12px', padding: '14px', marginBottom: '10px',
-                    background: site.withinRadius ? 'rgba(46,125,50,0.12)' : '#2a3f5a',
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                  <div
+                    key={site.siteId}
+                    className="rounded-xl p-[14px] mb-[10px]"
+                    style={{
+                      border: `2px solid ${site.withinRadius ? '#2e7d32' : 'rgba(91,164,217,0.2)'}`,
+                      background: site.withinRadius ? 'rgba(46,125,50,0.12)' : '#2a3f5a',
+                    }}
+                  >
+                    <div className="flex justify-between items-start mb-2">
                       <div>
-                        <div style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>{site.siteName}</div>
-                        <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{site.companyName}</div>
+                        <div className="text-[15px] font-bold text-white">{site.siteName}</div>
+                        <div className="text-xs text-[#A0AEC0]">{site.companyName}</div>
                       </div>
                       {site.distanceMeters !== null && (
-                        <div style={{ textAlign: 'right' as const, flexShrink: 0, marginLeft: '8px' }}>
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: site.withinRadius ? '#2e7d32' : '#666' }}>
+                        <div className="text-right shrink-0 ml-2">
+                          <div
+                            className="text-[13px] font-bold"
+                            style={{ color: site.withinRadius ? '#2e7d32' : '#666' }}
+                          >
                             {site.distanceMeters}m
                           </div>
-                          <div style={{ fontSize: '11px', color: site.withinRadius ? '#388e3c' : '#999' }}>
+                          <div
+                            className="text-[11px]"
+                            style={{ color: site.withinRadius ? '#388e3c' : '#999' }}
+                          >
                             {site.withinRadius ? '반경 내' : `허용 ${site.allowedRadiusMeters}m`}
                           </div>
                         </div>
@@ -644,7 +655,8 @@ export default function AttendancePage() {
                     <button
                       onClick={() => handleDirectCheckIn(site.siteId)}
                       disabled={checkInLoading}
-                      style={{ ...styles.checkInBtn, opacity: checkInLoading ? 0.6 : 1 }}
+                      className="w-full py-3 text-[15px] font-bold bg-[#2e7d32] text-white border-none rounded-[10px] cursor-pointer"
+                      style={{ opacity: checkInLoading ? 0.6 : 1 }}
                     >
                       {checkInLoading ? '출근 처리 중...' : '출근하기'}
                     </button>
@@ -652,9 +664,9 @@ export default function AttendancePage() {
                 ))}
               </div>
             ) : (
-              <div style={styles.noRecord}>
+              <div className="text-center py-5 text-muted-brand">
                 <p>오늘 출근 기록이 없습니다.</p>
-                <p style={{ fontSize: '13px', color: '#A0AEC0' }}>
+                <p className="text-[13px] text-[#A0AEC0]">
                   {!isPreview && availableSites.length === 0
                     ? '배정된 현장이 없습니다. 관리자에게 문의하세요.'
                     : '현장 목록에서 출근할 현장을 선택하세요.'}
@@ -685,124 +697,124 @@ function PresenceCard({
   // ── 결과 화면들 ──
   if (result.state === 'completed') {
     return (
-      <div style={pc.card}>
-        <div style={pc.iconRow}>✅</div>
-        <div style={{ ...pc.title, color: '#2e7d32' }}>현장 체류 확인 완료</div>
-        <div style={pc.desc}>현장 기준 {Math.round(result.distanceMeters)}m · 허용 {result.allowedRadiusMeters}m</div>
-        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      <div className="bg-card border-2 border-[#1976d2] rounded-2xl p-6 mb-4">
+        <div className="text-[40px] text-center mb-3">✅</div>
+        <div className="text-lg font-bold mb-[6px] text-[#2e7d32]">현장 체류 확인 완료</div>
+        <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">현장 기준 {Math.round(result.distanceMeters)}m · 허용 {result.allowedRadiusMeters}m</div>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
 
   if (result.state === 'review_required') {
     return (
-      <div style={{ ...pc.card, borderColor: '#f57f17' }}>
-        <div style={pc.iconRow}>🔍</div>
-        <div style={{ ...pc.title, color: '#e65100' }}>검토 중</div>
-        <div style={pc.desc}>
+      <div className="bg-card border-2 border-[#f57f17] rounded-2xl p-6 mb-4">
+        <div className="text-[40px] text-center mb-3">🔍</div>
+        <div className="text-lg font-bold mb-[6px] text-[#e65100]">검토 중</div>
+        <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">
           현장 기준 {Math.round(result.distanceMeters)}m · 허용 {result.allowedRadiusMeters}m<br />
           GPS 정확도 또는 위치가 경계에 있어 관리자가 확인 중입니다.
         </div>
-        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
 
   if (result.state === 'out_of_geofence') {
     return (
-      <div style={{ ...pc.card, borderColor: '#e53935' }}>
-        <div style={pc.iconRow}>📍</div>
-        <div style={{ ...pc.title, color: '#c62828' }}>현장 반경 밖</div>
-        <div style={pc.desc}>현장 기준 {Math.round(result.distanceMeters)}m · 허용 {result.allowedRadiusMeters}m</div>
-        <div style={pc.warn}>현장에 있는 경우 관리자에게 문의하세요.</div>
-        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      <div className="bg-card border-2 border-[#e53935] rounded-2xl p-6 mb-4">
+        <div className="text-[40px] text-center mb-3">📍</div>
+        <div className="text-lg font-bold mb-[6px] text-[#c62828]">현장 반경 밖</div>
+        <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">현장 기준 {Math.round(result.distanceMeters)}m · 허용 {result.allowedRadiusMeters}m</div>
+        <div className="text-xs text-muted-brand mb-4 leading-[1.6]">현장에 있는 경우 관리자에게 문의하세요.</div>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
 
   if (result.state === 'expired') {
     return (
-      <div style={{ ...pc.card, borderColor: '#bbb' }}>
-        <div style={pc.iconRow}>⏱️</div>
-        <div style={{ ...pc.title, color: '#A0AEC0' }}>응답 시간 종료</div>
-        <div style={pc.desc}>체류 확인 응답 가능 시간이 지났습니다.</div>
-        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      <div className="bg-card border-2 border-[#bbb] rounded-2xl p-6 mb-4">
+        <div className="text-[40px] text-center mb-3">⏱️</div>
+        <div className="text-lg font-bold text-[#A0AEC0] mb-[6px]">응답 시간 종료</div>
+        <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">체류 확인 응답 가능 시간이 지났습니다.</div>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
 
   if (result.state === 'gps_denied') {
     return (
-      <div style={{ ...pc.card, borderColor: '#e65100' }}>
-        <div style={pc.iconRow}>🚫</div>
-        <div style={{ ...pc.title, color: '#e65100' }}>위치 권한 거부됨</div>
-        <div style={pc.desc}>
+      <div className="bg-card border-2 border-[#e65100] rounded-2xl p-6 mb-4">
+        <div className="text-[40px] text-center mb-3">🚫</div>
+        <div className="text-lg font-bold mb-[6px] text-[#e65100]">위치 권한 거부됨</div>
+        <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">
           브라우저 주소창 옆 자물쇠 아이콘을 눌러 위치 권한을 허용한 후 다시 시도해 주세요.
         </div>
-        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
 
   if (result.state === 'gps_unavailable') {
     return (
-      <div style={{ ...pc.card, borderColor: '#e65100' }}>
-        <div style={pc.iconRow}>📡</div>
-        <div style={{ ...pc.title, color: '#e65100' }}>현재 위치를 가져올 수 없음</div>
-        <div style={pc.desc}>GPS 신호가 약합니다. 실외로 이동 후 다시 시도해 주세요.</div>
-        <button onClick={onRespond} style={pc.primaryBtn}>다시 시도</button>
-        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      <div className="bg-card border-2 border-[#e65100] rounded-2xl p-6 mb-4">
+        <div className="text-[40px] text-center mb-3">📡</div>
+        <div className="text-lg font-bold mb-[6px] text-[#e65100]">현재 위치를 가져올 수 없음</div>
+        <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">GPS 신호가 약합니다. 실외로 이동 후 다시 시도해 주세요.</div>
+        <button onClick={onRespond} className="w-full py-4 text-[17px] font-bold bg-accent text-white border-none rounded-xl cursor-pointer">다시 시도</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
 
   if (result.state === 'gps_timeout') {
     return (
-      <div style={{ ...pc.card, borderColor: '#e65100' }}>
-        <div style={pc.iconRow}>⏳</div>
-        <div style={{ ...pc.title, color: '#e65100' }}>위치 조회 시간 초과</div>
-        <div style={pc.desc}>GPS 응답이 너무 늦었습니다. 잠시 후 다시 시도해 주세요.</div>
-        <button onClick={onRespond} style={pc.primaryBtn}>다시 시도</button>
-        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      <div className="bg-card border-2 border-[#e65100] rounded-2xl p-6 mb-4">
+        <div className="text-[40px] text-center mb-3">⏳</div>
+        <div className="text-lg font-bold mb-[6px] text-[#e65100]">위치 조회 시간 초과</div>
+        <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">GPS 응답이 너무 늦었습니다. 잠시 후 다시 시도해 주세요.</div>
+        <button onClick={onRespond} className="w-full py-4 text-[17px] font-bold bg-accent text-white border-none rounded-xl cursor-pointer">다시 시도</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
 
   if (result.state === 'network_error') {
     return (
-      <div style={{ ...pc.card, borderColor: '#e53935' }}>
-        <div style={pc.iconRow}>📶</div>
-        <div style={{ ...pc.title, color: '#c62828' }}>네트워크 오류</div>
-        <div style={pc.desc}>인터넷 연결을 확인하고 다시 시도해 주세요.</div>
-        <button onClick={onRespond} style={pc.primaryBtn}>다시 시도</button>
-        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      <div className="bg-card border-2 border-[#e53935] rounded-2xl p-6 mb-4">
+        <div className="text-[40px] text-center mb-3">📶</div>
+        <div className="text-lg font-bold mb-[6px] text-[#c62828]">네트워크 오류</div>
+        <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">인터넷 연결을 확인하고 다시 시도해 주세요.</div>
+        <button onClick={onRespond} className="w-full py-4 text-[17px] font-bold bg-accent text-white border-none rounded-xl cursor-pointer">다시 시도</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
 
   if (result.state === 'low_accuracy_warning') {
     return (
-      <div style={{ ...pc.card, borderColor: '#f57f17' }}>
-        <div style={pc.iconRow}>📡</div>
-        <div style={{ ...pc.title, color: '#e65100' }}>GPS 정확도 낮음</div>
-        <div style={pc.desc}>
+      <div className="bg-card border-2 border-[#f57f17] rounded-2xl p-6 mb-4">
+        <div className="text-[40px] text-center mb-3">📡</div>
+        <div className="text-lg font-bold mb-[6px] text-[#e65100]">GPS 정확도 낮음</div>
+        <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">
           현재 GPS 오차가 약 <strong>{result.accuracy}m</strong>입니다.<br />
           실내·지하 등 GPS 수신이 어려운 환경이면 실외로 이동 후 재시도하세요.
         </div>
-        <button onClick={() => onForceSubmit(result.coords)} style={pc.primaryBtn}>그래도 응답하기</button>
-        <button onClick={onRespond} style={{ ...pc.secondaryBtn, marginTop: '8px' }}>다시 측정하기</button>
-        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+        <button onClick={() => onForceSubmit(result.coords)} className="w-full py-4 text-[17px] font-bold bg-accent text-white border-none rounded-xl cursor-pointer">그래도 응답하기</button>
+        <button onClick={onRespond} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">다시 측정하기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
 
   if (result.state === 'error') {
     return (
-      <div style={{ ...pc.card, borderColor: '#e53935' }}>
-        <div style={pc.iconRow}>⚠️</div>
-        <div style={{ ...pc.title, color: '#c62828' }}>오류 발생</div>
-        <div style={pc.desc}>{result.message}</div>
-        <button onClick={onDismiss} style={pc.secondaryBtn}>닫기</button>
+      <div className="bg-card border-2 border-[#e53935] rounded-2xl p-6 mb-4">
+        <div className="text-[40px] text-center mb-3">⚠️</div>
+        <div className="text-lg font-bold mb-[6px] text-[#c62828]">오류 발생</div>
+        <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">{result.message}</div>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
@@ -812,66 +824,28 @@ function PresenceCard({
 
   const isLoading = result.state === 'loading'
   return (
-    <div style={pc.card}>
-      <div style={pc.badge}>{pending.timeBucket === 'AM' ? '오전 체류 확인' : '오후 체류 확인'}</div>
-      <div style={pc.title}>현장 체류 확인 요청</div>
-      <div style={pc.siteName}>{pending.siteName}</div>
-      <div style={pc.desc}>관리자가 현재 현장 체류 확인을 요청했습니다.<br />아래 버튼을 눌러 현재 위치로 응답해 주세요.</div>
+    <div className="bg-card border-2 border-[#1976d2] rounded-2xl p-6 mb-4">
+      <div className="inline-block bg-[rgba(244,121,32,0.12)] text-accent text-[11px] font-bold px-[10px] py-[3px] rounded-xl mb-[10px]">{pending.timeBucket === 'AM' ? '오전 체류 확인' : '오후 체류 확인'}</div>
+      <div className="text-lg font-bold text-white mb-[6px]">현장 체류 확인 요청</div>
+      <div className="text-sm font-semibold text-secondary-brand mb-[10px]">{pending.siteName}</div>
+      <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">관리자가 현재 현장 체류 확인을 요청했습니다.<br />아래 버튼을 눌러 현재 위치로 응답해 주세요.</div>
+      {/* countdown value is runtime — keep color dynamic */}
       {countdown && (
-        <div style={{ ...pc.countdown, color: countdown === '만료됨' ? '#888' : '#e65100' }}>
+        <div
+          className="text-[15px] font-bold mb-[14px]"
+          style={{ color: countdown === '만료됨' ? '#888' : '#e65100' }}
+        >
           ⏱ 마감까지 {countdown}
         </div>
       )}
       <button
         onClick={onRespond}
         disabled={isLoading}
-        style={{ ...pc.primaryBtn, opacity: isLoading ? 0.6 : 1 }}
+        className="w-full py-4 text-[17px] font-bold bg-accent text-white border-none rounded-xl cursor-pointer"
+        style={{ opacity: isLoading ? 0.6 : 1 }}
       >
         {isLoading ? '위치 확인 중...' : '현재 위치로 응답'}
       </button>
     </div>
   )
-}
-
-/* ── 스타일 ──────────────────────────────────────────────────── */
-const styles: Record<string, React.CSSProperties> = {
-  container:       { maxWidth: '480px', margin: '0 auto', padding: '20px', minHeight: '100vh' },
-  previewBanner:   { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(244,121,32,0.1)', border: '1px solid rgba(244,121,32,0.35)', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '13px', color: '#FFB74D', gap: '8px' },
-  previewLoginBtn: { padding: '6px 14px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 700, flexShrink: 0 },
-  header:          { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingTop: '8px' },
-  workerName:      { fontSize: '18px', fontWeight: 700, color: '#ffffff' },
-  workerInfo:      { fontSize: '13px', color: '#A0AEC0', marginTop: '2px' },
-  logoutBtn:       { background: 'none', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '8px', padding: '6px 12px', fontSize: '13px', cursor: 'pointer', color: '#A0AEC0' },
-  card:            { background: '#243144', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
-  dateLabel:       { fontSize: '13px', color: '#A0AEC0', marginBottom: '12px' },
-  statusBadge:     { display: 'inline-block', color: 'white', fontSize: '13px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', marginBottom: '12px' },
-  siteName:        { fontSize: '18px', fontWeight: 700, color: '#ffffff', marginBottom: '4px' },
-  siteAddress:     { fontSize: '13px', color: '#A0AEC0', marginBottom: '20px' },
-  timeRow:         { display: 'flex', alignItems: 'center', gap: '12px' },
-  timeBox:         { flex: 1, textAlign: 'center' as const },
-  timeLabel:       { fontSize: '12px', color: '#718096', marginBottom: '4px' },
-  timeValue:       { fontSize: '24px', fontWeight: 700, color: '#ffffff' },
-  distanceLabel:   { fontSize: '11px', color: '#aaa', marginTop: '4px' },
-  timeDivider:     { fontSize: '20px', color: '#ccc' },
-  noRecord:        { textAlign: 'center' as const, padding: '20px 0', color: '#A0AEC0' },
-  guideCard:       { background: 'rgba(91,164,217,0.1)', borderRadius: '12px', padding: '20px', marginBottom: '16px' },
-  guideTitle:      { fontSize: '14px', fontWeight: 700, color: '#4A93C8', marginBottom: '12px' },
-  guideStep:       { fontSize: '13px', color: '#5BA4D9', marginBottom: '6px' },
-  changeDeviceBtn: { width: '100%', padding: '12px', fontSize: '14px', background: 'none', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '10px', cursor: 'pointer', color: '#A0AEC0' },
-  checkInBtn:    { width: '100%', padding: '12px', fontSize: '15px', fontWeight: 700, background: '#2e7d32', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' },
-  checkOutBtn:   { width: '100%', padding: '14px', fontSize: '17px', fontWeight: 700, background: '#E06810', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer' },
-  cancelBtn:     { width: '100%', padding: '10px', fontSize: '14px', background: 'none', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '8px', cursor: 'pointer', color: '#A0AEC0', marginTop: '6px' },
-}
-
-const pc: Record<string, React.CSSProperties> = {
-  card:         { background: '#243144', border: '2px solid #1976d2', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(25,118,210,0.12)' },
-  badge:        { display: 'inline-block', background: 'rgba(244,121,32,0.12)', color: '#F47920', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '12px', marginBottom: '10px' },
-  title:        { fontSize: '18px', fontWeight: 700, color: '#ffffff', marginBottom: '6px' },
-  siteName:     { fontSize: '14px', fontWeight: 600, color: '#5BA4D9', marginBottom: '10px' },
-  desc:         { fontSize: '13px', color: '#A0AEC0', lineHeight: 1.7, marginBottom: '16px' },
-  warn:         { fontSize: '12px', color: '#A0AEC0', marginBottom: '16px', lineHeight: 1.6 },
-  countdown:    { fontSize: '15px', fontWeight: 700, marginBottom: '14px' },
-  iconRow:      { fontSize: '40px', textAlign: 'center' as const, marginBottom: '12px' },
-  primaryBtn:   { width: '100%', padding: '16px', fontSize: '17px', fontWeight: 700, background: '#F47920', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer' },
-  secondaryBtn: { width: '100%', padding: '12px', fontSize: '14px', background: 'rgba(91,164,217,0.1)', color: '#A0AEC0', border: 'none', borderRadius: '10px', cursor: 'pointer', marginTop: '8px' },
 }

@@ -234,7 +234,7 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
   }
 
   if (loading) return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#1B2838', alignItems: 'center', justifyContent: 'center', color: '#A0AEC0' }}>
+    <div className="flex min-h-screen bg-brand items-center justify-center text-muted-brand">
       로딩 중...
     </div>
   )
@@ -249,10 +249,10 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
   const canCancel = ['DRAFT', 'SUBMITTED'].includes(req.status)
 
   return (
-    <div style={S.layout}>
-      <nav style={S.sidebar}>
-        <div style={S.sidebarTitle}>해한 출퇴근</div>
-        <div style={S.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand text-white">
+      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {[
           { href: '/admin', label: '대시보드' },
           { href: '/admin/workers', label: '근로자 관리' },
@@ -264,21 +264,23 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
           { href: '/admin/materials/purchase-orders', label: '└ 발주관리' },
         ].map(item => (
           <Link key={item.href} href={item.href}
-            style={item.href === '/admin/materials/requests' ? S.navItemActive : S.navItem}>
+            className={item.href === '/admin/materials/requests'
+              ? 'block text-white px-5 py-[10px] text-sm no-underline bg-[rgba(244,121,32,0.15)] border-l-[3px] border-[#F47920]'
+              : 'block text-white/80 px-5 py-[10px] text-sm no-underline'}>
             {item.label}
           </Link>
         ))}
-        <button onClick={handleLogout} style={S.logoutBtn}>로그아웃</button>
+        <button onClick={handleLogout} className="mx-5 mt-6 p-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
       </nav>
 
-      <main style={S.main}>
+      <main className="flex-1 p-8 overflow-x-auto">
         {/* 헤더 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Link href="/admin/materials/requests" style={S.backBtn}>← 목록</Link>
+        <div className="flex justify-between items-start mb-6">
+          <div className="flex items-center gap-3">
+            <Link href="/admin/materials/requests" className="text-muted-brand no-underline text-[13px] px-3 py-[6px] border border-[rgba(91,164,217,0.2)] rounded whitespace-nowrap">← 목록</Link>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <h1 style={S.pageTitle}>{req.title}</h1>
+              <div className="flex items-center gap-[10px]">
+                <h1 className="text-[22px] font-bold m-0">{req.title}</h1>
                 <span style={{
                   padding: '3px 10px', borderRadius: '12px', fontSize: '12px',
                   background: STATUS_COLOR[req.status] + '22',
@@ -288,42 +290,42 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
                   {STATUS_LABEL[req.status] ?? req.status}
                 </span>
               </div>
-              <p style={S.pageDesc}>{req.requestNo} · {req.site?.name ?? '현장 미지정'}</p>
+              <p className="text-[13px] text-muted-brand mt-1 mb-0">{req.requestNo} · {req.site?.name ?? '현장 미지정'}</p>
             </div>
           </div>
 
           {/* 액션 버튼 */}
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' as const, justifyContent: 'flex-end' }}>
+          <div className="flex gap-2 items-center flex-wrap justify-end">
             {isEditable && !editMode && (
-              <button onClick={startEdit} style={S.secondaryBtn}>수정</button>
+              <button onClick={startEdit} className="px-4 py-2 bg-white/[0.08] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px]">수정</button>
             )}
             {isDraft && (
-              <button onClick={() => setShowPicker(true)} style={S.secondaryBtn}>+ 품목 추가</button>
+              <button onClick={() => setShowPicker(true)} className="px-4 py-2 bg-white/[0.08] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px]">+ 품목 추가</button>
             )}
             {canSubmit && (
-              <button onClick={() => handleAction('submit')} disabled={actionLoading} style={S.submitBtn}>
+              <button onClick={() => handleAction('submit')} disabled={actionLoading} className="px-[18px] py-2 bg-[#1565c0] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
                 제출
               </button>
             )}
             {canApprove && (
-              <button onClick={() => handleAction('approve')} disabled={actionLoading} style={S.approveBtn}>
+              <button onClick={() => handleAction('approve')} disabled={actionLoading} className="px-[18px] py-2 bg-[#2e7d32] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
                 승인
               </button>
             )}
             {canReject && (
-              <button onClick={() => setShowRejectModal(true)} disabled={actionLoading} style={S.rejectBtn}>
+              <button onClick={() => setShowRejectModal(true)} disabled={actionLoading} className="px-[18px] py-2 bg-[#b71c1c] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
                 반려
               </button>
             )}
             {canCancel && (
-              <button onClick={() => handleAction('cancel')} disabled={actionLoading} style={S.cancelBtn}>
+              <button onClick={() => handleAction('cancel')} disabled={actionLoading} className="px-4 py-2 bg-white/[0.06] text-[#607d8b] border border-[rgba(97,125,139,0.3)] rounded-md cursor-pointer text-[13px]">
                 취소
               </button>
             )}
             {req.status === 'APPROVED' && (
               <button
                 onClick={() => router.push(`/admin/materials/purchase-orders/new?materialRequestId=${req.id}`)}
-                style={S.orderBtn}>
+                className="px-[18px] py-2 bg-[#0d47a1] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
                 + 발주 생성
               </button>
             )}
@@ -331,31 +333,31 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
         </div>
 
         {/* 기본 정보 카드 */}
-        <div style={S.card}>
+        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
           {editMode ? (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                <div style={S.formGroup}>
-                  <label style={S.label}>제목</label>
-                  <input value={editTitle} onChange={e => setEditTitle(e.target.value)} style={S.input} />
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[12px] text-muted-brand font-medium">제목</label>
+                  <input value={editTitle} onChange={e => setEditTitle(e.target.value)} className="px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-brand text-white" />
                 </div>
-                <div style={S.formGroup}>
-                  <label style={S.label}>납품 요청일</label>
-                  <input type="date" value={editDelivery} onChange={e => setEditDelivery(e.target.value)} style={S.input} />
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[12px] text-muted-brand font-medium">납품 요청일</label>
+                  <input type="date" value={editDelivery} onChange={e => setEditDelivery(e.target.value)} className="px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-brand text-white" />
                 </div>
-                <div style={{ ...S.formGroup, gridColumn: '1 / -1' }}>
-                  <label style={S.label}>비고</label>
+                <div className="flex flex-col gap-[6px] col-span-2">
+                  <label className="text-[12px] text-muted-brand font-medium">비고</label>
                   <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={2}
-                    style={{ ...S.input, resize: 'vertical' }} />
+                    className="px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-brand text-white resize-y" />
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                <button onClick={() => setEditMode(false)} style={S.secondaryBtn}>취소</button>
-                <button onClick={handleSaveEdit} disabled={actionLoading} style={S.primaryBtn}>저장</button>
+              <div className="flex gap-2 justify-end">
+                <button onClick={() => setEditMode(false)} className="px-4 py-2 bg-white/[0.08] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px]">취소</button>
+                <button onClick={handleSaveEdit} disabled={actionLoading} className="px-[18px] py-2 bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">저장</button>
               </div>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <div className="grid grid-cols-3 gap-4">
               <InfoField label="현장" value={req.site?.name ?? '-'} />
               <InfoField label="납품 요청일" value={req.deliveryRequestedAt ? fmtDateOnly(req.deliveryRequestedAt) : '-'} />
               <InfoField label="작성일" value={fmtDate(req.createdAt)} />
@@ -366,48 +368,48 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
         </div>
 
         {/* 품목 목록 */}
-        <div style={{ ...S.card, marginTop: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h2 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>
-              청구 품목 <span style={{ color: '#A0AEC0', fontWeight: 400 }}>({req.items.length}건)</span>
+        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-[15px] font-semibold m-0">
+              청구 품목 <span className="text-muted-brand font-normal">({req.items.length}건)</span>
             </h2>
             {isDraft && (
-              <button onClick={() => setShowPicker(true)} style={S.primaryBtn}>+ 품목 추가</button>
+              <button onClick={() => setShowPicker(true)} className="px-[18px] py-2 bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">+ 품목 추가</button>
             )}
           </div>
 
           {req.items.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#A0AEC0', fontSize: '14px' }}>
+            <div className="text-center py-10 text-muted-brand text-sm">
               {isDraft ? '품목을 추가하세요.' : '등록된 품목이 없습니다.'}
             </div>
           ) : (
-            <table style={S.table}>
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {['품목코드', '품목명', '규격', '단위', '수량', '공종', '긴급', '대체허용', '비고', isDraft ? '삭제' : ''].map(h => (
-                    <th key={h} style={S.th}>{h}</th>
+                    <th key={h} className="text-left px-3 py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {req.items.map(item => (
                   <tr key={item.id}>
-                    <td style={{ ...S.td, fontSize: '12px', color: '#A0AEC0' }}>{item.itemCode}</td>
-                    <td style={{ ...S.td, fontWeight: 500 }}>{item.itemName}</td>
-                    <td style={S.td}>{item.spec ?? '-'}</td>
-                    <td style={S.td}>{item.unit ?? '-'}</td>
-                    <td style={{ ...S.td, textAlign: 'right' as const }}>{Number(item.requestedQty).toLocaleString()}</td>
-                    <td style={S.td}>{item.disciplineCode ?? '-'}</td>
-                    <td style={{ ...S.td, textAlign: 'center' as const }}>
-                      {item.isUrgent ? <span style={{ color: '#ef5350', fontSize: '12px' }}>긴급</span> : '-'}
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.itemCode}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white font-medium">{item.itemName}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.spec ?? '-'}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.unit ?? '-'}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right">{Number(item.requestedQty).toLocaleString()}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.disciplineCode ?? '-'}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-center">
+                      {item.isUrgent ? <span className="text-[#ef5350] text-[12px]">긴급</span> : '-'}
                     </td>
-                    <td style={{ ...S.td, textAlign: 'center' as const }}>
-                      {item.allowSubstitute ? <span style={{ color: '#66bb6a', fontSize: '12px' }}>허용</span> : '-'}
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-center">
+                      {item.allowSubstitute ? <span className="text-[#66bb6a] text-[12px]">허용</span> : '-'}
                     </td>
-                    <td style={{ ...S.td, fontSize: '12px', color: '#A0AEC0' }}>{item.notes ?? '-'}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.notes ?? '-'}</td>
                     {isDraft && (
-                      <td style={S.td}>
-                        <button onClick={() => handleDeleteItem(item.id)} style={S.deleteBtn}>삭제</button>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
+                        <button onClick={() => handleDeleteItem(item.id)} className="px-[10px] py-[3px] bg-[rgba(183,28,28,0.15)] text-[#ef5350] border border-[rgba(183,28,28,0.3)] rounded cursor-pointer text-[12px]">삭제</button>
                       </td>
                     )}
                   </tr>
@@ -419,35 +421,36 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
 
         {/* 발주 현황 — APPROVED 상태에서만 표시 */}
         {req.status === 'APPROVED' && orderableItems.length > 0 && (
-          <div style={{ ...S.card, marginTop: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h2 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>발주 현황</h2>
+          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-[15px] font-semibold m-0">발주 현황</h2>
               <button
                 onClick={() => router.push(`/admin/materials/purchase-orders/new?materialRequestId=${req.id}`)}
-                style={S.orderBtn}>
+                className="px-[18px] py-2 bg-[#0d47a1] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
                 + 발주 생성
               </button>
             </div>
-            <table style={S.table}>
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {['품목명', '규격', '단위', '청구수량', '발주수량', '잔량', '발주상태'].map(h => (
-                    <th key={h} style={S.th}>{h}</th>
+                    <th key={h} className="text-left px-3 py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {orderableItems.map(item => (
                   <tr key={item.id}>
-                    <td style={{ ...S.td, fontWeight: 500 }}>{item.itemName}</td>
-                    <td style={{ ...S.td, fontSize: '12px', color: '#A0AEC0' }}>{item.spec ?? '-'}</td>
-                    <td style={S.td}>{item.unit ?? '-'}</td>
-                    <td style={{ ...S.td, textAlign: 'right' as const }}>{Number(item.requestedQty).toLocaleString()}</td>
-                    <td style={{ ...S.td, textAlign: 'right' as const, color: '#5BA4D9' }}>{Number(item.orderedQty).toLocaleString()}</td>
-                    <td style={{ ...S.td, textAlign: 'right' as const, color: Number(item.remainingQty) <= 0 ? '#607d8b' : '#66bb6a', fontWeight: 600 }}>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white font-medium">{item.itemName}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.spec ?? '-'}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.unit ?? '-'}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right">{Number(item.requestedQty).toLocaleString()}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right text-[#5BA4D9]">{Number(item.orderedQty).toLocaleString()}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right font-semibold"
+                      style={{ color: Number(item.remainingQty) <= 0 ? '#607d8b' : '#66bb6a' }}>
                       {Number(item.remainingQty).toLocaleString()}
                     </td>
-                    <td style={S.td}>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
                       <span style={{
                         padding: '2px 8px', borderRadius: '10px', fontSize: '11px',
                         background: ORDER_STATUS_COLOR[item.orderStatus] + '22',
@@ -465,30 +468,30 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
         )}
 
         {/* 상태 이력 */}
-        <div style={{ ...S.card, marginTop: '16px' }}>
-          <h2 style={{ fontSize: '15px', fontWeight: 600, margin: '0 0 16px' }}>상태 이력</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-4">
+          <h2 className="text-[15px] font-semibold m-0 mb-4">상태 이력</h2>
+          <div className="flex flex-col gap-2">
             {req.history.map((h, i) => (
-              <div key={h.id} style={{
-                display: 'flex', gap: '12px', alignItems: 'flex-start',
-                padding: '10px 14px', background: i === 0 ? 'rgba(244,121,32,0.06)' : 'rgba(255,255,255,0.02)',
-                borderRadius: '6px', border: i === 0 ? '1px solid rgba(244,121,32,0.2)' : '1px solid rgba(91,164,217,0.08)',
-              }}>
-                <div style={{ minWidth: '6px', height: '6px', borderRadius: '50%', background: STATUS_COLOR[h.toStatus] ?? '#607d8b', marginTop: '5px' }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' as const }}>
+              <div key={h.id} className="flex gap-3 items-start px-[14px] py-[10px] rounded-md"
+                style={{
+                  background: i === 0 ? 'rgba(244,121,32,0.06)' : 'rgba(255,255,255,0.02)',
+                  border: i === 0 ? '1px solid rgba(244,121,32,0.2)' : '1px solid rgba(91,164,217,0.08)',
+                }}>
+                <div className="min-w-[6px] h-[6px] rounded-full mt-[5px]" style={{ background: STATUS_COLOR[h.toStatus] ?? '#607d8b' }} />
+                <div className="flex-1">
+                  <div className="flex gap-2 items-center flex-wrap">
                     {h.fromStatus && (
                       <>
-                        <span style={{ fontSize: '12px', color: '#A0AEC0' }}>{STATUS_LABEL[h.fromStatus] ?? h.fromStatus}</span>
-                        <span style={{ fontSize: '11px', color: '#4a5568' }}>→</span>
+                        <span className="text-[12px] text-muted-brand">{STATUS_LABEL[h.fromStatus] ?? h.fromStatus}</span>
+                        <span className="text-[11px] text-[#4a5568]">→</span>
                       </>
                     )}
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: STATUS_COLOR[h.toStatus] ?? 'white' }}>
+                    <span className="text-[13px] font-semibold" style={{ color: STATUS_COLOR[h.toStatus] ?? 'white' }}>
                       {STATUS_LABEL[h.toStatus] ?? h.toStatus}
                     </span>
-                    <span style={{ fontSize: '11px', color: '#A0AEC0' }}>{fmtDate(h.createdAt)}</span>
+                    <span className="text-[11px] text-muted-brand">{fmtDate(h.createdAt)}</span>
                   </div>
-                  {h.reason && <div style={{ fontSize: '12px', color: '#A0AEC0', marginTop: '4px' }}>{h.reason}</div>}
+                  {h.reason && <div className="text-[12px] text-muted-brand mt-1">{h.reason}</div>}
                 </div>
               </div>
             ))}
@@ -506,20 +509,20 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
 
       {/* 반려 모달 */}
       {showRejectModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000 }}>
-          <div style={{ background: '#243144', borderRadius: '10px', padding: '24px', width: '420px', maxWidth: '95vw' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 16px', color: 'white' }}>반려 처리</h3>
-            <div style={{ marginBottom: '8px', fontSize: '13px', color: '#A0AEC0' }}>반려 사유 *</div>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[3000]">
+          <div className="bg-card rounded-[10px] p-6 w-[420px] max-w-[95vw]">
+            <h3 className="text-base font-bold m-0 mb-4 text-white">반려 처리</h3>
+            <div className="mb-2 text-[13px] text-muted-brand">반려 사유 *</div>
             <textarea
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
               rows={3}
               placeholder="반려 사유를 입력하세요."
-              style={{ ...S.input, width: '100%', boxSizing: 'border-box' as const }}
+              className="w-full px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-brand text-white box-border"
             />
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <button onClick={() => { setShowRejectModal(false); setRejectReason('') }} style={S.secondaryBtn}>취소</button>
-              <button onClick={handleReject} disabled={actionLoading} style={S.rejectBtn}>반려 확정</button>
+            <div className="flex gap-2 justify-end mt-4">
+              <button onClick={() => { setShowRejectModal(false); setRejectReason('') }} className="px-4 py-2 bg-white/[0.08] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px]">취소</button>
+              <button onClick={handleReject} disabled={actionLoading} className="px-[18px] py-2 bg-[#b71c1c] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">반려 확정</button>
             </div>
           </div>
         </div>
@@ -530,38 +533,9 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
 
 function InfoField({ label, value, span, warn }: { label: string; value: string; span?: boolean; warn?: boolean }) {
   return (
-    <div style={{ gridColumn: span ? '1 / -1' : undefined }}>
-      <div style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{label}</div>
-      <div style={{ fontSize: '14px', color: warn ? '#ef5350' : 'white' }}>{value}</div>
+    <div className={span ? 'col-span-3' : undefined}>
+      <div className="text-[11px] text-muted-brand mb-1 uppercase tracking-[0.5px]">{label}</div>
+      <div className="text-sm" style={{ color: warn ? '#ef5350' : 'white' }}>{value}</div>
     </div>
   )
-}
-
-const S: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838', color: 'white' },
-  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection: { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navItemActive: { display: 'block', color: 'white', padding: '10px 20px', fontSize: '14px', textDecoration: 'none', background: 'rgba(244,121,32,0.15)', borderLeft: '3px solid #F47920' },
-  logoutBtn: { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main: { flex: 1, padding: '32px', overflowX: 'auto' },
-  pageTitle: { fontSize: '22px', fontWeight: 700, margin: 0 },
-  pageDesc: { fontSize: '13px', color: '#A0AEC0', margin: '4px 0 0' },
-  backBtn: { color: '#A0AEC0', textDecoration: 'none', fontSize: '13px', padding: '6px 12px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '4px', whiteSpace: 'nowrap' },
-  card: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  formGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: { fontSize: '12px', color: '#A0AEC0', fontWeight: 500 },
-  input: { padding: '9px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: '#1B2838', color: 'white' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  th: { textAlign: 'left', padding: '10px 12px', fontSize: '11px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)' },
-  td: { padding: '10px 12px', fontSize: '13px', borderBottom: '1px solid rgba(91,164,217,0.08)', color: 'white' },
-  primaryBtn: { padding: '8px 18px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  secondaryBtn: { padding: '8px 16px', background: 'rgba(255,255,255,0.08)', color: '#A0AEC0', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
-  submitBtn: { padding: '8px 18px', background: '#1565c0', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  approveBtn: { padding: '8px 18px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  rejectBtn: { padding: '8px 18px', background: '#b71c1c', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  cancelBtn: { padding: '8px 16px', background: 'rgba(255,255,255,0.06)', color: '#607d8b', border: '1px solid rgba(97,125,139,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
-  deleteBtn: { padding: '3px 10px', background: 'rgba(183,28,28,0.15)', color: '#ef5350', border: '1px solid rgba(183,28,28,0.3)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
-  orderBtn: { padding: '8px 18px', background: '#0d47a1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
 }

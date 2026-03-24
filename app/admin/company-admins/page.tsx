@@ -74,65 +74,102 @@ export default function CompanyAdminsPage() {
   }
 
   return (
-    <div style={s.wrap}>
-      <div style={s.header}>
-        <h1 style={s.title}>업체 관리자 계정</h1>
-        <button style={s.btn} onClick={() => { setShowForm(true); setMsg('') }}>+ 계정 생성</button>
+    <div className="p-8 max-w-[1100px] mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-[22px] font-bold m-0">업체 관리자 계정</h1>
+        <button
+          className="px-5 py-[10px] bg-[#1a1a2e] text-white border-none rounded-lg cursor-pointer text-sm font-semibold"
+          onClick={() => { setShowForm(true); setMsg('') }}
+        >+ 계정 생성</button>
       </div>
 
-      {msg && <p style={{ color: msg.includes('완료') ? '#2e7d32' : '#c62828', margin: '0 0 12px', fontSize: 13 }}>{msg}</p>}
+      {msg && (
+        <p className={`m-0 mb-3 text-[13px] ${msg.includes('완료') ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>{msg}</p>
+      )}
 
       {showForm && (
-        <div style={s.formBox}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 15 }}>업체 관리자 계정 생성</h3>
-          <div style={s.grid}>
-            <label style={s.label}>이름</label>
-            <input style={s.input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="홍길동" />
-            <label style={s.label}>이메일</label>
-            <input style={s.input} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="admin@company.com" />
-            <label style={s.label}>비밀번호</label>
-            <input style={s.input} type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="8자 이상" />
-            <label style={s.label}>소속 업체</label>
-            <select style={s.input} value={form.companyId} onChange={(e) => setForm({ ...form, companyId: e.target.value })}>
+        <div className="bg-brand border border-[rgba(91,164,217,0.3)] rounded-xl p-6 mb-6">
+          <h3 className="m-0 mb-4 text-[15px] font-semibold">업체 관리자 계정 생성</h3>
+          <div className="grid grid-cols-[100px_1fr] gap-x-3 gap-y-[10px] items-center">
+            <label className="text-[13px] font-semibold text-muted-brand">이름</label>
+            <input
+              className="px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-lg w-full box-border"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="홍길동"
+            />
+            <label className="text-[13px] font-semibold text-muted-brand">이메일</label>
+            <input
+              className="px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-lg w-full box-border"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="admin@company.com"
+            />
+            <label className="text-[13px] font-semibold text-muted-brand">비밀번호</label>
+            <input
+              className="px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-lg w-full box-border"
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              placeholder="8자 이상"
+            />
+            <label className="text-[13px] font-semibold text-muted-brand">소속 업체</label>
+            <select
+              className="px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-lg w-full box-border"
+              value={form.companyId}
+              onChange={(e) => setForm({ ...form, companyId: e.target.value })}
+            >
               <option value="">업체 선택</option>
               {companies.map((c) => <option key={c.id} value={c.id}>{c.companyName}</option>)}
             </select>
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-            <button style={s.btn} onClick={handleCreate} disabled={saving}>{saving ? '저장 중...' : '저장'}</button>
-            <button style={{ ...s.btn, background: '#888' }} onClick={() => setShowForm(false)}>취소</button>
+          <div className="flex gap-2 mt-4">
+            <button
+              className="px-5 py-[10px] bg-[#1a1a2e] text-white border-none rounded-lg cursor-pointer text-sm font-semibold disabled:opacity-50"
+              onClick={handleCreate}
+              disabled={saving}
+            >{saving ? '저장 중...' : '저장'}</button>
+            <button
+              className="px-5 py-[10px] bg-[#888] text-white border-none rounded-lg cursor-pointer text-sm font-semibold"
+              onClick={() => setShowForm(false)}
+            >취소</button>
           </div>
         </div>
       )}
 
       {loading ? <p>불러오는 중...</p> : (
-        <table style={s.table}>
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr>
               {['이름', '이메일', '소속 업체', '상태', '마지막 로그인', '생성일', '조작'].map((h) => (
-                <th key={h} style={s.th}>{h}</th>
+                <th
+                  key={h}
+                  className="px-3 py-[10px] bg-brand border border-white/[0.12] text-left font-semibold"
+                >{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {admins.length === 0 && (
-              <tr><td colSpan={7} style={{ textAlign: 'center', padding: 32, color: '#A0AEC0' }}>등록된 업체 관리자가 없습니다.</td></tr>
+              <tr>
+                <td colSpan={7} className="text-center py-8 text-muted-brand">등록된 업체 관리자가 없습니다.</td>
+              </tr>
             )}
             {admins.map((a) => (
-              <tr key={a.id} style={{ background: a.isActive ? 'white' : '#fafafa' }}>
-                <td style={s.td}>{a.name}</td>
-                <td style={s.td}>{a.email}</td>
-                <td style={s.td}>{a.companyName}</td>
-                <td style={s.td}>
-                  <span style={{ color: a.isActive ? '#2e7d32' : '#c62828', fontWeight: 600 }}>
+              <tr key={a.id} className={a.isActive ? 'bg-white' : 'bg-[#fafafa]'}>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.name}</td>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.email}</td>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.companyName}</td>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">
+                  <span className={`font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>
                     {a.isActive ? '활성' : '비활성'}
                   </span>
                 </td>
-                <td style={s.td}>{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
-                <td style={s.td}>{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
-                <td style={s.td}>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">
                   <button
-                    style={{ ...s.smallBtn, background: a.isActive ? '#e53935' : '#388e3c' }}
+                    className={`px-3 py-1 text-white border-none rounded-md cursor-pointer text-xs ${a.isActive ? 'bg-[#e53935]' : 'bg-[#388e3c]'}`}
                     onClick={() => toggleActive(a.id, a.isActive)}
                   >
                     {a.isActive ? '정지' : '활성화'}
@@ -145,19 +182,4 @@ export default function CompanyAdminsPage() {
       )}
     </div>
   )
-}
-
-const s: Record<string, React.CSSProperties> = {
-  wrap: { padding: 32, maxWidth: 1100, margin: '0 auto' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
-  title: { fontSize: 22, fontWeight: 700, margin: 0 },
-  btn: { padding: '10px 20px', background: '#1a1a2e', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 },
-  smallBtn: { padding: '4px 12px', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 },
-  formBox: { background: '#1B2838', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 12, padding: 24, marginBottom: 24 },
-  grid: { display: 'grid', gridTemplateColumns: '100px 1fr', gap: '10px 12px', alignItems: 'center' },
-  label: { fontSize: 13, fontWeight: 600, color: '#A0AEC0' },
-  input: { padding: '10px 12px', fontSize: 14, border: '1px solid rgba(91,164,217,0.3)', borderRadius: 8, width: '100%', boxSizing: 'border-box' as const },
-  table: { width: '100%', borderCollapse: 'collapse' as const, fontSize: 14 },
-  th: { padding: '10px 12px', background: '#1B2838', border: '1px solid rgba(255,255,255,0.12)', textAlign: 'left' as const, fontWeight: 600 },
-  td: { padding: '10px 12px', border: '1px solid #e0e0e0' },
 }

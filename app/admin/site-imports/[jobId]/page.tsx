@@ -144,16 +144,16 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
     patchRow(editingId, body)
   }
 
-  if (loading) return <div style={{ padding: '60px', textAlign: 'center', color: '#A0AEC0' }}>로딩 중...</div>
-  if (!job) return <div style={{ padding: '60px', textAlign: 'center', color: '#A0AEC0' }}>작업을 찾을 수 없습니다.</div>
+  if (loading) return <div className="px-16 py-16 text-center text-muted-brand">로딩 중...</div>
+  if (!job) return <div className="px-16 py-16 text-center text-muted-brand">작업을 찾을 수 없습니다.</div>
 
   const filteredRows = filter === 'ALL' ? job.rows : job.rows.filter((r) => r.validationStatus === filter)
   const approvedCount = job.rows.filter((r) => r.validationStatus === 'APPROVED').length
 
   return (
-    <div style={styles.layout}>
-      <nav style={styles.sidebar}>
-        <div style={styles.sidebarTitle}>해한 출퇴근</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0">
+        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
         {[
           ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'],
           ['/admin/sites', '현장 관리'], ['/admin/attendance', '출퇴근 조회'],
@@ -161,32 +161,33 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
           ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'],
           ['/admin/audit-logs', '감사 로그'], ['/admin/site-imports', '현장 엑셀 업로드'],
         ].map(([href, label]) => (
-          <Link key={href} href={href} style={{ ...styles.navItem, ...(href === '/admin/site-imports' ? styles.navActive : {}) }}>
+          <Link key={href} href={href} className={`block px-5 py-2.5 text-sm no-underline ${href === '/admin/site-imports' ? 'text-white bg-white/10 font-bold' : 'text-white/80'}`}>
             {label}
           </Link>
         ))}
       </nav>
 
-      <main style={styles.main}>
+      <main className="flex-1 p-8 min-w-0">
         {/* 헤더 */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap' as const, gap: '12px' }}>
+        <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
           <div>
-            <Link href="/admin/site-imports" style={{ fontSize: '13px', color: '#A0AEC0', textDecoration: 'none' }}>← 목록으로</Link>
-            <h1 style={{ fontSize: '20px', fontWeight: 700, margin: '4px 0 2px' }}>{job.originalFilename}</h1>
-            <div style={{ fontSize: '12px', color: '#999' }}>
+            <Link href="/admin/site-imports" className="text-[13px] text-muted-brand no-underline">← 목록으로</Link>
+            <h1 className="text-xl font-bold my-1">{job.originalFilename}</h1>
+            <div className="text-xs text-[#999]">
               업로드: {new Date(job.createdAt).toLocaleString('ko-KR')} · 전체 {job.totalRows}행
             </div>
           </div>
 
           {/* 액션 버튼 */}
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' as const }}>
-            <button onClick={approveAllReady} style={styles.approveAllBtn}>
+          <div className="flex gap-2.5 items-center flex-wrap">
+            <button onClick={approveAllReady} className="px-4 py-2 bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7] rounded-lg cursor-pointer text-[13px] font-semibold">
               READY 전체 승인 ({job.readyRows})
             </button>
             <button
               onClick={handleImport}
               disabled={importing || approvedCount === 0}
-              style={{ ...styles.importBtn, opacity: importing || approvedCount === 0 ? 0.5 : 1 }}
+              className="px-5 py-2 bg-[#F47920] text-white border-0 rounded-lg cursor-pointer text-[13px] font-semibold"
+              style={{ opacity: importing || approvedCount === 0 ? 0.5 : 1 }}
             >
               {importing ? '등록 중...' : `승인된 현장 등록 (${approvedCount}건)`}
             </button>
@@ -194,26 +195,26 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
         </div>
 
         {/* 통계 바 */}
-        <div style={styles.statsRow}>
+        <div className="flex gap-3 mb-5 flex-wrap">
           {[
             { label: 'READY', count: job.readyRows, color: '#2e7d32', bg: '#e8f5e9' },
             { label: '검수필요+실패', count: job.failedRows, color: '#e65100', bg: '#fff3e0' },
             { label: '승인', count: job.approvedRows, color: '#4A93C8', bg: '#e3f2fd' },
             { label: '등록완료', count: job.importedRows, color: '#4a148c', bg: '#f3e5f5' },
           ].map((s) => (
-            <div key={s.label} style={{ ...styles.statBox, background: s.bg }}>
-              <div style={{ fontSize: '22px', fontWeight: 700, color: s.color }}>{s.count}</div>
-              <div style={{ fontSize: '11px', color: s.color }}>{s.label}</div>
+            <div key={s.label} className="rounded-[10px] px-5 py-3.5 text-center min-w-[80px]" style={{ background: s.bg }}>
+              <div className="text-[22px] font-bold" style={{ color: s.color }}>{s.count}</div>
+              <div className="text-[11px]" style={{ color: s.color }}>{s.label}</div>
             </div>
           ))}
         </div>
 
         {/* 등록 결과 */}
         {importResult && (
-          <div style={{ background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: '10px', padding: '14px 18px', marginBottom: '16px' }}>
-            <div style={{ fontWeight: 700, color: '#2e7d32', marginBottom: '4px' }}>✅ {importResult.importedCount}개 현장 등록 완료</div>
+          <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-[10px] px-4 py-3.5 mb-4">
+            <div className="font-bold text-[#2e7d32] mb-1">✅ {importResult.importedCount}개 현장 등록 완료</div>
             {importResult.errors.length > 0 && (
-              <div style={{ fontSize: '12px', color: '#b71c1c', marginTop: '6px' }}>
+              <div className="text-xs text-[#b71c1c] mt-1.5">
                 오류 {importResult.errors.length}건:<br />
                 {importResult.errors.map((e, i) => <span key={i}>{e}<br /></span>)}
               </div>
@@ -222,15 +223,15 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
         )}
 
         {/* 필터 탭 */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' as const }}>
+        <div className="flex gap-2 mb-4 flex-wrap">
           {(['ALL', 'READY', 'NEEDS_REVIEW', 'FAILED', 'APPROVED', 'IMPORTED'] as FilterStatus[]).map((s) => {
             const count = s === 'ALL' ? job.rows.length : job.rows.filter((r) => r.validationStatus === s).length
             return (
               <button
                 key={s}
                 onClick={() => setFilter(s)}
+                className="px-3.5 py-1.5 rounded-full border-0 cursor-pointer text-xs font-semibold"
                 style={{
-                  padding: '6px 14px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 600,
                   background: filter === s ? (STATUS_BG[s] ?? '#1976d2') : '#f0f0f0',
                   color: filter === s ? (STATUS_COLOR[s] ?? '#1976d2') : '#666',
                 }}
@@ -242,64 +243,63 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
         </div>
 
         {/* 테이블 */}
-        <div style={{ ...styles.tableCard, overflowX: 'auto' }}>
-          <table style={styles.table}>
+        <div className="bg-card rounded-[10px] overflow-x-auto shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <table className="w-full border-collapse">
             <thead>
               <tr>
                 {['행', '현장명', '원본 주소', '정제 주소', '위도', '경도', '반경(m)', '상태', '메시지', '수정', '승인'].map((h) => (
-                  <th key={h} style={styles.th}>{h}</th>
+                  <th key={h} className="text-left px-3 py-2.5 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] bg-[#fafafa] whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filteredRows.length === 0 ? (
-                <tr><td colSpan={11} style={{ textAlign: 'center', padding: '32px', color: '#999' }}>해당 상태의 행이 없습니다.</td></tr>
+                <tr><td colSpan={11} className="text-center py-8 text-[#999]">해당 상태의 행이 없습니다.</td></tr>
               ) : filteredRows.map((row) => (
                 <>
                   <tr key={row.id} style={{ background: editingId === row.id ? '#f0f7ff' : 'white' }}>
-                    <td style={{ ...styles.td, textAlign: 'center' as const, color: '#A0AEC0', fontSize: '11px' }}>{row.rowNumber}</td>
-                    <td style={styles.td}><span style={{ fontWeight: 600, color: '#ffffff' }}>{row.siteName}</span></td>
-                    <td style={{ ...styles.td, maxWidth: '160px', fontSize: '11px', color: '#A0AEC0' }}>{row.rawAddress}</td>
-                    <td style={{ ...styles.td, maxWidth: '200px', fontSize: '11px', color: '#A0AEC0' }}>
-                      {row.normalizedAddress ?? <span style={{ color: '#ccc' }}>-</span>}
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center text-muted-brand text-[11px]">{row.rowNumber}</td>
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><span className="font-semibold text-white">{row.siteName}</span></td>
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] text-[11px] text-muted-brand">{row.rawAddress}</td>
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[200px] text-[11px] text-muted-brand">
+                      {row.normalizedAddress ?? <span className="text-[#ccc]">-</span>}
                     </td>
-                    <td style={{ ...styles.td, fontSize: '11px', fontFamily: 'monospace' }}>
-                      {row.latitude != null ? row.latitude.toFixed(5) : <span style={{ color: '#e65100' }}>없음</span>}
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-[11px] font-mono">
+                      {row.latitude != null ? row.latitude.toFixed(5) : <span className="text-[#e65100]">없음</span>}
                     </td>
-                    <td style={{ ...styles.td, fontSize: '11px', fontFamily: 'monospace' }}>
-                      {row.longitude != null ? row.longitude.toFixed(5) : <span style={{ color: '#e65100' }}>없음</span>}
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-[11px] font-mono">
+                      {row.longitude != null ? row.longitude.toFixed(5) : <span className="text-[#e65100]">없음</span>}
                     </td>
-                    <td style={{ ...styles.td, textAlign: 'center' as const }}>
-                      {row.allowedRadiusMeters ?? <span style={{ color: '#e65100' }}>-</span>}
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                      {row.allowedRadiusMeters ?? <span className="text-[#e65100]">-</span>}
                     </td>
-                    <td style={styles.td}>
-                      <span style={{
-                        fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '10px',
-                        color: STATUS_COLOR[row.validationStatus], background: STATUS_BG[row.validationStatus],
-                      }}>
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
+                        style={{ color: STATUS_COLOR[row.validationStatus], background: STATUS_BG[row.validationStatus] }}>
                         {STATUS_LABEL[row.validationStatus]}
                       </span>
                     </td>
-                    <td style={{ ...styles.td, maxWidth: '160px', fontSize: '11px', color: '#e65100' }}>
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] text-[11px] text-[#e65100]">
                       {row.validationMessage ?? ''}
                     </td>
-                    <td style={styles.td}>
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                       {!row.importedSiteId && (
-                        <button onClick={() => editingId === row.id ? setEditingId(null) : startEdit(row)} style={styles.editBtn}>
+                        <button onClick={() => editingId === row.id ? setEditingId(null) : startEdit(row)}
+                          className="px-3 py-1 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-xs text-muted-brand">
                           {editingId === row.id ? '닫기' : '수정'}
                         </button>
                       )}
                     </td>
-                    <td style={{ ...styles.td, textAlign: 'center' as const }}>
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
                       {row.importedSiteId ? (
-                        <span style={{ fontSize: '11px', color: '#4a148c' }}>등록됨</span>
+                        <span className="text-[11px] text-[#4a148c]">등록됨</span>
                       ) : (
                         <input
                           type="checkbox"
                           checked={row.validationStatus === 'APPROVED'}
                           onChange={() => toggleApprove(row)}
                           disabled={saving || row.validationStatus === 'FAILED'}
-                          style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                          className="cursor-pointer w-4 h-4"
                         />
                       )}
                     </td>
@@ -307,69 +307,73 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
 
                   {/* 인라인 수정 폼 */}
                   {editingId === row.id && (
-                    <tr key={`${row.id}-edit`} style={{ background: '#f0f7ff' }}>
-                      <td colSpan={11} style={{ padding: '16px 20px', borderBottom: '2px solid #bbdefb' }}>
-                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, alignItems: 'flex-end' }}>
+                    <tr key={`${row.id}-edit`} className="bg-[#f0f7ff]">
+                      <td colSpan={11} className="px-5 py-4 border-b-2 border-[#bbdefb]">
+                        <div className="flex gap-3 flex-wrap items-end">
                           <div>
-                            <div style={editLabel}>현장명</div>
+                            <div className="text-[11px] text-muted-brand mb-1">현장명</div>
                             <input
                               value={editForm.siteName ?? ''}
                               onChange={(e) => setEditForm((f) => ({ ...f, siteName: e.target.value }))}
-                              style={editInput}
+                              className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-40"
                               placeholder="현장명"
                             />
                           </div>
                           <div>
-                            <div style={editLabel}>정제 주소</div>
+                            <div className="text-[11px] text-muted-brand mb-1">정제 주소</div>
                             <input
                               value={editForm.normalizedAddress ?? ''}
                               onChange={(e) => setEditForm((f) => ({ ...f, normalizedAddress: e.target.value }))}
-                              style={{ ...editInput, width: '240px' }}
+                              className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-60"
                               placeholder="주소"
                             />
                           </div>
                           <div>
-                            <div style={editLabel}>위도</div>
+                            <div className="text-[11px] text-muted-brand mb-1">위도</div>
                             <input
                               type="number"
                               step="0.00001"
                               value={editForm.latitude ?? ''}
                               onChange={(e) => setEditForm((f) => ({ ...f, latitude: parseFloat(e.target.value) || undefined }))}
-                              style={{ ...editInput, width: '110px' }}
+                              className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-28"
                               placeholder="37.12345"
                             />
                           </div>
                           <div>
-                            <div style={editLabel}>경도</div>
+                            <div className="text-[11px] text-muted-brand mb-1">경도</div>
                             <input
                               type="number"
                               step="0.00001"
                               value={editForm.longitude ?? ''}
                               onChange={(e) => setEditForm((f) => ({ ...f, longitude: parseFloat(e.target.value) || undefined }))}
-                              style={{ ...editInput, width: '110px' }}
+                              className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-28"
                               placeholder="126.12345"
                             />
                           </div>
                           <div>
-                            <div style={editLabel}>허용반경(m)</div>
+                            <div className="text-[11px] text-muted-brand mb-1">허용반경(m)</div>
                             <input
                               type="number"
                               min={10}
                               max={5000}
                               value={editForm.allowedRadiusMeters ?? ''}
                               onChange={(e) => setEditForm((f) => ({ ...f, allowedRadiusMeters: parseInt(e.target.value) || undefined }))}
-                              style={{ ...editInput, width: '80px' }}
+                              className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-20"
                               placeholder="100"
                             />
                           </div>
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <button onClick={saveEdit} disabled={saving} style={{ ...styles.importBtn, padding: '8px 16px', fontSize: '13px' }}>
+                          <div className="flex gap-2">
+                            <button onClick={saveEdit} disabled={saving}
+                              className="px-4 py-2 bg-[#F47920] text-white border-0 rounded-lg cursor-pointer text-[13px] font-semibold">
                               {saving ? '저장 중...' : '저장'}
                             </button>
-                            <button onClick={() => setEditingId(null)} style={styles.editBtn}>취소</button>
+                            <button onClick={() => setEditingId(null)}
+                              className="px-3 py-1 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-xs text-muted-brand">
+                              취소
+                            </button>
                           </div>
                         </div>
-                        <div style={{ marginTop: '8px', fontSize: '11px', color: '#A0AEC0' }}>
+                        <div className="mt-2 text-[11px] text-muted-brand">
                           * 좌표 수정 후 저장하면 NEEDS_REVIEW → READY로 자동 격상됩니다.
                         </div>
                       </td>
@@ -383,25 +387,4 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
       </main>
     </div>
   )
-}
-
-const editLabel: React.CSSProperties = { fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }
-const editInput: React.CSSProperties = { padding: '7px 10px', border: '1px solid #90caf9', borderRadius: '6px', fontSize: '13px', width: '160px' }
-
-const styles: Record<string, React.CSSProperties> = {
-  layout:      { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:     { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
-  sidebarTitle:{ color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
-  navItem:     { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navActive:   { color: 'white', background: 'rgba(255,255,255,0.1)', fontWeight: 700 },
-  main:        { flex: 1, padding: '32px', minWidth: 0 },
-  statsRow:    { display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' as const },
-  statBox:     { borderRadius: '10px', padding: '14px 20px', textAlign: 'center' as const, minWidth: '80px' },
-  approveAllBtn:{ padding: '8px 18px', background: '#e8f5e9', color: '#2e7d32', border: '1px solid #a5d6a7', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  importBtn:   { padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  tableCard:   { background: '#243144', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  table:       { width: '100%', borderCollapse: 'collapse' as const },
-  th:          { textAlign: 'left' as const, padding: '10px 12px', fontSize: '11px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', background: '#fafafa', whiteSpace: 'nowrap' as const },
-  td:          { padding: '10px 12px', fontSize: '13px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
-  editBtn:     { padding: '4px 12px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#A0AEC0' },
 }

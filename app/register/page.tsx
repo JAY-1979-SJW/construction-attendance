@@ -106,9 +106,9 @@ export default function RegisterPage() {
 
   if (step === 'loading') {
     return (
-      <div style={s.page}>
-        <div style={s.card}>
-          <p style={{ textAlign: 'center', color: '#A0AEC0' }}>로딩 중...</p>
+      <div className="min-h-screen bg-[linear-gradient(160deg,#0d1b2a_0%,#1B2838_60%,#141E2A_100%)] flex items-center justify-center p-6">
+        <div className="bg-[#243144] rounded-2xl px-8 py-10 w-full max-w-[520px] shadow-[0_8px_40px_rgba(0,0,0,0.4)] border border-[rgba(91,164,217,0.15)] border-t-[3px] border-t-[#F47920]">
+          <p className="text-center text-[#A0AEC0]">로딩 중...</p>
         </div>
       </div>
     )
@@ -120,122 +120,126 @@ export default function RegisterPage() {
   const marketingDoc = getDoc('MARKETING_NOTICE')
 
   return (
-    <div style={s.page}>
-      <div style={s.card}>
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} style={{ width: '180px', height: 'auto', margin: '0 auto', display: 'block', borderRadius: '16px' }} priority />
+    <div className="min-h-screen bg-[linear-gradient(160deg,#0d1b2a_0%,#1B2838_60%,#141E2A_100%)] flex items-center justify-center p-6">
+      <div className="bg-[#243144] rounded-2xl px-8 py-10 w-full max-w-[520px] shadow-[0_8px_40px_rgba(0,0,0,0.4)] border border-[rgba(91,164,217,0.15)] border-t-[3px] border-t-[#F47920]">
+        <div className="text-center mb-5">
+          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} className="w-[180px] h-auto mx-auto block rounded-2xl" priority />
         </div>
-        <h1 style={s.title}>근로자 회원가입</h1>
-        <p style={s.subtitle}>가입 후 관리자 승인을 받아야 출퇴근이 가능합니다.</p>
+        <h1 className="text-2xl font-extrabold text-white tracking-[-0.5px] mb-2">근로자 회원가입</h1>
+        <p className="text-sm text-[#A0AEC0] leading-[1.6] mb-7">가입 후 관리자 승인을 받아야 출퇴근이 가능합니다.</p>
 
-        {error && <div style={s.errorBox}>{error}</div>}
+        {error && (
+          <div className="bg-[rgba(229,57,53,0.12)] border border-[rgba(229,57,53,0.4)] rounded-[10px] px-4 py-3 mb-5 text-[#ef9a9a] text-sm">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
-          <label style={s.label}>이름 <span style={s.required}>*</span></label>
-          <input style={s.input} value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={30} placeholder="홍길동" />
+          <label className="block text-[13px] font-semibold text-[#A0AEC0] mb-[6px] mt-4">이름 <span className="text-[#F47920]">*</span></label>
+          <input className="w-full px-[14px] py-3 border border-[rgba(91,164,217,0.25)] rounded-[10px] text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={30} placeholder="홍길동" />
 
-          <label style={s.label}>휴대폰번호 <span style={s.required}>*</span></label>
-          <input style={s.input} value={phone} onChange={e => setPhone(e.target.value)} required pattern="^010\d{8}$" placeholder="01012345678" maxLength={11} inputMode="numeric" />
+          <label className="block text-[13px] font-semibold text-[#A0AEC0] mb-[6px] mt-4">휴대폰번호 <span className="text-[#F47920]">*</span></label>
+          <input className="w-full px-[14px] py-3 border border-[rgba(91,164,217,0.25)] rounded-[10px] text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={phone} onChange={e => setPhone(e.target.value)} required pattern="^010\d{8}$" placeholder="01012345678" maxLength={11} inputMode="numeric" />
 
-          <label style={s.label}>직종 <span style={s.required}>*</span></label>
-          <input style={s.input} value={jobTitle} onChange={e => setJobTitle(e.target.value)} required maxLength={50} placeholder="형틀목수, 철근공, 조적공 등" />
+          <label className="block text-[13px] font-semibold text-[#A0AEC0] mb-[6px] mt-4">직종 <span className="text-[#F47920]">*</span></label>
+          <input className="w-full px-[14px] py-3 border border-[rgba(91,164,217,0.25)] rounded-[10px] text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={jobTitle} onChange={e => setJobTitle(e.target.value)} required maxLength={50} placeholder="형틀목수, 철근공, 조적공 등" />
 
-          <label style={s.label}>아이디 (선택)</label>
-          <input style={s.input} value={username} onChange={e => setUsername(e.target.value)} minLength={4} maxLength={30} placeholder="4자 이상 영문·숫자" />
+          <label className="block text-[13px] font-semibold text-[#A0AEC0] mb-[6px] mt-4">아이디 (선택)</label>
+          <input className="w-full px-[14px] py-3 border border-[rgba(91,164,217,0.25)] rounded-[10px] text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={username} onChange={e => setUsername(e.target.value)} minLength={4} maxLength={30} placeholder="4자 이상 영문·숫자" />
 
-          <label style={s.label}>이메일 (선택)</label>
-          <input style={s.input} value={email} onChange={e => setEmail(e.target.value)} type="email" maxLength={100} placeholder="example@email.com" />
+          <label className="block text-[13px] font-semibold text-[#A0AEC0] mb-[6px] mt-4">이메일 (선택)</label>
+          <input className="w-full px-[14px] py-3 border border-[rgba(91,164,217,0.25)] rounded-[10px] text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={email} onChange={e => setEmail(e.target.value)} type="email" maxLength={100} placeholder="example@email.com" />
 
           {/* 약관 동의 */}
-          <div style={s.consentSection}>
-            <div style={s.consentTitle}>약관 동의</div>
+          <div className="my-5 p-[18px] bg-[rgba(255,255,255,0.04)] rounded-xl border border-[rgba(91,164,217,0.15)]">
+            <div className="text-[13px] font-bold mb-[14px] text-[#A0AEC0] tracking-[0.5px]">약관 동의</div>
 
             {/* 서비스 이용약관 */}
-            <div style={s.consentBlock}>
-              <div style={s.consentRow}>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', flex: 1 }}>
+            <div className="mb-[10px] border-b border-[rgba(91,164,217,0.12)] pb-[10px]">
+              <div className="flex items-start justify-between gap-2 text-[13px] text-[#CBD5E0]">
+                <label className="flex items-start gap-2 cursor-pointer flex-1">
                   <input type="checkbox" checked={consentTerms} onChange={e => setConsentTerms(e.target.checked)} />
                   <span>
-                    <span style={s.required}>[필수]</span>{' '}
+                    <span className="text-[#F47920]">[필수]</span>{' '}
                     {termsDoc ? `${termsDoc.title} (v${termsDoc.version})` : '서비스 이용약관 동의'}
                   </span>
                 </label>
                 {termsDoc && (
-                  <button type="button" style={s.viewBtn} onClick={() => setExpandedDoc(expandedDoc === 'TERMS_OF_SERVICE' ? null : 'TERMS_OF_SERVICE')}>
+                  <button type="button" className="text-[12px] text-[#5BA4D9] bg-[rgba(91,164,217,0.1)] border border-[rgba(91,164,217,0.3)] rounded-[6px] px-[10px] py-[3px] cursor-pointer whitespace-nowrap" onClick={() => setExpandedDoc(expandedDoc === 'TERMS_OF_SERVICE' ? null : 'TERMS_OF_SERVICE')}>
                     {expandedDoc === 'TERMS_OF_SERVICE' ? '닫기' : '내용 보기'}
                   </button>
                 )}
               </div>
               {expandedDoc === 'TERMS_OF_SERVICE' && termsDoc && (
-                <div style={s.docContent}>{termsDoc.contentMd}</div>
+                <div className="mt-2 text-[12px] text-[#A0AEC0] bg-[#1B2838] border border-[rgba(91,164,217,0.15)] rounded-lg p-3 max-h-[200px] overflow-y-auto whitespace-pre-wrap leading-[1.6]">{termsDoc.contentMd}</div>
               )}
             </div>
 
             {/* 개인정보처리방침 */}
-            <div style={s.consentBlock}>
-              <div style={s.consentRow}>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', flex: 1 }}>
+            <div className="mb-[10px] border-b border-[rgba(91,164,217,0.12)] pb-[10px]">
+              <div className="flex items-start justify-between gap-2 text-[13px] text-[#CBD5E0]">
+                <label className="flex items-start gap-2 cursor-pointer flex-1">
                   <input type="checkbox" checked={consentPrivacy} onChange={e => setConsentPrivacy(e.target.checked)} />
                   <span>
-                    <span style={s.required}>[필수]</span>{' '}
+                    <span className="text-[#F47920]">[필수]</span>{' '}
                     {privacyDoc ? `${privacyDoc.title} (v${privacyDoc.version})` : '개인정보 수집·이용 동의'}
                   </span>
                 </label>
                 {privacyDoc && (
-                  <button type="button" style={s.viewBtn} onClick={() => setExpandedDoc(expandedDoc === 'PRIVACY_POLICY' ? null : 'PRIVACY_POLICY')}>
+                  <button type="button" className="text-[12px] text-[#5BA4D9] bg-[rgba(91,164,217,0.1)] border border-[rgba(91,164,217,0.3)] rounded-[6px] px-[10px] py-[3px] cursor-pointer whitespace-nowrap" onClick={() => setExpandedDoc(expandedDoc === 'PRIVACY_POLICY' ? null : 'PRIVACY_POLICY')}>
                     {expandedDoc === 'PRIVACY_POLICY' ? '닫기' : '내용 보기'}
                   </button>
                 )}
               </div>
               {expandedDoc === 'PRIVACY_POLICY' && privacyDoc && (
-                <div style={s.docContent}>{privacyDoc.contentMd}</div>
+                <div className="mt-2 text-[12px] text-[#A0AEC0] bg-[#1B2838] border border-[rgba(91,164,217,0.15)] rounded-lg p-3 max-h-[200px] overflow-y-auto whitespace-pre-wrap leading-[1.6]">{privacyDoc.contentMd}</div>
               )}
             </div>
 
             {/* 위치정보 이용 동의 */}
-            <div style={s.consentBlock}>
-              <div style={s.consentRow}>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', flex: 1 }}>
+            <div className="mb-[10px] border-b border-[rgba(91,164,217,0.12)] pb-[10px]">
+              <div className="flex items-start justify-between gap-2 text-[13px] text-[#CBD5E0]">
+                <label className="flex items-start gap-2 cursor-pointer flex-1">
                   <input type="checkbox" checked={consentLocation} onChange={e => setConsentLocation(e.target.checked)} />
                   <span>
-                    <span style={s.required}>[필수]</span>{' '}
+                    <span className="text-[#F47920]">[필수]</span>{' '}
                     {locationDoc ? `${locationDoc.title} (v${locationDoc.version})` : '위치정보 이용 동의 (GPS 출퇴근에 필요)'}
                   </span>
                 </label>
                 {locationDoc && (
-                  <button type="button" style={s.viewBtn} onClick={() => setExpandedDoc(expandedDoc === 'LOCATION_POLICY' ? null : 'LOCATION_POLICY')}>
+                  <button type="button" className="text-[12px] text-[#5BA4D9] bg-[rgba(91,164,217,0.1)] border border-[rgba(91,164,217,0.3)] rounded-[6px] px-[10px] py-[3px] cursor-pointer whitespace-nowrap" onClick={() => setExpandedDoc(expandedDoc === 'LOCATION_POLICY' ? null : 'LOCATION_POLICY')}>
                     {expandedDoc === 'LOCATION_POLICY' ? '닫기' : '내용 보기'}
                   </button>
                 )}
               </div>
               {expandedDoc === 'LOCATION_POLICY' && locationDoc && (
-                <div style={s.docContent}>{locationDoc.contentMd}</div>
+                <div className="mt-2 text-[12px] text-[#A0AEC0] bg-[#1B2838] border border-[rgba(91,164,217,0.15)] rounded-lg p-3 max-h-[200px] overflow-y-auto whitespace-pre-wrap leading-[1.6]">{locationDoc.contentMd}</div>
               )}
             </div>
 
             {/* 마케팅 수신 동의 (선택) */}
-            <div style={s.consentBlock}>
-              <div style={s.consentRow}>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', flex: 1 }}>
+            <div className="mb-[10px] border-b border-[rgba(91,164,217,0.12)] pb-[10px]">
+              <div className="flex items-start justify-between gap-2 text-[13px] text-[#CBD5E0]">
+                <label className="flex items-start gap-2 cursor-pointer flex-1">
                   <input type="checkbox" checked={consentMarketing} onChange={e => setConsentMarketing(e.target.checked)} />
                   <span>
-                    <span style={{ color: '#A0AEC0' }}>[선택]</span>{' '}
+                    <span className="text-[#A0AEC0]">[선택]</span>{' '}
                     {marketingDoc ? `${marketingDoc.title} (v${marketingDoc.version})` : '마케팅 정보 수신 동의'}
                   </span>
                 </label>
                 {marketingDoc && (
-                  <button type="button" style={s.viewBtn} onClick={() => setExpandedDoc(expandedDoc === 'MARKETING_NOTICE' ? null : 'MARKETING_NOTICE')}>
+                  <button type="button" className="text-[12px] text-[#5BA4D9] bg-[rgba(91,164,217,0.1)] border border-[rgba(91,164,217,0.3)] rounded-[6px] px-[10px] py-[3px] cursor-pointer whitespace-nowrap" onClick={() => setExpandedDoc(expandedDoc === 'MARKETING_NOTICE' ? null : 'MARKETING_NOTICE')}>
                     {expandedDoc === 'MARKETING_NOTICE' ? '닫기' : '내용 보기'}
                   </button>
                 )}
               </div>
               {expandedDoc === 'MARKETING_NOTICE' && marketingDoc && (
-                <div style={s.docContent}>{marketingDoc.contentMd}</div>
+                <div className="mt-2 text-[12px] text-[#A0AEC0] bg-[#1B2838] border border-[rgba(91,164,217,0.15)] rounded-lg p-3 max-h-[200px] overflow-y-auto whitespace-pre-wrap leading-[1.6]">{marketingDoc.contentMd}</div>
               )}
             </div>
 
             {!allRequired && (
-              <p style={{ fontSize: '12px', color: '#718096', margin: '8px 0 0' }}>
+              <p className="text-[12px] text-[#718096] mt-2">
                 * 필수 항목에 모두 동의해야 가입이 가능합니다.
               </p>
             )}
@@ -243,38 +247,18 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            style={{ ...s.btn, opacity: step === 'submitting' ? 0.6 : 1 }}
+            className="block w-full py-[15px] bg-[#F47920] text-white border-none rounded-[10px] text-base font-bold cursor-pointer mt-5 shadow-[0_4px_14px_rgba(244,121,32,0.35)] disabled:opacity-60"
             disabled={step === 'submitting'}
           >
             {step === 'submitting' ? '가입 중...' : '회원가입'}
           </button>
         </form>
 
-        <div style={s.footer}>
-          <Link href="/login" style={s.link}>이미 계정이 있으신가요? 로그인</Link>
-          <Link href="/register/company-admin" style={s.link}>업체 관리자로 신청하기 →</Link>
+        <div className="flex flex-col gap-2 mt-5 text-center">
+          <Link href="/login" className="text-[#5BA4D9] text-[13px] no-underline">이미 계정이 있으신가요? 로그인</Link>
+          <Link href="/register/company-admin" className="text-[#5BA4D9] text-[13px] no-underline">업체 관리자로 신청하기 →</Link>
         </div>
       </div>
     </div>
   )
-}
-
-const s: Record<string, React.CSSProperties> = {
-  page:         { minHeight: '100vh', background: 'linear-gradient(160deg, #0d1b2a 0%, #1B2838 60%, #141E2A 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' },
-  card:         { background: '#243144', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '520px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)', border: '1px solid rgba(91,164,217,0.15)', borderTop: '3px solid #F47920' },
-  title:        { fontSize: '24px', fontWeight: 800, margin: '0 0 8px', color: '#ffffff', letterSpacing: '-0.5px' },
-  subtitle:     { fontSize: '14px', color: '#A0AEC0', margin: '0 0 28px', lineHeight: 1.6 },
-  errorBox:     { background: 'rgba(229,57,53,0.12)', border: '1px solid rgba(229,57,53,0.4)', borderRadius: '10px', padding: '12px 16px', marginBottom: '20px', color: '#ef9a9a', fontSize: '14px' },
-  label:        { display: 'block', fontSize: '13px', fontWeight: 600, color: '#A0AEC0', marginBottom: '6px', marginTop: '16px' },
-  required:     { color: '#F47920' },
-  input:        { width: '100%', padding: '12px 14px', border: '1px solid rgba(91,164,217,0.25)', borderRadius: '10px', fontSize: '15px', boxSizing: 'border-box' as const, background: 'rgba(255,255,255,0.06)', color: '#ffffff', outline: 'none' },
-  consentSection: { margin: '20px 0', padding: '18px', background: 'rgba(255,255,255,0.04)', borderRadius: '12px', border: '1px solid rgba(91,164,217,0.15)' },
-  consentTitle: { fontSize: '13px', fontWeight: 700, marginBottom: '14px', color: '#A0AEC0', letterSpacing: '0.5px' },
-  consentBlock: { marginBottom: '10px', borderBottom: '1px solid rgba(91,164,217,0.12)', paddingBottom: '10px' },
-  consentRow:   { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', fontSize: '13px', color: '#CBD5E0' },
-  viewBtn:      { fontSize: '12px', color: '#5BA4D9', background: 'rgba(91,164,217,0.1)', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '3px 10px', cursor: 'pointer', whiteSpace: 'nowrap' as const },
-  docContent:   { marginTop: '8px', fontSize: '12px', color: '#A0AEC0', background: '#1B2838', border: '1px solid rgba(91,164,217,0.15)', borderRadius: '8px', padding: '12px', maxHeight: '200px', overflowY: 'auto' as const, whiteSpace: 'pre-wrap' as const, lineHeight: 1.6 },
-  btn:          { display: 'block', width: '100%', padding: '15px', background: '#F47920', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', marginTop: '20px', boxShadow: '0 4px 14px rgba(244,121,32,0.35)' },
-  footer:       { display: 'flex', flexDirection: 'column' as const, gap: '8px', marginTop: '20px', textAlign: 'center' as const },
-  link:         { color: '#5BA4D9', fontSize: '13px', textDecoration: 'none' },
 }

@@ -33,11 +33,11 @@ function getMonthKey() {
   return now.toISOString().slice(0, 7)
 }
 
-const statusColor: Record<string, React.CSSProperties> = {
-  OPEN:     { background: 'rgba(91,164,217,0.1)', color: '#A0AEC0' },
-  CLOSING:  { background: '#fff8e1', color: '#f9a825' },
-  CLOSED:   { background: '#e8f5e9', color: '#2e7d32' },
-  REOPENED: { background: '#fff3e0', color: '#e65100' },
+const statusBadgeClass: Record<string, string> = {
+  OPEN:     'bg-[rgba(91,164,217,0.1)] text-muted-brand',
+  CLOSING:  'bg-[#fff8e1] text-[#f9a825]',
+  CLOSED:   'bg-[#e8f5e9] text-[#2e7d32]',
+  REOPENED: 'bg-[#fff3e0] text-[#e65100]',
 }
 
 const statusLabel: Record<string, string> = {
@@ -134,43 +134,47 @@ export default function MonthClosingsPage() {
   const isClosed = closing?.status === 'CLOSED'
 
   return (
-    <div style={s.layout}>
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
-        <div style={s.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {NAV_ITEMS.map((item) => (
-          <Link key={item.href} href={item.href} style={{ ...s.navItem, ...(item.href === '/admin/month-closings' ? s.navActive : {}) }}>
+          <Link key={item.href} href={item.href}
+            className={`block px-5 py-2.5 text-[13px] no-underline ${item.href === '/admin/month-closings' ? 'bg-white/10 text-white font-bold' : 'text-white/80'}`}>
             {item.label}
           </Link>
         ))}
-        <button onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))} style={s.logoutBtn}>로그아웃</button>
+        <button onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))}
+          className="mx-5 mt-6 py-2.5 bg-white/10 border-none rounded-md text-white/60 cursor-pointer text-[13px]">
+          로그아웃
+        </button>
       </nav>
 
-      <main style={s.main}>
-        <h1 style={s.pageTitle}>월마감 관리</h1>
+      <main className="flex-1 p-8 overflow-auto">
+        <h1 className="text-2xl font-bold mb-6">월마감 관리</h1>
 
         {/* 월 선택 + 상태 배지 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+        <div className="flex items-center gap-4 mb-6">
           <input
             type="month"
             value={monthKey}
             onChange={(e) => setMonthKey(e.target.value)}
-            style={s.input}
+            className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-card"
           />
-          <span style={{ ...s.badge, ...statusColor[currentStatus] }}>
+          <span className={`px-[14px] py-1 rounded-full text-[13px] font-semibold ${statusBadgeClass[currentStatus]}`}>
             {statusLabel[currentStatus]}
           </span>
         </div>
 
         {/* 마감 정보 박스 */}
         {closing?.status === 'CLOSED' && (
-          <div style={{ ...s.infoBox, background: '#e8f5e9', borderColor: '#a5d6a7', color: '#2e7d32', marginBottom: '16px' }}>
+          <div className="px-4 py-3 rounded-lg border border-[#a5d6a7] bg-[#e8f5e9] text-[#2e7d32] text-[13px] leading-relaxed mb-4">
             마감일시: {closing.closedAt ? new Date(closing.closedAt).toLocaleString('ko-KR') : '-'}
-            {closing.closedBy && <span style={{ marginLeft: '16px', fontSize: '12px' }}>처리자: {closing.closedBy}</span>}
+            {closing.closedBy && <span className="ml-4 text-[12px]">처리자: {closing.closedBy}</span>}
           </div>
         )}
         {closing?.status === 'REOPENED' && (
-          <div style={{ ...s.infoBox, background: '#fff3e0', borderColor: '#ffcc80', color: '#e65100', marginBottom: '16px' }}>
+          <div className="px-4 py-3 rounded-lg border border-[#ffcc80] bg-[#fff3e0] text-[#e65100] text-[13px] leading-relaxed mb-4">
             재오픈 사유: {closing.reopenReason}
             <br />
             재오픈 일시: {closing.reopenedAt ? new Date(closing.reopenedAt).toLocaleString('ko-KR') : '-'}
@@ -178,50 +182,49 @@ export default function MonthClosingsPage() {
         )}
 
         {/* 액션 버튼 */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+        <div className="flex gap-3 mb-5">
           <button
             onClick={runPrecheck}
             disabled={loading}
-            style={{ ...s.btn, background: '#F47920', opacity: loading ? 0.6 : 1 }}
+            className="px-4 py-2 text-white border-none rounded-md cursor-pointer text-[14px] font-semibold"
+            style={{ background: '#F47920', opacity: loading ? 0.6 : 1 }}
           >
             {loading ? '처리 중...' : '사전검사 실행'}
           </button>
           <button
             onClick={runClose}
             disabled={loading || !precheck?.canClose || isClosed}
-            style={{ ...s.btn, background: '#2e7d32', opacity: (loading || !precheck?.canClose || isClosed) ? 0.5 : 1 }}
+            className="px-4 py-2 text-white border-none rounded-md cursor-pointer text-[14px] font-semibold"
+            style={{ background: '#2e7d32', opacity: (loading || !precheck?.canClose || isClosed) ? 0.5 : 1 }}
           >
             마감 실행
           </button>
           <button
             onClick={() => setShowReopenModal(true)}
             disabled={loading || !isClosed}
-            style={{ ...s.btn, background: '#e65100', opacity: (loading || !isClosed) ? 0.5 : 1 }}
+            className="px-4 py-2 text-white border-none rounded-md cursor-pointer text-[14px] font-semibold"
+            style={{ background: '#e65100', opacity: (loading || !isClosed) ? 0.5 : 1 }}
           >
             재오픈
           </button>
         </div>
 
         {msg && (
-          <div style={{
-            ...s.msg,
-            background: msg.startsWith('오류') ? '#ffebee' : '#e8f5e9',
-            color: msg.startsWith('오류') ? '#c62828' : '#2e7d32',
-          }}>
+          <div className={`px-4 py-3 rounded-lg mb-4 text-[14px] ${msg.startsWith('오류') ? 'bg-[#ffebee] text-[#c62828]' : 'bg-[#e8f5e9] text-[#2e7d32]'}`}>
             {msg}
           </div>
         )}
 
         {/* 사전검사 결과 */}
         {precheck && (
-          <div style={s.tableCard}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: '14px' }}>
+          <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">
               사전검사 결과
             </div>
-            <div style={{ padding: '20px' }}>
+            <div className="p-5">
 
               {/* 요약 카드 */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
+              <div className="grid grid-cols-3 gap-3 mb-5">
                 {[
                   { label: '전체 근로자', value: precheck.summary.totalWorkers, warn: false },
                   { label: '미확정 근무', value: precheck.summary.draftConfirmations, warn: precheck.summary.draftConfirmations > 0 },
@@ -230,27 +233,24 @@ export default function MonthClosingsPage() {
                   { label: '퇴직공제 미생성', value: precheck.summary.missingRetirement, warn: precheck.summary.missingRetirement > 0 },
                   { label: '신고자료 미생성', value: precheck.summary.missingExports, warn: precheck.summary.missingExports > 0 },
                 ].map((card) => (
-                  <div key={card.label} style={{
-                    ...s.summaryCard,
-                    borderTop: `4px solid ${card.warn ? '#e53935' : '#e0e0e0'}`,
-                    textAlign: 'center',
-                  }}>
-                    <div style={{ fontSize: '28px', fontWeight: 700, color: card.warn ? '#e53935' : '#333' }}>
+                  <div key={card.label} className="bg-card rounded-[10px] px-3 py-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)] text-center"
+                    style={{ borderTop: `4px solid ${card.warn ? '#e53935' : '#e0e0e0'}` }}>
+                    <div className="text-[28px] font-bold" style={{ color: card.warn ? '#e53935' : '#333' }}>
                       {card.value}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#A0AEC0' }}>{card.label}</div>
+                    <div className="text-[12px] text-muted-brand">{card.label}</div>
                   </div>
                 ))}
               </div>
 
               {/* 오류 */}
               {precheck.errors.length > 0 && (
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#c62828', marginBottom: '6px' }}>
+                <div className="mb-3">
+                  <div className="text-[13px] font-semibold text-[#c62828] mb-1.5">
                     오류 (마감 불가)
                   </div>
                   {precheck.errors.map((e, i) => (
-                    <div key={i} style={{ fontSize: '13px', color: '#c62828', background: '#ffebee', padding: '8px 12px', borderRadius: '6px', marginBottom: '4px' }}>
+                    <div key={i} className="text-[13px] text-[#c62828] bg-[#ffebee] px-3 py-2 rounded-md mb-1">
                       x {e}
                     </div>
                   ))}
@@ -259,12 +259,12 @@ export default function MonthClosingsPage() {
 
               {/* 경고 */}
               {precheck.warnings.length > 0 && (
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#f57f17', marginBottom: '6px' }}>
+                <div className="mb-3">
+                  <div className="text-[13px] font-semibold text-[#f57f17] mb-1.5">
                     경고
                   </div>
                   {precheck.warnings.map((w, i) => (
-                    <div key={i} style={{ fontSize: '13px', color: '#f57f17', background: '#fff8e1', padding: '8px 12px', borderRadius: '6px', marginBottom: '4px' }}>
+                    <div key={i} className="text-[13px] text-[#f57f17] bg-[#fff8e1] px-3 py-2 rounded-md mb-1">
                       ! {w}
                     </div>
                   ))}
@@ -272,7 +272,7 @@ export default function MonthClosingsPage() {
               )}
 
               {precheck.canClose && (
-                <div style={{ fontSize: '13px', color: '#2e7d32', background: '#e8f5e9', padding: '10px 16px', borderRadius: '6px' }}>
+                <div className="text-[13px] text-[#2e7d32] bg-[#e8f5e9] px-4 py-2.5 rounded-md">
                   모든 필수 조건이 충족되었습니다. 마감을 진행할 수 있습니다.
                 </div>
               )}
@@ -283,26 +283,27 @@ export default function MonthClosingsPage() {
 
       {/* 재오픈 모달 */}
       {showReopenModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: '#243144', borderRadius: '12px', padding: '24px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>재오픈 사유 입력</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card rounded-xl p-6 w-[400px] shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+            <h3 className="text-base font-bold mb-4">재오픈 사유 입력</h3>
             <textarea
               value={reopenReason}
               onChange={(e) => setReopenReason(e.target.value)}
               placeholder="재오픈 사유를 입력하세요"
-              style={{ width: '100%', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', padding: '10px', height: '96px', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }}
+              className="w-full border border-[rgba(91,164,217,0.2)] rounded-md px-2.5 py-2.5 h-24 text-[13px] resize-y box-border"
             />
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
+            <div className="flex gap-2 justify-end mt-4">
               <button
                 onClick={() => { setShowReopenModal(false); setReopenReason('') }}
-                style={{ padding: '8px 16px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: '#243144', cursor: 'pointer', fontSize: '13px' }}
+                className="px-4 py-2 border border-[rgba(91,164,217,0.2)] rounded-md bg-card cursor-pointer text-[13px]"
               >
                 취소
               </button>
               <button
                 onClick={runReopen}
                 disabled={loading || !reopenReason.trim()}
-                style={{ ...s.btn, background: '#e65100', opacity: (loading || !reopenReason.trim()) ? 0.5 : 1, fontSize: '13px' }}
+                className="px-4 py-2 text-white border-none rounded-md cursor-pointer text-[13px] font-semibold"
+                style={{ background: '#e65100', opacity: (loading || !reopenReason.trim()) ? 0.5 : 1 }}
               >
                 재오픈
               </button>
@@ -334,26 +335,3 @@ const NAV_ITEMS = [
   { href: '/admin/exceptions',            label: '예외 승인' },
   { href: '/admin/device-requests',       label: '기기 변경' },
 ]
-
-const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
-  navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
-  navActive:    { background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 700 },
-  logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main:         { flex: 1, padding: '32px', overflow: 'auto' },
-  pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
-  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
-  btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  msg:          { padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' },
-  badge:        { padding: '4px 14px', borderRadius: '999px', fontSize: '13px', fontWeight: 600 },
-  infoBox:      { padding: '12px 16px', borderRadius: '8px', border: '1px solid', fontSize: '13px', lineHeight: '1.6' },
-  summaryCard:  { background: '#243144', borderRadius: '10px', padding: '16px 12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
-  table:        { width: '100%', borderCollapse: 'collapse' as const },
-  th:           { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
-  td:           { padding: '12px 16px', fontSize: '13px', color: '#CBD5E0', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
-  tr:           { cursor: 'default' },
-}

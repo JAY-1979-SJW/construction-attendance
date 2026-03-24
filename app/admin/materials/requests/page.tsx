@@ -71,10 +71,10 @@ export default function MaterialRequestsPage() {
   const totalPages = Math.ceil(total / pageSize)
 
   return (
-    <div style={S.layout}>
-      <nav style={S.sidebar}>
-        <div style={S.sidebarTitle}>해한 출퇴근</div>
-        <div style={S.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand text-white">
+      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {[
           { href: '/admin', label: '대시보드' },
           { href: '/admin/workers', label: '근로자 관리' },
@@ -85,56 +85,58 @@ export default function MaterialRequestsPage() {
           { href: '/admin/materials/requests', label: '└ 자재청구' },
         ].map(item => (
           <Link key={item.href} href={item.href}
-            style={item.href === '/admin/materials/requests' ? S.navItemActive : S.navItem}>
+            className={item.href === '/admin/materials/requests'
+              ? 'block text-white px-5 py-[10px] text-sm no-underline bg-[rgba(244,121,32,0.15)] border-l-[3px] border-[#F47920]'
+              : 'block text-white/80 px-5 py-[10px] text-sm no-underline'}>
             {item.label}
           </Link>
         ))}
-        <button onClick={handleLogout} style={S.logoutBtn}>로그아웃</button>
+        <button onClick={handleLogout} className="mx-5 mt-6 p-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
       </nav>
 
-      <main style={S.main}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <main className="flex-1 p-8">
+        <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 style={S.pageTitle}>자재청구 목록</h1>
-            <p style={S.pageDesc}>현장별 자재청구서를 관리합니다.</p>
+            <h1 className="text-2xl font-bold m-0 mb-1">자재청구 목록</h1>
+            <p className="text-sm text-muted-brand m-0">현장별 자재청구서를 관리합니다.</p>
           </div>
-          <button onClick={() => router.push('/admin/materials/requests/new')} style={S.primaryBtn}>
+          <button onClick={() => router.push('/admin/materials/requests/new')} className="px-5 py-[10px] bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-sm font-semibold">
             + 청구서 작성
           </button>
         </div>
 
         {/* 필터 */}
-        <div style={S.filterRow}>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={S.filterSelect}>
+        <div className="flex gap-3 items-center mb-4">
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-card text-white">
             <option value="">전체 상태</option>
             {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
-          <span style={{ color: '#A0AEC0', fontSize: '14px' }}>총 {total}건</span>
+          <span className="text-muted-brand text-sm">총 {total}건</span>
         </div>
 
-        <div style={S.tableCard}>
+        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '48px', color: '#A0AEC0' }}>로딩 중...</div>
+            <div className="text-center py-12 text-muted-brand">로딩 중...</div>
           ) : requests.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '48px', color: '#A0AEC0' }}>등록된 청구서가 없습니다.</div>
+            <div className="text-center py-12 text-muted-brand">등록된 청구서가 없습니다.</div>
           ) : (
-            <table style={S.table}>
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {['청구번호', '제목', '현장', '상태', '항목수', '요청일', '납품요청일', ''].map(h => (
-                    <th key={h} style={S.th}>{h}</th>
+                    <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {requests.map(r => (
                   <tr key={r.id}>
-                    <td style={S.td}>
-                      <span style={{ fontSize: '12px', color: '#A0AEC0' }}>{r.requestNo}</span>
+                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
+                      <span className="text-[12px] text-muted-brand">{r.requestNo}</span>
                     </td>
-                    <td style={S.td}>{r.title}</td>
-                    <td style={S.td}>{r.site?.name ?? '-'}</td>
-                    <td style={S.td}>
+                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{r.title}</td>
+                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{r.site?.name ?? '-'}</td>
+                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
                       <span style={{
                         padding: '2px 8px', borderRadius: '12px', fontSize: '12px',
                         background: STATUS_COLOR[r.status] + '22',
@@ -144,11 +146,11 @@ export default function MaterialRequestsPage() {
                         {STATUS_LABEL[r.status] ?? r.status}
                       </span>
                     </td>
-                    <td style={{ ...S.td, textAlign: 'center' }}>{r._count.items}</td>
-                    <td style={S.td}>{fmtDate(r.createdAt)}</td>
-                    <td style={S.td}>{r.deliveryRequestedAt ? fmtDate(r.deliveryRequestedAt) : '-'}</td>
-                    <td style={S.td}>
-                      <Link href={`/admin/materials/requests/${r.id}`} style={S.actionBtn}>보기</Link>
+                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] text-center">{r._count.items}</td>
+                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{fmtDate(r.createdAt)}</td>
+                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{r.deliveryRequestedAt ? fmtDate(r.deliveryRequestedAt) : '-'}</td>
+                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
+                      <Link href={`/admin/materials/requests/${r.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-[#5BA4D9] border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
                     </td>
                   </tr>
                 ))}
@@ -157,36 +159,14 @@ export default function MaterialRequestsPage() {
           )}
 
           {totalPages > 1 && (
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '20px' }}>
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={S.pageBtn}>이전</button>
-              <span style={{ color: '#A0AEC0', lineHeight: '32px', fontSize: '13px' }}>{page}/{totalPages}</span>
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={S.pageBtn}>다음</button>
+            <div className="flex gap-2 justify-center mt-5">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-[14px] py-[6px] border border-[rgba(91,164,217,0.3)] rounded bg-card cursor-pointer text-[13px] text-white">이전</button>
+              <span className="text-muted-brand leading-8 text-[13px]">{page}/{totalPages}</span>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-[14px] py-[6px] border border-[rgba(91,164,217,0.3)] rounded bg-card cursor-pointer text-[13px] text-white">다음</button>
             </div>
           )}
         </div>
       </main>
     </div>
   )
-}
-
-const S: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838', color: 'white' },
-  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection: { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navItemActive: { display: 'block', color: 'white', padding: '10px 20px', fontSize: '14px', textDecoration: 'none', background: 'rgba(244,121,32,0.15)', borderLeft: '3px solid #F47920' },
-  logoutBtn: { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main: { flex: 1, padding: '32px' },
-  pageTitle: { fontSize: '24px', fontWeight: 700, margin: '0 0 4px' },
-  pageDesc: { fontSize: '14px', color: '#A0AEC0', margin: 0 },
-  primaryBtn: { padding: '10px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  filterRow: { display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' },
-  filterSelect: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: '#243144', color: 'white' },
-  tableCard: { background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  th: { textAlign: 'left', padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)' },
-  td: { padding: '12px', fontSize: '14px', borderBottom: '1px solid rgba(91,164,217,0.1)' },
-  actionBtn: { padding: '4px 10px', background: 'rgba(91,164,217,0.12)', color: '#5BA4D9', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'inline-block' },
-  pageBtn: { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', background: '#243144', cursor: 'pointer', fontSize: '13px', color: 'white' },
 }

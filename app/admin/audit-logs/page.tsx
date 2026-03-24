@@ -104,9 +104,9 @@ export default function AuditLogsPage() {
   const shortId = (id: string | null) => id ? id.slice(-8) : '-'
 
   return (
-    <div style={styles.layout}>
-      <nav style={styles.sidebar}>
-        <div style={styles.sidebarTitle}>해한 출퇴근</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0">
+        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
         {[
           ['/admin', '대시보드'],
           ['/admin/workers', '근로자 관리'],
@@ -119,89 +119,104 @@ export default function AuditLogsPage() {
           ['/admin/device-requests', '기기 변경'],
           ['/admin/audit-logs', '감사 로그'], ['/admin/site-imports', '현장 엑셀 업로드'],
         ].map(([href, label]) => (
-          <Link key={href} href={href} style={{ ...styles.navItem, ...(href === '/admin/audit-logs' ? styles.navActive : {}) }}>
+          <Link key={href} href={href}
+            className={`block px-5 py-2.5 text-[14px] no-underline ${href === '/admin/audit-logs' ? 'bg-white/10 text-white font-bold' : 'text-white/80'}`}>
             {label}
           </Link>
         ))}
       </nav>
 
-      <main style={styles.main}>
-        <h1 style={styles.pageTitle}>감사 로그</h1>
-        <p style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '20px', marginTop: '-12px' }}>
+      <main className="flex-1 p-8 min-w-0">
+        <h1 className="text-[22px] font-bold mb-1 mt-0">감사 로그</h1>
+        <p className="text-[13px] text-muted-brand mb-5 -mt-3">
           시스템 내 모든 주요 이벤트 기록 (출퇴근·기기·회사·현장·근로자·보험)
         </p>
 
         {/* 필터 */}
-        <div style={styles.filterBox}>
-          <div style={styles.filterRow}>
-            <div style={styles.filterGroup}>
-              <label style={styles.filterLabel}>시작일</label>
-              <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={styles.filterInput} />
+        <div className="bg-card rounded-[10px] p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="flex gap-3 items-end flex-wrap">
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] text-muted-brand">시작일</label>
+              <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]" />
             </div>
-            <div style={styles.filterGroup}>
-              <label style={styles.filterLabel}>종료일</label>
-              <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={styles.filterInput} />
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] text-muted-brand">종료일</label>
+              <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]" />
             </div>
-            <div style={styles.filterGroup}>
-              <label style={styles.filterLabel}>액션 유형</label>
-              <select value={actionType} onChange={(e) => setActionType(e.target.value)} style={{ ...styles.filterInput, minWidth: '240px' }}>
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] text-muted-brand">액션 유형</label>
+              <select value={actionType} onChange={(e) => setActionType(e.target.value)}
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] min-w-[240px]">
                 {ACTION_TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
-            <div style={styles.filterGroup}>
-              <label style={styles.filterLabel}>대상 유형</label>
-              <select value={targetType} onChange={(e) => setTargetType(e.target.value)} style={styles.filterInput}>
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] text-muted-brand">대상 유형</label>
+              <select value={targetType} onChange={(e) => setTargetType(e.target.value)}
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]">
                 {TARGET_TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
-            <div style={styles.filterGroup}>
-              <label style={styles.filterLabel}>행위자 ID</label>
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] text-muted-brand">행위자 ID</label>
               <input
                 type="text"
                 placeholder="actorUserId"
                 value={actorUserId}
                 onChange={(e) => setActorUserId(e.target.value)}
-                style={{ ...styles.filterInput, width: '160px' }}
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] w-40"
               />
             </div>
-            <button onClick={() => load(1)} style={styles.searchBtn}>조회</button>
+            <button onClick={() => load(1)}
+              className="px-5 py-2 bg-[#F47920] text-white border-none rounded-md cursor-pointer text-[14px]">
+              조회
+            </button>
           </div>
         </div>
 
-        <div style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="text-[13px] text-muted-brand mb-3 flex justify-between items-center">
           <span>총 {total.toLocaleString()}건 · {page}/{totalPages || 1} 페이지</span>
           {totalPages > 1 && (
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => load(page - 1)} disabled={page <= 1} style={styles.pageBtn}>← 이전</button>
-              <button onClick={() => load(page + 1)} disabled={page >= totalPages} style={styles.pageBtn}>다음 →</button>
+            <div className="flex gap-2">
+              <button onClick={() => load(page - 1)} disabled={page <= 1}
+                className="px-[14px] py-1.5 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px] text-muted-brand disabled:opacity-50">
+                ← 이전
+              </button>
+              <button onClick={() => load(page + 1)} disabled={page >= totalPages}
+                className="px-[14px] py-1.5 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px] text-muted-brand disabled:opacity-50">
+                다음 →
+              </button>
             </div>
           )}
         </div>
 
-        {loading ? <p style={{ color: '#A0AEC0' }}>로딩 중...</p> : (
-          <div style={{ ...styles.tableCard, overflowX: 'auto' }}>
-            <table style={styles.table}>
+        {loading ? <p className="text-muted-brand">로딩 중...</p> : (
+          <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden overflow-x-auto">
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {['시각', '행위자', '유형', '액션', '대상', '내용'].map((h) => (
-                    <th key={h} style={styles.th}>{h}</th>
+                    <th key={h} className="text-left px-[14px] py-3 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap bg-[#fafafa]">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {items.length === 0 ? (
-                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '32px', color: '#999' }}>로그가 없습니다.</td></tr>
+                  <tr><td colSpan={6} className="text-center py-8 text-[#999]">로그가 없습니다.</td></tr>
                 ) : items.map((item) => (
                   <>
                     <tr
                       key={item.id}
-                      style={{ ...styles.tr, cursor: 'pointer', background: expanded === item.id ? '#fafafa' : 'white' }}
+                      className="cursor-pointer"
+                      style={{ background: expanded === item.id ? '#fafafa' : 'white' }}
                       onClick={() => setExpanded(expanded === item.id ? null : item.id)}
                     >
-                      <td style={styles.td}>
-                        <span style={{ fontSize: '12px', color: '#A0AEC0', whiteSpace: 'nowrap' as const }}>{formatDateTime(item.createdAt)}</span>
+                      <td className="px-[14px] py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
+                        <span className="text-[12px] text-muted-brand whitespace-nowrap">{formatDateTime(item.createdAt)}</span>
                       </td>
-                      <td style={styles.td}>
+                      <td className="px-[14px] py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                         <div>
                           <span style={{
                             fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '8px',
@@ -211,61 +226,61 @@ export default function AuditLogsPage() {
                             {item.actorType}
                           </span>
                           {item.actorUserId && (
-                            <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '2px' }}>
+                            <div className="text-[11px] text-muted-brand mt-0.5">
                               {shortId(item.actorUserId)}
                             </div>
                           )}
                         </div>
                       </td>
-                      <td style={styles.td}>
+                      <td className="px-[14px] py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                         {item.targetType && (
-                          <span style={{ fontSize: '11px', color: '#A0AEC0', background: '#f0f0f0', padding: '2px 6px', borderRadius: '6px' }}>
+                          <span className="text-[11px] text-muted-brand bg-[#f0f0f0] px-1.5 py-0.5 rounded-md">
                             {item.targetType}
                           </span>
                         )}
                       </td>
-                      <td style={styles.td}>
+                      <td className="px-[14px] py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                         <ActionTypeBadge actionType={item.actionType} />
                       </td>
-                      <td style={styles.td}>
+                      <td className="px-[14px] py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                         {item.targetId && (
-                          <span style={{ fontSize: '11px', color: '#718096', fontFamily: 'monospace' }}>{shortId(item.targetId)}</span>
+                          <span className="text-[11px] text-[#718096] font-mono">{shortId(item.targetId)}</span>
                         )}
                       </td>
-                      <td style={{ ...styles.td, maxWidth: '320px' }}>
-                        <span style={{ fontSize: '13px', color: '#CBD5E0' }}>{item.summary}</span>
+                      <td className="px-[14px] py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[320px]">
+                        <span className="text-[13px] text-[#CBD5E0]">{item.summary}</span>
                       </td>
                     </tr>
                     {expanded === item.id && (
-                      <tr key={`${item.id}-detail`} style={{ background: '#fafafa' }}>
-                        <td colSpan={6} style={{ padding: '12px 16px', borderBottom: '2px solid #e3f2fd' }}>
-                          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' as const }}>
+                      <tr key={`${item.id}-detail`} className="bg-[#fafafa]">
+                        <td colSpan={6} className="px-4 py-3 border-b-2 border-[#e3f2fd]">
+                          <div className="flex gap-6 flex-wrap">
                             <div>
-                              <div style={detailLabel}>전체 ID</div>
-                              <div style={detailValue}>{item.id}</div>
+                              <div className={detailLabelCls}>전체 ID</div>
+                              <div className={detailValueCls}>{item.id}</div>
                             </div>
                             {item.actorUserId && (
                               <div>
-                                <div style={detailLabel}>행위자 ID</div>
-                                <div style={detailValue}>{item.actorUserId}</div>
+                                <div className={detailLabelCls}>행위자 ID</div>
+                                <div className={detailValueCls}>{item.actorUserId}</div>
                               </div>
                             )}
                             {item.targetId && (
                               <div>
-                                <div style={detailLabel}>대상 ID</div>
-                                <div style={detailValue}>{item.targetId}</div>
+                                <div className={detailLabelCls}>대상 ID</div>
+                                <div className={detailValueCls}>{item.targetId}</div>
                               </div>
                             )}
                             {item.ipAddress && (
                               <div>
-                                <div style={detailLabel}>IP</div>
-                                <div style={detailValue}>{item.ipAddress}</div>
+                                <div className={detailLabelCls}>IP</div>
+                                <div className={detailValueCls}>{item.ipAddress}</div>
                               </div>
                             )}
                             {item.metadataJson && (
                               <div>
-                                <div style={detailLabel}>메타데이터</div>
-                                <pre style={{ fontSize: '11px', color: '#A0AEC0', margin: 0, background: '#1B2838', padding: '6px 10px', borderRadius: '6px', maxWidth: '400px', overflowX: 'auto' as const }}>
+                                <div className={detailLabelCls}>메타데이터</div>
+                                <pre className="text-[11px] text-muted-brand m-0 bg-brand px-2.5 py-1.5 rounded-md max-w-[400px] overflow-x-auto">
                                   {JSON.stringify(item.metadataJson, null, 2)}
                                 </pre>
                               </div>
@@ -283,12 +298,24 @@ export default function AuditLogsPage() {
 
         {/* 페이지네이션 하단 */}
         {totalPages > 1 && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px' }}>
-            <button onClick={() => load(1)} disabled={page <= 1} style={styles.pageBtn}>처음</button>
-            <button onClick={() => load(page - 1)} disabled={page <= 1} style={styles.pageBtn}>← 이전</button>
-            <span style={{ fontSize: '13px', color: '#A0AEC0', padding: '6px 12px' }}>{page} / {totalPages}</span>
-            <button onClick={() => load(page + 1)} disabled={page >= totalPages} style={styles.pageBtn}>다음 →</button>
-            <button onClick={() => load(totalPages)} disabled={page >= totalPages} style={styles.pageBtn}>마지막</button>
+          <div className="flex justify-center gap-2 mt-4">
+            <button onClick={() => load(1)} disabled={page <= 1}
+              className="px-[14px] py-1.5 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px] text-muted-brand disabled:opacity-50">
+              처음
+            </button>
+            <button onClick={() => load(page - 1)} disabled={page <= 1}
+              className="px-[14px] py-1.5 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px] text-muted-brand disabled:opacity-50">
+              ← 이전
+            </button>
+            <span className="text-[13px] text-muted-brand px-3 py-1.5">{page} / {totalPages}</span>
+            <button onClick={() => load(page + 1)} disabled={page >= totalPages}
+              className="px-[14px] py-1.5 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px] text-muted-brand disabled:opacity-50">
+              다음 →
+            </button>
+            <button onClick={() => load(totalPages)} disabled={page >= totalPages}
+              className="px-[14px] py-1.5 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px] text-muted-brand disabled:opacity-50">
+              마지막
+            </button>
           </div>
         )}
       </main>
@@ -317,28 +344,6 @@ function ActionTypeBadge({ actionType }: { actionType: string }) {
   )
 }
 
-/* ── 스타일 ─────────────────────────────────────────────── */
-const detailLabel: React.CSSProperties = { fontSize: '10px', color: '#aaa', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }
-const detailValue: React.CSSProperties = { fontSize: '12px', color: '#CBD5E0', fontFamily: 'monospace' }
-
-const styles: Record<string, React.CSSProperties> = {
-  layout:      { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:     { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0 },
-  sidebarTitle:{ color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px' },
-  navItem:     { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navActive:   { color: 'white', background: 'rgba(255,255,255,0.1)', fontWeight: 700 },
-  main:        { flex: 1, padding: '32px', minWidth: 0 },
-  pageTitle:   { fontSize: '22px', fontWeight: 700, margin: '0 0 4px' },
-  filterBox:   { background: '#243144', borderRadius: '10px', padding: '20px', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  filterRow:   { display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' as const },
-  filterGroup: { display: 'flex', flexDirection: 'column' as const, gap: '4px' },
-  filterLabel: { fontSize: '12px', color: '#A0AEC0' },
-  filterInput: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px' },
-  searchBtn:   { padding: '8px 20px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' },
-  tableCard:   { background: '#243144', borderRadius: '10px', padding: '0', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
-  table:       { width: '100%', borderCollapse: 'collapse' as const },
-  th:          { textAlign: 'left' as const, padding: '12px 14px', fontSize: '11px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const, background: '#fafafa' },
-  td:          { padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
-  tr:          {},
-  pageBtn:     { padding: '6px 14px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#A0AEC0' },
-}
+/* ── 스타일 상수 ─────────────────────────────────────────── */
+const detailLabelCls = 'text-[10px] text-[#aaa] font-semibold uppercase mb-0.5'
+const detailValueCls = 'text-[12px] text-[#CBD5E0] font-mono'

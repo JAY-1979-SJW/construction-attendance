@@ -73,19 +73,20 @@ const AGG_STATUS_COLOR: Record<string, string> = { DRAFT: '#607d8b', REVIEWED: '
 // ─── Sub-components ───────────────────────────────────────────
 
 function RawSheetGrid({ cells, maxDisplayRows }: { cells: CellData[][], maxDisplayRows: number }) {
-  if (!cells || cells.length === 0) return <div style={{ padding: '24px', color: '#718096', textAlign: 'center' }}>셀 데이터가 없습니다</div>
+  if (!cells || cells.length === 0) return <div className="py-6 text-[#718096] text-center">셀 데이터가 없습니다</div>
   return (
-    <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '60vh' }}>
-      <table style={{ borderCollapse: 'collapse', fontSize: '12px', tableLayout: 'auto', minWidth: '100%' }}>
+    <div className="overflow-x-auto overflow-y-auto max-h-[60vh]">
+      <table className="border-collapse text-[12px]" style={{ tableLayout: 'auto', minWidth: '100%' }}>
         <tbody>
           {cells.slice(0, maxDisplayRows).map((row, rowIdx) => (
             <tr key={rowIdx}>
-              <td style={{ padding: '2px 6px', border: '1px solid rgba(255,255,255,0.12)', background: '#1B2838', color: '#718096', fontSize: '11px', textAlign: 'right', whiteSpace: 'nowrap', userSelect: 'none', minWidth: '32px', position: 'sticky', left: 0, zIndex: 1 }}>
+              <td className="px-[6px] py-[2px] border border-white/[0.12] bg-brand text-[#718096] text-[11px] text-right whitespace-nowrap select-none min-w-[32px] sticky left-0 z-[1]">
                 {rowIdx === 0 ? '' : rowIdx}
               </td>
               {row.map((cell, i) => (
                 <td key={i} rowSpan={cell.rowspan ?? 1} colSpan={cell.colspan ?? 1}
-                  style={{ padding: '3px 6px', border: '1px solid rgba(255,255,255,0.12)', whiteSpace: 'nowrap', maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', verticalAlign: 'middle', background: rowIdx === 0 ? '#fafafa' : 'white', fontWeight: rowIdx === 0 ? 600 : 400 }}
+                  className="px-[6px] py-[3px] border border-white/[0.12] whitespace-nowrap max-w-[240px] overflow-hidden text-ellipsis align-middle"
+                  style={{ background: rowIdx === 0 ? '#fafafa' : 'white', fontWeight: rowIdx === 0 ? 600 : 400 }}
                   title={cell.v != null ? String(cell.v) : ''}>
                   {cell.v != null ? String(cell.v) : ''}
                 </td>
@@ -177,55 +178,55 @@ function OverrideModal({ row, docId, onClose, onSaved }: OverrideModalProps) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ background: '#243144', borderRadius: '12px', padding: '28px', width: '520px', maxWidth: '95vw', boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700 }}>행 수동 보정</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#A0AEC0' }}>×</button>
+    <div className="fixed inset-0 bg-black/40 z-[1000] flex items-center justify-center">
+      <div className="bg-card rounded-[12px] p-7 w-[520px] max-w-[95vw] shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
+        <div className="flex justify-between items-center mb-5">
+          <h3 className="m-0 text-base font-bold">행 수동 보정</h3>
+          <button onClick={onClose} className="bg-transparent border-0 text-[20px] cursor-pointer text-muted-brand">×</button>
         </div>
 
         {/* 원문 정보 */}
-        <div style={{ background: '#1B2838', borderRadius: '6px', padding: '10px 14px', marginBottom: '18px', fontSize: '12px', color: '#A0AEC0' }}>
-          <div style={{ fontWeight: 700, marginBottom: '4px', color: '#CBD5E0' }}>원문 (수정불가)</div>
+        <div className="bg-brand rounded-md px-[14px] py-[10px] mb-[18px] text-[12px] text-muted-brand">
+          <div className="font-bold mb-1 text-[#CBD5E0]">원문 (수정불가)</div>
           <div>품명: {row.rawItemName || '-'} / 규격: {row.rawSpec || '-'} / 단위: {row.rawUnit || '-'} / 수량: {row.rawQuantity || '-'}</div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+        <div className="grid grid-cols-2 gap-3 mb-3">
           <div>
-            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>수동 품명</label>
-            <input value={itemName} onChange={e => setItemName(e.target.value)} placeholder={row.normalized?.normalizedItemName ?? row.rawItemName ?? ''} style={s.input} />
-          </div>
-          <div>
-            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>수동 규격</label>
-            <input value={spec} onChange={e => setSpec(e.target.value)} placeholder={row.normalized?.normalizedSpec ?? row.rawSpec ?? ''} style={s.input} />
+            <label className="text-[12px] text-muted-brand block mb-1">수동 품명</label>
+            <input value={itemName} onChange={e => setItemName(e.target.value)} placeholder={row.normalized?.normalizedItemName ?? row.rawItemName ?? ''} className="w-full px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-brand text-white box-border" />
           </div>
           <div>
-            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>수동 단위</label>
-            <input value={unit} onChange={e => setUnit(e.target.value)} placeholder={row.normalized?.normalizedUnit ?? row.rawUnit ?? ''} style={s.input} />
+            <label className="text-[12px] text-muted-brand block mb-1">수동 규격</label>
+            <input value={spec} onChange={e => setSpec(e.target.value)} placeholder={row.normalized?.normalizedSpec ?? row.rawSpec ?? ''} className="w-full px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-brand text-white box-border" />
           </div>
           <div>
-            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>수동 수량</label>
-            <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder={row.rawQuantity ?? ''} style={s.input} />
+            <label className="text-[12px] text-muted-brand block mb-1">수동 단위</label>
+            <input value={unit} onChange={e => setUnit(e.target.value)} placeholder={row.normalized?.normalizedUnit ?? row.rawUnit ?? ''} className="w-full px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-brand text-white box-border" />
           </div>
-          <div style={{ gridColumn: '1 / -1' }}>
-            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>수동 그룹 키 <span style={{ color: '#A0AEC0', fontWeight: 400 }}>(같은 값끼리 집계 묶음)</span></label>
-            <input value={groupKey} onChange={e => setGroupKey(e.target.value)} placeholder={row.normalized?.groupKey ?? ''} style={s.input} />
+          <div>
+            <label className="text-[12px] text-muted-brand block mb-1">수동 수량</label>
+            <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder={row.rawQuantity ?? ''} className="w-full px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-brand text-white box-border" />
           </div>
-          <div style={{ gridColumn: '1 / -1' }}>
-            <label style={{ fontSize: '12px', color: '#A0AEC0', display: 'block', marginBottom: '4px' }}>보정 사유</label>
-            <input value={reason} onChange={e => setReason(e.target.value)} placeholder="보정 사유 입력 (선택)" style={s.input} />
+          <div className="col-span-2">
+            <label className="text-[12px] text-muted-brand block mb-1">수동 그룹 키 <span className="text-muted-brand font-normal">(같은 값끼리 집계 묶음)</span></label>
+            <input value={groupKey} onChange={e => setGroupKey(e.target.value)} placeholder={row.normalized?.groupKey ?? ''} className="w-full px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-brand text-white box-border" />
+          </div>
+          <div className="col-span-2">
+            <label className="text-[12px] text-muted-brand block mb-1">보정 사유</label>
+            <input value={reason} onChange={e => setReason(e.target.value)} placeholder="보정 사유 입력 (선택)" className="w-full px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-brand text-white box-border" />
           </div>
         </div>
 
-        {error && <div style={{ color: '#b71c1c', fontSize: '13px', marginBottom: '12px' }}>{error}</div>}
+        {error && <div className="text-[#b71c1c] text-[13px] mb-3">{error}</div>}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
-          <button onClick={handleClearAll} disabled={saving} style={{ padding: '8px 14px', background: '#ffebee', color: '#b71c1c', border: '1px solid #ef9a9a', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
+        <div className="flex justify-between gap-2">
+          <button onClick={handleClearAll} disabled={saving} className="px-[14px] py-2 bg-[#ffebee] text-[#b71c1c] border border-[#ef9a9a] rounded-md cursor-pointer text-[13px] font-semibold">
             보정 전체 해제
           </button>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button onClick={onClose} disabled={saving} style={{ padding: '8px 16px', background: 'rgba(91,164,217,0.1)', color: '#A0AEC0', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>취소</button>
-            <button onClick={handleSave} disabled={saving} style={{ padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
+          <div className="flex gap-2">
+            <button onClick={onClose} disabled={saving} className="px-4 py-2 bg-[rgba(91,164,217,0.1)] text-muted-brand border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px]">취소</button>
+            <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
               {saving ? '저장 중...' : '저장'}
             </button>
           </div>
@@ -280,7 +281,7 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
     fetchRows()
   }
 
-  const fmt = (v: string | null | undefined) => v || <span style={{ color: '#bbb' }}>-</span>
+  const fmt = (v: string | null | undefined) => v || <span className="text-[#bbb]">-</span>
 
   return (
     <div>
@@ -289,14 +290,14 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
       )}
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap' }}>
-        <select value={sheetId} onChange={e => setSheetId(e.target.value)} style={s.filterSelect}>
+      <div className="flex gap-[10px] items-center mb-[14px] flex-wrap">
+        <select value={sheetId} onChange={e => setSheetId(e.target.value)} className="px-3 py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-[#1E3048] text-[#E2E8F0]">
           <option value="">전체 시트</option>
           {sheets.map(sh => (
             <option key={sh.id} value={sh.id}>{sh.sheetIndex + 1}. {sh.sheetName}</option>
           ))}
         </select>
-        <select value={rowTypeFilter} onChange={e => setRowTypeFilter(e.target.value)} style={s.filterSelect}>
+        <select value={rowTypeFilter} onChange={e => setRowTypeFilter(e.target.value)} className="px-3 py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-[#1E3048] text-[#E2E8F0]">
           <option value="">전체 행 유형</option>
           {Object.entries(ROW_TYPE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
@@ -306,77 +307,79 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
           { label: '보정된 행', val: overriddenOnly, set: setOverriddenOnly },
           { label: '수동 그룹키', val: hasManualGroupKey, set: setHasManualGroupKey },
         ].map(({ label, val, set }) => (
-          <label key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+          <label key={label} className="flex items-center gap-[5px] text-[13px] cursor-pointer whitespace-nowrap">
             <input type="checkbox" checked={val} onChange={e => set(e.target.checked)} />
             {label}
           </label>
         ))}
-        {result && <span style={{ fontSize: '13px', color: '#A0AEC0' }}>총 {result.total}행</span>}
+        {result && <span className="text-[13px] text-muted-brand">총 {result.total}행</span>}
       </div>
 
-      {loading ? <div style={{ padding: '40px', textAlign: 'center', color: '#A0AEC0' }}>로딩 중...</div> : (
+      {loading ? <div className="py-10 text-center text-muted-brand">로딩 중...</div> : (
         <div>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={s.table}>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  {['행번호', '시트', '유형', '품명', '규격', '단위', '수량', '집계', '보정', '자동 그룹키', '수동 그룹키', '상태', '액션'].map(h => <th key={h} style={s.th}>{h}</th>)}
+                  {['행번호', '시트', '유형', '품명', '규격', '단위', '수량', '집계', '보정', '자동 그룹키', '수동 그룹키', '상태', '액션'].map(h => (
+                    <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {!result || result.items.length === 0 ? (
-                  <tr><td colSpan={13} style={{ padding: '32px', textAlign: 'center', color: '#999' }}>데이터가 없습니다</td></tr>
+                  <tr><td colSpan={13} className="py-8 text-center text-[#999]">데이터가 없습니다</td></tr>
                 ) : result.items.map(row => {
                   const isExcluded = row.excludeFromAggregation
                   const isOverridden = !!row.overriddenAt
                   const rowBg = isExcluded ? '#fafafa' : row.reviewRequired ? '#fff8f0' : 'white'
                   return (
                     <tr key={row.id} style={{ background: rowBg, opacity: isExcluded ? 0.6 : 1 }}>
-                      <td style={s.td}><span style={{ color: '#718096', fontSize: '12px' }}>{row.rowNo + 1}</span></td>
-                      <td style={s.td}><span style={{ fontSize: '11px', color: '#A0AEC0' }}>{row.sheetName}</span></td>
-                      <td style={s.td}><RowTypeBadge type={row.rowType} /></td>
-                      <td style={{ ...s.td, maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {row.sectionName && <span style={{ fontSize: '10px', color: '#718096', display: 'block' }}>{row.sectionName}</span>}
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><span className="text-[#718096] text-[12px]">{row.rowNo + 1}</span></td>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><span className="text-[11px] text-muted-brand">{row.sheetName}</span></td>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><RowTypeBadge type={row.rowType} /></td>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] overflow-hidden text-ellipsis whitespace-nowrap">
+                        {row.sectionName && <span className="text-[10px] text-[#718096] block">{row.sectionName}</span>}
                         {isOverridden && row.manualItemName
-                          ? <><span style={{ color: '#5BA4D9', fontWeight: 600 }}>{row.manualItemName}</span><span style={{ fontSize: '10px', color: '#bbb', marginLeft: '4px' }}>({row.rawItemName})</span></>
+                          ? <><span className="text-[#5BA4D9] font-semibold">{row.manualItemName}</span><span className="text-[10px] text-[#bbb] ml-1">({row.rawItemName})</span></>
                           : fmt(row.rawItemName)}
                       </td>
-                      <td style={{ ...s.td, maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '12px' }}>
-                        {isOverridden && row.manualSpec ? <span style={{ color: '#5BA4D9' }}>{row.manualSpec}</span> : fmt(row.rawSpec)}
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap text-[12px]">
+                        {isOverridden && row.manualSpec ? <span className="text-[#5BA4D9]">{row.manualSpec}</span> : fmt(row.rawSpec)}
                       </td>
-                      <td style={s.td}>
-                        {isOverridden && row.manualUnit ? <span style={{ color: '#5BA4D9' }}>{row.manualUnit}</span> : fmt(row.rawUnit)}
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
+                        {isOverridden && row.manualUnit ? <span className="text-[#5BA4D9]">{row.manualUnit}</span> : fmt(row.rawUnit)}
                       </td>
-                      <td style={{ ...s.td, textAlign: 'right', fontSize: '12px' }}>
-                        {isOverridden && row.manualQuantity ? <span style={{ color: '#5BA4D9' }}>{row.manualQuantity}</span> : fmt(row.rawQuantity)}
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-right text-[12px]">
+                        {isOverridden && row.manualQuantity ? <span className="text-[#5BA4D9]">{row.manualQuantity}</span> : fmt(row.rawQuantity)}
                       </td>
-                      <td style={s.td}>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                         {row.aggregateCandidate
-                          ? <span style={{ color: '#2e7d32', fontWeight: 700, fontSize: '12px' }}>Y</span>
-                          : <span style={{ color: '#bbb', fontSize: '12px' }}>-</span>}
+                          ? <span className="text-[#2e7d32] font-bold text-[12px]">Y</span>
+                          : <span className="text-[#bbb] text-[12px]">-</span>}
                       </td>
-                      <td style={s.td}>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                         {isOverridden
-                          ? <span style={{ fontSize: '11px', color: '#5BA4D9', fontWeight: 600 }} title={row.overrideReason ?? ''}>보정됨</span>
-                          : <span style={{ color: '#bbb', fontSize: '12px' }}>-</span>}
+                          ? <span className="text-[11px] text-[#5BA4D9] font-semibold" title={row.overrideReason ?? ''}>보정됨</span>
+                          : <span className="text-[#bbb] text-[12px]">-</span>}
                       </td>
-                      <td style={{ ...s.td, maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '11px', color: '#A0AEC0' }}>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-muted-brand">
                         {row.normalized?.groupKey ?? '-'}
                       </td>
-                      <td style={{ ...s.td, maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '11px' }}>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap text-[11px]">
                         {row.manualGroupKey
-                          ? <span style={{ color: '#7b1fa2', fontWeight: 700 }}>{row.manualGroupKey}</span>
-                          : <span style={{ color: '#bbb' }}>-</span>}
+                          ? <span className="text-[#7b1fa2] font-bold">{row.manualGroupKey}</span>
+                          : <span className="text-[#bbb]">-</span>}
                       </td>
-                      <td style={s.td}>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                         {isExcluded
-                          ? <span style={{ fontSize: '11px', padding: '2px 6px', borderRadius: '8px', background: '#ffebee', color: '#b71c1c', fontWeight: 700 }}>제외</span>
+                          ? <span className="text-[11px] px-[6px] py-[2px] rounded-[8px] bg-[#ffebee] text-[#b71c1c] font-bold">제외</span>
                           : row.reviewRequired
-                            ? <span style={{ fontSize: '11px', color: '#e65100' }}>검토</span>
+                            ? <span className="text-[11px] text-[#e65100]">검토</span>
                             : null}
                       </td>
-                      <td style={{ ...s.td, whiteSpace: 'nowrap' }}>
-                        <div style={{ display: 'flex', gap: '4px' }}>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top whitespace-nowrap">
+                        <div className="flex gap-1">
                           <button
                             onClick={() => handleToggleExclude(row)}
                             disabled={togglingId === row.id}
@@ -385,7 +388,7 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
                           </button>
                           <button
                             onClick={() => setEditingRow(row)}
-                            style={{ padding: '3px 8px', fontSize: '11px', fontWeight: 600, borderRadius: '4px', cursor: 'pointer', border: '1px solid #F47920', background: 'rgba(244,121,32,0.12)', color: '#F47920' }}>
+                            className="px-2 py-[3px] text-[11px] font-semibold rounded cursor-pointer border border-[#F47920] bg-[rgba(244,121,32,0.12)] text-[#F47920]">
                             보정
                           </button>
                         </div>
@@ -397,10 +400,10 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
             </table>
           </div>
           {result && result.totalPages > 1 && (
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '16px', alignItems: 'center' }}>
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={s.pageBtn}>이전</button>
-              <span style={{ fontSize: '13px', color: '#A0AEC0' }}>{page} / {result.totalPages}</span>
-              <button onClick={() => setPage(p => Math.min(result.totalPages, p + 1))} disabled={page === result.totalPages} style={s.pageBtn}>다음</button>
+            <div className="flex gap-2 justify-center mt-4 items-center">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-[14px] py-[6px] bg-[rgba(91,164,217,0.1)] text-muted-brand border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px]">이전</button>
+              <span className="text-[13px] text-muted-brand">{page} / {result.totalPages}</span>
+              <button onClick={() => setPage(p => Math.min(result.totalPages, p + 1))} disabled={page === result.totalPages} className="px-[14px] py-[6px] bg-[rgba(91,164,217,0.1)] text-muted-brand border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px]">다음</button>
             </div>
           )}
         </div>
@@ -515,49 +518,51 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
       )}
 
       {/* 집계 제어 툴바 */}
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', padding: '12px 16px', background: '#1B2838', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+      <div className="flex gap-[10px] items-center mb-4 flex-wrap px-4 py-3 bg-brand rounded-lg border border-[#e0e0e0]">
         <button
           onClick={handleRebuild}
           disabled={rebuilding}
-          style={{ padding: '8px 16px', background: '#7b1fa2', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>
+          className="px-4 py-2 bg-[#7b1fa2] text-white border-0 rounded-md cursor-pointer text-[13px] font-bold">
           {rebuilding ? '재집계 중...' : '보정 반영 재집계'}
         </button>
-        <button onClick={() => handleBulkStatus('REVIEWED')} disabled={statusChanging} style={s.toolbarBtn}>검토완료</button>
-        <button onClick={() => handleBulkStatus('CONFIRMED')} disabled={statusChanging} style={{ ...s.toolbarBtn, background: '#e8f5e9', color: '#2e7d32', borderColor: '#a5d6a7' }}>전체 확정</button>
-        <button onClick={() => handleBulkStatus('DRAFT')} disabled={statusChanging} style={{ ...s.toolbarBtn, background: '#fff3e0', color: '#e65100', borderColor: '#ffcc80' }}>확정 해제</button>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', cursor: 'pointer', marginLeft: '8px' }}>
+        <button onClick={() => handleBulkStatus('REVIEWED')} disabled={statusChanging} className="px-[14px] py-[6px] bg-[rgba(244,121,32,0.12)] text-[#F47920] border border-[#90caf9] rounded-md cursor-pointer text-[13px] font-semibold">검토완료</button>
+        <button onClick={() => handleBulkStatus('CONFIRMED')} disabled={statusChanging} className="px-[14px] py-[6px] bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7] rounded-md cursor-pointer text-[13px] font-semibold">전체 확정</button>
+        <button onClick={() => handleBulkStatus('DRAFT')} disabled={statusChanging} className="px-[14px] py-[6px] bg-[#fff3e0] text-[#e65100] border border-[#ffcc80] rounded-md cursor-pointer text-[13px] font-semibold">확정 해제</button>
+        <label className="flex items-center gap-[5px] text-[13px] cursor-pointer ml-2">
           <input type="checkbox" checked={reviewOnly} onChange={e => setReviewOnly(e.target.checked)} />
           검토필요만
         </label>
-        <span style={{ fontSize: '13px', color: '#A0AEC0', marginLeft: '8px' }}>
+        <span className="text-[13px] text-muted-brand ml-2">
           총 {items.length}건
-          {reviewCount > 0 && <span style={{ color: '#e65100' }}> / 검토 {reviewCount}건</span>}
-          {confirmedCount > 0 && <span style={{ color: '#2e7d32' }}> / 확정 {confirmedCount}건</span>}
-          {overrideCount > 0 && <span style={{ color: '#7b1fa2' }}> / 보정 {overrideCount}건</span>}
+          {reviewCount > 0 && <span className="text-[#e65100]"> / 검토 {reviewCount}건</span>}
+          {confirmedCount > 0 && <span className="text-[#2e7d32]"> / 확정 {confirmedCount}건</span>}
+          {overrideCount > 0 && <span className="text-[#7b1fa2]"> / 보정 {overrideCount}건</span>}
         </span>
         {rebuildMsg && (
-          <span style={{ fontSize: '13px', color: rebuildMsg.startsWith('오류') ? '#b71c1c' : '#2e7d32', fontWeight: 600 }}>{rebuildMsg}</span>
+          <span className="text-[13px] font-semibold" style={{ color: rebuildMsg.startsWith('오류') ? '#b71c1c' : '#2e7d32' }}>{rebuildMsg}</span>
         )}
       </div>
 
       {isAllConfirmed && (
-        <div style={{ padding: '10px 16px', background: '#e8f5e9', borderRadius: '6px', marginBottom: '14px', fontSize: '13px', color: '#2e7d32', fontWeight: 600, border: '1px solid #a5d6a7' }}>
+        <div className="px-4 py-[10px] bg-[#e8f5e9] rounded-md mb-[14px] text-[13px] text-[#2e7d32] font-semibold border border-[#a5d6a7]">
           모든 집계가 확정 상태입니다. 수정하려면 "확정 해제"를 클릭하세요.
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '24px' }}>
+      <div className="flex gap-6">
         {/* Aggregate list */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {loading ? <div style={{ padding: '40px', textAlign: 'center', color: '#A0AEC0' }}>로딩 중...</div> : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={s.table}>
+        <div className="flex-1 min-w-0">
+          {loading ? <div className="py-10 text-center text-muted-brand">로딩 중...</div> : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr>{['상태', '품명', '규격', '단위', '총수량', '총금액', '출처', '보정', '검토', '액션'].map(h => <th key={h} style={s.th}>{h}</th>)}</tr>
+                  <tr>{['상태', '품명', '규격', '단위', '총수량', '총금액', '출처', '보정', '검토', '액션'].map(h => (
+                    <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                  ))}</tr>
                 </thead>
                 <tbody>
                   {items.length === 0 ? (
-                    <tr><td colSpan={10} style={{ padding: '32px', textAlign: 'center', color: '#999' }}>
+                    <tr><td colSpan={10} className="py-8 text-center text-[#999]">
                       집계 결과가 없습니다. 재집계를 실행하세요.
                     </td></tr>
                   ) : items.map(row => {
@@ -566,40 +571,40 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                       <tr key={row.id}
                         onClick={() => handleRowClick(row)}
                         style={{ cursor: 'pointer', background: selectedAgg?.id === row.id ? '#e3f2fd' : row.reviewRequired ? '#fff8f0' : 'white' }}>
-                        <td style={s.td} onClick={e => e.stopPropagation()}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top" onClick={e => e.stopPropagation()}>
                           <AggStatusBadge status={row.aggregationStatus} />
                         </td>
-                        <td style={{ ...s.td, maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap">
                           <strong>{row.normalizedItemName}</strong>
-                          {row.manualOverrideUsed && <span style={{ marginLeft: '4px', fontSize: '10px', color: '#7b1fa2', fontWeight: 700 }}>보정</span>}
+                          {row.manualOverrideUsed && <span className="ml-1 text-[10px] text-[#7b1fa2] font-bold">보정</span>}
                         </td>
-                        <td style={{ ...s.td, maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '12px', color: '#A0AEC0' }}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap text-[12px] text-muted-brand">
                           {row.normalizedSpec || '-'}
                         </td>
-                        <td style={s.td}>{row.normalizedUnit || '-'}</td>
-                        <td style={{ ...s.td, textAlign: 'right' }}>{fmtNum(row.totalQuantity)}</td>
-                        <td style={{ ...s.td, textAlign: 'right' }}>{fmtNum(row.totalAmount)}</td>
-                        <td style={{ ...s.td, textAlign: 'center' }}>
-                          <span style={{ fontSize: '12px', padding: '1px 8px', borderRadius: '10px', background: '#e8f5e9', color: '#2e7d32', fontWeight: 600 }}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{row.normalizedUnit || '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmtNum(row.totalQuantity)}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmtNum(row.totalAmount)}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                          <span className="text-[12px] px-2 py-[1px] rounded-[10px] bg-[#e8f5e9] text-[#2e7d32] font-semibold">
                             {row.sourceRowCount}행
                           </span>
                         </td>
-                        <td style={s.td}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                           {row.manualOverrideUsed
-                            ? <span style={{ fontSize: '11px', color: '#7b1fa2', fontWeight: 700 }}>Y</span>
-                            : <span style={{ color: '#bbb', fontSize: '11px' }}>-</span>}
+                            ? <span className="text-[11px] text-[#7b1fa2] font-bold">Y</span>
+                            : <span className="text-[#bbb] text-[11px]">-</span>}
                         </td>
-                        <td style={s.td}>
-                          {row.reviewRequired && <span style={{ fontSize: '12px', color: '#e65100', fontWeight: 700 }}>검토</span>}
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
+                          {row.reviewRequired && <span className="text-[12px] text-[#e65100] font-bold">검토</span>}
                         </td>
-                        <td style={{ ...s.td, whiteSpace: 'nowrap' }} onClick={e => e.stopPropagation()}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top whitespace-nowrap" onClick={e => e.stopPropagation()}>
                           {!isConfirmed ? (
-                            <div style={{ display: 'flex', gap: '4px' }}>
-                              <button onClick={() => handleSingleStatus(row, 'REVIEWED')} style={{ padding: '2px 7px', fontSize: '11px', borderRadius: '4px', cursor: 'pointer', border: '1px solid #F47920', background: 'rgba(244,121,32,0.12)', color: '#F47920' }}>검토</button>
-                              <button onClick={() => handleSingleStatus(row, 'CONFIRMED')} style={{ padding: '2px 7px', fontSize: '11px', borderRadius: '4px', cursor: 'pointer', border: '1px solid #a5d6a7', background: '#e8f5e9', color: '#2e7d32' }}>확정</button>
+                            <div className="flex gap-1">
+                              <button onClick={() => handleSingleStatus(row, 'REVIEWED')} className="px-[7px] py-[2px] text-[11px] rounded cursor-pointer border border-[#F47920] bg-[rgba(244,121,32,0.12)] text-[#F47920]">검토</button>
+                              <button onClick={() => handleSingleStatus(row, 'CONFIRMED')} className="px-[7px] py-[2px] text-[11px] rounded cursor-pointer border border-[#a5d6a7] bg-[#e8f5e9] text-[#2e7d32]">확정</button>
                             </div>
                           ) : (
-                            <button onClick={() => handleSingleStatus(row, 'REVIEWED')} style={{ padding: '2px 7px', fontSize: '11px', borderRadius: '4px', cursor: 'pointer', border: '1px solid #ffcc80', background: '#fff3e0', color: '#e65100' }}>해제</button>
+                            <button onClick={() => handleSingleStatus(row, 'REVIEWED')} className="px-[7px] py-[2px] text-[11px] rounded cursor-pointer border border-[#ffcc80] bg-[#fff3e0] text-[#e65100]">해제</button>
                           )}
                         </td>
                       </tr>
@@ -613,73 +618,74 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
 
         {/* Source rows drill-down */}
         {selectedAgg && (
-          <div style={{ width: '440px', flexShrink: 0, background: '#f8faff', borderRadius: '8px', padding: '16px', border: '1px solid #e3f2fd' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+          <div className="w-[440px] shrink-0 bg-[#f8faff] rounded-lg p-4 border border-[#e3f2fd]">
+            <div className="flex justify-between items-start mb-3">
               <div>
-                <div style={{ fontWeight: 700, fontSize: '14px' }}>{selectedAgg.normalizedItemName}</div>
-                <div style={{ fontSize: '12px', color: '#A0AEC0', marginTop: '2px' }}>{selectedAgg.normalizedSpec || '-'} / {selectedAgg.normalizedUnit || '-'}</div>
-                <div style={{ marginTop: '6px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <div className="font-bold text-sm">{selectedAgg.normalizedItemName}</div>
+                <div className="text-[12px] text-muted-brand mt-[2px]">{selectedAgg.normalizedSpec || '-'} / {selectedAgg.normalizedUnit || '-'}</div>
+                <div className="mt-[6px] flex gap-[6px] items-center">
                   <AggStatusBadge status={selectedAgg.aggregationStatus} />
-                  {selectedAgg.manualOverrideUsed && <span style={{ fontSize: '11px', color: '#7b1fa2', fontWeight: 700 }}>보정 사용됨</span>}
+                  {selectedAgg.manualOverrideUsed && <span className="text-[11px] text-[#7b1fa2] font-bold">보정 사용됨</span>}
                 </div>
-                <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '4px' }}>
-                  그룹키: <code style={{ fontSize: '11px', background: '#1B2838', padding: '1px 4px', borderRadius: '3px' }}>{selectedAgg.groupKey}</code>
+                <div className="text-[11px] text-muted-brand mt-1">
+                  그룹키: <code className="text-[11px] bg-brand px-1 rounded">{selectedAgg.groupKey}</code>
                 </div>
                 {selectedAgg.regeneratedAt && (
-                  <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '2px' }}>
+                  <div className="text-[11px] text-muted-brand mt-[2px]">
                     재집계: {new Date(selectedAgg.regeneratedAt).toLocaleString('ko-KR')}
                   </div>
                 )}
                 {selectedAgg.confirmedAt && (
-                  <div style={{ fontSize: '11px', color: '#2e7d32', marginTop: '2px' }}>
+                  <div className="text-[11px] text-[#2e7d32] mt-[2px]">
                     확정: {new Date(selectedAgg.confirmedAt).toLocaleString('ko-KR')} ({selectedAgg.confirmedBy})
                   </div>
                 )}
               </div>
-              <button onClick={() => setSelectedAgg(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A0AEC0', fontSize: '18px', padding: '0 4px' }}>×</button>
+              <button onClick={() => setSelectedAgg(null)} className="bg-transparent border-0 cursor-pointer text-muted-brand text-[18px] px-1">×</button>
             </div>
 
             {sourceLoading ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#A0AEC0' }}>로딩 중...</div>
+              <div className="py-5 text-center text-muted-brand">로딩 중...</div>
             ) : (
               <div>
-                <div style={{ fontSize: '12px', color: '#A0AEC0', marginBottom: '8px' }}>출처 행 {sourceRows.length}건</div>
+                <div className="text-[12px] text-muted-brand mb-2">출처 행 {sourceRows.length}건</div>
                 {sourceRows.map(row => {
                   const isOverridden = !!row.overriddenAt
                   const isExcluded = row.excludeFromAggregation
                   return (
-                    <div key={row.id} style={{ padding: '10px 12px', marginBottom: '8px', background: '#1E3350', borderRadius: '6px', border: isExcluded ? '1px solid #ef9a9a' : isOverridden ? '1px solid #90caf9' : '1px solid #e0e0e0', fontSize: '12px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                        <span style={{ color: '#A0AEC0' }}>{row.sheetName} 행 {row.rowNo + 1}</span>
-                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                          {isExcluded && <span style={{ color: '#b71c1c', fontWeight: 700, fontSize: '11px' }}>제외</span>}
-                          {isOverridden && <span style={{ color: '#5BA4D9', fontWeight: 700, fontSize: '11px' }}>보정</span>}
-                          {row.reviewRequired && <span style={{ color: '#e65100', fontWeight: 600, fontSize: '11px' }}>검토</span>}
+                    <div key={row.id} className="px-3 py-[10px] mb-2 bg-[#1E3350] rounded-md text-[12px]"
+                      style={{ border: isExcluded ? '1px solid #ef9a9a' : isOverridden ? '1px solid #90caf9' : '1px solid #e0e0e0' }}>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-muted-brand">{row.sheetName} 행 {row.rowNo + 1}</span>
+                        <div className="flex gap-1 items-center">
+                          {isExcluded && <span className="text-[#b71c1c] font-bold text-[11px]">제외</span>}
+                          {isOverridden && <span className="text-[#5BA4D9] font-bold text-[11px]">보정</span>}
+                          {row.reviewRequired && <span className="text-[#e65100] font-semibold text-[11px]">검토</span>}
                         </div>
                       </div>
                       {/* 원문 vs 보정값 비교 */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', fontSize: '11px', marginBottom: '6px' }}>
-                        <div style={{ color: '#A0AEC0' }}>
+                      <div className="grid grid-cols-2 gap-1 text-[11px] mb-[6px]">
+                        <div className="text-muted-brand">
                           <div>원문 품명: {row.rawItemName || '-'}</div>
                           <div>원문 규격: {row.rawSpec || '-'}</div>
                           <div>원문 단위: {row.rawUnit || '-'} / 수량: {row.rawQuantity || '-'}</div>
                         </div>
                         {isOverridden && (
-                          <div style={{ color: '#4A93C8' }}>
-                            <div>보정 품명: {row.manualItemName || <span style={{ color: '#bbb' }}>-</span>}</div>
-                            <div>보정 규격: {row.manualSpec || <span style={{ color: '#bbb' }}>-</span>}</div>
+                          <div className="text-[#4A93C8]">
+                            <div>보정 품명: {row.manualItemName || <span className="text-[#bbb]">-</span>}</div>
+                            <div>보정 규격: {row.manualSpec || <span className="text-[#bbb]">-</span>}</div>
                             <div>보정 단위: {row.manualUnit || '-'} / 수량: {row.manualQuantity || '-'}</div>
                           </div>
                         )}
                       </div>
                       {row.manualGroupKey && (
-                        <div style={{ fontSize: '11px', marginBottom: '4px' }}>
-                          수동 그룹키: <span style={{ color: '#7b1fa2', fontWeight: 700 }}>{row.manualGroupKey}</span>
+                        <div className="text-[11px] mb-1">
+                          수동 그룹키: <span className="text-[#7b1fa2] font-bold">{row.manualGroupKey}</span>
                         </div>
                       )}
                       {/* 즉시 액션 */}
                       {selectedAgg.aggregationStatus !== 'CONFIRMED' && (
-                        <div style={{ display: 'flex', gap: '4px', marginTop: '6px' }}>
+                        <div className="flex gap-1 mt-[6px]">
                           <button
                             onClick={async () => {
                               await fetch(`/api/admin/materials/estimates/${docId}/rows/${row.id}`, {
@@ -689,12 +695,12 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                               })
                               handleRowClick(selectedAgg)
                             }}
-                            style={{ padding: '2px 8px', fontSize: '11px', borderRadius: '4px', cursor: 'pointer', border: isExcluded ? '1px solid #a5d6a7' : '1px solid #ef9a9a', background: isExcluded ? '#e8f5e9' : '#ffebee', color: isExcluded ? '#2e7d32' : '#b71c1c', fontWeight: 600 }}>
+                            style={{ padding: '2px 8px', fontSize: '11px', borderRadius: '4px', cursor: 'pointer', fontWeight: 600, border: isExcluded ? '1px solid #a5d6a7' : '1px solid #ef9a9a', background: isExcluded ? '#e8f5e9' : '#ffebee', color: isExcluded ? '#2e7d32' : '#b71c1c' }}>
                             {isExcluded ? '제외해제' : '제외'}
                           </button>
                           <button
                             onClick={() => setEditingSourceRow(row)}
-                            style={{ padding: '2px 8px', fontSize: '11px', borderRadius: '4px', cursor: 'pointer', border: '1px solid #F47920', background: 'rgba(244,121,32,0.12)', color: '#F47920', fontWeight: 600 }}>
+                            className="px-2 py-[2px] text-[11px] rounded cursor-pointer border border-[#F47920] bg-[rgba(244,121,32,0.12)] text-[#F47920] font-semibold">
                             보정편집
                           </button>
                         </div>
@@ -703,12 +709,12 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                   )
                 })}
                 {overrides.length > 0 && (
-                  <div style={{ marginTop: '12px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#A0AEC0', marginBottom: '6px' }}>보정 이력</div>
+                  <div className="mt-3">
+                    <div className="text-[12px] font-bold text-muted-brand mb-[6px]">보정 이력</div>
                     {overrides.map(o => (
-                      <div key={o.id} style={{ fontSize: '11px', color: '#A0AEC0', marginBottom: '4px' }}>
+                      <div key={o.id} className="text-[11px] text-muted-brand mb-1">
                         {new Date(o.changedAt).toLocaleString('ko-KR')} {o.changedBy} — {o.fieldName}: {o.beforeValue ?? '-'} → {o.afterValue ?? '-'}
-                        {o.reason && <span style={{ color: '#aaa' }}> ({o.reason})</span>}
+                        {o.reason && <span className="text-[#aaa]"> ({o.reason})</span>}
                       </div>
                     ))}
                   </div>
@@ -794,8 +800,8 @@ export default function EstimateDetailPage() {
     if (activeTab === 'raw' && !selectedSheetId && sheets.length > 0) setSelectedSheetId(sheets[0].id)
   }, [activeTab, sheets, selectedSheetId])
 
-  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>로딩 중...</div>
-  if (!doc) return <div style={{ padding: '40px', color: '#b71c1c' }}>문서를 찾을 수 없습니다</div>
+  if (loading) return <div className="flex justify-center items-center min-h-screen">로딩 중...</div>
+  if (!doc) return <div className="p-10 text-[#b71c1c]">문서를 찾을 수 없습니다</div>
 
   const tabs = [
     { key: 'sheets', label: `시트 목록 (${sheets.length})` },
@@ -805,10 +811,10 @@ export default function EstimateDetailPage() {
   ] as const
 
   return (
-    <div style={s.layout}>
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
-        <div style={s.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {[
           { href: '/admin', label: '대시보드' },
           { href: '/admin/workers', label: '근로자 관리' },
@@ -826,78 +832,92 @@ export default function EstimateDetailPage() {
           { href: '/admin/device-requests', label: '기기 변경' },
           { href: '/admin/materials', label: '자재관리' },
         ].map(item => (
-          <Link key={item.href} href={item.href} style={item.href === '/admin/materials' ? s.navItemActive : s.navItem}>{item.label}</Link>
+          <Link key={item.href} href={item.href}
+            className={item.href === '/admin/materials'
+              ? 'block text-white px-5 py-[10px] text-sm no-underline bg-[rgba(244,121,32,0.15)] border-l-[3px] border-[#F47920]'
+              : 'block text-white/80 px-5 py-[10px] text-sm no-underline'}>
+            {item.label}
+          </Link>
         ))}
-        <button onClick={handleLogout} style={s.logoutBtn}>로그아웃</button>
+        <button onClick={handleLogout} className="mx-5 mt-6 p-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
       </nav>
 
-      <main style={s.main}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', fontSize: '14px', color: '#A0AEC0' }}>
-          <Link href="/admin/materials" style={{ color: '#5BA4D9', textDecoration: 'none' }}>자재관리</Link>
+      <main className="flex-1 p-8 min-w-0">
+        <div className="flex items-center gap-2 mb-5 text-sm text-muted-brand">
+          <Link href="/admin/materials" className="text-[#5BA4D9] no-underline">자재관리</Link>
           <span>/</span>
-          <span style={{ color: '#CBD5E0' }}>{doc.fileName}</span>
+          <span className="text-[#CBD5E0]">{doc.fileName}</span>
         </div>
 
         {/* Header card */}
-        <div style={{ background: '#243144', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-6">
+          <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <h1 style={{ fontSize: '20px', fontWeight: 700, margin: '0 0 8px' }}>{doc.fileName}</h1>
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '14px', color: '#A0AEC0' }}>
+              <h1 className="text-[20px] font-bold m-0 mb-2">{doc.fileName}</h1>
+              <div className="flex gap-4 flex-wrap text-sm text-muted-brand">
                 {doc.site && <span>현장: <strong>{doc.site.name}</strong></span>}
                 <span>유형: <strong>{DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}</strong></span>
                 <span>업로드: {new Date(doc.uploadedAt).toLocaleDateString('ko-KR')}</span>
                 <span>버전: v{doc.parseVersion}</span>
                 <span>시트: <strong>{doc.sheetCount}</strong></span>
               </div>
-              {doc.notes && <div style={{ marginTop: '8px', fontSize: '13px', color: '#A0AEC0' }}>{doc.notes}</div>}
+              {doc.notes && <div className="mt-2 text-[13px] text-muted-brand">{doc.notes}</div>}
               {doc.errorMessage && (
-                <div style={{ marginTop: '8px', padding: '8px 12px', background: '#ffebee', borderRadius: '6px', color: '#b71c1c', fontSize: '13px' }}>
+                <div className="mt-2 px-3 py-2 bg-[#ffebee] rounded-md text-[#b71c1c] text-[13px]">
                   오류: {doc.errorMessage}
                 </div>
               )}
             </div>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <span style={{ padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 600, background: `${STATUS_COLOR[doc.parseStatus]}20`, color: STATUS_COLOR[doc.parseStatus] }}>
+            <div className="flex gap-3 items-center">
+              <span className="px-[14px] py-1 rounded-[20px] text-[13px] font-semibold"
+                style={{ background: `${STATUS_COLOR[doc.parseStatus]}20`, color: STATUS_COLOR[doc.parseStatus] }}>
                 {STATUS_LABEL[doc.parseStatus] ?? doc.parseStatus}
               </span>
-              <button onClick={handleReparse} style={s.secondaryBtn}>재파싱</button>
+              <button onClick={handleReparse} className="px-4 py-2 bg-[#f3e5f5] text-[#7b1fa2] border border-[#ce93d8] rounded-md cursor-pointer text-[13px] font-semibold">재파싱</button>
             </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid #e0e0e0' }}>
+        <div className="flex gap-0 border-b-2 border-[#e0e0e0]">
           {tabs.map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-              style={{ padding: '12px 20px', border: 'none', background: 'none', fontSize: '14px', fontWeight: activeTab === tab.key ? 700 : 400, color: activeTab === tab.key ? '#1976d2' : '#666', borderBottom: activeTab === tab.key ? '2px solid #1976d2' : '2px solid transparent', marginBottom: '-2px', cursor: 'pointer' }}>
+              style={{
+                padding: '12px 20px', border: 'none', background: 'none', fontSize: '14px',
+                fontWeight: activeTab === tab.key ? 700 : 400,
+                color: activeTab === tab.key ? '#1976d2' : '#666',
+                borderBottom: activeTab === tab.key ? '2px solid #1976d2' : '2px solid transparent',
+                marginBottom: '-2px', cursor: 'pointer',
+              }}>
               {tab.label}
             </button>
           ))}
         </div>
 
-        <div style={{ background: '#243144', borderRadius: '0 0 10px 10px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
+        <div className="bg-card rounded-b-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
 
           {/* Tab: Sheet List */}
           {activeTab === 'sheets' && (
-            sheetsLoading ? <div style={{ padding: '40px', textAlign: 'center', color: '#A0AEC0' }}>로딩 중...</div> : (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={s.table}>
-                  <thead><tr>{['#', '시트명', '유형', '공종', '행수', '열수', '검토필요', '상태', '보기'].map(h => <th key={h} style={s.th}>{h}</th>)}</tr></thead>
+            sheetsLoading ? <div className="py-10 text-center text-muted-brand">로딩 중...</div> : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead><tr>{['#', '시트명', '유형', '공종', '행수', '열수', '검토필요', '상태', '보기'].map(h => (
+                    <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                  ))}</tr></thead>
                   <tbody>
                     {sheets.length === 0 ? (
-                      <tr><td colSpan={9} style={{ padding: '32px', textAlign: 'center', color: '#999' }}>파싱 후 시트 목록이 표시됩니다</td></tr>
+                      <tr><td colSpan={9} className="py-8 text-center text-[#999]">파싱 후 시트 목록이 표시됩니다</td></tr>
                     ) : sheets.map(sheet => (
-                      <tr key={sheet.id} style={s.tr}>
-                        <td style={s.td}>{sheet.sheetIndex + 1}</td>
-                        <td style={s.td}><strong>{sheet.sheetName}</strong>{sheet.isHidden && <span style={{ marginLeft: '6px', fontSize: '11px', color: '#999' }}>(숨김)</span>}</td>
-                        <td style={s.td}><span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '10px', background: 'rgba(244,121,32,0.12)', color: '#F47920' }}>{SHEET_TYPE_LABEL[sheet.sheetType] ?? sheet.sheetType}</span></td>
-                        <td style={s.td}>{sheet.discipline ?? <span style={{ color: '#bbb' }}>-</span>}</td>
-                        <td style={s.td}>{sheet.maxRows}</td>
-                        <td style={s.td}>{sheet.maxCols}</td>
-                        <td style={s.td}>{sheet.needsReview ? <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '10px', background: '#fff3e0', color: '#e65100', fontWeight: 600 }}>검토필요</span> : <span style={{ fontSize: '12px', color: '#bbb' }}>-</span>}</td>
-                        <td style={s.td}><span style={{ fontSize: '12px', fontWeight: 600, color: STATUS_COLOR[sheet.parseStatus] }}>{STATUS_LABEL[sheet.parseStatus] ?? sheet.parseStatus}</span></td>
-                        <td style={s.td}><button onClick={() => { setActiveTab('raw'); setSelectedSheetId(sheet.id) }} style={s.viewBtn}>원문보기</button></td>
+                      <tr key={sheet.id}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{sheet.sheetIndex + 1}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><strong>{sheet.sheetName}</strong>{sheet.isHidden && <span className="ml-[6px] text-[11px] text-[#999]">(숨김)</span>}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-[rgba(244,121,32,0.12)] text-[#F47920]">{SHEET_TYPE_LABEL[sheet.sheetType] ?? sheet.sheetType}</span></td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{sheet.discipline ?? <span className="text-[#bbb]">-</span>}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{sheet.maxRows}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{sheet.maxCols}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{sheet.needsReview ? <span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-[#fff3e0] text-[#e65100] font-semibold">검토필요</span> : <span className="text-[12px] text-[#bbb]">-</span>}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><span className="text-[12px] font-semibold" style={{ color: STATUS_COLOR[sheet.parseStatus] }}>{STATUS_LABEL[sheet.parseStatus] ?? sheet.parseStatus}</span></td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><button onClick={() => { setActiveTab('raw'); setSelectedSheetId(sheet.id) }} className="px-[10px] py-1 bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7] rounded cursor-pointer text-[12px] font-semibold">원문보기</button></td>
                       </tr>
                     ))}
                   </tbody>
@@ -909,27 +929,27 @@ export default function EstimateDetailPage() {
           {/* Tab: Raw Viewer */}
           {activeTab === 'raw' && (
             <div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
-                <label style={{ fontSize: '14px', fontWeight: 600, color: '#A0AEC0', whiteSpace: 'nowrap' }}>시트 선택:</label>
-                <select value={selectedSheetId} onChange={e => setSelectedSheetId(e.target.value)} style={s.filterSelect}>
+              <div className="flex gap-3 items-center mb-4">
+                <label className="text-sm font-semibold text-muted-brand whitespace-nowrap">시트 선택:</label>
+                <select value={selectedSheetId} onChange={e => setSelectedSheetId(e.target.value)} className="px-3 py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-[#1E3048] text-[#E2E8F0]">
                   <option value="">-- 시트를 선택하세요 --</option>
                   {sheets.map(sh => <option key={sh.id} value={sh.id}>{sh.sheetIndex + 1}. {sh.sheetName}{sh.discipline ? ` (${sh.discipline})` : ''}{sh.isHidden ? ' [숨김]' : ''}</option>)}
                 </select>
-                {rawCells && <span style={{ fontSize: '13px', color: '#A0AEC0' }}>{rawCells.length}행 표시 중 (최대 {displayRows}행)</span>}
+                {rawCells && <span className="text-[13px] text-muted-brand">{rawCells.length}행 표시 중 (최대 {displayRows}행)</span>}
               </div>
-              {!selectedSheetId && <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>위에서 시트를 선택하세요</div>}
-              {rawLoading && <div style={{ padding: '40px', textAlign: 'center', color: '#A0AEC0' }}>로딩 중...</div>}
+              {!selectedSheetId && <div className="py-10 text-center text-[#999]">위에서 시트를 선택하세요</div>}
+              {rawLoading && <div className="py-10 text-center text-muted-brand">로딩 중...</div>}
               {!rawLoading && rawCells && (
                 <div>
                   <RawSheetGrid cells={rawCells} maxDisplayRows={displayRows} />
                   {rawCells.length > displayRows && (
-                    <div style={{ textAlign: 'center', padding: '16px' }}>
-                      <button onClick={() => setDisplayRows(d => d + 500)} style={s.loadMoreBtn}>더 보기 ({rawCells.length - displayRows}행 남음)</button>
+                    <div className="text-center py-4">
+                      <button onClick={() => setDisplayRows(d => d + 500)} className="px-5 py-2 bg-[rgba(91,164,217,0.1)] text-muted-brand border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px]">더 보기 ({rawCells.length - displayRows}행 남음)</button>
                     </div>
                   )}
                 </div>
               )}
-              {!rawLoading && selectedSheetId && !rawCells && <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>원문 데이터가 없습니다. 재파싱을 시도하세요.</div>}
+              {!rawLoading && selectedSheetId && !rawCells && <div className="py-10 text-center text-[#999]">원문 데이터가 없습니다. 재파싱을 시도하세요.</div>}
             </div>
           )}
 
@@ -943,26 +963,4 @@ export default function EstimateDetailPage() {
       </main>
     </div>
   )
-}
-
-const s: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection: { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navItemActive: { display: 'block', color: 'white', padding: '10px 20px', fontSize: '14px', textDecoration: 'none', background: 'rgba(244,121,32,0.15)', borderLeft: '3px solid #F47920' },
-  logoutBtn: { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main: { flex: 1, padding: '32px', minWidth: 0 },
-  secondaryBtn: { padding: '8px 16px', background: '#f3e5f5', color: '#7b1fa2', border: '1px solid #ce93d8', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  th: { textAlign: 'left', padding: '10px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '2px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' },
-  td: { padding: '10px 12px', fontSize: '13px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' },
-  tr: {},
-  filterSelect: { padding: '7px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', background: '#1E3048', color: '#E2E8F0' },
-  viewBtn: { padding: '4px 10px', background: '#e8f5e9', color: '#2e7d32', border: '1px solid #a5d6a7', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 },
-  loadMoreBtn: { padding: '8px 20px', background: 'rgba(91,164,217,0.1)', color: '#A0AEC0', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
-  pageBtn: { padding: '6px 14px', background: 'rgba(91,164,217,0.1)', color: '#A0AEC0', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
-  input: { width: '100%', padding: '7px 10px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' },
-  toolbarBtn: { padding: '6px 14px', background: 'rgba(244,121,32,0.12)', color: '#F47920', border: '1px solid #90caf9', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
 }

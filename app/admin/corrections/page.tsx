@@ -83,79 +83,86 @@ export default function CorrectionsPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   return (
-    <div style={s.layout}>
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
-        <div style={s.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {NAV_ITEMS.map((item) => (
-          <Link key={item.href} href={item.href} style={{ ...s.navItem, ...(item.href === '/admin/corrections' ? s.navActive : {}) }}>
+          <Link key={item.href} href={item.href}
+            className={`block px-5 py-2.5 text-[13px] no-underline transition-colors ${item.href === '/admin/corrections' ? 'bg-white/10 text-white font-bold' : 'text-white/80 hover:text-white'}`}>
             {item.label}
           </Link>
         ))}
-        <button onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))} style={s.logoutBtn}>로그아웃</button>
+        <button
+          onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))}
+          className="mx-5 mt-6 py-2.5 bg-white/10 border-none rounded-md text-white/60 cursor-pointer text-[13px]"
+        >로그아웃</button>
       </nav>
 
-      <main style={s.main}>
-        <h1 style={s.pageTitle}>정정 이력</h1>
-        <p style={{ fontSize: '13px', color: '#A0AEC0', margin: '-12px 0 20px' }}>
+      <main className="flex-1 p-8 overflow-auto">
+        <h1 className="text-2xl font-bold m-0 mb-2">정정 이력</h1>
+        <p className="text-[13px] text-muted-brand mb-5">
           데이터 수정/정정 이력을 조회합니다
         </p>
 
         {/* 필터 영역 */}
-        <div style={s.filterCard}>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        <div className="bg-card rounded-xl p-6 mb-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="flex gap-3 flex-wrap items-end">
             <div>
-              <label style={s.label}>도메인</label>
-              <select value={domainFilter} onChange={(e) => { setDomainFilter(e.target.value); setPage(1) }} style={s.input}>
+              <label className="block text-xs text-muted-brand mb-1 font-semibold">도메인</label>
+              <select value={domainFilter} onChange={(e) => { setDomainFilter(e.target.value); setPage(1) }}
+                className="input-base">
                 {DOMAIN_TYPES.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
               </select>
             </div>
             <div>
-              <label style={s.label}>시작일</label>
-              <input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPage(1) }} style={s.input} />
+              <label className="block text-xs text-muted-brand mb-1 font-semibold">시작일</label>
+              <input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPage(1) }}
+                className="input-base" />
             </div>
             <div>
-              <label style={s.label}>종료일</label>
-              <input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPage(1) }} style={s.input} />
+              <label className="block text-xs text-muted-brand mb-1 font-semibold">종료일</label>
+              <input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPage(1) }}
+                className="input-base" />
             </div>
-            <button onClick={() => { setPage(1); load() }} style={s.btn}>조회</button>
+            <button onClick={() => { setPage(1); load() }} className="btn-primary">조회</button>
           </div>
         </div>
 
         {/* 결과 테이블 */}
-        <div style={s.tableCard}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 700, fontSize: '14px' }}>정정 이력 목록</span>
-            <span style={{ fontSize: '12px', color: '#A0AEC0' }}>전체 {total.toLocaleString('ko-KR')}건</span>
+        <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+          <div className="px-5 py-4 border-b border-[rgba(91,164,217,0.15)] flex justify-between items-center">
+            <span className="font-bold text-sm">정정 이력 목록</span>
+            <span className="text-xs text-muted-brand">전체 {total.toLocaleString('ko-KR')}건</span>
           </div>
           {loading ? (
-            <div style={{ padding: '32px', textAlign: 'center', color: '#999' }}>로딩 중...</div>
+            <div className="py-8 text-center text-[#999]">로딩 중...</div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={s.table}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr>
+                  <tr className="border-b border-[rgba(91,164,217,0.15)]">
                     {['일시', '도메인', '대상 ID', '액션', '사유', '처리자', '변경 전/후'].map((h) => (
-                      <th key={h} style={s.th}>{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {items.length === 0 ? (
-                    <tr><td colSpan={7} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>이력 없음</td></tr>
+                    <tr><td colSpan={7} className="text-center py-6 text-[#999]">이력 없음</td></tr>
                   ) : items.map((item) => (
                     <>
-                      <tr key={item.id} style={s.tr}>
-                        <td style={s.td}>{fmtDate(item.createdAt)}</td>
-                        <td style={s.td}>
-                          <span style={{ fontSize: '12px', fontWeight: 600, color: '#4A93C8', background: 'rgba(91,164,217,0.1)', padding: '2px 8px', borderRadius: '4px' }}>
+                      <tr key={item.id} className="border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors">
+                        <td className="px-4 py-3 text-sm text-[#CBD5E0]">{fmtDate(item.createdAt)}</td>
+                        <td className="px-4 py-3 text-sm text-[#CBD5E0]">
+                          <span className="text-xs font-semibold text-[#4A93C8] bg-[rgba(91,164,217,0.1)] px-2 py-0.5 rounded">
                             {domainLabel(item.domainType)}
                           </span>
                         </td>
-                        <td style={{ ...s.td, fontFamily: 'monospace', fontSize: '12px', color: '#A0AEC0', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <td className="px-4 py-3 text-xs text-muted-brand font-mono max-w-[140px] overflow-hidden text-ellipsis whitespace-nowrap">
                           {item.targetId}
                         </td>
-                        <td style={s.td}>
+                        <td className="px-4 py-3 text-sm text-[#CBD5E0]">
                           <span style={{
                             fontSize: '12px',
                             fontWeight: 600,
@@ -164,13 +171,14 @@ export default function CorrectionsPage() {
                             {item.action}
                           </span>
                         </td>
-                        <td style={{ ...s.td, maxWidth: '200px', fontSize: '12px', color: '#A0AEC0' }}>{item.reason ?? '-'}</td>
-                        <td style={s.td}>{item.operatorName ?? item.operatorId ?? '-'}</td>
-                        <td style={s.td}>
+                        <td className="px-4 py-3 text-xs text-muted-brand max-w-[200px]">{item.reason ?? '-'}</td>
+                        <td className="px-4 py-3 text-sm text-[#CBD5E0]">{item.operatorName ?? item.operatorId ?? '-'}</td>
+                        <td className="px-4 py-3 text-sm text-[#CBD5E0]">
                           {(item.beforeJson || item.afterJson) && (
                             <button
                               onClick={() => toggleExpand(item.id)}
-                              style={{ ...s.btn, padding: '3px 10px', fontSize: '12px', background: expandedId === item.id ? '#455a64' : '#607d8b' }}
+                              className="px-2.5 py-0.5 text-xs text-white border-none rounded cursor-pointer font-semibold"
+                              style={{ background: expandedId === item.id ? '#455a64' : '#607d8b' }}
                             >
                               {expandedId === item.id ? '접기' : '보기'}
                             </button>
@@ -179,21 +187,21 @@ export default function CorrectionsPage() {
                       </tr>
                       {expandedId === item.id && (
                         <tr key={`${item.id}-expand`}>
-                          <td colSpan={7} style={{ padding: '0', background: '#fafafa', borderBottom: '1px solid #f0f0f0' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0' }}>
-                              <div style={{ padding: '16px', borderRight: '1px solid #f0f0f0' }}>
-                                <div style={{ fontSize: '11px', fontWeight: 700, color: '#c62828', marginBottom: '8px', textTransform: 'uppercase' }}>
+                          <td colSpan={7} className="p-0 bg-brand border-b border-[rgba(91,164,217,0.08)]">
+                            <div className="grid grid-cols-2">
+                              <div className="p-4 border-r border-[rgba(91,164,217,0.15)]">
+                                <div className="text-[11px] font-bold text-[#c62828] mb-2 uppercase">
                                   변경 전 (Before)
                                 </div>
-                                <pre style={{ fontSize: '11px', color: '#CBD5E0', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                                <pre className="text-[11px] text-[#CBD5E0] m-0 whitespace-pre-wrap break-all">
                                   {item.beforeJson ? JSON.stringify(item.beforeJson, null, 2) : '(없음)'}
                                 </pre>
                               </div>
-                              <div style={{ padding: '16px' }}>
-                                <div style={{ fontSize: '11px', fontWeight: 700, color: '#2e7d32', marginBottom: '8px', textTransform: 'uppercase' }}>
+                              <div className="p-4">
+                                <div className="text-[11px] font-bold text-[#2e7d32] mb-2 uppercase">
                                   변경 후 (After)
                                 </div>
-                                <pre style={{ fontSize: '11px', color: '#CBD5E0', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                                <pre className="text-[11px] text-[#CBD5E0] m-0 whitespace-pre-wrap break-all">
                                   {item.afterJson ? JSON.stringify(item.afterJson, null, 2) : '(없음)'}
                                 </pre>
                               </div>
@@ -210,19 +218,19 @@ export default function CorrectionsPage() {
 
           {/* 페이지네이션 */}
           {totalPages > 1 && (
-            <div style={{ padding: '16px 20px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+            <div className="px-5 py-4 border-t border-[rgba(91,164,217,0.15)] flex gap-2 justify-center items-center">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                style={{ ...s.pageBtn, opacity: page === 1 ? 0.4 : 1 }}
+                className="px-3.5 py-1.5 border border-[rgba(91,164,217,0.2)] rounded-md bg-card cursor-pointer text-[13px] disabled:opacity-40"
               >
                 이전
               </button>
-              <span style={{ fontSize: '13px', color: '#A0AEC0' }}>{page} / {totalPages}</span>
+              <span className="text-[13px] text-muted-brand">{page} / {totalPages}</span>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                style={{ ...s.pageBtn, opacity: page === totalPages ? 0.4 : 1 }}
+                className="px-3.5 py-1.5 border border-[rgba(91,164,217,0.2)] rounded-md bg-card cursor-pointer text-[13px] disabled:opacity-40"
               >
                 다음
               </button>
@@ -254,25 +262,3 @@ const NAV_ITEMS = [
   { href: '/admin/exceptions',            label: '예외 승인' },
   { href: '/admin/device-requests',       label: '기기 변경' },
 ]
-
-const s: Record<string, React.CSSProperties> = {
-  layout:     { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:    { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection: { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
-  navItem:    { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
-  navActive:  { background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 700 },
-  logoutBtn:  { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main:       { flex: 1, padding: '32px', overflow: 'auto' },
-  pageTitle:  { fontSize: '24px', fontWeight: 700, margin: '0 0 8px' },
-  label:      { display: 'block', fontSize: '12px', color: '#A0AEC0', marginBottom: '4px', fontWeight: 600 },
-  input:      { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
-  btn:        { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  filterCard: { background: '#243144', borderRadius: '12px', padding: '24px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' },
-  tableCard:  { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
-  table:      { width: '100%', borderCollapse: 'collapse' as const },
-  th:         { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
-  td:         { padding: '12px 16px', fontSize: '13px', color: '#CBD5E0', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
-  tr:         { cursor: 'default' },
-  pageBtn:    { padding: '6px 14px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', background: '#243144', cursor: 'pointer', fontSize: '13px' },
-}

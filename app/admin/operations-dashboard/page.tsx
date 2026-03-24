@@ -166,47 +166,47 @@ export default function OperationsDashboardPage() {
   const closingStatus = data?.monthClosingStatus?.status ?? 'OPEN'
 
   if (loading && !data) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px', color: '#A0AEC0', fontSize: '15px' }}>
+    <div className="flex items-center justify-center h-64 text-muted-brand text-[15px]">
       대시보드 로딩 중...
     </div>
   )
 
   return (
-    <div style={s.layout}>
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
-        <div style={s.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {NAV_ITEMS.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            style={{ ...s.navItem, ...(item.href === '/admin/operations-dashboard' ? s.navActive : {}) }}
+            className={`block text-white/80 px-5 py-[10px] text-[13px] no-underline${item.href === '/admin/operations-dashboard' ? ' bg-white/10 text-white font-bold' : ''}`}
           >
             {item.label}
           </Link>
         ))}
         <button
           onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))}
-          style={s.logoutBtn}
+          className="mx-5 mt-6 py-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]"
         >
           로그아웃
         </button>
       </nav>
 
-      <main style={s.main}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-          <h1 style={{ ...s.pageTitle, margin: 0 }}>운영 대시보드</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <main className="flex-1 p-8 overflow-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold m-0">운영 대시보드</h1>
+          <div className="flex items-center gap-3">
             <input
               type="month"
               value={monthKey}
               onChange={e => setMonthKey(e.target.value)}
-              style={s.input}
+              className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-sm bg-card text-white"
             />
             <button
               onClick={fetchDashboard}
               disabled={loading}
-              style={{ ...s.btn, opacity: loading ? 0.6 : 1 }}
+              className="px-4 py-2 bg-accent text-white border-0 rounded-md cursor-pointer text-sm font-semibold disabled:opacity-60"
             >
               {loading ? '조회 중...' : '새로고침'}
             </button>
@@ -214,23 +214,17 @@ export default function OperationsDashboardPage() {
         </div>
 
         {error && (
-          <div style={{ ...s.msgBox, background: '#ffebee', color: '#c62828', marginBottom: '20px' }}>
+          <div className="px-4 py-3 rounded-lg text-sm bg-[#ffebee] text-[#c62828] mb-5">
             {error}
           </div>
         )}
 
         {/* KPI 카드 + 월마감 상태 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+        <div className="grid grid-cols-4 gap-4 mb-6">
           {loading && !data ? (
             // 스켈레톤 로딩
             Array.from({ length: 7 }).map((_, i) => (
-              <div key={i} style={{
-                background: '#f0f0f0',
-                borderRadius: '12px',
-                padding: '20px',
-                height: '80px',
-                animation: 'pulse 1.5s ease-in-out infinite',
-              }} />
+              <div key={i} className="bg-[#f0f0f0] rounded-xl p-5 h-20 animate-pulse" />
             ))
           ) : (
             <>
@@ -244,9 +238,9 @@ export default function OperationsDashboardPage() {
                   <div style={{ fontSize: '32px', fontWeight: 700, color: card.color }}>
                     {loading ? '-' : card.value.toLocaleString()}
                   </div>
-                  <div style={{ fontSize: '13px', color: '#A0AEC0', marginTop: '4px' }}>{card.label}</div>
+                  <div className="text-[13px] text-muted-brand mt-1">{card.label}</div>
                   {card.sub && (
-                    <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '4px' }}>{card.sub}</div>
+                    <div className="text-[11px] text-muted-brand mt-1">{card.sub}</div>
                   )}
                   {card.alert && (
                     <div style={{ fontSize: '11px', color: card.color, marginTop: '4px', fontWeight: 600 }}>
@@ -257,28 +251,24 @@ export default function OperationsDashboardPage() {
               ))}
 
               {/* 월마감 상태 카드 */}
-              <div style={{
-                background: '#243144',
-                borderRadius: '12px',
-                padding: '20px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
-              }}>
-                <div style={{ fontSize: '12px', color: '#A0AEC0', marginBottom: '8px', fontWeight: 600 }}>월마감 상태</div>
+              <div className="bg-card rounded-xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+                <div className="text-[12px] text-muted-brand mb-2 font-semibold">월마감 상태</div>
                 <span style={{
-                  ...s.badge,
                   ...closingStatusColor[closingStatus],
-                  fontSize: '15px',
                   padding: '6px 16px',
+                  borderRadius: '999px',
+                  fontSize: '15px',
+                  fontWeight: 600,
                 }}>
                   {closingStatusLabel[closingStatus] ?? closingStatus}
                 </span>
                 {data?.monthClosingStatus?.closedAt && (
-                  <div style={{ fontSize: '11px', color: '#718096', marginTop: '8px' }}>
+                  <div className="text-[11px] text-[#718096] mt-2">
                     {new Date(data.monthClosingStatus.closedAt).toLocaleDateString('ko-KR')} 마감
                   </div>
                 )}
                 {data?.monthClosingStatus?.reopenReason && (
-                  <div style={{ fontSize: '11px', color: '#e65100', marginTop: '4px' }}>
+                  <div className="text-[11px] text-[#e65100] mt-1">
                     {data.monthClosingStatus.reopenReason}
                   </div>
                 )}
@@ -288,23 +278,23 @@ export default function OperationsDashboardPage() {
         </div>
 
         {/* 하단 3열 패널 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+        <div className="grid grid-cols-3 gap-5">
 
           {/* 협력사 정산 현황 */}
-          <div style={s.panel}>
-            <div style={{ ...s.panelHeader, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-[14px] border-b border-[#f0f0f0] font-bold text-[14px]">
               <span>협력사 정산 현황</span>
-              <Link href="/admin/subcontractor-settlements" style={s.panelLink}>→ 이동</Link>
+              <Link href="/admin/subcontractor-settlements" className="text-[12px] text-secondary-brand no-underline font-normal">→ 이동</Link>
             </div>
-            <div style={{ padding: '16px' }}>
+            <div className="p-4">
               {data ? (
                 <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <span style={s.panelLabel}>전체</span>
-                    <span style={{ fontWeight: 700, fontSize: '15px' }}>{data.settlementSummary.total ?? 0}건</span>
+                  <div className="flex justify-between mb-3">
+                    <span className="text-[13px] text-muted-brand">전체</span>
+                    <span className="font-bold text-[15px]">{data.settlementSummary.total ?? 0}건</span>
                   </div>
                   {data.settlementSummary.total === 0 ? (
-                    <p style={{ fontSize: '13px', color: '#aaa', textAlign: 'center', margin: '8px 0' }}>정산 내역이 없습니다.</p>
+                    <p className="text-[13px] text-[#aaa] text-center my-2">정산 내역이 없습니다.</p>
                   ) : (
                     [
                       { label: '확정', value: data.settlementSummary.confirmed ?? 0, color: '#2e7d32', bg: '#e8f5e9' },
@@ -323,80 +313,65 @@ export default function OperationsDashboardPage() {
                   )}
                 </>
               ) : (
-                <div style={s.emptyMsg}>로딩 중...</div>
+                <div className="px-4 py-5 text-[13px] text-[#aaa] text-center">로딩 중...</div>
               )}
             </div>
           </div>
 
           {/* 최근 다운로드 */}
-          <div style={s.panel}>
-            <div style={{ ...s.panelHeader, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-[14px] border-b border-[#f0f0f0] font-bold text-[14px]">
               <span>최근 다운로드</span>
-              <Link href="/admin/document-center" style={s.panelLink}>→ 이동</Link>
+              <Link href="/admin/document-center" className="text-[12px] text-secondary-brand no-underline font-normal">→ 이동</Link>
             </div>
-            <div style={{ padding: '8px 0' }}>
+            <div className="py-2">
               {data?.recentDownloads && data.recentDownloads.length > 0 ? data.recentDownloads.map(dl => (
-                <div key={dl.id} style={{
-                  padding: '10px 16px',
-                  borderBottom: '1px solid #f5f5f5',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                }}>
+                <div key={dl.id} className="px-4 py-[10px] border-b border-[#f5f5f5] flex justify-between items-start">
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#CBD5E0' }}>
+                    <div className="text-[13px] font-semibold text-[#CBD5E0]">
                       {exportTypeLabel[dl.exportType] ?? dl.exportType}
                     </div>
-                    <div style={{ fontSize: '11px', color: '#718096', marginTop: '2px' }}>
+                    <div className="text-[11px] text-[#718096] mt-[2px]">
                       {dl.monthKey} · v{dl.versionNo}
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '11px', color: '#999' }}>
+                  <div className="text-right">
+                    <div className="text-[11px] text-[#999]">
                       {new Date(dl.createdAt).toLocaleDateString('ko-KR')}
                     </div>
                     {dl.createdBy && (
-                      <div style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>{dl.createdBy}</div>
+                      <div className="text-[11px] text-[#aaa] mt-[2px]">{dl.createdBy}</div>
                     )}
                   </div>
                 </div>
               )) : (
-                <div style={s.emptyMsg}>다운로드 내역이 없습니다</div>
+                <div className="px-4 py-5 text-[13px] text-[#aaa] text-center">다운로드 내역이 없습니다</div>
               )}
             </div>
           </div>
 
           {/* 온보딩 이슈 */}
-          <div style={s.panel}>
-            <div style={{ ...s.panelHeader, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-[14px] border-b border-[#f0f0f0] font-bold text-[14px]">
               <span>온보딩 이슈</span>
-              <Link href="/admin/workers" style={s.panelLink}>→ 이동</Link>
+              <Link href="/admin/workers" className="text-[12px] text-secondary-brand no-underline font-normal">→ 이동</Link>
             </div>
-            <div style={{ padding: '8px 0' }}>
+            <div className="py-2">
               {(!data?.onboardingIssues || data.onboardingIssues.length === 0) ? (
-                <p style={{ ...s.emptyMsg, margin: 0 }}>온보딩 이슈가 없습니다.</p>
+                <p className="px-4 py-5 text-[13px] text-[#aaa] text-center m-0">온보딩 이슈가 없습니다.</p>
               ) : (
                 data.onboardingIssues.map(issue => (
-                  <div key={issue.workerId} style={{
-                    padding: '10px 16px',
-                    borderBottom: '1px solid #f5f5f5',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}>
+                  <div key={issue.workerId} className="px-4 py-[10px] border-b border-[#f5f5f5] flex justify-between items-center">
                     <div>
                       <Link
                         href={`/admin/workers/${issue.workerId}`}
-                        style={{ fontSize: '13px', fontWeight: 600, color: '#5BA4D9', textDecoration: 'none' }}
+                        className="text-[13px] font-semibold text-secondary-brand no-underline"
                       >
                         {issue.workerName}
                       </Link>
-                      <div style={{ fontSize: '11px', color: '#e65100', marginTop: '2px' }}>{issue.topIssue}</div>
+                      <div className="text-[11px] text-[#e65100] mt-[2px]">{issue.topIssue}</div>
                     </div>
-                    <span style={{
-                      fontSize: '12px', fontWeight: 700, color: 'white',
-                      background: '#e53935', borderRadius: '999px', padding: '2px 8px',
-                    }}>
+                    <span className="text-[12px] font-bold text-white bg-[#e53935] rounded-full px-2 py-[2px]">
                       {issue.issueCount}
                     </span>
                   </div>
@@ -433,24 +408,3 @@ const NAV_ITEMS = [
   { href: '/admin/exceptions',              label: '예외 승인' },
   { href: '/admin/device-requests',         label: '기기 변경' },
 ]
-
-const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
-  navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
-  navActive:    { background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 700 },
-  logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main:         { flex: 1, padding: '32px', overflow: 'auto' },
-  pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 24px' },
-  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
-  btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  badge:        { padding: '4px 14px', borderRadius: '999px', fontSize: '13px', fontWeight: 600 },
-  msgBox:       { padding: '12px 16px', borderRadius: '8px', fontSize: '14px' },
-  panel:        { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
-  panelHeader:  { padding: '14px 16px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: '14px' },
-  panelLabel:   { fontSize: '13px', color: '#A0AEC0' },
-  panelLink:    { fontSize: '12px', color: '#5BA4D9', textDecoration: 'none', fontWeight: 400 },
-  emptyMsg:     { padding: '20px 16px', fontSize: '13px', color: '#aaa', textAlign: 'center' as const },
-}

@@ -45,13 +45,18 @@ function CompanyApprovalsContent() {
   }
 
   return (
-    <div style={styles.page}>
-      <h1 style={styles.title}>승인 대기</h1>
-      <div style={styles.tabRow}>
+    <div className="p-8 max-w-[900px] mx-auto">
+      <h1 className="text-[22px] font-bold mb-5">승인 대기</h1>
+      <div className="flex gap-1 mb-5 border-b border-[#e5e7eb]">
         {TABS.map(t => (
           <button
             key={t.key}
-            style={{ ...styles.tab, ...(activeTab === t.key ? styles.tabActive : {}) }}
+            className={[
+              'px-4 py-2 border-0 bg-transparent cursor-pointer text-[13px] border-b-2 -mb-px',
+              activeTab === t.key
+                ? 'text-[#0f4c75] border-b-[#0f4c75] font-semibold'
+                : 'text-[#6b7280] border-b-transparent',
+            ].join(' ')}
             onClick={() => switchTab(t.key)}
           >
             {t.label}
@@ -64,7 +69,7 @@ function CompanyApprovalsContent() {
 }
 
 export default function CompanyApprovalsPage() {
-  return <Suspense fallback={<div style={{ padding: 32 }}>로딩 중...</div>}><CompanyApprovalsContent /></Suspense>
+  return <Suspense fallback={<div className="p-8">로딩 중...</div>}><CompanyApprovalsContent /></Suspense>
 }
 
 function ApprovalTab({ tab }: { tab: TabKey }) {
@@ -151,8 +156,7 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
   return (
     <div>
       {msg && (
-        <div style={{
-          padding: '10px 14px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px',
+        <div className="px-[14px] py-[10px] rounded-md mb-4 text-[13px]" style={{
           background: msg.type === 'success' ? '#d1fae5' : '#fee2e2',
           color: msg.type === 'success' ? '#065f46' : '#991b1b',
         }}>
@@ -161,39 +165,36 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
       )}
 
       {loading ? (
-        <p style={{ color: '#9ca3af', textAlign: 'center', padding: '40px 0' }}>불러오는 중...</p>
+        <p className="text-[#9ca3af] text-center py-10">불러오는 중...</p>
       ) : items.length === 0 ? (
-        <div style={styles.empty}>대기 중인 항목이 없습니다.</div>
+        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg">대기 중인 항목이 없습니다.</div>
       ) : (
-        <div style={styles.list}>
+        <div className="flex flex-col gap-2">
           {items.map(item => (
-            <div key={item.id} style={styles.item}>
-              <div style={{ flex: 1 }}>
-                <div style={styles.itemName}>{item.name}</div>
-                <div style={styles.itemSub}>{item.sub}</div>
-                {item.detail && <div style={styles.itemDetail}>{item.detail}</div>}
-                <div style={styles.itemDate}>{fmtDate(item.requestedAt)}</div>
+            <div key={item.id} className="bg-card border border-[#e5e7eb] rounded-lg p-4 flex items-start gap-3">
+              <div className="flex-1">
+                <div className="text-[14px] font-semibold text-[#111827] mb-[2px]">{item.name}</div>
+                <div className="text-[12px] text-[#6b7280]">{item.sub}</div>
+                {item.detail && <div className="text-[12px] text-[#9ca3af] mt-[2px]">{item.detail}</div>}
+                <div className="text-[11px] text-[#d1d5db] mt-1">{fmtDate(item.requestedAt)}</div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                <span style={{
-                  fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
-                  background: '#fef3c7', color: STATUS_COLOR[item.status] ?? '#374151',
-                }}>
+              <div className="flex flex-col items-end gap-[6px]">
+                <span className="text-[11px] px-2 py-[2px] rounded bg-[#fef3c7]" style={{ color: STATUS_COLOR[item.status] ?? '#374151' }}>
                   {STATUS_LABEL[item.status] ?? item.status}
                 </span>
                 {item.status === 'PENDING_REVIEW' || item.status === 'PENDING' ? (
-                  <div style={{ display: 'flex', gap: '6px' }}>
+                  <div className="flex gap-[6px]">
                     <button
                       onClick={() => approve(item.id)}
                       disabled={processing === item.id}
-                      style={styles.approveBtn}
+                      className="px-3 py-[5px] bg-[#059669] text-white border-0 rounded-[5px] cursor-pointer text-[12px]"
                     >
                       승인
                     </button>
                     <button
                       onClick={() => { setRejectTarget(item.id); setRejectReason('') }}
                       disabled={processing === item.id}
-                      style={styles.rejectBtn}
+                      className="px-3 py-[5px] bg-[#dc2626] text-white border-0 rounded-[5px] cursor-pointer text-[12px]"
                     >
                       반려
                     </button>
@@ -207,63 +208,23 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
 
       {/* 반려 사유 모달 */}
       {rejectTarget && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modal}>
-            <h3 style={{ margin: '0 0 12px', fontSize: '15px', fontWeight: 600 }}>반려 사유</h3>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-card rounded-[12px] p-6 w-[400px] max-w-[90vw]">
+            <h3 className="m-0 mb-3 text-[15px] font-semibold">반려 사유</h3>
             <textarea
               rows={4}
-              style={{ width: '100%', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', padding: '8px', fontSize: '13px', boxSizing: 'border-box' }}
+              className="w-full border border-[rgba(91,164,217,0.3)] rounded-md p-2 text-[13px] box-border"
               placeholder="반려 사유를 입력하세요"
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
             />
-            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              <button onClick={rejectSubmit} style={styles.rejectBtn}>반려 확정</button>
-              <button onClick={() => setRejectTarget(null)} style={styles.cancelBtn}>취소</button>
+            <div className="flex gap-2 mt-3">
+              <button onClick={rejectSubmit} className="px-3 py-[5px] bg-[#dc2626] text-white border-0 rounded-[5px] cursor-pointer text-[12px]">반려 확정</button>
+              <button onClick={() => setRejectTarget(null)} className="px-3 py-[5px] bg-card text-[#374151] border border-[rgba(91,164,217,0.3)] rounded-[5px] cursor-pointer text-[12px]">취소</button>
             </div>
           </div>
         </div>
       )}
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '32px', maxWidth: '900px', margin: '0 auto', fontFamily: 'sans-serif' },
-  title: { fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '20px' },
-  tabRow: { display: 'flex', gap: '4px', marginBottom: '20px', borderBottom: '1px solid #e5e7eb', paddingBottom: '0' },
-  tab: {
-    padding: '8px 16px', border: 'none', background: 'none', cursor: 'pointer',
-    fontSize: '13px', color: '#6b7280', borderBottom: '2px solid transparent', marginBottom: '-1px',
-  },
-  tabActive: { color: '#0f4c75', borderBottomColor: '#0f4c75', fontWeight: 600 },
-  list: { display: 'flex', flexDirection: 'column', gap: '8px' },
-  item: {
-    background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px',
-    padding: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px',
-  },
-  itemName: { fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '2px' },
-  itemSub: { fontSize: '12px', color: '#6b7280' },
-  itemDetail: { fontSize: '12px', color: '#9ca3af', marginTop: '2px' },
-  itemDate: { fontSize: '11px', color: '#d1d5db', marginTop: '4px' },
-  empty: { textAlign: 'center', color: '#9ca3af', padding: '48px 0', background: '#243144', border: '1px solid #e5e7eb', borderRadius: '8px' },
-  approveBtn: {
-    padding: '5px 12px', background: '#059669', color: 'white',
-    border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px',
-  },
-  rejectBtn: {
-    padding: '5px 12px', background: '#dc2626', color: 'white',
-    border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '12px',
-  },
-  cancelBtn: {
-    padding: '5px 12px', background: '#243144', color: '#374151',
-    border: '1px solid rgba(91,164,217,0.3)', borderRadius: '5px', cursor: 'pointer', fontSize: '12px',
-  },
-  modalOverlay: {
-    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
-  },
-  modal: {
-    background: '#243144', borderRadius: '12px', padding: '24px', width: '400px', maxWidth: '90vw',
-  },
 }

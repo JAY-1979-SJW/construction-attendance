@@ -159,38 +159,48 @@ export default function CompanyAttendancePage() {
     : records
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>출퇴근 현황</h1>
+    <div className="p-8">
+      <h1 className="text-[22px] font-bold m-0 mb-5 text-white">출퇴근 현황</h1>
 
-      <div style={styles.filterRow}>
-        <label style={styles.label}>날짜</label>
-        <input type="date" value={date} onChange={handleDateChange} style={styles.dateInput} />
-        <label style={styles.checkboxLabel}>
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <label className="text-[13px] font-semibold text-muted-brand">날짜</label>
+        <input
+          type="date"
+          value={date}
+          onChange={handleDateChange}
+          className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-[7px] text-sm outline-none"
+        />
+        <label className="flex items-center text-[13px] font-medium text-muted-brand cursor-pointer">
           <input
             type="checkbox"
             checked={showManualOnly}
             onChange={(e) => setShowManualOnly(e.target.checked)}
-            style={{ marginRight: '6px', cursor: 'pointer' }}
+            className="mr-1.5 cursor-pointer"
           />
           수동조정만 보기
         </label>
       </div>
 
       {loading ? (
-        <p style={styles.loading}>불러오는 중...</p>
+        <p className="text-muted-brand text-[15px]">불러오는 중...</p>
       ) : (
-        <div style={styles.tableWrapper}>
-          <table style={styles.table}>
+        <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] overflow-auto">
+          <table className="w-full border-collapse">
             <thead>
               <tr>
                 {['근로자명', '현장', '출근시각', '퇴근시각', '공수', '상태', ''].map((h, i) => (
-                  <th key={i} style={styles.th}>{h}</th>
+                  <th
+                    key={i}
+                    className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[#eee] bg-[#fafafa] whitespace-nowrap"
+                  >
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {displayedRecords.length === 0 ? (
-                <tr><td colSpan={7} style={styles.empty}>출퇴근 기록이 없습니다.</td></tr>
+                <tr><td colSpan={7} className="p-8 text-center text-[#aaa] text-sm">출퇴근 기록이 없습니다.</td></tr>
               ) : displayedRecords.map((r) => {
                 const isEditing = editingId === r.id
                 const canEdit = !!r.attendanceDayId && EDITABLE_STATUSES.has(r.status)
@@ -198,75 +208,83 @@ export default function CompanyAttendancePage() {
 
                 return (
                   <>
-                    <tr key={r.id} style={styles.tr}>
-                      <td style={styles.td}>{r.workerName}</td>
-                      <td style={styles.td}>{r.siteName || '-'}</td>
-                      <td style={styles.td}>{formatTime(r.checkInAt)}</td>
-                      <td style={styles.td}>{formatTime(r.checkOutAt)}</td>
-                      <td style={styles.td}>
+                    <tr key={r.id} className="border-b border-[#f0f0f0]">
+                      <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">{r.workerName}</td>
+                      <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">{r.siteName || '-'}</td>
+                      <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">{formatTime(r.checkInAt)}</td>
+                      <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">{formatTime(r.checkOutAt)}</td>
+                      <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">
                         <span>{calcManDay(displayMinutes)}</span>
                         {r.manualAdjustedYn && (
-                          <span style={styles.manualBadge}>수동</span>
+                          <span className="ml-1.5 px-1.5 py-0.5 rounded text-[11px] font-semibold bg-[#fff8e1] text-[#f57f17] border border-[#ffe082]">수동</span>
                         )}
                       </td>
-                      <td style={styles.td}>
-                        <span style={{
-                          ...styles.badge,
-                          background: STATUS_BG[r.status] ?? '#f5f5f5',
-                          color: STATUS_COLOR[r.status] ?? '#555',
-                        }}>
+                      <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">
+                        <span
+                          className="px-2 py-0.5 rounded text-[12px] font-semibold"
+                          style={{
+                            background: STATUS_BG[r.status] ?? '#f5f5f5',
+                            color: STATUS_COLOR[r.status] ?? '#555',
+                          }}
+                        >
                           {STATUS_LABEL[r.status] ?? r.status}
                         </span>
                       </td>
-                      <td style={styles.td}>
+                      <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">
                         {canEdit && !isEditing && (
-                          <button onClick={() => openEdit(r)} style={styles.editBtn}>
+                          <button
+                            onClick={() => openEdit(r)}
+                            className="px-2.5 py-1 text-[12px] font-semibold bg-[#E06810] text-white border-none rounded-[5px] cursor-pointer"
+                          >
                             수정
                           </button>
                         )}
                         {isEditing && (
-                          <button onClick={cancelEdit} style={styles.cancelBtn}>
+                          <button
+                            onClick={cancelEdit}
+                            className="px-2.5 py-1 text-[12px] font-semibold bg-[#757575] text-white border-none rounded-[5px] cursor-pointer"
+                          >
                             취소
                           </button>
                         )}
                       </td>
                     </tr>
                     {isEditing && (
-                      <tr key={`${r.id}-edit`} style={{ background: '#fffde7' }}>
-                        <td colSpan={7} style={{ padding: '12px 16px' }}>
-                          <div style={styles.editRow}>
-                            <span style={styles.editInfo}>
+                      <tr key={`${r.id}-edit`} className="bg-[#fffde7]">
+                        <td colSpan={7} className="px-4 py-3">
+                          <div className="flex items-center gap-2.5 flex-wrap">
+                            <span className="text-[13px] text-muted-brand mr-1">
                               자동 계산: <strong>{calcManDay(r.workedMinutesAuto ?? r.workedMinutesRaw)}</strong>
                             </span>
-                            <label style={styles.editLabel}>분 (0~1440)</label>
+                            <label className="text-[12px] font-semibold text-muted-brand">분 (0~1440)</label>
                             <input
                               type="number"
                               min={0}
                               max={1440}
                               value={editMinutes}
                               onChange={(e) => setEditMinutes(e.target.value)}
-                              style={styles.editInput}
+                              className="px-2.5 py-1.5 border border-[#bbb] rounded-[6px] text-[13px] w-[90px] outline-none"
                               placeholder="예: 480"
                             />
-                            <label style={styles.editLabel}>수정 사유</label>
+                            <label className="text-[12px] font-semibold text-muted-brand">수정 사유</label>
                             <input
                               type="text"
                               value={editReason}
                               onChange={(e) => setEditReason(e.target.value)}
-                              style={{ ...styles.editInput, width: '200px' }}
+                              className="px-2.5 py-1.5 border border-[#bbb] rounded-[6px] text-[13px] outline-none w-[200px]"
                               placeholder="사유 입력 (2자 이상)"
                               maxLength={200}
                             />
                             <button
                               onClick={() => saveEdit(r.id)}
                               disabled={editSaving}
-                              style={styles.saveBtn}
+                              className="px-3.5 py-1.5 text-[13px] font-semibold bg-[#2e7d32] text-white border-none rounded-[6px] cursor-pointer"
                             >
                               {editSaving ? '저장 중...' : '저장'}
                             </button>
                           </div>
                           {editError && (
-                            <p style={styles.editError}>{editError}</p>
+                            <p className="mt-2 mb-0 text-[12px] text-[#c62828] font-medium">{editError}</p>
                           )}
                         </td>
                       </tr>
@@ -280,30 +298,4 @@ export default function CompanyAttendancePage() {
       )}
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  container: { padding: '32px' },
-  title: { fontSize: '22px', fontWeight: 700, margin: '0 0 20px', color: '#ffffff' },
-  filterRow: { display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' },
-  label: { fontSize: '13px', fontWeight: 600, color: '#A0AEC0' },
-  checkboxLabel: { fontSize: '13px', fontWeight: 500, color: '#A0AEC0', display: 'flex', alignItems: 'center', cursor: 'pointer' },
-  dateInput: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '7px', fontSize: '14px', outline: 'none' },
-  loading: { color: '#A0AEC0', fontSize: '15px' },
-  tableWrapper: { background: '#243144', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'auto' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  th: { padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid #eee', background: '#fafafa', whiteSpace: 'nowrap' as const },
-  tr: { borderBottom: '1px solid #f0f0f0' },
-  td: { padding: '12px 16px', fontSize: '14px', color: '#CBD5E0', whiteSpace: 'nowrap' as const },
-  empty: { padding: '32px', textAlign: 'center', color: '#aaa', fontSize: '14px' },
-  badge: { padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 },
-  manualBadge: { marginLeft: '6px', padding: '2px 6px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: '#fff8e1', color: '#f57f17', border: '1px solid #ffe082' },
-  editBtn: { padding: '4px 10px', fontSize: '12px', fontWeight: 600, background: '#E06810', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' },
-  cancelBtn: { padding: '4px 10px', fontSize: '12px', fontWeight: 600, background: '#757575', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' },
-  saveBtn: { padding: '6px 14px', fontSize: '13px', fontWeight: 600, background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' },
-  editRow: { display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' as const },
-  editLabel: { fontSize: '12px', fontWeight: 600, color: '#A0AEC0' },
-  editInfo: { fontSize: '13px', color: '#A0AEC0', marginRight: '4px' },
-  editInput: { padding: '6px 10px', border: '1px solid #bbb', borderRadius: '6px', fontSize: '13px', width: '90px', outline: 'none' },
-  editError: { margin: '8px 0 0', fontSize: '12px', color: '#c62828', fontWeight: 500 },
 }

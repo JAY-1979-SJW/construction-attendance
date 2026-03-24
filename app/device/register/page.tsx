@@ -54,116 +54,42 @@ export default function DeviceRegisterPage() {
   return (
     <>
       <WorkerTopBar />
-      <div style={{ ...styles.container, paddingTop: '76px' }}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>기기 등록</h1>
-        <p style={styles.subtitle}>
+      <div className="min-h-screen flex items-center justify-center p-5 bg-brand pt-[76px]">
+      <div className="bg-card rounded-2xl px-8 py-10 w-full max-w-[400px] shadow-[0_8px_40px_rgba(0,0,0,0.4)]">
+        <h1 className="text-2xl font-bold text-white mb-2 text-center">기기 등록</h1>
+        <p className="text-sm text-muted-brand text-center mb-8 leading-[1.6]">
           이 기기를 본인 기기로 등록합니다.
           <br />
           이후 이 기기에서만 출퇴근이 가능합니다.
         </p>
 
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>기기 이름</label>
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-[#CBD5E0] mb-2">기기 이름</label>
           <input
             type="text"
             value={deviceName}
             onChange={(e) => setDeviceName(e.target.value)}
-            style={styles.input}
+            className="w-full px-4 py-[14px] text-base border border-[rgba(91,164,217,0.25)] rounded-[10px] outline-none box-border bg-[rgba(255,255,255,0.06)] text-white"
             placeholder="내 휴대폰"
           />
         </div>
 
-        {error && <p style={styles.error}>{error}</p>}
+        {error && <p className="text-[#e53935] text-[13px] mb-4">{error}</p>}
 
         <button
           onClick={handleRegister}
           disabled={loading}
-          style={{ ...styles.button, opacity: loading ? 0.6 : 1 }}
+          className="w-full py-4 text-lg font-bold bg-[#2e7d32] text-white border-none rounded-[10px] cursor-pointer mb-5"
+          style={{ opacity: loading ? 0.6 : 1 }}
         >
           {loading ? '등록 중...' : '이 기기로 등록하기'}
         </button>
 
-        <div style={styles.notice}>
+        <div className="text-xs text-muted-brand bg-[rgba(244,121,32,0.08)] rounded-lg p-3 leading-[1.6]">
           <strong>주의:</strong> 기기 분실 또는 변경 시 현장 관리자에게 기기 변경 요청을 해야 합니다.
         </div>
       </div>
     </div>
     </>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    background: '#1B2838',
-  },
-  card: {
-    background: '#243144',
-    borderRadius: '16px',
-    padding: '40px 32px',
-    width: '100%',
-    maxWidth: '400px',
-    boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
-  },
-  title: {
-    fontSize: '24px',
-    fontWeight: 700,
-    color: '#ffffff',
-    margin: '0 0 8px',
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: '14px',
-    color: '#A0AEC0',
-    textAlign: 'center',
-    margin: '0 0 32px',
-    lineHeight: 1.6,
-  },
-  inputGroup: { marginBottom: '20px' },
-  label: {
-    display: 'block',
-    fontSize: '14px',
-    fontWeight: 600,
-    color: '#CBD5E0',
-    marginBottom: '8px',
-  },
-  input: {
-    width: '100%',
-    padding: '14px 16px',
-    fontSize: '16px',
-    border: '1px solid rgba(91,164,217,0.25)',
-    borderRadius: '10px',
-    outline: 'none',
-    boxSizing: 'border-box',
-  },
-  error: {
-    color: '#e53935',
-    fontSize: '13px',
-    margin: '0 0 16px',
-  },
-  button: {
-    width: '100%',
-    padding: '16px',
-    fontSize: '18px',
-    fontWeight: 700,
-    background: '#2e7d32',
-    color: 'white',
-    border: 'none',
-    borderRadius: '10px',
-    cursor: 'pointer',
-    marginBottom: '20px',
-  },
-  notice: {
-    fontSize: '12px',
-    color: '#A0AEC0',
-    background: 'rgba(244,121,32,0.08)',
-    borderRadius: '8px',
-    padding: '12px',
-    lineHeight: 1.6,
-  },
 }

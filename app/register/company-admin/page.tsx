@@ -85,24 +85,24 @@ export default function CompanyAdminRegisterPage() {
 
   if (step === 'done') {
     return (
-      <div style={s.page}>
-        <div style={s.card}>
-          <div style={{ textAlign: 'center', padding: '20px 0' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-            <h2 style={{ fontSize: '20px', fontWeight: 700, margin: '0 0 12px', color: '#ffffff' }}>
+      <div className="min-h-screen bg-[#f5f6fa] flex items-center justify-center p-6">
+        <div className="bg-card rounded-2xl py-10 px-8 w-full max-w-[520px] shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
+          <div className="text-center py-5">
+            <div className="text-[48px] mb-4">✅</div>
+            <h2 className="text-[20px] font-bold text-white mb-3">
               업체 관리자 신청이 완료되었습니다
             </h2>
-            <p style={{ fontSize: '14px', color: '#A0AEC0', lineHeight: 1.7, margin: '0 0 24px' }}>
+            <p className="text-[14px] text-muted-brand leading-[1.7] mb-6">
               담당자가 사업자등록증 및 신청 내용을 검토 후<br />
               연락드릴 예정입니다. (영업일 기준 1~3일)
             </p>
-            <div style={s.infoBox}>
-              <p style={{ fontSize: '13px', color: '#444', margin: 0 }}>
+            <div className="px-4 py-[14px] bg-[#f0f7ff] border border-[#bbdefb] rounded-lg mb-3">
+              <p className="text-[13px] text-[#444] m-0">
                 승인 후 이메일 또는 연락처로 로그인 정보가 발송됩니다.<br />
                 문의사항이 있으시면 서비스 담당자에게 연락해 주세요.
               </p>
             </div>
-            <Link href="/" style={{ ...s.btn, display: 'block', textAlign: 'center', textDecoration: 'none', marginTop: '20px' }}>
+            <Link href="/" className="block w-full py-[14px] bg-[#E06810] text-white border-none rounded-[10px] text-base font-bold cursor-pointer mt-5 text-center no-underline">
               홈으로 돌아가기
             </Link>
           </div>
@@ -112,42 +112,46 @@ export default function CompanyAdminRegisterPage() {
   }
 
   return (
-    <div style={s.page}>
-      <div style={s.card}>
-        <h1 style={s.title}>업체 관리자 신청</h1>
-        <p style={s.subtitle}>
+    <div className="min-h-screen bg-[#f5f6fa] flex items-center justify-center p-6">
+      <div className="bg-card rounded-2xl py-10 px-8 w-full max-w-[520px] shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
+        <h1 className="text-[24px] font-bold text-white mb-2">업체 관리자 신청</h1>
+        <p className="text-[14px] text-muted-brand mb-6 leading-[1.6]">
           사업자등록증 확인 후 관리자가 승인합니다.<br />
           승인 후 업체 포털(/company)을 이용하실 수 있습니다.
         </p>
 
-        {error && <div style={s.errorBox}>{error}</div>}
+        {error && (
+          <div className="bg-[#fff0f0] border border-[#ffcccc] rounded-lg px-4 py-3 mb-5 text-[#c62828] text-[14px]">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
-          <div style={s.section}>
-            <div style={s.sectionTitle}>신청인 정보</div>
+          <div className="mb-6 p-4 bg-brand rounded-lg border border-[rgba(91,164,217,0.2)]">
+            <div className="text-[13px] font-bold text-[#CBD5E0] mb-3">신청인 정보</div>
 
-            <label style={s.label}>신청인 이름 <span style={s.required}>*</span></label>
-            <input style={s.input} value={applicantName} onChange={e => setApplicantName(e.target.value)} required maxLength={30} placeholder="홍길동" />
+            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">신청인 이름 <span className="text-[#e53935]">*</span></label>
+            <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={applicantName} onChange={e => setApplicantName(e.target.value)} required maxLength={30} placeholder="홍길동" />
 
-            <label style={s.label}>연락처 <span style={s.required}>*</span></label>
-            <input style={s.input} value={phone} onChange={e => setPhone(e.target.value)} required pattern="^010\d{8}$" placeholder="01012345678" maxLength={11} inputMode="numeric" />
+            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">연락처 <span className="text-[#e53935]">*</span></label>
+            <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={phone} onChange={e => setPhone(e.target.value)} required pattern="^010\d{8}$" placeholder="01012345678" maxLength={11} inputMode="numeric" />
 
-            <label style={s.label}>이메일 (선택 — 로그인 계정으로 사용될 수 있습니다)</label>
-            <input style={s.input} value={email} onChange={e => setEmail(e.target.value)} type="email" maxLength={100} placeholder="company@example.com" />
+            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">이메일 (선택 — 로그인 계정으로 사용될 수 있습니다)</label>
+            <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={email} onChange={e => setEmail(e.target.value)} type="email" maxLength={100} placeholder="company@example.com" />
 
-            <label style={s.label}>직책 (선택)</label>
-            <input style={s.input} value={jobTitle} onChange={e => setJobTitle(e.target.value)} maxLength={50} placeholder="대표, 현장소장, 총무팀장 등" />
+            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">직책 (선택)</label>
+            <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={jobTitle} onChange={e => setJobTitle(e.target.value)} maxLength={50} placeholder="대표, 현장소장, 총무팀장 등" />
           </div>
 
-          <div style={s.section}>
-            <div style={s.sectionTitle}>업체 정보</div>
+          <div className="mb-6 p-4 bg-brand rounded-lg border border-[rgba(91,164,217,0.2)]">
+            <div className="text-[13px] font-bold text-[#CBD5E0] mb-3">업체 정보</div>
 
-            <label style={s.label}>업체명 <span style={s.required}>*</span></label>
-            <input style={s.input} value={companyName} onChange={e => setCompanyName(e.target.value)} required maxLength={100} placeholder="(주)해한건설" />
+            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">업체명 <span className="text-[#e53935]">*</span></label>
+            <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={companyName} onChange={e => setCompanyName(e.target.value)} required maxLength={100} placeholder="(주)해한건설" />
 
-            <label style={s.label}>사업자등록번호 <span style={s.required}>*</span></label>
+            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">사업자등록번호 <span className="text-[#e53935]">*</span></label>
             <input
-              style={s.input}
+              className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none"
               value={formatBizNum(businessNumber)}
               onChange={e => setBusinessNumber(normalizeBizNum(e.target.value))}
               required
@@ -156,27 +160,27 @@ export default function CompanyAdminRegisterPage() {
               inputMode="numeric"
             />
 
-            <label style={s.label}>대표자명 (선택)</label>
-            <input style={s.input} value={representativeName} onChange={e => setRepresentativeName(e.target.value)} maxLength={30} placeholder="홍길동" />
+            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">대표자명 (선택)</label>
+            <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={representativeName} onChange={e => setRepresentativeName(e.target.value)} maxLength={30} placeholder="홍길동" />
 
-            <label style={s.label}>업체 연락처 (선택)</label>
-            <input style={s.input} value={contactPhone} onChange={e => setContactPhone(e.target.value)} maxLength={20} placeholder="02-1234-5678" />
+            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">업체 연락처 (선택)</label>
+            <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={contactPhone} onChange={e => setContactPhone(e.target.value)} maxLength={20} placeholder="02-1234-5678" />
           </div>
 
-          <div style={s.section}>
-            <div style={s.sectionTitle}>동의</div>
+          <div className="mb-6 p-4 bg-brand rounded-lg border border-[rgba(91,164,217,0.2)]">
+            <div className="text-[13px] font-bold text-[#CBD5E0] mb-3">동의</div>
 
-            <label style={s.consentRow}>
+            <label className="flex items-start gap-2 text-[13px] text-[#444] mb-2 cursor-pointer">
               <input type="checkbox" checked={consentTerms} onChange={e => setConsentTerms(e.target.checked)} />
-              <span><span style={s.required}>[필수]</span> 서비스 이용약관 동의</span>
+              <span className="text-[#CBD5E0]"><span className="text-[#e53935]">[필수]</span> 서비스 이용약관 동의</span>
             </label>
-            <label style={s.consentRow}>
+            <label className="flex items-start gap-2 text-[13px] text-[#444] mb-2 cursor-pointer">
               <input type="checkbox" checked={consentPrivacy} onChange={e => setConsentPrivacy(e.target.checked)} />
-              <span><span style={s.required}>[필수]</span> 개인정보 수집·이용 동의</span>
+              <span className="text-[#CBD5E0]"><span className="text-[#e53935]">[필수]</span> 개인정보 수집·이용 동의</span>
             </label>
 
-            <div style={s.noticeBox}>
-              <p style={{ fontSize: '12px', color: '#A0AEC0', margin: 0, lineHeight: 1.6 }}>
+            <div className="mt-3 px-3 py-[10px] bg-[#fffde7] border border-[#ffe082] rounded-md">
+              <p className="text-[12px] text-muted-brand m-0 leading-[1.6]">
                 * 사업자등록번호는 중복 검토에 사용됩니다.<br />
                 * 승인 후 임시 비밀번호가 발급됩니다.<br />
                 * 심사 기간: 영업일 기준 1~3일
@@ -186,37 +190,18 @@ export default function CompanyAdminRegisterPage() {
 
           <button
             type="submit"
-            style={{ ...s.btn, opacity: step === 'submitting' ? 0.6 : 1 }}
+            className="block w-full py-[14px] bg-[#E06810] text-white border-none rounded-[10px] text-base font-bold cursor-pointer mt-2 disabled:opacity-60"
             disabled={step === 'submitting'}
           >
             {step === 'submitting' ? '신청 중...' : '업체 관리자 신청'}
           </button>
         </form>
 
-        <div style={s.footer}>
-          <Link href="/register" style={s.link}>근로자로 가입하기</Link>
-          <Link href="/login" style={s.link}>이미 계정이 있으신가요? 로그인</Link>
+        <div className="flex flex-col gap-2 mt-5 text-center">
+          <Link href="/register" className="text-[#5BA4D9] text-[13px] no-underline">근로자로 가입하기</Link>
+          <Link href="/login" className="text-[#5BA4D9] text-[13px] no-underline">이미 계정이 있으신가요? 로그인</Link>
         </div>
       </div>
     </div>
   )
-}
-
-const s: Record<string, React.CSSProperties> = {
-  page:        { minHeight: '100vh', background: '#f5f6fa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' },
-  card:        { background: '#243144', borderRadius: '16px', padding: '40px 32px', width: '100%', maxWidth: '520px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' },
-  title:       { fontSize: '24px', fontWeight: 700, margin: '0 0 8px', color: '#ffffff' },
-  subtitle:    { fontSize: '14px', color: '#A0AEC0', margin: '0 0 24px', lineHeight: 1.6 },
-  errorBox:    { background: '#fff0f0', border: '1px solid #ffcccc', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', color: '#c62828', fontSize: '14px' },
-  section:     { marginBottom: '24px', padding: '16px', background: '#1B2838', borderRadius: '8px', border: '1px solid #e8e8e8' },
-  sectionTitle:{ fontSize: '13px', fontWeight: 700, color: '#CBD5E0', marginBottom: '12px' },
-  label:       { display: 'block', fontSize: '13px', fontWeight: 600, color: '#CBD5E0', marginBottom: '6px', marginTop: '12px' },
-  required:    { color: '#e53935' },
-  input:       { width: '100%', padding: '10px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' },
-  consentRow:  { display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: '#444', marginBottom: '8px', cursor: 'pointer' },
-  noticeBox:   { marginTop: '12px', padding: '10px 12px', background: '#fffde7', border: '1px solid #ffe082', borderRadius: '6px' },
-  infoBox:     { padding: '14px 16px', background: '#f0f7ff', border: '1px solid #bbdefb', borderRadius: '8px', margin: '12px 0' },
-  btn:         { display: 'block', width: '100%', padding: '14px', background: '#E06810', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', marginTop: '8px' },
-  footer:      { display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '20px', textAlign: 'center' },
-  link:        { color: '#5BA4D9', fontSize: '13px', textDecoration: 'none' },
 }

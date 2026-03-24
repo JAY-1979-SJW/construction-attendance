@@ -112,22 +112,22 @@ export default function SuperUsersPage() {
   const filtered = filterRole === 'ALL' ? accounts : accounts.filter((a) => a.role === filterRole)
 
   return (
-    <div style={s.wrap}>
-      <div style={s.header}>
+    <div className="px-8 py-8 max-w-[1100px] mx-auto">
+      <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 style={s.title}>업체 관리자 계정</h1>
-          <p style={{ color: '#A0AEC0', fontSize: 13, margin: '4px 0 0' }}>전체 {accounts.length}개 계정</p>
+          <h1 className="text-[22px] font-bold m-0">업체 관리자 계정</h1>
+          <p className="text-[#A0AEC0] text-[13px] mt-1 mb-0">전체 {accounts.length}개 계정</p>
         </div>
-        <button style={s.btn} onClick={() => { setShowForm(true); setMsg('') }}>+ 계정 생성</button>
+        <button className="px-5 py-[10px] bg-[#1a1a2e] text-white border-none rounded-lg cursor-pointer text-[14px] font-semibold" onClick={() => { setShowForm(true); setMsg('') }}>+ 계정 생성</button>
       </div>
 
-      {msg && <p style={{ color: msg.includes('생성') || msg.includes('완료') ? '#2e7d32' : '#c62828', margin: '0 0 12px', fontSize: 13 }}>{msg}</p>}
+      {msg && <p className={`mb-3 text-[13px] ${msg.includes('생성') || msg.includes('완료') ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>{msg}</p>}
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div className="flex gap-2 mb-4 flex-wrap">
         {['ALL', 'SUPER_ADMIN', 'ADMIN', 'VIEWER', 'COMPANY_ADMIN', 'SITE_ADMIN', 'EXTERNAL_SITE_ADMIN'].map((r) => (
           <button
             key={r}
-            style={{ ...s.filterBtn, background: filterRole === r ? '#1a1a2e' : '#f0f0f0', color: filterRole === r ? 'white' : '#333' }}
+            className={`px-[14px] py-[6px] border-none rounded-md cursor-pointer text-[13px] ${filterRole === r ? 'bg-[#1a1a2e] text-white' : 'bg-[#f0f0f0] text-[#333]'}`}
             onClick={() => setFilterRole(r)}
           >
             {r === 'ALL' ? '전체' : ROLE_LABEL[r]}
@@ -136,109 +136,109 @@ export default function SuperUsersPage() {
       </div>
 
       {showForm && (
-        <div style={s.formBox}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 15 }}>관리자 계정 생성</h3>
-          <div style={s.grid}>
-            <label style={s.label}>이름 *</label>
-            <input style={s.input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="홍길동" />
-            <label style={s.label}>이메일 *</label>
-            <input style={s.input} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="admin@company.com" />
-            <label style={s.label}>비밀번호 *</label>
-            <input style={s.input} type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="8자 이상" />
-            <label style={s.label}>역할 *</label>
-            <select style={s.input} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value, companyId: '' })}>
+        <div className="bg-brand border border-[rgba(91,164,217,0.3)] rounded-xl p-6 mb-6">
+          <h3 className="mt-0 mb-4 text-[15px]">관리자 계정 생성</h3>
+          <div className="grid gap-[10px_12px] items-center mb-4 [grid-template-columns:100px_1fr]">
+            <label className="text-[13px] font-semibold text-muted-brand">이름 *</label>
+            <input className="px-[12px] py-[10px] text-[14px] border border-[rgba(91,164,217,0.3)] rounded-lg w-full box-border bg-card" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="홍길동" />
+            <label className="text-[13px] font-semibold text-muted-brand">이메일 *</label>
+            <input className="px-[12px] py-[10px] text-[14px] border border-[rgba(91,164,217,0.3)] rounded-lg w-full box-border bg-card" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="admin@company.com" />
+            <label className="text-[13px] font-semibold text-muted-brand">비밀번호 *</label>
+            <input className="px-[12px] py-[10px] text-[14px] border border-[rgba(91,164,217,0.3)] rounded-lg w-full box-border bg-card" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="8자 이상" />
+            <label className="text-[13px] font-semibold text-muted-brand">역할 *</label>
+            <select className="px-[12px] py-[10px] text-[14px] border border-[rgba(91,164,217,0.3)] rounded-lg w-full box-border bg-card" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value, companyId: '' })}>
               {['EXTERNAL_SITE_ADMIN', 'SITE_ADMIN', 'COMPANY_ADMIN', 'ADMIN', 'VIEWER', 'SUPER_ADMIN'].map((r) => (
                 <option key={r} value={r}>{ROLE_LABEL[r]} ({r})</option>
               ))}
             </select>
             {form.role === 'COMPANY_ADMIN' && (
               <>
-                <label style={s.label}>소속 업체 *</label>
-                <select style={s.input} value={form.companyId} onChange={(e) => setForm({ ...form, companyId: e.target.value })}>
+                <label className="text-[13px] font-semibold text-muted-brand">소속 업체 *</label>
+                <select className="px-[12px] py-[10px] text-[14px] border border-[rgba(91,164,217,0.3)] rounded-lg w-full box-border bg-card" value={form.companyId} onChange={(e) => setForm({ ...form, companyId: e.target.value })}>
                   <option value="">업체 선택</option>
                   {companies.map((c) => <option key={c.id} value={c.id}>{c.companyName}</option>)}
                 </select>
               </>
             )}
             {form.role === 'SITE_ADMIN' && (
-              <p style={{ gridColumn: '1/-1', fontSize: 12, color: '#e65100', margin: 0 }}>
+              <p className="col-span-full text-[12px] text-[#e65100] m-0">
                 ℹ SITE_ADMIN은 계정 생성 후 &quot;현장 관리자 배정&quot; 페이지에서 담당 현장을 지정하세요.
               </p>
             )}
             {form.role === 'EXTERNAL_SITE_ADMIN' && (
               <>
-                <label style={s.label}>소속 업체 *</label>
-                <select style={s.input} value={form.companyId} onChange={(e) => setForm({ ...form, companyId: e.target.value })}>
+                <label className="text-[13px] font-semibold text-muted-brand">소속 업체 *</label>
+                <select className="px-[12px] py-[10px] text-[14px] border border-[rgba(91,164,217,0.3)] rounded-lg w-full box-border bg-card" value={form.companyId} onChange={(e) => setForm({ ...form, companyId: e.target.value })}>
                   <option value="">업체 선택</option>
                   {companies.map((c) => <option key={c.id} value={c.id}>{c.companyName}</option>)}
                 </select>
-                <p style={{ gridColumn: '1/-1', fontSize: 12, color: '#6a1b9a', margin: 0 }}>
+                <p className="col-span-full text-[12px] text-[#6a1b9a] m-0">
                   ℹ 계정 생성 후 &quot;현장 접근 그룹&quot; 페이지에서 운영 범위를 배정하세요. 배정된 현장 외에는 접근할 수 없습니다.
                 </p>
               </>
             )}
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-            <button style={s.btn} onClick={handleCreate} disabled={saving}>{saving ? '저장 중...' : '저장'}</button>
-            <button style={{ ...s.btn, background: '#888' }} onClick={() => setShowForm(false)}>취소</button>
+          <div className="flex gap-2 mt-4">
+            <button className="px-5 py-[10px] bg-[#1a1a2e] text-white border-none rounded-lg cursor-pointer text-[14px] font-semibold" onClick={handleCreate} disabled={saving}>{saving ? '저장 중...' : '저장'}</button>
+            <button className="px-5 py-[10px] bg-[#888] text-white border-none rounded-lg cursor-pointer text-[14px] font-semibold" onClick={() => setShowForm(false)}>취소</button>
           </div>
         </div>
       )}
 
       {loading ? <p>불러오는 중...</p> : (
-        <table style={s.table}>
+        <table className="w-full border-collapse text-[14px]">
           <thead>
             <tr>
               {['이름', '이메일', '역할', '소속 업체', '상태', '마지막 로그인', '생성일', '조작'].map((h) => (
-                <th key={h} style={s.th}>{h}</th>
+                <th key={h} className="px-3 py-[10px] bg-brand border border-[rgba(255,255,255,0.12)] text-left font-semibold">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={8} style={{ textAlign: 'center', padding: 32, color: '#A0AEC0' }}>계정이 없습니다.</td></tr>
+              <tr><td colSpan={8} className="text-center px-3 py-8 text-muted-brand">계정이 없습니다.</td></tr>
             )}
             {filtered.map((a) => (
-              <tr key={a.id} style={{ opacity: a.isActive ? 1 : 0.6 }}>
-                <td style={{ ...s.td, fontWeight: 600 }}>{a.name}</td>
-                <td style={s.td}>{a.email}</td>
-                <td style={s.td}>
-                  <span style={{ color: ROLE_COLOR[a.role] ?? '#333', fontWeight: 600, fontSize: 12 }}>
+              <tr key={a.id} className={a.isActive ? '' : 'opacity-60'}>
+                <td className="px-3 py-[10px] border border-[#e0e0e0] font-semibold">{a.name}</td>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.email}</td>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">
+                  <span className="font-semibold text-[12px]" style={{ color: ROLE_COLOR[a.role] ?? '#333' }}>
                     {ROLE_LABEL[a.role] ?? a.role}
                   </span>
                 </td>
-                <td style={s.td}>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">
                   {a.companyId ? (
-                    <Link href={`/admin/companies/${a.companyId}`} style={{ color: '#4A93C8', textDecoration: 'none' }}>
+                    <Link href={`/admin/companies/${a.companyId}`} className="text-[#4A93C8] no-underline">
                       {a.companyName}
                     </Link>
                   ) : '-'}
                 </td>
-                <td style={s.td}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <span style={{ color: a.isActive ? '#2e7d32' : '#c62828', fontWeight: 600 }}>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">
+                  <div className="flex flex-col gap-1">
+                    <span className={`font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>
                       {a.isActive ? '활성' : '비활성'}
                     </span>
                     {a.role === 'EXTERNAL_SITE_ADMIN' && a.companyVerificationStatus && (
-                      <span style={{
-                        fontSize: 11,
-                        padding: '1px 6px',
-                        borderRadius: 4,
-                        background: a.companyVerificationStatus === 'VERIFIED' ? '#e8f5e9' : a.companyVerificationStatus === 'PENDING_VERIFICATION' ? '#fff8e1' : '#fce4ec',
-                        color: a.companyVerificationStatus === 'VERIFIED' ? '#2e7d32' : a.companyVerificationStatus === 'PENDING_VERIFICATION' ? '#f57f17' : '#c62828',
-                      }}>
+                      <span className={`text-[11px] px-[6px] py-[1px] rounded ${
+                        a.companyVerificationStatus === 'VERIFIED'
+                          ? 'bg-[#e8f5e9] text-[#2e7d32]'
+                          : a.companyVerificationStatus === 'PENDING_VERIFICATION'
+                          ? 'bg-[#fff8e1] text-[#f57f17]'
+                          : 'bg-[#fce4ec] text-[#c62828]'
+                      }`}>
                         {a.companyVerificationStatus === 'VERIFIED' ? '인증완료' : a.companyVerificationStatus === 'PENDING_VERIFICATION' ? '인증대기' : a.companyVerificationStatus}
                       </span>
                     )}
                   </div>
                 </td>
-                <td style={s.td}>{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
-                <td style={s.td}>{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
-                <td style={s.td}>
-                  <div style={{ display: 'flex', gap: 4 }}>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
+                <td className="px-3 py-[10px] border border-[#e0e0e0]">
+                  <div className="flex gap-1">
                     {!a.isActive && (
                       <button
-                        style={{ ...s.smallBtn, background: '#388e3c' }}
+                        className="px-3 py-1 bg-[#388e3c] text-white border-none rounded-md cursor-pointer text-[12px]"
                         onClick={() => activate(a.id)}
                       >
                         활성화
@@ -246,7 +246,7 @@ export default function SuperUsersPage() {
                     )}
                     {a.isActive && (
                       <button
-                        style={{ ...s.smallBtn, background: '#e53935' }}
+                        className="px-3 py-1 bg-[#e53935] text-white border-none rounded-md cursor-pointer text-[12px]"
                         onClick={() => deactivate(a.id)}
                       >
                         비활성화
@@ -261,20 +261,4 @@ export default function SuperUsersPage() {
       )}
     </div>
   )
-}
-
-const s: Record<string, React.CSSProperties> = {
-  wrap: { padding: 32, maxWidth: 1100, margin: '0 auto' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
-  title: { fontSize: 22, fontWeight: 700, margin: 0 },
-  btn: { padding: '10px 20px', background: '#1a1a2e', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 },
-  smallBtn: { padding: '4px 12px', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 },
-  filterBtn: { padding: '6px 14px', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 },
-  formBox: { background: '#1B2838', border: '1px solid rgba(91,164,217,0.3)', borderRadius: 12, padding: 24, marginBottom: 24 },
-  grid: { display: 'grid', gridTemplateColumns: '100px 1fr', gap: '10px 12px', alignItems: 'center' },
-  label: { fontSize: 13, fontWeight: 600, color: '#A0AEC0' },
-  input: { padding: '10px 12px', fontSize: 14, border: '1px solid rgba(91,164,217,0.3)', borderRadius: 8, width: '100%', boxSizing: 'border-box' as const },
-  table: { width: '100%', borderCollapse: 'collapse' as const, fontSize: 14 },
-  th: { padding: '10px 12px', background: '#1B2838', border: '1px solid rgba(255,255,255,0.12)', textAlign: 'left' as const, fontWeight: 600 },
-  td: { padding: '10px 12px', border: '1px solid #e0e0e0' },
 }

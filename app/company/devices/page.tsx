@@ -68,21 +68,31 @@ export default function CompanyDevicesPage() {
     new Date(iso).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>기기 승인 ({total}건)</h1>
+    <div className="p-8">
+      <h1 className="text-[22px] font-bold m-0 mb-4 text-white">기기 승인 ({total}건)</h1>
 
       {msg && (
-        <p style={{ ...styles.msg, background: msg.includes('오류') ? '#ffebee' : '#e8f5e9', color: msg.includes('오류') ? '#b71c1c' : '#2e7d32' }}>
+        <p
+          className="px-[14px] py-[10px] rounded-md mb-4 text-[14px]"
+          style={{
+            background: msg.includes('오류') ? '#ffebee' : '#e8f5e9',
+            color: msg.includes('오류') ? '#b71c1c' : '#2e7d32',
+          }}
+        >
           {msg}
         </p>
       )}
 
-      <div style={styles.filterRow}>
+      <div className="flex gap-2 mb-4">
         {[['PENDING', '대기중'], ['APPROVED', '승인'], ['REJECTED', '반려'], ['ALL', '전체']].map(([val, label]) => (
           <button
             key={val}
             onClick={() => handleFilterChange(val)}
-            style={{ ...styles.filterBtn, background: statusFilter === val ? '#0f4c75' : '#eee', color: statusFilter === val ? 'white' : '#555' }}
+            className="px-[14px] py-[7px] border-none rounded-md cursor-pointer text-[13px] font-semibold"
+            style={{
+              background: statusFilter === val ? '#0f4c75' : '#eee',
+              color: statusFilter === val ? 'white' : '#555',
+            }}
           >
             {label}
           </button>
@@ -90,48 +100,52 @@ export default function CompanyDevicesPage() {
       </div>
 
       {loading ? (
-        <p style={styles.loading}>불러오는 중...</p>
+        <p className="text-muted-brand text-[15px]">불러오는 중...</p>
       ) : (
-        <div style={styles.tableWrapper}>
-          <table style={styles.table}>
+        <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] overflow-auto">
+          <table className="w-full border-collapse">
             <thead>
               <tr>
                 {['근로자명', '기기명', '요청일시', '상태', '처리'].map((h) => (
-                  <th key={h} style={styles.th}>{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[#eee] bg-[#fafafa] whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
-                <tr><td colSpan={5} style={styles.empty}>기기 요청이 없습니다.</td></tr>
+                <tr><td colSpan={5} className="p-8 text-center text-[#aaa] text-[14px]">기기 요청이 없습니다.</td></tr>
               ) : items.map((item) => (
-                <tr key={item.id} style={styles.tr}>
-                  <td style={styles.td}>{item.workerName}</td>
-                  <td style={styles.td}>{item.deviceName}</td>
-                  <td style={styles.td}>{formatDt(item.createdAt)}</td>
-                  <td style={styles.td}>
-                    <span style={{
-                      ...styles.badge,
-                      background: STATUS_BG[item.status] ?? '#f5f5f5',
-                      color: STATUS_COLOR[item.status] ?? '#555',
-                    }}>
+                <tr key={item.id} className="border-b border-[#f0f0f0]">
+                  <td className="px-4 py-3 text-[14px] text-[#CBD5E0] whitespace-nowrap">{item.workerName}</td>
+                  <td className="px-4 py-3 text-[14px] text-[#CBD5E0] whitespace-nowrap">{item.deviceName}</td>
+                  <td className="px-4 py-3 text-[14px] text-[#CBD5E0] whitespace-nowrap">{formatDt(item.createdAt)}</td>
+                  <td className="px-4 py-3 text-[14px] text-[#CBD5E0] whitespace-nowrap">
+                    <span
+                      className="px-2 py-[3px] rounded text-[12px] font-semibold"
+                      style={{
+                        background: STATUS_BG[item.status] ?? '#f5f5f5',
+                        color: STATUS_COLOR[item.status] ?? '#555',
+                      }}
+                    >
                       {STATUS_LABEL[item.status] ?? item.status}
                     </span>
                   </td>
-                  <td style={styles.td}>
+                  <td className="px-4 py-3 text-[14px] text-[#CBD5E0] whitespace-nowrap">
                     {item.status === 'PENDING' && (
-                      <div style={styles.actionBtns}>
+                      <div className="flex gap-[6px]">
                         <button
                           onClick={() => handleAction(item.id, 'approve')}
                           disabled={processing === item.id}
-                          style={{ ...styles.approveBtn, opacity: processing === item.id ? 0.6 : 1 }}
+                          className="px-3 py-[5px] bg-[#2e7d32] text-white border-none rounded-[5px] cursor-pointer text-[13px] font-semibold"
+                          style={{ opacity: processing === item.id ? 0.6 : 1 }}
                         >
                           승인
                         </button>
                         <button
                           onClick={() => handleAction(item.id, 'reject')}
                           disabled={processing === item.id}
-                          style={{ ...styles.rejectBtn, opacity: processing === item.id ? 0.6 : 1 }}
+                          className="px-3 py-[5px] bg-[#b71c1c] text-white border-none rounded-[5px] cursor-pointer text-[13px] font-semibold"
+                          style={{ opacity: processing === item.id ? 0.6 : 1 }}
                         >
                           반려
                         </button>
@@ -146,23 +160,4 @@ export default function CompanyDevicesPage() {
       )}
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  container: { padding: '32px' },
-  title: { fontSize: '22px', fontWeight: 700, margin: '0 0 16px', color: '#ffffff' },
-  msg: { padding: '10px 14px', borderRadius: '6px', marginBottom: '16px', fontSize: '14px' },
-  filterRow: { display: 'flex', gap: '8px', marginBottom: '16px' },
-  filterBtn: { padding: '7px 14px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  loading: { color: '#A0AEC0', fontSize: '15px' },
-  tableWrapper: { background: '#243144', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'auto' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  th: { padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid #eee', background: '#fafafa', whiteSpace: 'nowrap' as const },
-  tr: { borderBottom: '1px solid #f0f0f0' },
-  td: { padding: '12px 16px', fontSize: '14px', color: '#CBD5E0', whiteSpace: 'nowrap' as const },
-  empty: { padding: '32px', textAlign: 'center', color: '#aaa', fontSize: '14px' },
-  badge: { padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 },
-  actionBtns: { display: 'flex', gap: '6px' },
-  approveBtn: { padding: '5px 12px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
-  rejectBtn: { padding: '5px 12px', background: '#b71c1c', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 },
 }

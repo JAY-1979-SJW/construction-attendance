@@ -63,75 +63,75 @@ export default function InsuranceEligibilityPage() {
   }
 
   const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
-  const check = (v: boolean) => v ? <span style={{ color: '#2e7d32', fontWeight: 700 }}>✅ 적용</span>
-                                  : <span style={{ color: '#A0AEC0' }}>✗ 제외</span>
+  const check = (v: boolean) => v ? <span className="text-[#2e7d32] font-bold">✅ 적용</span>
+                                  : <span className="text-muted-brand">✗ 제외</span>
 
   return (
-    <div style={s.layout}>
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
-        <div style={s.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-[1px]">관리</div>
         {NAV_ITEMS.map((item) => (
-          <Link key={item.href} href={item.href} style={{ ...s.navItem, ...(item.href === '/admin/insurance-eligibility' ? s.navActive : {}) }}>
+          <Link key={item.href} href={item.href} className={`block px-5 py-2.5 text-[13px] no-underline ${item.href === '/admin/insurance-eligibility' ? 'bg-white/10 text-white font-bold' : 'text-white/80'}`}>
             {item.label}
           </Link>
         ))}
-        <button onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))} style={s.logoutBtn}>로그아웃</button>
+        <button onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))} className="mx-5 mt-6 px-0 py-2.5 bg-white/10 border-none rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
       </nav>
 
-      <main style={s.main}>
-        <h1 style={s.pageTitle}>4대보험 적용 판정</h1>
-        <p style={{ fontSize: '13px', color: '#A0AEC0', margin: '-12px 0 20px' }}>
+      <main className="flex-1 p-8 overflow-auto">
+        <h1 className="text-2xl font-bold mb-2">4대보험 적용 판정</h1>
+        <p className="text-[13px] text-muted-brand -mt-3 mb-5">
           국민연금 월 8일 이상/220만원 이상 · 건강보험 1개월 미만 일용 제외 · 고용보험 근로내용확인신고 대상
         </p>
 
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <input type="month" value={monthKey} onChange={(e) => setMonthKey(e.target.value)} style={s.input} />
-          <select value={filter} onChange={(e) => setFilter(e.target.value)} style={s.input}>
+        <div className="flex gap-3 mb-5 flex-wrap items-center">
+          <input type="month" value={monthKey} onChange={(e) => setMonthKey(e.target.value)} className="px-2.5 py-2 border border-secondary-brand/20 rounded-md text-sm bg-card" />
+          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="px-2.5 py-2 border border-secondary-brand/20 rounded-md text-sm bg-card">
             <option value="all">전체</option>
             <option value="eligible">국민연금 적용</option>
             <option value="ineligible">국민연금 제외</option>
           </select>
-          <button onClick={handleRun} disabled={running} style={{ ...s.btn, background: '#7b1fa2' }}>
+          <button onClick={handleRun} disabled={running} className="px-4 py-2 bg-[#7b1fa2] text-white border-none rounded-md cursor-pointer text-sm font-semibold">
             {running ? '판정 중...' : '보험판정 실행'}
           </button>
         </div>
 
-        {msg && <div style={s.msg}>{msg}</div>}
+        {msg && <div className="px-4 py-3 bg-secondary-brand/10 rounded-lg mb-4 text-sm text-[#4A93C8]">{msg}</div>}
 
-        <div style={s.tableCard}>
-          {loading ? <div style={{ padding: '32px', textAlign: 'center', color: '#999' }}>로딩 중...</div> : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={s.table}>
+        <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+          {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
                 <thead>
                   <tr>
                     {['근로자', '고용형태', '근무일수', '확정금액', '국민연금', '건강보험', '고용보험', '산재보험'].map((h) => (
-                      <th key={h} style={s.th}>{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand border-b border-secondary-brand/20 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {items.length === 0 ? (
-                    <tr><td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: '#999' }}>데이터 없음 — 보험판정 실행을 먼저 하세요</td></tr>
+                    <tr><td colSpan={8} className="text-center py-6 text-[#999]">데이터 없음 — 보험판정 실행을 먼저 하세요</td></tr>
                   ) : items.map((item) => (
-                    <tr key={item.id} style={s.tr}>
-                      <td style={s.td}>{item.worker.name}</td>
-                      <td style={s.td}>{EMP_LABEL[item.worker.employmentType] ?? item.worker.employmentType}</td>
-                      <td style={{ ...s.td, textAlign: 'center' as const }}>{item.totalWorkDays}일</td>
-                      <td style={{ ...s.td, textAlign: 'right' as const }}>{fmt(item.totalConfirmedAmount)}</td>
-                      <td style={s.td}>
+                    <tr key={item.id} className="cursor-default">
+                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">{item.worker.name}</td>
+                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">{EMP_LABEL[item.worker.employmentType] ?? item.worker.employmentType}</td>
+                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top text-center">{item.totalWorkDays}일</td>
+                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top text-right">{fmt(item.totalConfirmedAmount)}</td>
+                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
                         {check(item.nationalPensionEligible)}
-                        <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '2px' }}>{item.nationalPensionReason ?? ''}</div>
+                        <div className="text-[11px] text-muted-brand mt-0.5">{item.nationalPensionReason ?? ''}</div>
                       </td>
-                      <td style={s.td}>
+                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
                         {check(item.healthInsuranceEligible)}
-                        <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '2px' }}>{item.healthInsuranceReason ?? ''}</div>
+                        <div className="text-[11px] text-muted-brand mt-0.5">{item.healthInsuranceReason ?? ''}</div>
                       </td>
-                      <td style={s.td}>
+                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
                         {check(item.employmentInsuranceEligible)}
-                        <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '2px' }}>{item.employmentInsuranceReason ?? ''}</div>
+                        <div className="text-[11px] text-muted-brand mt-0.5">{item.employmentInsuranceReason ?? ''}</div>
                       </td>
-                      <td style={s.td}>
+                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
                         {check(item.industrialAccidentEligible)}
                       </td>
                     </tr>
@@ -162,23 +162,3 @@ const NAV_ITEMS = [
   { href: '/admin/exceptions',           label: '예외 승인' },
   { href: '/admin/device-requests',      label: '기기 변경' },
 ]
-
-const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
-  navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
-  navActive:    { background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 700 },
-  logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main:         { flex: 1, padding: '32px', overflow: 'auto' },
-  pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0 0 8px' },
-  input:        { padding: '8px 10px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '6px', fontSize: '14px', background: '#243144' },
-  btn:          { padding: '8px 16px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  msg:          { padding: '12px 16px', background: 'rgba(91,164,217,0.1)', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', color: '#4A93C8' },
-  tableCard:    { background: '#243144', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden' },
-  table:        { width: '100%', borderCollapse: 'collapse' as const },
-  th:           { padding: '12px 16px', textAlign: 'left' as const, fontSize: '12px', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)', whiteSpace: 'nowrap' as const },
-  td:           { padding: '12px 16px', fontSize: '13px', color: '#CBD5E0', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'top' as const },
-  tr:           { cursor: 'default' },
-}

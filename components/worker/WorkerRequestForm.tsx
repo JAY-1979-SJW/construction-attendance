@@ -62,43 +62,30 @@ export default function WorkerRequestForm() {
     }
   }
 
+  const isDisabled = !category || !content.trim() || loading
+
   return (
-    <form onSubmit={handleSubmit} style={{ padding: '16px', maxWidth: '480px', margin: '0 auto' }}>
+    <form onSubmit={handleSubmit} className="p-4 max-w-[480px] mx-auto">
       {/* 안내 문구 */}
-      <div style={{
-        background: 'rgba(244,121,32,0.1)',
-        border: '1px solid rgba(244,121,32,0.3)',
-        borderRadius: '8px',
-        padding: '10px 14px',
-        fontSize: '12px',
-        color: '#E8A870',
-        marginBottom: '20px',
-        lineHeight: '1.6',
-      }}>
+      <div className="bg-[rgba(244,121,32,0.1)] border border-[rgba(244,121,32,0.3)] rounded-lg px-[14px] py-[10px] text-[12px] text-[#E8A870] mb-5 leading-[1.6]">
         임금·계약·인사 관련 분쟁·이의 사항은 이 양식으로 처리되지 않습니다.
         소속 관리자 또는 고용노동부(1350)에 직접 문의하시기 바랍니다.
       </div>
 
       {/* 카테고리 선택 */}
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '8px', color: '#A0AEC0' }}>
-          요청 유형 <span style={{ color: '#e53935' }}>*</span>
+      <div className="mb-4">
+        <label className="block text-[13px] font-bold mb-2 text-muted-brand">
+          요청 유형 <span className="text-[#e53935]">*</span>
         </label>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div className="flex flex-col gap-[6px]">
           {CATEGORIES.map((cat) => (
             <label
               key={cat.value}
+              className="flex items-center gap-[10px] px-[14px] py-[10px] rounded-lg cursor-pointer text-[14px]"
               style={{
-                display:    'flex',
-                alignItems: 'center',
-                gap:        '10px',
-                padding:    '10px 14px',
                 border:     `1px solid ${category === cat.value ? '#F47920' : 'rgba(91,164,217,0.2)'}`,
-                borderRadius: '8px',
-                background:   category === cat.value ? 'rgba(244,121,32,0.12)' : '#243144',
-                cursor:       'pointer',
-                fontSize:     '14px',
-                color:        category === cat.value ? '#ffffff' : '#A0AEC0',
+                background:  category === cat.value ? 'rgba(244,121,32,0.12)' : '#243144',
+                color:       category === cat.value ? '#ffffff' : '#A0AEC0',
               }}
             >
               <input
@@ -116,45 +103,36 @@ export default function WorkerRequestForm() {
       </div>
 
       {/* 내용 입력 */}
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '8px', color: '#A0AEC0' }}>
-          요청 내용 <span style={{ color: '#e53935' }}>*</span>
-          <span style={{ fontWeight: 400, color: '#718096', marginLeft: '8px' }}>(최대 {MAX_CONTENT}자)</span>
+      <div className="mb-4">
+        <label className="block text-[13px] font-bold mb-2 text-muted-brand">
+          요청 내용 <span className="text-[#e53935]">*</span>
+          <span className="font-normal text-[#718096] ml-2">(최대 {MAX_CONTENT}자)</span>
         </label>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value.slice(0, MAX_CONTENT))}
           placeholder="구체적인 상황을 간략히 입력해 주세요."
           rows={4}
-          style={{
-            width:        '100%',
-            border:       '1px solid rgba(91,164,217,0.25)',
-            borderRadius: '8px',
-            padding:      '10px 12px',
-            fontSize:     '14px',
-            resize:       'vertical',
-            outline:      'none',
-            boxSizing:    'border-box',
-            background:   'rgba(255,255,255,0.06)',
-            color:        '#ffffff',
-          }}
+          className="w-full border border-[rgba(91,164,217,0.25)] rounded-lg px-3 py-[10px] text-[14px] resize-y outline-none box-border bg-[rgba(255,255,255,0.06)] text-white"
         />
-        <div style={{ textAlign: 'right', fontSize: '11px', color: content.length >= MAX_CONTENT ? '#e53935' : '#718096', marginTop: '4px' }}>
+        <div
+          className="text-right text-[11px] mt-1"
+          style={{ color: content.length >= MAX_CONTENT ? '#e53935' : '#718096' }}
+        >
           {content.length} / {MAX_CONTENT}
         </div>
       </div>
 
       {/* 결과 메시지 */}
       {result && (
-        <div style={{
-          padding:      '10px 14px',
-          borderRadius: '8px',
-          marginBottom: '14px',
-          fontSize:     '13px',
-          background:   result.success ? 'rgba(46,125,50,0.15)' : 'rgba(198,40,40,0.12)',
-          color:        result.success ? '#81c784' : '#ef9a9a',
-          border:       `1px solid ${result.success ? 'rgba(46,125,50,0.4)' : 'rgba(198,40,40,0.35)'}`,
-        }}>
+        <div
+          className="px-[14px] py-[10px] rounded-lg mb-[14px] text-[13px]"
+          style={{
+            background: result.success ? 'rgba(46,125,50,0.15)' : 'rgba(198,40,40,0.12)',
+            color:      result.success ? '#81c784' : '#ef9a9a',
+            border:     `1px solid ${result.success ? 'rgba(46,125,50,0.4)' : 'rgba(198,40,40,0.35)'}`,
+          }}
+        >
           {result.message}
         </div>
       )}
@@ -162,17 +140,12 @@ export default function WorkerRequestForm() {
       {/* 제출 버튼 */}
       <button
         type="submit"
-        disabled={!category || !content.trim() || loading}
+        disabled={isDisabled}
+        className="w-full py-[14px] border-none rounded-lg text-[15px] font-bold"
         style={{
-          width:        '100%',
-          padding:      '14px',
-          background:   (!category || !content.trim() || loading) ? 'rgba(255,255,255,0.1)' : '#F47920',
-          color:        (!category || !content.trim() || loading) ? '#718096' : '#ffffff',
-          border:       'none',
-          borderRadius: '8px',
-          fontSize:     '15px',
-          fontWeight:   700,
-          cursor:       (!category || !content.trim() || loading) ? 'not-allowed' : 'pointer',
+          background: isDisabled ? 'rgba(255,255,255,0.1)' : '#F47920',
+          color:      isDisabled ? '#718096' : '#ffffff',
+          cursor:     isDisabled ? 'not-allowed' : 'pointer',
         }}
       >
         {loading ? '접수 중...' : '요청 접수하기'}

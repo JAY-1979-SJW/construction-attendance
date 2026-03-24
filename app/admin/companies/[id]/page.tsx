@@ -162,16 +162,16 @@ export default function CompanyDetailPage() {
 
   if (loading) {
     return (
-      <div style={s.layout}>
-        <nav style={s.sidebar}>
-          <div style={s.sidebarTitle}>해한 출퇴근</div>
-          <div style={s.navSection}>관리</div>
+      <div className="flex min-h-screen bg-brand">
+        <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
+          <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+          <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
           {NAV_ITEMS.map(item => (
-            <Link key={item.href} href={item.href} style={s.navItem}>{item.label}</Link>
+            <Link key={item.href} href={item.href} className="block text-white/80 px-5 py-2.5 text-[13px] no-underline">{item.label}</Link>
           ))}
         </nav>
-        <main style={s.main}>
-          <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>로딩 중...</div>
+        <main className="flex-1 p-8 overflow-auto">
+          <div className="py-10 text-center text-[#999]">로딩 중...</div>
         </main>
       </div>
     )
@@ -179,16 +179,16 @@ export default function CompanyDetailPage() {
 
   if (!company) {
     return (
-      <div style={s.layout}>
-        <nav style={s.sidebar}>
-          <div style={s.sidebarTitle}>해한 출퇴근</div>
+      <div className="flex min-h-screen bg-brand">
+        <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
+          <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
           {NAV_ITEMS.map(item => (
-            <Link key={item.href} href={item.href} style={s.navItem}>{item.label}</Link>
+            <Link key={item.href} href={item.href} className="block text-white/80 px-5 py-2.5 text-[13px] no-underline">{item.label}</Link>
           ))}
         </nav>
-        <main style={s.main}>
-          <div style={{ color: '#c62828' }}>{msg || '업체를 찾을 수 없습니다.'}</div>
-          <Link href="/admin/companies" style={{ color: '#5BA4D9', fontSize: '14px', marginTop: '12px', display: 'inline-block' }}>← 목록으로</Link>
+        <main className="flex-1 p-8 overflow-auto">
+          <div className="text-[#c62828]">{msg || '업체를 찾을 수 없습니다.'}</div>
+          <Link href="/admin/companies" className="text-secondary-brand text-sm mt-3 inline-block">← 목록으로</Link>
         </main>
       </div>
     )
@@ -197,73 +197,73 @@ export default function CompanyDetailPage() {
   const statusStyle = STATUS_COLORS[company.status] ?? { bg: '#f5f5f5', color: '#A0AEC0' }
 
   return (
-    <div style={s.layout}>
-      <nav style={s.sidebar}>
-        <div style={s.sidebarTitle}>해한 출퇴근</div>
-        <div style={s.navSection}>관리</div>
+    <div className="flex min-h-screen bg-brand">
+      <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
+        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
+        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
         {NAV_ITEMS.map(item => (
           <Link key={item.href} href={item.href}
-            style={{ ...s.navItem, ...(item.href === '/admin/companies' ? s.navActive : {}) }}>
+            className={`block px-5 py-2.5 text-[13px] no-underline transition-colors ${item.href === '/admin/companies' ? 'bg-white/10 text-white font-bold' : 'text-white/80 hover:text-white'}`}>
             {item.label}
           </Link>
         ))}
         <button
           onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))}
-          style={s.logoutBtn}
+          className="mx-5 mt-6 py-2.5 bg-white/10 border-none rounded-md text-white/60 cursor-pointer text-[13px]"
         >로그아웃</button>
       </nav>
 
-      <main style={s.main}>
+      <main className="flex-1 p-8 overflow-auto">
         {/* 헤더 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-          <Link href="/admin/companies" style={{ color: '#A0AEC0', fontSize: '13px', textDecoration: 'none' }}>← 목록</Link>
-          <h1 style={s.pageTitle}>{company.companyName}</h1>
-          <span style={{ background: statusStyle.bg, color: statusStyle.color, padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
+        <div className="flex items-center gap-3 mb-6">
+          <Link href="/admin/companies" className="text-muted-brand text-[13px] no-underline">← 목록</Link>
+          <h1 className="text-2xl font-bold m-0">{company.companyName}</h1>
+          <span style={{ background: statusStyle.bg, color: statusStyle.color }} className="px-3 py-1 rounded-xl text-xs font-bold">
             {STATUS_LABELS[company.status] ?? company.status}
           </span>
         </div>
 
         {msg && (
-          <div style={{ background: msg.includes('완료') || msg.includes('변경') || msg.includes('활성') ? '#e8f5e9' : '#ffebee', color: msg.includes('완료') || msg.includes('변경') || msg.includes('활성') ? '#2e7d32' : '#c62828', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', fontSize: '14px' }}>
+          <div className={`rounded-lg px-4 py-3 mb-4 text-sm ${msg.includes('완료') || msg.includes('변경') || msg.includes('활성') ? 'bg-[#e8f5e9] text-[#2e7d32]' : 'bg-[#ffebee] text-[#c62828]'}`}>
             {msg}
           </div>
         )}
 
         {/* Section 1: 기본 정보 */}
-        <div style={s.card}>
-          <h2 style={s.sectionTitle}>기본 정보</h2>
-          <div style={s.infoGrid}>
-            <div style={s.infoItem}>
-              <div style={s.infoLabel}>업체명</div>
-              <div style={s.infoValue}>{company.companyName}</div>
+        <div className="bg-card rounded-xl p-6 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+          <h2 className="text-base font-bold m-0 mb-4 text-white">기본 정보</h2>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
+            <div>
+              <div className="text-[11px] text-muted-brand font-semibold uppercase tracking-[0.5px] mb-1">업체명</div>
+              <div className="text-sm text-white font-medium">{company.companyName}</div>
             </div>
-            <div style={s.infoItem}>
-              <div style={s.infoLabel}>요금제</div>
-              <div style={s.infoValue}>{company.planType ?? '미설정'}</div>
+            <div>
+              <div className="text-[11px] text-muted-brand font-semibold uppercase tracking-[0.5px] mb-1">요금제</div>
+              <div className="text-sm text-white font-medium">{company.planType ?? '미설정'}</div>
             </div>
-            <div style={s.infoItem}>
-              <div style={s.infoLabel}>만료일</div>
-              <div style={s.infoValue}>
+            <div>
+              <div className="text-[11px] text-muted-brand font-semibold uppercase tracking-[0.5px] mb-1">만료일</div>
+              <div className="text-sm text-white font-medium">
                 {company.expiresAt ? new Date(company.expiresAt).toLocaleDateString('ko-KR') : '무기한'}
               </div>
             </div>
-            <div style={s.infoItem}>
-              <div style={s.infoLabel}>담당자</div>
-              <div style={s.infoValue}>{company.contactName ?? '-'}</div>
+            <div>
+              <div className="text-[11px] text-muted-brand font-semibold uppercase tracking-[0.5px] mb-1">담당자</div>
+              <div className="text-sm text-white font-medium">{company.contactName ?? '-'}</div>
             </div>
-            <div style={s.infoItem}>
-              <div style={s.infoLabel}>연락처</div>
-              <div style={s.infoValue}>{company.contactPhone ?? '-'}</div>
+            <div>
+              <div className="text-[11px] text-muted-brand font-semibold uppercase tracking-[0.5px] mb-1">연락처</div>
+              <div className="text-sm text-white font-medium">{company.contactPhone ?? '-'}</div>
             </div>
-            <div style={s.infoItem}>
-              <div style={s.infoLabel}>이메일</div>
-              <div style={s.infoValue}>{company.email ?? '-'}</div>
+            <div>
+              <div className="text-[11px] text-muted-brand font-semibold uppercase tracking-[0.5px] mb-1">이메일</div>
+              <div className="text-sm text-white font-medium">{company.email ?? '-'}</div>
             </div>
           </div>
 
-          <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #f0f0f0' }}>
-            <div style={s.infoLabel}>상태 변경</div>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+          <div className="mt-5 pt-5 border-t border-[rgba(91,164,217,0.15)]">
+            <div className="text-[11px] text-muted-brand font-semibold uppercase tracking-[0.5px] mb-1">상태 변경</div>
+            <div className="flex gap-2 mt-2 flex-wrap">
               {(['ACTIVE', 'SUSPENDED', 'EXPIRED', 'DELETED'] as const).map(st => {
                 const sc = STATUS_COLORS[st]
                 const isCurrent = company.status === st
@@ -294,10 +294,10 @@ export default function CompanyDetailPage() {
         </div>
 
         {/* Section 2: 기능 플래그 관리 */}
-        <div style={s.card}>
-          <h2 style={s.sectionTitle}>기능 플래그 관리</h2>
-          <p style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '16px' }}>(유료) 표시 항목은 유료 플랜에서 제공되는 기능입니다.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
+        <div className="bg-card rounded-xl p-6 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+          <h2 className="text-base font-bold m-0 mb-4 text-white">기능 플래그 관리</h2>
+          <p className="text-[13px] text-muted-brand mb-4">(유료) 표시 항목은 유료 플랜에서 제공되는 기능입니다.</p>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-2.5">
             {FLAG_KEYS.map(key => {
               const label = FEATURE_FLAG_LABELS[key]
               const isPaid = label.includes('(유료)')
@@ -315,7 +315,7 @@ export default function CompanyDetailPage() {
                 }}>
                   <div>
                     <span style={{ fontSize: '13px', fontWeight: 600, color: isOn ? '#2e7d32' : '#555' }}>{label}</span>
-                    {isPaid && <span style={{ marginLeft: '6px', fontSize: '10px', background: '#fff3e0', color: '#e65100', padding: '1px 6px', borderRadius: '8px', fontWeight: 600 }}>유료</span>}
+                    {isPaid && <span className="ml-1.5 text-[10px] bg-[#fff3e0] text-[#e65100] px-1.5 py-0.5 rounded-lg font-semibold">유료</span>}
                   </div>
                   <button
                     onClick={() => handleToggleFlag(key)}
@@ -353,26 +353,26 @@ export default function CompanyDetailPage() {
         </div>
 
         {/* Section 3: 업체 관리자 계정 */}
-        <div style={s.card}>
-          <h2 style={s.sectionTitle}>업체 관리자 계정</h2>
+        <div className="bg-card rounded-xl p-6 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+          <h2 className="text-base font-bold m-0 mb-4 text-white">업체 관리자 계정</h2>
           {admins.length === 0 ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: '#718096', fontSize: '14px' }}>등록된 관리자 계정이 없습니다.</div>
+            <div className="py-6 text-center text-[#718096] text-sm">등록된 관리자 계정이 없습니다.</div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={s.table}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr>
+                  <tr className="border-b border-[rgba(91,164,217,0.15)]">
                     {['이름', '이메일', '상태', '마지막 로그인', ''].map(h => (
-                      <th key={h} style={s.th}>{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {admins.map(admin => (
-                    <tr key={admin.id}>
-                      <td style={s.td}>{admin.name}</td>
-                      <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0' }}>{admin.email}</td>
-                      <td style={s.td}>
+                    <tr key={admin.id} className="border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors">
+                      <td className="px-4 py-3 text-sm text-[#CBD5E0]">{admin.name}</td>
+                      <td className="px-4 py-3 text-xs text-muted-brand">{admin.email}</td>
+                      <td className="px-4 py-3 text-sm text-[#CBD5E0]">
                         <span style={{
                           background: admin.isActive ? '#e8f5e9' : '#f5f5f5',
                           color: admin.isActive ? '#2e7d32' : '#9e9e9e',
@@ -384,15 +384,20 @@ export default function CompanyDetailPage() {
                           {admin.isActive ? '활성' : '비활성'}
                         </span>
                       </td>
-                      <td style={{ ...s.td, fontSize: '12px', color: '#A0AEC0' }}>
+                      <td className="px-4 py-3 text-xs text-muted-brand">
                         {admin.lastLoginAt ? new Date(admin.lastLoginAt).toLocaleString('ko-KR') : '없음'}
                       </td>
-                      <td style={s.td}>
+                      <td className="px-4 py-3 text-sm text-[#CBD5E0]">
                         <button
                           onClick={() => handleToggleAdmin(admin.id, admin.isActive)}
                           disabled={togglingAdmin === admin.id}
                           style={{
-                            ...s.actionBtn,
+                            padding: '4px 10px',
+                            background: 'none',
+                            border: '1px solid rgba(255,255,255,0.12)',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px',
                             color: admin.isActive ? '#c62828' : '#1976d2',
                             opacity: togglingAdmin === admin.id ? 0.5 : 1,
                           }}
@@ -435,25 +440,3 @@ const NAV_ITEMS = [
   { href: '/admin/device-requests',           label: '기기 변경' },
   { href: '/admin/devices-anomaly',           label: '기기 이상 감지' },
 ]
-
-const s: Record<string, React.CSSProperties> = {
-  layout:       { display: 'flex', minHeight: '100vh', background: '#1B2838' },
-  sidebar:      { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection:   { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
-  navItem:      { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '13px', textDecoration: 'none' },
-  navActive:    { background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 700 },
-  logoutBtn:    { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
-  main:         { flex: 1, padding: '32px', overflow: 'auto' },
-  pageTitle:    { fontSize: '24px', fontWeight: 700, margin: '0' },
-  card:         { background: '#243144', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: '16px', fontWeight: 700, margin: '0 0 16px', color: '#ffffff' },
-  infoGrid:     { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' },
-  infoItem:     {},
-  infoLabel:    { fontSize: '11px', color: '#A0AEC0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' },
-  infoValue:    { fontSize: '14px', color: '#ffffff', fontWeight: 500 },
-  table:        { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
-  th:           { background: '#1B2838', padding: '12px 14px', textAlign: 'left', fontWeight: 600, color: '#A0AEC0', borderBottom: '1px solid #e0e0e0', whiteSpace: 'nowrap' },
-  td:           { padding: '12px 14px', borderBottom: '1px solid rgba(91,164,217,0.1)', verticalAlign: 'middle' },
-  actionBtn:    { padding: '4px 10px', background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
-}
