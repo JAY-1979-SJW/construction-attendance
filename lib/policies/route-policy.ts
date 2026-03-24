@@ -15,12 +15,10 @@
 export const ADMIN_PUBLIC_PATHS = [
   '/admin/login',
   '/api/admin/auth/login',
-  '/super/login',
-  '/api/super/auth/login',
 ]
 
 /** 인증이 필요한 플랫폼 관리자 경로 접두사 */
-export const ADMIN_PATHS = ['/admin', '/api/admin', '/super', '/api/super']
+export const ADMIN_PATHS = ['/admin', '/api/admin']
 
 // ─── 업체 관리자 경로 ────────────────────────────────────────────────────────
 

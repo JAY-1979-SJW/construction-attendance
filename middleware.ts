@@ -22,14 +22,13 @@ export async function middleware(request: NextRequest) {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json({ success: false, message: '인증이 필요합니다.' }, { status: 401 })
       }
-      const loginUrl = pathname.startsWith('/super') ? '/super/login' : '/admin/login'
-      return NextResponse.redirect(new URL(loginUrl, request.url))
+      return NextResponse.redirect(new URL('/admin/login', request.url))
     }
 
     try {
       const payload = await verifyToken(token)
       if (!payload || payload.type !== 'admin') throw new Error('Invalid token type')
-      // COMPANY_ADMIN이 /admin 또는 /super 접근 시 → ROUTE_REDIRECT.COMPANY_ADMIN_MISMATCH
+      // COMPANY_ADMIN이 /admin 접근 시 → ROUTE_REDIRECT.COMPANY_ADMIN_MISMATCH
       if (payload.role === 'COMPANY_ADMIN') {
         if (pathname.startsWith('/api/')) {
           return NextResponse.json({ success: false, message: '업체 관리자 포털을 이용해주세요.' }, { status: 403 })
@@ -40,8 +39,7 @@ export async function middleware(request: NextRequest) {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json({ success: false, message: '유효하지 않은 토큰입니다.' }, { status: 401 })
       }
-      const loginUrl = pathname.startsWith('/super') ? '/super/login' : '/admin/login'
-      return NextResponse.redirect(new URL(loginUrl, request.url))
+      return NextResponse.redirect(new URL('/admin/login', request.url))
     }
   }
 
@@ -98,8 +96,6 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/api/admin/:path*',
-    '/super/:path*',
-    '/api/super/:path*',
     '/company/:path*',
     '/api/company/:path*',
     '/api/attendance/:path*',
