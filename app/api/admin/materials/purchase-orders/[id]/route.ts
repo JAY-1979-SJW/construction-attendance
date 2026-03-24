@@ -27,6 +27,16 @@ export async function GET(
         orderBy: { createdAt: 'asc' },
       },
       history: { orderBy: { createdAt: 'desc' } },
+      goodsReceipts: {
+        orderBy: { createdAt: 'desc' },
+        include: {
+          items: {
+            include: {
+              poItem: { select: { id: true, itemNameSnapshot: true, unitSnapshot: true } },
+            },
+          },
+        },
+      },
     },
   })
   if (!order) return notFound('발주서를 찾을 수 없습니다.')

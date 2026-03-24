@@ -3613,6 +3613,7 @@ model PurchaseOrder {
   site            Site?                        @relation(fields: [siteId], references: [id], onDelete: SetNull)
   items           PurchaseOrderItem[]
   history         PurchaseOrderStatusHistory[]
+  goodsReceipts   GoodsReceipt[]
 
   @@index([materialRequestId])
   @@index([status])
@@ -3641,6 +3642,7 @@ model PurchaseOrderItem {
 
   purchaseOrder       PurchaseOrder       @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
   materialRequestItem MaterialRequestItem @relation(fields: [materialRequestItemId], references: [id], onDelete: Restrict)
+  goodsReceiptItems   GoodsReceiptItem[]
 
   @@index([purchaseOrderId])
   @@index([materialRequestItemId])
@@ -3662,3 +3664,36 @@ model PurchaseOrderStatusHistory {
   @@map("purchase_order_status_histories")
 }
 
+// ─── 입고/검수 ────────────────────────────────────────────────────────────────
+
+model GoodsReceipt {
+  id               String   @id @default(cuid())
+  receiptNo        String   @unique  // GR-YYYYMMDD-NNNN
+  purchaseOrderId  String
+  receivedByUserId String
+  receivedAt       DateTime
+  memo             String?  @db.Text
+  createdAt        DateTime @default(now())
+
+  purchaseOrder PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id], onDelete: Restrict)
+  items         GoodsReceiptItem[]
+
+  @@index([purchaseOrderId])
+  @@map("goods_receipts")
+}
+
+model GoodsReceiptItem {
+  id             String   @id @default(cuid())
+  goodsReceiptId String
+  poItemId       String
+  quantity       Decimal  @db.Decimal(15, 4)
+  inspectionNote String?  @db.Text
+  createdAt      DateTime @default(now())
+
+  goodsReceipt GoodsReceipt      @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
+  poItem       PurchaseOrderItem @relation(fields: [poItemId], references: [id], onDelete: Restrict)
+
+  @@index([goodsReceiptId])
+  @@index([poItemId])
+  @@map("goods_receipt_items")
+}
