@@ -715,6 +715,7 @@ model Site {
   accessGroupSites           SiteAccessGroupSite[]
   estimateDocuments          EstimateDocument[]
   materialRequests           MaterialRequest[]
+  purchaseOrders             PurchaseOrder[]
 
   @@map("sites")
 }
