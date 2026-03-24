@@ -208,18 +208,6 @@ export default function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onC
             <span>🏠</span><span>대시보드</span>
           </Link>
 
-          {/* 운영 대시보드 */}
-          <Link
-            href="/admin/operations-dashboard"
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] mb-1 transition-colors ${
-              isActive('/admin/operations-dashboard')
-                ? 'bg-[rgba(244,121,32,0.18)] text-[#F47920] font-bold'
-                : 'text-[#8899aa] hover:text-white hover:bg-[rgba(255,255,255,0.06)]'
-            }`}
-          >
-            <span>📊</span><span>운영 대시보드</span>
-          </Link>
-
           <div className="my-2 border-t border-[rgba(91,164,217,0.08)]" />
 
           {/* 그룹 메뉴 */}
