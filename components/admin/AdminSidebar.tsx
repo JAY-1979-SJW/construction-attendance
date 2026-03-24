@@ -7,7 +7,7 @@ import Link from 'next/link'
 interface NavItem {
   href: string
   label: string
-  badgeKey?: 'exceptions' | 'deviceRequests'
+  badgeKey?: 'exceptions' | 'deviceRequests' | 'approvals'
 }
 
 interface NavGroup {
@@ -26,8 +26,9 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/workers',                label: '근로자 관리' },
       { href: '/admin/companies',              label: '회사 관리' },
       { href: '/admin/sites',                  label: '현장 관리' },
-      { href: '/admin/registrations',          label: '등록 승인' },
-      { href: '/admin/site-join-requests',     label: '현장 가입 요청' },
+      { href: '/admin/approvals',              label: '통합 승인 센터', badgeKey: 'approvals' },
+      { href: '/admin/registrations',          label: '작업자 가입' },
+      { href: '/admin/site-join-requests',     label: '현장 참여 신청' },
       { href: '/admin/site-admin-assignments', label: '현장 관리자 배정' },
       { href: '/admin/company-admins',         label: '회사 관리자' },
       { href: '/admin/company-admin-requests', label: '관리자 가입 요청' },
@@ -40,12 +41,13 @@ const NAV_GROUPS: NavGroup[] = [
     icon: '📋',
     label: '근태 관리',
     items: [
-      { href: '/admin/attendance',        label: '출퇴근 조회' },
-      { href: '/admin/presence-checks',  label: '체류확인 현황' },
-      { href: '/admin/presence-report',  label: '체류확인 리포트' },
-      { href: '/admin/work-confirmations', label: '근무확정' },
-      { href: '/admin/exceptions',       label: '예외 승인', badgeKey: 'exceptions' },
-      { href: '/admin/corrections',      label: '정정 이력' },
+      { href: '/admin/attendance',                        label: '출퇴근 조회' },
+      { href: '/admin/presence-checks',                  label: '체류확인 현황' },
+      { href: '/admin/presence-report',                  label: '체류확인 리포트' },
+      { href: '/admin/work-confirmations',               label: '근무확정' },
+      { href: '/admin/exceptions',                       label: '예외 승인', badgeKey: 'exceptions' },
+      { href: '/admin/operations/attendance-exceptions', label: '예외·누락 처리' },
+      { href: '/admin/corrections',                      label: '정정 이력' },
     ],
   },
   {
@@ -60,18 +62,25 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     id: 'contract',
-    icon: '📄',
-    label: '계약·보험·정산',
+    icon: '📑',
+    label: '계약·노무',
     items: [
-      { href: '/admin/contracts',                  label: '계약 관리' },
-      { href: '/admin/insurance-eligibility',       label: '4대보험 판정' },
-      { href: '/admin/insurance-rates',             label: '보험요율 관리' },
-      { href: '/admin/wage-calculations',           label: '세금/노임 계산' },
-      { href: '/admin/filing-exports',              label: '신고자료 출력' },
-      { href: '/admin/month-closings',              label: '월마감' },
-      { href: '/admin/subcontractor-settlements',   label: '협력사 정산' },
-      { href: '/admin/retirement-mutual',           label: '퇴직공제' },
-      { href: '/admin/labor-cost-summaries',        label: '노임 원가 요약' },
+      { href: '/admin/contracts',            label: '계약 관리' },
+      { href: '/admin/wage-calculations',    label: '세금/노임 계산' },
+      { href: '/admin/filing-exports',       label: '신고자료 출력' },
+      { href: '/admin/month-closings',       label: '월마감' },
+      { href: '/admin/labor-cost-summaries', label: '노임 원가 요약' },
+    ],
+  },
+  {
+    id: 'insurance',
+    icon: '🛡️',
+    label: '보험·정산',
+    items: [
+      { href: '/admin/insurance-eligibility',     label: '4대보험 판정' },
+      { href: '/admin/insurance-rates',            label: '보험요율 관리' },
+      { href: '/admin/subcontractor-settlements',  label: '협력사 정산' },
+      { href: '/admin/retirement-mutual',          label: '퇴직공제' },
     ],
   },
   {
@@ -79,24 +88,25 @@ const NAV_GROUPS: NavGroup[] = [
     icon: '📦',
     label: '자재 관리',
     items: [
-      { href: '/admin/materials',                     label: '자재 목록' },
-      { href: '/admin/materials/purchase-orders',     label: '구매 발주' },
-      { href: '/admin/materials/requests',            label: '자재 요청' },
+      { href: '/admin/materials',                   label: '자재 현황' },
+      { href: '/admin/materials/inventory',         label: '재고 현황' },
+      { href: '/admin/materials/purchase-orders',   label: '구매 발주' },
+      { href: '/admin/materials/requests',          label: '자재 요청' },
     ],
   },
   {
     id: 'documents',
-    icon: '🖨️',
+    icon: '🗂️',
     label: '서류·운영',
     items: [
       { href: '/admin/document-center',          label: '문서 센터' },
-      { href: '/admin/operations/print-center',  label: '출력 센터' },
       { href: '/admin/labor',                    label: '노무 일지' },
-      { href: '/admin/operations/labor-review',  label: '노임 검토' },
-      { href: '/admin/operations/today-tasks',   label: '오늘 업무' },
       { href: '/admin/labor-faqs',               label: '노동법 FAQ' },
       { href: '/admin/temp-docs',                label: '임시 서류' },
       { href: '/admin/policies',                 label: '정책 관리' },
+      { href: '/admin/operations/print-center',  label: '출력 센터' },
+      { href: '/admin/operations/labor-review',  label: '노임 검토' },
+      { href: '/admin/operations/today-tasks',   label: '오늘 업무' },
     ],
   },
   {
@@ -104,10 +114,10 @@ const NAV_GROUPS: NavGroup[] = [
     icon: '⚙️',
     label: '시스템',
     items: [
-      { href: '/admin/settings',   label: '설정' },
-      { href: '/admin/audit-logs', label: '감사 로그' },
+      { href: '/admin/settings',    label: '설정' },
+      { href: '/admin/audit-logs',  label: '감사 로그' },
       { href: '/admin/super-users', label: '슈퍼유저' },
-      { href: '/admin/pilot',      label: '파일럿 모니터' },
+      { href: '/admin/pilot',       label: '파일럿 모니터' },
     ],
   },
 ]
@@ -116,7 +126,7 @@ export default function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onC
   const pathname = usePathname()
   const router = useRouter()
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set())
-  const [badges, setBadges] = useState({ exceptions: 0, deviceRequests: 0 })
+  const [badges, setBadges] = useState({ exceptions: 0, deviceRequests: 0, approvals: 0 })
 
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin'
@@ -139,9 +149,11 @@ export default function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onC
       .then((r) => r.json())
       .then((data) => {
         if (data.success) {
+          const s = data.data.summary ?? {}
           setBadges({
-            exceptions:     data.data.summary?.pendingExceptions ?? 0,
-            deviceRequests: data.data.summary?.pendingDeviceRequests ?? 0,
+            exceptions:     s.pendingExceptions ?? 0,
+            deviceRequests: s.pendingDeviceRequests ?? 0,
+            approvals:      (s.pendingRegistrations ?? 0) + (s.pendingSiteJoins ?? 0) + (s.pendingAdminRequests ?? 0),
           })
         }
       })
