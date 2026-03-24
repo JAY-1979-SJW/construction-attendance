@@ -16,7 +16,7 @@ const STATUS_LABEL: Record<string, string> = {
   DRAFT: '초안', SIGNED: '서명완료', ACTIVE: '활성', ENDED: '종료',
 }
 const STATUS_COLOR: Record<string, string> = {
-  DRAFT:  'bg-gray-100 text-gray-600',
+  DRAFT:  'bg-[rgba(255,255,255,0.04)] text-[#CBD5E0]',
   SIGNED: 'bg-blue-100 text-blue-700',
   ACTIVE: 'bg-green-100 text-green-700',
   ENDED:  'bg-red-100 text-red-600',
@@ -111,7 +111,7 @@ export default function ContractsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">계약 관리</h1>
-          <p className="text-sm text-gray-500 mt-1">근로계약 · 용역계약 · 업무위탁 계약 전체 관리</p>
+          <p className="text-sm text-[#718096] mt-1">근로계약 · 용역계약 · 업무위탁 계약 전체 관리</p>
         </div>
         <Link href="/admin/contracts/new"
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">
@@ -120,7 +120,7 @@ export default function ContractsPage() {
       </div>
 
       {/* 필터 */}
-      <div className="flex gap-3 flex-wrap bg-white border rounded-lg p-4">
+      <div className="flex gap-3 flex-wrap bg-card border rounded-lg p-4">
         <input
           type="text" placeholder="근로자명 · 연락처 · 현장 검색"
           value={search} onChange={e => setSearch(e.target.value)}
@@ -143,23 +143,23 @@ export default function ContractsPage() {
           <option value="SERVICE">용역계약</option>
           <option value="OUTSOURCING">업무위탁</option>
         </select>
-        <span className="text-sm text-gray-500 self-center ml-auto">총 {total}건</span>
+        <span className="text-sm text-[#718096] self-center ml-auto">총 {total}건</span>
       </div>
 
       {/* 목록 */}
       {loading ? (
-        <div className="text-center py-16 text-gray-400">로딩 중...</div>
+        <div className="text-center py-16 text-[#718096]">로딩 중...</div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-[#718096]">
           계약이 없습니다.{' '}
           <Link href="/admin/contracts/new" className="text-blue-600 hover:underline">
             신규 계약 등록 →
           </Link>
         </div>
       ) : (
-        <div className="bg-white border rounded-lg overflow-x-auto">
+        <div className="bg-card border rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-600 border-b">
+            <thead className="bg-[rgba(255,255,255,0.04)] text-xs text-[#CBD5E0] border-b">
               <tr>
                 <th className="px-4 py-3 text-left">근로자</th>
                 <th className="px-4 py-3 text-left">현장</th>
@@ -174,22 +174,22 @@ export default function ContractsPage() {
             </thead>
             <tbody className="divide-y">
               {filtered.map(c => (
-                <tr key={c.id} className="hover:bg-gray-50">
+                <tr key={c.id} className="hover:bg-[rgba(255,255,255,0.04)]">
                   <td className="px-4 py-3">
                     <div className="font-medium">{c.worker.name}</div>
-                    <div className="text-xs text-gray-500">{c.worker.jobTitle}</div>
+                    <div className="text-xs text-[#718096]">{c.worker.jobTitle}</div>
                   </td>
-                  <td className="px-4 py-3 text-gray-600 text-xs">{c.site?.name || '—'}</td>
+                  <td className="px-4 py-3 text-[#CBD5E0] text-xs">{c.site?.name || '—'}</td>
                   <td className="px-4 py-3">{CONTRACT_KIND_LABEL[c.contractKind || ''] || '—'}</td>
-                  <td className="px-4 py-3 text-xs text-gray-600">
+                  <td className="px-4 py-3 text-xs text-[#CBD5E0]">
                     {TEMPLATE_LABEL[c.contractTemplateType || ''] || '—'}
                   </td>
                   <td className="px-4 py-3 text-xs">
                     <div>{c.startDate}</div>
-                    <div className="text-gray-400">{c.endDate || '무기한'}</div>
+                    <div className="text-[#718096]">{c.endDate || '무기한'}</div>
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-xs">{amountLabel(c)}</td>
-                  <td className="px-4 py-3 text-center text-xs text-gray-600">{insuranceSummary(c)}</td>
+                  <td className="px-4 py-3 text-center text-xs text-[#CBD5E0]">{insuranceSummary(c)}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLOR[c.contractStatus] || ''}`}>
                       {STATUS_LABEL[c.contractStatus] || c.contractStatus}
@@ -198,7 +198,7 @@ export default function ContractsPage() {
                   <td className="px-4 py-3">
                     <div className="flex gap-1 justify-center">
                       <Link href={`/admin/contracts/${c.id}`}
-                        className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">
+                        className="px-2 py-1 text-xs bg-[rgba(255,255,255,0.04)] rounded hover:bg-[rgba(255,255,255,0.08)]">
                         상세
                       </Link>
                       {(c.contractStatus === 'DRAFT' || c.contractStatus === 'SIGNED') && (
@@ -226,7 +226,7 @@ export default function ContractsPage() {
         <div className="flex justify-center gap-2 text-sm">
           <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
             className="px-3 py-1.5 border rounded disabled:opacity-40">이전</button>
-          <span className="px-3 py-1.5 text-gray-600">{page} / {Math.ceil(total / limit)}</span>
+          <span className="px-3 py-1.5 text-[#CBD5E0]">{page} / {Math.ceil(total / limit)}</span>
           <button onClick={() => setPage(p => p + 1)} disabled={page * limit >= total}
             className="px-3 py-1.5 border rounded disabled:opacity-40">다음</button>
         </div>

@@ -787,10 +787,6 @@ export default function EstimateDetailPage() {
     setTimeout(() => { fetchDoc(); fetchSheets() }, 1500)
   }
 
-  const handleLogout = () => {
-    fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))
-  }
-
   useEffect(() => { fetchDoc() }, [fetchDoc])
   useEffect(() => { fetchSheets() }, [fetchSheets])
   useEffect(() => {
@@ -811,38 +807,7 @@ export default function EstimateDetailPage() {
   ] as const
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-        {[
-          { href: '/admin', label: '대시보드' },
-          { href: '/admin/workers', label: '근로자 관리' },
-          { href: '/admin/companies', label: '회사 관리' },
-          { href: '/admin/sites', label: '현장 관리' },
-          { href: '/admin/attendance', label: '출퇴근 조회' },
-          { href: '/admin/presence-checks', label: '체류확인 현황' },
-          { href: '/admin/presence-report', label: '체류확인 리포트' },
-          { href: '/admin/work-confirmations', label: '근무확정' },
-          { href: '/admin/contracts', label: '인력/계약 관리' },
-          { href: '/admin/insurance-eligibility', label: '보험판정' },
-          { href: '/admin/wage-calculations', label: '세금/노임 계산' },
-          { href: '/admin/filing-exports', label: '신고자료 내보내기' },
-          { href: '/admin/exceptions', label: '예외 승인' },
-          { href: '/admin/device-requests', label: '기기 변경' },
-          { href: '/admin/materials', label: '자재관리' },
-        ].map(item => (
-          <Link key={item.href} href={item.href}
-            className={item.href === '/admin/materials'
-              ? 'block text-white px-5 py-[10px] text-sm no-underline bg-[rgba(244,121,32,0.15)] border-l-[3px] border-[#F47920]'
-              : 'block text-white/80 px-5 py-[10px] text-sm no-underline'}>
-            {item.label}
-          </Link>
-        ))}
-        <button onClick={handleLogout} className="mx-5 mt-6 p-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
-      </nav>
-
-      <main className="flex-1 p-8 min-w-0">
+    <div className="p-8 min-w-0">
         <div className="flex items-center gap-2 mb-5 text-sm text-muted-brand">
           <Link href="/admin/materials" className="text-[#5BA4D9] no-underline">자재관리</Link>
           <span>/</span>
@@ -960,7 +925,6 @@ export default function EstimateDetailPage() {
           {activeTab === 'aggregate' && <MaterialAggregateTab docId={docId} />}
 
         </div>
-      </main>
     </div>
   )
 }

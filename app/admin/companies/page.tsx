@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 const COMPANY_TYPES: Record<string, string> = {
   SELF: '자사',
@@ -137,23 +136,7 @@ export default function CompaniesPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-        {NAV_ITEMS.map(item => (
-          <Link key={item.href} href={item.href}
-            className={`block px-5 py-2.5 text-[13px] no-underline transition-colors ${item.href === '/admin/companies' ? 'bg-white/10 text-white font-bold' : 'text-white/80 hover:text-white'}`}>
-            {item.label}
-          </Link>
-        ))}
-        <button
-          onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))}
-          className="mx-5 mt-6 py-2.5 bg-white/10 border-none rounded-md text-white/60 cursor-pointer text-[13px]"
-        >로그아웃</button>
-      </nav>
-
-      <main className="flex-1 p-8 overflow-auto">
+    <div className="p-8 overflow-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold m-0">회사 관리</h1>
           <button onClick={openCreate} className="btn-primary">+ 회사 등록</button>
@@ -285,30 +268,7 @@ export default function CompaniesPage() {
             </div>
           )}
         </div>
-      </main>
     </div>
   )
 }
 
-const NAV_ITEMS = [
-  { href: '/admin',                         label: '대시보드' },
-  { href: '/admin/companies',               label: '회사 관리' },
-  { href: '/admin/workers',                 label: '근로자 관리' },
-  { href: '/admin/sites',                   label: '현장 관리' },
-  { href: '/admin/attendance',              label: '출퇴근 조회' },
-  { href: '/admin/presence-checks',         label: '체류확인 현황' },
-  { href: '/admin/presence-report',         label: '체류확인 리포트' },
-  { href: '/admin/work-confirmations',      label: '근무확정' },
-  { href: '/admin/contracts',               label: '인력/계약 관리' },
-  { href: '/admin/insurance-eligibility',   label: '보험판정' },
-  { href: '/admin/wage-calculations',       label: '세금/노임 계산' },
-  { href: '/admin/filing-exports',          label: '신고자료 내보내기' },
-  { href: '/admin/retirement-mutual',       label: '퇴직공제' },
-  { href: '/admin/labor-cost-summaries',    label: '노무비 집계' },
-  { href: '/admin/subcontractor-settlements', label: '협력사 정산' },
-  { href: '/admin/document-center',         label: '서식 출력 센터' },
-  { href: '/admin/month-closings',          label: '월마감' },
-  { href: '/admin/corrections',             label: '정정 이력' },
-  { href: '/admin/exceptions',              label: '예외 승인' },
-  { href: '/admin/device-requests',         label: '기기 변경' },
-]

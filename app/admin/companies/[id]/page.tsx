@@ -162,34 +162,17 @@ export default function CompanyDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-brand">
-        <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
-          <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-          <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-          {NAV_ITEMS.map(item => (
-            <Link key={item.href} href={item.href} className="block text-white/80 px-5 py-2.5 text-[13px] no-underline">{item.label}</Link>
-          ))}
-        </nav>
-        <main className="flex-1 p-8 overflow-auto">
+      <div className="p-8 overflow-auto">
           <div className="py-10 text-center text-[#999]">로딩 중...</div>
-        </main>
       </div>
     )
   }
 
   if (!company) {
     return (
-      <div className="flex min-h-screen bg-brand">
-        <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
-          <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-          {NAV_ITEMS.map(item => (
-            <Link key={item.href} href={item.href} className="block text-white/80 px-5 py-2.5 text-[13px] no-underline">{item.label}</Link>
-          ))}
-        </nav>
-        <main className="flex-1 p-8 overflow-auto">
+      <div className="p-8 overflow-auto">
           <div className="text-[#c62828]">{msg || '업체를 찾을 수 없습니다.'}</div>
           <Link href="/admin/companies" className="text-secondary-brand text-sm mt-3 inline-block">← 목록으로</Link>
-        </main>
       </div>
     )
   }
@@ -197,23 +180,7 @@ export default function CompanyDetailPage() {
   const statusStyle = STATUS_COLORS[company.status] ?? { bg: '#f5f5f5', color: '#A0AEC0' }
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-        {NAV_ITEMS.map(item => (
-          <Link key={item.href} href={item.href}
-            className={`block px-5 py-2.5 text-[13px] no-underline transition-colors ${item.href === '/admin/companies' ? 'bg-white/10 text-white font-bold' : 'text-white/80 hover:text-white'}`}>
-            {item.label}
-          </Link>
-        ))}
-        <button
-          onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))}
-          className="mx-5 mt-6 py-2.5 bg-white/10 border-none rounded-md text-white/60 cursor-pointer text-[13px]"
-        >로그아웃</button>
-      </nav>
-
-      <main className="flex-1 p-8 overflow-auto">
+    <div className="p-8 overflow-auto">
         {/* 헤더 */}
         <div className="flex items-center gap-3 mb-6">
           <Link href="/admin/companies" className="text-muted-brand text-[13px] no-underline">← 목록</Link>
@@ -412,7 +379,6 @@ export default function CompanyDetailPage() {
             </div>
           )}
         </div>
-      </main>
     </div>
   )
 }

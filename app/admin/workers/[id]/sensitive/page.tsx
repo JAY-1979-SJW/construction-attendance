@@ -150,19 +150,7 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
   if (loading) return <div className="p-8">로딩 중...</div>
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0">
-        <div className="text-white text-[16px] font-bold px-5 pb-6">해한 출퇴근</div>
-        {[['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/attendance', '출퇴근 조회'],
-          ['/admin/device-requests', '기기 승인'], ['/admin/devices', '기기 차단'], ['/admin/policies', '약관 관리']
-        ].map(([href, label]) => (
-          <Link key={href} href={href} className="block text-white/80 px-5 py-2.5 text-[14px] no-underline">
-            {label}
-          </Link>
-        ))}
-      </nav>
-
-      <main className="flex-1 p-8">
+    <div className="p-8">
         <div className="mb-5">
           <Link href={`/admin/workers/${workerId}`} className="text-muted-brand text-[14px]">← {workerName}</Link>
           <h1 className="text-[22px] font-bold mt-1 mb-4">개인정보 관리 — {workerName}</h1>
@@ -381,7 +369,6 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
             )}
           </div>
         )}
-      </main>
     </div>
   )
 }

@@ -226,7 +226,7 @@ export default function PurchaseOrderDetailPage({ params }: { params: Promise<{ 
   }
 
   if (loading) return (
-    <div className="flex min-h-screen bg-brand items-center justify-center text-muted-brand">
+    <div className="p-8 text-muted-brand">
       로딩 중...
     </div>
   )
@@ -238,27 +238,7 @@ export default function PurchaseOrderDetailPage({ params }: { params: Promise<{ 
   const canReceive = ['ISSUED', 'PARTIALLY_RECEIVED'].includes(po.status)
 
   return (
-    <div className="flex min-h-screen bg-brand text-white">
-      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-        {[
-          { href: '/admin', label: '대시보드' },
-          { href: '/admin/materials', label: '자재관리' },
-          { href: '/admin/materials/requests', label: '└ 자재청구' },
-          { href: '/admin/materials/purchase-orders', label: '└ 발주관리' },
-        ].map(item => (
-          <Link key={item.href} href={item.href}
-            className={item.href === '/admin/materials/purchase-orders'
-              ? 'block text-white px-5 py-[10px] text-sm no-underline bg-[rgba(244,121,32,0.15)] border-l-[3px] border-[#F47920]'
-              : 'block text-white/80 px-5 py-[10px] text-sm no-underline'}>
-            {item.label}
-          </Link>
-        ))}
-        <button onClick={handleLogout} className="mx-5 mt-6 p-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
-      </nav>
-
-      <main className="flex-1 p-8 overflow-x-auto">
+    <div className="p-8 overflow-x-auto">
         {/* 헤더 */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center gap-3">
@@ -441,7 +421,6 @@ export default function PurchaseOrderDetailPage({ params }: { params: Promise<{ 
             ))}
           </div>
         </div>
-      </main>
 
       {/* 취소 모달 */}
       {showCancelModal && (

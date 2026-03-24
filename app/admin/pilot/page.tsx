@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 interface PilotMetrics {
   totalWorkers: number
@@ -71,29 +70,7 @@ export default function PilotMonitorPage() {
     new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      {/* Sidebar */}
-      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-        {[
-          { href: '/admin',               label: '대시보드' },
-          { href: '/admin/workers',       label: '근로자 관리' },
-          { href: '/admin/companies',     label: '회사 관리' },
-          { href: '/admin/sites',         label: '현장 관리' },
-          { href: '/admin/attendance',    label: '출퇴근 조회' },
-          { href: '/admin/labor',         label: '투입현황/노임서류' },
-          { href: '/admin/exceptions',    label: '예외 승인' },
-          { href: '/admin/device-requests', label: '기기 승인' },
-          { href: '/admin/settings',        label: '⚙️ 시스템 설정' },
-          { href: '/admin/pilot',         label: '파일럿 모니터링' },
-        ].map((item) => (
-          <Link key={item.href} href={item.href} className="block text-white/80 px-5 py-[10px] text-[14px] no-underline">{item.label}</Link>
-        ))}
-      </nav>
-
-      {/* Main */}
-      <main className="flex-1 p-8">
+    <div className="p-8">
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-2xl font-bold m-0 mb-1">파일럿 운영 모니터링</h1>
@@ -148,7 +125,6 @@ export default function PilotMonitorPage() {
             </div>
           </>
         )}
-      </main>
     </div>
   )
 }

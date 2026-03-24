@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -263,10 +262,6 @@ export default function PresenceChecksPage() {
     else alert(`오류: ${r.error ?? '알 수 없음'}`)
   }
 
-  const handleLogout = () => {
-    fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))
-  }
-
   // ── Helpers ─────────────────────────────────────────────────────────────
   const fmt = (iso: string | null) =>
     iso ? new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'
@@ -280,37 +275,9 @@ export default function PresenceChecksPage() {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen bg-brand relative">
-      {/* ── Sidebar ── */}
-      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-        {[
-          { href: '/admin',                label: '대시보드' },
-          { href: '/admin/workers',         label: '근로자 관리' },
-          { href: '/admin/companies', label: '회사 관리' },
-          { href: '/admin/sites',           label: '현장 관리' },
-          { href: '/admin/attendance',      label: '출퇴근 조회' },
-          { href: '/admin/presence-checks', label: '체류확인 현황' },
-          { href: '/admin/presence-report', label: '체류확인 리포트' },
-          { href: '/admin/labor',           label: '투입현황/노임서류' },
-          { href: '/admin/exceptions',      label: '예외 승인' },
-          { href: '/admin/device-requests', label: '기기 변경' },
-          { href: '/admin/settings',        label: '설정' },
-        ].map((item) => (
-          <Link key={item.href} href={item.href}
-            className={`block px-5 py-2.5 text-[14px] no-underline ${item.href === '/admin/presence-checks' ? 'bg-white/10 text-white border-l-[3px] border-[#4fc3f7]' : 'text-white/80'}`}>
-            {item.label}
-          </Link>
-        ))}
-        <button onClick={handleLogout}
-          className="mx-5 mt-6 py-2.5 bg-white/10 border-none rounded-md text-white/60 cursor-pointer text-[13px]">
-          로그아웃
-        </button>
-      </nav>
-
+    <>
       {/* ── Main ── */}
-      <main className="flex-1 p-8 min-w-0" style={{ marginRight: selected ? 420 : 0, transition: 'margin-right 0.2s' }}>
+      <div className="p-8 min-w-0" style={{ marginRight: selected ? 420 : 0, transition: 'margin-right 0.2s' }}>
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -485,7 +452,7 @@ export default function PresenceChecksPage() {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* ── Detail Panel ── */}
       {(selected || detailLoading) && (
@@ -666,7 +633,7 @@ export default function PresenceChecksPage() {
           )}
         </aside>
       )}
-    </div>
+    </>
   )
 }
 

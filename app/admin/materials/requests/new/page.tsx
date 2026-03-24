@@ -58,28 +58,8 @@ export default function NewMaterialRequestPage() {
   }
 
   return (
-    <div style={S.layout}>
-      <nav style={S.sidebar}>
-        <div style={S.sidebarTitle}>해한 출퇴근</div>
-        <div style={S.navSection}>관리</div>
-        {[
-          { href: '/admin', label: '대시보드' },
-          { href: '/admin/workers', label: '근로자 관리' },
-          { href: '/admin/companies', label: '회사 관리' },
-          { href: '/admin/sites', label: '현장 관리' },
-          { href: '/admin/attendance', label: '출퇴근 조회' },
-          { href: '/admin/materials', label: '자재관리' },
-          { href: '/admin/materials/requests', label: '└ 자재청구' },
-        ].map(item => (
-          <Link key={item.href} href={item.href}
-            style={item.href === '/admin/materials/requests' ? S.navItemActive : S.navItem}>
-            {item.label}
-          </Link>
-        ))}
-        <button onClick={handleLogout} style={S.logoutBtn}>로그아웃</button>
-      </nav>
-
-      <main style={S.main}>
+    <div className="p-8">
+      <div className="max-w-[760px]">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
           <Link href="/admin/materials/requests" style={S.backBtn}>← 목록</Link>
           <div>
@@ -151,7 +131,7 @@ export default function NewMaterialRequestPage() {
             <span style={{ fontSize: '12px' }}>생성 후 자재 품목을 추가하고 제출하면 담당자가 검토합니다.</span>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

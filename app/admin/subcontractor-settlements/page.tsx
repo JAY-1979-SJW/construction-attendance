@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 interface Site {
   id: string
@@ -152,28 +151,7 @@ export default function SubcontractorSettlementsPage() {
   const isSuccess = msg.startsWith('정산 완료') || msg.startsWith('다운로드 완료')
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-        {NAV_ITEMS.map(item => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`block px-5 py-2.5 text-[13px] no-underline ${item.href === '/admin/subcontractor-settlements' ? 'bg-white/10 text-white font-bold' : 'text-white/80'}`}
-          >
-            {item.label}
-          </Link>
-        ))}
-        <button
-          onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))}
-          className="mx-5 mt-6 py-2.5 bg-white/10 border-none rounded-md text-white/60 cursor-pointer text-[13px]"
-        >
-          로그아웃
-        </button>
-      </nav>
-
-      <main className="flex-1 p-8 overflow-auto">
+    <div className="p-8 overflow-auto">
         <h1 className="text-2xl font-bold mb-6">협력사 정산</h1>
 
         {/* 필터 + 실행 버튼 */}
@@ -308,7 +286,6 @@ export default function SubcontractorSettlementsPage() {
             </div>
           )}
         </div>
-      </main>
     </div>
   )
 }

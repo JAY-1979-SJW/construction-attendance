@@ -71,26 +71,7 @@ export default function SiteImportsPage() {
     new Date(iso).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0">
-        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
-        {[
-          ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'],
-          ['/admin/sites', '현장 관리'], ['/admin/attendance', '출퇴근 조회'],
-          ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
-          ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'],
-          ['/admin/audit-logs', '감사 로그'], ['/admin/site-imports', '현장 엑셀 업로드'],
-        ].map(([href, label]) => (
-          <Link key={href} href={href} className={[
-            'block text-white/80 px-5 py-[10px] text-[14px] no-underline',
-            href === '/admin/site-imports' ? 'bg-white/10 text-white font-bold' : '',
-          ].join(' ')}>
-            {label}
-          </Link>
-        ))}
-      </nav>
-
-      <main className="flex-1 p-8 min-w-0">
+    <div className="p-8 min-w-0">
         <h1 className="text-[22px] font-bold m-0 mb-1">현장 엑셀 업로드</h1>
         <p className="text-[13px] text-muted-brand mt-[-12px] mb-6">
           xlsx 파일 업로드 → 자동 지오코딩 → 검수 → 승인된 현장만 등록
@@ -178,7 +159,6 @@ export default function SiteImportsPage() {
             </table>
           </div>
         )}
-      </main>
     </div>
   )
 }

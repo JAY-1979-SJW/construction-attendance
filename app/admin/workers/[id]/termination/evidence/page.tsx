@@ -30,7 +30,7 @@ interface EvidencePackage {
 
 const SEVERITY_LABEL: Record<string, string> = { OK: '적정', WARN: '주의', WARNING: '주의', DANGER: '미비', FAIL: '미비', CRITICAL: '치명' }
 const SEVERITY_COLOR: Record<string, string> = {
-  OK:       'bg-white text-gray-800 border border-gray-300',
+  OK:       'bg-card text-white border border-[rgba(91,164,217,0.25)]',
   WARN:     'bg-yellow-50 text-yellow-800 border border-yellow-400',
   WARNING:  'bg-yellow-50 text-yellow-800 border border-yellow-400',
   DANGER:   'bg-orange-50 text-orange-800 border border-orange-500',
@@ -56,8 +56,8 @@ const TERMINATION_REASON_LABEL: Record<string, string> = {
 
 function SectionTitle({ n, title }: { n: number; title: string }) {
   return (
-    <div className="flex items-center gap-3 mt-8 mb-3 pb-2 border-b-2 border-gray-900">
-      <span className="bg-gray-900 text-white text-sm font-bold px-3 py-1 rounded">{n}</span>
+    <div className="flex items-center gap-3 mt-8 mb-3 pb-2 border-b-2 border-white">
+      <span className="bg-white text-[#1B2838] text-sm font-bold px-3 py-1 rounded">{n}</span>
       <h2 className="text-lg font-bold">{title}</h2>
     </div>
   )
@@ -68,9 +68,9 @@ function InfoTable({ rows }: { rows: [string, string | React.ReactNode][] }) {
     <table className="w-full border-collapse text-sm mb-4">
       <tbody>
         {rows.map(([label, value], i) => (
-          <tr key={i} className="border border-gray-300">
-            <th className="bg-gray-50 border-r border-gray-300 px-3 py-2 text-left font-semibold w-44 text-gray-700">{label}</th>
-            <td className="px-3 py-2 text-gray-900">{value || <span className="text-gray-400 italic">기록 없음</span>}</td>
+          <tr key={i} className="border border-[rgba(91,164,217,0.25)]">
+            <th className="bg-[rgba(255,255,255,0.04)] border-r border-[rgba(91,164,217,0.25)] px-3 py-2 text-left font-semibold w-44 text-[#CBD5E0]">{label}</th>
+            <td className="px-3 py-2 text-white">{value || <span className="text-[#718096] italic">기록 없음</span>}</td>
           </tr>
         ))}
       </tbody>
@@ -79,7 +79,7 @@ function InfoTable({ rows }: { rows: [string, string | React.ReactNode][] }) {
 }
 
 function EmptyNote({ text = '기록 없음' }: { text?: string }) {
-  return <p className="text-gray-400 italic text-sm py-2">{text}</p>
+  return <p className="text-[#718096] italic text-sm py-2">{text}</p>
 }
 
 // ─── 메인 페이지 ─────────────────────────────────────────────────────────────
@@ -107,13 +107,13 @@ export default function EvidencePage() {
       .finally(() => setLoading(false))
   }, [workerId, reviewId])
 
-  if (loading) return <div className="p-8 text-center text-gray-500">종료 증빙 패키지 로딩 중...</div>
+  if (loading) return <div className="p-8 text-center text-[#718096]">종료 증빙 패키지 로딩 중...</div>
   if (error)   return (
     <div className="p-8">
       <div className="bg-red-50 border border-red-400 rounded p-6 text-center">
         <p className="text-red-700 font-bold text-lg mb-2">⚠ 증빙 패키지를 생성할 수 없습니다</p>
         <p className="text-red-600 text-sm">{error}</p>
-        <button onClick={() => router.back()} className="mt-4 px-4 py-2 border border-gray-400 rounded text-sm">돌아가기</button>
+        <button onClick={() => router.back()} className="mt-4 px-4 py-2 border border-[rgba(91,164,217,0.25)] rounded text-sm">돌아가기</button>
       </div>
     </div>
   )
@@ -133,7 +133,7 @@ export default function EvidencePage() {
         <button onClick={() => router.back()} className="text-blue-600 text-sm hover:underline">← 종료 처리로 돌아가기</button>
         <div className="flex gap-3">
           <a href={pdfUrl} target="_blank" rel="noreferrer"
-             className="px-5 py-2 bg-gray-900 text-white text-sm font-semibold rounded hover:bg-gray-700">
+             className="px-5 py-2 bg-[rgba(255,255,255,0.08)] text-white text-sm font-semibold rounded hover:bg-[rgba(255,255,255,0.12)]">
             PDF 출력 / 다운로드
           </a>
         </div>
@@ -150,17 +150,17 @@ export default function EvidencePage() {
       )}
 
       {/* 표지 */}
-      <div className="border-2 border-gray-900 rounded p-6 mb-6 text-center">
+      <div className="border-2 border-[rgba(91,164,217,0.25)] rounded p-6 mb-6 text-center">
         <h1 className="text-2xl font-bold mb-1">종료 증빙 패키지</h1>
-        <p className="text-gray-500 text-sm mb-4">Termination Evidence Package</p>
+        <p className="text-[#718096] text-sm mb-4">Termination Evidence Package</p>
         <div className="grid grid-cols-2 gap-2 text-sm text-left max-w-sm mx-auto">
-          <span className="text-gray-600 font-medium">근로자명</span><span className="font-bold">{cover.workerName}</span>
-          <span className="text-gray-600 font-medium">소속 회사</span><span>{cover.companyName}</span>
-          <span className="text-gray-600 font-medium">소속 현장</span><span>{cover.siteName}</span>
-          <span className="text-gray-600 font-medium">종료일</span><span>{cover.terminationDate}</span>
-          <span className="text-gray-600 font-medium">종료 유형</span><span>{TERMINATION_REASON_LABEL[cover.terminationType] ?? cover.terminationType}</span>
+          <span className="text-[#CBD5E0] font-medium">근로자명</span><span className="font-bold">{cover.workerName}</span>
+          <span className="text-[#CBD5E0] font-medium">소속 회사</span><span>{cover.companyName}</span>
+          <span className="text-[#CBD5E0] font-medium">소속 현장</span><span>{cover.siteName}</span>
+          <span className="text-[#CBD5E0] font-medium">종료일</span><span>{cover.terminationDate}</span>
+          <span className="text-[#CBD5E0] font-medium">종료 유형</span><span>{TERMINATION_REASON_LABEL[cover.terminationType] ?? cover.terminationType}</span>
         </div>
-        <p className="text-xs text-gray-400 mt-4">출력일시: {new Date(pkg.meta.generatedAt).toLocaleString('ko-KR')} · 출력 관리자: {cover.printedByName}</p>
+        <p className="text-xs text-[#718096] mt-4">출력일시: {new Date(pkg.meta.generatedAt).toLocaleString('ko-KR')} · 출력 관리자: {cover.printedByName}</p>
       </div>
 
       {/* 1. 종료 검토 요약 */}
@@ -177,9 +177,9 @@ export default function EvidencePage() {
       <table className="w-full border-collapse text-sm mb-4">
         <tbody>
           {Object.entries(reviewSummary.finalChecks).map(([key, val]) => (
-            <tr key={key} className="border border-gray-300">
-              <th className="bg-gray-50 border-r border-gray-300 px-3 py-2 text-left font-medium w-44">{CHECK_LABELS[key] ?? key}</th>
-              <td className={`px-3 py-2 ${val ? 'text-green-700 font-bold' : 'text-gray-400'}`}>{val ? '✔ 완료' : '미체크'}</td>
+            <tr key={key} className="border border-[rgba(91,164,217,0.25)]">
+              <th className="bg-[rgba(255,255,255,0.04)] border-r border-[rgba(91,164,217,0.25)] px-3 py-2 text-left font-medium w-44">{CHECK_LABELS[key] ?? key}</th>
+              <td className={`px-3 py-2 ${val ? 'text-green-700 font-bold' : 'text-[#718096]'}`}>{val ? '✔ 완료' : '미체크'}</td>
             </tr>
           ))}
         </tbody>
@@ -190,22 +190,22 @@ export default function EvidencePage() {
       {autoCheckItems.length === 0 ? <EmptyNote /> : (
         <table className="w-full border-collapse text-sm mb-4">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-3 py-2 text-left w-1/2">항목</th>
-              <th className="border border-gray-300 px-3 py-2 text-left w-24">결과</th>
-              <th className="border border-gray-300 px-3 py-2 text-left">세부 내용</th>
+            <tr className="bg-[rgba(255,255,255,0.04)]">
+              <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-left w-1/2">항목</th>
+              <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-left w-24">결과</th>
+              <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-left">세부 내용</th>
             </tr>
           </thead>
           <tbody>
             {autoCheckItems.map((item) => (
-              <tr key={item.key} className="border-b border-gray-200">
-                <td className="border border-gray-300 px-3 py-2">{item.label}</td>
-                <td className="border border-gray-300 px-3 py-2">
+              <tr key={item.key} className="border-b border-[rgba(91,164,217,0.15)]">
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{item.label}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">
                   <span className={`text-xs px-2 py-1 rounded ${SEVERITY_COLOR[item.severity] ?? ''}`}>
                     {SEVERITY_LABEL[item.severity] ?? item.severity}
                   </span>
                 </td>
-                <td className={`border border-gray-300 px-3 py-2 ${!item.passed ? 'text-orange-700' : 'text-gray-600'}`}>
+                <td className={`border border-[rgba(91,164,217,0.25)] px-3 py-2 ${!item.passed ? 'text-orange-700' : 'text-[#CBD5E0]'}`}>
                   {item.passed ? '적정' : (item.action ? `미비 — 권장: ${item.action}` : '미비')}
                 </td>
               </tr>
@@ -216,45 +216,45 @@ export default function EvidencePage() {
 
       {/* 3. 계약/문서 현황 */}
       <SectionTitle n={3} title="계약 / 문서 현황" />
-      <div className="font-semibold text-sm mb-1 text-gray-700">계약서 내역</div>
+      <div className="font-semibold text-sm mb-1 text-[#CBD5E0]">계약서 내역</div>
       {contractsAndDocs.contracts.length === 0 ? <EmptyNote text="계약서 기록 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-gray-100">
-            <th className="border border-gray-300 px-3 py-2">계약 유형</th>
-            <th className="border border-gray-300 px-3 py-2">상태</th>
-            <th className="border border-gray-300 px-3 py-2">시작일</th>
-            <th className="border border-gray-300 px-3 py-2">종료일</th>
-            <th className="border border-gray-300 px-3 py-2">생성일</th>
+          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">계약 유형</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">상태</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">시작일</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">종료일</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">생성일</th>
           </tr></thead>
           <tbody>
             {contractsAndDocs.contracts.map((c, i) => (
-              <tr key={i} className="border-b border-gray-200">
-                <td className="border border-gray-300 px-3 py-2">{c.contractType}</td>
-                <td className="border border-gray-300 px-3 py-2">{c.contractStatus}</td>
-                <td className="border border-gray-300 px-3 py-2">{c.startDate}</td>
-                <td className="border border-gray-300 px-3 py-2">{c.endDate || '기록 없음'}</td>
-                <td className="border border-gray-300 px-3 py-2">{c.createdAt ? new Date(c.createdAt).toLocaleDateString('ko-KR') : '기록 없음'}</td>
+              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.contractType}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.contractStatus}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.startDate}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.endDate || '기록 없음'}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.createdAt ? new Date(c.createdAt).toLocaleDateString('ko-KR') : '기록 없음'}</td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
-      <div className="font-semibold text-sm mb-1 text-gray-700">문서 교부 이력</div>
+      <div className="font-semibold text-sm mb-1 text-[#CBD5E0]">문서 교부 이력</div>
       {contractsAndDocs.deliveryLogs.length === 0 ? <EmptyNote text="문서 교부 기록 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-gray-100">
-            <th className="border border-gray-300 px-3 py-2">문서 유형</th>
-            <th className="border border-gray-300 px-3 py-2">교부 방법</th>
-            <th className="border border-gray-300 px-3 py-2">교부 상태</th>
-            <th className="border border-gray-300 px-3 py-2">교부일</th>
+          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">문서 유형</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부 방법</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부 상태</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부일</th>
           </tr></thead>
           <tbody>
             {contractsAndDocs.deliveryLogs.map((d, i) => (
-              <tr key={i} className="border-b border-gray-200">
-                <td className="border border-gray-300 px-3 py-2">{d.documentType}</td>
-                <td className="border border-gray-300 px-3 py-2">{d.deliveryMethod}</td>
-                <td className="border border-gray-300 px-3 py-2">{d.status}</td>
-                <td className="border border-gray-300 px-3 py-2">{d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString('ko-KR') : '기록 없음'}</td>
+              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.documentType}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.deliveryMethod}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.status}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString('ko-KR') : '기록 없음'}</td>
               </tr>
             ))}
           </tbody>
@@ -273,60 +273,60 @@ export default function EvidencePage() {
 
       {/* 5. 경고/소명/통지 */}
       <SectionTitle n={5} title="경고 / 소명 / 통지 기록" />
-      <div className="font-semibold text-sm mb-1 text-gray-700">경고 발행 이력 ({hrActions.warnings.length}건)</div>
+      <div className="font-semibold text-sm mb-1 text-[#CBD5E0]">경고 발행 이력 ({hrActions.warnings.length}건)</div>
       {hrActions.warnings.length === 0 ? <EmptyNote text="경고 기록 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-gray-100">
-            <th className="border border-gray-300 px-3 py-2">경고 수위</th>
-            <th className="border border-gray-300 px-3 py-2">사유</th>
-            <th className="border border-gray-300 px-3 py-2">발행일</th>
+          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">경고 수위</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">사유</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">발행일</th>
           </tr></thead>
           <tbody>
             {hrActions.warnings.map((w, i) => (
-              <tr key={i} className="border-b border-gray-200">
-                <td className="border border-gray-300 px-3 py-2">{w.warningLevel}</td>
-                <td className="border border-gray-300 px-3 py-2">{w.reason}</td>
-                <td className="border border-gray-300 px-3 py-2">{new Date(w.issuedAt).toLocaleDateString('ko-KR')}</td>
+              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{w.warningLevel}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{w.reason}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{new Date(w.issuedAt).toLocaleDateString('ko-KR')}</td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
-      <div className="font-semibold text-sm mb-1 text-gray-700">소명 요청 이력 ({hrActions.explanations.length}건)</div>
+      <div className="font-semibold text-sm mb-1 text-[#CBD5E0]">소명 요청 이력 ({hrActions.explanations.length}건)</div>
       {hrActions.explanations.length === 0 ? <EmptyNote text="소명 요청 기록 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-gray-100">
-            <th className="border border-gray-300 px-3 py-2">요청 제목</th>
-            <th className="border border-gray-300 px-3 py-2">상태</th>
-            <th className="border border-gray-300 px-3 py-2">요청일</th>
+          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">요청 제목</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">상태</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">요청일</th>
           </tr></thead>
           <tbody>
             {hrActions.explanations.map((e, i) => (
-              <tr key={i} className="border-b border-gray-200">
-                <td className="border border-gray-300 px-3 py-2">{e.subject}</td>
-                <td className="border border-gray-300 px-3 py-2">{e.status}</td>
-                <td className="border border-gray-300 px-3 py-2">{new Date(e.requestedAt).toLocaleDateString('ko-KR')}</td>
+              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{e.subject}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{e.status}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{new Date(e.requestedAt).toLocaleDateString('ko-KR')}</td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
-      <div className="font-semibold text-sm mb-1 text-gray-700">통지서 이력 ({hrActions.notices.length}건)</div>
+      <div className="font-semibold text-sm mb-1 text-[#CBD5E0]">통지서 이력 ({hrActions.notices.length}건)</div>
       {hrActions.notices.length === 0 ? <EmptyNote text="통지서 기록 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-gray-100">
-            <th className="border border-gray-300 px-3 py-2">통지 유형</th>
-            <th className="border border-gray-300 px-3 py-2">제목</th>
-            <th className="border border-gray-300 px-3 py-2">교부 방법</th>
-            <th className="border border-gray-300 px-3 py-2">발행일</th>
+          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">통지 유형</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">제목</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부 방법</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">발행일</th>
           </tr></thead>
           <tbody>
             {hrActions.notices.map((n, i) => (
-              <tr key={i} className="border-b border-gray-200">
-                <td className="border border-gray-300 px-3 py-2">{n.noticeType}</td>
-                <td className="border border-gray-300 px-3 py-2">{n.title}</td>
-                <td className="border border-gray-300 px-3 py-2">{n.deliveryMethod}</td>
-                <td className="border border-gray-300 px-3 py-2">{new Date(n.issuedAt).toLocaleDateString('ko-KR')}</td>
+              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{n.noticeType}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{n.title}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{n.deliveryMethod}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{new Date(n.issuedAt).toLocaleDateString('ko-KR')}</td>
               </tr>
             ))}
           </tbody>
@@ -337,19 +337,19 @@ export default function EvidencePage() {
       <SectionTitle n={6} title="종료 전 보완조치 필요 항목" />
       {remedialActions.length === 0 ? <EmptyNote text="보완조치 필요 항목 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-gray-100">
-            <th className="border border-gray-300 px-3 py-2 w-1/3">점검 항목</th>
-            <th className="border border-gray-300 px-3 py-2 w-20">심각도</th>
-            <th className="border border-gray-300 px-3 py-2">권장 조치</th>
+          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-1/3">점검 항목</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-20">심각도</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">권장 조치</th>
           </tr></thead>
           <tbody>
             {remedialActions.map((r, i) => (
-              <tr key={i} className="border-b border-gray-200">
-                <td className="border border-gray-300 px-3 py-2">{r.label}</td>
-                <td className="border border-gray-300 px-3 py-2">
+              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{r.label}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">
                   <span className={`text-xs px-2 py-1 rounded ${SEVERITY_COLOR[r.severity] ?? ''}`}>{SEVERITY_LABEL[r.severity] ?? r.severity}</span>
                 </td>
-                <td className="border border-gray-300 px-3 py-2">{r.action}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{r.action}</td>
               </tr>
             ))}
           </tbody>
@@ -360,19 +360,19 @@ export default function EvidencePage() {
       <SectionTitle n={7} title="감사로그 요약" />
       {auditLogSummary.length === 0 ? <EmptyNote text="감사로그 기록 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-gray-100">
-            <th className="border border-gray-300 px-3 py-2 w-52">이벤트</th>
-            <th className="border border-gray-300 px-3 py-2 w-24">역할</th>
-            <th className="border border-gray-300 px-3 py-2">요약</th>
-            <th className="border border-gray-300 px-3 py-2 w-36">일시</th>
+          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-52">이벤트</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-24">역할</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">요약</th>
+            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-36">일시</th>
           </tr></thead>
           <tbody>
             {auditLogSummary.map((log, i) => (
-              <tr key={i} className="border-b border-gray-200">
-                <td className="border border-gray-300 px-3 py-2 font-mono text-xs">{log.actionType}</td>
-                <td className="border border-gray-300 px-3 py-2 text-xs">{log.actorRole}</td>
-                <td className="border border-gray-300 px-3 py-2">{log.summary}</td>
-                <td className="border border-gray-300 px-3 py-2 text-xs">{new Date(log.occurredAt).toLocaleString('ko-KR')}</td>
+              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2 font-mono text-xs">{log.actionType}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-xs">{log.actorRole}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{log.summary}</td>
+                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-xs">{new Date(log.occurredAt).toLocaleString('ko-KR')}</td>
               </tr>
             ))}
           </tbody>
@@ -380,14 +380,14 @@ export default function EvidencePage() {
       )}
 
       {/* 고정 문구 */}
-      <div className="mt-8 pt-4 border-t border-gray-300 text-xs text-gray-500 space-y-1">
+      <div className="mt-8 pt-4 border-t border-[rgba(91,164,217,0.25)] text-xs text-[#718096] space-y-1">
         {disclaimer.map((line, i) => <p key={i}>※ {line}</p>)}
       </div>
 
       {/* 하단 PDF 버튼 */}
       <div className="mt-8 flex justify-center">
         <a href={pdfUrl} target="_blank" rel="noreferrer"
-           className="px-8 py-3 bg-gray-900 text-white font-semibold rounded hover:bg-gray-700">
+           className="px-8 py-3 bg-[rgba(255,255,255,0.08)] text-white font-semibold rounded hover:bg-[rgba(255,255,255,0.12)]">
           PDF 출력 / 다운로드
         </a>
       </div>

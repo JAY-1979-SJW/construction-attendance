@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 const XLSX_SUPPORTED = ['WAGE_LEDGER', 'INSURANCE_REPORT', 'TAX_REPORT', 'RETIREMENT_MUTUAL_SUMMARY', 'SUBCONTRACTOR_SETTLEMENT']
 
@@ -163,330 +162,284 @@ export default function DocumentCenterPage() {
   const downloadBlocked = preflight !== null && !preflight.canDownload
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-        {NAV_ITEMS.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`block px-5 py-2.5 text-[13px] no-underline ${item.href === '/admin/document-center' ? 'bg-white/10 text-white font-bold' : 'text-white/80'}`}
-          >
-            {item.label}
-          </Link>
-        ))}
-        <button
-          onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))}
-          className="mt-6 mx-5 py-2.5 bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]"
-        >
-          로그아웃
-        </button>
-      </nav>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-6">서식 출력 센터</h1>
 
-      <main className="flex-1 p-8 overflow-auto">
-        <h1 className="text-2xl font-bold mb-6">서식 출력 센터</h1>
-
-        <div className="bg-card rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-5">
-          {/* 귀속연월 + 현장 */}
-          <div className="grid grid-cols-2 gap-4 mb-5">
-            <div>
-              <label className="block text-xs text-muted-brand mb-1 font-semibold">귀속연월</label>
-              <input
-                type="month"
-                value={monthKey}
-                onChange={e => setMonthKey(e.target.value)}
-                className="px-2.5 py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-sm bg-card"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-brand mb-1 font-semibold">현장 (선택)</label>
-              <select
-                value={siteId}
-                onChange={e => setSiteId(e.target.value)}
-                className="w-full px-2.5 py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-sm bg-card"
-              >
-                <option value="">전체 현장</option>
-                {sites.map(site => (
-                  <option key={site.id} value={site.id}>{site.name}</option>
-                ))}
-              </select>
-            </div>
+      <div className="bg-card rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-5">
+        {/* 귀속연월 + 현장 */}
+        <div className="grid grid-cols-2 gap-4 mb-5">
+          <div>
+            <label className="block text-xs text-muted-brand mb-1 font-semibold">귀속연월</label>
+            <input
+              type="month"
+              value={monthKey}
+              onChange={e => setMonthKey(e.target.value)}
+              className="px-2.5 py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-sm bg-card"
+            />
           </div>
-
-          {/* 서식 종류 선택 */}
-          <div className="mb-5">
-            {/* 서식 레이블 + XLSX 지원 배지 */}
-            <div className="flex items-center gap-2 mb-2">
-              <label className="text-xs text-muted-brand font-semibold">서식 종류</label>
-              {XLSX_SUPPORTED.includes(docType) ? (
-                <span className="text-[11px] px-2 py-0.5 bg-[#e8f5e9] text-[#2e7d32] rounded-full font-semibold">
-                  XLSX 지원
-                </span>
-              ) : (
-                <span className="text-[11px] px-2 py-0.5 bg-brand text-[#9e9e9e] rounded-full font-semibold">
-                  CSV만
-                </span>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {DOC_TYPES.map(d => (
-                <button
-                  key={d.value}
-                  onClick={() => setDocType(d.value)}
-                  className={`text-left px-3.5 py-3 rounded-lg border cursor-pointer transition-all ${
-                    docType === d.value
-                      ? 'bg-[rgba(91,164,217,0.1)] border-[#1976d2] text-[#4A93C8]'
-                      : 'bg-card border-white/10'
-                  }`}
-                >
-                  <div className="font-semibold text-sm flex items-center gap-1.5">
-                    {d.label}
-                    {XLSX_SUPPORTED.includes(d.value) && (
-                      <span className="text-[10px] bg-[#e8f5e9] text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
-                        XLSX
-                      </span>
-                    )}
-                  </div>
-                  <div className={`text-xs mt-0.5 ${docType === d.value ? 'text-[#1565c0]' : 'text-[#9e9e9e]'}`}>
-                    {d.desc}
-                  </div>
-                </button>
+          <div>
+            <label className="block text-xs text-muted-brand mb-1 font-semibold">현장 (선택)</label>
+            <select
+              value={siteId}
+              onChange={e => setSiteId(e.target.value)}
+              className="w-full px-2.5 py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-sm bg-card"
+            >
+              <option value="">전체 현장</option>
+              {sites.map(site => (
+                <option key={site.id} value={site.id}>{site.name}</option>
               ))}
-            </div>
+            </select>
           </div>
+        </div>
 
-          {/* 선택된 서식 설명 */}
-          {selectedDoc && (
-            <div className="bg-[rgba(91,164,217,0.1)] rounded-md px-3.5 py-2.5 mb-4 text-sm text-[#4A93C8]">
-              <strong>{selectedDoc.label}</strong>: {selectedDoc.desc}
-              {hasXlsx && (
-                <span className="ml-2 text-xs text-[#2e7d32] font-semibold">
-                  (XLSX 실서식 출력 지원)
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* 사전검사 버튼 */}
-          <div className="flex gap-2.5 mb-4">
-            <button
-              onClick={handlePreflight}
-              disabled={preflightLoading}
-              className="px-4 py-2 bg-[#455a64] text-white border-0 rounded-lg cursor-pointer text-sm font-semibold"
-              style={{ opacity: preflightLoading ? 0.6 : 1 }}
-            >
-              {preflightLoading ? '검사 중...' : '사전검사 실행'}
-            </button>
-          </div>
-
-          {/* 사전검사 결과 패널 */}
-          {preflight ? (
-            <div className="mb-4 border border-white/10 rounded-lg overflow-hidden">
-              {/* 헤더 - 결과 요약 */}
-              <div className={`px-4 py-3.5 flex items-center justify-between border-b border-[#e0e0e0] ${
-                preflight.summary.errorCount > 0
-                  ? 'bg-[#fff5f5]'
-                  : preflight.summary.warningCount > 0
-                    ? 'bg-[#fffde7]'
-                    : 'bg-[#f1f8e9]'
-              }`}>
-                <div className="flex items-center gap-2.5">
-                  <span className="text-[18px]">
-                    {preflight.summary.errorCount > 0 ? '❌' : preflight.summary.warningCount > 0 ? '⚠️' : '✅'}
-                  </span>
-                  <div>
-                    <div className="font-bold text-sm">
-                      {preflight.canDownload ? '다운로드 가능' : '다운로드 차단됨'}
-                    </div>
-                    <div className="text-[11px] text-muted-brand mt-0.5">
-                      {preflightCheckedAt && `${preflightCheckedAt.toLocaleTimeString('ko-KR')} 검사 완료`}
-                    </div>
-                  </div>
-                </div>
-                {/* 배지 요약 */}
-                <div className="flex gap-1.5">
-                  {preflight.summary.errorCount > 0 && (
-                    <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[#ffebee] text-[#c62828] rounded-full">
-                      오류 {preflight.summary.errorCount}
-                    </span>
-                  )}
-                  {preflight.summary.warningCount > 0 && (
-                    <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[#fff8e1] text-[#f57f17] rounded-full">
-                      경고 {preflight.summary.warningCount}
-                    </span>
-                  )}
-                  {preflight.summary.infoCount > 0 && (
-                    <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[rgba(244,121,32,0.12)] text-accent rounded-full">
-                      정보 {preflight.summary.infoCount}
-                    </span>
-                  )}
-                  {preflight.summary.errorCount === 0 && preflight.summary.warningCount === 0 && (
-                    <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[#e8f5e9] text-[#2e7d32] rounded-full">
-                      이상 없음
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* 이슈 목록 */}
-              {preflight.issues.length > 0 ? (
-                <ul className="m-0 p-0 list-none">
-                  {preflight.issues.map((issue, i) => (
-                    <li key={i} className={`px-3.5 py-2.5 flex gap-2.5 items-start ${i < preflight.issues.length - 1 ? 'border-b border-[#f5f5f5]' : ''}`}>
-                      <span className={`mt-px flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
-                        issue.severity === 'ERROR'
-                          ? 'bg-[#ffebee] text-[#c62828]'
-                          : issue.severity === 'WARNING'
-                            ? 'bg-[#fff8e1] text-[#f57f17]'
-                            : 'bg-[#e3f2fd] text-[#1565c0]'
-                      }`}>
-                        {issue.severity === 'ERROR' ? '!' : issue.severity === 'WARNING' ? '△' : 'i'}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[13px] font-semibold text-[#CBD5E0]">{issue.message}</div>
-                        {issue.detail && (
-                          <div className="text-xs text-muted-brand mt-0.5">{issue.detail}</div>
-                        )}
-                        {issue.workerIds && issue.workerIds.length > 0 && (
-                          <div className="text-[11px] text-[#aaa] mt-0.5">
-                            대상 근로자 {issue.workerIds.length}명
-                          </div>
-                        )}
-                        <div className="text-[11px] text-[#bbb] mt-0.5 font-mono">{issue.code}</div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="px-4 py-4 text-[13px] text-[#aaa] text-center">
-                  검사 항목 없음 (모두 정상)
-                </div>
-              )}
-
-              {/* 재실행 버튼 */}
-              <div className="px-3.5 py-2.5 bg-[#fafafa] border-t border-[#f0f0f0] flex justify-end">
-                <button
-                  onClick={handlePreflight}
-                  disabled={preflightLoading}
-                  className="text-xs text-[#5BA4D9] bg-transparent border-0 cursor-pointer"
-                  style={{ opacity: preflightLoading ? 0.5 : 1 }}
-                >
-                  {preflightLoading ? '검사 중...' : '↻ 사전검사 재실행'}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="mb-4 border border-white/10 rounded-lg px-4 py-4 bg-[#fafafa] text-[13px] text-[#aaa] text-center">
-              사전검사를 실행하면 결과가 여기에 표시됩니다.
-            </div>
-          )}
-
-          {/* 다운로드 버튼 영역 */}
-          <div className="flex gap-2.5">
-            {/* CSV 다운로드 */}
-            <button
-              onClick={handleDownload}
-              disabled={loading || downloadBlocked}
-              className={`py-3 bg-[#F47920] text-white border-0 rounded-lg cursor-pointer text-[15px] font-bold ${hasXlsx ? 'flex-1' : 'w-full'}`}
-              style={{ opacity: (loading || downloadBlocked) ? 0.5 : 1 }}
-            >
-              {loading ? '생성 중...' : downloadBlocked ? '오류 해결 필요 (CSV)' : 'CSV 다운로드'}
-            </button>
-
-            {/* XLSX 다운로드 (지원되는 서식만) */}
-            {hasXlsx && (
-              <button
-                onClick={handleXlsxDownload}
-                disabled={xlsxLoading || downloadBlocked}
-                className="flex-1 py-3 text-white border-0 rounded-lg cursor-pointer text-[15px] font-bold"
-                style={{
-                  background: downloadBlocked ? '#bdbdbd' : '#2e7d32',
-                  opacity: (xlsxLoading || downloadBlocked) ? 0.5 : 1,
-                }}
-              >
-                {xlsxLoading ? '생성 중...' : downloadBlocked ? '오류 해결 필요 (XLSX)' : 'XLSX 다운로드'}
-              </button>
+        {/* 서식 종류 선택 */}
+        <div className="mb-5">
+          {/* 서식 레이블 + XLSX 지원 배지 */}
+          <div className="flex items-center gap-2 mb-2">
+            <label className="text-xs text-muted-brand font-semibold">서식 종류</label>
+            {XLSX_SUPPORTED.includes(docType) ? (
+              <span className="text-[11px] px-2 py-0.5 bg-[#e8f5e9] text-[#2e7d32] rounded-full font-semibold">
+                XLSX 지원
+              </span>
+            ) : (
+              <span className="text-[11px] px-2 py-0.5 bg-brand text-[#9e9e9e] rounded-full font-semibold">
+                CSV만
+              </span>
             )}
           </div>
+          <div className="grid grid-cols-2 gap-2">
+            {DOC_TYPES.map(d => (
+              <button
+                key={d.value}
+                onClick={() => setDocType(d.value)}
+                className={`text-left px-3.5 py-3 rounded-lg border cursor-pointer transition-all ${
+                  docType === d.value
+                    ? 'bg-[rgba(91,164,217,0.1)] border-[#1976d2] text-[#4A93C8]'
+                    : 'bg-card border-white/10'
+                }`}
+              >
+                <div className="font-semibold text-sm flex items-center gap-1.5">
+                  {d.label}
+                  {XLSX_SUPPORTED.includes(d.value) && (
+                    <span className="text-[10px] bg-[#e8f5e9] text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
+                      XLSX
+                    </span>
+                  )}
+                </div>
+                <div className={`text-xs mt-0.5 ${docType === d.value ? 'text-[#1565c0]' : 'text-[#9e9e9e]'}`}>
+                  {d.desc}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
 
-          {/* 다운로드 차단 안내 */}
-          {preflight && !preflight.canDownload && (
-            <p className="text-xs text-[#c62828] mt-1.5">
-              오류를 해결한 후 다운로드하세요.
-            </p>
-          )}
+        {/* 선택된 서식 설명 */}
+        {selectedDoc && (
+          <div className="bg-[rgba(91,164,217,0.1)] rounded-md px-3.5 py-2.5 mb-4 text-sm text-[#4A93C8]">
+            <strong>{selectedDoc.label}</strong>: {selectedDoc.desc}
+            {hasXlsx && (
+              <span className="ml-2 text-xs text-[#2e7d32] font-semibold">
+                (XLSX 실서식 출력 지원)
+              </span>
+            )}
+          </div>
+        )}
 
-          {/* 결과 메시지 */}
-          {msg && (
-            <div className={`mt-3 px-3.5 py-2.5 rounded-md text-[13px] ${isSuccess ? 'bg-[#e8f5e9] text-[#2e7d32]' : 'bg-[#ffebee] text-[#c62828]'}`}>
-              {msg}
+        {/* 사전검사 버튼 */}
+        <div className="flex gap-2.5 mb-4">
+          <button
+            onClick={handlePreflight}
+            disabled={preflightLoading}
+            className="px-4 py-2 bg-[#455a64] text-white border-0 rounded-lg cursor-pointer text-sm font-semibold"
+            style={{ opacity: preflightLoading ? 0.6 : 1 }}
+          >
+            {preflightLoading ? '검사 중...' : '사전검사 실행'}
+          </button>
+        </div>
+
+        {/* 사전검사 결과 패널 */}
+        {preflight ? (
+          <div className="mb-4 border border-white/10 rounded-lg overflow-hidden">
+            {/* 헤더 - 결과 요약 */}
+            <div className={`px-4 py-3.5 flex items-center justify-between border-b border-[#e0e0e0] ${
+              preflight.summary.errorCount > 0
+                ? 'bg-[#fff5f5]'
+                : preflight.summary.warningCount > 0
+                  ? 'bg-[#fffde7]'
+                  : 'bg-[#f1f8e9]'
+            }`}>
+              <div className="flex items-center gap-2.5">
+                <span className="text-[18px]">
+                  {preflight.summary.errorCount > 0 ? '❌' : preflight.summary.warningCount > 0 ? '⚠️' : '✅'}
+                </span>
+                <div>
+                  <div className="font-bold text-sm">
+                    {preflight.canDownload ? '다운로드 가능' : '다운로드 차단됨'}
+                  </div>
+                  <div className="text-[11px] text-muted-brand mt-0.5">
+                    {preflightCheckedAt && `${preflightCheckedAt.toLocaleTimeString('ko-KR')} 검사 완료`}
+                  </div>
+                </div>
+              </div>
+              {/* 배지 요약 */}
+              <div className="flex gap-1.5">
+                {preflight.summary.errorCount > 0 && (
+                  <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[#ffebee] text-[#c62828] rounded-full">
+                    오류 {preflight.summary.errorCount}
+                  </span>
+                )}
+                {preflight.summary.warningCount > 0 && (
+                  <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[#fff8e1] text-[#f57f17] rounded-full">
+                    경고 {preflight.summary.warningCount}
+                  </span>
+                )}
+                {preflight.summary.infoCount > 0 && (
+                  <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[rgba(244,121,32,0.12)] text-accent rounded-full">
+                    정보 {preflight.summary.infoCount}
+                  </span>
+                )}
+                {preflight.summary.errorCount === 0 && preflight.summary.warningCount === 0 && (
+                  <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[#e8f5e9] text-[#2e7d32] rounded-full">
+                    이상 없음
+                  </span>
+                )}
+              </div>
             </div>
+
+            {/* 이슈 목록 */}
+            {preflight.issues.length > 0 ? (
+              <ul className="m-0 p-0 list-none">
+                {preflight.issues.map((issue, i) => (
+                  <li key={i} className={`px-3.5 py-2.5 flex gap-2.5 items-start ${i < preflight.issues.length - 1 ? 'border-b border-[#f5f5f5]' : ''}`}>
+                    <span className={`mt-px flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                      issue.severity === 'ERROR'
+                        ? 'bg-[#ffebee] text-[#c62828]'
+                        : issue.severity === 'WARNING'
+                          ? 'bg-[#fff8e1] text-[#f57f17]'
+                          : 'bg-[#e3f2fd] text-[#1565c0]'
+                    }`}>
+                      {issue.severity === 'ERROR' ? '!' : issue.severity === 'WARNING' ? '△' : 'i'}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13px] font-semibold text-[#CBD5E0]">{issue.message}</div>
+                      {issue.detail && (
+                        <div className="text-xs text-muted-brand mt-0.5">{issue.detail}</div>
+                      )}
+                      {issue.workerIds && issue.workerIds.length > 0 && (
+                        <div className="text-[11px] text-[#aaa] mt-0.5">
+                          대상 근로자 {issue.workerIds.length}명
+                        </div>
+                      )}
+                      <div className="text-[11px] text-[#bbb] mt-0.5 font-mono">{issue.code}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="px-4 py-4 text-[13px] text-[#aaa] text-center">
+                검사 항목 없음 (모두 정상)
+              </div>
+            )}
+
+            {/* 재실행 버튼 */}
+            <div className="px-3.5 py-2.5 bg-[#fafafa] border-t border-[#f0f0f0] flex justify-end">
+              <button
+                onClick={handlePreflight}
+                disabled={preflightLoading}
+                className="text-xs text-[#5BA4D9] bg-transparent border-0 cursor-pointer"
+                style={{ opacity: preflightLoading ? 0.5 : 1 }}
+              >
+                {preflightLoading ? '검사 중...' : '↻ 사전검사 재실행'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="mb-4 border border-white/10 rounded-lg px-4 py-4 bg-[#fafafa] text-[13px] text-[#aaa] text-center">
+            사전검사를 실행하면 결과가 여기에 표시됩니다.
+          </div>
+        )}
+
+        {/* 다운로드 버튼 영역 */}
+        <div className="flex gap-2.5">
+          {/* CSV 다운로드 */}
+          <button
+            onClick={handleDownload}
+            disabled={loading || downloadBlocked}
+            className={`py-3 bg-[#F47920] text-white border-0 rounded-lg cursor-pointer text-[15px] font-bold ${hasXlsx ? 'flex-1' : 'w-full'}`}
+            style={{ opacity: (loading || downloadBlocked) ? 0.5 : 1 }}
+          >
+            {loading ? '생성 중...' : downloadBlocked ? '오류 해결 필요 (CSV)' : 'CSV 다운로드'}
+          </button>
+
+          {/* XLSX 다운로드 (지원되는 서식만) */}
+          {hasXlsx && (
+            <button
+              onClick={handleXlsxDownload}
+              disabled={xlsxLoading || downloadBlocked}
+              className="flex-1 py-3 text-white border-0 rounded-lg cursor-pointer text-[15px] font-bold"
+              style={{
+                background: downloadBlocked ? '#bdbdbd' : '#2e7d32',
+                opacity: (xlsxLoading || downloadBlocked) ? 0.5 : 1,
+              }}
+            >
+              {xlsxLoading ? '생성 중...' : downloadBlocked ? '오류 해결 필요 (XLSX)' : 'XLSX 다운로드'}
+            </button>
           )}
         </div>
 
-        {/* 서식 안내 테이블 */}
-        <div className="bg-card rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-5">
-          <h2 className="text-base font-bold mb-4">서식별 포함 내용</h2>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                {['서식명', '포함 내용', '주요 활용', '형식'].map(h => (
-                  <th key={h} className="px-3 py-2.5 text-left text-xs text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { label: '노임대장', desc: '근로자별 일별 임금 지급 내역', use: '노무비 정산, 현장 제출용', xlsx: true },
-                { label: '월 출역표', desc: '근로자별 월간 출역 현황 및 공수', use: '공사일보 첨부, 현장 기록', xlsx: false },
-                { label: '보험판정표', desc: '4대보험 적용/제외 판정 결과', use: '보험 신고 기초자료', xlsx: true },
-                { label: '세금계산표', desc: '원천세 계산 내역 (과세/비과세)', use: '세무 신고용', xlsx: true },
-                { label: '퇴직공제 요약표', desc: '퇴직공제 인정일수 집계', use: '건설근로자공제회 신고', xlsx: true },
-                { label: '협력사 정산서', desc: '협력사별 노무비 정산 기초자료', use: '협력사 노무비 지급', xlsx: true },
-              ].map(row => (
-                <tr key={row.label}>
-                  <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5] font-semibold">{row.label}</td>
-                  <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5]">{row.desc}</td>
-                  <td className="px-3 py-3 text-[13px] text-muted-brand border-b border-[#f5f5f5]">{row.use}</td>
-                  <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5]">
-                    <span className="text-xs text-muted-brand">CSV</span>
-                    {row.xlsx && (
-                      <span className="ml-1.5 text-xs bg-[#e8f5e9] text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
-                        XLSX
-                      </span>
-                    )}
-                  </td>
-                </tr>
+        {/* 다운로드 차단 안내 */}
+        {preflight && !preflight.canDownload && (
+          <p className="text-xs text-[#c62828] mt-1.5">
+            오류를 해결한 후 다운로드하세요.
+          </p>
+        )}
+
+        {/* 결과 메시지 */}
+        {msg && (
+          <div className={`mt-3 px-3.5 py-2.5 rounded-md text-[13px] ${isSuccess ? 'bg-[#e8f5e9] text-[#2e7d32]' : 'bg-[#ffebee] text-[#c62828]'}`}>
+            {msg}
+          </div>
+        )}
+      </div>
+
+      {/* 서식 안내 테이블 */}
+      <div className="bg-card rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-5">
+        <h2 className="text-base font-bold mb-4">서식별 포함 내용</h2>
+        <table className="w-full border-collapse">
+          <thead>
+            <tr>
+              {['서식명', '포함 내용', '주요 활용', '형식'].map(h => (
+                <th key={h} className="px-3 py-2.5 text-left text-xs text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </main>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              { label: '노임대장', desc: '근로자별 일별 임금 지급 내역', use: '노무비 정산, 현장 제출용', xlsx: true },
+              { label: '월 출역표', desc: '근로자별 월간 출역 현황 및 공수', use: '공사일보 첨부, 현장 기록', xlsx: false },
+              { label: '보험판정표', desc: '4대보험 적용/제외 판정 결과', use: '보험 신고 기초자료', xlsx: true },
+              { label: '세금계산표', desc: '원천세 계산 내역 (과세/비과세)', use: '세무 신고용', xlsx: true },
+              { label: '퇴직공제 요약표', desc: '퇴직공제 인정일수 집계', use: '건설근로자공제회 신고', xlsx: true },
+              { label: '협력사 정산서', desc: '협력사별 노무비 정산 기초자료', use: '협력사 노무비 지급', xlsx: true },
+            ].map(row => (
+              <tr key={row.label}>
+                <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5] font-semibold">{row.label}</td>
+                <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5]">{row.desc}</td>
+                <td className="px-3 py-3 text-[13px] text-muted-brand border-b border-[#f5f5f5]">{row.use}</td>
+                <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5]">
+                  <span className="text-xs text-muted-brand">CSV</span>
+                  {row.xlsx && (
+                    <span className="ml-1.5 text-xs bg-[#e8f5e9] text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
+                      XLSX
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
-
-const NAV_ITEMS = [
-  { href: '/admin',                         label: '대시보드' },
-  { href: '/admin/operations-dashboard',    label: '운영 대시보드' },
-  { href: '/admin/workers',                 label: '근로자 관리' },
-  { href: '/admin/companies', label: '회사 관리' },
-  { href: '/admin/sites',                   label: '현장 관리' },
-  { href: '/admin/attendance',              label: '출퇴근 조회' },
-  { href: '/admin/presence-checks',         label: '체류확인 현황' },
-  { href: '/admin/presence-report',         label: '체류확인 리포트' },
-  { href: '/admin/work-confirmations',      label: '근무확정' },
-  { href: '/admin/contracts',               label: '인력/계약 관리' },
-  { href: '/admin/insurance-eligibility',   label: '보험판정' },
-  { href: '/admin/wage-calculations',       label: '세금/노임 계산' },
-  { href: '/admin/filing-exports',          label: '신고자료 내보내기' },
-  { href: '/admin/retirement-mutual',       label: '퇴직공제' },
-  { href: '/admin/labor-cost-summaries',    label: '노무비 집계' },
-  { href: '/admin/subcontractor-settlements', label: '협력사 정산' },
-  { href: '/admin/document-center',         label: '서식 출력 센터' },
-  { href: '/admin/month-closings',          label: '월마감' },
-  { href: '/admin/corrections',             label: '정정 이력' },
-  { href: '/admin/exceptions',              label: '예외 승인' },
-  { href: '/admin/device-requests',         label: '기기 변경' },
-]

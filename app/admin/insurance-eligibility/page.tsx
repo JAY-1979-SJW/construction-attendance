@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 interface InsuranceItem {
   id: string
@@ -67,98 +66,68 @@ export default function InsuranceEligibilityPage() {
                                   : <span className="text-muted-brand">✗ 제외</span>
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-dark py-6 flex-shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-[1px]">관리</div>
-        {NAV_ITEMS.map((item) => (
-          <Link key={item.href} href={item.href} className={`block px-5 py-2.5 text-[13px] no-underline ${item.href === '/admin/insurance-eligibility' ? 'bg-white/10 text-white font-bold' : 'text-white/80'}`}>
-            {item.label}
-          </Link>
-        ))}
-        <button onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))} className="mx-5 mt-6 px-0 py-2.5 bg-white/10 border-none rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
-      </nav>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-2">4대보험 적용 판정</h1>
+      <p className="text-[13px] text-muted-brand -mt-3 mb-5">
+        국민연금 월 8일 이상/220만원 이상 · 건강보험 1개월 미만 일용 제외 · 고용보험 근로내용확인신고 대상
+      </p>
 
-      <main className="flex-1 p-8 overflow-auto">
-        <h1 className="text-2xl font-bold mb-2">4대보험 적용 판정</h1>
-        <p className="text-[13px] text-muted-brand -mt-3 mb-5">
-          국민연금 월 8일 이상/220만원 이상 · 건강보험 1개월 미만 일용 제외 · 고용보험 근로내용확인신고 대상
-        </p>
+      <div className="flex gap-3 mb-5 flex-wrap items-center">
+        <input type="month" value={monthKey} onChange={(e) => setMonthKey(e.target.value)} className="px-2.5 py-2 border border-secondary-brand/20 rounded-md text-sm bg-card" />
+        <select value={filter} onChange={(e) => setFilter(e.target.value)} className="px-2.5 py-2 border border-secondary-brand/20 rounded-md text-sm bg-card">
+          <option value="all">전체</option>
+          <option value="eligible">국민연금 적용</option>
+          <option value="ineligible">국민연금 제외</option>
+        </select>
+        <button onClick={handleRun} disabled={running} className="px-4 py-2 bg-[#7b1fa2] text-white border-none rounded-md cursor-pointer text-sm font-semibold">
+          {running ? '판정 중...' : '보험판정 실행'}
+        </button>
+      </div>
 
-        <div className="flex gap-3 mb-5 flex-wrap items-center">
-          <input type="month" value={monthKey} onChange={(e) => setMonthKey(e.target.value)} className="px-2.5 py-2 border border-secondary-brand/20 rounded-md text-sm bg-card" />
-          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="px-2.5 py-2 border border-secondary-brand/20 rounded-md text-sm bg-card">
-            <option value="all">전체</option>
-            <option value="eligible">국민연금 적용</option>
-            <option value="ineligible">국민연금 제외</option>
-          </select>
-          <button onClick={handleRun} disabled={running} className="px-4 py-2 bg-[#7b1fa2] text-white border-none rounded-md cursor-pointer text-sm font-semibold">
-            {running ? '판정 중...' : '보험판정 실행'}
-          </button>
-        </div>
+      {msg && <div className="px-4 py-3 bg-secondary-brand/10 rounded-lg mb-4 text-sm text-[#4A93C8]">{msg}</div>}
 
-        {msg && <div className="px-4 py-3 bg-secondary-brand/10 rounded-lg mb-4 text-sm text-[#4A93C8]">{msg}</div>}
-
-        <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
-          {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    {['근로자', '고용형태', '근무일수', '확정금액', '국민연금', '건강보험', '고용보험', '산재보험'].map((h) => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand border-b border-secondary-brand/20 whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.length === 0 ? (
-                    <tr><td colSpan={8} className="text-center py-6 text-[#999]">데이터 없음 — 보험판정 실행을 먼저 하세요</td></tr>
-                  ) : items.map((item) => (
-                    <tr key={item.id} className="cursor-default">
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">{item.worker.name}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">{EMP_LABEL[item.worker.employmentType] ?? item.worker.employmentType}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top text-center">{item.totalWorkDays}일</td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top text-right">{fmt(item.totalConfirmedAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
-                        {check(item.nationalPensionEligible)}
-                        <div className="text-[11px] text-muted-brand mt-0.5">{item.nationalPensionReason ?? ''}</div>
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
-                        {check(item.healthInsuranceEligible)}
-                        <div className="text-[11px] text-muted-brand mt-0.5">{item.healthInsuranceReason ?? ''}</div>
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
-                        {check(item.employmentInsuranceEligible)}
-                        <div className="text-[11px] text-muted-brand mt-0.5">{item.employmentInsuranceReason ?? ''}</div>
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
-                        {check(item.industrialAccidentEligible)}
-                      </td>
-                    </tr>
+      <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+        {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  {['근로자', '고용형태', '근무일수', '확정금액', '국민연금', '건강보험', '고용보험', '산재보험'].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand border-b border-secondary-brand/20 whitespace-nowrap">{h}</th>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </main>
+                </tr>
+              </thead>
+              <tbody>
+                {items.length === 0 ? (
+                  <tr><td colSpan={8} className="text-center py-6 text-[#999]">데이터 없음 — 보험판정 실행을 먼저 하세요</td></tr>
+                ) : items.map((item) => (
+                  <tr key={item.id} className="cursor-default">
+                    <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">{item.worker.name}</td>
+                    <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">{EMP_LABEL[item.worker.employmentType] ?? item.worker.employmentType}</td>
+                    <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top text-center">{item.totalWorkDays}일</td>
+                    <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top text-right">{fmt(item.totalConfirmedAmount)}</td>
+                    <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
+                      {check(item.nationalPensionEligible)}
+                      <div className="text-[11px] text-muted-brand mt-0.5">{item.nationalPensionReason ?? ''}</div>
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
+                      {check(item.healthInsuranceEligible)}
+                      <div className="text-[11px] text-muted-brand mt-0.5">{item.healthInsuranceReason ?? ''}</div>
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
+                      {check(item.employmentInsuranceEligible)}
+                      <div className="text-[11px] text-muted-brand mt-0.5">{item.employmentInsuranceReason ?? ''}</div>
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-secondary-brand/10 align-top">
+                      {check(item.industrialAccidentEligible)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
-
-const NAV_ITEMS = [
-  { href: '/admin',                      label: '대시보드' },
-  { href: '/admin/workers',              label: '근로자 관리' },
-  { href: '/admin/companies',           label: '회사 관리' },
-  { href: '/admin/sites',                label: '현장 관리' },
-  { href: '/admin/attendance',           label: '출퇴근 조회' },
-  { href: '/admin/presence-checks',      label: '체류확인 현황' },
-  { href: '/admin/presence-report',      label: '체류확인 리포트' },
-  { href: '/admin/work-confirmations',   label: '근무확정' },
-  { href: '/admin/contracts',            label: '인력/계약 관리' },
-  { href: '/admin/insurance-eligibility', label: '보험판정' },
-  { href: '/admin/wage-calculations',    label: '세금/노임 계산' },
-  { href: '/admin/filing-exports',       label: '신고자료 내보내기' },
-  { href: '/admin/exceptions',           label: '예외 승인' },
-  { href: '/admin/device-requests',      label: '기기 변경' },
-]

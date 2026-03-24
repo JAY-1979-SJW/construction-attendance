@@ -86,13 +86,13 @@ const STATUS_LABEL: Record<string, string> = {
   DRAFT: '초안', SIGNED: '서명완료', ACTIVE: '활성', ENDED: '종료',
 }
 const STATUS_COLOR: Record<string, string> = {
-  DRAFT:  'bg-gray-100 text-gray-600',
+  DRAFT:  'bg-[rgba(255,255,255,0.04)] text-[#CBD5E0]',
   SIGNED: 'bg-blue-100 text-blue-700',
   ACTIVE: 'bg-green-100 text-green-700',
   ENDED:  'bg-red-100 text-red-600',
 }
 const DOC_STATUS_COLOR: Record<string, string> = {
-  DRAFT:  'bg-gray-100 text-gray-500',
+  DRAFT:  'bg-[rgba(255,255,255,0.04)] text-[#718096]',
   ISSUED: 'bg-blue-100 text-blue-700',
   SIGNED: 'bg-green-100 text-green-700',
 }
@@ -209,7 +209,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
     json.success ? load() : alert(json.error)
   }
 
-  if (loading) return <div className="p-8 text-gray-400 text-center">로딩 중...</div>
+  if (loading) return <div className="p-8 text-[#718096] text-center">로딩 중...</div>
   if (!contract) return <div className="p-8 text-red-500 text-center">계약을 찾을 수 없습니다.</div>
 
   // contractTemplateType 기준으로 패키지 결정 (상용직/일용직 분리)
@@ -223,17 +223,17 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700 text-sm">← 뒤로</button>
+          <button onClick={() => router.back()} className="text-[#718096] hover:text-[#CBD5E0] text-sm">← 뒤로</button>
           <div>
             <h1 className="text-xl font-bold">{contract.worker.name} — {TEMPLATE_LABEL[contract.contractTemplateType || ''] || '계약'}</h1>
-            <div className="text-sm text-gray-500 mt-0.5">{contract.site?.name || '현장 미지정'} · {contract.startDate} ~ {contract.endDate || '무기한'}</div>
+            <div className="text-sm text-[#718096] mt-0.5">{contract.site?.name || '현장 미지정'} · {contract.startDate} ~ {contract.endDate || '무기한'}</div>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <span className={`px-2 py-1 rounded text-xs font-medium ${STATUS_COLOR[contract.contractStatus] || ''}`}>
             {STATUS_LABEL[contract.contractStatus] || contract.contractStatus}
           </span>
-          <span className="text-xs text-gray-400">v{contract.currentVersion}</span>
+          <span className="text-xs text-[#718096]">v{contract.currentVersion}</span>
 
           <button onClick={generatePdf} disabled={processing}
             className="px-3 py-1.5 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50">
@@ -272,7 +272,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             </button>
           )}
           <Link href={`/admin/contracts/new?workerId=${contract.worker.id}`}
-            className="px-3 py-1.5 text-xs bg-gray-100 rounded hover:bg-gray-200">
+            className="px-3 py-1.5 text-xs bg-[rgba(255,255,255,0.04)] rounded hover:bg-[rgba(255,255,255,0.08)]">
             신규 계약
           </Link>
         </div>
@@ -312,11 +312,11 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       <div className="grid grid-cols-3 gap-6">
         {/* 계약 정보 */}
         <div className="col-span-1 space-y-4">
-          <div className="bg-white border rounded-lg p-4 space-y-3">
-            <h2 className="font-semibold text-gray-700 text-sm">계약 기본 정보</h2>
+          <div className="bg-card border rounded-lg p-4 space-y-3">
+            <h2 className="font-semibold text-[#CBD5E0] text-sm">계약 기본 정보</h2>
             <dl className="space-y-1.5 text-xs">
               <div className="flex justify-between">
-                <dt className="text-gray-500">근로자</dt>
+                <dt className="text-[#718096]">근로자</dt>
                 <dd className="font-medium">
                   <Link href={`/admin/workers/${contract.worker.id}`} className="text-blue-600 hover:underline">
                     {contract.worker.name}
@@ -324,68 +324,68 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
                 </dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">직종</dt>
+                <dt className="text-[#718096]">직종</dt>
                 <dd>{contract.worker.jobTitle}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">현장</dt>
+                <dt className="text-[#718096]">현장</dt>
                 <dd>{contract.site?.name || '—'}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">계약 유형</dt>
+                <dt className="text-[#718096]">계약 유형</dt>
                 <dd>{contract.laborRelationType || '직접고용'}</dd>
               </div>
               {contract.businessRegistrationNo && (
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">사업자번호</dt>
+                  <dt className="text-[#718096]">사업자번호</dt>
                   <dd>{contract.businessRegistrationNo}</dd>
                 </div>
               )}
               <div className="flex justify-between">
-                <dt className="text-gray-500">근무시간</dt>
+                <dt className="text-[#718096]">근무시간</dt>
                 <dd>{contract.checkInTime || '08:00'} ~ {contract.checkOutTime || '17:00'}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">근무요일</dt>
+                <dt className="text-[#718096]">근무요일</dt>
                 <dd>{contract.workDays || '—'}</dd>
               </div>
             </dl>
           </div>
 
-          <div className="bg-white border rounded-lg p-4 space-y-3">
-            <h2 className="font-semibold text-gray-700 text-sm">임금 조건</h2>
+          <div className="bg-card border rounded-lg p-4 space-y-3">
+            <h2 className="font-semibold text-[#CBD5E0] text-sm">임금 조건</h2>
             <dl className="space-y-1.5 text-xs">
               {contract.dailyWage > 0 && (
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">일당</dt>
+                  <dt className="text-[#718096]">일당</dt>
                   <dd className="font-mono">{won(contract.dailyWage)}</dd>
                 </div>
               )}
               {contract.monthlySalary && (
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">월급</dt>
+                  <dt className="text-[#718096]">월급</dt>
                   <dd className="font-mono">{won(contract.monthlySalary)}</dd>
                 </div>
               )}
               {contract.serviceFee && (
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">계약금액</dt>
+                  <dt className="text-[#718096]">계약금액</dt>
                   <dd className="font-mono">{won(contract.serviceFee)}</dd>
                 </div>
               )}
               <div className="flex justify-between">
-                <dt className="text-gray-500">지급일</dt>
+                <dt className="text-[#718096]">지급일</dt>
                 <dd>{contract.paymentDay ? `매월 ${contract.paymentDay}일` : '—'}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">지급방법</dt>
+                <dt className="text-[#718096]">지급방법</dt>
                 <dd>{contract.paymentMethod || '—'}</dd>
               </div>
             </dl>
           </div>
 
-          <div className="bg-white border rounded-lg p-4 space-y-2">
-            <h2 className="font-semibold text-gray-700 text-sm">4대보험</h2>
+          <div className="bg-card border rounded-lg p-4 space-y-2">
+            <h2 className="font-semibold text-[#CBD5E0] text-sm">4대보험</h2>
             <div className="grid grid-cols-2 gap-1 text-xs">
               {[
                 ['국민연금', contract.nationalPensionYn],
@@ -394,7 +394,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
                 ['산재보험', contract.industrialAccidentYn],
                 ['퇴직공제', contract.retirementMutualYn],
               ].map(([label, yn]) => (
-                <div key={label as string} className={`flex items-center gap-1 ${yn ? 'text-green-700' : 'text-gray-400'}`}>
+                <div key={label as string} className={`flex items-center gap-1 ${yn ? 'text-green-700' : 'text-[#718096]'}`}>
                   <span>{yn ? '✓' : '○'}</span>
                   <span>{label}</span>
                 </div>
@@ -405,15 +405,15 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
         {/* 문서 패키지 */}
         <div className="col-span-2 space-y-4">
-          <div className="bg-white border rounded-lg p-5">
+          <div className="bg-card border rounded-lg p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-gray-800">문서 패키지 — {
+              <h2 className="font-semibold text-white">문서 패키지 — {
                 packageKey === 'DIRECT_EMPLOYEE'  ? 'A. 직접고용 (일용직)' :
                 packageKey === 'REGULAR_EMPLOYEE' ? 'D. 직접고용 (상용직/기간제)' :
                 packageKey === 'SUBCONTRACT_BIZ'  ? 'B. 하도급/외주' :
                 'C. 팀장형'
               }</h2>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-[#718096]">
                 {docPackage.filter(d => generatedMap.has(d.type)).length} / {docPackage.length} 생성됨
               </span>
             </div>
@@ -426,7 +426,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
                 return (
                   <div key={type}
                     className={`flex items-center justify-between p-3 rounded-lg border
-                      ${generated ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                      ${generated ? 'bg-green-50 border-green-200' : 'bg-[rgba(255,255,255,0.04)] border-[rgba(91,164,217,0.15)]'}`}>
                     <div className="flex items-center gap-2">
                       <span className={`text-lg ${generated ? '✅' : required ? '📋' : '📄'}`}>
                         {generated ? '✅' : required ? '📋' : '📄'}
@@ -437,7 +437,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
                           <div className="text-xs text-amber-600">필수 서류</div>
                         )}
                         {generated && (
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-[#718096]">
                             {new Date(generated.generatedAt).toLocaleDateString('ko-KR')} 생성
                             <span className={`ml-2 px-1.5 py-0.5 rounded text-xs ${DOC_STATUS_COLOR[generated.status] || ''}`}>
                               {generated.status === 'DRAFT' ? '초안' : generated.status === 'ISSUED' ? '발행' : '서명완료'}
@@ -454,7 +454,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
                             const json = await res.json()
                             if (json.success) setPreviewDoc({ docType: type, content: json.data.contentText || '', title: json.data.fileName })
                           }}
-                          className="px-2 py-1 text-xs bg-white border rounded hover:bg-gray-50">
+                          className="px-2 py-1 text-xs bg-card border rounded hover:bg-[rgba(255,255,255,0.04)]">
                           미리보기
                         </button>
                       )}
@@ -463,7 +463,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
                         disabled={isGenerating}
                         className={`px-2 py-1 text-xs rounded
                           ${generated
-                            ? 'bg-white border text-gray-600 hover:bg-gray-50'
+                            ? 'bg-card border text-[#CBD5E0] hover:bg-[rgba(255,255,255,0.04)]'
                             : 'bg-blue-600 text-white hover:bg-blue-700'
                           } disabled:opacity-50`}>
                         {isGenerating ? '생성 중...' : generated ? '재생성' : '생성'}
@@ -490,38 +490,38 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 특약사항 */}
           {contract.specialTerms && (
-            <div className="bg-white border rounded-lg p-4">
-              <h2 className="font-semibold text-gray-700 text-sm mb-2">특약사항</h2>
-              <p className="text-sm text-gray-600 whitespace-pre-wrap">{contract.specialTerms}</p>
+            <div className="bg-card border rounded-lg p-4">
+              <h2 className="font-semibold text-[#CBD5E0] text-sm mb-2">특약사항</h2>
+              <p className="text-sm text-[#CBD5E0] whitespace-pre-wrap">{contract.specialTerms}</p>
             </div>
           )}
 
           {/* 근로시간 상세 */}
           {(contract.breakStartTime || contract.weeklyWorkDays || contract.holidayRule) && (
-            <div className="bg-white border rounded-lg p-4 space-y-2">
-              <h2 className="font-semibold text-gray-700 text-sm">근로시간 상세</h2>
+            <div className="bg-card border rounded-lg p-4 space-y-2">
+              <h2 className="font-semibold text-[#CBD5E0] text-sm">근로시간 상세</h2>
               <dl className="space-y-1.5 text-xs">
                 {contract.breakStartTime && (
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">휴게시간</dt>
+                    <dt className="text-[#718096]">휴게시간</dt>
                     <dd>{contract.breakStartTime} ~ {contract.breakEndTime || '—'}</dd>
                   </div>
                 )}
                 {contract.weeklyWorkDays != null && (
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">주 소정근로일</dt>
+                    <dt className="text-[#718096]">주 소정근로일</dt>
                     <dd>{contract.weeklyWorkDays}일</dd>
                   </div>
                 )}
                 {contract.weeklyWorkHours != null && (
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">주 소정근로시간</dt>
+                    <dt className="text-[#718096]">주 소정근로시간</dt>
                     <dd>{contract.weeklyWorkHours}시간</dd>
                   </div>
                 )}
                 {contract.holidayRule && (
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">주휴일</dt>
+                    <dt className="text-[#718096]">주휴일</dt>
                     <dd>{contract.holidayRule}</dd>
                   </div>
                 )}
@@ -531,12 +531,12 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 수당 */}
           {contract.allowanceJson && contract.allowanceJson.length > 0 && (
-            <div className="bg-white border rounded-lg p-4 space-y-2">
-              <h2 className="font-semibold text-gray-700 text-sm">수당 항목</h2>
+            <div className="bg-card border rounded-lg p-4 space-y-2">
+              <h2 className="font-semibold text-[#CBD5E0] text-sm">수당 항목</h2>
               <dl className="space-y-1.5 text-xs">
                 {contract.allowanceJson.map((a, i) => (
                   <div key={i} className="flex justify-between">
-                    <dt className="text-gray-500">{a.name}</dt>
+                    <dt className="text-[#718096]">{a.name}</dt>
                     <dd className="font-mono">{a.amount.toLocaleString()}원</dd>
                   </div>
                 ))}
@@ -546,18 +546,18 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 버전 이력 */}
           {versions.length > 0 && (
-            <div className="bg-white border rounded-lg p-4">
-              <h2 className="font-semibold text-gray-700 text-sm mb-3">버전 이력</h2>
+            <div className="bg-card border rounded-lg p-4">
+              <h2 className="font-semibold text-[#CBD5E0] text-sm mb-3">버전 이력</h2>
               <div className="space-y-2">
                 {versions.map(v => (
                   <div key={v.id} className="flex items-center justify-between py-2 border-b last:border-b-0 text-xs">
                     <div>
                       <span className="font-medium">v{v.versionNo}</span>
-                      <span className="ml-2 text-gray-500">{new Date(v.createdAt).toLocaleDateString('ko-KR')}</span>
-                      {v.changeNote && <span className="ml-2 text-gray-400">{v.changeNote}</span>}
+                      <span className="ml-2 text-[#718096]">{new Date(v.createdAt).toLocaleDateString('ko-KR')}</span>
+                      {v.changeNote && <span className="ml-2 text-[#718096]">{v.changeNote}</span>}
                     </div>
                     <div className="flex gap-2">
-                      {v.draftDocId && <span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-500">초안</span>}
+                      {v.draftDocId && <span className="px-1.5 py-0.5 bg-[rgba(255,255,255,0.04)] rounded text-[#718096]">초안</span>}
                       {v.signedDocId && <span className="px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded">서명</span>}
                       {v.deliveredDocId && <span className="px-1.5 py-0.5 bg-green-100 text-green-600 rounded">교부</span>}
                     </div>
@@ -569,9 +569,9 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 메모 */}
           {contract.notes && (
-            <div className="bg-white border rounded-lg p-4">
-              <h2 className="font-semibold text-gray-700 text-sm mb-2">내부 메모</h2>
-              <p className="text-sm text-gray-500">{contract.notes}</p>
+            <div className="bg-card border rounded-lg p-4">
+              <h2 className="font-semibold text-[#CBD5E0] text-sm mb-2">내부 메모</h2>
+              <p className="text-sm text-[#718096]">{contract.notes}</p>
             </div>
           )}
         </div>
@@ -580,13 +580,13 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       {/* 문서 미리보기 모달 */}
       {previewDoc && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col">
+          <div className="bg-card rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between p-4 border-b">
               <h3 className="font-semibold">{previewDoc.title}</h3>
-              <button onClick={() => setPreviewDoc(null)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+              <button onClick={() => setPreviewDoc(null)} className="text-[#718096] hover:text-[#CBD5E0] text-xl">✕</button>
             </div>
             <div className="flex-1 overflow-y-auto p-6">
-              <pre className="text-xs font-mono whitespace-pre-wrap leading-relaxed text-gray-700">
+              <pre className="text-xs font-mono whitespace-pre-wrap leading-relaxed text-[#CBD5E0]">
                 {previewDoc.content}
               </pre>
             </div>
@@ -602,7 +602,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
                 className="px-4 py-2 bg-gray-800 text-white rounded text-sm hover:bg-gray-700">
                 다운로드 (.txt)
               </button>
-              <button onClick={() => setPreviewDoc(null)} className="px-4 py-2 border rounded text-sm hover:bg-gray-50">
+              <button onClick={() => setPreviewDoc(null)} className="px-4 py-2 border rounded text-sm hover:bg-[rgba(255,255,255,0.04)]">
                 닫기
               </button>
             </div>
@@ -613,13 +613,13 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       {/* 서명 모달 */}
       {showSignModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6">
-            <h3 className="font-semibold text-gray-800 mb-4">계약서 서명 처리</h3>
-            <p className="text-sm text-gray-500 mb-4">
+          <div className="bg-card rounded-xl shadow-2xl w-full max-w-sm p-6">
+            <h3 className="font-semibold text-white mb-4">계약서 서명 처리</h3>
+            <p className="text-sm text-[#718096] mb-4">
               서명 처리 시 계약 상태가 ACTIVE로 변경됩니다.
             </p>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">서명자 이름</label>
+              <label className="block text-sm font-medium text-[#CBD5E0] mb-1">서명자 이름</label>
               <input
                 type="text"
                 value={signerName}
@@ -630,7 +630,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             </div>
             <div className="flex gap-2">
               <button onClick={() => setShowSignModal(false)}
-                className="flex-1 px-4 py-2 border rounded text-sm hover:bg-gray-50">취소</button>
+                className="flex-1 px-4 py-2 border rounded text-sm hover:bg-[rgba(255,255,255,0.04)]">취소</button>
               <button onClick={handleSign} disabled={processing}
                 className="flex-1 px-4 py-2 bg-violet-600 text-white rounded text-sm hover:bg-violet-700 disabled:opacity-50">
                 {processing ? '처리 중...' : '서명 완료'}
@@ -643,10 +643,10 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       {/* 교부 모달 */}
       {showDeliverModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6">
-            <h3 className="font-semibold text-gray-800 mb-4">계약서 교부 처리</h3>
+          <div className="bg-card rounded-xl shadow-2xl w-full max-w-sm p-6">
+            <h3 className="font-semibold text-white mb-4">계약서 교부 처리</h3>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">교부 방법</label>
+              <label className="block text-sm font-medium text-[#CBD5E0] mb-1">교부 방법</label>
               <select value={deliverMethod} onChange={e => setDeliverMethod(e.target.value as 'EMAIL' | 'KAKAO' | 'PAPER' | 'APP')}
                 className="w-full border rounded px-3 py-2 text-sm">
                 <option value="APP">앱 내 전달</option>
@@ -657,7 +657,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             </div>
             <div className="flex gap-2">
               <button onClick={() => setShowDeliverModal(false)}
-                className="flex-1 px-4 py-2 border rounded text-sm hover:bg-gray-50">취소</button>
+                className="flex-1 px-4 py-2 border rounded text-sm hover:bg-[rgba(255,255,255,0.04)]">취소</button>
               <button onClick={handleDeliver} disabled={processing}
                 className="flex-1 px-4 py-2 bg-amber-600 text-white rounded text-sm hover:bg-amber-700 disabled:opacity-50">
                 {processing ? '처리 중...' : '교부 완료'}

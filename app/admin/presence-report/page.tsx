@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 interface DailyRow {
   date: string
@@ -89,39 +88,8 @@ export default function PresenceReportPage() {
 
   useEffect(() => { load() }, [load])
 
-  const handleLogout = () => {
-    fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))
-  }
-
-  const NAV = [
-    { href: '/admin',                label: '대시보드' },
-    { href: '/admin/workers',         label: '근로자 관리' },
-    { href: '/admin/companies', label: '회사 관리' },
-    { href: '/admin/sites',           label: '현장 관리' },
-    { href: '/admin/attendance',      label: '출퇴근 조회' },
-    { href: '/admin/presence-checks', label: '체류확인 현황' },
-    { href: '/admin/presence-report', label: '체류확인 리포트' },
-    { href: '/admin/labor',           label: '투입현황/노임서류' },
-    { href: '/admin/exceptions',      label: '예외 승인' },
-    { href: '/admin/device-requests', label: '기기 변경' },
-    { href: '/admin/settings',        label: '설정' },
-  ]
-
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-        {NAV.map((item) => (
-          <Link key={item.href} href={item.href} className={[
-            'block text-white/80 px-5 py-[10px] text-sm no-underline',
-            item.href === '/admin/presence-report' ? 'bg-white/10 text-white border-l-[3px] border-[#4fc3f7]' : '',
-          ].join(' ')}>{item.label}</Link>
-        ))}
-        <button onClick={handleLogout} className="mx-5 mt-6 py-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
-      </nav>
-
-      <main className="flex-1 p-8">
+    <div className="p-8">
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-2xl font-bold m-0 mb-1">체류확인 리포트</h1>
@@ -259,7 +227,6 @@ export default function PresenceReportPage() {
             )}
           </>
         )}
-      </main>
     </div>
   )
 }

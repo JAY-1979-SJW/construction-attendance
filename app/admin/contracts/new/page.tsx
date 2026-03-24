@@ -468,7 +468,7 @@ function NewContractPage() {
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
-        <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700 text-sm">← 뒤로</button>
+        <button onClick={() => router.back()} className="text-[#718096] hover:text-[#CBD5E0] text-sm">← 뒤로</button>
         <h1 className="text-2xl font-bold">신규 계약 등록</h1>
       </div>
 
@@ -479,9 +479,9 @@ function NewContractPage() {
       {/* 계약 유형 변경 확인 다이얼로그 */}
       {pendingTypeChange && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full mx-4">
-            <h3 className="font-bold text-base text-gray-900 mb-2">계약 유형 변경</h3>
-            <p className="text-sm text-gray-600 mb-1">
+          <div className="bg-card rounded-xl shadow-xl p-6 max-w-sm w-full mx-4">
+            <h3 className="font-bold text-base text-white mb-2">계약 유형 변경</h3>
+            <p className="text-sm text-[#CBD5E0] mb-1">
               <span className="font-semibold text-orange-700">{pendingTypeChange.label}</span> 유형으로 변경하시겠습니까?
             </p>
             <p className="text-xs text-amber-700 bg-amber-50 rounded p-2 mb-4">
@@ -491,7 +491,7 @@ function NewContractPage() {
               <button
                 type="button"
                 onClick={() => setPendingTypeChange(null)}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
+                className="px-4 py-2 text-sm border border-[rgba(91,164,217,0.25)] rounded-lg text-[#CBD5E0] hover:bg-[rgba(255,255,255,0.04)]"
               >
                 취소
               </button>
@@ -513,7 +513,7 @@ function NewContractPage() {
       )}
 
       {/* 근로유형 / 계약유형 선택 안내 — 기본 노출 */}
-      <div className="bg-white border-2 border-blue-200 rounded-lg overflow-hidden">
+      <div className="bg-card border-2 border-blue-200 rounded-lg overflow-hidden">
         {/* 헤더 (항상 표시) */}
         <div className="bg-blue-50 px-5 py-4 flex items-start justify-between gap-3">
           <div>
@@ -535,20 +535,20 @@ function NewContractPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-xs border-collapse">
                 <thead>
-                  <tr className="bg-gray-50">
+                  <tr className="bg-[rgba(255,255,255,0.04)]">
                     {['유형', '이런 경우 선택', '계약 종료일', '근태/계산 기준', '생성 문서/처리'].map(h => (
-                      <th key={h} className="border border-gray-200 px-3 py-2 text-left font-semibold text-gray-600 whitespace-nowrap">{h}</th>
+                      <th key={h} className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-left font-semibold text-[#CBD5E0] whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {ADMIN_TYPE_GUIDES.map(g => (
                     <tr key={g.code} className="align-top">
-                      <td className="border border-gray-200 px-3 py-2 font-bold whitespace-nowrap" style={{ color: g.accentColor }}>{g.icon} {g.label}</td>
-                      <td className="border border-gray-200 px-3 py-2 text-gray-600">{g.tableRow.whenToSelect}</td>
-                      <td className="border border-gray-200 px-3 py-2 text-gray-600 whitespace-nowrap">{g.tableRow.endDateConcept}</td>
-                      <td className="border border-gray-200 px-3 py-2 text-gray-600">{g.tableRow.calcBasis}</td>
-                      <td className="border border-gray-200 px-3 py-2 text-gray-600">{g.tableRow.documents}</td>
+                      <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 font-bold whitespace-nowrap" style={{ color: g.accentColor }}>{g.icon} {g.label}</td>
+                      <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-[#CBD5E0]">{g.tableRow.whenToSelect}</td>
+                      <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-[#CBD5E0] whitespace-nowrap">{g.tableRow.endDateConcept}</td>
+                      <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-[#CBD5E0]">{g.tableRow.calcBasis}</td>
+                      <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-[#CBD5E0]">{g.tableRow.documents}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -597,8 +597,8 @@ function NewContractPage() {
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-gray-600 mb-3 leading-relaxed flex-grow">{guide.detail}</p>
-                        <div className="text-xs text-gray-500 mb-3 space-y-1">
+                        <p className="text-xs text-[#CBD5E0] mb-3 leading-relaxed flex-grow">{guide.detail}</p>
+                        <div className="text-xs text-[#718096] mb-3 space-y-1">
                           <div className="font-medium text-green-700">✅ 이 유형이 맞는 경우</div>
                           {guide.whenItFits.map((w, i) => <div key={i}>• {w}</div>)}
                         </div>
@@ -626,23 +626,23 @@ function NewContractPage() {
       </div>
 
       {/* Step 1: 계약 유형 분류 */}
-      <div className="bg-white border rounded-lg p-5 space-y-4">
-        <h2 className="font-semibold text-gray-800">1단계: 계약 유형 분류</h2>
-        <p className="text-xs text-gray-500">
+      <div className="bg-card border rounded-lg p-5 space-y-4">
+        <h2 className="font-semibold text-white">1단계: 계약 유형 분류</h2>
+        <p className="text-xs text-[#718096]">
           가장 중요한 첫 단계입니다. 실제 운영 구조에 맞는 유형을 선택하세요.
         </p>
         <div className="grid grid-cols-1 gap-3">
           {LABOR_RELATION_OPTIONS.map(opt => (
             <label key={opt.value}
               className={`flex items-start gap-3 border-2 rounded-lg p-4 cursor-pointer transition-all
-                ${laborRelation === opt.value ? opt.color + ' border-opacity-100' : 'border-gray-200 hover:border-gray-300'}`}>
+                ${laborRelation === opt.value ? opt.color + ' border-opacity-100' : 'border-[rgba(91,164,217,0.15)] hover:border-[rgba(91,164,217,0.25)]'}`}>
               <input type="radio" name="laborRelation" value={opt.value}
                 checked={laborRelation === opt.value}
                 onChange={() => handleRelationChange(opt.value)}
                 className="mt-0.5" />
               <div>
                 <div className="font-medium text-sm">{opt.label}</div>
-                <div className="text-xs text-gray-500 mt-0.5">{opt.desc}</div>
+                <div className="text-xs text-[#718096] mt-0.5">{opt.desc}</div>
               </div>
             </label>
           ))}
@@ -651,20 +651,20 @@ function NewContractPage() {
 
       {/* 외주팀 사업자 유무 체크 */}
       {(isSubcontractBiz || isTeamReview) && (
-        <div className="bg-white border rounded-lg p-5 space-y-4">
-          <h2 className="font-semibold text-gray-800">외주팀 분류 확인</h2>
+        <div className="bg-card border rounded-lg p-5 space-y-4">
+          <h2 className="font-semibold text-white">외주팀 분류 확인</h2>
 
           {isSubcontractBiz && (
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <label className="text-xs font-medium text-gray-600 block mb-1">사업자등록번호 *</label>
+                <label className="text-xs font-medium text-[#CBD5E0] block mb-1">사업자등록번호 *</label>
                 <input type="text" value={biz.businessRegistrationNo}
                   onChange={e => setBiz(b => ({ ...b, businessRegistrationNo: e.target.value }))}
                   placeholder="000-00-00000"
                   className="w-full border rounded px-3 py-2 text-sm" />
               </div>
               <div className="col-span-2">
-                <label className="text-xs font-medium text-gray-600 block mb-1">수급인 상호</label>
+                <label className="text-xs font-medium text-[#CBD5E0] block mb-1">수급인 상호</label>
                 <input type="text" value={biz.contractorName}
                   onChange={e => setBiz(b => ({ ...b, contractorName: e.target.value }))}
                   placeholder="업체명 또는 팀명"
@@ -718,26 +718,26 @@ function NewContractPage() {
         const stageKey = blockingErrors.length > 0 ? 'SAVEABLE' : 'GENERATABLE'
         const stageInfo = STAGE_LABELS[stageKey]
         return (
-          <div className="bg-white border rounded-lg p-5 space-y-3">
+          <div className="bg-card border rounded-lg p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-gray-800">생성 예정 문서</h2>
+              <h2 className="font-semibold text-white">생성 예정 문서</h2>
               <span className="text-xs font-semibold rounded-full px-3 py-1" style={{ background: stageInfo.color + '18', color: stageInfo.color }}>
                 {stageInfo.label}
               </span>
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-[#718096]">
               현재 선택된 유형 <strong>{docSet.typeLabel}</strong> 으로 등록 시 아래 문서가 생성됩니다.
             </p>
             <ul className="space-y-1">
               {docSet.documents.map((doc, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className={doc.required ? 'text-blue-600' : 'text-gray-400'}>
+                  <span className={doc.required ? 'text-blue-600' : 'text-[#718096]'}>
                     {doc.required ? '●' : '○'}
                   </span>
-                  <span className={doc.required ? 'text-gray-800' : 'text-gray-400'}>
+                  <span className={doc.required ? 'text-white' : 'text-[#718096]'}>
                     {doc.label}
                     {doc.required ? <span className="ml-1 text-xs text-blue-600 font-medium">필수</span> : null}
-                    {doc.note ? <span className="ml-1 text-xs text-gray-400">({doc.note})</span> : null}
+                    {doc.note ? <span className="ml-1 text-xs text-[#718096]">({doc.note})</span> : null}
                   </span>
                 </li>
               ))}
@@ -762,17 +762,17 @@ function NewContractPage() {
 
       {/* Step 2: 공사 및 직종 정보 (직접고용만) */}
       {isDirectEmployment && (
-        <div className="bg-white border rounded-lg p-5 space-y-4">
-          <h2 className="font-semibold text-gray-800">2단계: 공사 및 직종 정보</h2>
+        <div className="bg-card border rounded-lg p-5 space-y-4">
+          <h2 className="font-semibold text-white">2단계: 공사 및 직종 정보</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600 block mb-1">공사명</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">공사명</label>
               <input type="text" value={form.projectName} onChange={e => set('projectName', e.target.value)}
                 placeholder="예: ○○빌딩 신축공사"
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">공종</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">공종</label>
               <select value={form.workType} onChange={e => set('workType', e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm">
                 <option value="">선택</option>
@@ -780,13 +780,13 @@ function NewContractPage() {
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">세부공종</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">세부공종</label>
               <input type="text" value={form.workTypeSub} onChange={e => set('workTypeSub', e.target.value)}
                 placeholder="예: 동력반, 소화배관"
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">직종</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">직종</label>
               <select value={form.jobCategory} onChange={e => set('jobCategory', e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm">
                 <option value="">선택</option>
@@ -794,13 +794,13 @@ function NewContractPage() {
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">세부직종</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">세부직종</label>
               <input type="text" value={form.jobCategorySub} onChange={e => set('jobCategorySub', e.target.value)}
                 placeholder="예: 전기기능사, 용접공"
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600 block mb-1">담당업무</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">담당업무</label>
               <input type="text" value={form.taskDescription} onChange={e => set('taskDescription', e.target.value)}
                 placeholder="예: 전기 배관 및 케이블 포설"
                 className="w-full border rounded px-3 py-2 text-sm" />
@@ -810,11 +810,11 @@ function NewContractPage() {
       )}
 
       {/* Step 3: 계약서 기본 정보 */}
-      <div className="bg-white border rounded-lg p-5 space-y-4">
-        <h2 className="font-semibold text-gray-800">3단계: 기본 정보</h2>
+      <div className="bg-card border rounded-lg p-5 space-y-4">
+        <h2 className="font-semibold text-white">3단계: 기본 정보</h2>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <label className="text-xs font-medium text-gray-600 block mb-1">회사 (자동채움용)</label>
+            <label className="text-xs font-medium text-[#CBD5E0] block mb-1">회사 (자동채움용)</label>
             <select value={selectedCompanyId} onChange={e => handleCompanyChange(e.target.value)}
               className="w-full border rounded px-3 py-2 text-sm">
               <option value="">선택하면 회사 정보 자동 채움</option>
@@ -823,14 +823,14 @@ function NewContractPage() {
               ))}
             </select>
             {form.companyName && (
-              <div className="mt-1 text-xs text-gray-500 bg-gray-50 rounded p-2">
+              <div className="mt-1 text-xs text-[#718096] bg-[rgba(255,255,255,0.04)] rounded p-2">
                 {form.companyName} · {form.companyRepName || '대표자미입력'} · {form.companyBizNo || '사업자번호미입력'}
               </div>
             )}
           </div>
 
           <div className="col-span-2">
-            <label className="text-xs font-medium text-gray-600 block mb-1">
+            <label className="text-xs font-medium text-[#CBD5E0] block mb-1">
               {isSubcontractBiz || isTeamReview ? '팀장·담당자 *' : '근로자 *'}
             </label>
             <select value={form.workerId} onChange={e => handleWorkerChange(e.target.value)}
@@ -854,7 +854,7 @@ function NewContractPage() {
           </div>
 
           <div className="col-span-2">
-            <label className="text-xs font-medium text-gray-600 block mb-1">현장 (선택)</label>
+            <label className="text-xs font-medium text-[#CBD5E0] block mb-1">현장 (선택)</label>
             <select value={form.siteId} onChange={e => handleSiteChange(e.target.value)}
               className="w-full border rounded px-3 py-2 text-sm">
               <option value="">현장 미지정</option>
@@ -867,14 +867,14 @@ function NewContractPage() {
           {/* 근로일 (일용직 전용) */}
           {isDirectEmployment && (
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600 block mb-1">근로일 (일용직: 해당 날짜)</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">근로일 (일용직: 해당 날짜)</label>
               <input type="date" value={form.workDate} onChange={e => set('workDate', e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
           )}
 
           <div className="col-span-2">
-            <label className="text-xs font-medium text-gray-600 block mb-1">계약서 유형 *</label>
+            <label className="text-xs font-medium text-[#CBD5E0] block mb-1">계약서 유형 *</label>
             <select value={form.contractTemplateType} onChange={e => handleTemplateChange(e.target.value)}
               className="w-full border rounded px-3 py-2 text-sm">
               {(TEMPLATE_BY_RELATION[laborRelation] || []).map(t => (
@@ -892,7 +892,7 @@ function NewContractPage() {
           {/* 계약형태 (월단위/계속근로 — 직접고용 일용직 계열만) */}
           {isDirectEmployment && isDailyType && (
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600 block mb-1">계약형태</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">계약형태</label>
               <div className="flex gap-4">
                 {[
                   { value: 'MONTHLY_FIXED', label: '월단위 기간제' },
@@ -910,12 +910,12 @@ function NewContractPage() {
           )}
 
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">시작일 *</label>
+            <label className="text-xs font-medium text-[#CBD5E0] block mb-1">시작일 *</label>
             <input type="date" value={form.startDate} onChange={e => set('startDate', e.target.value)}
               className="w-full border rounded px-3 py-2 text-sm" />
           </div>
           <div>
-            <label className={`text-xs font-medium block mb-1 ${form.contractTemplateType === 'FIXED_TERM_EMPLOYMENT' ? 'text-orange-600 font-bold' : 'text-gray-600'}`}>
+            <label className={`text-xs font-medium block mb-1 ${form.contractTemplateType === 'FIXED_TERM_EMPLOYMENT' ? 'text-orange-600 font-bold' : 'text-[#CBD5E0]'}`}>
               종료일 {form.contractTemplateType === 'FIXED_TERM_EMPLOYMENT' ? '* (기간제 필수 입력)' : '(무기한이면 비워두기)'}
             </label>
             <input type="date" value={form.endDate} onChange={e => set('endDate', e.target.value)}
@@ -932,65 +932,65 @@ function NewContractPage() {
 
       {/* Step 4: 근무 조건 (직접고용만) */}
       {isDirectEmployment && (
-        <div className="bg-white border rounded-lg p-5 space-y-4">
-          <h2 className="font-semibold text-gray-800">4단계: 근무 조건</h2>
+        <div className="bg-card border rounded-lg p-5 space-y-4">
+          <h2 className="font-semibold text-white">4단계: 근무 조건</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">시업 시각</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">시업 시각</label>
               <input type="time" value={form.checkInTime} onChange={e => set('checkInTime', e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">종업 시각</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">종업 시각</label>
               <input type="time" value={form.checkOutTime} onChange={e => set('checkOutTime', e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">휴게 시작</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">휴게 시작</label>
               <input type="time" value={form.breakStartTime} onChange={e => set('breakStartTime', e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">휴게 종료</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">휴게 종료</label>
               <input type="time" value={form.breakEndTime} onChange={e => set('breakEndTime', e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">휴게시간 (시간)</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">휴게시간 (시간)</label>
               <input type="number" step="0.5" value={form.breakHours} onChange={e => set('breakHours', e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">소정근로시간 (일)</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">소정근로시간 (일)</label>
               <input type="number" step="0.5" value={form.standardWorkHours} onChange={e => set('standardWorkHours', e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">주 소정근로일 (일)</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">주 소정근로일 (일)</label>
               <input type="number" min="1" max="7" value={form.weeklyWorkDays} onChange={e => set('weeklyWorkDays', e.target.value)}
                 placeholder="예: 5"
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">주 소정근로시간 (시간)</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">주 소정근로시간 (시간)</label>
               <input type="number" step="0.5" value={form.weeklyWorkHours} onChange={e => set('weeklyWorkHours', e.target.value)}
                 placeholder="예: 40"
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600 block mb-1">근무 요일</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">근무 요일</label>
               <input type="text" value={form.workDays} onChange={e => set('workDays', e.target.value)}
                 placeholder="예: 월~금, 현장 여건에 따름"
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600 block mb-1">현장 주소</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">현장 주소</label>
               <input type="text" value={form.siteAddress} onChange={e => set('siteAddress', e.target.value)}
                 placeholder="예: 서울특별시 강남구 ○○동 123"
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600 block mb-1">출퇴근 인증 방식</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">출퇴근 인증 방식</label>
               <select value={form.attendanceVerificationMethod} onChange={e => set('attendanceVerificationMethod', e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm">
                 <option value="GPS앱">GPS 앱</option>
@@ -999,12 +999,12 @@ function NewContractPage() {
               </select>
             </div>
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600 block mb-1">공수 산정 기준</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">공수 산정 기준</label>
               <textarea value={form.workUnitRule} onChange={e => set('workUnitRule', e.target.value)}
                 rows={2} className="w-full border rounded px-3 py-2 text-sm resize-none" />
             </div>
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600 block mb-1">우천·작업 중단 처리 기준</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">우천·작업 중단 처리 기준</label>
               <textarea value={form.rainDayRule} onChange={e => set('rainDayRule', e.target.value)}
                 rows={2} className="w-full border rounded px-3 py-2 text-sm resize-none" />
             </div>
@@ -1013,15 +1013,15 @@ function NewContractPage() {
       )}
 
       {/* Step 5: 금액 및 지급 조건 */}
-      <div className="bg-white border rounded-lg p-5 space-y-4">
-        <h2 className="font-semibold text-gray-800">5단계: 금액 및 지급 조건</h2>
+      <div className="bg-card border rounded-lg p-5 space-y-4">
+        <h2 className="font-semibold text-white">5단계: 금액 및 지급 조건</h2>
         <div className="grid grid-cols-3 gap-4">
           {isDirectEmployment && isEmployment && (
             <>
               {/* 일용직: 일당 */}
               {isDailyType && (
                 <div className="col-span-3">
-                  <label className="text-xs font-medium text-gray-600 block mb-1">일당 (원) *</label>
+                  <label className="text-xs font-medium text-[#CBD5E0] block mb-1">일당 (원) *</label>
                   <input type="number" value={form.dailyWage} onChange={e => set('dailyWage', e.target.value)}
                     placeholder="예: 250000"
                     className="w-full border rounded px-3 py-2 text-sm" />
@@ -1047,7 +1047,7 @@ function NewContractPage() {
               {/* 상용직: 기본급 */}
               {isRegularType && (
                 <div className="col-span-3">
-                  <label className="text-xs font-medium text-gray-600 block mb-1">기본급 (월, 원) *</label>
+                  <label className="text-xs font-medium text-[#CBD5E0] block mb-1">기본급 (월, 원) *</label>
                   <input type="number" value={form.monthlySalary} onChange={e => set('monthlySalary', e.target.value)}
                     placeholder="예: 3000000"
                     className="w-full border rounded px-3 py-2 text-sm" />
@@ -1057,20 +1057,20 @@ function NewContractPage() {
           )}
           {(!isDirectEmployment || !isEmployment) && (
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">계약 금액 (원) *</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">계약 금액 (원) *</label>
               <input type="number" value={form.serviceFee} onChange={e => set('serviceFee', e.target.value)}
                 placeholder="예: 2000000"
                 className="w-full border rounded px-3 py-2 text-sm" />
             </div>
           )}
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">지급일 (매월)</label>
+            <label className="text-xs font-medium text-[#CBD5E0] block mb-1">지급일 (매월)</label>
             <input type="number" min="1" max="31" value={form.paymentDay} onChange={e => set('paymentDay', e.target.value)}
               placeholder="예: 25"
               className="w-full border rounded px-3 py-2 text-sm" />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">지급 방법</label>
+            <label className="text-xs font-medium text-[#CBD5E0] block mb-1">지급 방법</label>
             <select value={form.paymentMethod} onChange={e => set('paymentMethod', e.target.value)}
               className="w-full border rounded px-3 py-2 text-sm">
               <option value="계좌이체">계좌이체</option>
@@ -1082,8 +1082,8 @@ function NewContractPage() {
       </div>
 
       {/* Step 6: 4대보험 */}
-      <div className="bg-white border rounded-lg p-5 space-y-3">
-        <h2 className="font-semibold text-gray-800">6단계: 4대보험 적용</h2>
+      <div className="bg-card border rounded-lg p-5 space-y-3">
+        <h2 className="font-semibold text-white">6단계: 4대보험 적용</h2>
         <div className="bg-blue-50 border border-blue-200 rounded p-3 text-blue-800 text-xs">
           <strong>중요:</strong> 법정 가입요건에 해당하면 체크 여부와 무관하게 법령에 따라 처리됩니다.
         </div>
@@ -1108,8 +1108,8 @@ function NewContractPage() {
 
       {/* Step 6.5: 상용직 전용 — 시용기간 및 연차 */}
       {isDirectEmployment && isRegularType && (
-        <div className="bg-white border rounded-lg p-5 space-y-4">
-          <h2 className="font-semibold text-gray-800">상용직 추가 조건</h2>
+        <div className="bg-card border rounded-lg p-5 space-y-4">
+          <h2 className="font-semibold text-white">상용직 추가 조건</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <label className="flex items-center gap-3 cursor-pointer">
@@ -1121,7 +1121,7 @@ function NewContractPage() {
             </div>
             {form.probationYn && (
               <div>
-                <label className="text-xs font-medium text-gray-600 block mb-1">시용기간 (개월)</label>
+                <label className="text-xs font-medium text-[#CBD5E0] block mb-1">시용기간 (개월)</label>
                 <input type="number" min="1" max="6" value={form.probationMonths}
                   onChange={e => set('probationMonths', e.target.value)}
                   placeholder="예: 3"
@@ -1129,7 +1129,7 @@ function NewContractPage() {
               </div>
             )}
             <div className="col-span-2">
-              <label className="text-xs font-medium text-gray-600 block mb-1">연차유급휴가 적용 방식</label>
+              <label className="text-xs font-medium text-[#CBD5E0] block mb-1">연차유급휴가 적용 방식</label>
               <select value={form.annualLeaveRule} onChange={e => set('annualLeaveRule', e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm">
                 <option value="">선택 (미입력 시 근로기준법 기준 적용)</option>
@@ -1142,15 +1142,15 @@ function NewContractPage() {
       )}
 
       {/* Step 7: 안전보건 조항 */}
-      <div className="bg-white border rounded-lg p-5 space-y-3">
-        <h2 className="font-semibold text-gray-800">7단계: 안전보건 조항</h2>
+      <div className="bg-card border rounded-lg p-5 space-y-3">
+        <h2 className="font-semibold text-white">7단계: 안전보건 조항</h2>
         <label className="flex items-center gap-3 cursor-pointer">
           <input type="checkbox" checked={form.safetyClauseYn}
             onChange={e => set('safetyClauseYn', e.target.checked)}
             className="w-4 h-4" />
           <div>
             <div className="text-sm font-medium">안전보건 조항 포함 (권장)</div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-[#718096]">
               산업안전보건법상 의무사항을 계약서에 명시합니다.
             </div>
           </div>
@@ -1158,16 +1158,16 @@ function NewContractPage() {
       </div>
 
       {/* Step 8: 특약사항 */}
-      <div className="bg-white border rounded-lg p-5 space-y-3">
-        <h2 className="font-semibold text-gray-800">8단계: 특약사항 및 메모</h2>
+      <div className="bg-card border rounded-lg p-5 space-y-3">
+        <h2 className="font-semibold text-white">8단계: 특약사항 및 메모</h2>
         <div>
-          <label className="text-xs font-medium text-gray-600 block mb-1">특약사항</label>
+          <label className="text-xs font-medium text-[#CBD5E0] block mb-1">특약사항</label>
           <textarea value={form.specialTerms} onChange={e => set('specialTerms', e.target.value)}
             rows={3} placeholder="계약서에 포함할 특약사항을 입력하세요"
             className="w-full border rounded px-3 py-2 text-sm resize-none" />
         </div>
         <div>
-          <label className="text-xs font-medium text-gray-600 block mb-1">내부 메모</label>
+          <label className="text-xs font-medium text-[#CBD5E0] block mb-1">내부 메모</label>
           <input type="text" value={form.notes} onChange={e => set('notes', e.target.value)}
             placeholder="내부 메모 (계약서에 포함되지 않음)"
             className="w-full border rounded px-3 py-2 text-sm" />
@@ -1189,7 +1189,7 @@ function NewContractPage() {
       {/* 저장 버튼 */}
       <div className="flex justify-end gap-3">
         <button onClick={() => router.back()}
-          className="px-5 py-2 border rounded text-gray-600 hover:bg-gray-50 text-sm">
+          className="px-5 py-2 border rounded text-[#CBD5E0] hover:bg-[rgba(255,255,255,0.04)] text-sm">
           취소
         </button>
         <button onClick={handleSave} disabled={saving || !!blockReason}

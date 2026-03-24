@@ -200,20 +200,7 @@ export default function WorkersPage() {
     p.length === 11 ? `${p.slice(0, 3)}-${p.slice(3, 7)}-${p.slice(7)}` : p
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0">
-        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
-        {[
-          ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'],
-          ['/admin/sites', '현장 관리'], ['/admin/attendance', '출퇴근 조회'],
-          ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
-          ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'], ['/admin/audit-logs', '감사 로그'], ['/admin/site-imports', '현장 엑셀 업로드'],
-        ].map(([href, label]) => (
-          <Link key={href} href={href} className="block text-white/80 px-5 py-[10px] text-sm no-underline">{label}</Link>
-        ))}
-      </nav>
-
-      <main className="flex-1 p-8">
+    <div className="p-8">
         <div className="flex justify-between items-center mb-5">
           <h1 className="text-[22px] font-bold m-0 text-white">근로자 관리 ({total}명)</h1>
           {canMutate && <button onClick={() => setShowForm(true)} className="px-5 py-[10px] bg-[#F47920] text-white border-none rounded-lg cursor-pointer text-sm font-semibold">+ 근로자 등록</button>}
@@ -614,7 +601,6 @@ export default function WorkersPage() {
             onReject={handleReject}
           />
         )}
-      </main>
     </div>
   )
 }

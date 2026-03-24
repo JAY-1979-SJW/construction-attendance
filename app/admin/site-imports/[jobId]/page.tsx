@@ -151,23 +151,7 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
   const approvedCount = job.rows.filter((r) => r.validationStatus === 'APPROVED').length
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0">
-        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
-        {[
-          ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'],
-          ['/admin/sites', '현장 관리'], ['/admin/attendance', '출퇴근 조회'],
-          ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
-          ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'],
-          ['/admin/audit-logs', '감사 로그'], ['/admin/site-imports', '현장 엑셀 업로드'],
-        ].map(([href, label]) => (
-          <Link key={href} href={href} className={`block px-5 py-2.5 text-sm no-underline ${href === '/admin/site-imports' ? 'text-white bg-white/10 font-bold' : 'text-white/80'}`}>
-            {label}
-          </Link>
-        ))}
-      </nav>
-
-      <main className="flex-1 p-8 min-w-0">
+    <div className="p-8 min-w-0">
         {/* 헤더 */}
         <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
           <div>
@@ -384,7 +368,6 @@ export default function SiteImportReviewPage({ params }: { params: Promise<{ job
             </tbody>
           </table>
         </div>
-      </main>
     </div>
   )
 }

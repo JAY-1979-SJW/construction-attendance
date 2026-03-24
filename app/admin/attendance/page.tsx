@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 interface AttendanceRecord {
   id: string
@@ -177,17 +176,7 @@ export default function AdminAttendancePage() {
   const filterInputCls = "px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-[#243144] text-white"
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-dark py-6 shrink-0">
-        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
-        {[
-          ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'], ['/admin/sites', '현장 관리'],
-          ['/admin/attendance', '출퇴근 조회'], ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
-          ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'], ['/admin/audit-logs', '감사 로그'], ['/admin/site-imports', '현장 엑셀 업로드'],
-        ].map(([href, label]) => <Link key={href} href={href} className="block text-white/80 px-5 py-[10px] text-sm no-underline hover:text-white transition-colors">{label}</Link>)}
-      </nav>
-
-      <main className="flex-1 p-8">
+    <div className="p-8">
         <h1 className="text-[22px] font-bold mb-5">출퇴근 조회</h1>
 
         {/* 필터 */}
@@ -297,7 +286,6 @@ export default function AdminAttendancePage() {
             </table>
           </div>
         )}
-      </main>
 
       {/* 상세 모달 */}
       {(detail || detailLoading) && (
@@ -469,3 +457,4 @@ export default function AdminAttendancePage() {
     </div>
   )
 }
+

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 interface WorkConfirmation {
   id: string
@@ -124,22 +123,8 @@ export default function WorkConfirmationsPage() {
   const fmtTime = (iso: string | null) => iso ? new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0 flex flex-col">
-        <div className="text-white text-base font-bold px-5 pb-6 border-b border-white/10">해한 출퇴근</div>
-        <div className="text-white/40 text-[11px] px-5 pt-4 pb-2 uppercase tracking-widest">관리</div>
-        {NAV_ITEMS.map((item) => (
-          <Link key={item.href} href={item.href} className={[
-            'block text-white/80 px-5 py-[10px] text-[13px] no-underline',
-            item.href === '/admin/work-confirmations' ? 'bg-white/10 text-white font-bold' : '',
-          ].join(' ')}>
-            {item.label}
-          </Link>
-        ))}
-        <button onClick={() => fetch('/api/admin/auth/logout', { method: 'POST' }).then(() => router.push('/admin/login'))} className="mx-5 mt-6 py-[10px] bg-white/10 border-0 rounded-md text-white/60 cursor-pointer text-[13px]">로그아웃</button>
-      </nav>
-
-      <main className="flex-1 p-8 overflow-auto">
+    <>
+    <div className="p-8 overflow-auto">
         <h1 className="text-2xl font-bold mb-6">근무확정</h1>
 
         {/* 컨트롤 */}
@@ -224,7 +209,7 @@ export default function WorkConfirmationsPage() {
             </div>
           )}
         </div>
-      </main>
+    </div>
 
       {/* 확정 모달 */}
       {editTarget && (
@@ -263,7 +248,7 @@ export default function WorkConfirmationsPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
 

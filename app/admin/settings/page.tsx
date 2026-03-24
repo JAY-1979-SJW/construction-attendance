@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
 
 interface AttendanceSettings {
@@ -83,26 +82,7 @@ export default function AttendanceSettingsPage() {
   const update = (patch: Partial<AttendanceSettings>) => setForm((f) => f ? { ...f, ...patch } : f)
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-deeper py-6 shrink-0">
-        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
-        {[
-          { href: '/admin',                  label: '대시보드' },
-          { href: '/admin/workers',          label: '근로자 관리' },
-          { href: '/admin/companies',        label: '회사 관리' },
-          { href: '/admin/sites',            label: '현장 관리' },
-          { href: '/admin/attendance',       label: '출퇴근 조회' },
-          { href: '/admin/presence-checks',  label: '체류확인 현황' },
-          { href: '/admin/labor',            label: '투입현황/노임서류' },
-          { href: '/admin/exceptions',       label: '예외 승인' },
-          { href: '/admin/device-requests',  label: '기기 승인' },
-          { href: '/admin/settings',         label: '⚙️ 시스템 설정', active: true },
-        ].map(({ href, label, active }) => (
-          <Link key={href} href={href} className={`block text-white/80 px-5 py-[10px] text-sm no-underline${active ? ' bg-[rgba(244,121,32,0.15)] text-white font-semibold' : ''}`}>{label}</Link>
-        ))}
-      </nav>
-
-      <main className="flex-1 p-8">
+    <div className="p-8">
         <h1 className="text-[22px] font-bold mt-0 mb-6">시스템 설정</h1>
 
         {loading || !form ? <p>로딩 중...</p> : (
@@ -268,7 +248,6 @@ export default function AttendanceSettingsPage() {
             </div>
           </>
         )}
-      </main>
     </div>
   )
 }

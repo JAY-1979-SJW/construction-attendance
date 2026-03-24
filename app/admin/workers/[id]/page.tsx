@@ -264,20 +264,8 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
   if (!worker) return null
 
   return (
-    <div className="flex min-h-screen bg-brand font-sans">
-      <nav className="w-[200px] bg-[#1a1a2e] py-5 flex-shrink-0">
-        <div className="text-white text-sm font-bold px-5 pb-5 border-b border-white/10 mb-3">해한 출퇴근</div>
-        {[
-          ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'],
-          ['/admin/sites', '현장 관리'], ['/admin/attendance', '출퇴근 조회'],
-          ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
-          ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'],
-        ].map(([href, label]) => (
-          <Link key={href} href={href} className="block text-white/75 px-5 py-2.5 no-underline text-[13px]">{label}</Link>
-        ))}
-      </nav>
-
-      <main className="flex-1 p-7 max-w-[1100px]">
+    <div className="font-sans">
+      <div className="p-7 max-w-[1100px]">
         {/* 헤더 */}
         <div className="mb-5">
           <div className="flex items-center gap-3">
@@ -368,7 +356,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
             이 근로자는 이미 종료(비활성화) 처리되었습니다.
           </div>
         )}
-      </main>
+      </div>
 
       {/* ── 회사 배정 모달 ─────────────────────────────────────── */}
       {showCompanyForm && (

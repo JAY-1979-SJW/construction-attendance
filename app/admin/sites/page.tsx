@@ -475,19 +475,7 @@ export default function SitesPage() {
   )
 
   return (
-    <div className="flex min-h-screen bg-brand font-[system-ui,sans-serif]">
-      <nav className="w-[220px] bg-brand-dark py-6 shrink-0">
-        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
-        {[
-          ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'], ['/admin/sites', '현장 관리'],
-          ['/admin/attendance', '출퇴근 조회'], ['/admin/presence-checks', '체류확인 현황'], ['/admin/labor', '투입현황/노임서류'],
-          ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 변경'], ['/admin/audit-logs', '감사 로그'], ['/admin/site-imports', '현장 엑셀 업로드'],
-        ].map(([href, label]) => (
-          <Link key={href} href={href} className="block text-white/80 px-5 py-[10px] text-sm no-underline hover:text-white transition-colors">{label}</Link>
-        ))}
-      </nav>
-
-      <main className="flex-1 p-8">
+    <div className="p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-[22px] font-bold m-0 flex items-baseline gap-[6px]">
             현장 관리 {!loading && <span className="text-base font-normal text-muted-brand">({sites.length}개)</span>}
@@ -759,7 +747,6 @@ export default function SitesPage() {
             </div>
           </div>
         )}
-      </main>
     </div>
   )
 }

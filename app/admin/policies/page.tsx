@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
 
 interface PolicyDoc {
@@ -102,17 +101,7 @@ export default function PoliciesPage() {
   }))
 
   return (
-    <div className="flex min-h-screen bg-brand">
-      <nav className="w-[220px] bg-brand-deeper py-6 flex-shrink-0">
-        <div className="text-white text-base font-bold px-5 pb-6">해한 출퇴근</div>
-        {[
-          ['/admin', '대시보드'], ['/admin/workers', '근로자 관리'], ['/admin/companies', '회사 관리'], ['/admin/sites', '현장 관리'],
-          ['/admin/attendance', '출퇴근 조회'], ['/admin/exceptions', '예외 승인'], ['/admin/device-requests', '기기 승인'],
-          ['/admin/devices', '기기 차단 관리'], ['/admin/policies', '약관 관리'],
-        ].map(([href, label]) => <Link key={href} href={href} className="block text-white/80 px-5 py-[10px] text-[14px] no-underline">{label}</Link>)}
-      </nav>
-
-      <main className="flex-1 p-8">
+    <div className="p-8">
         <div className="flex justify-between items-center mb-5">
           <h1 className="text-[22px] font-bold m-0">약관/정책 문서 관리</h1>
           {isSuperAdmin && (
@@ -229,7 +218,6 @@ export default function PoliciesPage() {
             ))}
           </div>
         )}
-      </main>
     </div>
   )
 }
