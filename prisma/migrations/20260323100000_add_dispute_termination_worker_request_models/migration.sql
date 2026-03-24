@@ -1,42 +1,29 @@
--- CreateEnum
-CREATE TYPE "DisputeType" AS ENUM ('WAGE', 'ATTENDANCE', 'CONTRACT', 'TERMINATION', 'DOCUMENT_DELIVERY');
+-- CreateEnum (idempotent — partial prior run 대응)
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'DisputeType') THEN CREATE TYPE "DisputeType" AS ENUM ('WAGE', 'ATTENDANCE', 'CONTRACT', 'TERMINATION', 'DOCUMENT_DELIVERY'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'DisputeStatus') THEN CREATE TYPE "DisputeStatus" AS ENUM ('OPEN', 'MONITORING', 'RESOLVED', 'CLOSED'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'DocumentDeliveryMethod') THEN CREATE TYPE "DocumentDeliveryMethod" AS ENUM ('APP_SIGNATURE', 'EMAIL', 'KAKAO', 'PAPER', 'REGISTERED_MAIL', 'OTHER'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'DocumentDeliveryStatus') THEN CREATE TYPE "DocumentDeliveryStatus" AS ENUM ('DELIVERED', 'FAILED', 'PENDING', 'REJECTED'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'WorkerRequestCategory') THEN CREATE TYPE "WorkerRequestCategory" AS ENUM ('MISSING_CHECKIN', 'MISSING_CHECKOUT', 'CONTACT_CHANGE', 'CONTRACT_REVIEW', 'DOCUMENT_REQUEST', 'DEVICE_CHANGE', 'OTHER'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'WorkerRequestStatus') THEN CREATE TYPE "WorkerRequestStatus" AS ENUM ('PENDING', 'REVIEWED', 'RESOLVED', 'REJECTED'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'WarningLevel') THEN CREATE TYPE "WarningLevel" AS ENUM ('VERBAL', 'WRITTEN', 'FINAL'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ExplanationStatus') THEN CREATE TYPE "ExplanationStatus" AS ENUM ('PENDING', 'SUBMITTED', 'REVIEWED', 'CLOSED'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'NoticeType') THEN CREATE TYPE "NoticeType" AS ENUM ('CONTRACT_END', 'TERMINATION', 'SUSPENSION', 'WARNING', 'OTHER'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'TerminationReason') THEN CREATE TYPE "TerminationReason" AS ENUM ('CONTRACT_EXPIRY', 'VOLUNTARY_RESIGN', 'MUTUAL_AGREEMENT', 'DISCIPLINARY', 'ABSENCE', 'PERFORMANCE', 'SITE_CLOSURE', 'REPEATED_ABSENCE', 'INSTRUCTION_REFUSAL', 'OTHER'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'TerminationReviewStatus') THEN CREATE TYPE "TerminationReviewStatus" AS ENUM ('DRAFT', 'IN_PROGRESS', 'CONFIRMED', 'CANCELLED'); END IF; END $$;
 
--- CreateEnum
-CREATE TYPE "DisputeStatus" AS ENUM ('OPEN', 'MONITORING', 'RESOLVED', 'CLOSED');
-
--- CreateEnum
-CREATE TYPE "DocumentDeliveryMethod" AS ENUM ('APP_SIGNATURE', 'EMAIL', 'KAKAO', 'PAPER', 'REGISTERED_MAIL', 'OTHER');
-
--- CreateEnum
-CREATE TYPE "DocumentDeliveryStatus" AS ENUM ('DELIVERED', 'FAILED', 'PENDING', 'REJECTED');
-
--- CreateEnum
-CREATE TYPE "WorkerRequestCategory" AS ENUM ('MISSING_CHECKIN', 'MISSING_CHECKOUT', 'CONTACT_CHANGE', 'CONTRACT_REVIEW', 'DOCUMENT_REQUEST', 'DEVICE_CHANGE', 'OTHER');
-
--- CreateEnum
-CREATE TYPE "WorkerRequestStatus" AS ENUM ('PENDING', 'REVIEWED', 'RESOLVED', 'REJECTED');
-
--- CreateEnum
-CREATE TYPE "WarningLevel" AS ENUM ('VERBAL', 'WRITTEN', 'FINAL');
-
--- CreateEnum
-CREATE TYPE "ExplanationStatus" AS ENUM ('PENDING', 'SUBMITTED', 'REVIEWED', 'CLOSED');
-
--- CreateEnum
-CREATE TYPE "NoticeType" AS ENUM ('CONTRACT_END', 'TERMINATION', 'SUSPENSION', 'WARNING', 'OTHER');
-
--- CreateEnum
-CREATE TYPE "TerminationReason" AS ENUM ('CONTRACT_EXPIRY', 'VOLUNTARY_RESIGN', 'MUTUAL_AGREEMENT', 'DISCIPLINARY', 'ABSENCE', 'PERFORMANCE', 'SITE_CLOSURE', 'REPEATED_ABSENCE', 'INSTRUCTION_REFUSAL', 'OTHER');
-
--- CreateEnum
-CREATE TYPE "TerminationReviewStatus" AS ENUM ('DRAFT', 'IN_PROGRESS', 'CONFIRMED', 'CANCELLED');
-
--- AlterEnum
-CREATE TYPE "ContractTemplateType_new" AS ENUM ('DAILY_EMPLOYMENT', 'REGULAR_EMPLOYMENT', 'FIXED_TERM_EMPLOYMENT', 'FREELANCER_SERVICE', 'OFFICE_SERVICE', 'SUBCONTRACT_WITH_BIZ', 'NONBUSINESS_TEAM_REVIEW');
-ALTER TABLE "worker_contracts" ALTER COLUMN "contractTemplateType" TYPE "ContractTemplateType_new" USING ("contractTemplateType"::text::"ContractTemplateType_new");
-ALTER TYPE "ContractTemplateType" RENAME TO "ContractTemplateType_old";
-ALTER TYPE "ContractTemplateType_new" RENAME TO "ContractTemplateType";
-DROP TYPE "ContractTemplateType_old";
+-- AlterEnum (idempotent — NONBUSINESS_TEAM_REVIEW 없을 때만 실행)
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid = t.oid
+    WHERE t.typname = 'ContractTemplateType' AND e.enumlabel = 'NONBUSINESS_TEAM_REVIEW'
+  ) THEN
+    CREATE TYPE "ContractTemplateType_new" AS ENUM ('DAILY_EMPLOYMENT', 'REGULAR_EMPLOYMENT', 'FIXED_TERM_EMPLOYMENT', 'FREELANCER_SERVICE', 'OFFICE_SERVICE', 'SUBCONTRACT_WITH_BIZ', 'NONBUSINESS_TEAM_REVIEW');
+    ALTER TABLE "worker_contracts" ALTER COLUMN "contractTemplateType" TYPE "ContractTemplateType_new" USING ("contractTemplateType"::text::"ContractTemplateType_new");
+    ALTER TYPE "ContractTemplateType" RENAME TO "ContractTemplateType_old";
+    ALTER TYPE "ContractTemplateType_new" RENAME TO "ContractTemplateType";
+    DROP TYPE "ContractTemplateType_old";
+  END IF;
+END $$;
 
 -- DropForeignKey
 ALTER TABLE "admin_users" DROP CONSTRAINT "admin_users_company_fk";
