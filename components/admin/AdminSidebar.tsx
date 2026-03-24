@@ -112,12 +112,11 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ]
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set())
   const [badges, setBadges] = useState({ exceptions: 0, deviceRequests: 0 })
-  const [mobileOpen, setMobileOpen] = useState(false)
 
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin'
@@ -132,11 +131,6 @@ export default function AdminSidebar() {
     })
     setOpenGroups(active)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
-
-  // 페이지 이동 시 모바일 메뉴 닫기
-  useEffect(() => {
-    setMobileOpen(false)
   }, [pathname])
 
   // 뱃지 카운트 로드
@@ -168,32 +162,12 @@ export default function AdminSidebar() {
 
   return (
     <>
-      {/* 모바일 햄버거 버튼 */}
-      <button
-        onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed top-3 left-4 z-50 flex flex-col gap-[5px] p-2.5 rounded-lg bg-[#071020] border border-[rgba(91,164,217,0.15)] shadow-lg"
-        aria-label="메뉴"
-      >
-        <span className={`block w-5 h-[2px] bg-white transition-all duration-200 ${mobileOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
-        <span className={`block w-5 h-[2px] bg-white transition-all duration-200 ${mobileOpen ? 'opacity-0' : ''}`} />
-        <span className={`block w-5 h-[2px] bg-white transition-all duration-200 ${mobileOpen ? '-rotate-45 -translate-y-[7px]' : ''}`} />
-      </button>
-
-      {/* 모바일 오버레이 */}
-      {mobileOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/60 z-30 backdrop-blur-sm"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
       {/* 사이드바 */}
       <aside className={`
         fixed top-0 left-0 h-screen w-[240px] flex flex-col z-40
         border-r border-[rgba(91,164,217,0.1)]
         transition-transform duration-300 ease-in-out
-        lg:translate-x-0
-        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         bg-[#071020]
       `}>
         {/* 상단 오렌지 라인 */}
@@ -306,3 +280,4 @@ export default function AdminSidebar() {
     </>
   )
 }
+
