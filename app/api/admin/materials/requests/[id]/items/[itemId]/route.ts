@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { Decimal } from '@prisma/client/runtime/library'
-import { prisma } from '@/lib/prisma'
-import { getAdminSession } from '@/lib/auth/session'
+import { prisma } from '@/lib/db/prisma'
+import { getAdminSession } from '@/lib/auth/guards'
 import { ok, badRequest, unauthorized, notFound, conflict } from '@/lib/utils/response'
 
 const PatchItemSchema = z.object({

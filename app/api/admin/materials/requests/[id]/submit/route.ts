@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { getAdminSession } from '@/lib/auth/session'
+import { prisma } from '@/lib/db/prisma'
+import { getAdminSession } from '@/lib/auth/guards'
 import { ok, unauthorized, notFound, conflict, badRequest } from '@/lib/utils/response'
 import { transitionStatus, TransitionError } from '@/lib/materials/request-service'
 

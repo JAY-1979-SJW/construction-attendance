@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/db/prisma'
 import { MaterialRequestStatus, MaterialRequestActorType } from '@prisma/client'
 import { randomUUID } from 'crypto'
 
