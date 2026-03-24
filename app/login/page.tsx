@@ -1,227 +1,96 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Image from 'next/image'
-import {
-  generateBrowserFingerprint,
-  getStoredDeviceToken,
-  setDeviceToken,
-  detectDeviceName,
-} from '@/lib/utils/device-token'
+import { signIn } from 'next-auth/react'
+import { useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? '해한 현장 출퇴근'
-const STORED_PHONE_KEY = 'ca_stored_phone'
+const ERROR_MSG: Record<string, string> = {
+  no_email: '이메일 정보를 가져올 수 없습니다.',
+  inactive: '비활성화된 계정입니다. 관리자에게 문의하세요.',
+  server: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+}
 
-type Phase = 'input' | 'pending' | 'rejected'
+function LoginContent() {
+  const [loading, setLoading] = useState<string | null>(null)
+  const params = useSearchParams()
+  const error = params.get('error')
+
+  const handleSignIn = (provider: string) => {
+    setLoading(provider)
+    signIn(provider, { callbackUrl: '/api/auth/complete' })
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6"
+      style={{ background: '#0C1420' }}>
+      <div className="fixed top-0 inset-x-0 h-[3px]" style={{ background: '#F47920' }} />
+
+      <div className="w-full max-w-sm space-y-8">
+        <div className="text-center space-y-3">
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-bold text-white"
+              style={{ background: '#F47920' }}>H</div>
+            <div className="text-left">
+              <p className="text-xl font-bold text-white leading-none">
+                해한<span style={{ color: '#F47920' }}>Ai</span>
+              </p>
+              <p className="text-xs text-[#A0AEC0] mt-0.5">Engineering</p>
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-white mt-4">현장 출퇴근 관리</p>
+          <p className="text-sm text-[#A0AEC0]">소셜 계정으로 로그인해주세요</p>
+        </div>
+
+        {error && (
+          <div className="rounded-xl px-4 py-3 text-sm text-[#EF4444]"
+            style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+            {ERROR_MSG[error] ?? '로그인 중 오류가 발생했습니다.'}
+          </div>
+        )}
+
+        <div className="space-y-3">
+          <button onClick={() => handleSignIn('google')} disabled={!!loading}
+            className="w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-3 transition-all disabled:opacity-60"
+            style={{ background: '#fff', color: '#1a1a1a' }}>
+            {loading === 'google'
+              ? <span className="w-5 h-5 border-2 border-gray-300 border-t-gray-700 rounded-full animate-spin" />
+              : <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+            }
+            Google로 로그인
+          </button>
+
+          <button onClick={() => handleSignIn('kakao')} disabled={!!loading}
+            className="w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-3 transition-all disabled:opacity-60"
+            style={{ background: '#FEE500', color: '#191919' }}>
+            {loading === 'kakao'
+              ? <span className="w-5 h-5 border-2 border-yellow-400 border-t-yellow-700 rounded-full animate-spin" />
+              : <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#191919">
+                  <path d="M12 3C6.48 3 2 6.73 2 11.35c0 2.99 1.87 5.62 4.69 7.13l-1.2 4.41 5.13-3.4c.45.06.91.09 1.38.09 5.52 0 10-3.73 10-8.32C22 6.73 17.52 3 12 3z"/>
+                </svg>
+            }
+            카카오로 로그인
+          </button>
+        </div>
+
+        <p className="text-center text-[10px] text-[#A0AEC0]/40">
+          위치 정보는 출퇴근 판정에만 사용됩니다
+        </p>
+      </div>
+
+      <div className="fixed bottom-0 inset-x-0 h-[3px]" style={{ background: '#F47920' }} />
+    </div>
+  )
+}
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [phase, setPhase] = useState<Phase>('input')
-  const [phone, setPhone] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-
-  // 앱 재진입 시 저장된 번호로 자동 상태 확인
-  useEffect(() => {
-    const storedPhone = localStorage.getItem(STORED_PHONE_KEY)
-    if (storedPhone) {
-      setPhone(storedPhone)
-      autoCheck(storedPhone)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const getOrCreateDeviceToken = async (): Promise<{ token: string; name: string }> => {
-    let token = getStoredDeviceToken()
-    if (!token) {
-      const fp = await generateBrowserFingerprint()
-      token = `dt_${fp.slice(0, 32)}`
-      setDeviceToken(token)
-    }
-    return { token, name: detectDeviceName() }
-  }
-
-  const callLoginApi = async (cleanedPhone: string): Promise<void> => {
-    const { token, name } = await getOrCreateDeviceToken()
-
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: cleanedPhone, deviceToken: token, deviceName: name }),
-    })
-    const data = await res.json()
-
-    if (data.status === 'DEVICE_APPROVED') {
-      router.push('/attendance')
-      return
-    }
-
-    if (data.status === 'DEVICE_PENDING') {
-      localStorage.setItem(STORED_PHONE_KEY, cleanedPhone)
-      setPhase('pending')
-      setError('')
-      return
-    }
-
-    if (data.status === 'DEVICE_REJECTED') {
-      localStorage.removeItem(STORED_PHONE_KEY)
-      setPhase('rejected')
-      return
-    }
-
-    // NOT_REGISTERED, INACTIVE, 기타 오류
-    localStorage.removeItem(STORED_PHONE_KEY)
-    setError(data.message ?? '오류가 발생했습니다.')
-    setPhase('input')
-  }
-
-  const autoCheck = async (storedPhone: string) => {
-    try {
-      await callLoginApi(storedPhone)
-    } catch {
-      // 자동 확인 실패 시 입력 화면 유지
-    }
-  }
-
-  const handleLogin = async () => {
-    const cleaned = phone.replace(/[^0-9]/g, '')
-    if (!/^010\d{8}$/.test(cleaned)) {
-      setError('010으로 시작하는 11자리 숫자를 입력하세요.')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-    try {
-      await callLoginApi(cleaned)
-    } catch {
-      setError('네트워크 오류가 발생했습니다.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleRefreshStatus = async () => {
-    const cleaned = phone.replace(/[^0-9]/g, '')
-    setLoading(true)
-    try {
-      await callLoginApi(cleaned)
-    } catch {
-      setError('네트워크 오류가 발생했습니다.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const formatPhone = (value: string) => {
-    const num = value.replace(/[^0-9]/g, '').slice(0, 11)
-    if (num.length < 4) return num
-    if (num.length < 8) return `${num.slice(0, 3)}-${num.slice(3)}`
-    return `${num.slice(0, 3)}-${num.slice(3, 7)}-${num.slice(7)}`
-  }
-
-  // ── 승인 대기 화면 ──────────────────────────────────────────
-  if (phase === 'pending') {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-5 bg-[linear-gradient(135deg,#0F1724_0%,#1B2838_60%,#141E2A_100%)]">
-        <div className="bg-[#243144] rounded-2xl px-8 py-10 w-full max-w-[400px] shadow-[0_8px_40px_rgba(0,0,0,0.4)] border border-[rgba(91,164,217,0.15)] border-t-[3px] border-t-[#F47920]">
-          <div className="text-5xl text-center mb-4">⏳</div>
-          <h1 className="text-2xl font-bold text-white text-center mb-2">승인 대기 중</h1>
-          <p className="text-sm text-[#A0AEC0] text-center leading-[1.7] mb-3">
-            기기 등록 요청이 접수되었습니다.
-            <br />
-            관리자 승인 후 출퇴근이 가능합니다.
-          </p>
-          <p className="text-lg font-bold text-white text-center mb-6 tracking-[1px]">{formatPhone(phone)}</p>
-          <button
-            onClick={handleRefreshStatus}
-            disabled={loading}
-            className="block w-full py-4 text-lg font-bold bg-[#F47920] text-white border-none rounded-[10px] cursor-pointer mt-2 disabled:opacity-60"
-          >
-            {loading ? '확인 중...' : '승인 여부 확인'}
-          </button>
-          <button
-            onClick={() => {
-              localStorage.removeItem(STORED_PHONE_KEY)
-              setPhase('input')
-              setPhone('')
-              setError('')
-            }}
-            className="block w-full py-3 text-sm bg-transparent text-[#A0AEC0] border border-[rgba(91,164,217,0.2)] rounded-[10px] cursor-pointer mt-[10px]"
-          >
-            다른 번호로 시도
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // ── 반려 화면 ────────────────────────────────────────────────
-  if (phase === 'rejected') {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-5 bg-[linear-gradient(135deg,#0F1724_0%,#1B2838_60%,#141E2A_100%)]">
-        <div className="bg-[#243144] rounded-2xl px-8 py-10 w-full max-w-[400px] shadow-[0_8px_40px_rgba(0,0,0,0.4)] border border-[rgba(91,164,217,0.15)] border-t-[3px] border-t-[#F47920]">
-          <div className="text-5xl text-center mb-4">✗</div>
-          <h1 className="text-2xl font-bold text-white text-center mb-2">기기 등록 반려</h1>
-          <p className="text-sm text-[#A0AEC0] text-center leading-[1.7] mb-3">
-            기기 등록 요청이 반려되었습니다.
-            <br />
-            관리자에게 문의하세요.
-          </p>
-          <button
-            onClick={() => {
-              setPhase('input')
-              setPhone('')
-              setError('')
-            }}
-            className="block w-full py-4 text-lg font-bold bg-[#F47920] text-white border-none rounded-[10px] cursor-pointer mt-6"
-          >
-            확인
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // ── 번호 입력 화면 (기본) ────────────────────────────────────
   return (
-    <div className="min-h-screen flex items-center justify-center p-5 bg-[linear-gradient(135deg,#0F1724_0%,#1B2838_60%,#141E2A_100%)]">
-      <div className="bg-[#243144] rounded-2xl px-8 py-10 w-full max-w-[400px] shadow-[0_8px_40px_rgba(0,0,0,0.4)] border border-[rgba(91,164,217,0.15)] border-t-[3px] border-t-[#F47920]">
-        <div className="text-center mb-1">
-          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} className="w-[200px] h-auto mx-auto block rounded-2xl" priority />
-          <div className="text-xs text-[#5a6a7e] mt-2">현장 출퇴근 관리 시스템</div>
-        </div>
-        <div className="h-px bg-[rgba(255,255,255,0.08)] my-5" />
-        <h1 className="text-lg font-bold text-white text-center mb-1">로그인</h1>
-        <p className="text-sm text-[#A0AEC0] text-center mb-8">휴대폰 번호를 입력하세요</p>
-
-        <div className="mb-4">
-          <label className="block text-sm font-semibold text-[#A0AEC0] mb-2">휴대폰 번호</label>
-          <input
-            type="tel"
-            inputMode="numeric"
-            placeholder="010-0000-0000"
-            value={formatPhone(phone)}
-            onChange={(e) => {
-              setPhone(e.target.value.replace(/[^0-9]/g, ''))
-              setError('')
-            }}
-            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-            className="w-full px-4 py-[14px] text-lg border border-[rgba(91,164,217,0.25)] rounded-[10px] outline-none box-border tracking-[2px] bg-[rgba(255,255,255,0.06)] text-white"
-            maxLength={13}
-          />
-        </div>
-
-        {error && <p className="text-[#f56565] text-[13px] mb-4">{error}</p>}
-
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="block w-full py-4 text-lg font-bold bg-[#F47920] text-white border-none rounded-[10px] cursor-pointer mt-2 disabled:opacity-60"
-        >
-          {loading ? '확인 중...' : '로그인'}
-        </button>
-      </div>
-    </div>
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   )
 }

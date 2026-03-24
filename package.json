@@ -28,6 +28,7 @@
     "firebase-admin": "^13.7.0",
     "jose": "^5.4.1",
     "next": "14.2.3",
+    "next-auth": "^5.0.0-beta.30",
     "nodemailer": "^8.0.3",
     "qrcode": "^1.5.4",
     "react": "^18",

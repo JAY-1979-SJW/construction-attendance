@@ -10,13 +10,15 @@ import { signToken } from '@/lib/auth/jwt'
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '')
   .split(',').map(e => e.trim()).filter(Boolean)
 
+const BASE_URL = (process.env.NEXTAUTH_URL ?? 'http://localhost:3002').replace(/\/$/, '')
+
 export const runtime = 'nodejs'
 
 export async function GET(req: Request) {
   const session = await auth()
 
   if (!session?.user?.email) {
-    return NextResponse.redirect(new URL('/login?error=no_email', req.url))
+    return NextResponse.redirect(`${BASE_URL}/login?error=no_email`)
   }
 
   const email = session.user.email
@@ -38,14 +40,14 @@ export async function GET(req: Request) {
         })
       }
       if (!admin.isActive) {
-        return NextResponse.redirect(new URL('/login?error=inactive', req.url))
+        return NextResponse.redirect(`${BASE_URL}/login?error=inactive`)
       }
       await prisma.adminUser.update({
         where: { id: admin.id },
         data: { lastLoginAt: new Date() },
       })
       const token = await signToken({ sub: admin.id, type: 'admin', role: admin.role })
-      const res = NextResponse.redirect(new URL('/admin', req.url))
+      const res = NextResponse.redirect(`${BASE_URL}/admin`)
       res.cookies.set('admin_token', token, {
         httpOnly: true, secure: true, sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, path: '/',
@@ -68,10 +70,10 @@ export async function GET(req: Request) {
       })
     }
     if (!worker.isActive || worker.accountStatus === 'REJECTED') {
-      return NextResponse.redirect(new URL('/login?error=inactive', req.url))
+      return NextResponse.redirect(`${BASE_URL}/login?error=inactive`)
     }
     const token = await signToken({ sub: worker.id, type: 'worker' })
-    const res = NextResponse.redirect(new URL('/attendance', req.url))
+    const res = NextResponse.redirect(`${BASE_URL}/attendance`)
     res.cookies.set('worker_token', token, {
       httpOnly: true, secure: true, sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, path: '/',
@@ -79,6 +81,6 @@ export async function GET(req: Request) {
     return res
   } catch (err) {
     console.error('[auth/complete]', err)
-    return NextResponse.redirect(new URL('/login?error=server', req.url))
+    return NextResponse.redirect(`${BASE_URL}/login?error=server`)
   }
 }

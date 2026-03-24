@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
+import AuthProvider from '@/components/AuthProvider'
 import './globals.css'
 
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? '해한Ai Engineering'
@@ -43,7 +44,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        <AuthProvider>
         {children}
+        </AuthProvider>
         {/* Service Worker 등록 */}
         <Script id="sw-register" strategy="afterInteractive">
           {`
