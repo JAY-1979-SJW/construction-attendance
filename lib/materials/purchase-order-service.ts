@@ -117,7 +117,6 @@ export async function buildPOItemSnapshot(materialRequestItemId: string) {
       subDisciplineCode: true,
       requestedQty:     true,
       notes:            true,
-      requestId:        true,
     },
   })
   if (!item) throw new Error('청구 항목을 찾을 수 없습니다.')
@@ -129,7 +128,6 @@ export async function buildPOItemSnapshot(materialRequestItemId: string) {
     subDisciplineCodeSnapshot: item.subDisciplineCode ?? null,
     requestQuantitySnapshot:   item.requestedQty,
     requestNoteSnapshot:       item.notes ?? null,
-    requestId:                 item.requestId,
   }
 }
 
