@@ -1,39 +1,60 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
+import { ok, unauthorized, badRequest, internalError } from '@/lib/utils/response'
 
 export async function GET(req: NextRequest) {
-  const session = await getAdminSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const session = await getAdminSession()
+    if (!session) return unauthorized()
 
-  const { searchParams } = new URL(req.url)
-  const monthKey = searchParams.get('monthKey')
-  const siteId = searchParams.get('siteId')
-  const organizationType = searchParams.get('organizationType')
+    const { searchParams } = new URL(req.url)
+    const monthKey = searchParams.get('monthKey')
+    const siteId = searchParams.get('siteId')
+    const organizationType = searchParams.get('organizationType')
 
-  if (!monthKey) return NextResponse.json({ error: 'monthKey required' }, { status: 400 })
+    if (!monthKey) return badRequest('monthKey required')
 
-  const summaries = await prisma.laborCostSummary.findMany({
-    where: {
-      monthKey,
-      ...(siteId ? { siteId } : {}),
-      ...(organizationType ? { organizationType: organizationType as never } : {}),
-    },
-    include: {
-      site: { select: { id: true, name: true } },
-      company: { select: { id: true, companyName: true } },
-    },
-    orderBy: [{ siteId: 'asc' }, { organizationType: 'asc' }],
-  })
+    const summaries = await prisma.laborCostSummary.findMany({
+      where: {
+        monthKey,
+        ...(siteId ? { siteId } : {}),
+        ...(organizationType ? { organizationType: organizationType as never } : {}),
+      },
+      include: {
+        site:    { select: { id: true, name: true } },
+        company: { select: { id: true, companyName: true } },
+      },
+      orderBy: [{ siteId: 'asc' }, { organizationType: 'asc' }],
+    })
 
-  // 합계 계산
-  const totals = summaries.reduce((acc, s) => ({
-    workerCount: acc.workerCount + s.workerCount,
-    grossAmount: acc.grossAmount + s.grossAmount,
-    taxableAmount: acc.taxableAmount + s.taxableAmount,
-    withholdingTaxAmount: acc.withholdingTaxAmount + s.withholdingTaxAmount,
-    retirementMutualTargetDays: acc.retirementMutualTargetDays + s.retirementMutualTargetDays,
-  }), { workerCount: 0, grossAmount: 0, taxableAmount: 0, withholdingTaxAmount: 0, retirementMutualTargetDays: 0 })
+    const items = summaries.map((s) => ({
+      id:                   s.id,
+      siteName:             s.site.name,
+      siteId:               s.siteId,
+      orgType:              s.organizationType,
+      companyName:          s.company?.companyName ?? '—',
+      workerCount:          s.workerCount,
+      mandays:              Number(s.confirmedWorkUnits),
+      totalWage:            s.grossAmount,
+      taxableAmount:        s.taxableAmount,
+      withholdingTax:       s.withholdingTaxAmount,
+      npTargetCount:        s.nationalPensionTargetCount,
+      hiTargetCount:        s.healthInsuranceTargetCount,
+      eiTargetCount:        s.employmentInsuranceTargetCount,
+      retirementMutualDays: s.retirementMutualTargetDays,
+    }))
 
-  return NextResponse.json({ summaries, totals })
+    const totals = {
+      workerCount:    items.reduce((a, r) => a + r.workerCount, 0),
+      mandays:        Math.round(items.reduce((a, r) => a + r.mandays, 0) * 100) / 100,
+      totalWage:      items.reduce((a, r) => a + r.totalWage, 0),
+      withholdingTax: items.reduce((a, r) => a + r.withholdingTax, 0),
+    }
+
+    return ok({ items, totals })
+  } catch (err) {
+    console.error('[labor-cost-summaries/GET]', err)
+    return internalError()
+  }
 }
