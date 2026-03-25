@@ -9,9 +9,9 @@ const STATUS_LABEL: Record<string, string> = {
   WORKING: '근무중', COMPLETED: '퇴근', MISSING_CHECKOUT: '미퇴근', EXCEPTION: '예외',
 }
 const STATUS_BADGE: Record<string, string> = {
-  WORKING:          'bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0]',
-  COMPLETED:        'bg-[#F9FAFB] text-[#6B7280] border border-[#E5E7EB]',
-  MISSING_CHECKOUT: 'bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]',
+  WORKING:          'bg-[#ECFDF5] text-[#16A34A] border border-[#A7F3D0]',
+  COMPLETED:        'bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]',
+  MISSING_CHECKOUT: 'bg-[#FEE2E2] text-[#B91C1C] border border-[#F87171]',
   EXCEPTION:        'bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]',
 }
 
@@ -33,17 +33,29 @@ export default function ReviewAttendancePage() {
       <div className="p-5 md:p-7 bg-[#F5F7FA] min-h-screen">
 
         {/* 헤더 */}
-        <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
-          <div>
-            <h1 className="text-[22px] font-bold text-[#0F172A] m-0 mb-1">출근현황</h1>
-            <p className="text-[13px] text-[#6B7280] m-0">2026-03-25 기준 · 전체 {MOCK_ATTENDANCE.length}건</p>
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <h1 className="text-[22px] font-bold text-[#0F172A] m-0">출근현황</h1>
+            <span className="text-[11px] font-semibold text-[#6B7280] bg-[#F3F4F6] border border-[#E5E7EB] rounded-full px-2.5 py-1 tabular-nums">
+              2026-03-25 기준
+            </span>
           </div>
-          <Link href="/review/admin/dashboard" className="text-[13px] text-[#6B7280] no-underline hover:text-[#F97316]">← 대시보드</Link>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setStatusFilter('MISSING_CHECKOUT')}
+              className="px-4 py-2 text-[13px] font-semibold text-white bg-[#B91C1C] hover:bg-[#991B1B] border-none rounded-[8px] cursor-pointer transition-colors">
+              미퇴근 우선
+            </button>
+            <button className="px-4 py-2 text-[13px] font-semibold text-white bg-[#2e7d32] hover:bg-[#1b5e20] border-none rounded-[8px] cursor-pointer transition-colors">
+              엑셀 다운로드
+            </button>
+            <Link href="/review/admin/dashboard" className="text-[13px] text-[#6B7280] no-underline hover:text-[#F97316]">← 대시보드</Link>
+          </div>
         </div>
 
-        {/* 필터 */}
-        <div className="flex items-center gap-2 mb-5 flex-wrap">
-          <span className="text-[12px] text-[#6B7280] font-semibold">상태 필터:</span>
+        {/* 상태 필터 pills */}
+        <div className="flex items-center gap-2 mb-4 flex-wrap">
+          <span className="text-[12px] text-[#6B7280] font-semibold">상태:</span>
           {[
             { value: '',                 label: '전체' },
             { value: 'MISSING_CHECKOUT', label: '미퇴근' },
@@ -71,16 +83,16 @@ export default function ReviewAttendancePage() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-[#F9FAFB]">
-                  {['이름', '소속', '현장', '출근', '퇴근', '상태', '비고'].map(h => (
-                    <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap border-b border-[#F3F4F6]">{h}</th>
+                <tr className="bg-[#F3F4F6]">
+                  {['이름', '소속', '현장', '출근', '퇴근', '상태', '처리'].map(h => (
+                    <th key={h} className="text-left px-4 py-2.5 text-[11px] font-bold text-[#4B5563] uppercase tracking-wider whitespace-nowrap border-b border-[#E5E7EB]">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {items.map(r => (
                   <tr key={r.id}
-                    className={`hover:bg-[#FAFAFA] transition-colors border-b border-[#F9FAFB] last:border-b-0 ${r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION' ? 'bg-[#FFFBEB]/30' : ''}`}>
+                    className={`hover:bg-[#FAFAFA] transition-colors border-b border-[#F9FAFB] last:border-b-0 ${r.status === 'MISSING_CHECKOUT' ? 'bg-[#FFF5F5]' : r.status === 'EXCEPTION' ? 'bg-[#FFFBF0]' : ''}`}>
                     <td className="px-4 py-3 text-[13px] font-medium text-[#111827] whitespace-nowrap">{r.workerName}</td>
                     <td className="px-4 py-3 text-[13px] text-[#6B7280] whitespace-nowrap">{r.company}</td>
                     <td className="px-4 py-3 text-[13px] text-[#6B7280] whitespace-nowrap">{r.siteName}</td>
@@ -91,9 +103,9 @@ export default function ReviewAttendancePage() {
                         {STATUS_LABEL[r.status] ?? r.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2.5 whitespace-nowrap">
                       {(r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION') && (
-                        <button className="text-[11px] text-[#F97316] border border-[#FDBA74] rounded-[6px] px-2 py-0.5 hover:bg-[#FFF7ED] transition-colors cursor-pointer bg-transparent">
+                        <button className="text-[11px] font-semibold text-white bg-[#B91C1C] hover:bg-[#991B1B] border-none rounded-[5px] px-3 py-1 cursor-pointer transition-colors">
                           처리
                         </button>
                       )}

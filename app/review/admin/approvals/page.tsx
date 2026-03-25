@@ -51,15 +51,21 @@ export default function ReviewApprovalsPage() {
           ))}
         </div>
 
-        {/* 일괄 처리 */}
+        {/* 일괄 처리 바 */}
         {selected.length > 0 && (
-          <div className="flex items-center gap-3 mb-4 px-4 py-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded-[10px]">
-            <span className="text-[13px] text-[#2563EB] font-semibold">{selected.length}건 선택됨</span>
-            <button className="text-[12px] font-semibold text-white bg-[#16A34A] rounded-[7px] px-3 py-1.5 border-0 cursor-pointer hover:bg-[#15803D]">
+          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-[#FFF7ED] border border-[#FDE68A] rounded-[10px]">
+            <span className="text-[13px] text-[#92400E] font-semibold">선택 {selected.length}건</span>
+            <button className="text-[12px] font-semibold text-white bg-[#059669] hover:bg-[#047857] rounded-[6px] px-4 py-1.5 border-0 cursor-pointer transition-colors">
               일괄 승인
             </button>
-            <button className="text-[12px] font-semibold text-[#DC2626] bg-white border border-[#FECACA] rounded-[7px] px-3 py-1.5 cursor-pointer hover:bg-[#FEF2F2]">
+            <button className="text-[12px] font-semibold text-white bg-[#DC2626] hover:bg-[#B91C1C] rounded-[6px] px-4 py-1.5 border-0 cursor-pointer transition-colors">
               일괄 거부
+            </button>
+            <button
+              onClick={() => setSelected([])}
+              className="ml-auto text-[12px] text-[#92400E] bg-none border-none cursor-pointer underline"
+            >
+              선택 해제
             </button>
           </div>
         )}
@@ -73,12 +79,12 @@ export default function ReviewApprovalsPage() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-[#F9FAFB]">
-                  <th className="px-4 py-2.5 w-10 border-b border-[#F3F4F6]">
+                <tr className="bg-[#F3F4F6]">
+                  <th className="px-4 py-2.5 w-10 border-b border-[#E5E7EB]">
                     <input type="checkbox" className="cursor-pointer" onChange={e => setSelected(e.target.checked ? MOCK_APPROVALS.map(a => a.id) : [])} />
                   </th>
                   {['근로자', '연락처', '현장', '유형', '기기', '요청일시', '처리'].map(h => (
-                    <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap border-b border-[#F3F4F6]">{h}</th>
+                    <th key={h} className="text-left px-4 py-2.5 text-[11px] font-bold text-[#4B5563] uppercase tracking-wider whitespace-nowrap border-b border-[#E5E7EB]">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -97,7 +103,7 @@ export default function ReviewApprovalsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-[13px] text-[#6B7280] whitespace-nowrap">{a.deviceModel}</td>
-                    <td className="px-4 py-3 text-[12px] text-[#9CA3AF] whitespace-nowrap tabular-nums">{fmtDt(a.requestedAt)}</td>
+                    <td className="px-4 py-3 text-[12px] text-[#374151] whitespace-nowrap tabular-nums">{fmtDt(a.requestedAt)}</td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         <button className="text-[11px] font-semibold text-white bg-[#16A34A] rounded-[6px] px-2.5 py-1 border-0 cursor-pointer hover:bg-[#15803D]">승인</button>

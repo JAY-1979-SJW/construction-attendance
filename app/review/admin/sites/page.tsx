@@ -27,8 +27,8 @@ export default function ReviewSitesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {MOCK_SITES.map(site => (
             <div key={site.id}
-              className={`bg-white rounded-[12px] border overflow-hidden hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all ${
-                site.isActive ? 'border-[#E5E7EB]' : 'border-[#E5E7EB] opacity-60'
+              className={`rounded-[12px] border overflow-hidden hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all ${
+                site.isActive ? 'bg-white border-[#E5E7EB]' : 'bg-[#FAFAFA] border-[#E5E7EB] opacity-70'
               }`}
             >
               <div className="px-5 pt-4 pb-3 border-b border-[#F3F4F6]">
@@ -36,8 +36,8 @@ export default function ReviewSitesPage() {
                   <span className="text-[15px] font-semibold text-[#111827]">{site.name}</span>
                   <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full ${
                     site.isActive
-                      ? 'bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0]'
-                      : 'bg-[#F9FAFB] text-[#9CA3AF] border border-[#E5E7EB]'
+                      ? 'bg-[#ECFDF5] text-[#16A34A] border border-[#A7F3D0]'
+                      : 'bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]'
                   }`}>
                     {site.isActive ? '운영중' : '종료'}
                   </span>
@@ -62,13 +62,13 @@ export default function ReviewSitesPage() {
                 <div className="text-[11px] text-[#9CA3AF]">개설: {site.openedAt}</div>
               </div>
               <div className="px-5 py-3 border-t border-[#F3F4F6] flex gap-2">
-                <button className="flex-1 text-[12px] font-semibold text-[#374151] bg-[#F9FAFB] border border-[#E5E7EB] rounded-[7px] py-1.5 cursor-pointer hover:border-[#D1D5DB]">
-                  상세 보기
-                </button>
                 <Link href="/review/admin/attendance"
-                  className="flex-1 no-underline text-center text-[12px] font-semibold text-[#F97316] bg-[#FFF7ED] border border-[#FDBA74] rounded-[7px] py-1.5 hover:bg-[#FFEDD5]">
+                  className="flex-1 no-underline text-center text-[12px] font-semibold text-white bg-[#F97316] hover:bg-[#EA580C] rounded-[7px] py-1.5 transition-colors">
                   출근현황
                 </Link>
+                <button className="flex-1 text-[12px] font-semibold text-[#6B7280] bg-white border border-[#E5E7EB] rounded-[7px] py-1.5 cursor-pointer hover:border-[#D1D5DB]">
+                  상세 보기
+                </button>
               </div>
             </div>
           ))}
@@ -82,9 +82,9 @@ export default function ReviewSitesPage() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-[#F9FAFB]">
+                <tr className="bg-[#F3F4F6]">
                   {['현장명', '주소', '오늘 출근', '등록 인원', '허용반경', '개설일', '상태'].map(h => (
-                    <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap border-b border-[#F3F4F6]">{h}</th>
+                    <th key={h} className="text-left px-4 py-2.5 text-[11px] font-bold text-[#4B5563] uppercase tracking-wider whitespace-nowrap border-b border-[#E5E7EB]">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -100,8 +100,8 @@ export default function ReviewSitesPage() {
                     <td className="px-4 py-3">
                       <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full ${
                         site.isActive
-                          ? 'bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0]'
-                          : 'bg-[#F9FAFB] text-[#9CA3AF] border border-[#E5E7EB]'
+                          ? 'bg-[#ECFDF5] text-[#16A34A] border border-[#A7F3D0]'
+                          : 'bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]'
                       }`}>
                         {site.isActive ? '운영중' : '종료'}
                       </span>
