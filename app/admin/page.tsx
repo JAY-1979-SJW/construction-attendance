@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-// ─── 오늘 현황 타입 ────────────────────────────────────────────────────────────
+// ─── 타입 ──────────────────────────────────────────────────────────────────────
 interface DashboardSummary {
   totalWorkers: number
   activeSites: number
@@ -29,73 +29,34 @@ interface RecentRecord {
   status: string
 }
 
-// ─── 월간 운영 타입 ────────────────────────────────────────────────────────────
-interface KpiData {
-  todayActiveWorkers: number
-  monthWorkerCount: number
-  pendingOnboardingCount: number
-  retirementPendingCount: number
-  exceptionWorkerCount: number
-  insuranceExceptionCount: number
-  taxExceptionCount: number
-  unconfirmedSettlementCount: number
-  thisMonthDownloadCount: number
-}
-interface MonthClosingStatus { status: string; closedAt: string | null; reopenReason: string | null }
-interface RecentDownload { id: string; exportType: string; monthKey: string; createdAt: string; createdBy: string | null; versionNo: number }
-interface SettlementSummary { total: number; confirmed: number; reviewRequired: number; draft: number; hold: number }
-interface OnboardingIssue { workerId: string; workerName: string; issueCount: number; topIssue: string }
-interface OpsData {
-  monthKey: string
-  kpi: KpiData
-  monthClosingStatus: MonthClosingStatus | null
-  recentDownloads: RecentDownload[]
-  settlementSummary: SettlementSummary
-  onboardingIssues: OnboardingIssue[]
-}
-
 // ─── 상수 ──────────────────────────────────────────────────────────────────────
-const STATUS_LABEL: Record<string, string> = { WORKING: '근무중', COMPLETED: '퇴근', MISSING_CHECKOUT: '미퇴근', EXCEPTION: '예외' }
-const STATUS_COLOR: Record<string, string> = { WORKING: '#4caf50', COMPLETED: '#5BA4D9', MISSING_CHECKOUT: '#ef5350', EXCEPTION: '#ff9800' }
-
-const CLOSING_COLOR: Record<string, { bg: string; color: string }> = {
-  OPEN:     { bg: 'rgba(91,164,217,0.12)', color: '#A0AEC0' },
-  CLOSING:  { bg: 'rgba(249,168,37,0.15)', color: '#f9a825' },
-  CLOSED:   { bg: 'rgba(46,125,50,0.15)',  color: '#4caf50' },
-  REOPENED: { bg: 'rgba(230,81,0,0.15)',   color: '#e65100' },
+const STATUS_LABEL: Record<string, string> = {
+  WORKING: '근무중', COMPLETED: '퇴근', MISSING_CHECKOUT: '미퇴근', EXCEPTION: '예외',
 }
-const CLOSING_LABEL: Record<string, string> = { OPEN: '미마감', CLOSING: '마감 중', CLOSED: '마감 완료', REOPENED: '재오픈' }
-const EXPORT_LABEL: Record<string, string> = {
-  LABOR_COST_SUMMARY: '노무비 집계', INSURANCE_ACQUISITION: '보험취득신고',
-  INSURANCE_LOSS: '보험상실신고', WITHHOLDING_TAX: '원천세',
-  RETIREMENT_MUTUAL_REPORT: '퇴직공제 신고', SUBCONTRACTOR_SETTLEMENT: '협력사 정산서',
+const STATUS_BADGE: Record<string, string> = {
+  WORKING:          'bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0]',
+  COMPLETED:        'bg-[#F9FAFB] text-[#6B7280] border border-[#E5E7EB]',
+  MISSING_CHECKOUT: 'bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]',
+  EXCEPTION:        'bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]',
 }
-
-function getMonthKey() {
-  return new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 7)
+// 표시 우선순위: 확인필요 → 근무중 → 퇴근
+const STATUS_SORT: Record<string, number> = {
+  MISSING_CHECKOUT: 0, EXCEPTION: 1, WORKING: 2, COMPLETED: 3,
 }
 
 // ─── 컴포넌트 ──────────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const router = useRouter()
-  const [tab, setTab] = useState<'today' | 'monthly'>('today')
 
-  // 오늘 현황
   const [summary, setSummary] = useState<DashboardSummary | null>(null)
   const [recent, setRecent] = useState<RecentRecord[]>([])
   const [todayLoading, setTodayLoading] = useState(true)
 
-  // 월간 운영
-  const [monthKey, setMonthKey] = useState(getMonthKey)
-  const [opsData, setOpsData] = useState<OpsData | null>(null)
-  const [opsLoading, setOpsLoading] = useState(false)
-  const [opsError, setOpsError] = useState('')
-
   const fmtTime = (iso: string | null) =>
     iso ? new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'
 
-  // 오늘 현황 로드
-  useEffect(() => {
+  const loadToday = useCallback(() => {
+    setTodayLoading(true)
     fetch('/api/admin/dashboard')
       .then(r => r.json())
       .then(data => {
@@ -106,126 +67,183 @@ export default function AdminDashboard() {
       })
   }, [router])
 
-  // 월간 운영 로드
-  const fetchOps = useCallback(async () => {
-    setOpsLoading(true); setOpsError('')
-    try {
-      const res = await fetch(`/api/admin/operations-dashboard?monthKey=${monthKey}`)
-      if (res.status === 401) { router.push('/admin/login'); return }
-      const json = await res.json()
-      if (json.error) { setOpsError(json.error); return }
-      setOpsData(json)
-    } catch { setOpsError('데이터 조회 실패') }
-    finally { setOpsLoading(false) }
-  }, [monthKey, router])
+  useEffect(() => { loadToday() }, [loadToday])
 
-  useEffect(() => { if (tab === 'monthly') fetchOps() }, [tab, fetchOps])
+  // 우선순위 정렬: 확인필요 → 근무중 → 퇴근
+  const sortedRecent = useMemo(() =>
+    [...recent].sort((a, b) => (STATUS_SORT[a.status] ?? 9) - (STATUS_SORT[b.status] ?? 9)),
+    [recent]
+  )
 
-  const today = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
+  // 현장별 집계
+  const siteSummary = useMemo(() => {
+    const map = new Map<string, { total: number; working: number; completed: number; issue: number }>()
+    recent.forEach(r => {
+      const e = map.get(r.siteName) ?? { total: 0, working: 0, completed: 0, issue: 0 }
+      map.set(r.siteName, {
+        total:     e.total + 1,
+        working:   e.working   + (r.status === 'WORKING' ? 1 : 0),
+        completed: e.completed + (r.status === 'COMPLETED' ? 1 : 0),
+        issue:     e.issue     + (r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION' ? 1 : 0),
+      })
+    })
+    return Array.from(map.entries())
+      .map(([name, d]) => ({ name, ...d }))
+      .sort((a, b) => (b.issue - a.issue) || (b.working - a.working))
+  }, [recent])
+
+  // 절대 날짜 (KST)
+  const todayStr = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10)
+
+  // 승인 대기 = 기기 변경 대기 + 예외 처리
+  const pendingApproval = (summary?.pendingDeviceRequests ?? 0) + (summary?.pendingExceptions ?? 0)
 
   return (
-    <div className="p-6 md:p-8">
-      {/* 헤더 */}
-      <div className="flex items-end justify-between mb-5">
+    <div className="p-5 md:p-7 bg-[#F5F7FA] min-h-screen">
+
+      {/* ── 페이지 헤더 ─────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold m-0 mb-1">대시보드</h1>
-          <p className="text-sm text-muted-brand m-0">{today}</p>
+          <h1 className="text-[22px] font-bold text-[#0F172A] m-0 mb-1">대시보드</h1>
+          <p className="text-[13px] text-[#6B7280] m-0">오늘 현장 운영 현황을 확인하세요</p>
+        </div>
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-[13px] text-[#6B7280] tabular-nums">{todayStr} 기준</span>
+          <button
+            onClick={loadToday}
+            className="flex items-center gap-1.5 text-[13px] text-[#374151] border border-[#E5E7EB] bg-white hover:border-[#D1D5DB] hover:bg-[#F9FAFB] rounded-[8px] px-3 py-1.5 cursor-pointer transition-colors"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            새로고침
+          </button>
         </div>
       </div>
 
-      {/* 탭 */}
-      <div className="flex gap-1 mb-6 border-b border-[rgba(91,164,217,0.12)] pb-0">
-        {([['today', '🕐 오늘 현황'], ['monthly', '📅 월간 운영']] as const).map(([key, label]) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className={`px-5 py-2.5 text-[13px] font-medium border-b-2 -mb-px transition-colors bg-transparent cursor-pointer ${
-              tab === key
-                ? 'border-[#F47920] text-[#F47920] font-semibold'
-                : 'border-transparent text-muted-brand hover:text-white'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* ── 탭 1: 오늘 현황 ──────────────────────────────────────────────────── */}
-      {tab === 'today' && (
-        todayLoading ? (
-          <div className="text-muted-brand text-sm py-10 text-center">로딩 중...</div>
-        ) : (
-          <>
-            {/* 체류확인 알림 */}
-            {summary && (summary.todayPresenceReview > 0 || summary.todayPresenceNoResponse > 0) && (
-              <div className="flex gap-3 mb-5 flex-wrap">
-                {summary.todayPresenceReview > 0 && (
-                  <a href="/admin/presence-checks?status=REVIEW_REQUIRED"
-                    className="flex flex-col items-center justify-center no-underline min-w-[140px] rounded-[10px] p-4 bg-[rgba(245,127,23,0.12)] border border-[rgba(245,127,23,0.3)]">
-                    <div className="text-[22px] font-bold text-[#f9a825]">{summary.todayPresenceReview}</div>
-                    <div className="text-xs text-[#f9a825] mt-1">체류확인 검토필요</div>
-                  </a>
-                )}
-                {summary.todayPresenceNoResponse > 0 && (
-                  <a href="/admin/presence-checks?status=NO_RESPONSE"
-                    className="flex flex-col items-center justify-center no-underline min-w-[140px] rounded-[10px] p-4 bg-[rgba(239,83,80,0.12)] border border-[rgba(239,83,80,0.3)]">
-                    <div className="text-[22px] font-bold text-[#ef5350]">{summary.todayPresenceNoResponse}</div>
-                    <div className="text-xs text-[#ef5350] mt-1">체류확인 미응답</div>
-                  </a>
-                )}
-                {summary.todayPresenceTotal > 0 && (
-                  <a href="/admin/presence-checks"
-                    className="flex flex-col items-center justify-center no-underline min-w-[140px] rounded-[10px] p-4 bg-[rgba(91,164,217,0.08)] border border-[rgba(91,164,217,0.2)]">
-                    <div className="text-[22px] font-bold text-[#5BA4D9]">{summary.todayPresenceTotal}</div>
-                    <div className="text-xs text-[#5BA4D9] mt-1">오늘 체류확인 전체</div>
-                  </a>
-                )}
-              </div>
-            )}
-
-            {/* KPI 카드 */}
-            <div className="grid gap-3 mb-6 [grid-template-columns:repeat(auto-fill,minmax(150px,1fr))]">
-              {[
-                { label: '오늘 출근',       value: summary?.todayTotal ?? 0,           color: '#5BA4D9' },
-                { label: '근무 중',         value: summary?.todayCheckedIn ?? 0,        color: '#4caf50' },
-                { label: '퇴근 완료',       value: summary?.todayCompleted ?? 0,        color: '#A0AEC0' },
-                { label: '미퇴근 누적',     value: summary?.pendingMissing ?? 0,        color: '#ef5350' },
-                { label: '예외 대기',       value: summary?.pendingExceptions ?? 0,     color: '#ff9800' },
-                { label: '기기 변경 대기',  value: summary?.pendingDeviceRequests ?? 0, color: '#ab47bc' },
-                { label: '등록 근로자',     value: summary?.totalWorkers ?? 0,          color: '#718096' },
-              ].map(c => (
-                <div key={c.label} className="bg-card rounded-xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
-                  style={{ borderTop: `3px solid ${c.color}` }}>
-                  <div className="text-[28px] font-bold mb-1" style={{ color: c.color }}>{c.value}</div>
-                  <div className="text-[12px] text-muted-brand">{c.label}</div>
-                </div>
-              ))}
+      {todayLoading ? (
+        <div className="text-[#9CA3AF] text-sm py-20 text-center">로딩 중...</div>
+      ) : (
+        <>
+          {/* 체류확인 알림 배너 */}
+          {summary && (summary.todayPresenceReview > 0 || summary.todayPresenceNoResponse > 0) && (
+            <div className="flex gap-3 mb-5 flex-wrap">
+              {summary.todayPresenceReview > 0 && (
+                <a href="/admin/presence-checks?status=REVIEW_REQUIRED"
+                  className="flex items-center gap-2.5 no-underline px-4 py-2.5 bg-[#FFFBEB] border border-[#FDE68A] rounded-[10px] text-[#D97706] hover:border-[#F59E0B] transition-colors">
+                  <span className="text-[16px] font-bold">{summary.todayPresenceReview}</span>
+                  <span className="text-[12px] font-medium">체류확인 검토 필요</span>
+                </a>
+              )}
+              {summary.todayPresenceNoResponse > 0 && (
+                <a href="/admin/presence-checks?status=NO_RESPONSE"
+                  className="flex items-center gap-2.5 no-underline px-4 py-2.5 bg-[#FEF2F2] border border-[#FECACA] rounded-[10px] text-[#DC2626] hover:border-[#FCA5A5] transition-colors">
+                  <span className="text-[16px] font-bold">{summary.todayPresenceNoResponse}</span>
+                  <span className="text-[12px] font-medium">체류확인 미응답</span>
+                </a>
+              )}
             </div>
+          )}
 
-            {/* 오늘 출근 현황 테이블 */}
-            <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
-              <div className="px-5 py-3.5 border-b border-[rgba(91,164,217,0.1)] font-semibold text-[14px]">오늘 출근 현황</div>
+          {/* ── KPI 4개 ─────────────────────────────────────────────── */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {[
+              {
+                label: '오늘 총 출근 인원',
+                value: summary?.todayTotal ?? 0,
+                unit: '명',
+                sub: '오늘 기록 기준',
+                accent: '#F97316',
+                href: '/admin/attendance',
+              },
+              {
+                label: '현재 근무중',
+                value: summary?.todayCheckedIn ?? 0,
+                unit: '명',
+                sub: '퇴근 전 인원',
+                accent: '#16A34A',
+                href: '/admin/attendance',
+              },
+              {
+                label: '미퇴근 인원',
+                value: summary?.pendingMissing ?? 0,
+                unit: '명',
+                sub: '확인 필요',
+                accent: '#DC2626',
+                href: '/admin/attendance',
+              },
+              {
+                label: '승인 대기',
+                value: pendingApproval,
+                unit: '건',
+                sub: '처리 필요',
+                accent: '#7C3AED',
+                href: '/admin/device-requests',
+              },
+            ].map(card => (
+              <Link
+                key={card.label}
+                href={card.href}
+                className="no-underline bg-white rounded-[12px] border border-[#E5E7EB] px-5 py-4 hover:border-[#D1D5DB] hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all block"
+                style={{ borderTopWidth: 3, borderTopColor: card.accent }}
+              >
+                <div className="text-[11px] font-semibold text-[#6B7280] mb-2 tracking-wide uppercase">{card.label}</div>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-[32px] font-bold text-[#0F172A] leading-none tabular-nums">{card.value}</span>
+                  <span className="text-[14px] text-[#6B7280]">{card.unit}</span>
+                </div>
+                <div className="text-[11px] text-[#9CA3AF]">{card.sub}</div>
+              </Link>
+            ))}
+          </div>
+
+          {/* ── 메인 2단 영역 ────────────────────────────────────────── */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 mb-5">
+
+            {/* 좌: 오늘 출근 현황 */}
+            <div className="bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#F3F4F6]">
+                <div>
+                  <span className="text-[14px] font-semibold text-[#111827]">오늘 출근 현황</span>
+                  <span className="ml-2 text-[11px] text-[#9CA3AF]">확인 필요 우선 정렬</span>
+                </div>
+                <Link href="/admin/attendance" className="text-[12px] text-[#F97316] no-underline font-medium hover:underline">
+                  전체보기 →
+                </Link>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
-                    <tr>
-                      {['이름', '회사', '현장', '출근', '퇴근', '상태'].map(h => (
-                        <th key={h} className="text-left px-4 py-2.5 text-[11px] text-muted-brand border-b border-[rgba(91,164,217,0.1)] whitespace-nowrap font-medium">{h}</th>
+                    <tr className="bg-[#F9FAFB]">
+                      {['이름', '소속', '현장', '출근', '퇴근', '상태'].map(h => (
+                        <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider whitespace-nowrap border-b border-[#F3F4F6]">
+                          {h}
+                        </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {recent.length === 0 ? (
-                      <tr><td colSpan={6} className="text-center py-8 text-muted-brand text-[13px]">오늘 출근 기록이 없습니다.</td></tr>
-                    ) : recent.map(r => (
-                      <tr key={r.id} className="hover:bg-[rgba(91,164,217,0.04)] transition-colors">
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.06)]">{r.workerName}</td>
-                        <td className="px-4 py-3 text-[13px] text-muted-brand border-b border-[rgba(91,164,217,0.06)]">{r.company}</td>
-                        <td className="px-4 py-3 text-[13px] text-muted-brand border-b border-[rgba(91,164,217,0.06)]">{r.siteName}</td>
-                        <td className="px-4 py-3 text-[13px] text-muted-brand border-b border-[rgba(91,164,217,0.06)]">{fmtTime(r.checkInAt)}</td>
-                        <td className="px-4 py-3 text-[13px] text-muted-brand border-b border-[rgba(91,164,217,0.06)]">{fmtTime(r.checkOutAt)}</td>
-                        <td className="px-4 py-3 border-b border-[rgba(91,164,217,0.06)]">
-                          <span className="text-[12px] font-semibold" style={{ color: STATUS_COLOR[r.status] ?? '#A0AEC0' }}>
+                    {sortedRecent.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="text-center py-12 text-[#9CA3AF] text-[13px]">
+                          오늘 출근 기록이 없습니다.
+                        </td>
+                      </tr>
+                    ) : sortedRecent.slice(0, 10).map(r => (
+                      <tr
+                        key={r.id}
+                        className={`hover:bg-[#FAFAFA] transition-colors border-b border-[#F9FAFB] last:border-b-0 ${
+                          r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION' ? 'bg-[#FFFBEB]/40' : ''
+                        }`}
+                      >
+                        <td className="px-4 py-3 text-[13px] font-medium text-[#111827] whitespace-nowrap">{r.workerName}</td>
+                        <td className="px-4 py-3 text-[13px] text-[#6B7280] whitespace-nowrap">{r.company}</td>
+                        <td className="px-4 py-3 text-[13px] text-[#6B7280] whitespace-nowrap">{r.siteName}</td>
+                        <td className="px-4 py-3 text-[13px] text-[#374151] whitespace-nowrap tabular-nums">{fmtTime(r.checkInAt)}</td>
+                        <td className="px-4 py-3 text-[13px] text-[#374151] whitespace-nowrap tabular-nums">{fmtTime(r.checkOutAt)}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_BADGE[r.status] ?? 'bg-[#F9FAFB] text-[#6B7280] border border-[#E5E7EB]'}`}>
                             {STATUS_LABEL[r.status] ?? r.status}
                           </span>
                         </td>
@@ -234,162 +252,166 @@ export default function AdminDashboard() {
                   </tbody>
                 </table>
               </div>
+              {sortedRecent.length > 10 && (
+                <div className="px-5 py-3 border-t border-[#F3F4F6] flex items-center justify-between">
+                  <span className="text-[12px] text-[#9CA3AF]">{sortedRecent.length - 10}건 더 있음</span>
+                  <Link href="/admin/attendance" className="text-[12px] text-[#F97316] no-underline hover:underline font-medium">
+                    출근현황 전체보기 →
+                  </Link>
+                </div>
+              )}
             </div>
-          </>
-        )
-      )}
 
-      {/* ── 탭 2: 월간 운영 ──────────────────────────────────────────────────── */}
-      {tab === 'monthly' && (
-        <>
-          {/* 월 선택 */}
-          <div className="flex items-center gap-3 mb-6">
-            <input
-              type="month"
-              value={monthKey}
-              onChange={e => setMonthKey(e.target.value)}
-              className="px-3 py-2 border border-[rgba(91,164,217,0.2)] rounded-lg text-sm bg-card text-white"
-            />
-            <button
-              onClick={fetchOps}
-              disabled={opsLoading}
-              className="px-4 py-2 bg-accent text-white border-0 rounded-lg cursor-pointer text-sm font-semibold disabled:opacity-50"
-            >
-              {opsLoading ? '조회 중...' : '새로고침'}
-            </button>
-          </div>
-
-          {opsError && (
-            <div className="px-4 py-3 rounded-lg text-sm bg-[rgba(239,83,80,0.12)] text-[#ef5350] border border-[rgba(239,83,80,0.2)] mb-5">{opsError}</div>
-          )}
-
-          {opsLoading && !opsData ? (
-            <div className="text-muted-brand text-sm py-10 text-center">로딩 중...</div>
-          ) : opsData ? (
-            <>
-              {/* KPI + 월마감 */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            {/* 우: 빠른 처리 */}
+            <div className="bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden">
+              <div className="px-5 py-3.5 border-b border-[#F3F4F6]">
+                <span className="text-[14px] font-semibold text-[#111827]">빠른 처리</span>
+              </div>
+              <div className="p-4 flex flex-col gap-2.5">
                 {[
-                  { label: '오늘 출근',       value: opsData.kpi.todayActiveWorkers,        color: '#5BA4D9',  alert: false },
-                  { label: '이번 달 근로자',  value: opsData.kpi.monthWorkerCount,           color: '#4caf50',  alert: false },
-                  { label: '온보딩 미완료',   value: opsData.kpi.pendingOnboardingCount,     color: opsData.kpi.pendingOnboardingCount > 0 ? '#ff9800' : '#718096', alert: opsData.kpi.pendingOnboardingCount > 0 },
-                  { label: '미확정 정산',     value: opsData.kpi.unconfirmedSettlementCount, color: opsData.kpi.unconfirmedSettlementCount > 0 ? '#ef5350' : '#718096', alert: opsData.kpi.unconfirmedSettlementCount > 0 },
-                  { label: '예외 처리 근로자', value: opsData.kpi.exceptionWorkerCount,      color: '#f9a825',  alert: false,
-                    sub: `보험 ${opsData.kpi.insuranceExceptionCount} / 세금 ${opsData.kpi.taxExceptionCount}` },
-                  { label: '이번 달 다운로드', value: opsData.kpi.thisMonthDownloadCount,    color: '#718096',  alert: false },
-                ].map(c => (
-                  <div key={c.label} className="bg-card rounded-xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
-                    style={{ borderTop: `3px solid ${c.color}`, outline: c.alert ? `1px solid ${c.color}` : 'none' }}>
-                    <div className="text-[26px] font-bold" style={{ color: c.color }}>{c.value.toLocaleString()}</div>
-                    <div className="text-[12px] text-muted-brand mt-1">{c.label}</div>
-                    {'sub' in c && c.sub && <div className="text-[11px] text-muted-brand mt-0.5">{c.sub}</div>}
-                    {c.alert && <div className="text-[11px] font-semibold mt-1" style={{ color: c.color }}>확인 필요</div>}
+                  {
+                    label: '미퇴근 확인',
+                    desc: '퇴근 누락 인원을 확인하세요',
+                    count: summary?.pendingMissing ?? 0,
+                    href: '/admin/attendance',
+                    btnLabel: '출근현황으로 이동',
+                    urgent: (summary?.pendingMissing ?? 0) > 0,
+                  },
+                  {
+                    label: '승인 대기',
+                    desc: '신규 기기 및 변경 요청을 확인하세요',
+                    count: summary?.pendingDeviceRequests ?? 0,
+                    href: '/admin/device-requests',
+                    btnLabel: '승인관리로 이동',
+                    urgent: (summary?.pendingDeviceRequests ?? 0) > 0,
+                  },
+                  {
+                    label: '예외 처리',
+                    desc: '출퇴근 예외 건을 확인하세요',
+                    count: summary?.pendingExceptions ?? 0,
+                    href: '/admin/attendance',
+                    btnLabel: '출근현황으로 이동',
+                    urgent: (summary?.pendingExceptions ?? 0) > 0,
+                  },
+                  ...(summary?.todayPresenceReview ?? 0) > 0 ? [{
+                    label: '체류확인 검토',
+                    desc: '응답 검토가 필요한 인원이 있습니다',
+                    count: summary?.todayPresenceReview ?? 0,
+                    href: '/admin/presence-checks?status=REVIEW_REQUIRED',
+                    btnLabel: '체류확인으로 이동',
+                    urgent: true,
+                  }] : [],
+                ].map(item => (
+                  <div
+                    key={item.label}
+                    className={`rounded-[10px] border p-3.5 ${
+                      item.urgent && item.count > 0
+                        ? 'bg-[#FEF2F2] border-[#FECACA]'
+                        : 'bg-[#F9FAFB] border-[#F3F4F6]'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-1.5">
+                      <div>
+                        <div className={`text-[13px] font-semibold ${item.urgent && item.count > 0 ? 'text-[#DC2626]' : 'text-[#374151]'}`}>
+                          {item.label}
+                        </div>
+                        <div className="text-[11px] text-[#9CA3AF] mt-0.5">{item.desc}</div>
+                      </div>
+                      <span className={`text-[20px] font-bold ml-2 tabular-nums ${item.urgent && item.count > 0 ? 'text-[#DC2626]' : 'text-[#D1D5DB]'}`}>
+                        {item.count}
+                      </span>
+                    </div>
+                    <Link
+                      href={item.href}
+                      className={`no-underline block text-center text-[12px] font-semibold py-1.5 rounded-[7px] transition-colors ${
+                        item.urgent && item.count > 0
+                          ? 'bg-[#DC2626] text-white hover:bg-[#B91C1C]'
+                          : 'bg-white text-[#6B7280] border border-[#E5E7EB] hover:border-[#D1D5DB] hover:text-[#374151]'
+                      }`}
+                    >
+                      {item.btnLabel}
+                    </Link>
                   </div>
                 ))}
 
-                {/* 월마감 상태 */}
-                {(() => {
-                  const st = opsData.monthClosingStatus?.status ?? 'OPEN'
-                  const { bg, color } = CLOSING_COLOR[st] ?? CLOSING_COLOR.OPEN
-                  return (
-                    <div className="bg-card rounded-xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)] border-t-[3px]" style={{ borderTopColor: color }}>
-                      <div className="text-[11px] text-muted-brand mb-2 font-medium">월마감 상태</div>
-                      <span className="inline-block px-3 py-1 rounded-full text-[13px] font-semibold" style={{ background: bg, color }}>
-                        {CLOSING_LABEL[st] ?? st}
-                      </span>
-                      {opsData.monthClosingStatus?.closedAt && (
-                        <div className="text-[11px] text-muted-brand mt-2">
-                          {new Date(opsData.monthClosingStatus.closedAt).toLocaleDateString('ko-KR')} 마감
-                        </div>
-                      )}
-                    </div>
-                  )
-                })()}
-              </div>
-
-              {/* 3열 패널 */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {/* 협력사 정산 */}
-                <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(91,164,217,0.1)] text-[13px] font-semibold">
-                    <span>협력사 정산 현황</span>
-                    <Link href="/admin/subcontractor-settlements" className="text-[12px] text-[#5BA4D9] no-underline font-normal">→ 이동</Link>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex justify-between mb-3 text-[13px]">
-                      <span className="text-muted-brand">전체</span>
-                      <span className="font-bold">{opsData.settlementSummary.total}건</span>
-                    </div>
-                    {opsData.settlementSummary.total === 0 ? (
-                      <p className="text-[12px] text-muted-brand text-center py-2">정산 내역 없음</p>
-                    ) : (
-                      [
-                        { label: '확정',     value: opsData.settlementSummary.confirmed,     color: '#4caf50' },
-                        { label: '검토 필요', value: opsData.settlementSummary.reviewRequired, color: '#ef5350' },
-                        { label: '임시저장', value: opsData.settlementSummary.draft,          color: '#718096' },
-                        { label: '보류',     value: opsData.settlementSummary.hold,           color: '#f9a825' },
-                      ].map(item => (
-                        <div key={item.label} className="flex justify-between items-center px-3 py-2 rounded-lg mb-1.5"
-                          style={{ background: `${item.color}18` }}>
-                          <span className="text-[12px] font-semibold" style={{ color: item.color }}>{item.label}</span>
-                          <span className="text-[13px] font-bold" style={{ color: item.color }}>{item.value}</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {/* 최근 다운로드 */}
-                <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(91,164,217,0.1)] text-[13px] font-semibold">
-                    <span>최근 다운로드</span>
-                    <Link href="/admin/document-center" className="text-[12px] text-[#5BA4D9] no-underline font-normal">→ 이동</Link>
-                  </div>
-                  <div className="py-1">
-                    {opsData.recentDownloads.length === 0 ? (
-                      <p className="text-[12px] text-muted-brand text-center py-5">다운로드 내역 없음</p>
-                    ) : opsData.recentDownloads.map(dl => (
-                      <div key={dl.id} className="px-4 py-2.5 border-b border-[rgba(91,164,217,0.06)] flex justify-between items-start">
-                        <div>
-                          <div className="text-[12px] font-semibold text-[#CBD5E0]">{EXPORT_LABEL[dl.exportType] ?? dl.exportType}</div>
-                          <div className="text-[11px] text-muted-brand mt-0.5">{dl.monthKey} · v{dl.versionNo}</div>
-                        </div>
-                        <div className="text-[11px] text-muted-brand text-right">
-                          {new Date(dl.createdAt).toLocaleDateString('ko-KR')}
-                          {dl.createdBy && <div className="mt-0.5">{dl.createdBy}</div>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 온보딩 이슈 */}
-                <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(91,164,217,0.1)] text-[13px] font-semibold">
-                    <span>온보딩 이슈</span>
-                    <Link href="/admin/workers" className="text-[12px] text-[#5BA4D9] no-underline font-normal">→ 이동</Link>
-                  </div>
-                  <div className="py-1">
-                    {opsData.onboardingIssues.length === 0 ? (
-                      <p className="text-[12px] text-muted-brand text-center py-5">온보딩 이슈 없음</p>
-                    ) : opsData.onboardingIssues.map(issue => (
-                      <div key={issue.workerId} className="px-4 py-2.5 border-b border-[rgba(91,164,217,0.06)] flex justify-between items-center">
-                        <div>
-                          <Link href={`/admin/workers/${issue.workerId}`} className="text-[12px] font-semibold text-[#5BA4D9] no-underline">
-                            {issue.workerName}
-                          </Link>
-                          <div className="text-[11px] text-[#ff9800] mt-0.5">{issue.topIssue}</div>
-                        </div>
-                        <span className="text-[11px] font-bold text-white bg-[#e53935] rounded-full px-2 py-0.5 ml-2">
-                          {issue.issueCount}
-                        </span>
-                      </div>
+                {/* 바로가기 */}
+                <div className="mt-1 pt-3 border-t border-[#F3F4F6]">
+                  <div className="text-[11px] text-[#9CA3AF] mb-2 font-semibold uppercase tracking-wide">바로가기</div>
+                  <div className="flex flex-col gap-1">
+                    {[
+                      { label: '출근현황 보기', href: '/admin/attendance' },
+                      { label: '근로자 관리', href: '/admin/workers' },
+                      { label: '현장 관리', href: '/admin/sites' },
+                    ].map(link => (
+                      <Link key={link.label} href={link.href}
+                        className="no-underline text-[12px] text-[#6B7280] hover:text-[#F97316] flex items-center justify-between transition-colors py-1 px-1 rounded hover:bg-[#FFF7ED]">
+                        <span>{link.label}</span>
+                        <span className="text-[#D1D5DB]">→</span>
+                      </Link>
                     ))}
                   </div>
                 </div>
               </div>
-            </>
-          ) : null}
+            </div>
+          </div>
+
+          {/* ── 현장별 오늘 현황 ────────────────────────────────────── */}
+          {siteSummary.length > 0 && (
+            <div className="bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#F3F4F6]">
+                <span className="text-[14px] font-semibold text-[#111827]">현장별 오늘 현황</span>
+                <Link href="/admin/sites" className="text-[12px] text-[#6B7280] no-underline hover:text-[#F97316] transition-colors">
+                  현장 관리 →
+                </Link>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-[#F9FAFB]">
+                      {['현장명', '오늘 출근', '근무중', '퇴근완료', '확인 필요', '상태'].map(h => (
+                        <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider border-b border-[#F3F4F6] whitespace-nowrap">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {siteSummary.map(s => (
+                      <tr key={s.name} className={`hover:bg-[#FAFAFA] transition-colors border-b border-[#F9FAFB] last:border-b-0 ${s.issue > 0 ? 'bg-[#FFFBEB]/30' : ''}`}>
+                        <td className="px-4 py-3 text-[13px] font-medium text-[#111827]">{s.name}</td>
+                        <td className="px-4 py-3 text-[13px] text-[#374151] tabular-nums">{s.total}명</td>
+                        <td className="px-4 py-3">
+                          <span className={`text-[13px] font-semibold tabular-nums ${s.working > 0 ? 'text-[#16A34A]' : 'text-[#9CA3AF]'}`}>
+                            {s.working}명
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-[13px] text-[#6B7280] tabular-nums">{s.completed}명</td>
+                        <td className="px-4 py-3 tabular-nums">
+                          {s.issue > 0
+                            ? <span className="text-[12px] font-semibold text-[#DC2626]">{s.issue}건</span>
+                            : <span className="text-[12px] text-[#D1D5DB]">-</span>
+                          }
+                        </td>
+                        <td className="px-4 py-3">
+                          {s.issue > 0 ? (
+                            <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]">
+                              확인 필요
+                            </span>
+                          ) : s.total > 0 ? (
+                            <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0]">
+                              정상
+                            </span>
+                          ) : (
+                            <span className="text-[11px] text-[#D1D5DB]">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

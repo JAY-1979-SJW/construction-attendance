@@ -9,6 +9,13 @@ RUN npx prisma generate
 # 빌드 시 DATABASE_URL이 없으면 Prisma 초기화 실패 → dummy URL로 빌드만 통과
 ARG DATABASE_URL="postgresql://build:build@localhost:5432/build_placeholder"
 ENV DATABASE_URL=${DATABASE_URL}
+# NEXT_PUBLIC_* 는 빌드 시 번들에 인라인됨 — .dockerignore 외부에서 ARG로 주입
+ARG NEXT_PUBLIC_KAKAO_MAP_JS_KEY=""
+ENV NEXT_PUBLIC_KAKAO_MAP_JS_KEY=${NEXT_PUBLIC_KAKAO_MAP_JS_KEY}
+ARG NEXT_PUBLIC_APP_NAME="해한Ai 현장관리"
+ENV NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME}
+ARG NEXT_PUBLIC_BASE_URL="https://attendance.haehan-ai.kr"
+ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 RUN NODE_OPTIONS="--max-old-space-size=1024" npm run build
 
 FROM node:20-slim AS runner

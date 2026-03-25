@@ -1,310 +1,273 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 
 export default function LandingPage() {
   return (
-    <div className="font-sans text-white bg-brand min-h-screen">
+    <div className="font-sans min-h-screen bg-white text-[#111827]">
 
-      {/* ── 헤더 ───────────────────────────────────────── */}
-      <header className="bg-card sticky top-0 z-[100] shadow-[0_2px_16px_rgba(0,0,0,0.3)]">
-        <div className="max-w-[1100px] mx-auto px-6 h-16 flex items-center justify-between">
-          {/* 브랜드 로고 */}
-          <Link href="/" className="flex items-center no-underline">
-            <Image
-              src="/logo/logo_main.png"
-              alt="해한Ai Engineering"
-              width={120}
-              height={90}
-              className="h-12 w-auto rounded-lg"
-              priority
-            />
-          </Link>
+      {/* ── 헤더 (오렌지 라인 포함) ───────────────────────── */}
+      <header className="sticky top-0 z-50">
+        <div className="h-1 bg-[#F97316]" />
+        <div className="bg-white border-b border-[#F3F4F6]">
+          <div className="max-w-[1100px] mx-auto px-6 h-15 flex items-center justify-between" style={{ height: '60px' }}>
+            {/* 로고 */}
+            <Link href="/" className="flex items-center gap-2 no-underline">
+              <div className="w-8 h-8 bg-[#FFF7ED] rounded-[9px] flex items-center justify-center shrink-0">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <span className="text-[15px] font-bold text-[#0F172A]">해한AI 출퇴근</span>
+            </Link>
 
-          {/* 네비게이션 */}
-          <nav className="flex items-center gap-2">
-            <Link href="/guide"
-              className="text-muted-brand no-underline text-sm px-3 py-1.5 rounded-md transition-colors hover:text-white">
-              사용 가이드
-            </Link>
-            <Link href="/register"
-              className="text-muted-brand no-underline text-sm px-3 py-1.5 rounded-md transition-colors hover:text-white">
-              회원가입
-            </Link>
-            <Link href="/login"
-              className="py-[7px] px-4 border border-brand-secondary text-secondary-brand rounded-lg no-underline text-sm font-semibold">
-              로그인
-            </Link>
-            <Link href="/attendance"
-              className="py-2 px-[18px] bg-brand-accent text-white rounded-lg no-underline text-sm font-bold">
-              앱 시작하기
-            </Link>
-            <Link href="/admin/login"
-              className="py-[7px] px-[14px] bg-brand text-muted-brand border border-[#374558] rounded-lg no-underline text-[13px]">
-              관리자
-            </Link>
-          </nav>
+            {/* 네비게이션 */}
+            <nav className="flex items-center gap-2">
+              <a href="#features" className="hidden sm:block text-[13px] text-[#6B7280] hover:text-[#111827] transition-colors px-3 py-1.5 no-underline">
+                기능 소개
+              </a>
+              <Link href="/admin/login"
+                className="text-[13px] font-medium text-[#374151] border border-[#E5E7EB] rounded-[8px] px-4 py-[7px] no-underline hover:border-[#D1D5DB] transition-colors">
+                관리자 로그인
+              </Link>
+              <Link href="/login"
+                className="text-[13px] font-semibold text-white bg-[#F97316] hover:bg-[#EA580C] rounded-[8px] px-4 py-2 no-underline transition-colors">
+                근로자 시작하기
+              </Link>
+            </nav>
+          </div>
         </div>
-        {/* 브랜드 하단 라인 */}
-        <div className="h-[3px] bg-brand-accent" />
       </header>
 
-      {/* ── 히어로 ─────────────────────────────────────── */}
-      <section className="bg-[linear-gradient(160deg,#0d1b2a_0%,#1B2838_45%,#1a3148_100%)] px-6 pt-[100px] pb-20 text-center border-b border-[#2a3f5a]">
-        <div className="max-w-[720px] mx-auto">
-          {/* 중앙 로고 */}
-          <div className="mb-9">
-            <Image
-              src="/logo/logo_main.png"
-              alt="해한Ai Engineering"
-              width={320}
-              height={240}
-              className="w-[280px] h-auto mx-auto block rounded-3xl"
-              priority
-            />
+      {/* ── 히어로 ──────────────────────────────────────────── */}
+      <section className="bg-[#F9FAFB] border-b border-[#F3F4F6] px-6 pt-16 pb-20">
+        <div className="max-w-[1100px] mx-auto flex items-center gap-14 flex-wrap lg:flex-nowrap">
+
+          {/* 좌측: 텍스트 + CTA */}
+          <div className="flex-1 min-w-[280px]">
+            <div className="inline-block bg-[#FFF7ED] text-[#F97316] text-[12px] font-semibold px-3 py-1 rounded-full mb-5 tracking-wide">
+              건설현장 출퇴근 관리
+            </div>
+            <h1 className="text-[40px] sm:text-[44px] font-bold text-[#0F172A] leading-[1.25] mb-5 tracking-[-0.5px]">
+              건설현장 출퇴근을<br />
+              단순하고 정확하게<br />
+              관리하세요
+            </h1>
+            <p className="text-[16px] text-[#4B5563] leading-[1.85] mb-8">
+              근로자는 빠르게 출퇴근을 기록하고,<br />
+              관리자는 현장별 출근 현황과 근무일수를<br />
+              한눈에 확인할 수 있습니다.
+            </p>
+            <div className="flex gap-3 flex-wrap">
+              <Link href="/login"
+                className="inline-block py-3 px-7 bg-[#F97316] hover:bg-[#EA580C] text-white rounded-[10px] no-underline text-[15px] font-semibold shadow-[0_2px_10px_rgba(249,115,22,0.28)] transition-colors">
+                근로자 시작하기
+              </Link>
+              <Link href="/admin/login"
+                className="inline-block py-3 px-7 border border-[#E5E7EB] text-[#374151] hover:border-[#D1D5DB] bg-white rounded-[10px] no-underline text-[15px] font-medium transition-colors">
+                관리자 로그인
+              </Link>
+            </div>
           </div>
 
-          <div className="inline-block bg-[rgba(244,121,32,0.15)] border border-[rgba(244,121,32,0.4)] text-accent rounded-[20px] px-[18px] py-1.5 text-[13px] font-semibold mb-7 tracking-[0.5px]">
-            건설현장 출퇴근 관리 솔루션
-          </div>
-          <h1 className="text-[52px] font-black leading-[1.2] mb-5 tracking-[-1.5px]">
-            현장 어디서든<br />
-            <span className="text-accent">GPS 출퇴근</span>, 한 번으로 끝
-          </h1>
-          <p className="text-lg text-muted-brand leading-[1.8] mb-10">
-            스마트폰 위치 인식으로 출근·이동·퇴근을 자동 기록합니다.<br />
-            별도 장비 없이 지금 바로 도입하세요.
-          </p>
-          <div className="flex gap-[14px] justify-center flex-wrap mb-14">
-            <Link href="/attendance"
-              className="inline-block py-4 px-10 bg-brand-accent text-white rounded-[10px] no-underline text-base font-bold shadow-[0_4px_16px_rgba(244,121,32,0.4)]">
-              앱 체험하기
-            </Link>
-            <Link href="/guide"
-              className="inline-block py-[15px] px-10 border-2 border-brand-secondary text-secondary-brand rounded-[10px] no-underline text-base font-semibold">
-              사용법 보기
-            </Link>
-          </div>
-
-          {/* 통계 배지 */}
-          <div className="flex justify-center bg-[rgba(255,255,255,0.05)] border border-[rgba(91,164,217,0.15)] rounded-2xl overflow-hidden">
-            {[
-              { num: 'GPS', label: '기반 출퇴근' },
-              { num: '실시간', label: '현황 확인' },
-              { num: '자동', label: '퇴근 처리' },
-              { num: '무료', label: '도입 상담' },
-            ].map((item) => (
-              <div key={item.label}
-                className="flex-1 py-5 px-4 flex flex-col items-center gap-1 border-r border-[rgba(91,164,217,0.12)] last:border-r-0">
-                <span className="text-[22px] font-extrabold text-accent">{item.num}</span>
-                <span className="text-xs text-muted-brand">{item.label}</span>
+          {/* 우측: 대시보드 미리보기 */}
+          <div className="w-full lg:w-[420px] shrink-0">
+            <div className="bg-white rounded-[16px] border border-[#E5E7EB] shadow-[0_4px_24px_rgba(0,0,0,0.07)] overflow-hidden">
+              {/* 미리보기 상단 */}
+              <div className="bg-[#0F172A] px-5 py-3 flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#F97316]" />
+                <span className="text-[12px] text-[#94A3B8]">관리자 대시보드 — 오늘 현황</span>
               </div>
-            ))}
+              {/* 수치 요약 */}
+              <div className="grid grid-cols-3 border-b border-[#F3F4F6]">
+                {[
+                  { label: '오늘 출근', value: '12명' },
+                  { label: '현재 근무중', value: '8명' },
+                  { label: '관리 현장', value: '3개' },
+                ].map((item) => (
+                  <div key={item.label} className="px-4 py-4 border-r border-[#F3F4F6] last:border-r-0 text-center">
+                    <div className="text-[20px] font-bold text-[#F97316]">{item.value}</div>
+                    <div className="text-[11px] text-[#9CA3AF] mt-0.5">{item.label}</div>
+                  </div>
+                ))}
+              </div>
+              {/* 출근 목록 */}
+              <div className="px-5 py-4">
+                <div className="text-[12px] font-semibold text-[#6B7280] mb-3">오늘 출근 기록</div>
+                {[
+                  { name: '김철수', site: '1공구 현장', time: '08:12', status: '근무중', on: true },
+                  { name: '이영희', site: '2공구 현장', time: '08:35', status: '근무중', on: true },
+                  { name: '박민준', site: '1공구 현장', time: '09:01', status: '퇴근', on: false },
+                ].map((r) => (
+                  <div key={r.name} className="flex items-center justify-between py-2.5 border-b border-[#F9FAFB] last:border-b-0">
+                    <div>
+                      <div className="text-[13px] font-medium text-[#111827]">{r.name}</div>
+                      <div className="text-[11px] text-[#9CA3AF]">{r.site}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[12px] text-[#6B7280]">{r.time}</div>
+                      <div className={`text-[11px] font-semibold mt-0.5 ${r.on ? 'text-[#16A34A]' : 'text-[#9CA3AF]'}`}>
+                        {r.status}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── 핵심 기능 ───────────────────────────────────── */}
-      <section className="py-20 px-6 bg-brand">
+      {/* ── 핵심 기능 ───────────────────────────────────────── */}
+      <section id="features" className="py-20 px-6 bg-white">
         <div className="max-w-[1100px] mx-auto">
-          <p className="text-[13px] font-bold text-accent tracking-[1.5px] uppercase text-center mb-3">핵심 기능</p>
-          <h2 className="text-[36px] font-extrabold text-center mb-4 tracking-[-0.5px]">현장 관리를 더 스마트하게</h2>
-          <p className="text-base text-muted-brand text-center mb-14 leading-[1.7]">
-            복잡한 종이 대장·수기 기록 없이 스마트폰 하나로 모든 출퇴근을 관리합니다.
-          </p>
-
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5">
+          <div className="text-center mb-12">
+            <p className="text-[11px] font-semibold text-[#F97316] tracking-[2px] uppercase mb-3">핵심 기능</p>
+            <h2 className="text-[28px] font-bold text-[#0F172A] tracking-[-0.3px]">꼭 필요한 기능만 담았습니다</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
-                icon: '📍',
-                color: '#F47920',
-                title: 'GPS 출퇴근',
-                desc: '현장 반경 안에서만 출퇴근 가능. 위치 조작·대리 출퇴근을 원천 차단합니다.',
+                svg: <><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="#F97316" strokeWidth="2"/></>,
+                title: 'GPS 기반 출퇴근 기록',
+                desc: '현장 위치 기준으로 출근, 이동, 퇴근 기록을 남길 수 있습니다.',
               },
               {
-                icon: '🔒',
-                color: '#5BA4D9',
-                title: '관리자 승인 방식',
-                desc: '승인된 기기·근로자만 사용 가능. 보안이 검증된 인력만 현장에 접근합니다.',
+                svg: <><rect x="3" y="3" width="18" height="18" rx="3" stroke="#F97316" strokeWidth="2"/><path d="M8 12h8M8 8h8M8 16h5" stroke="#F97316" strokeWidth="2" strokeLinecap="round"/></>,
+                title: '현장별 출근 현황 확인',
+                desc: '관리자는 날짜와 현장 기준으로 현재 근무 중인 인원을 확인할 수 있습니다.',
               },
               {
-                icon: '📊',
-                color: '#4CAF50',
-                title: '실시간 현황 대시보드',
-                desc: '관리자는 현재 출근 인원을 언제 어디서나 실시간으로 파악할 수 있습니다.',
+                svg: <><path d="M21 21H4.6A1.6 1.6 0 013 19.4V3" stroke="#F97316" strokeWidth="2" strokeLinecap="round"/><path d="M7 16l4-4 3 3 5-6" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></>,
+                title: '근무일수 자동 집계',
+                desc: '출퇴근 기록을 기준으로 근무일수와 월별 현황을 확인할 수 있습니다.',
               },
               {
-                icon: '🔄',
-                color: '#AB47BC',
-                title: '자동 미퇴근 처리',
-                desc: '퇴근 버튼 미입력 시 다음날 자동으로 미퇴근 처리. 누락 없는 기록 관리.',
-              },
-              {
-                icon: '🚶',
-                color: '#26C6DA',
-                title: '현장 간 이동 기록',
-                desc: '여러 현장을 오가는 경우 이동 기록도 시간 순서대로 자동 저장됩니다.',
-              },
-              {
-                icon: '📱',
-                color: '#FF7043',
-                title: 'PWA 앱 설치',
-                desc: '앱 스토어 없이 홈 화면에 바로 추가. Android·iOS 모두 지원합니다.',
+                svg: <><path d="M9 12l2 2 4-4" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 3a9 9 0 100 18A9 9 0 0012 3z" stroke="#F97316" strokeWidth="2"/></>,
+                title: '관리자 승인 및 운영 관리',
+                desc: '근로자, 현장, 승인 대기 항목을 한 화면에서 관리할 수 있습니다.',
               },
             ].map((f) => (
-              <div key={f.title}
-                className="bg-card rounded-2xl p-8 border border-[rgba(91,164,217,0.12)] transition-transform duration-200 hover:-translate-y-0.5">
-                <div
-                  className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center mb-[18px]"
-                  style={{ background: f.color + '22', border: `1px solid ${f.color}44` }}
-                >
-                  <span className="text-2xl">{f.icon}</span>
+              <div key={f.title} className="bg-[#F9FAFB] rounded-[14px] border border-[#F3F4F6] p-6 hover:border-[#E5E7EB] hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all">
+                <div className="w-10 h-10 bg-[#FFF7ED] rounded-[10px] flex items-center justify-center mb-4">
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">{f.svg}</svg>
                 </div>
-                <h3 className="text-[17px] font-bold mb-2.5">{f.title}</h3>
-                <p className="text-sm text-muted-brand leading-[1.7] m-0">{f.desc}</p>
+                <h3 className="text-[14px] font-semibold text-[#111827] mb-2 leading-snug">{f.title}</h3>
+                <p className="text-[13px] text-[#6B7280] leading-[1.7] m-0">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── 사용 방법 ───────────────────────────────────── */}
-      <section className="py-20 px-6 bg-brand-dark">
-        <div className="max-w-[1100px] mx-auto">
-          <p className="text-[13px] font-bold text-accent tracking-[1.5px] uppercase text-center mb-3">4단계 프로세스</p>
-          <h2 className="text-[36px] font-extrabold text-center mb-4 tracking-[-0.5px]">이렇게 사용하세요</h2>
-
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 relative mt-12">
-            {[
-              { num: '01', icon: '📱', title: '회원가입 & 승인', desc: '이름·연락처·직종으로 가입 후\n관리자 승인을 받으세요.' },
-              { num: '02', icon: '📍', title: 'GPS 출근',        desc: '현장 반경 안에서\n출근 버튼 한 번으로 기록 완료.' },
-              { num: '03', icon: '🚶', title: '현장 이동 (선택)', desc: '다른 현장으로 이동 시\n이동 버튼을 눌러 추가 기록.' },
-              { num: '04', icon: '🏠', title: 'GPS 퇴근',        desc: '업무 종료 후 반드시\n퇴근 버튼을 눌러 마무리.' },
-            ].map((step, i) => (
-              <div key={step.num}
-                className="bg-brand rounded-2xl p-8 px-6 text-center border border-[rgba(91,164,217,0.12)] relative">
-                {/* 연결선 (마지막 제외) — hidden by default */}
-                {i < 3 && <div className="hidden" />}
-                <div className="inline-block bg-[rgba(244,121,32,0.15)] border border-brand-accent text-accent rounded-lg py-1 px-3 text-xs font-black tracking-[1px] mb-4">
-                  {step.num}
-                </div>
-                <div className="text-[40px] mb-4">{step.icon}</div>
-                <h3 className="text-base font-bold mb-2.5">{step.title}</h3>
-                <p className="text-[13px] text-muted-brand leading-[1.7] whitespace-pre-line m-0">{step.desc}</p>
-              </div>
-            ))}
+      {/* ── 사용 대상 ───────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-[#F9FAFB] border-t border-[#F3F4F6]">
+        <div className="max-w-[860px] mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-[11px] font-semibold text-[#F97316] tracking-[2px] uppercase mb-3">사용 대상</p>
+            <h2 className="text-[28px] font-bold text-[#0F172A] tracking-[-0.3px]">누가 사용하는 서비스인가요?</h2>
           </div>
-        </div>
-      </section>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      {/* ── 수치 실적 ───────────────────────────────────── */}
-      <section className="py-20 px-6 bg-brand border-t border-[rgba(91,164,217,0.12)] border-b border-b-[rgba(91,164,217,0.12)]">
-        <div className="max-w-[1100px] mx-auto grid grid-cols-2 gap-[60px] items-center">
-          <div>
-            <p className="text-[13px] font-bold text-accent tracking-[1.5px] uppercase text-left mb-3">도입 효과</p>
-            <h2 className="text-[36px] font-extrabold text-left mb-5 tracking-[-0.5px]">
-              현장 관리 시간<br />
-              <span className="text-accent">70% 절감</span>
-            </h2>
-            <p className="text-muted-brand leading-[1.8] text-base">
-              수기 대장 정리, 전화 확인, 출퇴근 집계에 쏟던 시간을<br />
-              실제 현장 관리에 집중하세요.
-            </p>
-            <Link href="/register"
-              className="inline-block py-4 px-10 bg-brand-accent text-white rounded-[10px] no-underline text-base font-bold shadow-[0_4px_16px_rgba(244,121,32,0.4)] mt-7">
-              지금 무료로 시작하기
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { num: '0원',  label: '기본 사용 비용' },
-              { num: '5분',  label: '평균 도입 시간' },
-              { num: '100%', label: '수기 대장 대체율' },
-              { num: '24/7', label: '실시간 현황 확인' },
-            ].map((stat) => (
-              <div key={stat.label}
-                className="bg-card border border-[rgba(91,164,217,0.15)] rounded-2xl py-7 px-5 text-center">
-                <div className="text-[32px] font-black text-accent mb-2">{stat.num}</div>
-                <div className="text-[13px] text-muted-brand">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 확인 사항 ───────────────────────────────────── */}
-      <section className="py-20 px-6 bg-brand-dark">
-        <div className="max-w-[1100px] mx-auto">
-          <p className="text-[13px] font-bold text-accent tracking-[1.5px] uppercase text-center mb-3">시작 전 확인</p>
-          <h2 className="text-[36px] font-extrabold text-center mb-4 tracking-[-0.5px]">꼭 확인하세요</h2>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 mt-12">
-            {[
-              { icon: '📡', title: 'GPS 권한 허용',  desc: '스마트폰 위치 권한을 허용해야 출퇴근 기록이 가능합니다.' },
-              { icon: '✅', title: '기기 등록 승인',  desc: '최초 1회 관리자의 기기 승인이 필요합니다. 미승인 기기는 사용 불가.' },
-              { icon: '⏰', title: '퇴근 버튼 필수',  desc: '퇴근 버튼을 누르지 않으면 자동으로 미퇴근 처리됩니다.' },
-              { icon: '📞', title: '문제 발생 시',    desc: '오류나 문제가 생기면 즉시 현장 관리자에게 알려주세요.' },
-            ].map((n) => (
-              <div key={n.title}
-                className="flex gap-4 items-start bg-brand border border-[rgba(91,164,217,0.15)] rounded-[14px] py-[22px] px-5">
-                <div className="w-11 h-11 bg-[rgba(244,121,32,0.12)] rounded-xl flex items-center justify-center text-xl shrink-0">
-                  {n.icon}
+            {/* 근로자 카드 */}
+            <div className="bg-white rounded-[16px] border border-[#E5E7EB] p-7 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 bg-[#FFF7ED] rounded-[10px] flex items-center justify-center shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="8" r="4" stroke="#F97316" strokeWidth="2"/>
+                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#F97316" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
                 </div>
                 <div>
-                  <div className="text-[15px] font-bold mb-1.5">{n.title}</div>
-                  <div className="text-[13px] text-muted-brand leading-[1.6]">{n.desc}</div>
+                  <div className="text-[15px] font-bold text-[#111827]">근로자</div>
+                  <div className="text-[12px] text-[#9CA3AF]">현장에서 일하는 직원</div>
                 </div>
               </div>
-            ))}
+              <ul className="space-y-2.5 m-0 p-0 list-none mb-6">
+                {['빠른 출근 / 퇴근 기록', '내 출근 기록 확인', '현장 이동 기록', '월별 근무일수 조회'].map((item) => (
+                  <li key={item} className="flex items-center gap-2.5 text-[14px] text-[#374151]">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#F97316] shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/login"
+                className="block text-center py-2.5 bg-[#F97316] hover:bg-[#EA580C] text-white text-[14px] font-semibold rounded-[9px] no-underline transition-colors">
+                근로자 시작하기
+              </Link>
+            </div>
+
+            {/* 관리자 카드 */}
+            <div className="bg-white rounded-[16px] border border-[#E5E7EB] p-7 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 bg-[#F0FDF4] rounded-[10px] flex items-center justify-center shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="2" y="7" width="20" height="14" rx="3" stroke="#16A34A" strokeWidth="2"/>
+                    <path d="M16 7V5a4 4 0 00-8 0v2" stroke="#16A34A" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-[15px] font-bold text-[#111827]">관리자</div>
+                  <div className="text-[12px] text-[#9CA3AF]">현장 및 운영 담당자</div>
+                </div>
+              </div>
+              <ul className="space-y-2.5 m-0 p-0 list-none mb-6">
+                {['오늘 출근 현황 확인', '근로자 관리 및 승인', '현장별 인원 관리', '월별 근무일수 집계'].map((item) => (
+                  <li key={item} className="flex items-center gap-2.5 text-[14px] text-[#374151]">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#16A34A] shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/admin/login"
+                className="block text-center py-2.5 border border-[#E5E7EB] hover:border-[#D1D5DB] text-[#374151] text-[14px] font-medium rounded-[9px] no-underline transition-colors">
+                관리자 로그인
+              </Link>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* ── CTA ────────────────────────────────────────── */}
-      <section className="bg-[linear-gradient(135deg,#0d1b2a_0%,#1a2c42_100%)] py-[100px] px-6 text-center">
-        <div className="max-w-[680px] mx-auto">
-          <p className="text-[13px] font-bold tracking-[1.5px] uppercase text-center mb-3 text-[rgba(255,255,255,0.6)]">
-            지금 바로 시작
-          </p>
-          <h2 className="text-[44px] font-black leading-[1.2] my-3 mb-5 tracking-[-1px]">
-            현장 출퇴근 관리,<br />
-            <span className="text-accent">5분 안에 도입</span>하세요
+      {/* ── 하단 CTA ────────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-[#FFF7ED] border-t border-[#FEE2C0] text-center">
+        <div className="max-w-[560px] mx-auto">
+          <h2 className="text-[28px] sm:text-[30px] font-bold text-[#0F172A] mb-4 leading-[1.35]">
+            현장 출퇴근 관리를<br />바로 시작해보세요
           </h2>
-          <p className="text-base text-[rgba(255,255,255,0.6)] mb-10 leading-[1.7]">
-            별도 설치 없이 스마트폰 브라우저로 바로 사용 가능합니다.
+          <p className="text-[15px] text-[#6B7280] mb-8 leading-[1.7]">
+            스마트폰 브라우저로 별도 설치 없이 바로 사용할 수 있습니다.
           </p>
-          <div className="flex gap-[14px] justify-center flex-wrap">
-            <Link href="/register"
-              className="inline-block py-4 px-10 bg-brand-accent text-white rounded-[10px] no-underline text-base font-bold shadow-[0_4px_16px_rgba(244,121,32,0.4)]">
-              지금 회원가입
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Link href="/login"
+              className="inline-block py-3 px-7 bg-[#F97316] hover:bg-[#EA580C] text-white rounded-[10px] no-underline text-[15px] font-semibold transition-colors shadow-[0_2px_10px_rgba(249,115,22,0.25)]">
+              근로자 시작하기
             </Link>
-            <Link href="/attendance"
-              className="inline-block py-[15px] px-10 border-2 border-[rgba(255,255,255,0.4)] text-[rgba(255,255,255,0.85)] rounded-[10px] no-underline text-base font-semibold">
-              앱 미리보기
+            <Link href="/admin/login"
+              className="inline-block py-3 px-7 border border-[#E5E7EB] bg-white text-[#374151] hover:border-[#D1D5DB] rounded-[10px] no-underline text-[15px] font-medium transition-colors">
+              관리자 로그인
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── 푸터 ────────────────────────────────────────── */}
-      <footer className="bg-footer border-top-accent">
-        <div className="max-w-[1100px] mx-auto px-6 pt-12 pb-8">
-          <div className="flex justify-between items-start flex-wrap gap-8 mb-8">
-            <div className="text-xl font-extrabold text-white">
-              해한<span className="text-accent">Ai</span> Engineering
-              <p className="text-[13px] text-secondary-brand font-normal mt-1.5 mb-0">Transforming the World with Ai</p>
+      {/* ── 푸터 ────────────────────────────────────────────── */}
+      <footer className="bg-[#F9FAFB] border-t border-[#E5E7EB] px-6 py-7">
+        <div className="max-w-[1100px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-[#FFF7ED] rounded-[6px] flex items-center justify-center">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
-            <div className="flex gap-6 flex-wrap items-center">
-              <Link href="/guide"      className="text-muted-brand no-underline text-sm">사용 가이드</Link>
-              <Link href="/register"   className="text-muted-brand no-underline text-sm">회원가입</Link>
-              <Link href="/login"      className="text-muted-brand no-underline text-sm">로그인</Link>
-              <Link href="/admin/login" className="text-muted-brand no-underline text-sm">관리자</Link>
-            </div>
+            <span className="text-[14px] font-semibold text-[#0F172A]">해한AI 출퇴근</span>
           </div>
-          <div className="h-px bg-[rgba(255,255,255,0.08)] mb-6" />
-          <div className="flex justify-between items-center text-[13px] text-muted-brand flex-wrap gap-2">
-            <span>© 2026 해한Ai Engineering. All rights reserved.</span>
-            <span className="text-secondary-brand text-xs">건설현장 출퇴근 관리 시스템</span>
+          <div className="flex items-center gap-5 text-[13px] text-[#9CA3AF] flex-wrap justify-center">
+            <a href="#features" className="no-underline hover:text-[#6B7280] transition-colors">기능 소개</a>
+            <Link href="/admin/login" className="no-underline hover:text-[#6B7280] transition-colors">관리자 로그인</Link>
+            <span>© 2026 해한AI Engineering</span>
           </div>
         </div>
       </footer>

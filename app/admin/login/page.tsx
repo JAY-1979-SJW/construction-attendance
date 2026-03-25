@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import Link from 'next/link'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -12,6 +12,7 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false)
 
   const handleLogin = async () => {
+    if (loading) return
     setLoading(true)
     setError('')
     try {
@@ -22,56 +23,161 @@ export default function AdminLoginPage() {
       })
       const data = await res.json()
       if (!data.success) {
-        setError(data.message)
+        setError(data.message ?? '이메일 또는 비밀번호를 확인해주세요.')
         return
       }
-      // 역할에 따라 포털 분기
       router.push(data.portal ?? '/admin')
     } catch {
-      setError('네트워크 오류가 발생했습니다.')
+      setError('로그인 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[linear-gradient(160deg,#0d1b2a_0%,#1B2838_60%,#141E2A_100%)]">
-      <div className="bg-[#243144] rounded-[20px] px-10 py-11 w-full max-w-[420px] shadow-[0_8px_40px_rgba(0,0,0,0.4)] border border-[rgba(91,164,217,0.15)] border-t-[3px] border-t-[#F47920]">
-        {/* 브랜드 로고 */}
-        <div className="text-center mb-7">
-          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} className="w-[200px] h-auto mx-auto mb-3 block rounded-2xl" priority />
-          <div className="text-[13px] text-[#A0AEC0] bg-[rgba(255,255,255,0.06)] inline-block px-3 py-[3px] rounded-[20px]">관리자 포털</div>
-        </div>
+    <div className="font-sans min-h-screen bg-[#F9FAFB] text-[#111827]">
 
-        <div className="h-px bg-[rgba(255,255,255,0.08)] mb-6" />
+      {/* ── 헤더 (메인과 동일) ───────────────────────────────── */}
+      <header className="sticky top-0 z-50">
+        <div className="h-1 bg-[#F97316]" />
+        <div className="bg-white border-b border-[#F3F4F6]">
+          <div className="max-w-[1100px] mx-auto px-6 flex items-center justify-between" style={{ height: '60px' }}>
+            {/* 로고 */}
+            <Link href="/" className="flex items-center gap-2 no-underline">
+              <div className="w-8 h-8 bg-[#FFF7ED] rounded-[9px] flex items-center justify-center shrink-0">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <span className="text-[15px] font-bold text-[#0F172A]">해한AI 출퇴근</span>
+            </Link>
 
-        <div className="mb-4">
-          <label className="block text-[13px] font-semibold text-[#A0AEC0] mb-[6px]">이메일</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-[13px] text-[15px] border border-[rgba(91,164,217,0.25)] rounded-[10px] outline-none box-border bg-[rgba(255,255,255,0.06)] text-white" placeholder="admin@example.com" />
-        </div>
-        <div className="mb-4">
-          <label className="block text-[13px] font-semibold text-[#A0AEC0] mb-[6px]">비밀번호</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleLogin()} className="w-full px-4 py-[13px] text-[15px] border border-[rgba(91,164,217,0.25)] rounded-[10px] outline-none box-border bg-[rgba(255,255,255,0.06)] text-white" />
-        </div>
-
-        {error && (
-          <div className="bg-[rgba(229,57,53,0.12)] border border-[rgba(229,57,53,0.35)] rounded-[10px] px-[14px] py-[10px] text-[#ef9a9a] text-[13px] mb-[14px]">
-            {error}
+            {/* 네비게이션 */}
+            <nav className="flex items-center gap-2">
+              <Link href="/#features" className="hidden sm:block text-[13px] text-[#6B7280] hover:text-[#111827] transition-colors px-3 py-1.5 no-underline">
+                기능 소개
+              </Link>
+              {/* 현재 페이지 — 활성 표시 */}
+              <span className="text-[13px] font-semibold text-[#F97316] border border-[#FDBA74] bg-[#FFF7ED] rounded-[8px] px-4 py-[7px]">
+                관리자 로그인
+              </span>
+              <Link href="/login"
+                className="text-[13px] font-semibold text-white bg-[#F97316] hover:bg-[#EA580C] rounded-[8px] px-4 py-2 no-underline transition-colors">
+                근로자 시작하기
+              </Link>
+            </nav>
           </div>
-        )}
+        </div>
+      </header>
 
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full py-[15px] text-base font-bold bg-[#F47920] text-white border-none rounded-[10px] cursor-pointer shadow-[0_4px_14px_rgba(244,121,32,0.35)] mt-1 disabled:opacity-60"
-        >
-          {loading ? '로그인 중...' : '로그인'}
-        </button>
+      {/* ── 본문: 2단 레이아웃 ──────────────────────────────── */}
+      <main className="max-w-[1100px] mx-auto px-6 py-16 flex items-start gap-16 flex-wrap lg:flex-nowrap">
 
-        <p className="text-center text-[13px] text-[#718096] mt-5 mb-0">
-          근로자 로그인은 <a href="/login" className="text-[#5BA4D9] no-underline">여기</a>에서
-        </p>
-      </div>
+        {/* 좌측: 안내 영역 */}
+        <div className="flex-1 min-w-[260px] pt-4">
+          <div className="inline-block bg-[#FFF7ED] text-[#F97316] text-[12px] font-semibold px-3 py-1 rounded-full mb-5 tracking-wide">
+            관리자 포털
+          </div>
+          <h1 className="text-[32px] sm:text-[36px] font-bold text-[#0F172A] leading-[1.25] mb-5 tracking-[-0.3px]">
+            현장 운영을 위한<br />관리자 전용 로그인
+          </h1>
+          <p className="text-[15px] text-[#4B5563] leading-[1.85] mb-8">
+            오늘 출근 현황, 근로자 승인, 현장 관리를<br />
+            한곳에서 확인할 수 있습니다.
+          </p>
+
+          {/* 기능 요약 (선택적 보조 정보) */}
+          <ul className="space-y-3 m-0 p-0 list-none">
+            {[
+              '오늘 현장별 출근 인원 확인',
+              '근로자 및 기기 승인 처리',
+              '미퇴근 누락 즉시 파악',
+            ].map(item => (
+              <li key={item} className="flex items-center gap-2.5 text-[14px] text-[#374151]">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#F97316] shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* 우측: 로그인 카드 */}
+        <div className="w-full lg:w-[440px] shrink-0">
+          <div className="bg-white rounded-[20px] border border-[#E5E7EB] shadow-[0_4px_24px_rgba(0,0,0,0.06)] px-8 py-9">
+
+            {/* 카드 제목 */}
+            <h2 className="text-[20px] font-semibold text-[#111827] mb-1.5 leading-snug">
+              관리자 로그인
+            </h2>
+            <p className="text-[13px] text-[#6B7280] mb-7">
+              관리자 계정으로 로그인하세요.
+            </p>
+
+            {/* 오류 메시지 */}
+            {error && (
+              <div role="alert" className="bg-red-50 border border-red-200 rounded-[10px] px-4 py-3 text-red-600 text-[13px] leading-relaxed mb-5">
+                {error}
+              </div>
+            )}
+
+            {/* 이메일 */}
+            <div className="mb-4">
+              <label htmlFor="admin-email" className="block text-[13px] font-semibold text-[#374151] mb-[6px]">
+                이메일
+              </label>
+              <input
+                id="admin-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                placeholder="admin@company.com"
+                className="w-full h-12 px-4 text-[15px] text-[#111827] bg-white border border-[#E5E7EB] rounded-[10px] outline-none placeholder:text-[#9CA3AF] focus:border-[#F97316] focus:ring-2 focus:ring-[rgba(249,115,22,0.12)] transition-colors"
+              />
+            </div>
+
+            {/* 비밀번호 */}
+            <div className="mb-6">
+              <label htmlFor="admin-password" className="block text-[13px] font-semibold text-[#374151] mb-[6px]">
+                비밀번호
+              </label>
+              <input
+                id="admin-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                autoComplete="current-password"
+                placeholder="비밀번호 입력"
+                className="w-full h-12 px-4 text-[15px] text-[#111827] bg-white border border-[#E5E7EB] rounded-[10px] outline-none placeholder:text-[#9CA3AF] focus:border-[#F97316] focus:ring-2 focus:ring-[rgba(249,115,22,0.12)] transition-colors"
+              />
+            </div>
+
+            {/* 로그인 버튼 */}
+            <button
+              type="button"
+              onClick={handleLogin}
+              disabled={loading}
+              className="w-full h-12 text-[15px] font-semibold text-white bg-[#F97316] hover:bg-[#EA580C] active:bg-[#C2410C] rounded-[12px] transition-colors shadow-[0_2px_10px_rgba(249,115,22,0.25)] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? '로그인 중...' : '로그인'}
+            </button>
+
+            {/* 보조 링크 */}
+            <div className="mt-6 flex flex-col items-center gap-2.5 text-[13px] text-[#6B7280]">
+              <a href="/login" className="hover:text-[#F97316] transition-colors py-1">
+                근로자 로그인으로 이동
+              </a>
+              <a href="/" className="hover:text-[#F97316] transition-colors py-1">
+                메인으로 돌아가기
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </main>
+
     </div>
   )
 }
