@@ -125,8 +125,8 @@ export default function NewMaterialRequestPage() {
         </div>
 
         <div style={S.infoBox}>
-          <div style={{ fontSize: '13px', color: '#A0AEC0', lineHeight: '1.8' }}>
-            <strong style={{ color: 'white' }}>작성 순서</strong><br />
+          <div style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.8' }}>
+            <strong style={{ color: '#111827' }}>작성 순서</strong><br />
             1. 청구서 생성 → 2. 품목 추가 → 3. 검토 후 제출<br />
             <span style={{ fontSize: '12px' }}>생성 후 자재 품목을 추가하고 제출하면 담당자가 검토합니다.</span>
           </div>
@@ -137,25 +137,25 @@ export default function NewMaterialRequestPage() {
 }
 
 const S: Record<string, React.CSSProperties> = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#1B2838', color: 'white' },
-  sidebar: { width: '220px', background: '#141E2A', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column' },
-  sidebarTitle: { color: 'white', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  navSection: { color: 'rgba(255,255,255,0.4)', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
-  navItem: { display: 'block', color: 'rgba(255,255,255,0.8)', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
-  navItemActive: { display: 'block', color: 'white', padding: '10px 20px', fontSize: '14px', textDecoration: 'none', background: 'rgba(244,121,32,0.15)', borderLeft: '3px solid #F47920' },
-  logoutBtn: { margin: '24px 20px 0', padding: '10px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '13px' },
+  layout: { display: 'flex', minHeight: '100vh', background: '#F5F7FA', color: '#111827' },
+  sidebar: { width: '220px', background: '#FFFFFF', padding: '24px 0', flexShrink: 0, display: 'flex', flexDirection: 'column', borderRight: '1px solid #E5E7EB' },
+  sidebarTitle: { color: '#111827', fontSize: '16px', fontWeight: 700, padding: '0 20px 24px', borderBottom: '1px solid #E5E7EB' },
+  navSection: { color: '#9CA3AF', fontSize: '11px', padding: '16px 20px 8px', textTransform: 'uppercase', letterSpacing: '1px' },
+  navItem: { display: 'block', color: '#374151', padding: '10px 20px', fontSize: '14px', textDecoration: 'none' },
+  navItemActive: { display: 'block', color: '#111827', padding: '10px 20px', fontSize: '14px', textDecoration: 'none', background: '#FFF7ED', borderLeft: '3px solid #F97316' },
+  logoutBtn: { margin: '24px 20px 0', padding: '10px', background: '#F3F4F6', border: 'none', borderRadius: '6px', color: '#6B7280', cursor: 'pointer', fontSize: '13px' },
   main: { flex: 1, padding: '32px', maxWidth: '760px' },
-  pageTitle: { fontSize: '24px', fontWeight: 700, margin: '0 0 4px' },
-  pageDesc: { fontSize: '14px', color: '#A0AEC0', margin: 0 },
-  backBtn: { color: '#A0AEC0', textDecoration: 'none', fontSize: '13px', padding: '6px 12px', border: '1px solid rgba(91,164,217,0.2)', borderRadius: '4px', whiteSpace: 'nowrap' as const },
-  card: { background: '#243144', borderRadius: '10px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', marginBottom: '16px' },
+  pageTitle: { fontSize: '24px', fontWeight: 700, margin: '0 0 4px', color: '#111827' },
+  pageDesc: { fontSize: '14px', color: '#6B7280', margin: 0 },
+  backBtn: { color: '#6B7280', textDecoration: 'none', fontSize: '13px', padding: '6px 12px', border: '1px solid #E5E7EB', borderRadius: '4px', whiteSpace: 'nowrap' as const },
+  card: { background: '#FFFFFF', borderRadius: '10px', padding: '28px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: '16px', border: '1px solid #E5E7EB' },
   formGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' },
   formGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: { fontSize: '13px', color: '#A0AEC0', fontWeight: 500 },
-  input: { padding: '10px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: '#1B2838', color: 'white' },
-  select: { padding: '10px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: '#1B2838', color: 'white' },
-  errorMsg: { marginTop: '12px', padding: '10px 14px', background: 'rgba(183,28,28,0.15)', border: '1px solid rgba(183,28,28,0.4)', borderRadius: '6px', color: '#ef5350', fontSize: '13px' },
-  primaryBtn: { padding: '10px 24px', background: '#F47920', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
-  cancelBtn: { padding: '10px 20px', background: 'rgba(255,255,255,0.08)', color: '#A0AEC0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' },
-  infoBox: { background: 'rgba(91,164,217,0.06)', border: '1px solid rgba(91,164,217,0.15)', borderRadius: '8px', padding: '16px 20px' },
+  label: { fontSize: '13px', color: '#6B7280', fontWeight: 500 },
+  input: { padding: '10px 12px', border: '1px solid #E5E7EB', borderRadius: '6px', fontSize: '14px', background: '#FFFFFF', color: '#111827' },
+  select: { padding: '10px 12px', border: '1px solid #E5E7EB', borderRadius: '6px', fontSize: '14px', background: '#FFFFFF', color: '#111827' },
+  errorMsg: { marginTop: '12px', padding: '10px 14px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: '6px', color: '#dc2626', fontSize: '13px' },
+  primaryBtn: { padding: '10px 24px', background: '#F97316', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  cancelBtn: { padding: '10px 20px', background: '#FFFFFF', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' },
+  infoBox: { background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px 20px' },
 }

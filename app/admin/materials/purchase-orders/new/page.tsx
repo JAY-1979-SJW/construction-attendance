@@ -223,8 +223,8 @@ function NewPurchaseOrderInner() {
                             }))}
                             style={{
                               width: '80px', padding: '5px 8px', borderRadius: '4px',
-                              background: '#1B2838', color: 'white', fontSize: '13px',
-                              border: `1px solid ${isOver ? '#ef5350' : 'rgba(91,164,217,0.3)'}`,
+                              background: '#FFFFFF', color: '#111827', fontSize: '13px',
+                              border: `1px solid ${isOver ? '#ef5350' : '#E5E7EB'}`,
                             }}
                           />
                           {isOver && <div className="text-[10px] text-[#ef5350] mt-[2px]">잔량 초과</div>}

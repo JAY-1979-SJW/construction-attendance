@@ -22,7 +22,7 @@ interface WorkLog {
 }
 
 const WEATHER_LABELS: Record<string, string> = {
-  SUNNY: '맑음', CLOUDY: '흐림', RAINY: '비', SNOWY: '눈', WINDY: '바람', FOGGY: '안개',
+  SUNNY: '맑음', CLOUDY: '?�림', RAINY: '�?, SNOWY: '??, WINDY: '바람', FOGGY: '?�개',
 }
 
 function fmtDate(d: string) {
@@ -62,7 +62,7 @@ export default function CompanyWorklogsPage() {
       .then(r => r.json())
       .then(d => {
         if (d.success) setLogs(d.data?.worklogs ?? [])
-        else setMsg(d.message ?? '불러오기 실패')
+        else setMsg(d.message ?? '불러?�기 ?�패')
       })
       .finally(() => setLoading(false))
   }, [siteId, fromDate, toDate])
@@ -71,7 +71,7 @@ export default function CompanyWorklogsPage() {
 
   return (
     <div className="p-8 font-sans">
-      <h1 className="text-[22px] font-bold text-[#111827] mb-5">작업일보</h1>
+      <h1 className="text-[22px] font-bold text-[#111827] mb-5">?�업?�보</h1>
 
       <div className="flex gap-2 items-center mb-5 flex-wrap">
         <select
@@ -79,7 +79,7 @@ export default function CompanyWorklogsPage() {
           value={siteId}
           onChange={(e) => setSiteId(e.target.value)}
         >
-          <option value="">현장 선택</option>
+          <option value="">?�장 ?�택</option>
           {sites.map(s => (
             <option key={s.id} value={s.id}>{s.name}</option>
           ))}
@@ -87,25 +87,25 @@ export default function CompanyWorklogsPage() {
         <input type="date" className="px-[10px] py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
         <span className="text-[#9ca3af] text-[13px]">~</span>
         <input type="date" className="px-[10px] py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-        <button onClick={load} className="px-4 py-2 bg-[#0f4c75] text-white border-none rounded-md cursor-pointer text-[13px]">조회</button>
+        <button onClick={load} className="px-4 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]">조회</button>
       </div>
 
       {!siteId && (
-        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">현장을 선택하면 작업일보를 확인할 수 있습니다.</div>
+        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">?�장???�택?�면 ?�업?�보�??�인?????�습?�다.</div>
       )}
 
       {msg && <div className="px-[14px] py-[10px] bg-[#fee2e2] text-[#991b1b] rounded-md text-[13px] mb-3">{msg}</div>}
 
       {loading ? (
-        <p className="text-[#9ca3af] text-center py-10">불러오는 중...</p>
+        <p className="text-[#9ca3af] text-center py-10">불러?�는 �?..</p>
       ) : siteId && logs.length === 0 ? (
-        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">해당 기간에 작업일보가 없습니다.</div>
+        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">?�당 기간???�업?�보가 ?�습?�다.</div>
       ) : logs.length > 0 ? (
         <div className="bg-card border border-[#e5e7eb] rounded-lg overflow-auto">
           <table className="w-full border-collapse text-[13px]">
             <thead className="bg-[#f9fafb]">
               <tr>
-                {['날짜', '전체 인원', '정상 출근', '결근', '날씨', '안전 사고', '상태', '요약'].map(h => (
+                {['?�짜', '?�체 ?�원', '?�상 출근', '결근', '?�씨', '?�전 ?�고', '?�태', '?�약'].map(h => (
                   <th key={h} className="px-[14px] py-[10px] text-left text-[12px] text-[#6b7280] font-semibold border-b border-[#e5e7eb]">{h}</th>
                 ))}
               </tr>
@@ -117,12 +117,12 @@ export default function CompanyWorklogsPage() {
                   <td className="px-[14px] py-[10px] text-[#374151] align-middle text-center">{log.totalWorkers}</td>
                   <td className="px-[14px] py-[10px] text-[#374151] align-middle text-center">{log.normalWorkers}</td>
                   <td className="px-[14px] py-[10px] text-[#374151] align-middle text-center">{log.absentWorkers}</td>
-                  <td className="px-[14px] py-[10px] text-[#374151] align-middle">{log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '—'}</td>
+                  <td className="px-[14px] py-[10px] text-[#374151] align-middle">{log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '??}</td>
                   <td className="px-[14px] py-[10px] text-[#374151] align-middle">
                     {log.safetyIncident ? (
                       <span className="text-[#dc2626] text-[12px] font-semibold">발생</span>
                     ) : (
-                      <span className="text-[#9ca3af] text-[12px]">없음</span>
+                      <span className="text-[#9ca3af] text-[12px]">?�음</span>
                     )}
                   </td>
                   <td className="px-[14px] py-[10px] text-[#374151] align-middle">
@@ -133,11 +133,11 @@ export default function CompanyWorklogsPage() {
                         color: log.isFinalized ? '#065f46' : '#92400e',
                       }}
                     >
-                      {log.isFinalized ? '마감' : '작성중'}
+                      {log.isFinalized ? '마감' : '?�성�?}
                     </span>
                   </td>
                   <td className="px-[14px] py-[10px] text-[#374151] align-middle max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
-                    {log.workSummary ?? '—'}
+                    {log.workSummary ?? '??}
                   </td>
                 </tr>
               ))}

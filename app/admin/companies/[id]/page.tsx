@@ -308,8 +308,8 @@ export default function CompanyDetailPage() {
                       width: '20px',
                       height: '20px',
                       borderRadius: '50%',
-                      background: '#243144',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                      background: '#E5E7EB',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                       transition: 'left 0.2s',
                     }} />
                   </button>

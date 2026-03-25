@@ -24,10 +24,10 @@ interface AttendanceRecord {
 }
 
 const STATUS_MAP: Record<string, { label: string; bg: string; color: string }> = {
-  WORKING:          { label: '근무중',  bg: '#d1fae5', color: '#065f46' },
-  COMPLETED:        { label: '완료',    bg: '#dbeafe', color: '#1e40af' },
-  MISSING_CHECKOUT: { label: '미퇴근',  bg: '#fee2e2', color: '#991b1b' },
-  EXCEPTION:        { label: '예외',    bg: '#ffedd5', color: '#9a3412' },
+  WORKING:          { label: '근무�?,  bg: '#d1fae5', color: '#065f46' },
+  COMPLETED:        { label: '?�료',    bg: '#dbeafe', color: '#1e40af' },
+  MISSING_CHECKOUT: { label: '미퇴�?,  bg: '#fee2e2', color: '#991b1b' },
+  EXCEPTION:        { label: '?�외',    bg: '#ffedd5', color: '#9a3412' },
   ADJUSTED:         { label: '보정',    bg: '#ede9fe', color: '#5b21b6' },
 }
 
@@ -40,17 +40,17 @@ function todayStr() {
 }
 
 function fmtTime(iso: string | null) {
-  if (!iso) return '—'
+  if (!iso) return '??
   const kst = new Date(new Date(iso).getTime() + 9 * 60 * 60 * 1000)
   return kst.toISOString().slice(11, 16)
 }
 
 function calcManDay(mins: number | null | undefined): string {
-  if (mins == null) return '—'
+  if (mins == null) return '??
   if (mins >= 480) return '1.0공수'
   if (mins >= 240) return '0.5공수'
-  if (mins > 0) return `${mins}분`
-  return '0분'
+  if (mins > 0) return `${mins}�?
+  return '0�?
 }
 
 export default function OpsAttendancePage() {
@@ -61,7 +61,7 @@ export default function OpsAttendancePage() {
   const [loading, setLoading] = useState(false)
   const [isReadOnly, setIsReadOnly] = useState(false)
 
-  // 편집 상태
+  // ?�집 ?�태
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editMinutes, setEditMinutes] = useState('')
   const [editReason, setEditReason] = useState('')
@@ -73,7 +73,7 @@ export default function OpsAttendancePage() {
     fetch('/api/admin/sites?pageSize=200')
       .then(r => r.json())
       .then(d => setSites(d.items ?? d.data?.items ?? []))
-    // 읽기 전용 여부 확인 (EXTERNAL_SITE_ADMIN)
+    // ?�기 ?�용 ?��? ?�인 (EXTERNAL_SITE_ADMIN)
     fetch('/api/admin/auth/me')
       .then(r => r.json())
       .then(d => { if (d.data?.role === 'EXTERNAL_SITE_ADMIN') setIsReadOnly(true) })
@@ -109,11 +109,11 @@ export default function OpsAttendancePage() {
   const saveEdit = async (id: string) => {
     const mins = parseInt(editMinutes, 10)
     if (isNaN(mins) || mins < 0 || mins > 1440) {
-      setEditError('0~1440 사이의 숫자를 입력하세요.')
+      setEditError('0~1440 ?�이???�자�??�력?�세??')
       return
     }
     if (editReason.trim().length < 2) {
-      setEditError('수정 사유를 2자 이상 입력하세요.')
+      setEditError('?�정 ?�유�?2???�상 ?�력?�세??')
       return
     }
     setEditSaving(true)
@@ -126,14 +126,14 @@ export default function OpsAttendancePage() {
       })
       const d = await res.json()
       if (res.ok && d.success !== false) {
-        setMsg({ type: 'success', text: '수정되었습니다.' })
+        setMsg({ type: 'success', text: '?�정?�었?�니??' })
         cancelEdit()
         load()
       } else {
-        setEditError(d.message ?? '저장 실패')
+        setEditError(d.message ?? '?�???�패')
       }
     } catch {
-      setEditError('네트워크 오류가 발생했습니다.')
+      setEditError('?�트?�크 ?�류가 발생?�습?�다.')
     } finally {
       setEditSaving(false)
     }
@@ -141,7 +141,7 @@ export default function OpsAttendancePage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-[22px] font-bold text-[#111827] mb-5">출퇴근 현황</h1>
+      <h1 className="text-[22px] font-bold text-[#111827] mb-5">출퇴�??�황</h1>
 
       <div className="flex gap-2 items-center mb-5 flex-wrap">
         <select
@@ -149,7 +149,7 @@ export default function OpsAttendancePage() {
           value={siteId}
           onChange={e => setSiteId(e.target.value)}
         >
-          <option value="">현장 선택</option>
+          <option value="">?�장 ?�택</option>
           {sites.map(s => (
             <option key={s.id} value={s.id}>{s.name}</option>
           ))}
@@ -162,13 +162,13 @@ export default function OpsAttendancePage() {
         />
         <button
           onClick={load}
-          className="px-4 py-2 bg-[#0f4c75] text-white border-none rounded-md cursor-pointer text-[13px]"
+          className="px-4 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]"
         >
           조회
         </button>
         {isReadOnly && (
           <span className="px-[10px] py-[5px] bg-[rgba(251,191,36,0.15)] border border-[rgba(251,191,36,0.4)] rounded text-[12px] text-[#92400e]">
-            읽기 전용 모드
+            ?�기 ?�용 모드
           </span>
         )}
       </div>
@@ -187,20 +187,20 @@ export default function OpsAttendancePage() {
 
       {!siteId ? (
         <div className="text-center py-[60px] bg-white rounded-lg border border-[#e5e7eb] text-[#6b7280] text-[14px]">
-          현장을 선택하면 출퇴근 현황을 확인할 수 있습니다.
+          ?�장???�택?�면 출퇴�??�황???�인?????�습?�다.
         </div>
       ) : loading ? (
-        <p className="text-[#6b7280]">로딩 중...</p>
+        <p className="text-[#6b7280]">로딩 �?..</p>
       ) : records.length === 0 ? (
         <div className="text-center py-[60px] bg-white rounded-lg border border-[#e5e7eb] text-[#6b7280] text-[14px]">
-          해당 날짜의 출퇴근 기록이 없습니다.
+          ?�당 ?�짜??출퇴�?기록???�습?�다.
         </div>
       ) : (
         <div className="bg-white rounded-lg border border-[#e5e7eb] overflow-auto">
           <table className="w-full border-collapse text-[13px]">
             <thead className="bg-[#f9fafb]">
               <tr>
-                {['근로자명', '현장', '출근', '퇴근', '공수', '상태', ...(isReadOnly ? [] : [''])].map((h, i) => (
+                {['근로?�명', '?�장', '출근', '?�근', '공수', '?�태', ...(isReadOnly ? [] : [''])].map((h, i) => (
                   <th key={i} className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb] whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -216,13 +216,13 @@ export default function OpsAttendancePage() {
                   <>
                     <tr key={r.id} className="border-b border-[#f3f4f6] hover:bg-[rgba(91,164,217,0.04)]">
                       <td className="px-4 py-[13px] font-semibold text-[#1f2937]">{r.workerName}</td>
-                      <td className="px-4 py-[13px] text-[#374151]">{r.siteName || '—'}</td>
+                      <td className="px-4 py-[13px] text-[#374151]">{r.siteName || '??}</td>
                       <td className="px-4 py-[13px] text-[#374151] whitespace-nowrap">{fmtTime(r.checkInAt)}</td>
                       <td className="px-4 py-[13px] text-[#374151] whitespace-nowrap">{fmtTime(r.checkOutAt)}</td>
                       <td className="px-4 py-[13px] text-[#374151] whitespace-nowrap">
                         <span>{calcManDay(displayMinutes)}</span>
                         {r.manualAdjustedYn && (
-                          <span className="ml-1.5 px-1.5 py-0.5 rounded text-[11px] font-semibold bg-[#fef3c7] text-[#92400e]">수동</span>
+                          <span className="ml-1.5 px-1.5 py-0.5 rounded text-[11px] font-semibold bg-[#fef3c7] text-[#92400e]">?�동</span>
                         )}
                       </td>
                       <td className="px-4 py-[13px]">
@@ -238,9 +238,9 @@ export default function OpsAttendancePage() {
                           {canEdit && !isEditing && (
                             <button
                               onClick={() => openEdit(r)}
-                              className="px-3 py-[5px] bg-[#0f4c75] text-white border-none rounded-[5px] cursor-pointer text-[12px]"
+                              className="px-3 py-[5px] bg-[#F97316] text-white border-none rounded-[5px] cursor-pointer text-[12px]"
                             >
-                              수정
+                              ?�정
                             </button>
                           )}
                           {isEditing && (
@@ -259,9 +259,9 @@ export default function OpsAttendancePage() {
                         <td colSpan={7} className="px-4 py-3">
                           <div className="flex items-center gap-2.5 flex-wrap">
                             <span className="text-[13px] text-[#6b7280]">
-                              자동 계산: <strong>{calcManDay(r.workedMinutesAuto ?? r.workedMinutesRaw)}</strong>
+                              ?�동 계산: <strong>{calcManDay(r.workedMinutesAuto ?? r.workedMinutesRaw)}</strong>
                             </span>
-                            <label className="text-[12px] font-semibold text-[#374151]">분 (0~1440)</label>
+                            <label className="text-[12px] font-semibold text-[#374151]">�?(0~1440)</label>
                             <input
                               type="number"
                               min={0}
@@ -269,15 +269,15 @@ export default function OpsAttendancePage() {
                               value={editMinutes}
                               onChange={e => setEditMinutes(e.target.value)}
                               className="px-2.5 py-1.5 border border-[#d1d5db] rounded-md text-[13px] w-[90px] outline-none"
-                              placeholder="예: 480"
+                              placeholder="?? 480"
                             />
-                            <label className="text-[12px] font-semibold text-[#374151]">수정 사유</label>
+                            <label className="text-[12px] font-semibold text-[#374151]">?�정 ?�유</label>
                             <input
                               type="text"
                               value={editReason}
                               onChange={e => setEditReason(e.target.value)}
                               className="px-2.5 py-1.5 border border-[#d1d5db] rounded-md text-[13px] outline-none w-[200px]"
-                              placeholder="사유 입력 (2자 이상)"
+                              placeholder="?�유 ?�력 (2???�상)"
                               maxLength={200}
                             />
                             <button
@@ -285,7 +285,7 @@ export default function OpsAttendancePage() {
                               disabled={editSaving}
                               className="px-3.5 py-1.5 text-[13px] font-semibold bg-[#059669] text-white border-none rounded-md cursor-pointer disabled:opacity-50"
                             >
-                              {editSaving ? '저장 중...' : '저장'}
+                              {editSaving ? '?�??�?..' : '?�??}
                             </button>
                           </div>
                           {editError && (

@@ -179,8 +179,8 @@ export default function WorkerSensitivePage({ params }: { params: Promise<{ id: 
             <button key={v} onClick={() => { setActiveTab(v as never); setMsg(null) }}
               className="px-5 py-2 border rounded-md cursor-pointer text-[14px]"
               style={activeTab === v
-                ? { background: '#1a1a2e', color: 'white', borderColor: '#1a1a2e' }
-                : { background: '#243144', color: '#A0AEC0', borderColor: 'rgba(91,164,217,0.3)' }
+                ? { background: '#F97316', color: 'white', borderColor: '#F97316' }
+                : { background: '#F3F4F6', color: '#6B7280', borderColor: '#E5E7EB' }
               }>
               {label}
             </button>

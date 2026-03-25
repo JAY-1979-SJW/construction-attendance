@@ -28,18 +28,18 @@ export default function CompanyDashboardPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-[22px] font-bold m-0 mb-6 text-white">대시보드</h1>
+      <h1 className="text-[22px] font-bold m-0 mb-6 text-white">?�?�보??/h1>
       {loading ? (
-        <p className="text-muted-brand text-[15px]">불러오는 중...</p>
+        <p className="text-muted-brand text-[15px]">불러?�는 �?..</p>
       ) : data ? (
         <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
-          <StatCard label="소속 근로자 수" value={data.totalWorkers} unit="명" color="#0f4c75" />
-          <StatCard label="오늘 출근" value={data.todayCheckedIn} unit="명" color="#2e7d32" />
-          <StatCard label="오늘 퇴근 완료" value={data.todayCompleted} unit="명" color="#1565c0" />
-          <StatCard label="기기 승인 대기" value={data.pendingDevices} unit="건" color="#e65100" />
+          <StatCard label="?�속 근로???? value={data.totalWorkers} unit="�? color="#F97316" />
+          <StatCard label="?�늘 출근" value={data.todayCheckedIn} unit="�? color="#2e7d32" />
+          <StatCard label="?�늘 ?�근 ?�료" value={data.todayCompleted} unit="�? color="#1565c0" />
+          <StatCard label="기기 ?�인 ?��? value={data.pendingDevices} unit="�? color="#e65100" />
         </div>
       ) : (
-        <p className="text-muted-brand text-[15px]">데이터를 불러올 수 없습니다.</p>
+        <p className="text-muted-brand text-[15px]">?�이?��? 불러?????�습?�다.</p>
       )}
     </div>
   )

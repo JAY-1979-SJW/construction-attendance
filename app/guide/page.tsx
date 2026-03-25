@@ -69,12 +69,12 @@ export default function GuidePage() {
                       borderLeft: '3px solid #F47920',
                     }
                   : {
-                      background: '#1B2838',
-                      border: '1px solid rgba(91,164,217,0.15)',
+                      background: '#F9FAFB',
+                      border: '1px solid #E5E7EB',
                     }
               }
             >
-              <span className="block text-[13px] font-bold text-white mb-0.5">{s.label}</span>
+              <span className="block text-[13px] font-bold text-[#111827] mb-0.5">{s.label}</span>
               <span className="block text-[11px] text-brand-muted2">{s.desc}</span>
             </button>
           ))}
@@ -118,7 +118,7 @@ export default function GuidePage() {
       </div>
 
       {/* 하단 CTA */}
-      <div className="text-center py-12 px-6 bg-[linear-gradient(135deg,#0d1b2a_0%,#1a2c42_100%)]">
+      <div className="text-center py-12 px-6 bg-[#F0F2F5]">
         <p className="text-muted-brand mb-5 text-base">직접 사용해 보려면?</p>
         <Link href="/login"
           className="inline-block py-4 px-11 bg-brand-accent text-white rounded-xl no-underline text-[17px] font-bold shadow-[0_4px_16px_rgba(244,121,32,0.4)]">

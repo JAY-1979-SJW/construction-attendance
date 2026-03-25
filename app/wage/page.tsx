@@ -7,7 +7,6 @@ interface PayslipDay {
   workDate: string
   siteName: string
   workType: string | null
-  workUnits: number
   workMinutes: number
   baseAmount: number
   allowanceAmount: number
@@ -74,7 +73,6 @@ export default function WageMyPayslipPage() {
 
   useEffect(() => { load() }, [load])
 
-  // 월 선택 앞/뒤 이동
   const prevMonth = () => {
     const [y, m] = monthKey.split('-').map(Number)
     const d = new Date(y, m - 2, 1)
@@ -87,31 +85,31 @@ export default function WageMyPayslipPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(160deg,#0d1b2a_0%,#1B2838_60%,#141E2A_100%)] p-4">
+    <div className="min-h-screen bg-[#F5F7FA] p-4">
       <div className="max-w-[600px] mx-auto">
 
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-5 pt-2">
           <div>
-            <h1 className="text-xl font-bold text-white m-0">노임 명세</h1>
-            <p className="text-[12px] text-[#A0AEC0] mt-0.5 m-0">
-              {workerName && <span className="font-semibold text-[#F47920]">{workerName}</span>}
-              {jobTitle && <span className="text-[#A0AEC0]"> · {jobTitle}</span>}
+            <h1 className="text-xl font-bold text-[#111827] m-0">노임 명세</h1>
+            <p className="text-[12px] text-[#6B7280] mt-0.5 m-0">
+              {workerName && <span className="font-semibold text-[#F97316]">{workerName}</span>}
+              {jobTitle && <span className="text-[#6B7280]"> · {jobTitle}</span>}
             </p>
           </div>
           <button
             onClick={() => router.back()}
-            className="text-[#A0AEC0] text-sm bg-[rgba(255,255,255,0.05)] border border-[rgba(91,164,217,0.2)] px-3 py-1.5 rounded-md cursor-pointer"
+            className="text-[#6B7280] text-sm bg-white border border-[#E5E7EB] px-3 py-1.5 rounded-md cursor-pointer"
           >
             ← 뒤로
           </button>
         </div>
 
         {/* 월 선택 */}
-        <div className="bg-[#243144] rounded-2xl px-4 py-4 mb-4 border border-[rgba(91,164,217,0.15)] flex items-center gap-3 justify-between">
+        <div className="bg-white rounded-2xl px-4 py-4 mb-4 border border-[#E5E7EB] flex items-center gap-3 justify-between">
           <button
             onClick={prevMonth}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-[rgba(91,164,217,0.1)] text-[#5BA4D9] border-none cursor-pointer text-lg"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-[#FFF7ED] text-[#F97316] border-none cursor-pointer text-lg"
           >
             ‹
           </button>
@@ -119,11 +117,11 @@ export default function WageMyPayslipPage() {
             type="month"
             value={monthKey}
             onChange={(e) => setMonthKey(e.target.value)}
-            className="text-center text-white font-bold text-base bg-transparent border-none outline-none"
+            className="text-center text-[#111827] font-bold text-base bg-transparent border-none outline-none"
           />
           <button
             onClick={nextMonth}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-[rgba(91,164,217,0.1)] text-[#5BA4D9] border-none cursor-pointer text-lg"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-[#FFF7ED] text-[#F97316] border-none cursor-pointer text-lg"
           >
             ›
           </button>
@@ -133,45 +131,45 @@ export default function WageMyPayslipPage() {
         {summary && (
           <div className="grid grid-cols-2 gap-3 mb-4">
             {[
-              { label: '근무일수',    value: `${summary.totalDays}일`, color: '#5BA4D9' },
-              { label: '확정일수',    value: `${summary.confirmedDays}일`, color: '#388e3c' },
+              { label: '근무일수',    value: `${summary.totalDays}일`, color: '#2563EB' },
+              { label: '확정일수',    value: `${summary.confirmedDays}일`, color: '#16a34a' },
               { label: '총 공수',     value: `${fmt(summary.totalUnits)}공수`, color: '#e65100' },
-              { label: '예상 노임',   value: fmtWon(summary.totalAmount), color: '#F47920' },
+              { label: '예상 노임',   value: fmtWon(summary.totalAmount), color: '#F97316' },
             ].map((c) => (
               <div
                 key={c.label}
-                className="bg-[#243144] rounded-xl px-4 py-4 border border-[rgba(91,164,217,0.15)]"
+                className="bg-white rounded-xl px-4 py-4 border border-[#E5E7EB]"
                 style={{ borderTop: `3px solid ${c.color}` }}
               >
-                <div className="text-[18px] font-bold text-white">{c.value}</div>
-                <div className="text-[11px] text-[#A0AEC0] mt-0.5">{c.label}</div>
+                <div className="text-[18px] font-bold text-[#111827]">{c.value}</div>
+                <div className="text-[11px] text-[#6B7280] mt-0.5">{c.label}</div>
               </div>
             ))}
           </div>
         )}
 
         {/* 일자별 명세 */}
-        <div className="bg-[#243144] rounded-2xl border border-[rgba(91,164,217,0.15)] overflow-hidden">
-          <div className="px-4 py-3 border-b border-[rgba(91,164,217,0.15)]">
-            <span className="text-[13px] font-bold text-white">일자별 명세</span>
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] overflow-hidden">
+          <div className="px-4 py-3 border-b border-[#E5E7EB]">
+            <span className="text-[13px] font-bold text-[#111827]">일자별 명세</span>
           </div>
 
           {loading ? (
-            <div className="py-8 text-center text-[#A0AEC0]">로딩 중...</div>
+            <div className="py-8 text-center text-[#6B7280]">로딩 중...</div>
           ) : days.length === 0 ? (
-            <div className="py-8 text-center text-[#A0AEC0] text-sm">
+            <div className="py-8 text-center text-[#6B7280] text-sm">
               이 월에 근무 기록이 없습니다.
             </div>
           ) : (
-            <div className="divide-y divide-[rgba(91,164,217,0.08)]">
+            <div className="divide-y divide-[#F3F4F6]">
               {days.map((d) => (
                 <div key={`${d.workDate}-${d.siteName}`} className="px-4 py-3 flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[13px] font-semibold text-white">
+                      <span className="text-[13px] font-semibold text-[#111827]">
                         {d.workDate.slice(5)}
                       </span>
-                      <span className="text-[11px] text-[#A0AEC0] truncate">{d.siteName}</span>
+                      <span className="text-[11px] text-[#6B7280] truncate">{d.siteName}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {d.workType && (
@@ -179,13 +177,13 @@ export default function WageMyPayslipPage() {
                           className="text-[11px] font-semibold px-1.5 py-0.5 rounded"
                           style={{
                             color: WORK_TYPE_COLOR[d.workType] ?? '#9e9e9e',
-                            background: 'rgba(255,255,255,0.07)',
+                            background: 'rgba(0,0,0,0.04)',
                           }}
                         >
                           {WORK_TYPE_LABEL[d.workType] ?? d.workType}
                         </span>
                       )}
-                      <span className="text-[11px] text-[#718096]">
+                      <span className="text-[11px] text-[#9CA3AF]">
                         {fmtMinutes(d.workMinutes)}
                       </span>
                       {d.status === 'DRAFT' && (
@@ -194,11 +192,11 @@ export default function WageMyPayslipPage() {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="text-[13px] font-bold text-white">
+                    <div className="text-[13px] font-bold text-[#111827]">
                       {fmtWon(d.totalAmount)}
                     </div>
                     {d.allowanceAmount > 0 && (
-                      <div className="text-[11px] text-[#A0AEC0]">수당 {fmtWon(d.allowanceAmount)}</div>
+                      <div className="text-[11px] text-[#6B7280]">수당 {fmtWon(d.allowanceAmount)}</div>
                     )}
                   </div>
                 </div>
@@ -208,15 +206,15 @@ export default function WageMyPayslipPage() {
 
           {/* 합계 */}
           {summary && summary.totalAmount > 0 && (
-            <div className="px-4 py-3 border-t border-[rgba(91,164,217,0.2)] bg-[rgba(91,164,217,0.05)] flex justify-between items-center">
-              <span className="text-[13px] font-bold text-[#A0AEC0]">월 합계</span>
-              <span className="text-[16px] font-bold text-[#F47920]">{fmtWon(summary.totalAmount)}</span>
+            <div className="px-4 py-3 border-t border-[#E5E7EB] bg-[#F9FAFB] flex justify-between items-center">
+              <span className="text-[13px] font-bold text-[#6B7280]">월 합계</span>
+              <span className="text-[16px] font-bold text-[#F97316]">{fmtWon(summary.totalAmount)}</span>
             </div>
           )}
         </div>
 
         {/* 안내 */}
-        <p className="text-[11px] text-[#718096] text-center mt-4 leading-relaxed">
+        <p className="text-[11px] text-[#9CA3AF] text-center mt-4 leading-relaxed">
           * 집계중(주황색) 항목은 관리자 확정 전 예상 금액입니다.
           <br />
           최종 노임은 관리자 검토 후 확정됩니다.

@@ -57,7 +57,7 @@ const TERMINATION_REASON_LABEL: Record<string, string> = {
 function SectionTitle({ n, title }: { n: number; title: string }) {
   return (
     <div className="flex items-center gap-3 mt-8 mb-3 pb-2 border-b-2 border-white">
-      <span className="bg-white text-[#1B2838] text-sm font-bold px-3 py-1 rounded">{n}</span>
+      <span className="bg-white text-[#111827] text-sm font-bold px-3 py-1 rounded">{n}</span>
       <h2 className="text-lg font-bold">{title}</h2>
     </div>
   )

@@ -19,14 +19,14 @@ const NAV_ITEMS = [
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen font-sans">
-      <nav className="w-[200px] min-w-[200px] bg-[#0f4c75] text-white flex flex-col py-6">
-        <div className="text-base font-bold text-white px-5 pb-1 mb-0.5">해한 출퇴근</div>
-        <div className="text-[11px] text-white/60 px-5 pb-4 border-b border-white/15 mb-2">업체 관리</div>
+      <nav className="w-[200px] min-w-[200px] bg-white border-r border-[#E5E7EB] text-[#374151] flex flex-col py-6">
+        <div className="text-base font-bold text-[#111827] px-5 pb-1 mb-0.5">해한 출퇴근</div>
+        <div className="text-[11px] text-[#9CA3AF] px-5 pb-4 border-b border-[#E5E7EB] mb-2">업체 관리</div>
         {NAV_ITEMS.map(({ href, label }) => (
           <Link
             key={href}
             href={href}
-            className="block px-5 py-2.5 text-white/85 no-underline text-sm"
+            className="block px-5 py-2.5 text-[#374151] no-underline text-sm hover:bg-[#FFF7ED] hover:text-[#F97316]"
           >
             {label}
           </Link>
