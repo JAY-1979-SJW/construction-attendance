@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { PageShell, PageHeader } from '@/components/admin/ui'
+import { PageShell, PageHeader, AdminTable, AdminTr, AdminTd, EmptyRow, FilterBar, FilterInput, FilterPill, StatusBadge, Btn } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
 interface AttendanceRecord {
@@ -62,14 +62,6 @@ function calcManDay(minutes: number | null): { label: string; value: string; col
 const STATUS_LABEL: Record<string, string> = {
   WORKING: '근무중', COMPLETED: '완료', MISSING_CHECKOUT: '미퇴근',
   EXCEPTION: '예외', ADJUSTED: '보정',
-}
-
-const STATUS_BADGE: Record<string, string> = {
-  WORKING:          'bg-[#ECFDF5] text-[#16A34A] border border-[#A7F3D0]',
-  COMPLETED:        'bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]',
-  MISSING_CHECKOUT: 'bg-[#FEE2E2] text-[#B91C1C] border border-[#F87171]',
-  EXCEPTION:        'bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]',
-  ADJUSTED:         'bg-[#F3E8FF] text-[#7C3AED] border border-[#DDD6FE]',
 }
 
 // 모달 상태 표시 (라이트 배경)
@@ -175,9 +167,6 @@ export default function AdminAttendancePage() {
   const fmtDateTime = (iso: string | null) =>
     iso ? new Date(iso).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-'
 
-  // 공통 입력 스타일
-  const inCls = 'admin-input'
-
   return (
     <PageShell>
 
@@ -185,18 +174,8 @@ export default function AdminAttendancePage() {
       <PageHeader
         title="출근현황"
         actions={<>
-          <button
-            onClick={() => { setStatusFilter('MISSING_CHECKOUT'); load() }}
-            className="px-3.5 py-[7px] text-[13px] font-semibold text-white bg-[#B91C1C] hover:bg-[#991B1B] border-none rounded-[8px] cursor-pointer transition-colors"
-          >
-            미퇴근 우선
-          </button>
-          <button
-            onClick={handleExport}
-            className="px-3.5 py-[7px] text-[13px] font-semibold text-white bg-[#059669] hover:bg-[#047857] border-none rounded-[8px] cursor-pointer transition-colors"
-          >
-            엑셀 다운로드
-          </button>
+          <Btn variant="danger" onClick={() => { setStatusFilter('MISSING_CHECKOUT'); load() }}>미퇴근 우선</Btn>
+          <Btn variant="success" onClick={handleExport}>엑셀 다운로드</Btn>
         </>}
       />
 
@@ -204,22 +183,17 @@ export default function AdminAttendancePage() {
       <div className="flex gap-3 items-end mb-3 flex-wrap">
         <div className="flex flex-col gap-1">
           <label className="text-[11px] font-semibold text-[#6B7280]">시작일</label>
-          <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className={inCls} />
+          <FilterInput type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-[11px] font-semibold text-[#6B7280]">종료일</label>
-          <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className={inCls} />
+          <FilterInput type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
         </div>
-        <button
-          onClick={load}
-          className="px-4 py-2 bg-[#F97316] text-white border-none rounded-[8px] cursor-pointer text-[13px] font-semibold hover:bg-[#EA580C] transition-colors"
-        >
-          조회
-        </button>
+        <Btn variant="orange" onClick={load}>조회</Btn>
       </div>
 
       {/* ── 상태 필터 pills ── */}
-      <div className="flex gap-2 mb-4 flex-wrap items-center">
+      <FilterBar>
         {[
           { value: '',                 label: '전체' },
           { value: 'MISSING_CHECKOUT', label: '미퇴근' },
@@ -228,108 +202,78 @@ export default function AdminAttendancePage() {
           { value: 'COMPLETED',        label: '완료' },
           { value: 'ADJUSTED',         label: '보정' },
         ].map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setStatusFilter(opt.value)}
-            className={`px-3 py-1.5 rounded-[8px] text-[12px] font-semibold border cursor-pointer transition-colors ${
-              statusFilter === opt.value
-                ? 'bg-[#F97316] border-[#F97316] text-white'
-                : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:border-[#D1D5DB] hover:text-[#374151]'
-            }`}
-          >
+          <FilterPill key={opt.value} active={statusFilter === opt.value} onClick={() => setStatusFilter(opt.value)}>
             {opt.label}
-          </button>
+          </FilterPill>
         ))}
         <span className="ml-2 text-[12px] text-[#6B7280]">총 {total}건</span>
-      </div>
+      </FilterBar>
 
       {/* ── 테이블 ── */}
       {loading ? (
         <p className="text-[#9CA3AF] text-sm py-10 text-center">로딩 중...</p>
       ) : (
-        <div className="bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-[#F3F4F6]">
-                  {['날짜', '이름', '회사', '직종', '현장', '출근', '퇴근', '출근거리', '퇴근거리', '공수', '상태', '자동', '예외사유', '처리'].map((h) => (
-                    <th key={h} className="admin-th">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {items.length === 0 ? (
-                  <tr>
-                    <td colSpan={14} className="text-center py-12 text-[#9CA3AF] text-[13px]">
-                      데이터가 없습니다.
-                    </td>
-                  </tr>
-                ) : items.map((item) => (
-                  <tr
-                    key={item.id}
-                    className={`cursor-pointer transition-colors border-b border-[#F9FAFB] last:border-b-0 ${
-                      item.status === 'MISSING_CHECKOUT' ? 'bg-[#FFF1F2] hover:bg-[#FFE4E6]' :
-                      item.status === 'EXCEPTION'        ? 'bg-[#FFFBEB] hover:bg-[#FEF3C7]' :
-                      'hover:bg-[#FAFAFA]'
-                    }`}
-                    onClick={() => openDetail(item.id)}
+        <AdminTable headers={['날짜', '이름', '회사', '직종', '현장', '출근', '퇴근', '출근거리', '퇴근거리', '공수', '상태', '자동', '예외사유', '처리']}>
+          {items.length === 0 ? (
+            <EmptyRow colSpan={14} />
+          ) : items.map((item) => (
+            <AdminTr
+              key={item.id}
+              onClick={() => openDetail(item.id)}
+              highlighted={item.status === 'MISSING_CHECKOUT'}
+              className={item.status === 'EXCEPTION' ? 'bg-[#FFFBEB] hover:bg-[#FEF3C7]' : ''}
+            >
+              <AdminTd className="text-[#6B7280]">{item.workDate}</AdminTd>
+              <AdminTd className="font-medium text-[#111827]">{item.workerName}</AdminTd>
+              <AdminTd className="text-[#6B7280]">{item.company}</AdminTd>
+              <AdminTd className="text-[#6B7280]">{item.jobTitle}</AdminTd>
+              <AdminTd className="text-[#6B7280]">{item.siteName}</AdminTd>
+              <AdminTd className="tabular-nums">{fmtTime(item.checkInAt)}</AdminTd>
+              <AdminTd className="tabular-nums">{fmtTime(item.checkOutAt)}</AdminTd>
+              <AdminTd className="text-right">
+                {item.checkInDistance != null
+                  ? <span className="text-xs font-semibold" style={{ color: item.checkInDistance > 200 ? '#DC2626' : '#16A34A' }}>{item.checkInDistance}m</span>
+                  : <span className="text-[11px] text-[#D1D5DB]">-</span>}
+              </AdminTd>
+              <AdminTd className="text-right">
+                {item.checkOutDistance != null
+                  ? <span className="text-xs font-semibold" style={{ color: item.checkOutDistance > 200 ? '#DC2626' : '#6B7280' }}>{item.checkOutDistance}m</span>
+                  : <span className="text-[11px] text-[#D1D5DB]">-</span>}
+              </AdminTd>
+              <AdminTd className="text-right">
+                {(() => {
+                  const md = calcManDay(item.workedMinutesRaw ?? null)
+                  return item.workedMinutesRaw != null
+                    ? <span className="text-xs font-semibold" style={{ color: md.color }}>{md.value}</span>
+                    : <span className="text-[11px] text-[#D1D5DB]">-</span>
+                })()}
+              </AdminTd>
+              <AdminTd>
+                <StatusBadge status={item.status} label={STATUS_LABEL[item.status]} />
+              </AdminTd>
+              <AdminTd>
+                {item.isAutoCheckout && (
+                  <span className="text-[10px] bg-[#FEE2E2] text-[#B91C1C] px-1.5 py-[2px] rounded font-semibold">AUTO</span>
+                )}
+              </AdminTd>
+              <AdminTd>
+                {item.exceptionReason && (
+                  <span className="text-[11px] bg-[#FFF7ED] text-[#C2410C] px-2 py-[2px] rounded-[8px] font-semibold">{item.exceptionReason}</span>
+                )}
+              </AdminTd>
+              <AdminTd>
+                {(item.status === 'MISSING_CHECKOUT' || item.status === 'EXCEPTION') && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); openDetail(item.id) }}
+                    className="px-3 py-1 text-[11px] font-semibold text-white bg-[#B91C1C] hover:bg-[#991B1B] border-none rounded-[5px] cursor-pointer transition-colors"
                   >
-                    <td className="admin-td text-[#6B7280]">{item.workDate}</td>
-                    <td className="admin-td font-medium text-[#111827]">{item.workerName}</td>
-                    <td className="admin-td text-[#6B7280]">{item.company}</td>
-                    <td className="admin-td text-[#6B7280]">{item.jobTitle}</td>
-                    <td className="admin-td text-[#6B7280]">{item.siteName}</td>
-                    <td className="admin-td tabular-nums">{fmtTime(item.checkInAt)}</td>
-                    <td className="admin-td tabular-nums">{fmtTime(item.checkOutAt)}</td>
-                    <td className="admin-td text-right">
-                      {item.checkInDistance != null
-                        ? <span className="text-xs font-semibold" style={{ color: item.checkInDistance > 200 ? '#DC2626' : '#16A34A' }}>{item.checkInDistance}m</span>
-                        : <span className="text-[11px] text-[#D1D5DB]">-</span>}
-                    </td>
-                    <td className="admin-td text-right">
-                      {item.checkOutDistance != null
-                        ? <span className="text-xs font-semibold" style={{ color: item.checkOutDistance > 200 ? '#DC2626' : '#6B7280' }}>{item.checkOutDistance}m</span>
-                        : <span className="text-[11px] text-[#D1D5DB]">-</span>}
-                    </td>
-                    <td className="admin-td text-right">
-                      {(() => {
-                        const md = calcManDay(item.workedMinutesRaw ?? null)
-                        return item.workedMinutesRaw != null
-                          ? <span className="text-xs font-semibold" style={{ color: md.color }}>{md.value}</span>
-                          : <span className="text-[11px] text-[#D1D5DB]">-</span>
-                      })()}
-                    </td>
-                    <td className="admin-td">
-                      <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_BADGE[item.status] ?? 'bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]'}`}>
-                        {STATUS_LABEL[item.status] ?? item.status}
-                      </span>
-                    </td>
-                    <td className="admin-td">
-                      {item.isAutoCheckout && (
-                        <span className="text-[10px] bg-[#FEE2E2] text-[#B91C1C] px-1.5 py-[2px] rounded font-semibold">AUTO</span>
-                      )}
-                    </td>
-                    <td className="admin-td">
-                      {item.exceptionReason && (
-                        <span className="text-[11px] bg-[#FFF7ED] text-[#C2410C] px-2 py-[2px] rounded-[8px] font-semibold">{item.exceptionReason}</span>
-                      )}
-                    </td>
-                    <td className="admin-td">
-                      {(item.status === 'MISSING_CHECKOUT' || item.status === 'EXCEPTION') && (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); openDetail(item.id) }}
-                          className="px-3 py-1 text-[11px] font-semibold text-white bg-[#B91C1C] hover:bg-[#991B1B] border-none rounded-[5px] cursor-pointer transition-colors"
-                        >
-                          처리
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                    처리
+                  </button>
+                )}
+              </AdminTd>
+            </AdminTr>
+          ))}
+        </AdminTable>
       )}
 
       {/* ── 상세 모달 ── */}

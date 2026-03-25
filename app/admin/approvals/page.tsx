@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { PageShell, PageHeader } from '@/components/admin/ui'
+import { PageShell, PageHeader, AdminTable, AdminTr, AdminTd, EmptyRow, StatusBadge, Btn } from '@/components/admin/ui'
 
 // ─── 탭 정의 ──────────────────────────────────────────────────────────────────
 type TabKey = 'workers' | 'companies' | 'ext-companies' | 'managers' | 'site-joins' | 'devices'
@@ -298,12 +298,7 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
             )}
           </button>
         ))}
-        <button
-          className="px-3 py-[6px] border border-[rgba(91,164,217,0.3)] rounded-md bg-white cursor-pointer text-[13px] text-[#6b7280] ml-auto"
-          onClick={load}
-        >
-          ↻ 새로고침
-        </button>
+        <Btn variant="secondary" onClick={load} className="ml-auto">↻ 새로고침</Btn>
       </div>
 
       {/* 알림 */}
@@ -325,10 +320,7 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
           {!(approveResult.emailSent as boolean) && (
             <p className="text-[#b45309]">⚠️ 이메일 없음 — 수동으로 전달 필요</p>
           )}
-          <button
-            className="mt-2 px-3 py-[5px] border border-[rgba(91,164,217,0.3)] rounded-[5px] cursor-pointer text-[13px] bg-white"
-            onClick={() => setApproveResult(null)}
-          >닫기</button>
+          <Btn variant="secondary" onClick={() => setApproveResult(null)} className="mt-2">닫기</Btn>
         </div>
       )}
 
@@ -336,20 +328,10 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
       {statusFilter === 'PENDING' && selectedIds.size > 0 && (
         <div className="flex items-center gap-3 px-4 py-2.5 mb-3 bg-[#FFF7ED] border border-[#FDE68A] rounded-lg">
           <span className="text-[13px] font-semibold text-[#92400E]">선택 {selectedIds.size}건</span>
-          <button
-            onClick={handleBulkApprove}
-            disabled={bulkProcessing}
-            className="px-4 py-1.5 text-[12px] font-semibold text-white bg-[#059669] hover:bg-[#047857] border-none rounded-[6px] cursor-pointer disabled:opacity-50 transition-colors"
-          >
+          <Btn size="sm" variant="success" disabled={bulkProcessing} onClick={handleBulkApprove}>
             {bulkProcessing ? '처리 중...' : '일괄 승인'}
-          </button>
-          <button
-            onClick={handleBulkReject}
-            disabled={bulkProcessing}
-            className="px-4 py-1.5 text-[12px] font-semibold text-white bg-[#dc2626] hover:bg-[#b91c1c] border-none rounded-[6px] cursor-pointer disabled:opacity-50 transition-colors"
-          >
-            일괄 반려
-          </button>
+          </Btn>
+          <Btn size="sm" variant="danger" disabled={bulkProcessing} onClick={handleBulkReject}>일괄 반려</Btn>
           <button
             onClick={() => setSelectedIds(new Set())}
             className="ml-auto text-[12px] text-[#92400E] bg-none border-none cursor-pointer underline"
@@ -367,81 +349,41 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
           <p>{statusFilter === 'PENDING' ? '승인 대기 항목이 없습니다.' : '항목이 없습니다.'}</p>
         </div>
       ) : (
-        <div className="border border-[#e5e7eb] rounded-lg overflow-hidden">
-          <table className="w-full border-collapse">
-            <thead className="bg-[#F3F4F6]">
-              <tr>
-                {statusFilter === 'PENDING' && (
-                  <th className="px-[14px] py-[11px] text-left border-b border-[#E5E7EB] w-8">
-                    <input
-                      type="checkbox"
-                      className="cursor-pointer"
-                      checked={selectedIds.size > 0 && selectedIds.size === items.filter(i => i.status === 'PENDING').length}
-                      onChange={toggleSelectAll}
-                    />
-                  </th>
-                )}
-                <th className="px-[14px] py-[11px] text-left text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB]">신청일</th>
-                <th className="px-[14px] py-[11px] text-left text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB]">이름/업체</th>
-                <th className="px-[14px] py-[11px] text-left text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB]">상세</th>
-                <th className="px-[14px] py-[11px] text-left text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB]">상태</th>
-                {statusFilter === 'PENDING' && <th className="px-[14px] py-[11px] text-left text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB]">액션</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {items.map(item => (
-                <tr key={item.id} className="border-b border-[#f3f4f6] hover:bg-[rgba(91,164,217,0.05)] transition-colors">
-                  {statusFilter === 'PENDING' && (
-                    <td className="px-[14px] py-[13px] align-top">
-                      <input
-                        type="checkbox"
-                        className="cursor-pointer"
-                        checked={selectedIds.has(item.id)}
-                        onChange={() => toggleSelect(item.id)}
-                      />
-                    </td>
-                  )}
-                  <td className="px-[14px] py-[13px] text-sm text-[#374151] align-top text-xs whitespace-nowrap">
-                    {new Date(item.requestedAt).toLocaleDateString('ko-KR')}
-                  </td>
-                  <td className="px-[14px] py-[13px] text-sm text-[#1f2937] align-top">
-                    <div className="font-semibold">{item.displayName}</div>
-                    {item.subName && <div className="text-xs text-[#6b7280]">{item.subName}</div>}
-                  </td>
-                  <td className="px-[14px] py-[13px] text-sm text-[#6b7280] align-top text-[13px]">
-                    {item.detail}
-                    {item.rejectReason && (
-                      <div className="text-[#dc2626] text-xs">사유: {item.rejectReason}</div>
-                    )}
-                  </td>
-                  <td className="px-[14px] py-[13px] text-sm text-[#1f2937] align-top">
-                    <StatusBadge status={item.status} />
-                  </td>
-                  {statusFilter === 'PENDING' && (
-                    <td className="px-[14px] py-[13px] text-sm text-[#1f2937] align-top">
-                      <div className="flex gap-[6px]">
-                        <button
-                          className="px-3 py-[5px] bg-[#059669] text-white border-none rounded-[5px] cursor-pointer text-xs font-semibold disabled:opacity-50"
-                          disabled={processing === item.id}
-                          onClick={() => handleApprove(item.id)}
-                        >
-                          {processing === item.id ? '처리 중...' : '승인'}
-                        </button>
-                        <button
-                          className="px-3 py-[5px] bg-[#dc2626] text-white border-none rounded-[5px] cursor-pointer text-xs font-semibold disabled:opacity-50"
-                          disabled={processing === item.id}
-                          onClick={() => { setRejectTarget(item.id); setRejectReason('') }}
-                        >
-                          반려
-                        </button>
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <AdminTable headers={[
+          ...(statusFilter === 'PENDING' ? [<input key="cb" type="checkbox" className="cursor-pointer" checked={selectedIds.size > 0 && selectedIds.size === items.filter(i => i.status === 'PENDING').length} onChange={toggleSelectAll} />] : []),
+          '신청일', '이름/업체', '상세', '상태',
+          ...(statusFilter === 'PENDING' ? ['액션'] : []),
+        ]}>
+          {items.map(item => (
+            <AdminTr key={item.id}>
+              {statusFilter === 'PENDING' && (
+                <AdminTd><input type="checkbox" className="cursor-pointer" checked={selectedIds.has(item.id)} onChange={() => toggleSelect(item.id)} /></AdminTd>
+              )}
+              <AdminTd className="text-xs align-top">{new Date(item.requestedAt).toLocaleDateString('ko-KR')}</AdminTd>
+              <AdminTd className="align-top">
+                <div className="font-semibold text-[#111827]">{item.displayName}</div>
+                {item.subName && <div className="text-xs text-[#6b7280]">{item.subName}</div>}
+              </AdminTd>
+              <AdminTd className="text-[#6b7280] align-top">
+                {item.detail}
+                {item.rejectReason && <div className="text-[#dc2626] text-xs">사유: {item.rejectReason}</div>}
+              </AdminTd>
+              <AdminTd className="align-top">
+                <StatusBadge status={item.status} />
+              </AdminTd>
+              {statusFilter === 'PENDING' && (
+                <AdminTd className="align-top">
+                  <div className="flex gap-[6px]">
+                    <Btn size="xs" variant="success" disabled={processing === item.id} onClick={() => handleApprove(item.id)}>
+                      {processing === item.id ? '처리 중...' : '승인'}
+                    </Btn>
+                    <Btn size="xs" variant="danger" disabled={processing === item.id} onClick={() => { setRejectTarget(item.id); setRejectReason('') }}>반려</Btn>
+                  </div>
+                </AdminTd>
+              )}
+            </AdminTr>
+          ))}
+        </AdminTable>
       )}
 
       {/* 반려 사유 모달 */}
@@ -457,17 +399,10 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
               onChange={e => setRejectReason(e.target.value)}
             />
             <div className="flex gap-2 justify-end mt-4">
-              <button
-                className="px-4 py-[7px] bg-white border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-sm"
-                onClick={() => setRejectTarget(null)}
-              >취소</button>
-              <button
-                className="px-3 py-[5px] bg-[#dc2626] text-white border-none rounded-[5px] cursor-pointer text-xs font-semibold disabled:opacity-50"
-                disabled={!rejectReason.trim() || processing === rejectTarget}
-                onClick={handleReject}
-              >
+              <Btn variant="secondary" onClick={() => setRejectTarget(null)}>취소</Btn>
+              <Btn size="xs" variant="danger" disabled={!rejectReason.trim() || processing === rejectTarget} onClick={handleReject}>
                 {processing === rejectTarget ? '처리 중...' : '반려 확인'}
-              </button>
+              </Btn>
             </div>
           </div>
         </div>
@@ -476,21 +411,3 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
   )
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; bg: string; color: string }> = {
-    PENDING:              { label: '대기',      bg: '#fef3c7', color: '#92400e' },
-    APPROVED:             { label: '승인',      bg: '#d1fae5', color: '#065f46' },
-    REJECTED:             { label: '반려',      bg: '#fee2e2', color: '#991b1b' },
-    ACTIVE:               { label: '승인',      bg: '#d1fae5', color: '#065f46' },
-    PENDING_VERIFICATION: { label: '인증 대기', bg: '#fff8e1', color: '#e65100' },
-    VERIFIED:             { label: '인증 완료', bg: '#d1fae5', color: '#065f46' },
-    DRAFT:                { label: '미제출',    bg: '#f3f4f6', color: '#6b7280' },
-    INACTIVE:             { label: '비활성',    bg: '#f3f4f6', color: '#6b7280' },
-  }
-  const s = map[status] ?? { label: status, bg: '#f3f4f6', color: '#6b7280' }
-  return (
-    <span className="text-[11px] px-2 py-[3px] rounded font-medium" style={{ background: s.bg, color: s.color }}>
-      {s.label}
-    </span>
-  )
-}

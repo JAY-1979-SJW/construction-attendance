@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { PageShell, PageHeader, PageBadge } from '@/components/admin/ui'
+import { PageShell, PageHeader, PageBadge, KpiCard, StatusBadge, Btn } from '@/components/admin/ui'
 
 interface DashboardSummary {
   totalWorkers: number; activeSites: number; todayTotal: number
@@ -17,15 +17,8 @@ interface RecentRecord {
   checkInAt: string | null; checkOutAt: string | null; status: string
 }
 
-// [5] 상태 배지 채도 조정
 const STATUS_LABEL: Record<string, string> = {
   WORKING: '근무중', COMPLETED: '퇴근', MISSING_CHECKOUT: '미퇴근', EXCEPTION: '예외',
-}
-const STATUS_BADGE: Record<string, string> = {
-  WORKING:          'bg-[#ECFDF5] text-[#16A34A] border border-[#A7F3D0]',  // 채도 소폭 낮춤
-  COMPLETED:        'bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]',  // 가독성 소폭 향상
-  MISSING_CHECKOUT: 'bg-[#FEE2E2] text-[#B91C1C] border border-[#F87171]',
-  EXCEPTION:        'bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]',
 }
 const STATUS_SORT: Record<string, number> = {
   MISSING_CHECKOUT: 0, EXCEPTION: 1, WORKING: 2, COMPLETED: 3,
@@ -97,14 +90,13 @@ export default function AdminDashboard() {
               <span className="bg-white text-[#F97316] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">{pendingApproval}</span>
             )}
           </Link>
-          <button onClick={loadToday}
-            className="flex items-center gap-1.5 text-[13px] text-[#374151] border border-[#E5E7EB] bg-white hover:border-[#D1D5DB] hover:bg-[#F9FAFB] rounded-[8px] px-3 py-1.5 cursor-pointer transition-colors">
+          <Btn variant="secondary" onClick={loadToday}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                 stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             새로고침
-          </button>
+          </Btn>
         </>}
       />
 
@@ -131,29 +123,12 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* ── KPI 4개 [1] 중립 통일, 문제 카드만 강조 [7] mb-4+패딩 축소 ── */}
+          {/* ── KPI 4개 ── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            {[
-              // [1] 출근/근무중: 중립 회색 라인
-              { label: '오늘 총 출근 인원', value: summary?.todayTotal ?? 0,     unit: '명', sub: '오늘 기록 기준', accent: '#9CA3AF', href: '/admin/attendance' },
-              { label: '현재 근무중',       value: summary?.todayCheckedIn ?? 0, unit: '명', sub: '퇴근 전 인원',   accent: '#9CA3AF', href: '/admin/attendance' },
-              // [1] 미퇴근/승인대기: 강조
-              { label: '미퇴근 인원',       value: summary?.pendingMissing ?? 0, unit: '명', sub: '확인 필요',      accent: '#DC2626', href: '/admin/attendance' },
-              { label: '승인 대기',         value: pendingApproval,              unit: '건', sub: '처리 필요',      accent: '#F97316', href: '/admin/device-requests' },
-            ].map(card => (
-              <Link key={card.label} href={card.href}
-                // [7] 패딩 축소 px-4 py-3
-                className="no-underline bg-white rounded-[12px] border border-[#E5E7EB] px-4 py-3 hover:border-[#D1D5DB] hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all block"
-                style={{ borderTopWidth: 3, borderTopColor: card.accent }}
-              >
-                <div className="text-[11px] font-semibold text-[#6B7280] mb-1.5 tracking-wide uppercase">{card.label}</div>
-                <div className="flex items-baseline gap-1 mb-0.5">
-                  <span className="text-[28px] font-bold text-[#0F172A] leading-none tabular-nums">{card.value}</span>
-                  <span className="text-[13px] text-[#6B7280]">{card.unit}</span>
-                </div>
-                <div className="text-[11px] text-[#9CA3AF]">{card.sub}</div>
-              </Link>
-            ))}
+            <KpiCard label="오늘 총 출근 인원" value={summary?.todayTotal ?? 0}     unit="명" sub="오늘 기록 기준" accentColor="#9CA3AF" href="/admin/attendance" />
+            <KpiCard label="현재 근무중"       value={summary?.todayCheckedIn ?? 0} unit="명" sub="퇴근 전 인원"   accentColor="#9CA3AF" href="/admin/attendance" />
+            <KpiCard label="미퇴근 인원"       value={summary?.pendingMissing ?? 0} unit="명" sub="확인 필요"      accentColor="#DC2626" href="/admin/attendance" />
+            <KpiCard label="승인 대기"         value={pendingApproval}              unit="건" sub="처리 필요"      accentColor="#F97316" href="/admin/device-requests" />
           </div>
 
           {/* ── 메인 2단 ── */}
@@ -197,9 +172,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-2.5 text-[13px] text-[#374151] whitespace-nowrap tabular-nums">{fmtTime(r.checkInAt)}</td>
                         <td className="px-4 py-2.5 text-[13px] text-[#374151] whitespace-nowrap tabular-nums">{fmtTime(r.checkOutAt)}</td>
                         <td className="px-4 py-2.5 whitespace-nowrap">
-                          <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_BADGE[r.status] ?? 'bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]'}`}>
-                            {STATUS_LABEL[r.status] ?? r.status}
-                          </span>
+                          <StatusBadge status={r.status} label={STATUS_LABEL[r.status]} />
                         </td>
                       </tr>
                     ))}

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
 import KakaoMap from '@/components/map/KakaoMap'
-import { PageShell, PageHeader, PageBadge } from '@/components/admin/ui'
+import { PageShell, PageHeader, PageBadge, Btn, EmptyState } from '@/components/admin/ui'
 
 // ── 전역 타입 선언 ────────────────────────────────────────────────────
 declare global {
@@ -409,15 +409,17 @@ export default function SitesPage() {
         title="현장 관리"
         badge={!loading ? <PageBadge>{sites.length}개</PageBadge> : undefined}
         actions={canMutate ? (
-          <button onClick={() => { setShowForm(true); setFormGeoStatus('idle'); setForm(emptyForm) }} className="px-4 py-[7px] bg-[#F97316] hover:bg-[#EA580C] text-white border-none rounded-[8px] cursor-pointer text-[13px] font-semibold transition-colors">
-            + 현장 등록
-          </button>
+          <Btn variant="orange" onClick={() => { setShowForm(true); setFormGeoStatus('idle'); setForm(emptyForm) }}>+ 현장 등록</Btn>
         ) : undefined}
       />
 
         {loading ? <p>로딩 중...</p> : (
           <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(360px,1fr))]">
-            {sites.length === 0 && <p className="text-[#999]">등록된 현장이 없습니다.</p>}
+            {sites.length === 0 && (
+              <div className="col-span-full">
+                <EmptyState title="등록된 현장이 없습니다." description="현장을 등록하면 여기에 표시됩니다." />
+              </div>
+            )}
             {sites.map((site) => (
               <div key={site.id}
                 className={`rounded-xl p-5 shadow-[0_1px_4px_rgba(0,0,0,0.05)] flex flex-col border ${site.isActive ? 'bg-white border-[#E5E7EB]' : 'bg-[#F9FAFB] border-[#E5E7EB] opacity-70'}`}>

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
-import { PageShell, PageHeader, PageBadge } from '@/components/admin/ui'
+import { PageShell, PageHeader, PageBadge, Btn } from '@/components/admin/ui'
 import {
   ADMIN_TYPE_GUIDES,
   ADMIN_TYPE_WARNINGS,
@@ -207,7 +207,7 @@ export default function WorkersPage() {
         title="근로자 관리"
         badge={<PageBadge>{total}명</PageBadge>}
         actions={canMutate ? (
-          <button onClick={() => setShowForm(true)} className="px-4 py-[7px] bg-[#F97316] text-white border-none rounded-[8px] cursor-pointer text-[13px] font-semibold hover:bg-[#EA580C] transition-colors">+ 근로자 등록</button>
+          <Btn variant="orange" onClick={() => setShowForm(true)}>+ 근로자 등록</Btn>
         ) : undefined}
       />
 
