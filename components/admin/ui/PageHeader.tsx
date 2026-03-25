@@ -2,18 +2,25 @@ import React from 'react'
 
 export function PageHeader({
   title,
+  description,
   badge,
   actions,
 }: {
   title: string
+  description?: string
   badge?: React.ReactNode
   actions?: React.ReactNode
 }) {
   return (
-    <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-      <div className="flex items-center gap-3">
-        <h1 className="text-[20px] font-bold text-[#0F172A] m-0">{title}</h1>
-        {badge}
+    <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
+      <div>
+        <div className="flex items-center gap-3">
+          <h1 className="text-[20px] font-bold text-[#0F172A] m-0">{title}</h1>
+          {badge}
+        </div>
+        {description && (
+          <p className="text-[12px] text-[#9CA3AF] mt-1 leading-relaxed m-0">{description}</p>
+        )}
       </div>
       {actions && (
         <div className="flex items-center gap-2 flex-wrap">{actions}</div>

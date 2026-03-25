@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { PageShell, PageHeader, PageBadge, KpiCard, StatusBadge, Btn } from '@/components/admin/ui'
+import { PageShell, PageHeader, PageBadge, KpiCard, StatusBadge, Btn, EmptyState } from '@/components/admin/ui'
 
 interface DashboardSummary {
   totalWorkers: number; activeSites: number; todayTotal: number
@@ -77,6 +77,7 @@ export default function AdminDashboard() {
       {/* ── 헤더 ── */}
       <PageHeader
         title="대시보드"
+        description="오늘 출근 현황, 미퇴근, 승인 대기 상태를 빠르게 확인합니다"
         badge={<PageBadge>{todayStr} 기준</PageBadge>}
         actions={<>
           <Link href="/admin/attendance"
@@ -90,7 +91,7 @@ export default function AdminDashboard() {
               <span className="bg-white text-[#F97316] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">{pendingApproval}</span>
             )}
           </Link>
-          <Btn variant="secondary" onClick={loadToday}>
+          <Btn variant="ghost" size="sm" onClick={loadToday}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                 stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -125,9 +126,9 @@ export default function AdminDashboard() {
 
           {/* ── KPI 4개 ── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            <KpiCard label="오늘 총 출근 인원" value={summary?.todayTotal ?? 0}     unit="명" sub="오늘 기록 기준" accentColor="#9CA3AF" href="/admin/attendance" />
-            <KpiCard label="현재 근무중"       value={summary?.todayCheckedIn ?? 0} unit="명" sub="퇴근 전 인원"   accentColor="#9CA3AF" href="/admin/attendance" />
-            <KpiCard label="미퇴근 인원"       value={summary?.pendingMissing ?? 0} unit="명" sub="확인 필요"      accentColor="#DC2626" href="/admin/attendance" />
+            <KpiCard label="오늘 총 출근 인원" value={summary?.todayTotal ?? 0}     unit="명" sub="오늘 기록 기준" accentColor="#94A3B8" href="/admin/attendance" />
+            <KpiCard label="현재 근무중"       value={summary?.todayCheckedIn ?? 0} unit="명" sub="퇴근 전 인원"   accentColor="#94A3B8" href="/admin/attendance" />
+            <KpiCard label="미퇴근 인원"       value={summary?.pendingMissing ?? 0} unit="명" sub="확인 필요"      accentColor="#F97316" href="/admin/attendance" />
             <KpiCard label="승인 대기"         value={pendingApproval}              unit="건" sub="처리 필요"      accentColor="#F97316" href="/admin/device-requests" />
           </div>
 
@@ -160,7 +161,19 @@ export default function AdminDashboard() {
                   </thead>
                   <tbody>
                     {sortedRecent.length === 0 ? (
-                      <tr><td colSpan={6} className="text-center py-12 text-[#9CA3AF] text-[13px]">오늘 출근 기록이 없습니다.</td></tr>
+                      <tr>
+                        <td colSpan={6}>
+                          <EmptyState
+                            title="오늘 출근 기록이 없습니다"
+                            description="아직 등록된 출근 데이터가 없거나 조건에 맞는 기록이 없습니다"
+                            action={
+                              <Link href="/admin/attendance" className="no-underline inline-block text-[12px] font-semibold text-[#F97316] hover:underline">
+                                출근현황 보기 →
+                              </Link>
+                            }
+                          />
+                        </td>
+                      </tr>
                     ) : sortedRecent.slice(0, 10).map(r => (
                       <tr key={r.id}
                         className={`hover:bg-[#FAFAFA] transition-colors border-b border-[#F9FAFB] last:border-b-0 ${
@@ -192,15 +205,14 @@ export default function AdminDashboard() {
               <div className="px-5 py-3 border-b border-[#F3F4F6]">
                 <span className="text-[14px] font-semibold text-[#111827]">빠른 처리</span>
               </div>
-              <div className="p-4 flex flex-col gap-2.5">
+              <div className="p-3 flex flex-col gap-2">
                 {[
                   {
                     label: '미퇴근 확인',
                     desc:  '퇴근 누락 인원',
                     count: summary?.pendingMissing ?? 0,
                     href:  '/admin/attendance',
-                    btnLabel: '출근현황으로 이동',
-                    // [2] 미퇴근: 강한 빨강
+                    btnLabel: '출근현황',
                     style: 'red' as const,
                   },
                   {
@@ -208,8 +220,7 @@ export default function AdminDashboard() {
                     desc:  '출퇴근 예외 건',
                     count: summary?.pendingExceptions ?? 0,
                     href:  '/admin/attendance',
-                    btnLabel: '출근현황으로 이동',
-                    // [2] 예외: 강한 빨강
+                    btnLabel: '예외처리',
                     style: 'red' as const,
                   },
                   {
@@ -217,8 +228,7 @@ export default function AdminDashboard() {
                     desc:  '기기 변경 및 신규 요청',
                     count: summary?.pendingDeviceRequests ?? 0,
                     href:  '/admin/device-requests',
-                    btnLabel: '승인관리로 이동',
-                    // [2] 승인대기: 오렌지/중립 강조
+                    btnLabel: '승인관리',
                     style: 'orange' as const,
                   },
                   ...(summary?.todayPresenceReview ?? 0) > 0 ? [{
@@ -226,7 +236,7 @@ export default function AdminDashboard() {
                     desc:  '응답 검토 필요',
                     count: summary?.todayPresenceReview ?? 0,
                     href:  '/admin/presence-checks?status=REVIEW_REQUIRED',
-                    btnLabel: '체류확인으로 이동',
+                    btnLabel: '체류확인',
                     style: 'red' as const,
                   }] : [],
                 ].map(item => {
@@ -235,12 +245,12 @@ export default function AdminDashboard() {
                   const isOrange = item.style === 'orange'
                   return (
                     <div key={item.label}
-                      className={`rounded-[10px] border p-3.5 ${
+                      className={`rounded-[10px] border p-3 ${
                         hasIssue && isRed    ? 'bg-[#FEE2E2] border-[#F87171]'  :
                         hasIssue && isOrange ? 'bg-[#FFF7ED] border-[#FDE68A]'  :
                         'bg-[#F9FAFB] border-[#F3F4F6]'
                       }`}>
-                      <div className="flex items-start justify-between mb-1.5">
+                      <div className="flex items-start justify-between mb-1">
                         <div>
                           <div className={`text-[13px] font-semibold ${
                             hasIssue && isRed    ? 'text-[#B91C1C]' :

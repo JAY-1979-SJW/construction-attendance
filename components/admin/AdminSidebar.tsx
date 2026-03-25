@@ -420,10 +420,10 @@ export default function AdminSidebar({
       </nav>
 
       {/* 로그아웃 */}
-      <div className="px-3 py-3 shrink-0 border-t border-[#F3F4F6]">
+      <div className="px-3 py-3 shrink-0" style={{ borderTop: '1px solid #E5E7EB' }}>
         <button
           onClick={handleLogout}
-          className="w-full text-[12px] py-2 px-3 rounded-[8px] transition-colors text-left text-[#9CA3AF]"
+          className="w-full flex items-center gap-2 text-[12px] py-2 px-3 rounded-[8px] transition-colors text-left text-[#9CA3AF]"
           onMouseEnter={(e) => {
             ;(e.currentTarget as HTMLElement).style.background = '#FFF1F2'
             ;(e.currentTarget as HTMLElement).style.color = '#B91C1C'
@@ -433,7 +433,11 @@ export default function AdminSidebar({
             ;(e.currentTarget as HTMLElement).style.color = '#9CA3AF'
           }}
         >
-          로그아웃
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span>로그아웃</span>
         </button>
       </div>
     </aside>
