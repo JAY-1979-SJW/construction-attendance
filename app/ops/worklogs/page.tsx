@@ -22,7 +22,7 @@ interface WorkLog {
 }
 
 const WEATHER_LABELS: Record<string, string> = {
-  SUNNY: '맑음', CLOUDY: '?�림', RAINY: '�?, SNOWY: '??, WINDY: '바람', FOGGY: '?�개',
+  SUNNY: '맑음', CLOUDY: '흐림', RAINY: '비', SNOWY: '눈', WINDY: '바람', FOGGY: '안개',
 }
 
 function fmtDate(d: string) {
@@ -58,7 +58,8 @@ export default function OpsWorklogsPage() {
   const [isReadOnly, setIsReadOnly] = useState(false)
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  // ?�성 ??  const [showForm, setShowForm] = useState(false)
+  // 작성 폼
+  const [showForm, setShowForm] = useState(false)
   const [formDate, setFormDate] = useState(today())
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
@@ -82,7 +83,7 @@ export default function OpsWorklogsPage() {
       .then(r => r.json())
       .then(d => {
         if (d.success) setLogs(d.data?.worklogs ?? [])
-        else setMsg({ type: 'error', text: d.message ?? '불러?�기 ?�패' })
+        else setMsg({ type: 'error', text: d.message ?? '불러오기 실패' })
       })
       .finally(() => setLoading(false))
   }, [siteId, fromDate, toDate])
@@ -90,8 +91,8 @@ export default function OpsWorklogsPage() {
   useEffect(() => { if (siteId) load() }, [siteId, load])
 
   const handleSubmit = async () => {
-    if (!siteId) { setMsg({ type: 'error', text: '?�장???�택?�세??' }); return }
-    if (!formDate) { setMsg({ type: 'error', text: '?�짜�??�택?�세??' }); return }
+    if (!siteId) { setMsg({ type: 'error', text: '현장을 선택하세요.' }); return }
+    if (!formDate) { setMsg({ type: 'error', text: '날짜를 선택하세요.' }); return }
     setSaving(true)
     setMsg(null)
     try {
@@ -102,12 +103,12 @@ export default function OpsWorklogsPage() {
       })
       const d = await res.json()
       if (res.ok && d.success !== false) {
-        setMsg({ type: 'success', text: '?�업?�보가 ?�록?�었?�니??' })
+        setMsg({ type: 'success', text: '작업일보가 등록되었습니다.' })
         setShowForm(false)
         setForm(emptyForm)
         load()
       } else {
-        setMsg({ type: 'error', text: d.message ?? '?�록 ?�패' })
+        setMsg({ type: 'error', text: d.message ?? '등록 실패' })
       }
     } finally { setSaving(false) }
   }
@@ -115,13 +116,13 @@ export default function OpsWorklogsPage() {
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-5">
-        <h1 className="text-[22px] font-bold text-[#111827] m-0">?�업?�보</h1>
+        <h1 className="text-[22px] font-bold text-[#111827] m-0">작업일보</h1>
         {siteId && !isReadOnly && (
           <button
             onClick={() => setShowForm(v => !v)}
             className="px-4 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]"
           >
-            {showForm ? '취소' : '+ ?�보 ?�성'}
+            {showForm ? '취소' : '+ 일보 작성'}
           </button>
         )}
       </div>
@@ -132,7 +133,7 @@ export default function OpsWorklogsPage() {
           value={siteId}
           onChange={e => { setSiteId(e.target.value); setShowForm(false) }}
         >
-          <option value="">?�장 ?�택</option>
+          <option value="">현장 선택</option>
           {sites.map(s => (
             <option key={s.id} value={s.id}>{s.name}</option>
           ))}
@@ -158,7 +159,7 @@ export default function OpsWorklogsPage() {
         </button>
         {isReadOnly && (
           <span className="px-[10px] py-[5px] bg-[rgba(251,191,36,0.15)] border border-[rgba(251,191,36,0.4)] rounded text-[12px] text-[#92400e]">
-            ?�기 ?�용
+            읽기 전용
           </span>
         )}
       </div>
@@ -175,13 +176,13 @@ export default function OpsWorklogsPage() {
         </div>
       )}
 
-      {/* ?�성 ??*/}
+      {/* 작성 폼 */}
       {showForm && !isReadOnly && (
         <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-[10px] p-5 mb-5">
-          <h3 className="m-0 mb-4 text-[14px] font-semibold text-[#1e40af]">?�업?�보 ?�성</h3>
+          <h3 className="m-0 mb-4 text-[14px] font-semibold text-[#1e40af]">작업일보 작성</h3>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">?�짜 *</label>
+              <label className="block text-[12px] text-[#6b7280] mb-1">날짜 *</label>
               <input
                 type="date"
                 className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
@@ -190,7 +191,7 @@ export default function OpsWorklogsPage() {
               />
             </div>
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">?�씨</label>
+              <label className="block text-[12px] text-[#6b7280] mb-1">날씨</label>
               <select
                 className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
                 value={form.weatherCondition ?? ''}
@@ -202,7 +203,7 @@ export default function OpsWorklogsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">?�체 ?�원</label>
+              <label className="block text-[12px] text-[#6b7280] mb-1">전체 인원</label>
               <input
                 type="number"
                 min={0}
@@ -212,7 +213,7 @@ export default function OpsWorklogsPage() {
               />
             </div>
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">?�상 출근</label>
+              <label className="block text-[12px] text-[#6b7280] mb-1">정상 출근</label>
               <input
                 type="number"
                 min={0}
@@ -238,16 +239,16 @@ export default function OpsWorklogsPage() {
                 checked={form.safetyIncident}
                 onChange={e => setForm(f => ({ ...f, safetyIncident: e.target.checked }))}
               />
-              <label htmlFor="safetyIncident" className="text-[13px] text-[#374151]">?�전 ?�고 발생</label>
+              <label htmlFor="safetyIncident" className="text-[13px] text-[#374151]">안전 사고 발생</label>
             </div>
             <div className="col-span-2">
-              <label className="block text-[12px] text-[#6b7280] mb-1">?�업 ?�약</label>
+              <label className="block text-[12px] text-[#6b7280] mb-1">작업 요약</label>
               <textarea
                 rows={3}
                 className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
                 value={form.workSummary}
                 onChange={e => setForm(f => ({ ...f, workSummary: e.target.value }))}
-                placeholder="?�늘 ?�업 ?�용 ?�약"
+                placeholder="오늘 작업 내용 요약"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -266,7 +267,7 @@ export default function OpsWorklogsPage() {
               disabled={saving}
               className="px-5 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px] disabled:opacity-50"
             >
-              {saving ? '?�??�?..' : '?�록'}
+              {saving ? '저장 중...' : '등록'}
             </button>
             <button
               onClick={() => setShowForm(false)}
@@ -280,20 +281,20 @@ export default function OpsWorklogsPage() {
 
       {!siteId ? (
         <div className="text-center text-[#9ca3af] py-12 bg-white border border-[#e5e7eb] rounded-lg text-[14px]">
-          ?�장???�택?�면 ?�업?�보�??�인?????�습?�다.
+          현장을 선택하면 작업일보를 확인할 수 있습니다.
         </div>
       ) : loading ? (
-        <p className="text-[#6b7280] text-center py-10">불러?�는 �?..</p>
+        <p className="text-[#6b7280] text-center py-10">불러오는 중...</p>
       ) : logs.length === 0 ? (
         <div className="text-center text-[#9ca3af] py-12 bg-white border border-[#e5e7eb] rounded-lg text-[14px]">
-          ?�당 기간???�업?�보가 ?�습?�다.
+          해당 기간에 작업일보가 없습니다.
         </div>
       ) : (
         <div className="bg-white border border-[#e5e7eb] rounded-lg overflow-auto">
           <table className="w-full border-collapse text-[13px]">
             <thead className="bg-[#f9fafb]">
               <tr>
-                {['?�짜', '?�체', '?�상', '결근', '?�씨', '?�전?�고', '?�태', '?�약'].map(h => (
+                {['날짜', '전체', '정상', '결근', '날씨', '안전사고', '상태', '요약'].map(h => (
                   <th key={h} className="px-[14px] py-[10px] text-left text-[12px] text-[#6b7280] font-semibold border-b border-[#e5e7eb]">{h}</th>
                 ))}
               </tr>
@@ -306,13 +307,13 @@ export default function OpsWorklogsPage() {
                   <td className="px-[14px] py-[10px] text-[#374151] text-center">{log.normalWorkers}</td>
                   <td className="px-[14px] py-[10px] text-[#374151] text-center">{log.absentWorkers}</td>
                   <td className="px-[14px] py-[10px] text-[#374151]">
-                    {log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '??}
+                    {log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '—'}
                   </td>
                   <td className="px-[14px] py-[10px]">
                     {log.safetyIncident ? (
                       <span className="text-[#dc2626] text-[12px] font-semibold">발생</span>
                     ) : (
-                      <span className="text-[#9ca3af] text-[12px]">?�음</span>
+                      <span className="text-[#9ca3af] text-[12px]">없음</span>
                     )}
                   </td>
                   <td className="px-[14px] py-[10px]">
@@ -323,11 +324,11 @@ export default function OpsWorklogsPage() {
                         color: log.isFinalized ? '#065f46' : '#92400e',
                       }}
                     >
-                      {log.isFinalized ? '마감' : '?�성�?}
+                      {log.isFinalized ? '마감' : '작성중'}
                     </span>
                   </td>
                   <td className="px-[14px] py-[10px] text-[#374151] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
-                    {log.workSummary ?? '??}
+                    {log.workSummary ?? '—'}
                   </td>
                 </tr>
               ))}

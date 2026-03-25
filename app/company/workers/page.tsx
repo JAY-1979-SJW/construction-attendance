@@ -14,10 +14,10 @@ interface Worker {
 }
 
 const EMPLOYMENT_TYPE_LABEL: Record<string, string> = {
-  DAILY_CONSTRUCTION: '?�용�?,
-  REGULAR: '?�규�?,
-  BUSINESS_33: '?�업?�득(3.3%)',
-  OTHER: '기�?',
+  DAILY_CONSTRUCTION: '일용직',
+  REGULAR: '정규직',
+  BUSINESS_33: '사업소득(3.3%)',
+  OTHER: '기타',
 }
 
 const emptyForm = { name: '', phone: '', jobTitle: '', employmentType: 'DAILY_CONSTRUCTION' }
@@ -65,12 +65,12 @@ export default function CompanyWorkersPage() {
       })
       const data = await res.json()
       if (!data.success) { setFormError(data.message); return }
-      setMsg('근로?��? ?�록?�었?�니??')
+      setMsg('근로자가 등록되었습니다.')
       setShowForm(false)
       setForm(emptyForm)
       load()
     } catch {
-      setFormError('?�트?�크 ?�류가 발생?�습?�다.')
+      setFormError('네트워크 오류가 발생했습니다.')
     } finally {
       setSaving(false)
     }
@@ -81,12 +81,12 @@ export default function CompanyWorkersPage() {
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-5">
-        <h1 className="text-[22px] font-bold m-0 text-white">근로??관�?({total}�?</h1>
+        <h1 className="text-[22px] font-bold m-0 text-white">근로자 관리 ({total}명)</h1>
         <button
           onClick={() => { setShowForm(true); setFormError('') }}
           className="px-4 py-2 bg-[#F97316] text-white border-none rounded-[7px] cursor-pointer text-sm font-semibold"
         >
-          + 근로???�록
+          + 근로자 등록
         </button>
       </div>
 
@@ -98,24 +98,25 @@ export default function CompanyWorkersPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="?�름?�로 검??
+          placeholder="이름으로 검색"
           className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-[7px] text-sm w-[220px] outline-none"
         />
         <button
           type="submit"
           className="px-4 py-2 bg-[#555] text-white border-none rounded-[7px] cursor-pointer text-sm"
         >
-          검??        </button>
+          검색
+        </button>
       </form>
 
       {loading ? (
-        <p className="text-muted-brand text-[15px]">불러?�는 �?..</p>
+        <p className="text-muted-brand text-[15px]">불러오는 중...</p>
       ) : (
         <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] overflow-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr>
-                {['?�름', '?�락�?, '직종', '고용?�태', '출근?�장', '?�태'].map((h) => (
+                {['이름', '연락처', '직종', '고용형태', '출근현장', '상태'].map((h) => (
                   <th
                     key={h}
                     className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[#eee] bg-[#fafafa] whitespace-nowrap"
@@ -127,7 +128,7 @@ export default function CompanyWorkersPage() {
             </thead>
             <tbody>
               {workers.length === 0 ? (
-                <tr><td colSpan={6} className="p-8 text-center text-[#aaa] text-sm">근로?��? ?�습?�다.</td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-[#aaa] text-sm">근로자가 없습니다.</td></tr>
               ) : workers.map((w) => (
                 <tr key={w.id} className="border-b border-[#f0f0f0]">
                   <td className="px-4 py-3 text-sm text-[#CBD5E0] whitespace-nowrap">{w.name}</td>
@@ -143,7 +144,7 @@ export default function CompanyWorkersPage() {
                         color: w.isActive ? '#2e7d32' : '#888',
                       }}
                     >
-                      {w.isActive ? '?�성' : '비활??}
+                      {w.isActive ? '활성' : '비활성'}
                     </span>
                   </td>
                 </tr>
@@ -156,18 +157,18 @@ export default function CompanyWorkersPage() {
       {showForm && (
         <div className="fixed inset-0 bg-black/45 flex items-center justify-center z-[1000]">
           <div className="bg-card rounded-xl p-8 w-full max-w-[420px] shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
-            <h2 className="text-lg font-bold m-0 mb-5 text-white">근로???�록</h2>
+            <h2 className="text-lg font-bold m-0 mb-5 text-white">근로자 등록</h2>
             <div className="mb-3.5">
-              <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">?�름</label>
+              <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">이름</label>
               <input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="input-base w-full"
-                placeholder="?�길??
+                placeholder="홍길동"
               />
             </div>
             <div className="mb-3.5">
-              <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">?�락�?/label>
+              <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">연락처</label>
               <input
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -181,20 +182,20 @@ export default function CompanyWorkersPage() {
                 value={form.jobTitle}
                 onChange={(e) => setForm({ ...form, jobTitle: e.target.value })}
                 className="input-base w-full"
-                placeholder="철근�?
+                placeholder="철근공"
               />
             </div>
             <div className="mb-3.5">
-              <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">고용?�태</label>
+              <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">고용형태</label>
               <select
                 value={form.employmentType}
                 onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
                 className="w-full px-3 py-2.5 text-sm border border-[rgba(91,164,217,0.3)] rounded-[7px] outline-none bg-card box-border"
               >
-                <option value="DAILY_CONSTRUCTION">?�용�?/option>
-                <option value="REGULAR">?�규�?/option>
-                <option value="BUSINESS_33">?�업?�득(3.3%)</option>
-                <option value="OTHER">기�?</option>
+                <option value="DAILY_CONSTRUCTION">일용직</option>
+                <option value="REGULAR">정규직</option>
+                <option value="BUSINESS_33">사업소득(3.3%)</option>
+                <option value="OTHER">기타</option>
               </select>
             </div>
             {formError && <p className="text-[#e53935] text-[13px] mb-2.5">{formError}</p>}
@@ -211,7 +212,7 @@ export default function CompanyWorkersPage() {
                 className="px-4 py-2 bg-[#F97316] text-white border-none rounded-[7px] cursor-pointer text-sm font-semibold"
                 style={{ opacity: saving ? 0.6 : 1 }}
               >
-                {saving ? '?�??�?..' : '?�록'}
+                {saving ? '저장 중...' : '등록'}
               </button>
             </div>
           </div>
