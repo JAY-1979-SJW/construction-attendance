@@ -35,11 +35,10 @@ const STATUS_LABEL: Record<string, string> = {
 }
 const STATUS_BADGE: Record<string, string> = {
   WORKING:          'bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0]',
-  COMPLETED:        'bg-[#F9FAFB] text-[#6B7280] border border-[#E5E7EB]',
-  MISSING_CHECKOUT: 'bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]',
+  COMPLETED:        'bg-[#F3F4F6] text-[#9CA3AF] border border-[#E5E7EB]',
+  MISSING_CHECKOUT: 'bg-[#FEE2E2] text-[#B91C1C] border border-[#F87171]',
   EXCEPTION:        'bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]',
 }
-// 표시 우선순위: 확인필요 → 근무중 → 퇴근
 const STATUS_SORT: Record<string, number> = {
   MISSING_CHECKOUT: 0, EXCEPTION: 1, WORKING: 2, COMPLETED: 3,
 }
@@ -69,13 +68,11 @@ export default function AdminDashboard() {
 
   useEffect(() => { loadToday() }, [loadToday])
 
-  // 우선순위 정렬: 확인필요 → 근무중 → 퇴근
   const sortedRecent = useMemo(() =>
     [...recent].sort((a, b) => (STATUS_SORT[a.status] ?? 9) - (STATUS_SORT[b.status] ?? 9)),
     [recent]
   )
 
-  // 현장별 집계
   const siteSummary = useMemo(() => {
     const map = new Map<string, { total: number; working: number; completed: number; issue: number }>()
     recent.forEach(r => {
@@ -92,23 +89,35 @@ export default function AdminDashboard() {
       .sort((a, b) => (b.issue - a.issue) || (b.working - a.working))
   }, [recent])
 
-  // 절대 날짜 (KST)
   const todayStr = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10)
-
-  // 승인 대기 = 기기 변경 대기 + 예외 처리
   const pendingApproval = (summary?.pendingDeviceRequests ?? 0) + (summary?.pendingExceptions ?? 0)
 
   return (
     <div className="p-5 md:p-7 bg-[#F5F7FA] min-h-screen">
 
       {/* ── 페이지 헤더 ─────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <h1 className="text-[22px] font-bold text-[#0F172A] m-0 mb-1">대시보드</h1>
-          <p className="text-[13px] text-[#6B7280] m-0">오늘 현장 운영 현황을 확인하세요</p>
+      {/* [4] 설명 문구 제거, 제목 1줄 / [6] 오늘 기준 배지 고정 / [1] 핵심 액션 버튼 추가 */}
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          <h1 className="text-[20px] font-bold text-[#0F172A] m-0">대시보드</h1>
+          {/* [6] 오늘 기준 배지 — 항상 고정 표시 */}
+          <span className="text-[11px] font-semibold text-[#6B7280] bg-[#F3F4F6] border border-[#E5E7EB] rounded-full px-2.5 py-1 tabular-nums">
+            {todayStr} 기준
+          </span>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-[13px] text-[#6B7280] tabular-nums">{todayStr} 기준</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* [1] 핵심 액션 버튼 */}
+          <Link href="/admin/attendance"
+            className="no-underline flex items-center gap-1.5 text-[13px] font-semibold text-white bg-[#0F172A] hover:bg-[#1E293B] rounded-[8px] px-3.5 py-1.5 transition-colors">
+            출근현황
+          </Link>
+          <Link href="/admin/device-requests"
+            className="no-underline flex items-center gap-1.5 text-[13px] font-semibold text-white bg-[#F97316] hover:bg-[#EA580C] rounded-[8px] px-3.5 py-1.5 transition-colors">
+            승인관리
+            {pendingApproval > 0 && (
+              <span className="bg-white text-[#F97316] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">{pendingApproval}</span>
+            )}
+          </Link>
           <button
             onClick={loadToday}
             className="flex items-center gap-1.5 text-[13px] text-[#374151] border border-[#E5E7EB] bg-white hover:border-[#D1D5DB] hover:bg-[#F9FAFB] rounded-[8px] px-3 py-1.5 cursor-pointer transition-colors"
@@ -138,7 +147,7 @@ export default function AdminDashboard() {
               )}
               {summary.todayPresenceNoResponse > 0 && (
                 <a href="/admin/presence-checks?status=NO_RESPONSE"
-                  className="flex items-center gap-2.5 no-underline px-4 py-2.5 bg-[#FEF2F2] border border-[#FECACA] rounded-[10px] text-[#DC2626] hover:border-[#FCA5A5] transition-colors">
+                  className="flex items-center gap-2.5 no-underline px-4 py-2.5 bg-[#FEE2E2] border border-[#F87171] rounded-[10px] text-[#B91C1C] hover:border-[#EF4444] transition-colors">
                   <span className="text-[16px] font-bold">{summary.todayPresenceNoResponse}</span>
                   <span className="text-[12px] font-medium">체류확인 미응답</span>
                 </a>
@@ -147,44 +156,14 @@ export default function AdminDashboard() {
           )}
 
           {/* ── KPI 4개 ─────────────────────────────────────────────── */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
             {[
-              {
-                label: '오늘 총 출근 인원',
-                value: summary?.todayTotal ?? 0,
-                unit: '명',
-                sub: '오늘 기록 기준',
-                accent: '#F97316',
-                href: '/admin/attendance',
-              },
-              {
-                label: '현재 근무중',
-                value: summary?.todayCheckedIn ?? 0,
-                unit: '명',
-                sub: '퇴근 전 인원',
-                accent: '#16A34A',
-                href: '/admin/attendance',
-              },
-              {
-                label: '미퇴근 인원',
-                value: summary?.pendingMissing ?? 0,
-                unit: '명',
-                sub: '확인 필요',
-                accent: '#DC2626',
-                href: '/admin/attendance',
-              },
-              {
-                label: '승인 대기',
-                value: pendingApproval,
-                unit: '건',
-                sub: '처리 필요',
-                accent: '#7C3AED',
-                href: '/admin/device-requests',
-              },
+              { label: '오늘 총 출근 인원', value: summary?.todayTotal ?? 0,      unit: '명', sub: '오늘 기록 기준',  accent: '#F97316', href: '/admin/attendance' },
+              { label: '현재 근무중',       value: summary?.todayCheckedIn ?? 0,  unit: '명', sub: '퇴근 전 인원',    accent: '#16A34A', href: '/admin/attendance' },
+              { label: '미퇴근 인원',       value: summary?.pendingMissing ?? 0,  unit: '명', sub: '확인 필요',       accent: '#DC2626', href: '/admin/attendance' },
+              { label: '승인 대기',         value: pendingApproval,               unit: '건', sub: '처리 필요',       accent: '#7C3AED', href: '/admin/device-requests' },
             ].map(card => (
-              <Link
-                key={card.label}
-                href={card.href}
+              <Link key={card.label} href={card.href}
                 className="no-underline bg-white rounded-[12px] border border-[#E5E7EB] px-5 py-4 hover:border-[#D1D5DB] hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all block"
                 style={{ borderTopWidth: 3, borderTopColor: card.accent }}
               >
@@ -199,14 +178,16 @@ export default function AdminDashboard() {
           </div>
 
           {/* ── 메인 2단 영역 ────────────────────────────────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 mb-5">
+          {/* [2] items-stretch로 두 카드 높이 통일 */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 mb-5 items-start">
 
             {/* 좌: 오늘 출근 현황 */}
             <div className="bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden">
+              {/* [2] 헤더 높이 통일: py-3.5 */}
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#F3F4F6]">
-                <div>
+                <div className="flex items-center gap-2">
                   <span className="text-[14px] font-semibold text-[#111827]">오늘 출근 현황</span>
-                  <span className="ml-2 text-[11px] text-[#9CA3AF]">확인 필요 우선 정렬</span>
+                  <span className="text-[11px] text-[#9CA3AF]">확인 필요 우선</span>
                 </div>
                 <Link href="/admin/attendance" className="text-[12px] text-[#F97316] no-underline font-medium hover:underline">
                   전체보기 →
@@ -231,10 +212,9 @@ export default function AdminDashboard() {
                         </td>
                       </tr>
                     ) : sortedRecent.slice(0, 10).map(r => (
-                      <tr
-                        key={r.id}
+                      <tr key={r.id}
                         className={`hover:bg-[#FAFAFA] transition-colors border-b border-[#F9FAFB] last:border-b-0 ${
-                          r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION' ? 'bg-[#FFFBEB]/40' : ''
+                          r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION' ? 'bg-[#FFF1F2]' : ''
                         }`}
                       >
                         <td className="px-4 py-3 text-[13px] font-medium text-[#111827] whitespace-nowrap">{r.workerName}</td>
@@ -243,7 +223,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3 text-[13px] text-[#374151] whitespace-nowrap tabular-nums">{fmtTime(r.checkInAt)}</td>
                         <td className="px-4 py-3 text-[13px] text-[#374151] whitespace-nowrap tabular-nums">{fmtTime(r.checkOutAt)}</td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_BADGE[r.status] ?? 'bg-[#F9FAFB] text-[#6B7280] border border-[#E5E7EB]'}`}>
+                          <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_BADGE[r.status] ?? 'bg-[#F3F4F6] text-[#9CA3AF] border border-[#E5E7EB]'}`}>
                             {STATUS_LABEL[r.status] ?? r.status}
                           </span>
                         </td>
@@ -264,14 +244,16 @@ export default function AdminDashboard() {
 
             {/* 우: 빠른 처리 */}
             <div className="bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden">
+              {/* [2] 헤더 높이 통일: py-3.5 */}
               <div className="px-5 py-3.5 border-b border-[#F3F4F6]">
                 <span className="text-[14px] font-semibold text-[#111827]">빠른 처리</span>
               </div>
+              {/* [2] 내부 패딩 통일: p-4 */}
               <div className="p-4 flex flex-col gap-2.5">
                 {[
                   {
                     label: '미퇴근 확인',
-                    desc: '퇴근 누락 인원을 확인하세요',
+                    desc: '퇴근 누락 인원',
                     count: summary?.pendingMissing ?? 0,
                     href: '/admin/attendance',
                     btnLabel: '출근현황으로 이동',
@@ -279,7 +261,7 @@ export default function AdminDashboard() {
                   },
                   {
                     label: '승인 대기',
-                    desc: '신규 기기 및 변경 요청을 확인하세요',
+                    desc: '기기 변경 및 신규 요청',
                     count: summary?.pendingDeviceRequests ?? 0,
                     href: '/admin/device-requests',
                     btnLabel: '승인관리로 이동',
@@ -287,7 +269,7 @@ export default function AdminDashboard() {
                   },
                   {
                     label: '예외 처리',
-                    desc: '출퇴근 예외 건을 확인하세요',
+                    desc: '출퇴근 예외 건',
                     count: summary?.pendingExceptions ?? 0,
                     href: '/admin/attendance',
                     btnLabel: '출근현황으로 이동',
@@ -295,37 +277,35 @@ export default function AdminDashboard() {
                   },
                   ...(summary?.todayPresenceReview ?? 0) > 0 ? [{
                     label: '체류확인 검토',
-                    desc: '응답 검토가 필요한 인원이 있습니다',
+                    desc: '응답 검토 필요',
                     count: summary?.todayPresenceReview ?? 0,
                     href: '/admin/presence-checks?status=REVIEW_REQUIRED',
                     btnLabel: '체류확인으로 이동',
                     urgent: true,
                   }] : [],
                 ].map(item => (
-                  <div
-                    key={item.label}
+                  <div key={item.label}
                     className={`rounded-[10px] border p-3.5 ${
                       item.urgent && item.count > 0
-                        ? 'bg-[#FEF2F2] border-[#FECACA]'
+                        ? 'bg-[#FEE2E2] border-[#F87171]'
                         : 'bg-[#F9FAFB] border-[#F3F4F6]'
                     }`}
                   >
                     <div className="flex items-start justify-between mb-1.5">
                       <div>
-                        <div className={`text-[13px] font-semibold ${item.urgent && item.count > 0 ? 'text-[#DC2626]' : 'text-[#374151]'}`}>
+                        <div className={`text-[13px] font-semibold ${item.urgent && item.count > 0 ? 'text-[#B91C1C]' : 'text-[#374151]'}`}>
                           {item.label}
                         </div>
                         <div className="text-[11px] text-[#9CA3AF] mt-0.5">{item.desc}</div>
                       </div>
-                      <span className={`text-[20px] font-bold ml-2 tabular-nums ${item.urgent && item.count > 0 ? 'text-[#DC2626]' : 'text-[#D1D5DB]'}`}>
+                      <span className={`text-[20px] font-bold ml-2 tabular-nums ${item.urgent && item.count > 0 ? 'text-[#B91C1C]' : 'text-[#D1D5DB]'}`}>
                         {item.count}
                       </span>
                     </div>
-                    <Link
-                      href={item.href}
+                    <Link href={item.href}
                       className={`no-underline block text-center text-[12px] font-semibold py-1.5 rounded-[7px] transition-colors ${
                         item.urgent && item.count > 0
-                          ? 'bg-[#DC2626] text-white hover:bg-[#B91C1C]'
+                          ? 'bg-[#B91C1C] text-white hover:bg-[#991B1B]'
                           : 'bg-white text-[#6B7280] border border-[#E5E7EB] hover:border-[#D1D5DB] hover:text-[#374151]'
                       }`}
                     >
@@ -334,14 +314,13 @@ export default function AdminDashboard() {
                   </div>
                 ))}
 
-                {/* 바로가기 */}
                 <div className="mt-1 pt-3 border-t border-[#F3F4F6]">
                   <div className="text-[11px] text-[#9CA3AF] mb-2 font-semibold uppercase tracking-wide">바로가기</div>
                   <div className="flex flex-col gap-1">
                     {[
                       { label: '출근현황 보기', href: '/admin/attendance' },
-                      { label: '근로자 관리', href: '/admin/workers' },
-                      { label: '현장 관리', href: '/admin/sites' },
+                      { label: '근로자 관리',   href: '/admin/workers' },
+                      { label: '현장 관리',     href: '/admin/sites' },
                     ].map(link => (
                       <Link key={link.label} href={link.href}
                         className="no-underline text-[12px] text-[#6B7280] hover:text-[#F97316] flex items-center justify-between transition-colors py-1 px-1 rounded hover:bg-[#FFF7ED]">
@@ -376,9 +355,22 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
+                    {/* [5] 각 행 클릭 → 출근현황(현장 필터) 또는 확인필요 시 강조 */}
                     {siteSummary.map(s => (
-                      <tr key={s.name} className={`hover:bg-[#FAFAFA] transition-colors border-b border-[#F9FAFB] last:border-b-0 ${s.issue > 0 ? 'bg-[#FFFBEB]/30' : ''}`}>
-                        <td className="px-4 py-3 text-[13px] font-medium text-[#111827]">{s.name}</td>
+                      <tr key={s.name}
+                        onClick={() => router.push(`/admin/attendance`)}
+                        className={`cursor-pointer transition-colors border-b border-[#F9FAFB] last:border-b-0 ${
+                          s.issue > 0
+                            ? 'bg-[#FFF1F2] hover:bg-[#FFE4E6]'
+                            : 'hover:bg-[#F9FAFB]'
+                        }`}
+                      >
+                        <td className="px-4 py-3 text-[13px] font-medium text-[#111827]">
+                          <span className="flex items-center gap-1.5">
+                            {s.name}
+                            {s.issue > 0 && <span className="text-[10px] text-[#B91C1C]">↗</span>}
+                          </span>
+                        </td>
                         <td className="px-4 py-3 text-[13px] text-[#374151] tabular-nums">{s.total}명</td>
                         <td className="px-4 py-3">
                           <span className={`text-[13px] font-semibold tabular-nums ${s.working > 0 ? 'text-[#16A34A]' : 'text-[#9CA3AF]'}`}>
@@ -387,18 +379,21 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-4 py-3 text-[13px] text-[#6B7280] tabular-nums">{s.completed}명</td>
                         <td className="px-4 py-3 tabular-nums">
+                          {/* [3] 확인 필요: 더 또렷한 빨강 */}
                           {s.issue > 0
-                            ? <span className="text-[12px] font-semibold text-[#DC2626]">{s.issue}건</span>
+                            ? <span className="text-[12px] font-bold text-[#B91C1C]">{s.issue}건</span>
                             : <span className="text-[12px] text-[#D1D5DB]">-</span>
                           }
                         </td>
                         <td className="px-4 py-3">
                           {s.issue > 0 ? (
-                            <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]">
+                            // [3] 확인 필요: 진한 빨강 배지
+                            <span className="inline-block text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#FEE2E2] text-[#B91C1C] border border-[#F87171]">
                               확인 필요
                             </span>
                           ) : s.total > 0 ? (
-                            <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0]">
+                            // [3] 정상: 중립 회색 (초록 대비 낮춤)
+                            <span className="inline-block text-[11px] px-2 py-0.5 rounded-full bg-[#F3F4F6] text-[#9CA3AF] border border-[#E5E7EB]">
                               정상
                             </span>
                           ) : (
