@@ -186,7 +186,7 @@ export default function PresenceChecksPage() {
     fetch('/api/admin/sites')
       .then((r) => r.json())
       .then((data) => {
-        if (data.success) setSites(data.data ?? [])
+        if (data.success) setSites(data.data?.items ?? data.data ?? [])
       })
   }, [])
 
@@ -307,12 +307,12 @@ export default function PresenceChecksPage() {
         {/* Filter row */}
         <div className="flex gap-2.5 flex-wrap mb-4 items-center">
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-[#1E3048] text-[#E2E8F0]">
+            className="px-3 py-2 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#111827] bg-white focus:outline-none focus:border-[#F97316]">
             <option value="">전체 상태</option>
             {Object.entries(STATUS_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
           <select value={siteFilter} onChange={(e) => setSiteFilter(e.target.value)}
-            className="px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-[#1E3048] text-[#E2E8F0]">
+            className="px-3 py-2 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#111827] bg-white focus:outline-none focus:border-[#F97316]">
             <option value="">전체 현장</option>
             {sites.map((site) => <option key={site.id} value={site.id}>{site.name}</option>)}
           </select>
@@ -321,7 +321,7 @@ export default function PresenceChecksPage() {
             placeholder="근로자 검색"
             value={workerSearch}
             onChange={(e) => setWorkerSearch(e.target.value)}
-            className="px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] w-[140px]"
+            className="px-3 py-2 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#111827] w-[140px] focus:outline-none focus:border-[#F97316] placeholder:text-[#9CA3AF]"
           />
           <label className="flex items-center text-[13px] cursor-pointer text-[#444] whitespace-nowrap">
             <input type="checkbox" checked={onlyReview} onChange={(e) => setOnlyReview(e.target.checked)} />
