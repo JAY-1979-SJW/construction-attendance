@@ -145,7 +145,7 @@ export default function OpsAttendancePage() {
 
       <div className="flex gap-2 items-center mb-5 flex-wrap">
         <select
-          className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] min-w-[160px]"
+          className="px-3 py-2 border border-[#D1D5DB] rounded-md text-[13px] min-w-[160px]"
           value={siteId}
           onChange={e => setSiteId(e.target.value)}
         >
@@ -158,7 +158,7 @@ export default function OpsAttendancePage() {
           type="date"
           value={date}
           onChange={e => setDate(e.target.value)}
-          className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]"
+          className="px-3 py-2 border border-[#D1D5DB] rounded-md text-[13px]"
         />
         <button
           onClick={load}
@@ -214,7 +214,7 @@ export default function OpsAttendancePage() {
 
                 return (
                   <>
-                    <tr key={r.id} className="border-b border-[#f3f4f6] hover:bg-[rgba(91,164,217,0.04)]">
+                    <tr key={r.id} className="border-b border-[#f3f4f6] hover:bg-[#F9FAFB]">
                       <td className="px-4 py-[13px] font-semibold text-[#1f2937]">{r.workerName}</td>
                       <td className="px-4 py-[13px] text-[#374151]">{r.siteName || '—'}</td>
                       <td className="px-4 py-[13px] text-[#374151] whitespace-nowrap">{fmtTime(r.checkInAt)}</td>

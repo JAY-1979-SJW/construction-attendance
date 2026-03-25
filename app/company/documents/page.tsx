@@ -117,7 +117,7 @@ export default function CompanyDocumentsPage() {
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => handleMonthFilter('')}
-                  className="px-[14px] py-[6px] border border-[rgba(91,164,217,0.3)] rounded-[16px] cursor-pointer text-[13px]"
+                  className="px-[14px] py-[6px] border border-[#D1D5DB] rounded-[16px] cursor-pointer text-[13px]"
                   style={{
                     background: selectedMonth === '' ? '#F97316' : '#F3F4F6',
                     color: selectedMonth === '' ? 'white' : '#6B7280',
@@ -128,7 +128,7 @@ export default function CompanyDocumentsPage() {
                 </button>
                 {data.availableMonths.map(m => (
                   <button key={m} onClick={() => handleMonthFilter(m)}
-                    className="px-[14px] py-[6px] border border-[rgba(91,164,217,0.3)] rounded-[16px] cursor-pointer text-[13px]"
+                    className="px-[14px] py-[6px] border border-[#D1D5DB] rounded-[16px] cursor-pointer text-[13px]"
                     style={{
                       background: selectedMonth === m ? '#F97316' : '#F3F4F6',
                       color: selectedMonth === m ? 'white' : '#6B7280',
@@ -162,10 +162,10 @@ export default function CompanyDocumentsPage() {
                   <tbody>
                     {data.confirmationSummary.map((row, i) => (
                       <tr key={row.monthKey} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                        <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle font-semibold">{row.monthKey}</td>
-                        <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.confirmedCount}건</td>
-                        <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.totalWorkUnits.toFixed(2)}일</td>
-                        <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{fmt(row.totalAmount)}</td>
+                        <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle font-semibold">{row.monthKey}</td>
+                        <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{row.confirmedCount}건</td>
+                        <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{row.totalWorkUnits.toFixed(2)}일</td>
+                        <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{fmt(row.totalAmount)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -196,9 +196,9 @@ export default function CompanyDocumentsPage() {
                     <tbody>
                       {data.laborSummaries.map((row, i) => (
                         <tr key={row.id} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle font-semibold">{row.monthKey}</td>
-                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle">{row.siteName}</td>
-                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle">
+                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle font-semibold">{row.monthKey}</td>
+                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle">{row.siteName}</td>
+                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle">
                             <span
                               className="text-[11px] px-2 py-[2px] rounded-lg"
                               style={{
@@ -209,12 +209,12 @@ export default function CompanyDocumentsPage() {
                               {ORG_LABEL[row.organizationType] ?? row.organizationType}
                             </span>
                           </td>
-                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.workerCount}명</td>
-                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.confirmedWorkUnits.toFixed(2)}</td>
-                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{fmt(row.grossAmount)}</td>
-                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right text-[#c62828]">{fmt(row.withholdingTaxAmount)}</td>
-                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-right">{row.retirementMutualTargetDays}일</td>
-                          <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.1)] align-middle text-[12px] text-muted-brand">
+                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{row.workerCount}명</td>
+                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{row.confirmedWorkUnits.toFixed(2)}</td>
+                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{fmt(row.grossAmount)}</td>
+                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right text-[#c62828]">{fmt(row.withholdingTaxAmount)}</td>
+                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{row.retirementMutualTargetDays}일</td>
+                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-[12px] text-muted-brand">
                             {new Date(row.createdAt).toLocaleDateString('ko-KR')}
                           </td>
                         </tr>

@@ -27,10 +27,10 @@ export default function GuidePage() {
   const next = () => canNext && setStep(STEPS[currentIdx + 1].key)
 
   return (
-    <div className="font-sans text-white min-h-screen bg-brand">
+    <div className="font-sans text-[#111827] min-h-screen bg-brand">
 
       {/* 상단 헤더 */}
-      <header className="flex justify-between items-center px-6 h-[60px] bg-card border-b border-[rgba(91,164,217,0.15)] sticky top-0 z-10 shadow-[0_2px_12px_rgba(0,0,0,0.2)]">
+      <header className="flex justify-between items-center px-6 h-[60px] bg-card border-b border-[#E5E7EB] sticky top-0 z-10 shadow-[0_2px_12px_rgba(0,0,0,0.2)]">
         <Link href="/" className="text-sm text-muted-brand no-underline flex items-center gap-1">
           ← 돌아가기
         </Link>
@@ -44,7 +44,7 @@ export default function GuidePage() {
             priority
           />
           <span className="text-brand-muted2 text-[13px]">|</span>
-          <span className="text-base font-bold text-white">앱 사용 미리보기</span>
+          <span className="text-base font-bold text-[#111827]">앱 사용 미리보기</span>
         </div>
         <Link href="/login"
           className="py-[9px] px-5 bg-brand-accent text-white rounded-lg no-underline text-[13px] font-bold shadow-[0_2px_8px_rgba(244,121,32,0.3)]">
@@ -83,7 +83,7 @@ export default function GuidePage() {
         {/* 폰 프레임 + 화면 */}
         <div className="flex-1 flex flex-col items-center gap-5">
           <div
-            className="w-[300px] rounded-[40px] p-3.5 bg-[#0d1520] shadow-[0_24px_60px_rgba(0,0,0,0.5),inset_0_0_0_1px_rgba(255,255,255,0.06)] border border-[rgba(91,164,217,0.2)]"
+            className="w-[300px] rounded-[40px] p-3.5 bg-[#0d1520] shadow-[0_24px_60px_rgba(0,0,0,0.5),inset_0_0_0_1px_rgba(255,255,255,0.06)] border border-[#E5E7EB]"
           >
             <div className="w-[50px] h-[5px] bg-[#222] rounded-[3px] mx-auto mb-2.5" />
             <div className="bg-brand rounded-[28px] min-h-[540px] overflow-hidden relative">
@@ -156,10 +156,10 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
             />
           </div>
           <div className="text-xs text-brand-muted2 text-center mb-7">현장 출퇴근 관리 시스템</div>
-          <div className="bg-card rounded-2xl p-[22px] border border-[rgba(91,164,217,0.15)]">
+          <div className="bg-card rounded-2xl p-[22px] border border-[#E5E7EB]">
             <div className="text-xs text-muted-brand mb-1.5">전화번호</div>
             <input
-              className="w-full px-3 py-3 text-[15px] border border-[rgba(91,164,217,0.25)] rounded-lg box-border mb-3 bg-[rgba(255,255,255,0.06)] text-white"
+              className="w-full px-3 py-3 text-[15px] border border-[#D1D5DB] rounded-lg box-border mb-3 bg-white text-[#111827]"
               defaultValue="010-1234-5678"
               readOnly
             />
@@ -182,7 +182,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
       return (
         <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand flex flex-col justify-center items-center">
           <div className="text-[48px] mb-4">⏳</div>
-          <div className="text-lg font-bold text-white mb-2">기기 승인 대기 중</div>
+          <div className="text-lg font-bold text-[#111827] mb-2">기기 승인 대기 중</div>
           <div className="text-[13px] text-muted-brand text-center leading-[1.7] mb-6">
             현장 관리자가 이 기기를<br />승인하면 자동으로 로그인됩니다.<br /><br />
             <strong>최초 1회만</strong> 필요합니다.
@@ -192,7 +192,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
           </div>
           <button
             onClick={onNext}
-            className="w-full py-[13px] text-[15px] font-bold bg-[#555] text-white border-none rounded-[10px] cursor-pointer mt-6 shadow-[0_3px_10px_rgba(244,121,32,0.3)]"
+            className="w-full py-[13px] text-[15px] font-bold bg-[#F3F4F6] text-[#374151] border-none rounded-[10px] cursor-pointer mt-6 shadow-[0_3px_10px_rgba(244,121,32,0.3)]"
           >
             (승인됨 — 다음 보기)
           </button>
@@ -205,21 +205,21 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
         <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand">
           <div className="flex justify-between items-center mb-4 pt-2">
             <div>
-              <div className="text-base font-bold text-white">홍길동</div>
+              <div className="text-base font-bold text-[#111827]">홍길동</div>
               <div className="text-[11px] text-brand-muted2 mt-0.5">해한Ai Engineering · 철근공</div>
             </div>
-            <button className="bg-[rgba(255,255,255,0.06)] border border-[rgba(91,164,217,0.2)] rounded-md py-[5px] px-2.5 text-[11px] cursor-pointer text-muted-brand">
+            <button className="bg-[#F3F4F6] border border-[#E5E7EB] rounded-md py-[5px] px-2.5 text-[11px] cursor-pointer text-muted-brand">
               로그아웃
             </button>
           </div>
-          <div className="bg-card rounded-[14px] p-[18px] mb-2.5 border border-[rgba(91,164,217,0.12)]">
+          <div className="bg-card rounded-[14px] p-[18px] mb-2.5 border border-[#E5E7EB]">
             <div className="text-[11px] text-brand-muted2 mb-2.5 uppercase tracking-[0.5px]">오늘의 출퇴근</div>
             <div className="text-center py-5 text-muted-brand">
               <p>오늘 출근 기록이 없습니다.</p>
               <p className="text-[13px] text-muted-brand">현장 QR코드를 스캔하여 출근하세요.</p>
             </div>
           </div>
-          <div className="bg-[rgba(91,164,217,0.08)] border border-[rgba(91,164,217,0.2)] rounded-xl p-3.5 mb-2.5">
+          <div className="bg-[rgba(91,164,217,0.08)] border border-[#E5E7EB] rounded-xl p-3.5 mb-2.5">
             <div className="text-xs font-bold text-secondary-brand mb-2">출퇴근 방법</div>
             <div className="text-[11px] text-[#4A93C8] mb-1 flex gap-1.5">1. 현장에 부착된 QR코드를 스캔하세요</div>
             <div className="text-[11px] text-[#4A93C8] mb-1 flex gap-1.5">2. 위치 권한을 허용하세요</div>
@@ -238,14 +238,14 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
     case 'checkin':
       return (
         <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand">
-          <div className="bg-card rounded-xl p-3.5 mb-2.5 border border-[rgba(91,164,217,0.12)]">
+          <div className="bg-card rounded-xl p-3.5 mb-2.5 border border-[#E5E7EB]">
             <div className="text-[10px] text-[#5a6a7e] mb-1 uppercase tracking-[0.5px]">스캔한 현장</div>
-            <div className="text-[17px] font-bold text-white mb-0.5">해한 A현장</div>
+            <div className="text-[17px] font-bold text-[#111827] mb-0.5">해한 A현장</div>
             <div className="text-xs text-muted-brand">서울시 강남구 테헤란로 123</div>
           </div>
-          <div className="bg-card rounded-[14px] py-7 px-5 text-center border border-[rgba(91,164,217,0.12)] mb-2.5">
+          <div className="bg-card rounded-[14px] py-7 px-5 text-center border border-[#E5E7EB] mb-2.5">
             <div className="text-[48px] mb-3">🏗️</div>
-            <div className="text-lg font-bold text-white mb-1.5">출근 처리</div>
+            <div className="text-lg font-bold text-[#111827] mb-1.5">출근 처리</div>
             <div className="text-[13px] text-muted-brand mb-[18px]">현재 위치를 확인 후 출근 처리합니다.</div>
             <button
               onClick={fakeProcess}
@@ -256,7 +256,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
               {processing ? '위치 확인 중...' : '출근하기'}
             </button>
           </div>
-          <button className="w-full py-2.5 text-xs bg-transparent border border-[rgba(91,164,217,0.2)] rounded-[9px] cursor-pointer text-brand-muted2">
+          <button className="w-full py-2.5 text-xs bg-transparent border border-[#E5E7EB] rounded-[9px] cursor-pointer text-brand-muted2">
             GPS 오류 또는 예외 신청
           </button>
         </div>
@@ -268,19 +268,19 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
         <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand">
           <div className="flex justify-between items-center mb-4 pt-2">
             <div>
-              <div className="text-base font-bold text-white">홍길동</div>
+              <div className="text-base font-bold text-[#111827]">홍길동</div>
               <div className="text-[11px] text-brand-muted2 mt-0.5">해한Ai Engineering · 철근공</div>
             </div>
-            <button className="bg-[rgba(255,255,255,0.06)] border border-[rgba(91,164,217,0.2)] rounded-md py-[5px] px-2.5 text-[11px] cursor-pointer text-muted-brand">
+            <button className="bg-[#F3F4F6] border border-[#E5E7EB] rounded-md py-[5px] px-2.5 text-[11px] cursor-pointer text-muted-brand">
               로그아웃
             </button>
           </div>
-          <div className="bg-card rounded-[14px] p-[18px] mb-2.5 border border-[rgba(91,164,217,0.12)]">
+          <div className="bg-card rounded-[14px] p-[18px] mb-2.5 border border-[#E5E7EB]">
             <div className="text-[11px] text-brand-muted2 mb-2.5 uppercase tracking-[0.5px]">오늘의 출퇴근</div>
             <div className="inline-block bg-[#2e7d32] text-white text-[13px] font-bold py-1 px-3 rounded-[20px] mb-3">
               근무 중
             </div>
-            <div className="text-base font-bold text-white mb-1">해한 A현장</div>
+            <div className="text-base font-bold text-[#111827] mb-1">해한 A현장</div>
             <div className="text-[13px] text-muted-brand mb-5">서울시 강남구 테헤란로 123</div>
             <div className="flex items-center gap-3">
               <div className="flex-1 text-center">
@@ -295,7 +295,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
               </div>
             </div>
           </div>
-          <div className="bg-[rgba(91,164,217,0.08)] border border-[rgba(91,164,217,0.2)] rounded-xl p-3.5 mb-2.5">
+          <div className="bg-[rgba(91,164,217,0.08)] border border-[#E5E7EB] rounded-xl p-3.5 mb-2.5">
             <div className="text-xs font-bold text-secondary-brand mb-2">출퇴근 방법</div>
             <div className="text-[11px] text-[#4A93C8] mb-1 flex gap-1.5">1. 현장에 부착된 QR코드를 스캔하세요</div>
             <div className="text-[11px] text-[#4A93C8] mb-1 flex gap-1.5">2. 위치 권한을 허용하세요</div>
@@ -314,14 +314,14 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
     case 'checkout':
       return (
         <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand">
-          <div className="bg-card rounded-xl p-3.5 mb-2.5 border border-[rgba(91,164,217,0.12)]">
+          <div className="bg-card rounded-xl p-3.5 mb-2.5 border border-[#E5E7EB]">
             <div className="text-[10px] text-[#5a6a7e] mb-1 uppercase tracking-[0.5px]">스캔한 현장</div>
-            <div className="text-[17px] font-bold text-white mb-0.5">해한 A현장</div>
+            <div className="text-[17px] font-bold text-[#111827] mb-0.5">해한 A현장</div>
             <div className="text-xs text-muted-brand">서울시 강남구 테헤란로 123</div>
           </div>
-          <div className="bg-card rounded-[14px] py-7 px-5 text-center border border-[rgba(91,164,217,0.12)] mb-2.5">
+          <div className="bg-card rounded-[14px] py-7 px-5 text-center border border-[#E5E7EB] mb-2.5">
             <div className="text-[48px] mb-3">🏠</div>
-            <div className="text-lg font-bold text-white mb-1.5">퇴근 처리</div>
+            <div className="text-lg font-bold text-[#111827] mb-1.5">퇴근 처리</div>
             <div className="text-[13px] text-muted-brand mb-[18px]">현재 위치를 확인 후 퇴근 처리합니다.</div>
             <button
               onClick={fakeProcess}
@@ -332,7 +332,7 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
               {processing ? '위치 확인 중...' : '퇴근하기'}
             </button>
           </div>
-          <button className="w-full py-2.5 text-xs bg-transparent border border-[rgba(91,164,217,0.2)] rounded-[9px] cursor-pointer text-brand-muted2">
+          <button className="w-full py-2.5 text-xs bg-transparent border border-[#E5E7EB] rounded-[9px] cursor-pointer text-brand-muted2">
             GPS 오류 또는 예외 신청
           </button>
         </div>
@@ -342,16 +342,16 @@ function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
     case 'completed':
       return (
         <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand">
-          <div className="bg-card rounded-xl p-3.5 mb-2.5 border border-[rgba(91,164,217,0.12)]">
+          <div className="bg-card rounded-xl p-3.5 mb-2.5 border border-[#E5E7EB]">
             <div className="text-[10px] text-[#5a6a7e] mb-1 uppercase tracking-[0.5px]">스캔한 현장</div>
-            <div className="text-[17px] font-bold text-white mb-0.5">해한 A현장</div>
+            <div className="text-[17px] font-bold text-[#111827] mb-0.5">해한 A현장</div>
             <div className="text-xs text-muted-brand">서울시 강남구 테헤란로 123</div>
           </div>
-          <div className="bg-card rounded-[14px] py-7 px-5 text-center border border-[rgba(91,164,217,0.12)] mb-2.5">
+          <div className="bg-card rounded-[14px] py-7 px-5 text-center border border-[#E5E7EB] mb-2.5">
             <div className="text-[48px] mb-3">✅</div>
             <div className="text-lg font-bold text-[#2e7d32] mb-1.5">퇴근이 완료되었습니다.</div>
             <div className="text-[13px] text-muted-brand mb-[18px]">현장까지 거리: 32m</div>
-            <button className="w-full py-[13px] text-sm font-semibold bg-[rgba(255,255,255,0.06)] text-[#CBD5E0] border border-[rgba(91,164,217,0.2)] rounded-[10px] cursor-pointer">
+            <button className="w-full py-[13px] text-sm font-semibold bg-[#F3F4F6] text-[#374151] border border-[#E5E7EB] rounded-[10px] cursor-pointer">
               내 출퇴근 현황 보기
             </button>
           </div>
