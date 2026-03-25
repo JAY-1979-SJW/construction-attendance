@@ -1,5 +1,4 @@
 User-agent: *
-Disallow: /review/
 Disallow: /api/
 Disallow: /admin/
 Disallow: /company/
