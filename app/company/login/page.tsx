@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { AuthPageShell } from '@/components/auth/AuthPageShell'
+import { AuthCard, AuthBrand, AuthTitle, AuthInput, AuthPrimaryBtn, AuthError, AuthFooter } from '@/components/auth/AuthCard'
 
 export default function CompanyLoginPage() {
   const router = useRouter()
@@ -21,7 +23,7 @@ export default function CompanyLoginPage() {
       })
       const data = await res.json()
       if (!data.success) {
-        setError(data.message)
+        setError(data.message ?? '이메일 또는 비밀번호를 확인해주세요.')
         return
       }
       if (data.portal === '/company') {
@@ -37,43 +39,46 @@ export default function CompanyLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f4c75]">
-      <div className="bg-card rounded-xl px-10 py-12 w-full max-w-[400px] shadow-[0_8px_40px_rgba(0,0,0,0.3)]">
-        <h1 className="text-[22px] font-bold m-0 mb-1.5 text-center">업체 관리자 로그인</h1>
-        <p className="text-[13px] text-muted-brand text-center m-0 mb-8">해한 현장 출퇴근 관리 시스템</p>
+    <AuthPageShell>
+      <AuthCard>
+        <AuthBrand />
+        <AuthTitle
+          title="업체 관리자 로그인"
+          description="업체 계정으로 로그인 후 소속 근로자와 현장 정보를 관리합니다."
+        />
 
-        <div className="mb-4">
-          <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">이메일</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="input-base w-full"
-            placeholder="admin@example.com"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">비밀번호</label>
-          <input
+        <AuthError message={error} />
+
+        <AuthInput
+          id="company-email"
+          label="이메일"
+          type="email"
+          autoComplete="email"
+          placeholder="manager@company.com"
+          value={email}
+          onChange={setEmail}
+        />
+        <div className="mb-6">
+          <AuthInput
+            id="company-password"
+            label="비밀번호"
             type="password"
+            autoComplete="current-password"
+            placeholder="비밀번호 입력"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-            className="input-base w-full"
+            onChange={setPassword}
           />
         </div>
 
-        {error && <p className="text-[#e53935] text-[13px] mb-3">{error}</p>}
-
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full py-3.5 text-base font-bold bg-[#0f4c75] text-white border-none rounded-lg cursor-pointer"
-          style={{ opacity: loading ? 0.6 : 1 }}
-        >
+        <AuthPrimaryBtn onClick={handleLogin} disabled={loading}>
           {loading ? '로그인 중...' : '로그인'}
-        </button>
-      </div>
-    </div>
+        </AuthPrimaryBtn>
+
+        <AuthFooter links={[
+          { label: '관리자 로그인으로 이동', href: '/admin/login' },
+          { label: '메인으로 돌아가기', href: '/' },
+        ]} />
+      </AuthCard>
+    </AuthPageShell>
   )
 }
