@@ -9,7 +9,7 @@ import { ok, unauthorized, internalError } from '@/lib/utils/response'
  * CRON_SECRET 환경변수로 인가된 호출만 처리.
  *
  * 호출 예시 (crontab):
- *   0 19 * * * curl -s -X POST http://localhost:3002/api/cron/auto-checkout \
+ *   0 19 * * * curl -s -X POST http://localhost:3000/api/cron/auto-checkout \
  *     -H "Authorization: Bearer $CRON_SECRET" >> /var/log/auto-checkout.log 2>&1
  *
  * 서버 timezone이 UTC인 경우 KST 04:00 = UTC 19:00

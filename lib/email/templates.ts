@@ -1,7 +1,7 @@
 // ─── 이메일 HTML 템플릿 ────────────────────────────────────────────────────────
 
 const BRAND = process.env.NEXT_PUBLIC_APP_NAME ?? '현장출근관리'
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://localhost:3000'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://attendance.haehan-ai.kr'
 
 function layout(title: string, body: string): string {
   return `

@@ -1,20 +1,19 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
+import KakaoMap from '@/components/map/KakaoMap'
 
 // ── 전역 타입 선언 ────────────────────────────────────────────────────
 declare global {
   interface Window {
     daum: {
       Postcode: new (opts: {
-        oncomplete: (data: { roadAddress: string; jibunAddress: string; x: string; y: string }) => void
+        oncomplete: (data: { roadAddress: string; jibunAddress: string }) => void
       }) => { open: () => void }
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    L: any
   }
 }
 
@@ -55,12 +54,6 @@ interface Company {
 }
 
 const emptyForm = { name: '', address: '', latitude: '', longitude: '', allowedRadius: '100', siteCode: '', openedAt: '', closedAt: '', notes: '' }
-const KOREA_CENTER = { lat: 36.5, lng: 127.8 }
-const LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
-const LEAFLET_JS  = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
-const MARKER_ICON = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'
-const MARKER_ICON2 = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png'
-const MARKER_SHADOW = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
 
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
   PRIME: '원청', SUBCONTRACT: '하도급', JOINT_VENTURE: '공동도급', SPECIALTY: '전문건설',
@@ -68,26 +61,6 @@ const CONTRACT_TYPE_LABELS: Record<string, string> = {
 
 function fmtDate(d?: string | null) {
   return d ? new Date(d).toLocaleDateString('ko-KR') : '—'
-}
-
-// ── Leaflet 동적 로드 ─────────────────────────────────────────────────
-function loadLeaflet(): Promise<void> {
-  return new Promise((resolve) => {
-    if (window.L) { resolve(); return }
-    if (!document.getElementById('leaflet-css')) {
-      const link = document.createElement('link')
-      link.id = 'leaflet-css'; link.rel = 'stylesheet'; link.href = LEAFLET_CSS
-      document.head.appendChild(link)
-    }
-    if (document.getElementById('leaflet-js')) {
-      document.getElementById('leaflet-js')!.addEventListener('load', () => resolve())
-      return
-    }
-    const script = document.createElement('script')
-    script.id = 'leaflet-js'; script.src = LEAFLET_JS
-    script.onload = () => resolve()
-    document.head.appendChild(script)
-  })
 }
 
 export default function SitesPage() {
@@ -170,17 +143,12 @@ export default function SitesPage() {
     setPolicySite(null); setPolicySaving(false)
   }
 
-  const formMapDiv  = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
-  const editMapDiv  = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const formMapInst = useRef<any>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const editMapInst = useRef<any>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const formMarker  = useRef<any>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const editMarker  = useRef<any>(null)
+  // ── geocode 상태 ──────────────────────────────────────────────────────
+  type GeoStatus = 'idle' | 'loading' | 'done' | 'error'
+  const [formGeoStatus, setFormGeoStatus] = useState<GeoStatus>('idle')
+  const [editGeoStatus, setEditGeoStatus] = useState<GeoStatus>('idle')
 
+  // Daum 우편번호 스크립트 로드 (마운트 1회)
   useEffect(() => {
     if (!document.getElementById('kakao-postcode-script')) {
       const s = document.createElement('script')
@@ -188,103 +156,42 @@ export default function SitesPage() {
       s.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
       document.head.appendChild(s)
     }
-    loadLeaflet()
   }, [])
 
-  const initMap = useCallback((
-    divRef: React.RefObject<HTMLDivElement>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mapRef: React.MutableRefObject<any>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    markerRef: React.MutableRefObject<any>,
-    initLat: number, initLng: number,
-    onPick: (lat: string, lng: string) => void,
-  ) => {
-    if (!divRef.current || mapRef.current) return
-    const L = window.L
-    const icon = L.icon({ iconUrl: MARKER_ICON, iconRetinaUrl: MARKER_ICON2, shadowUrl: MARKER_SHADOW, iconSize: [25, 41], iconAnchor: [12, 41] })
-    const map = L.map(divRef.current, { zoomControl: true }).setView([initLat, initLng], initLat === KOREA_CENTER.lat ? 7 : 16)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors', maxZoom: 19 }).addTo(map)
-    if (initLat !== KOREA_CENTER.lat) {
-      markerRef.current = L.marker([initLat, initLng], { icon, draggable: true }).addTo(map)
-      markerRef.current.on('dragend', () => {
-        const { lat, lng } = markerRef.current.getLatLng()
-        onPick(lat.toFixed(7), lng.toFixed(7))
-      })
-    }
-    map.on('click', (e: { latlng: { lat: number; lng: number } }) => {
-      const { lat, lng } = e.latlng
-      if (markerRef.current) { markerRef.current.setLatLng([lat, lng]) }
-      else {
-        markerRef.current = L.marker([lat, lng], { icon, draggable: true }).addTo(map)
-        markerRef.current.on('dragend', () => { const pos = markerRef.current.getLatLng(); onPick(pos.lat.toFixed(7), pos.lng.toFixed(7)) })
-      }
-      onPick(lat.toFixed(7), lng.toFixed(7))
-    })
-    mapRef.current = map
-    setTimeout(() => map.invalidateSize(), 100)
-  }, [])
-
-  const destroyMap = useCallback((
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mapRef: React.MutableRefObject<any>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    markerRef: React.MutableRefObject<any>,
-  ) => {
-    if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
-    markerRef.current = null
-  }, [])
-
-  useEffect(() => {
-    if (!showForm) { destroyMap(formMapInst, formMarker); return }
-    loadLeaflet().then(() => initMap(formMapDiv, formMapInst, formMarker, KOREA_CENTER.lat, KOREA_CENTER.lng,
-      (lat, lng) => setForm((f) => ({ ...f, latitude: lat, longitude: lng }))))
-    return () => destroyMap(formMapInst, formMarker)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showForm])
-
-  useEffect(() => {
-    if (!editTarget) { destroyMap(editMapInst, editMarker); return }
-    const lat = parseFloat(editTarget.latitude as unknown as string) || KOREA_CENTER.lat
-    const lng = parseFloat(editTarget.longitude as unknown as string) || KOREA_CENTER.lng
-    loadLeaflet().then(() => initMap(editMapDiv, editMapInst, editMarker, lat, lng,
-      (la, lo) => setEditForm((f) => ({ ...f, latitude: la, longitude: lo }))))
-    return () => destroyMap(editMapInst, editMarker)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editTarget])
-
-  const flyToOnMap = useCallback((
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mapRef: React.MutableRefObject<any>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    markerRef: React.MutableRefObject<any>,
-    lat: number, lng: number,
-  ) => {
-    if (!mapRef.current || !window.L) return
-    const L = window.L
-    const icon = L.icon({ iconUrl: MARKER_ICON, iconRetinaUrl: MARKER_ICON2, shadowUrl: MARKER_SHADOW, iconSize: [25, 41], iconAnchor: [12, 41] })
-    mapRef.current.flyTo([lat, lng], 16)
-    if (markerRef.current) { markerRef.current.setLatLng([lat, lng]) }
-    else {
-      markerRef.current = L.marker([lat, lng], { icon, draggable: true }).addTo(mapRef.current)
-      markerRef.current.on('dragend', () => { const pos = markerRef.current.getLatLng(); return pos })
-    }
-  }, [])
-
-  const [gpsLoading, setGpsLoading] = useState(false)
+  // 주소 선택 → 서버 geocode API로 좌표 변환
   const openAddressSearch = (target: 'form' | 'edit') => {
-    if (!window.daum?.Postcode) { alert('주소 검색 서비스 로딩 중입니다.'); return }
+    if (!window.daum?.Postcode) { alert('주소 검색 서비스 로딩 중입니다. 잠시 후 다시 시도하세요.'); return }
     new window.daum.Postcode({
-      oncomplete: (data) => {
+      oncomplete: async (data) => {
         const address = data.roadAddress || data.jibunAddress
-        const lat = parseFloat(data.y); const lng = parseFloat(data.x)
-        const latStr = lat.toFixed(7); const lngStr = lng.toFixed(7)
-        if (target === 'form') { setForm((f) => ({ ...f, address, latitude: latStr, longitude: lngStr })); flyToOnMap(formMapInst, formMarker, lat, lng) }
-        else { setEditForm((f) => ({ ...f, address, latitude: latStr, longitude: lngStr })); flyToOnMap(editMapInst, editMarker, lat, lng) }
+        if (target === 'form') {
+          setForm((f) => ({ ...f, address, latitude: '', longitude: '' }))
+          setFormGeoStatus('loading')
+        } else {
+          setEditForm((f) => ({ ...f, address, latitude: '', longitude: '' }))
+          setEditGeoStatus('loading')
+        }
+        try {
+          const res = await fetch(`/api/admin/geocode?address=${encodeURIComponent(address)}`)
+          const json = await res.json()
+          if (json.success && json.data?.lat && json.data?.lng) {
+            const latStr = String(json.data.lat)
+            const lngStr = String(json.data.lng)
+            if (target === 'form') { setForm((f) => ({ ...f, latitude: latStr, longitude: lngStr })); setFormGeoStatus('done') }
+            else { setEditForm((f) => ({ ...f, latitude: latStr, longitude: lngStr })); setEditGeoStatus('done') }
+          } else {
+            if (target === 'form') setFormGeoStatus('error')
+            else setEditGeoStatus('error')
+          }
+        } catch {
+          if (target === 'form') setFormGeoStatus('error')
+          else setEditGeoStatus('error')
+        }
       },
     }).open()
   }
 
+  const [gpsLoading, setGpsLoading] = useState(false)
   const fillCurrentLocation = (target: 'form' | 'edit') => {
     if (!navigator.geolocation) { alert('이 브라우저는 GPS를 지원하지 않습니다.'); return }
     setGpsLoading(true)
@@ -292,8 +199,8 @@ export default function SitesPage() {
       (pos) => {
         const lat = pos.coords.latitude; const lng = pos.coords.longitude
         const latStr = lat.toFixed(7); const lngStr = lng.toFixed(7)
-        if (target === 'form') { setForm((f) => ({ ...f, latitude: latStr, longitude: lngStr })); flyToOnMap(formMapInst, formMarker, lat, lng) }
-        else { setEditForm((f) => ({ ...f, latitude: latStr, longitude: lngStr })); flyToOnMap(editMapInst, editMarker, lat, lng) }
+        if (target === 'form') { setForm((f) => ({ ...f, latitude: latStr, longitude: lngStr })); setFormGeoStatus('done') }
+        else { setEditForm((f) => ({ ...f, latitude: latStr, longitude: lngStr })); setEditGeoStatus('done') }
         setGpsLoading(false)
       },
       () => { alert('GPS 위치를 가져올 수 없습니다.'); setGpsLoading(false) },
@@ -323,6 +230,14 @@ export default function SitesPage() {
 
   const handleSave = async () => {
     setSaving(true); setFormError('')
+    const lat = parseFloat(form.latitude)
+    const lng = parseFloat(form.longitude)
+    if (!form.name.trim()) { setFormError('현장명을 입력하세요.'); setSaving(false); return }
+    if (!form.address.trim()) { setFormError('주소를 입력하세요.'); setSaving(false); return }
+    if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+      setFormError('주소 검색 후 좌표를 확인하세요. 좌표가 없으면 저장할 수 없습니다.')
+      setSaving(false); return
+    }
     const res = await fetch('/api/admin/sites', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -355,11 +270,18 @@ export default function SitesPage() {
       notes: site.notes ?? '',
     })
     setEditActive(site.isActive); setEditError('')
+    setEditGeoStatus(site.latitude && site.longitude ? 'done' : 'idle')
   }
 
   const handleEdit = async () => {
     if (!editTarget) return
     setEditSaving(true); setEditError('')
+    const lat = parseFloat(editForm.latitude)
+    const lng = parseFloat(editForm.longitude)
+    if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+      setEditError('유효한 좌표가 없습니다. 주소 검색을 다시 시도하세요.')
+      setEditSaving(false); return
+    }
     const res = await fetch(`/api/admin/sites/${editTarget.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -415,7 +337,7 @@ export default function SitesPage() {
     f: typeof emptyForm,
     target: 'form' | 'edit',
     onChange: (key: string, val: string) => void,
-    mapDivRef: React.RefObject<HTMLDivElement>,
+    geoStatus: 'idle' | 'loading' | 'done' | 'error',
   ) => (
     <>
       <div className="mb-[14px]">
@@ -443,11 +365,17 @@ export default function SitesPage() {
         <input className={inputCls} value={f.address} placeholder="주소 검색 또는 지도에서 직접 선택" onChange={(e) => onChange('address', e.target.value)} />
       </div>
       <div className="mb-[14px]">
-        <label className={labelCls}>지도에서 위치 선택 <span className="text-[11px] text-[#aaa] font-normal ml-[6px]">지도를 클릭하거나 핀을 드래그하세요</span></label>
-        <div ref={mapDivRef} className="w-full h-[280px] rounded-lg border border-white/[0.12] overflow-hidden" />
+        <label className={labelCls}>지도 미리보기</label>
+        {geoStatus === 'loading' && (
+          <div className="text-xs text-[#F59E0B] mb-1">좌표 확인 중...</div>
+        )}
+        {geoStatus === 'error' && (
+          <div className="text-xs text-[#e53935] mb-1">주소는 선택됐지만 좌표를 찾지 못했습니다</div>
+        )}
+        <KakaoMap lat={f.latitude} lng={f.longitude} height="280px" />
       </div>
       <div className="mb-[14px]">
-        <label className={labelCls}>GPS 좌표 (자동 입력됨)</label>
+        <label className={labelCls}>GPS 좌표 (주소 검색 시 자동 입력)</label>
         <div className="flex gap-2">
           <input className={`${inputCls} flex-1`} placeholder="위도" value={f.latitude} onChange={(e) => onChange('latitude', e.target.value)} />
           <input className={`${inputCls} flex-1`} placeholder="경도" value={f.longitude} onChange={(e) => onChange('longitude', e.target.value)} />
@@ -481,7 +409,7 @@ export default function SitesPage() {
             현장 관리 {!loading && <span className="text-base font-normal text-muted-brand">({sites.length}개)</span>}
           </h1>
           {canMutate && (
-            <button onClick={() => setShowForm(true)} className="px-5 py-[10px] bg-accent text-white border-none rounded-lg cursor-pointer text-sm font-semibold">
+            <button onClick={() => { setShowForm(true); setFormGeoStatus('idle'); setForm(emptyForm) }} className="px-5 py-[10px] bg-accent text-white border-none rounded-lg cursor-pointer text-sm font-semibold">
               + 현장 등록
             </button>
           )}
@@ -589,7 +517,7 @@ export default function SitesPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] overflow-y-auto py-6 px-6">
             <div className="bg-card rounded-xl p-8 w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
               <h3 className="text-[18px] font-bold mb-5">현장 등록</h3>
-              {renderFormFields(form, 'form', (k, v) => setForm((f) => ({ ...f, [k]: v })), formMapDiv)}
+              {renderFormFields(form, 'form', (k, v) => setForm((f) => ({ ...f, [k]: v })), formGeoStatus)}
               {formError && <p className="text-[#e53935] text-[13px] mb-3">{formError}</p>}
               <div className="flex gap-2 mt-4">
                 <button onClick={handleSave} disabled={saving} className={saveBtnCls}>{saving ? '저장 중...' : '등록'}</button>
@@ -604,7 +532,7 @@ export default function SitesPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] overflow-y-auto py-6 px-6">
             <div className="bg-card rounded-xl p-8 w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
               <h3 className="text-[18px] font-bold mb-5">현장 수정 — {editTarget.name}</h3>
-              {renderFormFields(editForm, 'edit', (k, v) => setEditForm((f) => ({ ...f, [k]: v })), editMapDiv)}
+              {renderFormFields(editForm, 'edit', (k, v) => setEditForm((f) => ({ ...f, [k]: v })), editGeoStatus)}
               <div className="flex items-center gap-2 mb-4">
                 <input type="checkbox" id="editActive" checked={editActive} onChange={(e) => setEditActive(e.target.checked)} />
                 <label htmlFor="editActive" className="text-sm">현장 활성 상태</label>

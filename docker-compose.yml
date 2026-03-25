@@ -24,7 +24,7 @@ services:
     image: attendance:latest
     container_name: attendance
     restart: unless-stopped
-    env_file: .env
+    env_file: .env.production
     ports:
       - "3002:3002"
     volumes:

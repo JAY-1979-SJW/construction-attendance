@@ -5,7 +5,7 @@
  * 해당 근로자의 FCM 토큰으로 푸시 알림을 발송한다.
  *
  * crontab 예시 (매 5분):
- *   [star]/5 [star] [star] [star] [star] curl -s -X POST http://localhost:3002/api/cron/send-presence-push
+ *   [star]/5 [star] [star] [star] [star] curl -s -X POST http://localhost:3000/api/cron/send-presence-push
  *     -H "Authorization: Bearer $CRON_SECRET" >> /var/log/send-presence-push.log 2>&1
  *
  * 처리 보장:
