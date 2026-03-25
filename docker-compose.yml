@@ -1,24 +1,9 @@
-services:
-  attendance-db:
-    image: postgres:15-alpine
-    container_name: attendance_db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-attendance2024}
-      POSTGRES_DB: construction_attendance
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - app_web
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+# 앱 서버용 docker-compose (DB 서버 분리됨)
+# DB: 192.168.120.18:5432 (공용 PostgreSQL)
+# 파일 저장: /mnt/nas/attendance (NFS 마운트)
+# 마이그레이션 기준 서버: APP_SERVER_1 (MIGRATE_ON_START=true)
 
+services:
   attendance-app:
     build:
       context: .
@@ -33,11 +18,9 @@ services:
     ports:
       - "3002:3002"
     volumes:
-      - identity_uploads:/app/uploads/identity
-      - documents_uploads:/app/uploads/documents
-    depends_on:
-      attendance-db:
-        condition: service_healthy
+      - /mnt/nas/attendance/uploads/identity:/app/uploads/identity
+      - /mnt/nas/attendance/documents:/app/uploads/documents
+      - /mnt/nas/attendance/uploads:/app/uploads
     networks:
       - app_web
     healthcheck:
@@ -50,8 +33,3 @@ services:
 networks:
   app_web:
     external: true
-
-volumes:
-  pgdata:
-  identity_uploads:
-  documents_uploads:

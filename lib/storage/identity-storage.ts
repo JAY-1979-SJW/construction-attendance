@@ -3,7 +3,7 @@ import { existsSync } from 'fs'
 import path from 'path'
 import { randomUUID } from 'crypto'
 
-const UPLOAD_ROOT = path.join(process.cwd(), 'uploads', 'identity')
+const UPLOAD_ROOT = process.env.UPLOAD_ROOT_IDENTITY ?? path.join(process.cwd(), 'uploads', 'identity')
 
 async function ensureDir(dir: string) {
   if (!existsSync(dir)) await mkdir(dir, { recursive: true })
