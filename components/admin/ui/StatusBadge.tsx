@@ -15,6 +15,9 @@ const BADGE_MAP: Record<string, { label: string; cls: string }> = {
   PENDING_VERIFICATION: { label: '인증 대기', cls: 'bg-[#FEF3C7] text-[#92400E] border-[#FDE68A]' },
   VERIFIED:             { label: '인증 완료', cls: 'bg-[#D1FAE5] text-[#065F46] border-[#6EE7B7]' },
   DRAFT:                { label: '미제출',    cls: 'bg-[#F3F4F6] text-[#6B7280] border-[#D1D5DB]' },
+  // 소속 구분
+  SUBCONTRACTOR:        { label: '협력사',    cls: 'bg-[#FFF7ED] text-[#EA580C] border-[#FDBA74]' },
+  DIRECT:               { label: '직영',      cls: 'bg-[#F3F4F6] text-[#374151] border-[#D1D5DB]' },
 }
 
 export function StatusBadge({ status, label }: { status: string; label?: string }) {

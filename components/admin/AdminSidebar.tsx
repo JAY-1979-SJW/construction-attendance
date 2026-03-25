@@ -72,23 +72,58 @@ const CORE_GROUPS: NavGroup[] = [
   },
 ]
 
-const MORE_ITEMS: NavItem[] = [
-  { href: '/admin/contracts',                  label: '계약 관리' },
-  { href: '/admin/wage-calculations',          label: '세금/노임 계산' },
-  { href: '/admin/month-closings',             label: '월마감' },
-  { href: '/admin/insurance-eligibility',      label: '4대보험 판정' },
-  { href: '/admin/insurance-rates',            label: '보험요율 관리' },
-  { href: '/admin/subcontractor-settlements',  label: '협력사 정산' },
-  { href: '/admin/retirement-mutual',          label: '퇴직공제' },
-  { href: '/admin/materials',                  label: '자재 현황' },
-  { href: '/admin/materials/purchase-orders',  label: '구매 발주' },
-  { href: '/admin/materials/requests',         label: '자재 요청' },
-  { href: '/admin/document-center',            label: '문서 센터' },
-  { href: '/admin/labor',                      label: '노무 일지' },
-  { href: '/admin/labor-faqs',                 label: '노동법 FAQ' },
-  { href: '/admin/operations/print-center',    label: '출력 센터' },
-  { href: '/admin/operations/today-tasks',     label: '오늘 업무' },
-  { href: '/admin/pilot',                      label: '파일럿 모니터' },
+const MORE_GROUPS: NavGroup[] = [
+  {
+    id: 'more-contract',
+    icon: '📝',
+    label: '계약·노무',
+    items: [
+      { href: '/admin/contracts',         label: '계약 관리' },
+      { href: '/admin/wage-calculations', label: '세금/노임 계산' },
+      { href: '/admin/month-closings',    label: '월마감' },
+      { href: '/admin/labor',             label: '노무 일지' },
+      { href: '/admin/labor-faqs',        label: '노동법 FAQ' },
+    ],
+  },
+  {
+    id: 'more-insurance',
+    icon: '🛡️',
+    label: '보험·정산',
+    items: [
+      { href: '/admin/insurance-eligibility',     label: '4대보험 판정' },
+      { href: '/admin/insurance-rates',           label: '보험요율 관리' },
+      { href: '/admin/subcontractor-settlements', label: '협력사 정산' },
+      { href: '/admin/retirement-mutual',         label: '퇴직공제' },
+    ],
+  },
+  {
+    id: 'more-materials',
+    icon: '📦',
+    label: '자재 관리',
+    items: [
+      { href: '/admin/materials',                 label: '자재 현황' },
+      { href: '/admin/materials/purchase-orders', label: '구매 발주' },
+      { href: '/admin/materials/requests',        label: '자재 요청' },
+    ],
+  },
+  {
+    id: 'more-docs',
+    icon: '📄',
+    label: '서류 운영',
+    items: [
+      { href: '/admin/document-center',         label: '문서 센터' },
+      { href: '/admin/operations/print-center', label: '출력 센터' },
+      { href: '/admin/operations/today-tasks',  label: '오늘 업무' },
+    ],
+  },
+  {
+    id: 'more-system',
+    icon: '🖥️',
+    label: '시스템',
+    items: [
+      { href: '/admin/pilot', label: '파일럿 모니터' },
+    ],
+  },
 ]
 
 export default function AdminSidebar({
@@ -102,6 +137,7 @@ export default function AdminSidebar({
   const router = useRouter()
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set())
   const [moreOpen, setMoreOpen] = useState(false)
+  const [moreGroupsOpen, setMoreGroupsOpen] = useState<Set<string>>(new Set())
   const [badges, setBadges] = useState({ exceptions: 0, deviceRequests: 0, approvals: 0 })
 
   const isActive = (href: string) => {
@@ -114,8 +150,15 @@ export default function AdminSidebar({
     CORE_GROUPS.forEach((g) => {
       if (g.items.some((item) => isActive(item.href))) active.add(g.id)
     })
-    if (MORE_ITEMS.some((item) => isActive(item.href))) setMoreOpen(true)
     setOpenGroups(active)
+    const activeMG = new Set<string>()
+    MORE_GROUPS.forEach((g) => {
+      if (g.items.some((item) => isActive(item.href))) {
+        setMoreOpen(true)
+        activeMG.add(g.id)
+      }
+    })
+    setMoreGroupsOpen(activeMG)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
 
@@ -140,6 +183,14 @@ export default function AdminSidebar({
 
   const toggleGroup = (id: string) => {
     setOpenGroups((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  const toggleMoreGroup = (id: string) => {
+    setMoreGroupsOpen((prev) => {
       const next = new Set(prev)
       next.has(id) ? next.delete(id) : next.add(id)
       return next
@@ -325,8 +376,44 @@ export default function AdminSidebar({
           </button>
 
           {moreOpen && (
-            <div className="ml-4 mt-0.5 mb-1 flex flex-col gap-0.5 pl-2 border-l border-[#F3F4F6]">
-              {MORE_ITEMS.map(renderItem)}
+            <div className="ml-2 mt-0.5 mb-1 flex flex-col gap-0.5">
+              {MORE_GROUPS.map((group) => {
+                const mgOpen = moreGroupsOpen.has(group.id)
+                const hasActive = group.items.some((item) => isActive(item.href))
+                return (
+                  <div key={group.id} className="mb-0.5">
+                    <button
+                      onClick={() => toggleMoreGroup(group.id)}
+                      className="w-full flex items-center justify-between px-3 py-[7px] rounded-[8px] text-[12px] transition-colors"
+                      style={{ background: 'transparent', color: hasActive ? '#111827' : '#6B7280', fontWeight: hasActive ? 600 : 400 }}
+                      onMouseEnter={(e) => {
+                        ;(e.currentTarget as HTMLElement).style.background = '#F9FAFB'
+                        ;(e.currentTarget as HTMLElement).style.color = '#111827'
+                      }}
+                      onMouseLeave={(e) => {
+                        ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                        ;(e.currentTarget as HTMLElement).style.color = hasActive ? '#111827' : '#6B7280'
+                      }}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span>{group.icon}</span>
+                        <span>{group.label}</span>
+                      </span>
+                      <span
+                        className="text-[11px] transition-transform duration-200 leading-none text-[#9CA3AF]"
+                        style={{ transform: mgOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                      >
+                        ›
+                      </span>
+                    </button>
+                    {mgOpen && (
+                      <div className="ml-4 mt-0.5 mb-1 flex flex-col gap-0.5 pl-2 border-l border-[#F3F4F6]">
+                        {group.items.map(renderItem)}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

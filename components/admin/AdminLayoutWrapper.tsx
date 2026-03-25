@@ -5,6 +5,40 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import AdminSidebar from './AdminSidebar'
 
+const SECTION_MAP: Record<string, string> = {
+  '/admin/attendance':              '출퇴근 조회',
+  '/admin/presence-checks':        '체류확인 현황',
+  '/admin/exceptions':              '예외 승인',
+  '/admin/work-confirmations':      '근무확정',
+  '/admin/corrections':             '정정 이력',
+  '/admin/workers':                 '근로자 관리',
+  '/admin/companies':               '회사 관리',
+  '/admin/sites':                   '현장 관리',
+  '/admin/site-access-groups':      '접근 그룹',
+  '/admin/site-admin-assignments':  '관리자 배정',
+  '/admin/site-imports':            '데이터 가져오기',
+  '/admin/approvals':               '통합 승인 센터',
+  '/admin/device-requests':         '기기 변경 요청',
+  '/admin/company-admins':          '회사 관리자',
+  '/admin/settings':                '설정',
+  '/admin/audit-logs':              '감사 로그',
+  '/admin/super-users':             '슈퍼유저',
+  '/admin/contracts':               '계약 관리',
+  '/admin/wage-calculations':       '세금/노임 계산',
+  '/admin/month-closings':          '월마감',
+  '/admin/insurance-eligibility':   '4대보험 판정',
+  '/admin/insurance-rates':         '보험요율 관리',
+  '/admin/subcontractor-settlements': '협력사 정산',
+  '/admin/retirement-mutual':       '퇴직공제',
+  '/admin/materials':               '자재 관리',
+  '/admin/document-center':         '문서 센터',
+  '/admin/labor':                   '노무 일지',
+  '/admin/labor-faqs':              '노동법 FAQ',
+  '/admin/operations/print-center': '출력 센터',
+  '/admin/operations/today-tasks':  '오늘 업무',
+  '/admin/pilot':                   '파일럿 모니터',
+}
+
 export default function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -22,6 +56,11 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
   }, [pathname])
 
   if (pathname === '/admin/login') return <>{children}</>
+
+  const sectionName =
+    SECTION_MAP[pathname] ??
+    Object.entries(SECTION_MAP).find(([k]) => pathname.startsWith(k + '/'))?.[1] ??
+    (pathname === '/admin' ? '대시보드' : '')
 
   return (
     <div className="flex min-h-screen bg-[#F5F7FA]">
@@ -82,6 +121,11 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
                   해한<span className="text-[#F97316]">AI</span>
                 </span>
               </Link>
+            )}
+
+            {/* 현재 섹션 이름 */}
+            {sectionName && (
+              <span className="text-[13px] font-medium text-[#374151]">{sectionName}</span>
             )}
 
             {/* 관리자 포털 뱃지 */}

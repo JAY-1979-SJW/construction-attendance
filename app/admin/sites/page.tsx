@@ -5,7 +5,12 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
 import KakaoMap from '@/components/map/KakaoMap'
-import { PageShell, PageHeader, PageBadge, Btn, EmptyState } from '@/components/admin/ui'
+import {
+  PageShell, PageHeader, PageBadge, Btn,
+  FilterBar, FilterInput, FilterPill,
+  AdminTable, AdminTr, AdminTd, EmptyRow,
+  StatusBadge,
+} from '@/components/admin/ui'
 
 // ── 전역 타입 선언 ────────────────────────────────────────────────────
 declare global {
@@ -70,6 +75,8 @@ export default function SitesPage() {
   const canMutate = role !== null && role !== 'VIEWER'
   const [sites, setSites] = useState<Site[]>([])
   const [loading, setLoading] = useState(true)
+  const [siteSearch, setSiteSearch] = useState('')
+  const [siteFilterActive, setSiteFilterActive] = useState<'' | 'active' | 'inactive'>('')
 
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(emptyForm)
@@ -403,118 +410,95 @@ export default function SitesPage() {
     </>
   )
 
+  const filteredSites = sites.filter(s =>
+    (!siteSearch || s.name.includes(siteSearch) || s.address.includes(siteSearch)) &&
+    (siteFilterActive === '' || (siteFilterActive === 'active' ? s.isActive : !s.isActive))
+  )
+
   return (
     <PageShell>
       <PageHeader
         title="현장 관리"
-        badge={!loading ? <PageBadge>{sites.length}개</PageBadge> : undefined}
+        badge={!loading ? <PageBadge>{filteredSites.length}개</PageBadge> : undefined}
         actions={canMutate ? (
           <Btn variant="orange" onClick={() => { setShowForm(true); setFormGeoStatus('idle'); setForm(emptyForm) }}>+ 현장 등록</Btn>
         ) : undefined}
       />
 
-        {loading ? <p>로딩 중...</p> : (
-          <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(360px,1fr))]">
-            {sites.length === 0 && (
-              <div className="col-span-full">
-                <EmptyState title="등록된 현장이 없습니다." description="현장을 등록하면 여기에 표시됩니다." />
-              </div>
-            )}
-            {sites.map((site) => (
-              <div key={site.id}
-                className={`rounded-xl p-5 shadow-[0_1px_4px_rgba(0,0,0,0.05)] flex flex-col border ${site.isActive ? 'bg-white border-[#E5E7EB]' : 'bg-[#F9FAFB] border-[#E5E7EB] opacity-70'}`}>
+      <FilterBar>
+        <FilterInput
+          type="text"
+          placeholder="현장명, 주소 검색"
+          value={siteSearch}
+          onChange={(e) => setSiteSearch(e.target.value)}
+          className="flex-1 min-w-[200px] max-w-[380px]"
+        />
+        <FilterPill active={siteFilterActive === ''} onClick={() => setSiteFilterActive('')}>전체</FilterPill>
+        <FilterPill active={siteFilterActive === 'active'} onClick={() => setSiteFilterActive('active')}>운영중</FilterPill>
+        <FilterPill active={siteFilterActive === 'inactive'} onClick={() => setSiteFilterActive('inactive')}>종료</FilterPill>
+      </FilterBar>
 
-                {/* 헤더 */}
-                <div className="flex justify-between items-start mb-[6px]">
-                  <div>
-                    <div className="text-[17px] font-bold flex items-center gap-2 flex-wrap">
-                      <Link href={`/admin/sites/${site.id}`} className="text-inherit no-underline">
-                        {site.name}
-                      </Link>
-                      {site.isActive
-                        ? <span className="inline-block text-[11px] font-semibold px-2 py-[2px] rounded-full bg-[#ECFDF5] text-[#16A34A] border border-[#A7F3D0]">운영중</span>
-                        : <span className="inline-block text-[11px] font-semibold px-2 py-[2px] rounded-full bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]">종료</span>
-                      }
-                    </div>
-                    {site.siteCode && <div className="text-[11px] text-[#718096] mt-[2px] font-mono">{site.siteCode}</div>}
-                  </div>
-                  <div className="flex gap-1 shrink-0 flex-wrap">
-                    <Link href="/admin/attendance"
-                      className="no-underline px-3 py-1 text-xs font-semibold bg-[#F97316] hover:bg-[#EA580C] text-white rounded cursor-pointer transition-colors">
-                      출근현황
-                    </Link>
-                    {canMutate && (
-                      <>
-                        <button onClick={() => openPolicyModal(site)}
-                          className="px-[10px] py-1 text-xs text-[#6B7280] border border-[#E5E7EB] bg-white hover:border-[#D1D5DB] hover:bg-[#F9FAFB] rounded-[6px] cursor-pointer transition-colors">근무정책</button>
-                        <button onClick={() => openEdit(site)}
-                          className="px-[10px] py-1 text-xs text-[#6B7280] border border-[#E5E7EB] bg-white hover:border-[#D1D5DB] hover:bg-[#F9FAFB] rounded-[6px] cursor-pointer transition-colors">수정</button>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* 주소 + 기간 */}
-                <div className="text-[13px] text-[#6B7280] my-[6px] mb-2">{site.address}</div>
-                <div className="flex gap-3 mb-2 flex-wrap">
-                  <span className="text-[11px] text-[#6B7280] bg-[#F3F4F6] px-2 py-[2px] rounded-[10px]">반경 {site.allowedRadius}m</span>
-                  {site.openedAt && <span className="text-[11px] text-[#6B7280] bg-[#F3F4F6] px-2 py-[2px] rounded-[10px]">착공 {fmtDate(site.openedAt)}</span>}
-                  {site.closedAt && <span className="text-[11px] text-[#6B7280] bg-[#F3F4F6] px-2 py-[2px] rounded-[10px]">준공 {fmtDate(site.closedAt)}</span>}
-                </div>
-                {site.notes && <div className="text-xs text-[#777] my-1 mb-2 italic">{site.notes}</div>}
-
-                {/* 배정 회사 섹션 */}
-                <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-lg p-3 my-[10px]">
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="text-[11px] font-bold text-[#6B7280] uppercase tracking-[0.05em]">배정 회사</div>
-                    {canMutate && (
-                      <button onClick={() => {
+      {loading ? (
+        <p className="text-[#9CA3AF] text-[13px] py-10 text-center">로딩 중...</p>
+      ) : (
+        <AdminTable headers={['현장명', '코드', '상태', '주소', '반경', '배정업체', '착공일', '']}>
+          {filteredSites.length === 0 ? (
+            <EmptyRow message="등록된 현장이 없습니다." />
+          ) : filteredSites.map((site) => (
+            <AdminTr key={site.id} className={!site.isActive ? 'opacity-70' : ''}>
+              <AdminTd>
+                <Link href={`/admin/sites/${site.id}`} className="font-semibold text-[#111827] no-underline hover:text-[#F97316] transition-colors">
+                  {site.name}
+                </Link>
+              </AdminTd>
+              <AdminTd>
+                {site.siteCode
+                  ? <span className="font-mono text-[11px] text-[#6B7280]">{site.siteCode}</span>
+                  : <span className="text-[#D1D5DB]">—</span>
+                }
+              </AdminTd>
+              <AdminTd>
+                <StatusBadge status={site.isActive ? 'ACTIVE' : 'INACTIVE'} label={site.isActive ? '운영중' : '종료'} />
+              </AdminTd>
+              <AdminTd>
+                <span className="text-[12px] text-[#6B7280] max-w-[220px] truncate block">{site.address}</span>
+              </AdminTd>
+              <AdminTd>
+                <span className="text-[12px]">{site.allowedRadius}m</span>
+              </AdminTd>
+              <AdminTd>
+                <span className="text-[12px]">
+                  {site.companyAssignments.length > 0
+                    ? `${site.companyAssignments.length}개사`
+                    : <span className="text-[#D1D5DB]">미배정</span>
+                  }
+                </span>
+              </AdminTd>
+              <AdminTd>
+                <span className="text-[12px] text-[#6B7280]">{fmtDate(site.openedAt)}</span>
+              </AdminTd>
+              <AdminTd>
+                <div className="flex items-center gap-1 flex-nowrap">
+                  <Link href="/admin/attendance" className="no-underline">
+                    <Btn variant="orange" size="xs">출근현황</Btn>
+                  </Link>
+                  {canMutate && (
+                    <>
+                      <Btn variant="secondary" size="xs" onClick={() => openPolicyModal(site)}>근무정책</Btn>
+                      <Btn variant="secondary" size="xs" onClick={() => openEdit(site)}>수정</Btn>
+                      <Btn variant="secondary" size="xs" onClick={() => {
                         setAssignSite(site); loadCompanies()
                         setAssignForm({ companyId: '', contractType: 'SUBCONTRACT', startDate: '', endDate: '', managerName: '', managerPhone: '', notes: '' })
                         setAssignError('')
-                      }}
-                        className="text-[11px] px-2 py-[3px] bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7] rounded cursor-pointer whitespace-nowrap">
-                        + 회사 배정
-                      </button>
-                    )}
-                  </div>
-                  {site.companyAssignments.length === 0 ? (
-                    <div className="text-xs text-[#bbb] text-center py-2">배정된 회사가 없습니다</div>
-                  ) : site.companyAssignments.map(a => (
-                    <div key={a.id} className="flex items-start gap-2 py-2 border-t border-[#eee]">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-[6px] flex-wrap">
-                          <span className="text-[13px] font-semibold text-[#111827]">{a.company.companyName}</span>
-                          <span className="text-[11px] bg-[rgba(244,121,32,0.12)] text-accent px-[6px] py-[1px] rounded">{CONTRACT_TYPE_LABELS[a.contractType] ?? a.contractType}</span>
-                          {a.company.companyType && <span className="text-[11px] bg-[#f3e5f5] text-[#6a1b9a] px-[6px] py-[1px] rounded">{a.company.companyType}</span>}
-                        </div>
-                        <div className="text-[11px] text-[#777] mt-[3px]">
-                          {fmtDate(a.startDate)} ~ {fmtDate(a.endDate)}
-                          {a.managerName && <span className="ml-2">담당: {a.managerName}{a.managerPhone ? ` (${a.managerPhone})` : ''}</span>}
-                        </div>
-                        {a.notes && <div className="text-[11px] text-[#6B7280] mt-[2px]">{a.notes}</div>}
-                      </div>
-                      {canMutate && (
-                        <button onClick={() => handleDeleteAssignment(site.id, a.id)}
-                          className="text-[11px] px-[6px] py-[2px] bg-none border-none text-[#ccc] cursor-pointer shrink-0"
-                          title="배정 삭제">✕</button>
-                      )}
-                    </div>
-                  ))}
+                      }}>업체배정</Btn>
+                    </>
+                  )}
                 </div>
-
-                {/* 상세 패널 (토글) */}
-                {detailSite?.id === site.id && (
-                  <div className="border-t border-[#f0f0f0] mt-[10px] pt-[10px]">
-                    <div className="flex gap-2 text-xs text-[#6B7280] mb-1"><span className="w-[70px] shrink-0 font-semibold text-[#6B7280]">위도</span><span>{site.latitude}</span></div>
-                    <div className="flex gap-2 text-xs text-[#6B7280] mb-1"><span className="w-[70px] shrink-0 font-semibold text-[#6B7280]">경도</span><span>{site.longitude}</span></div>
-                    <div className="flex gap-2 text-xs text-[#6B7280] mb-1"><span className="w-[70px] shrink-0 font-semibold text-[#6B7280]">등록일</span><span>{fmtDate(site.createdAt)}</span></div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+              </AdminTd>
+            </AdminTr>
+          ))}
+        </AdminTable>
+      )}
 
         {/* ── 등록 모달 ──────────────────────────────────────── */}
         {showForm && (

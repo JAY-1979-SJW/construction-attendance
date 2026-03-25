@@ -4,7 +4,12 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
-import { PageShell, PageHeader, PageBadge, Btn } from '@/components/admin/ui'
+import {
+  PageShell, PageHeader, PageBadge, Btn,
+  FilterBar, FilterInput, FilterSelect, FilterPill,
+  AdminTable, AdminTr, AdminTd, EmptyRow,
+  StatusBadge,
+} from '@/components/admin/ui'
 import {
   ADMIN_TYPE_GUIDES,
   ADMIN_TYPE_WARNINGS,
@@ -201,6 +206,12 @@ export default function WorkersPage() {
   const formatPhone = (p: string) =>
     p.length === 11 ? `${p.slice(0, 3)}-${p.slice(3, 7)}-${p.slice(7)}` : p
 
+  const filteredWorkers = workers.filter(w =>
+    (!filterEmpType || w.employmentType === filterEmpType) &&
+    (!filterOrgType || w.organizationType === filterOrgType) &&
+    (filterActive === '' || (filterActive === 'active' ? w.isActive : !w.isActive))
+  )
+
   return (
     <PageShell>
       <PageHeader
@@ -211,148 +222,110 @@ export default function WorkersPage() {
         ) : undefined}
       />
 
-        <div className="flex gap-2 mb-3 flex-wrap">
-          <input
-            type="text"
-            placeholder="이름, 연락처, 회사 검색"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && load()}
-            className="admin-input flex-1 min-w-[200px] max-w-[480px]"
-          />
-          <select value={filterEmpType} onChange={e => setFilterEmpType(e.target.value)} className="admin-select">
-            <option value="">전체 고용형태</option>
-            <option value="DAILY_CONSTRUCTION">건설일용</option>
-            <option value="REGULAR">상용직</option>
-            <option value="FIXED_TERM">기간제</option>
-            <option value="CONTINUOUS_SITE">계속근로형</option>
-            <option value="BUSINESS_33">3.3%사업소득</option>
-            <option value="OTHER">기타</option>
-          </select>
-          <select value={filterOrgType} onChange={e => setFilterOrgType(e.target.value)} className="admin-select">
-            <option value="">전체 소속</option>
-            <option value="DIRECT">직영</option>
-            <option value="SUBCONTRACTOR">협력사</option>
-          </select>
-          <button onClick={() => load()} className="px-4 py-2 bg-[#071020] hover:bg-[#1E293B] border-none rounded-[8px] cursor-pointer text-[13px] text-white font-semibold transition-colors">검색</button>
-        </div>
-        {/* 재직 상태 필터 pills */}
-        <div className="flex gap-2 mb-4 items-center">
-          {([
-            { value: '' as const,        label: '전체' },
-            { value: 'active' as const,   label: '재직중' },
-            { value: 'inactive' as const, label: '퇴사' },
-          ]).map(opt => (
-            <button
-              key={opt.value}
-              onClick={() => setFilterActive(opt.value)}
-              className={`px-3 py-1.5 rounded-[8px] text-[12px] font-semibold border cursor-pointer transition-colors ${
-                filterActive === opt.value
-                  ? 'bg-[#F97316] border-[#F97316] text-white'
-                  : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:border-[#D1D5DB] hover:text-[#374151]'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+      <FilterBar>
+        <FilterInput
+          type="text"
+          placeholder="이름, 연락처, 회사 검색"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && load()}
+          className="flex-1 min-w-[200px] max-w-[380px]"
+        />
+        <FilterSelect value={filterEmpType} onChange={e => setFilterEmpType(e.target.value)}>
+          <option value="">전체 고용형태</option>
+          <option value="DAILY_CONSTRUCTION">건설일용</option>
+          <option value="REGULAR">상용직</option>
+          <option value="FIXED_TERM">기간제</option>
+          <option value="CONTINUOUS_SITE">계속근로형</option>
+          <option value="BUSINESS_33">3.3%사업소득</option>
+          <option value="OTHER">기타</option>
+        </FilterSelect>
+        <FilterSelect value={filterOrgType} onChange={e => setFilterOrgType(e.target.value)}>
+          <option value="">전체 소속</option>
+          <option value="DIRECT">직영</option>
+          <option value="SUBCONTRACTOR">협력사</option>
+        </FilterSelect>
+        <Btn variant="primary" onClick={() => load()}>검색</Btn>
+      </FilterBar>
 
-        {loading ? <p className="text-[#9CA3AF] text-sm py-10 text-center">로딩 중...</p> : (
-          <div className="bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden">
-            <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-[#F3F4F6]">
-                  {['이름', '연락처', '소속회사', '직종', '고용형태', '소속구분', '기기', '퇴직공제', '신분증', '상태', '등록일', ''].map((h) => (
-                    <th key={h} className="admin-th">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {workers.filter(w =>
-                  (!filterEmpType || w.employmentType === filterEmpType) &&
-                  (!filterOrgType || w.organizationType === filterOrgType) &&
-                  (filterActive === '' || (filterActive === 'active' ? w.isActive : !w.isActive))
-                ).length === 0 ? (
-                  <tr><td colSpan={12} className="text-center py-6 text-[#999]">조건에 맞는 근로자가 없습니다.</td></tr>
-                ) : workers.filter(w =>
-                  (!filterEmpType || w.employmentType === filterEmpType) &&
-                  (!filterOrgType || w.organizationType === filterOrgType) &&
-                  (filterActive === '' || (filterActive === 'active' ? w.isActive : !w.isActive))
-                ).map((w) => (
-                  <tr key={w.id} style={{ opacity: w.isActive ? 1 : 0.6 }} className={!w.isActive ? 'bg-[#FFF5F5]' : ''}>
-                    <td className="admin-td">{w.name}</td>
-                    <td className="admin-td">{formatPhone(w.phone)}</td>
-                    <td className="admin-td">{w.primaryCompany?.companyName ?? <span className="text-[#bbb]">—</span>}</td>
-                    <td className="admin-td">{w.jobTitle}</td>
-                    <td className="admin-td">
-                      <span className="text-xs text-muted-brand">
-                        {EMP_LABELS[w.employmentType ?? ''] ?? w.employmentType ?? '—'}
-                        {w.foreignerYn && <span className="ml-1 text-[#f57c00]">외</span>}
-                      </span>
-                    </td>
-                    <td className="admin-td">
-                      <span style={{
-                        fontSize: '11px',
-                        color: w.organizationType === 'SUBCONTRACTOR' ? '#e65100' : '#555',
-                        background: w.organizationType === 'SUBCONTRACTOR' ? '#fff3e0' : '#f5f5f5',
-                        padding: '1px 6px', borderRadius: '8px'
-                      }}>
-                        {w.organizationType === 'SUBCONTRACTOR' ? '협력사' : '직영'}
-                      </span>
-                    </td>
-                    <td className="admin-td">{w.deviceCount > 0 ? `${w.deviceCount}대` : '미등록'}</td>
-                    <td className="admin-td">
-                      {w.retirementMutualStatus === 'TARGET' && (
-                        <span className="inline-block px-2 py-[2px] rounded text-[11px] font-semibold bg-[rgba(244,121,32,0.12)] text-[#F47920]">대상</span>
-                      )}
-                      {w.retirementMutualStatus === 'NOT_TARGET' && (
-                        <span className="inline-block px-2 py-[2px] rounded text-[11px] font-semibold bg-brand text-[#757575]">비대상</span>
-                      )}
-                      {w.retirementMutualStatus === 'PENDING_REVIEW' && (
-                        <span className="inline-block px-2 py-[2px] rounded text-[11px] font-semibold bg-[#fff3e0] text-[#e65100]">확인필요</span>
-                      )}
-                      {!w.retirementMutualStatus && (
-                        <span className="text-xs text-[#bbb]">—</span>
-                      )}
-                    </td>
-                    <td className="admin-td">
-                      <div className="flex items-center gap-[6px]">
-                        <IdVerificationBadge status={w.idVerificationStatus} />
-                        <button
-                          onClick={() => { setUploadWorkerId(w.id); setUploadWorkerName(w.name); setShowUpload(true) }}
-                          className="text-xs text-secondary-brand bg-none border-none cursor-pointer p-0 underline"
-                        >
-                          업로드
-                        </button>
-                      </div>
-                    </td>
-                    <td className="admin-td">
-                      {w.isActive
-                        ? <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#16A34A] border border-[#A7F3D0]">재직중</span>
-                        : <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#FEE2E2] text-[#B91C1C] border border-[#F87171]">퇴사</span>
-                      }
-                    </td>
-                    <td className="admin-td">{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white whitespace-nowrap">
-                      <Link href={`/admin/workers/${w.id}`} className="text-xs text-secondary-brand no-underline mr-[6px]">상세</Link>
-                      {canMutate && <button onClick={() => openEdit(w)} className="px-[10px] py-1 text-xs bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer mr-1">수정</button>}
-                      {canMutate && w.isActive && (
-                        <button
-                          onClick={() => { setDeleteTarget(w); setDeleteError('') }}
-                          className="px-[10px] py-1 text-xs bg-[#ffebee] text-[#c62828] border border-[#ef9a9a] rounded cursor-pointer"
-                        >
-                          비활성화
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            </div>{/* overflow-x-auto */}
-          </div>
-        )}
+      <FilterBar>
+        {([
+          { value: '' as const,       label: '전체' },
+          { value: 'active' as const, label: '재직중' },
+          { value: 'inactive' as const, label: '퇴사' },
+        ]).map(opt => (
+          <FilterPill
+            key={opt.value}
+            active={filterActive === opt.value}
+            onClick={() => setFilterActive(opt.value)}
+          >
+            {opt.label}
+          </FilterPill>
+        ))}
+      </FilterBar>
+
+      {loading ? (
+        <p className="text-[#9CA3AF] text-[13px] py-10 text-center">로딩 중...</p>
+      ) : (
+        <AdminTable headers={['이름', '연락처', '소속회사', '직종', '고용형태', '소속구분', '기기', '퇴직공제', '신분증', '상태', '등록일', '']}>
+          {filteredWorkers.length === 0 ? (
+            <EmptyRow message="조건에 맞는 근로자가 없습니다." />
+          ) : filteredWorkers.map((w) => (
+            <AdminTr key={w.id} className={!w.isActive ? 'opacity-60' : ''}>
+              <AdminTd>{w.name}</AdminTd>
+              <AdminTd>{formatPhone(w.phone)}</AdminTd>
+              <AdminTd>{w.primaryCompany?.companyName ?? <span className="text-[#D1D5DB]">—</span>}</AdminTd>
+              <AdminTd>{w.jobTitle}</AdminTd>
+              <AdminTd>
+                <span className="text-[12px] text-[#6B7280]">
+                  {EMP_LABELS[w.employmentType ?? ''] ?? w.employmentType ?? '—'}
+                  {w.foreignerYn && <span className="ml-1 text-[#F97316]">외</span>}
+                </span>
+              </AdminTd>
+              <AdminTd>
+                <StatusBadge
+                  status={w.organizationType === 'SUBCONTRACTOR' ? 'SUBCONTRACTOR' : 'DIRECT'}
+                />
+              </AdminTd>
+              <AdminTd>{w.deviceCount > 0 ? `${w.deviceCount}대` : '미등록'}</AdminTd>
+              <AdminTd>
+                {w.retirementMutualStatus === 'TARGET' && <StatusBadge status="EXCEPTION" label="대상" />}
+                {w.retirementMutualStatus === 'NOT_TARGET' && <StatusBadge status="INACTIVE" label="비대상" />}
+                {w.retirementMutualStatus === 'PENDING_REVIEW' && <StatusBadge status="PENDING" label="확인필요" />}
+                {!w.retirementMutualStatus && <span className="text-[#D1D5DB] text-[12px]">—</span>}
+              </AdminTd>
+              <AdminTd>
+                <div className="flex items-center gap-1.5">
+                  <IdVerificationBadge status={w.idVerificationStatus} />
+                  <button
+                    onClick={() => { setUploadWorkerId(w.id); setUploadWorkerName(w.name); setShowUpload(true) }}
+                    className="text-[11px] text-[#6B7280] bg-transparent border-none cursor-pointer underline p-0"
+                  >
+                    업로드
+                  </button>
+                </div>
+              </AdminTd>
+              <AdminTd>
+                <StatusBadge status={w.isActive ? 'ACTIVE' : 'INACTIVE'} label={w.isActive ? '재직중' : '퇴사'} />
+              </AdminTd>
+              <AdminTd>{new Date(w.createdAt).toLocaleDateString('ko-KR')}</AdminTd>
+              <AdminTd>
+                <div className="flex items-center gap-1 flex-nowrap">
+                  <Link href={`/admin/workers/${w.id}`} className="no-underline">
+                    <Btn variant="ghost" size="xs">상세</Btn>
+                  </Link>
+                  {canMutate && (
+                    <Btn variant="secondary" size="xs" onClick={() => openEdit(w)}>수정</Btn>
+                  )}
+                  {canMutate && w.isActive && (
+                    <Btn variant="danger" size="xs" onClick={() => { setDeleteTarget(w); setDeleteError('') }}>비활성화</Btn>
+                  )}
+                </div>
+              </AdminTd>
+            </AdminTr>
+          ))}
+        </AdminTable>
+      )}
 
         {/* ── 등록 모달 ─────────────────────────────────────── */}
         {showForm && (
