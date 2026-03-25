@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface AllocationRow {
   attendanceLogId: string
@@ -111,9 +112,35 @@ export default function LaborPage() {
     window.location.href = `/api/export/labor?${p}`
   }
 
+  const goToAttendance = (row: AllocationRow) => {
+    const p = new URLSearchParams({ date: row.workDate, name: row.workerName })
+    router.push(`/admin/attendance?${p}`)
+  }
+
   return (
     <div className="p-8">
       <h1 className="text-[22px] font-bold mb-5">투입현황 / 노임서류</h1>
+
+      {/* 노무 관제 허브 */}
+      <div className="flex gap-3 mb-6 flex-wrap">
+        {[
+          { label: '문서 센터', href: '/admin/document-center', desc: '서식 다운로드' },
+          { label: '급여 계산', href: '/admin/wage-calculations', desc: '세금 계산' },
+          { label: '보험 자격', href: '/admin/insurance-eligibility', desc: '4대보험 대상' },
+          { label: '노임 집계', href: '/admin/labor-cost-summaries', desc: '월별 집계' },
+          { label: '월 마감', href: '/admin/month-closings', desc: '마감 처리' },
+          { label: '출퇴근 처리', href: '/admin/attendance', desc: '보정/예외' },
+        ].map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="bg-card rounded-[10px] px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.35)] no-underline hover:shadow-[0_4px_12px_rgba(0,0,0,0.45)] transition-shadow"
+          >
+            <div className="text-[13px] font-bold text-secondary-brand">{item.label}</div>
+            <div className="text-[11px] text-muted-brand mt-0.5">{item.desc}</div>
+          </Link>
+        ))}
+      </div>
 
       {/* 필터 */}
       <div className="flex gap-3 items-end mb-5 flex-wrap">
@@ -183,11 +210,21 @@ export default function LaborPage() {
                   {rows.length === 0 ? (
                     <tr><td colSpan={14} className="text-center py-8 text-[#999]">데이터가 없습니다.</td></tr>
                   ) : rows.map((row) => (
-                    <tr key={row.attendanceLogId} style={{
-                      background: row.needsReview ? '#fff8f8' : row.isAdjusted ? '#faf5ff' : 'white',
-                    }}>
+                    <tr
+                      key={row.attendanceLogId}
+                      onClick={() => goToAttendance(row)}
+                      className="cursor-pointer hover:bg-[#f0f4ff]"
+                      style={{
+                        background: row.needsReview ? '#fff8f8' : row.isAdjusted ? '#faf5ff' : undefined,
+                      }}
+                    >
                       <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.workDate}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap font-semibold">{row.workerName}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
+                        <span className="font-semibold text-secondary-brand underline">{row.workerName}</span>
+                        {row.needsReview && (
+                          <span className="ml-1.5 text-[10px] bg-[#ffebee] text-[#b71c1c] px-1.5 py-px rounded font-bold">처리필요</span>
+                        )}
+                      </td>
                       <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.company}</td>
                       <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.jobTitle}</td>
                       <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.checkInSiteName}</td>

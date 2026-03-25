@@ -310,7 +310,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
 
         {/* 탭 컨텐츠 */}
         <div className="bg-white rounded-lg p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-          {tab === 'info' && <InfoTab worker={worker} />}
+          {tab === 'info' && <InfoTab worker={worker} onRefresh={load} />}
           {tab === 'profile' && <ProfileTab workerId={worker.id} />}
           {tab === 'company' && (
             <CompanyTab
@@ -512,11 +512,48 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
 
 // ─── 기본정보 탭 ──────────────────────────────────────────────────────────────
 
-function InfoTab({ worker }: { worker: WorkerDetail }) {
-  const rows: [string, string][] = [
-    ['이름', worker.name],
-    ['휴대폰', `${worker.phone.slice(0, 3)}-${worker.phone.slice(3, 7)}-${worker.phone.slice(7)}`],
-    ['직종', worker.jobTitle],
+function InfoTab({ worker, onRefresh }: { worker: WorkerDetail; onRefresh: () => void }) {
+  const [editing, setEditing] = React.useState(false)
+  const [saving, setSaving] = React.useState(false)
+  const [saveError, setSaveError] = React.useState('')
+
+  const [editName, setEditName] = React.useState(worker.name)
+  const [editPhone, setEditPhone] = React.useState(worker.phone)
+  const [editJobTitle, setEditJobTitle] = React.useState(worker.jobTitle)
+  const [editIsActive, setEditIsActive] = React.useState(worker.isActive)
+
+  const openEdit = () => {
+    setEditName(worker.name)
+    setEditPhone(worker.phone)
+    setEditJobTitle(worker.jobTitle)
+    setEditIsActive(worker.isActive)
+    setSaveError('')
+    setEditing(true)
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    setSaveError('')
+    const body: Record<string, unknown> = {}
+    if (editName !== worker.name) body.name = editName
+    if (editPhone !== worker.phone) body.phone = editPhone
+    if (editJobTitle !== worker.jobTitle) body.jobTitle = editJobTitle
+    if (editIsActive !== worker.isActive) body.isActive = editIsActive
+    if (Object.keys(body).length === 0) { setEditing(false); setSaving(false); return }
+
+    const res = await fetch(`/api/admin/workers/${worker.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    const d = await res.json()
+    setSaving(false)
+    if (!d.success) { setSaveError(d.error ?? d.message ?? '저장 실패'); return }
+    setEditing(false)
+    onRefresh()
+  }
+
+  const readonlyRows: [string, string][] = [
     ['근로자 코드', worker.workerCode ?? '—'],
     ['고용형태', EMPLOYMENT_TYPE_LABELS[worker.employmentType] ?? worker.employmentType],
     ['소득구분', worker.incomeType === 'DAILY_WAGE' ? '일당' : worker.incomeType === 'MONTHLY_SALARY' ? '월급' : worker.incomeType],
@@ -536,17 +573,101 @@ function InfoTab({ worker }: { worker: WorkerDetail }) {
 
   return (
     <div>
-      <h3 className="mt-0 mb-4 text-sm font-bold text-[#CBD5E0]">기본 정보</h3>
-      <table className="w-full border-collapse">
-        <tbody>
-          {rows.map(([label, value]) => (
-            <tr key={label}>
-              <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px] align-top">{label}</td>
-              <td className="py-2 text-[13px] text-[#CBD5E0]">{value}</td>
-            </tr>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="mt-0 mb-0 text-sm font-bold text-[#CBD5E0]">기본 정보</h3>
+        {!editing && (
+          <button
+            onClick={openEdit}
+            className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold"
+          >
+            수정
+          </button>
+        )}
+      </div>
+
+      {/* 편집 모드 */}
+      {editing ? (
+        <div className="bg-[#f8f9fa] border border-[#e0e0e0] rounded-lg p-5">
+          <div className="text-[12px] text-muted-brand font-semibold mb-4 uppercase">편집 항목</div>
+          {[
+            { label: '이름 *', value: editName, set: setEditName, type: 'text', placeholder: '홍길동' },
+            { label: '휴대폰 *', value: editPhone, set: setEditPhone, type: 'text', placeholder: '01012345678' },
+            { label: '직종 *', value: editJobTitle, set: setEditJobTitle, type: 'text', placeholder: '형틀목공' },
+          ].map(({ label, value, set, type, placeholder }) => (
+            <div key={label} className="flex items-center mb-3 gap-3">
+              <label className="w-[90px] flex-shrink-0 text-[13px] font-semibold text-muted-brand">{label}</label>
+              <input
+                type={type}
+                value={value}
+                onChange={e => set(e.target.value)}
+                placeholder={placeholder}
+                className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px] bg-white"
+              />
+            </div>
           ))}
-        </tbody>
-      </table>
+          <div className="flex items-center mb-3 gap-3">
+            <label className="w-[90px] flex-shrink-0 text-[13px] font-semibold text-muted-brand">활성 상태</label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={editIsActive}
+                onChange={e => setEditIsActive(e.target.checked)}
+              />
+              <span className={`text-[13px] font-semibold ${editIsActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>
+                {editIsActive ? '활성' : '비활성'}
+              </span>
+            </label>
+          </div>
+          {saveError && <p className="text-[#c62828] text-[13px] mb-3">{saveError}</p>}
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={handleSave}
+              disabled={saving || !editName || !editPhone || !editJobTitle}
+              className="px-5 py-2 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold disabled:opacity-50"
+            >
+              {saving ? '저장 중...' : '저장'}
+            </button>
+            <button
+              onClick={() => setEditing(false)}
+              className="px-5 py-2 bg-white border border-secondary-brand/30 rounded-md cursor-pointer text-[13px]"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* 읽기 모드 */
+        <table className="w-full border-collapse">
+          <tbody>
+            <tr>
+              <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">이름</td>
+              <td className="py-2 text-[13px] text-[#CBD5E0]">{worker.name}</td>
+            </tr>
+            <tr>
+              <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">휴대폰</td>
+              <td className="py-2 text-[13px] text-[#CBD5E0]">{fmtPhone(worker.phone)}</td>
+            </tr>
+            <tr>
+              <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">직종</td>
+              <td className="py-2 text-[13px] text-[#CBD5E0]">{worker.jobTitle}</td>
+            </tr>
+            <tr>
+              <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">활성 상태</td>
+              <td className="py-2 text-[13px]">
+                <span className={`font-semibold ${worker.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>
+                  {worker.isActive ? '활성' : '비활성'}
+                </span>
+              </td>
+            </tr>
+            {readonlyRows.map(([label, value]) => (
+              <tr key={label}>
+                <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px] align-top">{label}</td>
+                <td className="py-2 text-[13px] text-[#CBD5E0]">{value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   )
 }
