@@ -124,6 +124,7 @@ export default function LaborPage() {
       {/* 노무 관제 허브 */}
       <div className="flex gap-3 mb-6 flex-wrap">
         {[
+          { label: '노임 관리', href: '/admin/wage', desc: '공수·단가·노임' },
           { label: '문서 센터', href: '/admin/document-center', desc: '서식 다운로드' },
           { label: '급여 계산', href: '/admin/wage-calculations', desc: '세금 계산' },
           { label: '보험 자격', href: '/admin/insurance-eligibility', desc: '4대보험 대상' },
