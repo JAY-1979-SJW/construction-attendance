@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { PageShell, PageHeader } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
 interface AttendanceRecord {
@@ -178,12 +179,12 @@ export default function AdminAttendancePage() {
   const inCls = 'admin-input'
 
   return (
-    <div className="p-4 md:p-6 bg-[#F5F7FA] min-h-screen">
+    <PageShell>
 
       {/* ── 헤더 ── */}
-      <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-        <h1 className="text-[20px] font-bold text-[#111827] m-0">출근현황</h1>
-        <div className="flex gap-2 flex-wrap">
+      <PageHeader
+        title="출근현황"
+        actions={<>
           <button
             onClick={() => { setStatusFilter('MISSING_CHECKOUT'); load() }}
             className="px-3.5 py-[7px] text-[13px] font-semibold text-white bg-[#B91C1C] hover:bg-[#991B1B] border-none rounded-[8px] cursor-pointer transition-colors"
@@ -196,8 +197,8 @@ export default function AdminAttendancePage() {
           >
             엑셀 다운로드
           </button>
-        </div>
-      </div>
+        </>}
+      />
 
       {/* ── 날짜 필터 ── */}
       <div className="flex gap-3 items-end mb-3 flex-wrap">
@@ -503,6 +504,6 @@ export default function AdminAttendancePage() {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   )
 }

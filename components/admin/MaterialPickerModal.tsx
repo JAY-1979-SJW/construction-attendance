@@ -106,7 +106,7 @@ export default function MaterialPickerModal({ onAdd, onClose }: Props) {
     <div style={S.overlay}>
       <div style={S.modal}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'white' }}>자재 선택</h3>
+          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#111827' }}>자재 선택</h3>
           <button onClick={onClose} style={S.closeBtn}>✕</button>
         </div>
 
@@ -174,7 +174,7 @@ export default function MaterialPickerModal({ onAdd, onClose }: Props) {
         {selected && (
           <div style={S.selectedBox}>
             <div style={{ fontSize: '13px', color: '#A0AEC0', marginBottom: '8px' }}>
-              선택: <strong style={{ color: 'white' }}>{selected.standardItemName}</strong>
+              선택: <strong style={{ color: '#111827' }}>{selected.standardItemName}</strong>
               {selected.standardSpec && <span> / {selected.standardSpec}</span>}
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
@@ -214,19 +214,19 @@ export default function MaterialPickerModal({ onAdd, onClose }: Props) {
 }
 
 const S: Record<string, React.CSSProperties> = {
-  overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 },
-  modal: { background: '#243144', borderRadius: '12px', padding: '24px', width: '760px', maxWidth: '95vw', maxHeight: '85vh', display: 'flex', flexDirection: 'column', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' },
-  closeBtn: { background: 'transparent', border: 'none', color: '#A0AEC0', fontSize: '18px', cursor: 'pointer' },
-  input: { flex: 1, padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: '#1B2838', color: 'white', display: 'flex', flexDirection: 'column', gap: '4px' },
-  select: { padding: '8px 12px', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '6px', fontSize: '14px', background: '#1B2838', color: 'white' },
-  tableWrap: { flex: 1, overflowY: 'auto', minHeight: '180px', maxHeight: '300px', border: '1px solid rgba(91,164,217,0.15)', borderRadius: '6px' },
+  overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 },
+  modal: { background: '#FFFFFF', borderRadius: '12px', padding: '24px', width: '760px', maxWidth: '95vw', maxHeight: '85vh', display: 'flex', flexDirection: 'column', boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: '1px solid #E5E7EB' },
+  closeBtn: { background: 'transparent', border: 'none', color: '#6B7280', fontSize: '18px', cursor: 'pointer' },
+  input: { flex: 1, padding: '8px 12px', border: '1px solid #E5E7EB', borderRadius: '6px', fontSize: '14px', background: '#F9FAFB', color: '#111827', display: 'flex', flexDirection: 'column', gap: '4px' },
+  select: { padding: '8px 12px', border: '1px solid #E5E7EB', borderRadius: '6px', fontSize: '14px', background: '#F9FAFB', color: '#111827' },
+  tableWrap: { flex: 1, overflowY: 'auto', minHeight: '180px', maxHeight: '300px', border: '1px solid #E5E7EB', borderRadius: '6px' },
   table: { width: '100%', borderCollapse: 'collapse' },
-  th: { textAlign: 'left', padding: '8px 12px', fontSize: '12px', color: '#A0AEC0', borderBottom: '1px solid rgba(91,164,217,0.2)', position: 'sticky', top: 0, background: '#1e2d40' },
-  td: { padding: '8px 12px', fontSize: '13px', borderBottom: '1px solid rgba(91,164,217,0.08)', color: 'white' },
+  th: { textAlign: 'left', padding: '8px 12px', fontSize: '12px', color: '#4B5563', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#F3F4F6' },
+  td: { padding: '8px 12px', fontSize: '13px', borderBottom: '1px solid #F3F4F6', color: '#374151' },
   tr: {},
-  pgBtn: { padding: '4px 12px', background: '#1B2838', border: '1px solid rgba(91,164,217,0.3)', borderRadius: '4px', color: 'white', cursor: 'pointer', fontSize: '13px' },
-  selectedBox: { background: 'rgba(244,121,32,0.08)', border: '1px solid rgba(244,121,32,0.3)', borderRadius: '8px', padding: '12px 16px', marginTop: '12px' },
-  label: { display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', color: '#A0AEC0' },
-  cancelBtn: { padding: '8px 20px', background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '6px', color: '#A0AEC0', cursor: 'pointer', fontSize: '14px' },
-  addBtn: { padding: '8px 24px', background: '#F47920', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
+  pgBtn: { padding: '4px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px', color: '#374151', cursor: 'pointer', fontSize: '13px' },
+  selectedBox: { background: '#FFF7ED', border: '1px solid rgba(249,115,22,0.3)', borderRadius: '8px', padding: '12px 16px', marginTop: '12px' },
+  label: { display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', color: '#6B7280' },
+  cancelBtn: { padding: '8px 20px', background: '#F3F4F6', border: '1px solid #E5E7EB', borderRadius: '6px', color: '#6B7280', cursor: 'pointer', fontSize: '14px' },
+  addBtn: { padding: '8px 24px', background: '#F97316', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 600 },
 }

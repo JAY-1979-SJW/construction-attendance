@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { PageShell, PageHeader } from '@/components/admin/ui'
 
 // ─── 탭 정의 ──────────────────────────────────────────────────────────────────
 type TabKey = 'workers' | 'companies' | 'ext-companies' | 'managers' | 'site-joins' | 'devices'
@@ -130,8 +131,8 @@ function ApprovalsContent() {
   }
 
   return (
-    <div className="p-4 md:p-6 bg-[#F5F7FA] min-h-screen">
-      <h1 className="text-[20px] font-bold text-[#111827] mb-5 m-0">승인 관리</h1>
+    <PageShell>
+      <PageHeader title="승인 관리" />
 
       <div className="flex border-b border-[#E5E7EB] mb-0 flex-wrap gap-[2px] bg-white rounded-t-[10px] px-2 pt-1">
         {TABS.map(t => (
@@ -150,7 +151,7 @@ function ApprovalsContent() {
       </div>
 
       <ApprovalTab key={activeTab} tab={activeTab} />
-    </div>
+    </PageShell>
   )
 }
 

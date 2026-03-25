@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
 import KakaoMap from '@/components/map/KakaoMap'
+import { PageShell, PageHeader, PageBadge } from '@/components/admin/ui'
 
 // ── 전역 타입 선언 ────────────────────────────────────────────────────
 declare global {
@@ -403,17 +404,16 @@ export default function SitesPage() {
   )
 
   return (
-    <div className="p-4 md:p-6 bg-[#F5F7FA] min-h-screen">
-        <div className="flex justify-between items-center mb-5">
-          <h1 className="text-[20px] font-bold m-0 text-[#111827] flex items-baseline gap-2">
-            현장 관리 {!loading && <span className="text-base font-normal text-[#6B7280]">({sites.length}개)</span>}
-          </h1>
-          {canMutate && (
-            <button onClick={() => { setShowForm(true); setFormGeoStatus('idle'); setForm(emptyForm) }} className="px-4 py-[7px] bg-[#F97316] hover:bg-[#EA580C] text-white border-none rounded-[8px] cursor-pointer text-[13px] font-semibold transition-colors">
-              + 현장 등록
-            </button>
-          )}
-        </div>
+    <PageShell>
+      <PageHeader
+        title="현장 관리"
+        badge={!loading ? <PageBadge>{sites.length}개</PageBadge> : undefined}
+        actions={canMutate ? (
+          <button onClick={() => { setShowForm(true); setFormGeoStatus('idle'); setForm(emptyForm) }} className="px-4 py-[7px] bg-[#F97316] hover:bg-[#EA580C] text-white border-none rounded-[8px] cursor-pointer text-[13px] font-semibold transition-colors">
+            + 현장 등록
+          </button>
+        ) : undefined}
+      />
 
         {loading ? <p>로딩 중...</p> : (
           <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(360px,1fr))]">
@@ -677,6 +677,6 @@ export default function SitesPage() {
             </div>
           </div>
         )}
-    </div>
+    </PageShell>
   )
 }

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
+import { PageShell, PageHeader, PageBadge } from '@/components/admin/ui'
 import {
   ADMIN_TYPE_GUIDES,
   ADMIN_TYPE_WARNINGS,
@@ -201,11 +202,14 @@ export default function WorkersPage() {
     p.length === 11 ? `${p.slice(0, 3)}-${p.slice(3, 7)}-${p.slice(7)}` : p
 
   return (
-    <div className="p-4 md:p-6 bg-[#F5F7FA] min-h-screen">
-        <div className="flex justify-between items-center mb-5">
-          <h1 className="text-[20px] font-bold m-0 text-[#111827]">근로자 관리 ({total}명)</h1>
-          {canMutate && <button onClick={() => setShowForm(true)} className="px-4 py-[7px] bg-[#F97316] text-white border-none rounded-[8px] cursor-pointer text-[13px] font-semibold hover:bg-[#EA580C] transition-colors">+ 근로자 등록</button>}
-        </div>
+    <PageShell>
+      <PageHeader
+        title="근로자 관리"
+        badge={<PageBadge>{total}명</PageBadge>}
+        actions={canMutate ? (
+          <button onClick={() => setShowForm(true)} className="px-4 py-[7px] bg-[#F97316] text-white border-none rounded-[8px] cursor-pointer text-[13px] font-semibold hover:bg-[#EA580C] transition-colors">+ 근로자 등록</button>
+        ) : undefined}
+      />
 
         <div className="flex gap-2 mb-3 flex-wrap">
           <input
@@ -627,7 +631,7 @@ export default function WorkersPage() {
             onReject={handleReject}
           />
         )}
-    </div>
+    </PageShell>
   )
 }
 
