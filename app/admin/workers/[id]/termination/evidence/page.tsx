@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 
 // ─── 타입 ────────────────────────────────────────────────────────────────────
@@ -84,7 +84,7 @@ function EmptyNote({ text = '기록 없음' }: { text?: string }) {
 
 // ─── 메인 페이지 ─────────────────────────────────────────────────────────────
 
-export default function EvidencePage() {
+function EvidencePageContent() {
   const params      = useParams<{ id: string }>()
   const searchParams = useSearchParams()
   const router      = useRouter()
@@ -393,5 +393,13 @@ export default function EvidencePage() {
       </div>
 
     </div>
+  )
+}
+
+export default function EvidencePage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-[#718096]">로딩 중...</div>}>
+      <EvidencePageContent />
+    </Suspense>
   )
 }

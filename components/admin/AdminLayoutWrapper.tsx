@@ -35,6 +35,7 @@ const SECTION_MAP: Record<string, string> = {
   '/admin/contracts':               '계약 관리',
   '/admin/wage-calculations':       '세금/노임 계산',
   '/admin/month-closings':          '월마감',
+  '/admin/wage':                    '노임관리',
   '/admin/labor':                   '노무 일지',
   '/admin/labor-faqs':              '노동법 FAQ',
   '/admin/insurance-eligibility':   '4대보험 판정',
