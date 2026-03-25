@@ -57,7 +57,7 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    href: '/labor',
+    href: '/admin/labor',
     label: '노무관리',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">

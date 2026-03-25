@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   PageShell, SectionCard,
   FilterInput, FilterSelect, FilterPill,
@@ -310,6 +310,7 @@ function PanelRow({ label, value, warn }: {
 // ── 메인 페이지 ───────────────────────────────────────────────────────────────
 export default function AdminAttendancePage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const todayStr = () => {
     const d = new Date()
@@ -317,11 +318,17 @@ export default function AdminAttendancePage() {
     return kst.toISOString().slice(0, 10)
   }
 
+  // URL 파라미터 초기값 (labor 페이지에서 이동 시 자동 반영)
+  const initDate = searchParams.get('date') || todayStr()
+  const initName = searchParams.get('name') || ''
+  const autoOpenRef  = useRef(initName)
+  const didFirstLoad = useRef(false)
+
   // 필터
-  const [date, setDate]               = useState(todayStr())
+  const [date, setDate]               = useState(initDate)
   const [siteId, setSiteId]           = useState('')
   const [statusFilter, setStatusFilter] = useState('')
-  const [nameSearch, setNameSearch]   = useState('')
+  const [nameSearch, setNameSearch]   = useState(initName)
   const [sortKey, setSortKey]         = useState('needsAction')
 
   // 데이터
@@ -344,6 +351,14 @@ export default function AdminAttendancePage() {
   const [manualReason, setManualReason] = useState('')
   const [correctNote, setCorrectNote] = useState('')
   const [correctSaving, setCorrectSaving] = useState(false)
+  const [correctError, setCorrectError] = useState('')
+
+  // 저장 토스트
+  const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null)
+  const showToast = (ok: boolean, msg: string) => {
+    setToast({ ok, msg })
+    setTimeout(() => setToast(null), 3000)
+  }
 
   // 데이터 로드
   const load = useCallback(() => {
@@ -390,6 +405,7 @@ export default function AdminAttendancePage() {
     setWorkedMinutesInput('')
     setManualReason('')
     setCorrectNote('')
+    setCorrectError('')
     setPhotos([])
     loadPhotos(id)
   }
@@ -397,8 +413,20 @@ export default function AdminAttendancePage() {
   const closePanel = () => {
     setSelectedId(null)
     setCorrecting(false)
+    setCorrectError('')
     setPhotos([])
   }
+
+  // URL 파라미터 진입 시 첫 로드 완료 후 해당 근로자 자동 오픈
+  useEffect(() => {
+    if (loading) { didFirstLoad.current = true; return }
+    if (!didFirstLoad.current || !autoOpenRef.current) return
+    const name = autoOpenRef.current
+    autoOpenRef.current = ''
+    const target = items.find(r => r.workerName === name) ?? items[0]
+    if (target) openDetail(target.id)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, items])
 
   // 보정 저장
   const saveCorrection = async () => {
@@ -406,6 +434,7 @@ export default function AdminAttendancePage() {
     if (!correctCheckOut && !correctCheckIn && workedMinutesInput === '') return
     if (!manualReason) return
     setCorrectSaving(true)
+    setCorrectError('')
     const body: Record<string, unknown> = {}
     if (correctCheckIn)  body.checkInAt  = new Date(`${selected.workDate}T${correctCheckIn}:00+09:00`).toISOString()
     if (correctCheckOut) body.checkOutAt = new Date(`${selected.workDate}T${correctCheckOut}:00+09:00`).toISOString()
@@ -419,7 +448,13 @@ export default function AdminAttendancePage() {
       body: JSON.stringify(body),
     })
     const data = await res.json()
-    if (data.success) { closePanel(); load() }
+    if (data.success) {
+      showToast(true, '보정이 저장됐습니다.')
+      closePanel()
+      load()
+    } else {
+      setCorrectError(data.message ?? '보정 저장에 실패했습니다. 다시 시도해 주세요.')
+    }
     setCorrectSaving(false)
   }
 
@@ -478,6 +513,13 @@ export default function AdminAttendancePage() {
 
   return (
     <PageShell className="flex flex-col gap-4">
+
+      {/* ── 저장 토스트 ── */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-[100] px-5 py-3 rounded-[10px] shadow-xl text-[13px] font-semibold text-white transition-all ${toast.ok ? 'bg-[#16A34A]' : 'bg-[#DC2626]'}`}>
+          {toast.msg}
+        </div>
+      )}
 
       {/* ── 제목 + 필터 바 ── */}
       <SectionCard padding={false}>
@@ -1087,6 +1129,12 @@ export default function AdminAttendancePage() {
                           이력 보기 →
                         </a>
                       </div>
+
+                      {correctError && (
+                        <div className="mb-3 rounded-[8px] bg-[#FEF2F2] border border-[#FCA5A5] px-3 py-2 text-[12px] text-[#DC2626]">
+                          {correctError}
+                        </div>
+                      )}
 
                       <div className="flex gap-2">
                         <button
