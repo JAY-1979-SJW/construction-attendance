@@ -12,8 +12,8 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   {
-    href: '/admin',
-    label: '대시보드',
+    href: '/labor',
+    label: '노무 대시보드',
     exact: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -25,30 +25,38 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    href: '/admin/attendance',
-    label: '출퇴근관리',
+    href: '/labor/wages',
+    label: '노임 관리',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" strokeWidth="2"/>
+        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
+        <path d="M12 7v10M9 9.5C9 8.12 10.34 7 12 7s3 1.12 3 2.5c0 1.5-1.34 2.5-3 2.5s-3 1-3 2.5C9 15.88 10.34 17 12 17s3-1.12 3-2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/labor/insurance',
+    label: '4대보험 관리',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L3 7v5c0 5.25 3.75 10.16 9 11.34C17.25 22.16 21 17.25 21 12V7L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
   },
   {
-    href: '/admin/workers',
-    label: '근로자관리',
+    href: '/labor/documents',
+    label: '근로자 서류관리',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
-        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
       </svg>
     ),
   },
   {
-    href: '/admin/sites',
-    label: '현장관리',
+    href: '/labor/sites',
+    label: '현장별 노무현황',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -57,20 +65,20 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    href: '/labor',
-    label: '노무관리',
+    href: '/labor/reports',
+    label: '노동부 대응자료',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="2"/>
-        <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M12 12v4M10 14h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="currentColor" strokeWidth="2"/>
+        <path d="M9 7h6M9 11h6M9 15h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
       </svg>
     ),
   },
 ]
 
 const SETTINGS_ITEM: NavItem = {
-  href: '/admin/settings',
+  href: '/labor/settings',
   label: '설정',
   icon: (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -113,35 +121,25 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
           style={{ width: 3, background: '#F97316' }}
         />
       )}
-      <span className="w-4 h-4 flex items-center justify-center shrink-0">
-        {item.icon}
-      </span>
+      <span className="w-4 h-4 flex items-center justify-center shrink-0">{item.icon}</span>
       <span>{item.label}</span>
     </Link>
   )
 }
 
-export default function AdminSidebar({
-  isOpen,
-  onClose,
-}: {
-  isOpen: boolean
-  onClose: () => void
-}) {
+export default function LaborSidebar() {
   const pathname = usePathname()
-  const router = useRouter()
+  const router   = useRouter()
 
   const handleLogout = () => {
-    fetch('/api/admin/auth/logout', { method: 'POST' }).then(() =>
-      router.push('/admin/login')
+    fetch('/api/company/auth/logout', { method: 'POST' }).then(() =>
+      router.push('/company/login')
     )
   }
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen w-[220px] flex flex-col z-40 transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}
+      className="fixed top-0 left-0 h-screen w-[220px] flex flex-col z-40"
       style={{ background: '#FFFFFF', borderRight: '1px solid #E5E7EB' }}
     >
       {/* 상단 4px 오렌지 라인 */}
@@ -156,18 +154,14 @@ export default function AdminSidebar({
           <div className="w-7 h-7 bg-[#FFF7ED] rounded-[8px] flex items-center justify-center shrink-0">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
               <path
-                d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-              />
-              <path
-                d="M9 22V12h6v10"
+                d="M12 2L3 7v5c0 5.25 3.75 10.16 9 11.34C17.25 22.16 21 17.25 21 12V7L12 2z"
                 stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
               />
             </svg>
           </div>
           <span className="text-[14px] font-bold text-[#0F172A]">
-            해한<span className="text-[#F97316]">AI</span>
-            <span className="text-[11px] font-normal text-[#9CA3AF] ml-1">출퇴근</span>
+            노무관리
+            <span className="text-[11px] font-normal text-[#9CA3AF] ml-1">시스템</span>
           </span>
         </div>
       </div>
@@ -177,10 +171,7 @@ export default function AdminSidebar({
         {NAV_ITEMS.map((item) => (
           <NavLink key={item.href} item={item} pathname={pathname} />
         ))}
-
-        {/* 설정 구분선 */}
         <div className="mx-4 my-2 border-t border-[#F3F4F6]" />
-
         <NavLink item={SETTINGS_ITEM} pathname={pathname} />
       </nav>
 
