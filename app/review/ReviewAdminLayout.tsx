@@ -36,9 +36,9 @@ export default function ReviewAdminLayout({ children }: { children: React.ReactN
           <span className="text-[13px] font-bold text-white">해한<span className="text-[#F47920]">Ai</span> 출퇴근</span>
         </div>
 
-        {/* 검토용 배지 */}
-        <div className="mx-4 mt-3 mb-2 px-3 py-1.5 bg-[#F47920]/10 border border-[#F47920]/30 rounded-[8px]">
-          <span className="text-[11px] font-semibold text-[#F47920]">검토용 화면 (Mock Data)</span>
+        {/* 검토용 배지 — 약화 */}
+        <div className="mx-4 mt-3 mb-2 px-3 py-1 border border-[#2D3A4A] rounded-[6px]">
+          <span className="text-[10px] text-[#4a5568]">검토용 · Mock Data</span>
         </div>
 
         {/* 네비게이션 */}
