@@ -302,6 +302,7 @@ enum IdScanStatus {
   OCR_DONE
   PARSED
   FAILED
+  OCR_SKIPPED
 }
 
 enum IdReviewStatus {
@@ -1211,6 +1212,36 @@ model AppSettings {
   presenceCheckAmEnd                String   @default("11:30")
   presenceCheckPmStart              String   @default("13:30")
   presenceCheckPmEnd                String   @default("16:30")
+  // === 출퇴근 운영 기준 ===
+  checkInStart                      String   @default("07:00")
+  checkOutEnd                       String   @default("17:00")
+  tardyMinutes                      Int      @default(0)
+  earlyLeaveMinutes                 Int      @default(30)
+  absentMarkHour                    String   @default("12:00")
+  reviewOnException                 Boolean  @default(true)
+  // === 공수 기준 ===
+  mandayFullMinutes                 Int      @default(600)
+  mandayPartialOk                   Boolean  @default(false)
+  mandayManualOk                    Boolean  @default(true)
+  mandayAutoReview                  Boolean  @default(true)
+  // === 노임 기준 ===
+  wageByManday                      Boolean  @default(true)
+  wageMonthly                       Boolean  @default(true)
+  wageTotal                         Boolean  @default(true)
+  wageManualOk                      Boolean  @default(true)
+  // === 관리자 설정 ===
+  adminDisplayName                  String   @default("")
+  adminContact                      String   @default("")
+  requireReasonOnEdit               Boolean  @default(false)
+  keepEditHistory                   Boolean  @default(true)
+  confirmBeforeSave                 Boolean  @default(false)
+  // === 현장 운영 기본값 ===
+  siteDefaultStatus                 String   @default("ACTIVE")
+  siteEndingWarnDays                Int      @default(30)
+  siteDefaultSort                   String   @default("endDate_asc")
+  siteAutoReview                    Boolean  @default(true)
+  // 미출근 확인필요 기준: 이 수 이상 미출근 시 확인필요 처리 (기본 2명)
+  absentAlertThreshold              Int      @default(2)
   updatedAt                         DateTime @updatedAt
 
   @@map("app_settings")

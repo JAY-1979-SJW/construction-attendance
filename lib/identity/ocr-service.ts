@@ -20,10 +20,13 @@ const SYSTEM_PROMPT = `당신은 한국 신분증 OCR 전문가입니다. 이미
 형식: {"documentType":"NATIONAL_ID|DRIVER_LICENSE|ALIEN_REGISTRATION|UNKNOWN","name":"이름","birthDate":"YYYY-MM-DD","idNumber":"주민번호원문","nationality":"국적","address":"주소","issueDate":"YYYY-MM-DD","expiryDate":"YYYY-MM-DD","foreignerYn":false,"residentType":"DOMESTIC|FOREIGNER|OVERSEAS_KOREAN","licenseNumber":null,"rawText":"전체텍스트","confidence":{"name":0.9,"birthDate":0.9,"idNumber":0.9}}
 규칙: 읽을 수 없으면 null. idNumber는 마스킹 없이 원문 반환. JSON만 반환.`
 
+export const OCR_SKIPPED_MARKER = '__OCR_SKIPPED__'
+
 export async function runOcr(imageBuffer: Buffer, mimeType: string): Promise<ParsedIdDocument> {
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
-    return { documentType: 'UNKNOWN', foreignerYn: false, confidence: {}, rawText: '[OCR 미설정: ANTHROPIC_API_KEY 없음]' }
+    console.info('[OCR] key not configured — skipping OCR')
+    return { documentType: 'UNKNOWN', foreignerYn: false, confidence: {}, rawText: OCR_SKIPPED_MARKER }
   }
 
   const client = new Anthropic({ apiKey })

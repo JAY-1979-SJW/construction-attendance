@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db/prisma'
 import { encrypt, maskIdNumber, maskAddress } from '@/lib/security/encryption'
 import { saveOriginalFile, saveMaskedFile, getExtFromMime } from '@/lib/storage/identity-storage'
 import { maskIdentityImage } from './image-masking'
-import { runOcr, type ParsedIdDocument } from './ocr-service'
+import { runOcr, OCR_SKIPPED_MARKER, type ParsedIdDocument } from './ocr-service'
 
 interface UploadOptions {
   workerId: string
@@ -41,7 +41,7 @@ export async function uploadIdentityDocument(opts: UploadOptions) {
       fileSize: buffer.length,
       ocrRawText: parsed.rawText ?? null,
       parsedJson: parsed as never,
-      scanStatus: (parsed.rawText?.startsWith('[OCR') ? 'FAILED' : 'PARSED') as never,
+      scanStatus: (parsed.rawText === OCR_SKIPPED_MARKER ? 'OCR_SKIPPED' : parsed.rawText?.startsWith('[OCR') ? 'FAILED' : 'PARSED') as never,
       reviewStatus: 'PENDING_REVIEW' as never,
       uploadedBy,
       isLatest: true,
