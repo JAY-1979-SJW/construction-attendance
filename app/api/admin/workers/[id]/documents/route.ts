@@ -90,7 +90,7 @@ export async function POST(
     // DB 저장: FileRecord 먼저 생성 → WorkerDocument에 fileId로 연결
     const fileRecord = await prisma.fileRecord.create({
       data: {
-        storageProvider: 'LOCAL',
+        storageProvider: process.env.STORAGE_PROVIDER ?? 'NAS',
         path: storagePath,
         originalFilename: file.name,
         mimeType: file.type,
