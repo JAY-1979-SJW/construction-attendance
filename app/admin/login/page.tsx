@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { AuthPageShell } from '@/components/auth/AuthPageShell'
 import { AuthCard, AuthBrand, AuthTitle, AuthInput, AuthPrimaryBtn, AuthError, AuthFooter } from '@/components/auth/AuthCard'
@@ -9,8 +9,14 @@ export default function AdminLoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [saveId, setSaveId] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const saved = localStorage.getItem('admin_saved_email')
+    if (saved) { setEmail(saved); setSaveId(true) }
+  }, [])
 
   const handleLogin = async () => {
     if (loading) return
@@ -27,6 +33,8 @@ export default function AdminLoginPage() {
         setError(data.message ?? '이메일 또는 비밀번호를 확인해주세요.')
         return
       }
+      if (saveId) localStorage.setItem('admin_saved_email', email)
+      else localStorage.removeItem('admin_saved_email')
       router.push(data.portal ?? '/admin')
     } catch {
       setError('로그인 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.')
@@ -55,7 +63,7 @@ export default function AdminLoginPage() {
           value={email}
           onChange={setEmail}
         />
-        <div className="mb-6">
+        <div className="mb-4">
           <AuthInput
             id="admin-password"
             label="비밀번호"
@@ -66,6 +74,16 @@ export default function AdminLoginPage() {
             onChange={setPassword}
           />
         </div>
+
+        <label className="flex items-center gap-2 mb-6 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={saveId}
+            onChange={(e) => setSaveId(e.target.checked)}
+            className="w-4 h-4 accent-[#F97316] cursor-pointer"
+          />
+          <span className="text-[13px] text-[#6B7280]">아이디 저장</span>
+        </label>
 
         <AuthPrimaryBtn onClick={handleLogin} disabled={loading}>
           {loading ? '로그인 중...' : '로그인'}
