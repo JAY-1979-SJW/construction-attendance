@@ -17,7 +17,6 @@ interface NavGroup {
   items: NavItem[]
 }
 
-// ── 핵심 6개 그룹 ────────────────────────────────────────────────────
 const CORE_GROUPS: NavGroup[] = [
   {
     id: 'attendance',
@@ -73,7 +72,6 @@ const CORE_GROUPS: NavGroup[] = [
   },
 ]
 
-// ── 더보기 (계약·보험·자재·서류 등) ─────────────────────────────────
 const MORE_ITEMS: NavItem[] = [
   { href: '/admin/contracts',                  label: '계약 관리' },
   { href: '/admin/wage-calculations',          label: '세금/노임 계산' },
@@ -93,13 +91,6 @@ const MORE_ITEMS: NavItem[] = [
   { href: '/admin/pilot',                      label: '파일럿 모니터' },
 ]
 
-const BORDER_SUBTLE  = 'rgba(255,255,255,0.06)'
-const TEXT_DIM       = 'rgba(255,255,255,0.35)'
-const TEXT_MID       = 'rgba(255,255,255,0.55)'
-const TEXT_BRIGHT    = 'rgba(255,255,255,0.85)'
-const ACTIVE_BG      = 'rgba(249,115,22,0.15)'
-const HOVER_BG       = 'rgba(255,255,255,0.05)'
-
 export default function AdminSidebar({
   isOpen,
   onClose,
@@ -118,7 +109,6 @@ export default function AdminSidebar({
     return pathname === href || pathname.startsWith(href + '/')
   }
 
-  // 현재 경로 기반 자동 그룹 펼침
   useEffect(() => {
     const active = new Set<string>()
     CORE_GROUPS.forEach((g) => {
@@ -129,7 +119,6 @@ export default function AdminSidebar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
 
-  // 뱃지 카운트
   useEffect(() => {
     fetch('/api/admin/dashboard')
       .then((r) => r.json())
@@ -172,20 +161,20 @@ export default function AdminSidebar({
         href={item.href}
         className="flex items-center justify-between px-2 py-[6px] rounded-[6px] text-[12px] transition-colors"
         style={{
-          background: active ? ACTIVE_BG : 'transparent',
-          color: active ? '#F97316' : TEXT_MID,
+          background: active ? '#FFF7ED' : 'transparent',
+          color: active ? '#F97316' : '#6B7280',
           fontWeight: active ? 600 : 400,
         }}
         onMouseEnter={(e) => {
           if (!active) {
-            ;(e.currentTarget as HTMLElement).style.background = HOVER_BG
-            ;(e.currentTarget as HTMLElement).style.color = TEXT_BRIGHT
+            ;(e.currentTarget as HTMLElement).style.background = '#F9FAFB'
+            ;(e.currentTarget as HTMLElement).style.color = '#111827'
           }
         }}
         onMouseLeave={(e) => {
           if (!active) {
             ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-            ;(e.currentTarget as HTMLElement).style.color = TEXT_MID
+            ;(e.currentTarget as HTMLElement).style.color = '#6B7280'
           }
         }}
       >
@@ -204,22 +193,28 @@ export default function AdminSidebar({
       className={`fixed top-0 left-0 h-screen w-[240px] flex flex-col z-40 transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
-      style={{ background: '#071020', borderRight: `1px solid ${BORDER_SUBTLE}` }}
+      style={{ background: '#FFFFFF', borderRight: '1px solid #E5E7EB' }}
     >
-      {/* 오렌지 상단 라인 */}
-      <div className="h-[3px] shrink-0" style={{ background: 'linear-gradient(90deg, #F97316, #FDBA74)' }} />
+      {/* 상단 4px 오렌지 라인 */}
+      <div className="h-1 shrink-0 bg-[#F97316]" />
 
-      {/* 로고 */}
+      {/* 로고 영역 */}
       <div
-        className="h-[53px] flex items-center px-5 shrink-0"
-        style={{ borderBottom: `1px solid ${BORDER_SUBTLE}` }}
+        className="h-[56px] flex items-center px-5 shrink-0"
+        style={{ borderBottom: '1px solid #F3F4F6' }}
       >
-        <span className="text-[15px] font-bold text-white">
-          해한<span style={{ color: '#F97316' }}>Ai</span>
-          <span className="text-[12px] font-normal ml-1.5" style={{ color: TEXT_DIM }}>
-            출퇴근관리
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 bg-[#FFF7ED] rounded-[8px] flex items-center justify-center shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <span className="text-[14px] font-bold text-[#0F172A]">
+            해한<span className="text-[#F97316]">AI</span>
+            <span className="text-[11px] font-normal text-[#9CA3AF] ml-1">출퇴근</span>
           </span>
-        </span>
+        </div>
       </div>
 
       {/* 네비게이션 */}
@@ -230,18 +225,30 @@ export default function AdminSidebar({
           href="/admin"
           className="flex items-center gap-2 px-3 py-2 rounded-[8px] text-[13px] mb-1 transition-colors"
           style={{
-            background: pathname === '/admin' ? ACTIVE_BG : 'transparent',
-            color: pathname === '/admin' ? '#F97316' : TEXT_MID,
+            background: pathname === '/admin' ? '#FFF7ED' : 'transparent',
+            color: pathname === '/admin' ? '#F97316' : '#374151',
             fontWeight: pathname === '/admin' ? 600 : 400,
+          }}
+          onMouseEnter={(e) => {
+            if (pathname !== '/admin') {
+              ;(e.currentTarget as HTMLElement).style.background = '#F9FAFB'
+              ;(e.currentTarget as HTMLElement).style.color = '#111827'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (pathname !== '/admin') {
+              ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+              ;(e.currentTarget as HTMLElement).style.color = '#374151'
+            }
           }}
         >
           <span>🏠</span>
           <span>대시보드</span>
         </Link>
 
-        <div className="my-2" style={{ borderTop: `1px solid ${BORDER_SUBTLE}` }} />
+        <div className="my-2 border-t border-[#F3F4F6]" />
 
-        {/* 핵심 6개 그룹 */}
+        {/* 핵심 그룹 */}
         {CORE_GROUPS.map((group) => {
           const open = openGroups.has(group.id)
           const hasActive = group.items.some((item) => isActive(item.href))
@@ -253,16 +260,16 @@ export default function AdminSidebar({
                 className="w-full flex items-center justify-between px-3 py-[9px] rounded-[8px] text-[13px] transition-colors"
                 style={{
                   background: 'transparent',
-                  color: hasActive ? TEXT_BRIGHT : TEXT_DIM,
+                  color: hasActive ? '#111827' : '#374151',
                   fontWeight: hasActive ? 600 : 400,
                 }}
                 onMouseEnter={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.background = HOVER_BG
-                  ;(e.currentTarget as HTMLElement).style.color = TEXT_BRIGHT
+                  ;(e.currentTarget as HTMLElement).style.background = '#F9FAFB'
+                  ;(e.currentTarget as HTMLElement).style.color = '#111827'
                 }}
                 onMouseLeave={(e) => {
                   ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                  ;(e.currentTarget as HTMLElement).style.color = hasActive ? TEXT_BRIGHT : TEXT_DIM
+                  ;(e.currentTarget as HTMLElement).style.color = hasActive ? '#111827' : '#374151'
                 }}
               >
                 <span className="flex items-center gap-2">
@@ -270,11 +277,8 @@ export default function AdminSidebar({
                   <span>{group.label}</span>
                 </span>
                 <span
-                  className="text-[11px] transition-transform duration-200 leading-none"
-                  style={{
-                    color: TEXT_DIM,
-                    transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
-                  }}
+                  className="text-[11px] transition-transform duration-200 leading-none text-[#9CA3AF]"
+                  style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)' }}
                 >
                   ›
                 </span>
@@ -282,8 +286,7 @@ export default function AdminSidebar({
 
               {open && (
                 <div
-                  className="ml-4 mt-0.5 mb-1 flex flex-col gap-0.5 pl-2"
-                  style={{ borderLeft: `1px solid ${BORDER_SUBTLE}` }}
+                  className="ml-4 mt-0.5 mb-1 flex flex-col gap-0.5 pl-2 border-l border-[#F3F4F6]"
                 >
                   {group.items.map(renderItem)}
                 </div>
@@ -292,21 +295,21 @@ export default function AdminSidebar({
           )
         })}
 
-        <div className="my-2" style={{ borderTop: `1px solid ${BORDER_SUBTLE}` }} />
+        <div className="my-2 border-t border-[#F3F4F6]" />
 
         {/* 더보기 */}
         <div className="mb-0.5">
           <button
             onClick={() => setMoreOpen(!moreOpen)}
             className="w-full flex items-center justify-between px-3 py-[9px] rounded-[8px] text-[13px] transition-colors"
-            style={{ background: 'transparent', color: TEXT_DIM }}
+            style={{ background: 'transparent', color: '#9CA3AF' }}
             onMouseEnter={(e) => {
-              ;(e.currentTarget as HTMLElement).style.background = HOVER_BG
-              ;(e.currentTarget as HTMLElement).style.color = TEXT_BRIGHT
+              ;(e.currentTarget as HTMLElement).style.background = '#F9FAFB'
+              ;(e.currentTarget as HTMLElement).style.color = '#111827'
             }}
             onMouseLeave={(e) => {
               ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-              ;(e.currentTarget as HTMLElement).style.color = TEXT_DIM
+              ;(e.currentTarget as HTMLElement).style.color = '#9CA3AF'
             }}
           >
             <span className="flex items-center gap-2">
@@ -314,18 +317,15 @@ export default function AdminSidebar({
               <span>더보기</span>
             </span>
             <span
-              className="text-[11px] transition-transform duration-200 leading-none"
-              style={{ color: TEXT_DIM, transform: moreOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+              className="text-[11px] transition-transform duration-200 leading-none text-[#9CA3AF]"
+              style={{ transform: moreOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
             >
               ›
             </span>
           </button>
 
           {moreOpen && (
-            <div
-              className="ml-4 mt-0.5 mb-1 flex flex-col gap-0.5 pl-2"
-              style={{ borderLeft: `1px solid ${BORDER_SUBTLE}` }}
-            >
+            <div className="ml-4 mt-0.5 mb-1 flex flex-col gap-0.5 pl-2 border-l border-[#F3F4F6]">
               {MORE_ITEMS.map(renderItem)}
             </div>
           )}
@@ -333,21 +333,17 @@ export default function AdminSidebar({
       </nav>
 
       {/* 로그아웃 */}
-      <div
-        className="px-3 py-3 shrink-0"
-        style={{ borderTop: `1px solid ${BORDER_SUBTLE}` }}
-      >
+      <div className="px-3 py-3 shrink-0 border-t border-[#F3F4F6]">
         <button
           onClick={handleLogout}
-          className="w-full text-[12px] py-2 px-3 rounded-[8px] transition-colors text-left"
-          style={{ color: TEXT_DIM }}
+          className="w-full text-[12px] py-2 px-3 rounded-[8px] transition-colors text-left text-[#9CA3AF]"
           onMouseEnter={(e) => {
-            ;(e.currentTarget as HTMLElement).style.background = HOVER_BG
-            ;(e.currentTarget as HTMLElement).style.color = TEXT_BRIGHT
+            ;(e.currentTarget as HTMLElement).style.background = '#FFF1F2'
+            ;(e.currentTarget as HTMLElement).style.color = '#B91C1C'
           }}
           onMouseLeave={(e) => {
             ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-            ;(e.currentTarget as HTMLElement).style.color = TEXT_DIM
+            ;(e.currentTarget as HTMLElement).style.color = '#9CA3AF'
           }}
         >
           로그아웃
