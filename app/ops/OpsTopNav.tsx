@@ -31,23 +31,23 @@ export default function OpsTopNav({ userName, roleLabel, isReadOnly }: Props) {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-[#1e3a5f] shadow-md">
+    <header className="sticky top-0 z-40 bg-white border-b border-[#E5E7EB] shadow-sm">
       {/* 상단 바: 로고 + 사용자정보 + 로그아웃 */}
-      <div className="flex items-center justify-between h-12 px-5 border-b border-white/10">
+      <div className="flex items-center justify-between h-12 px-5 border-b border-[#F3F4F6]">
         <div className="flex items-center gap-2">
-          <span className="text-[15px] font-bold text-white">현장출근관리</span>
-          <span className="text-[11px] text-white/50">· {roleLabel}</span>
+          <span className="text-[15px] font-bold text-[#111827]">현장출근관리</span>
+          <span className="text-[11px] text-[#9CA3AF]">· {roleLabel}</span>
           {isReadOnly && (
-            <span className="px-2 py-[2px] bg-[rgba(251,191,36,0.2)] border border-[rgba(251,191,36,0.4)] rounded text-[11px] text-[#fbbf24]">
+            <span className="px-2 py-[2px] bg-[#FEF3C7] border border-[#FDE68A] rounded text-[11px] text-[#92400E]">
               읽기 전용
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[13px] text-white/50">{userName}</span>
+          <span className="text-[13px] text-[#6B7280]">{userName}</span>
           <button
             onClick={handleLogout}
-            className="px-3 py-1.5 bg-white/10 border border-white/20 text-white text-[12px] rounded-md cursor-pointer hover:bg-white/20 transition-colors"
+            className="px-3 py-1.5 bg-[#F3F4F6] border border-[#E5E7EB] text-[#374151] text-[12px] rounded-md cursor-pointer hover:bg-[#E5E7EB] transition-colors"
           >
             로그아웃
           </button>
@@ -62,8 +62,8 @@ export default function OpsTopNav({ userName, roleLabel, isReadOnly }: Props) {
             href={href}
             className={`flex-shrink-0 px-5 py-3 text-[13px] font-medium no-underline border-b-2 transition-colors ${
               isActive(href, exact)
-                ? 'border-white text-white'
-                : 'border-transparent text-white/60 hover:text-white hover:border-white/40'
+                ? 'border-[#F97316] text-[#F97316]'
+                : 'border-transparent text-[#6B7280] hover:text-[#111827] hover:border-[#D1D5DB]'
             }`}
           >
             {label}

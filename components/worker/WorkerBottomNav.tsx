@@ -33,7 +33,7 @@ export default function WorkerBottomNav() {
   const router    = useRouter()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-brand-deeper border-t border-[rgba(91,164,217,0.15)] flex h-16 z-[100] shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] flex h-16 z-[100] shadow-[0_-2px_8px_rgba(0,0,0,0.08)]">
       {NAV_ITEMS.map((item) => {
         const isActive = item.match.some((m) => pathname === m || pathname.startsWith(m + '/'))
         return (

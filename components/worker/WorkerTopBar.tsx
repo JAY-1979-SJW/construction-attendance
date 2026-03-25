@@ -17,7 +17,7 @@ export default function WorkerTopBar() {
       {/* 상단 3px 오렌지 라인 */}
       <div className="h-[3px] w-full bg-[#F47920]" />
       {/* 로고 바 */}
-      <div className="h-[53px] bg-brand-deeper border-b border-[rgba(91,164,217,0.15)] flex items-center justify-center shadow-[0_2px_16px_rgba(0,0,0,0.35)]">
+      <div className="h-[53px] bg-white border-b border-[#E5E7EB] flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
         <Image
           src="/logo/logo_main.png"
           alt="해한Ai Engineering"

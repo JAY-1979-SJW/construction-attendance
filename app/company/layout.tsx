@@ -19,7 +19,7 @@ const NAV_ITEMS = [
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen font-sans">
-      <nav className="w-[200px] min-w-[200px] bg-white border-r border-[#E5E7EB] text-[#374151] flex flex-col py-6">
+      <nav className="w-[200px] min-w-[200px] bg-white border-r border-[#E5E7EB] text-[#374151] flex flex-col py-6 sticky top-0 h-screen overflow-y-auto">
         <div className="text-base font-bold text-[#111827] px-5 pb-1 mb-0.5">해한 출퇴근</div>
         <div className="text-[11px] text-[#9CA3AF] px-5 pb-4 border-b border-[#E5E7EB] mb-2">업체 관리</div>
         {NAV_ITEMS.map(({ href, label }) => (
