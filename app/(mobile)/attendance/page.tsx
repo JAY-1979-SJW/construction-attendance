@@ -94,6 +94,14 @@ export default function AttendancePage() {
   const [exceptionReason, setExceptionReason] = useState('')
   const [needsException, setNeedsException]   = useState(false)
   const [gpsStatus, setGpsStatus] = useState<'idle' | 'loading' | 'ok' | 'denied' | 'error'>('idle')
+  // ── 최근 기록 state ───────────────────────────────────────────
+  const [history, setHistory] = useState<{
+    workDate: string
+    siteName: string
+    checkInAt: string | null
+    checkOutAt: string | null
+    status: string
+  }[]>([])
 
   // ── 초기 데이터 로딩 ─────────────────────────────────────────
   useEffect(() => {
@@ -111,6 +119,11 @@ export default function AttendancePage() {
       setWorker(meData.data)
       setToday(todayData.data)
       setLoading(false)
+      // 최근 7일 기록 조회
+      fetch('/api/attendance/history?days=7')
+        .then((r) => r.json())
+        .then((d) => { if (d.success) setHistory(d.data.items) })
+        .catch(() => {})
     })
   }, [router])
 
@@ -676,6 +689,45 @@ export default function AttendancePage() {
           </div>
         )}
       </div>
+
+      {/* 최근 내 기록 */}
+      {!isPreview && history.length > 0 && (
+        <div className="bg-card rounded-2xl p-5 mb-4">
+          <div className="text-[13px] text-muted-brand mb-3">최근 내 기록</div>
+          <div className="flex flex-col gap-[10px]">
+            {history.map((item) => {
+              const dateLabel = new Date(item.workDate + 'T00:00:00+09:00')
+                .toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', weekday: 'short' })
+              const inTime  = item.checkInAt  ? new Date(item.checkInAt).toLocaleTimeString('ko-KR',  { hour: '2-digit', minute: '2-digit' }) : '--:--'
+              const outTime = item.checkOutAt ? new Date(item.checkOutAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '--:--'
+              const statusColor =
+                item.status === 'COMPLETED' ? '#81c784' :
+                item.status === 'EXCEPTION' ? '#FFB74D' :
+                '#A0AEC0'
+              const statusLabel =
+                item.status === 'COMPLETED' ? '퇴근' :
+                item.status === 'EXCEPTION' ? '예외' :
+                item.status === 'WORKING'   ? '근무중' : item.status
+              return (
+                <div
+                  key={item.workDate + item.siteName}
+                  className="flex items-center justify-between"
+                  style={{ borderBottom: '1px solid rgba(91,164,217,0.1)', paddingBottom: 8 }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="text-[13px] text-[#A0AEC0] w-[80px] shrink-0">{dateLabel}</div>
+                    <div>
+                      <div className="text-[14px] font-semibold text-white leading-tight">{item.siteName}</div>
+                      <div className="text-[12px] text-[#A0AEC0] mt-[2px]">{inTime} ~ {outTime}</div>
+                    </div>
+                  </div>
+                  <div className="text-[12px] font-bold shrink-0" style={{ color: statusColor }}>{statusLabel}</div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {!isPreview && <WorkerBottomNav />}
     </div>
