@@ -419,8 +419,8 @@ export default function SitesPage() {
           <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(360px,1fr))]">
             {sites.length === 0 && <p className="text-[#999]">등록된 현장이 없습니다.</p>}
             {sites.map((site) => (
-              <div key={site.id} className="bg-card rounded-xl p-5 shadow-[0_1px_4px_rgba(0,0,0,0.07)] flex flex-col"
-                style={{ opacity: site.isActive ? 1 : 0.6 }}>
+              <div key={site.id}
+                className={`rounded-xl p-5 shadow-[0_1px_4px_rgba(0,0,0,0.07)] flex flex-col ${site.isActive ? 'bg-card' : 'bg-[#1a1f2a] opacity-70'}`}>
 
                 {/* 헤더 */}
                 <div className="flex justify-between items-start mb-[6px]">
@@ -429,25 +429,27 @@ export default function SitesPage() {
                       <Link href={`/admin/sites/${site.id}`} className="text-inherit no-underline">
                         {site.name}
                       </Link>
-                      <span className="text-[11px] font-semibold px-2 py-[2px] rounded-[10px]"
-                        style={{ background: site.isActive ? '#e8f5e9' : '#f5f5f5', color: site.isActive ? '#2e7d32' : '#999' }}>
-                        {site.isActive ? '활성' : '비활성'}
-                      </span>
+                      {site.isActive
+                        ? <span className="inline-block text-[11px] font-semibold px-2 py-[2px] rounded-full bg-[#ECFDF5] text-[#16A34A] border border-[#A7F3D0]">운영중</span>
+                        : <span className="inline-block text-[11px] font-semibold px-2 py-[2px] rounded-full bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]">종료</span>
+                      }
                     </div>
                     {site.siteCode && <div className="text-[11px] text-[#718096] mt-[2px] font-mono">{site.siteCode}</div>}
                   </div>
-                  {canMutate && (
-                    <div className="flex gap-1 shrink-0">
-                      <button onClick={() => { setDetailSite(detailSite?.id === site.id ? null : site) }}
-                        className="px-[10px] py-1 text-xs bg-[rgba(91,164,217,0.1)] text-muted-brand border border-[rgba(91,164,217,0.3)] rounded cursor-pointer">
-                        {detailSite?.id === site.id ? '닫기' : '상세'}
-                      </button>
-                      <button onClick={() => openPolicyModal(site)}
-                        className="px-[10px] py-1 text-xs bg-[#fff8e1] text-[#f57f17] border border-[#ffe082] rounded cursor-pointer">근무정책</button>
-                      <button onClick={() => openEdit(site)}
-                        className="px-[10px] py-1 text-xs bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer">수정</button>
-                    </div>
-                  )}
+                  <div className="flex gap-1 shrink-0 flex-wrap">
+                    <Link href="/admin/attendance"
+                      className="no-underline px-3 py-1 text-xs font-semibold bg-[#F97316] hover:bg-[#EA580C] text-white rounded cursor-pointer transition-colors">
+                      출근현황
+                    </Link>
+                    {canMutate && (
+                      <>
+                        <button onClick={() => openPolicyModal(site)}
+                          className="px-[10px] py-1 text-xs text-muted-brand border border-[rgba(91,164,217,0.3)] bg-transparent hover:border-[rgba(91,164,217,0.55)] rounded cursor-pointer transition-colors">근무정책</button>
+                        <button onClick={() => openEdit(site)}
+                          className="px-[10px] py-1 text-xs text-muted-brand border border-[rgba(91,164,217,0.3)] bg-transparent hover:border-[rgba(91,164,217,0.55)] rounded cursor-pointer transition-colors">수정</button>
+                      </>
+                    )}
+                  </div>
                 </div>
 
                 {/* 주소 + 기간 */}

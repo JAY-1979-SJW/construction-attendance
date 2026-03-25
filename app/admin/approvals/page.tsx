@@ -139,7 +139,7 @@ function ApprovalsContent() {
             key={t.key}
             className={`px-[18px] py-[10px] border-none border-b-2 bg-transparent cursor-pointer text-sm -mb-px transition-colors ${
               activeTab === t.key
-                ? 'text-[#1d4ed8] border-b-[#1d4ed8] font-semibold border-solid'
+                ? 'text-[#F97316] border-b-[#F97316] font-semibold border-solid'
                 : 'text-[#6b7280] border-transparent'
             }`}
             onClick={() => switchTab(t.key)}
@@ -165,6 +165,8 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
   const [items, setItems] = useState<ApprovalItem[]>([])
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [bulkProcessing, setBulkProcessing] = useState(false)
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [rejectTarget, setRejectTarget] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
@@ -185,7 +187,49 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
       .finally(() => setLoading(false))
   }, [tab, tabDef.api, statusFilter])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { load(); setSelectedIds(new Set()) }, [load])
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const s = new Set(prev)
+      s.has(id) ? s.delete(id) : s.add(id)
+      return s
+    })
+  }
+
+  const toggleSelectAll = () => {
+    const pendingItems = items.filter(i => i.status === 'PENDING')
+    if (selectedIds.size === pendingItems.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(pendingItems.map(i => i.id)))
+    }
+  }
+
+  const handleBulkApprove = async () => {
+    if (!selectedIds.size) return
+    setBulkProcessing(true)
+    await Promise.all([...selectedIds].map(id =>
+      fetch(approveApi(tab, id), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+    ))
+    setBulkProcessing(false)
+    setSelectedIds(new Set())
+    setMsg({ type: 'success', text: `${selectedIds.size}건 일괄 승인 처리되었습니다.` })
+    load()
+  }
+
+  const handleBulkReject = async () => {
+    const reason = prompt('일괄 반려 사유를 입력하세요.')
+    if (!reason?.trim()) return
+    setBulkProcessing(true)
+    await Promise.all([...selectedIds].map(id =>
+      fetch(rejectApi(tab, id), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rejectReason: reason }) })
+    ))
+    setBulkProcessing(false)
+    setSelectedIds(new Set())
+    setMsg({ type: 'success', text: `${selectedIds.size}건 일괄 반려 처리되었습니다.` })
+    load()
+  }
 
   const handleApprove = async (id: string) => {
     setProcessing(id)
@@ -240,7 +284,7 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
             key={s}
             className={`px-[14px] py-[6px] border rounded-md cursor-pointer text-[13px] flex items-center gap-[6px] transition-colors ${
               statusFilter === s
-                ? 'bg-[#eff6ff] border-[#1d4ed8] text-[#1d4ed8] font-semibold'
+                ? 'bg-[#FFF7ED] border-[#F97316] text-[#F97316] font-semibold'
                 : 'bg-white border-[rgba(91,164,217,0.3)] text-[#374151]'
             }`}
             onClick={() => setStatusFilter(s)}
@@ -287,6 +331,33 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
         </div>
       )}
 
+      {/* 일괄 처리 바 */}
+      {statusFilter === 'PENDING' && selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 px-4 py-2.5 mb-3 bg-[#FFF7ED] border border-[#FDE68A] rounded-lg">
+          <span className="text-[13px] font-semibold text-[#92400E]">선택 {selectedIds.size}건</span>
+          <button
+            onClick={handleBulkApprove}
+            disabled={bulkProcessing}
+            className="px-4 py-1.5 text-[12px] font-semibold text-white bg-[#059669] hover:bg-[#047857] border-none rounded-[6px] cursor-pointer disabled:opacity-50 transition-colors"
+          >
+            {bulkProcessing ? '처리 중...' : '일괄 승인'}
+          </button>
+          <button
+            onClick={handleBulkReject}
+            disabled={bulkProcessing}
+            className="px-4 py-1.5 text-[12px] font-semibold text-white bg-[#dc2626] hover:bg-[#b91c1c] border-none rounded-[6px] cursor-pointer disabled:opacity-50 transition-colors"
+          >
+            일괄 반려
+          </button>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="ml-auto text-[12px] text-[#92400E] bg-none border-none cursor-pointer underline"
+          >
+            선택 해제
+          </button>
+        </div>
+      )}
+
       {/* 테이블 */}
       {loading ? (
         <p className="text-[#6b7280] text-sm">로딩 중...</p>
@@ -297,19 +368,39 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
       ) : (
         <div className="border border-[#e5e7eb] rounded-lg overflow-hidden">
           <table className="w-full border-collapse">
-            <thead className="bg-[#f9fafb]">
+            <thead className="bg-[#F3F4F6]">
               <tr>
-                <th className="px-[14px] py-[11px] text-left text-xs font-semibold text-[#6b7280] border-b border-[#e5e7eb]">신청일</th>
-                <th className="px-[14px] py-[11px] text-left text-xs font-semibold text-[#6b7280] border-b border-[#e5e7eb]">이름/업체</th>
-                <th className="px-[14px] py-[11px] text-left text-xs font-semibold text-[#6b7280] border-b border-[#e5e7eb]">상세</th>
-                <th className="px-[14px] py-[11px] text-left text-xs font-semibold text-[#6b7280] border-b border-[#e5e7eb]">상태</th>
-                {statusFilter === 'PENDING' && <th className="px-[14px] py-[11px] text-left text-xs font-semibold text-[#6b7280] border-b border-[#e5e7eb]">액션</th>}
+                {statusFilter === 'PENDING' && (
+                  <th className="px-[14px] py-[11px] text-left border-b border-[#E5E7EB] w-8">
+                    <input
+                      type="checkbox"
+                      className="cursor-pointer"
+                      checked={selectedIds.size > 0 && selectedIds.size === items.filter(i => i.status === 'PENDING').length}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
+                )}
+                <th className="px-[14px] py-[11px] text-left text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB]">신청일</th>
+                <th className="px-[14px] py-[11px] text-left text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB]">이름/업체</th>
+                <th className="px-[14px] py-[11px] text-left text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB]">상세</th>
+                <th className="px-[14px] py-[11px] text-left text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB]">상태</th>
+                {statusFilter === 'PENDING' && <th className="px-[14px] py-[11px] text-left text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB]">액션</th>}
               </tr>
             </thead>
             <tbody>
               {items.map(item => (
                 <tr key={item.id} className="border-b border-[#f3f4f6] hover:bg-[rgba(91,164,217,0.05)] transition-colors">
-                  <td className="px-[14px] py-[13px] text-sm text-[#1f2937] align-top text-[#9ca3af] text-xs whitespace-nowrap">
+                  {statusFilter === 'PENDING' && (
+                    <td className="px-[14px] py-[13px] align-top">
+                      <input
+                        type="checkbox"
+                        className="cursor-pointer"
+                        checked={selectedIds.has(item.id)}
+                        onChange={() => toggleSelect(item.id)}
+                      />
+                    </td>
+                  )}
+                  <td className="px-[14px] py-[13px] text-sm text-[#374151] align-top text-xs whitespace-nowrap">
                     {new Date(item.requestedAt).toLocaleDateString('ko-KR')}
                   </td>
                   <td className="px-[14px] py-[13px] text-sm text-[#1f2937] align-top">

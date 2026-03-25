@@ -66,6 +66,7 @@ export default function WorkersPage() {
   const [search, setSearch] = useState('')
   const [filterEmpType, setFilterEmpType] = useState('')
   const [filterOrgType, setFilterOrgType] = useState('')
+  const [filterActive, setFilterActive] = useState<'' | 'active' | 'inactive'>('')
   const [loading, setLoading] = useState(true)
 
   // 등록 모달
@@ -206,14 +207,14 @@ export default function WorkersPage() {
           {canMutate && <button onClick={() => setShowForm(true)} className="px-5 py-[10px] bg-[#F47920] text-white border-none rounded-lg cursor-pointer text-sm font-semibold">+ 근로자 등록</button>}
         </div>
 
-        <div className="flex gap-2 mb-4 flex-wrap">
+        <div className="flex gap-2 mb-3 flex-wrap">
           <input
             type="text"
             placeholder="이름, 연락처, 회사 검색"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && load()}
-            className="flex-1 px-[14px] py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-sm max-w-[360px] bg-card text-white"
+            className="flex-1 px-[14px] py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-sm min-w-[200px] max-w-[480px] bg-card text-white"
           />
           <select value={filterEmpType} onChange={e => setFilterEmpType(e.target.value)} className="px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-card text-white cursor-pointer">
             <option value="">전체 고용형태</option>
@@ -231,28 +232,50 @@ export default function WorkersPage() {
           </select>
           <button onClick={() => load()} className="px-5 py-[10px] bg-brand border border-[rgba(91,164,217,0.3)] rounded-lg cursor-pointer text-sm text-white">검색</button>
         </div>
+        {/* 재직 상태 필터 pills */}
+        <div className="flex gap-2 mb-4 items-center">
+          {([
+            { value: '' as const,        label: '전체' },
+            { value: 'active' as const,   label: '재직중' },
+            { value: 'inactive' as const, label: '퇴사' },
+          ]).map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => setFilterActive(opt.value)}
+              className={`px-3 py-1.5 rounded-md text-[12px] font-semibold border cursor-pointer transition-colors ${
+                filterActive === opt.value
+                  ? 'bg-[#F97316] border-[#F97316] text-white'
+                  : 'bg-transparent border-[rgba(91,164,217,0.3)] text-[#9CA3AF] hover:border-[rgba(91,164,217,0.55)] hover:text-white'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
 
         {loading ? <p className="text-muted-brand">로딩 중...</p> : (
           <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr>
+                <tr className="bg-[rgba(91,164,217,0.07)]">
                   {['이름', '연락처', '소속회사', '직종', '고용형태', '소속구분', '기기', '퇴직공제', '신분증', '상태', '등록일', ''].map((h) => (
-                    <th key={h} className="text-left px-3 py-[10px] text-xs text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
+                    <th key={h} className="text-left px-3 py-[10px] text-[11px] font-bold text-[#94A3B8] border-b border-[rgba(91,164,217,0.25)]">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {workers.filter(w =>
                   (!filterEmpType || w.employmentType === filterEmpType) &&
-                  (!filterOrgType || w.organizationType === filterOrgType)
+                  (!filterOrgType || w.organizationType === filterOrgType) &&
+                  (filterActive === '' || (filterActive === 'active' ? w.isActive : !w.isActive))
                 ).length === 0 ? (
                   <tr><td colSpan={12} className="text-center py-6 text-[#999]">조건에 맞는 근로자가 없습니다.</td></tr>
                 ) : workers.filter(w =>
                   (!filterEmpType || w.employmentType === filterEmpType) &&
-                  (!filterOrgType || w.organizationType === filterOrgType)
+                  (!filterOrgType || w.organizationType === filterOrgType) &&
+                  (filterActive === '' || (filterActive === 'active' ? w.isActive : !w.isActive))
                 ).map((w) => (
-                  <tr key={w.id} style={{ opacity: w.isActive ? 1 : 0.5 }}>
+                  <tr key={w.id} style={{ opacity: w.isActive ? 1 : 0.6 }} className={!w.isActive ? 'bg-[#FFF5F5]' : ''}>
                     <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{w.name}</td>
                     <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{formatPhone(w.phone)}</td>
                     <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{w.primaryCompany?.companyName ?? <span className="text-[#bbb]">—</span>}</td>
@@ -300,9 +323,10 @@ export default function WorkersPage() {
                       </div>
                     </td>
                     <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">
-                      <span style={{ color: w.isActive ? '#2e7d32' : '#999', fontSize: '12px', fontWeight: 600 }}>
-                        {w.isActive ? '활성' : '비활성'}
-                      </span>
+                      {w.isActive
+                        ? <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#16A34A] border border-[#A7F3D0]">재직중</span>
+                        : <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#FEE2E2] text-[#B91C1C] border border-[#F87171]">퇴사</span>
+                      }
                     </td>
                     <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
                     <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white whitespace-nowrap">

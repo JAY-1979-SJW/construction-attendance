@@ -62,19 +62,21 @@ const STATUS_LABEL: Record<string, string> = {
   EXCEPTION: '예외',
   ADJUSTED: '보정',
 }
+const STATUS_BADGE: Record<string, string> = {
+  WORKING:          'bg-[#ECFDF5] text-[#16A34A] border border-[#A7F3D0]',
+  COMPLETED:        'bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]',
+  MISSING_CHECKOUT: 'bg-[#FEE2E2] text-[#B91C1C] border border-[#F87171]',
+  EXCEPTION:        'bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]',
+  ADJUSTED:         'bg-[#F3E8FF] text-[#7C3AED] border border-[#DDD6FE]',
+}
+// 모달에서는 기존 컬러 유지
 const STATUS_COLOR: Record<string, string> = {
-  WORKING: '#2e7d32',
-  COMPLETED: '#1565c0',
-  MISSING_CHECKOUT: '#b71c1c',
-  EXCEPTION: '#e65100',
-  ADJUSTED: '#6a1b9a',
+  WORKING: '#16A34A', COMPLETED: '#6B7280', MISSING_CHECKOUT: '#B91C1C',
+  EXCEPTION: '#D97706', ADJUSTED: '#7C3AED',
 }
 const STATUS_BG: Record<string, string> = {
-  WORKING: '#e8f5e9',
-  COMPLETED: '#e3f2fd',
-  MISSING_CHECKOUT: '#ffebee',
-  EXCEPTION: '#fff3e0',
-  ADJUSTED: '#f3e5f5',
+  WORKING: '#ECFDF5', COMPLETED: '#F3F4F6', MISSING_CHECKOUT: '#FEE2E2',
+  EXCEPTION: '#FFFBEB', ADJUSTED: '#F3E8FF',
 }
 
 export default function AdminAttendancePage() {
@@ -177,10 +179,23 @@ export default function AdminAttendancePage() {
 
   return (
     <div className="p-8">
-        <h1 className="text-[22px] font-bold mb-5">출퇴근 조회</h1>
+        {/* 헤더 */}
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <h1 className="text-[22px] font-bold m-0">출근현황</h1>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => { setStatusFilter('MISSING_CHECKOUT'); load() }}
+              className="px-4 py-2 text-[13px] font-semibold text-white bg-[#B91C1C] hover:bg-[#991B1B] border-none rounded-md cursor-pointer transition-colors">
+              미퇴근 우선
+            </button>
+            <button onClick={handleExport} className="px-4 py-2 text-[13px] font-semibold text-white bg-[#2e7d32] hover:bg-[#1b5e20] border-none rounded-md cursor-pointer transition-colors">
+              엑셀 다운로드
+            </button>
+          </div>
+        </div>
 
-        {/* 필터 */}
-        <div className="flex gap-3 items-end mb-4 flex-wrap">
+        {/* 필터 — 날짜 + 상태 pills */}
+        <div className="flex gap-3 items-end mb-3 flex-wrap">
           <div className="flex flex-col gap-1">
             <label className="text-xs text-muted-brand">시작일</label>
             <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className={filterInputCls} />
@@ -189,37 +204,41 @@ export default function AdminAttendancePage() {
             <label className="text-xs text-muted-brand">종료일</label>
             <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className={filterInputCls} />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-muted-brand">상태</label>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={filterInputCls}>
-              <option value="">전체</option>
-              <option value="WORKING">근무중</option>
-              <option value="COMPLETED">완료</option>
-              <option value="MISSING_CHECKOUT">미퇴근</option>
-              <option value="EXCEPTION">예외</option>
-              <option value="ADJUSTED">보정</option>
-            </select>
-          </div>
           <button onClick={load} className="px-5 py-2 bg-accent text-white border-none rounded-md cursor-pointer text-sm">조회</button>
-          <button onClick={handleExport} className="px-5 py-2 bg-[#2e7d32] text-white border-none rounded-md cursor-pointer text-sm">엑셀 다운로드</button>
         </div>
 
-        <div className="text-[13px] text-muted-brand mb-3">
-          총 {total}건
-          {statusFilter === 'MISSING_CHECKOUT' && (
-            <span className="ml-3 text-[#b71c1c] font-semibold">
-              ⚠ 미퇴근 건은 수동 보정이 필요합니다. 행을 클릭하세요.
-            </span>
-          )}
+        {/* 상태 필터 pills */}
+        <div className="flex gap-2 mb-4 flex-wrap items-center">
+          {[
+            { value: '',                  label: '전체' },
+            { value: 'MISSING_CHECKOUT',  label: '미퇴근' },
+            { value: 'EXCEPTION',         label: '예외' },
+            { value: 'WORKING',           label: '근무중' },
+            { value: 'COMPLETED',         label: '완료' },
+            { value: 'ADJUSTED',          label: '보정' },
+          ].map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => setStatusFilter(opt.value)}
+              className={`px-3 py-1.5 rounded-md text-[12px] font-semibold border cursor-pointer transition-colors ${
+                statusFilter === opt.value
+                  ? 'bg-[#F97316] border-[#F97316] text-white'
+                  : 'bg-transparent border-[rgba(91,164,217,0.3)] text-[#9CA3AF] hover:border-[rgba(91,164,217,0.55)] hover:text-white'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+          <span className="ml-2 text-[12px] text-muted-brand">총 {total}건</span>
         </div>
 
         {loading ? <p>로딩 중...</p> : (
           <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr>
-                  {['날짜', '이름', '회사', '직종', '현장', '출근', '퇴근', '출근거리', '퇴근거리', '공수', '상태', '자동처리', '예외사유'].map((h) => (
-                    <th key={h} className="text-left px-3 py-[10px] text-xs text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                <tr className="bg-[rgba(91,164,217,0.07)]">
+                  {['날짜', '이름', '회사', '직종', '현장', '출근', '퇴근', '출근거리', '퇴근거리', '공수', '상태', '자동처리', '예외사유', '처리'].map((h) => (
+                    <th key={h} className="text-left px-3 py-[10px] text-[11px] font-bold text-[#94A3B8] border-b border-[rgba(91,164,217,0.25)] whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -230,7 +249,7 @@ export default function AdminAttendancePage() {
                   <tr
                     key={item.id}
                     className="cursor-pointer hover:bg-[rgba(91,164,217,0.05)] transition-colors"
-                    style={{ background: item.status === 'MISSING_CHECKOUT' ? '#fff8f8' : 'white' }}
+                    style={{ background: item.status === 'MISSING_CHECKOUT' ? '#fff5f5' : item.status === 'EXCEPTION' ? '#fffbf0' : 'white' }}
                     onClick={() => openDetail(item.id)}
                   >
                     <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">{item.workDate}</td>
@@ -259,14 +278,7 @@ export default function AdminAttendancePage() {
                       })()}
                     </td>
                     <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">
-                      <span style={{
-                        color: STATUS_COLOR[item.status],
-                        background: STATUS_BG[item.status],
-                        fontWeight: 600,
-                        fontSize: '11px',
-                        padding: '2px 8px',
-                        borderRadius: '10px',
-                      }}>
+                      <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_BADGE[item.status] ?? 'bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]'}`}>
                         {STATUS_LABEL[item.status] ?? item.status}
                       </span>
                     </td>
@@ -279,6 +291,16 @@ export default function AdminAttendancePage() {
                       {item.exceptionReason
                         ? <span className="text-[11px] bg-[#fff3e0] text-[#e65100] px-2 py-[2px] rounded-[10px] font-semibold whitespace-nowrap">{item.exceptionReason}</span>
                         : null}
+                    </td>
+                    <td className="px-3 py-[10px] border-b border-[rgba(91,164,217,0.08)] whitespace-nowrap">
+                      {(item.status === 'MISSING_CHECKOUT' || item.status === 'EXCEPTION') && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); openDetail(item.id) }}
+                          className="px-3 py-1 text-[11px] font-semibold text-white bg-[#B91C1C] hover:bg-[#991B1B] border-none rounded-[5px] cursor-pointer transition-colors"
+                        >
+                          처리
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
