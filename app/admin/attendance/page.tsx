@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   PageShell, SectionCard,
@@ -308,7 +308,7 @@ function PanelRow({ label, value, warn }: {
 }
 
 // ── 메인 페이지 ───────────────────────────────────────────────────────────────
-export default function AdminAttendancePage() {
+function AttendancePageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -1165,5 +1165,13 @@ export default function AdminAttendancePage() {
         )}
       </div>
     </PageShell>
+  )
+}
+
+export default function AdminAttendancePage() {
+  return (
+    <Suspense>
+      <AttendancePageInner />
+    </Suspense>
   )
 }
