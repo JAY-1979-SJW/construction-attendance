@@ -67,9 +67,47 @@ export async function GET(request: NextRequest) {
           bankAccountSecure: {
             select: { bankName: true, accountNumberMasked: true },
           },
+          workerDocuments: {
+            where: { documentType: { in: ['CONTRACT', 'SAFETY_CERT'] } },
+            select: { id: true, documentType: true, status: true, createdAt: true },
+            orderBy: { createdAt: 'desc' as const },
+          },
+          safetyDocuments: {
+            where: {
+              documentType: { in: ['BASIC_SAFETY_EDU_CONFIRM', 'SAFETY_EDUCATION_NEW_HIRE', 'WORK_CONDITIONS_RECEIPT'] },
+            },
+            select: { id: true, documentType: true, educationDate: true, documentDate: true, createdAt: true },
+            orderBy: { createdAt: 'desc' as const },
+            take: 3,
+          },
+          contracts: {
+            where: { isActive: true },
+            select: { dailyWage: true, startDate: true },
+            orderBy: { createdAt: 'desc' as const },
+            take: 1,
+          },
         },
       }),
     ])
+
+    const workerIds = workers.map(w => w.id)
+    const monthKey = new Date().toISOString().slice(0, 7)
+    const [monthWages, totalWages] = workerIds.length > 0
+      ? await Promise.all([
+          prisma.monthlyWorkConfirmation.groupBy({
+            by: ['workerId'],
+            where: { monthKey, confirmationStatus: 'CONFIRMED', workerId: { in: workerIds } },
+            _sum: { confirmedTotalAmount: true },
+          }),
+          prisma.monthlyWorkConfirmation.groupBy({
+            by: ['workerId'],
+            where: { confirmationStatus: 'CONFIRMED', workerId: { in: workerIds } },
+            _sum: { confirmedTotalAmount: true },
+          }),
+        ])
+      : [[], []]
+    const monthWageMap = new Map(monthWages.map((r: { workerId: string; _sum: { confirmedTotalAmount: number | null } }) => [r.workerId, r._sum.confirmedTotalAmount ?? 0]))
+    const totalWageMap = new Map(totalWages.map((r: { workerId: string; _sum: { confirmedTotalAmount: number | null } }) => [r.workerId, r._sum.confirmedTotalAmount ?? 0]))
 
     return ok({
       items: workers.map((w) => ({
@@ -91,6 +129,18 @@ export async function GET(request: NextRequest) {
         bankAccountSecure: w.bankAccountSecure
           ? { bankName: w.bankAccountSecure.bankName, accountNumberMasked: w.bankAccountSecure.accountNumberMasked }
           : null,
+        accountStatus: w.accountStatus,
+        birthDate: w.birthDate ?? null,
+        // 서류/교육 상태
+        hasContract: w.workerDocuments.some(d => d.documentType === 'CONTRACT') || w.safetyDocuments.some(d => d.documentType === 'WORK_CONDITIONS_RECEIPT'),
+        contractDate: (w.workerDocuments.find(d => d.documentType === 'CONTRACT')?.createdAt?.toISOString().slice(0, 10)) ?? (w.safetyDocuments.find(d => d.documentType === 'WORK_CONDITIONS_RECEIPT')?.documentDate) ?? null,
+        hasSafetyCert: w.workerDocuments.some(d => d.documentType === 'SAFETY_CERT'),
+        safetyCertDate: w.workerDocuments.find(d => d.documentType === 'SAFETY_CERT')?.createdAt?.toISOString().slice(0, 10) ?? null,
+        hasSafetyEducation: w.safetyDocuments.some(d => d.documentType === 'BASIC_SAFETY_EDU_CONFIRM' || d.documentType === 'SAFETY_EDUCATION_NEW_HIRE'),
+        safetyEducationDate: (w.safetyDocuments.find(d => d.documentType === 'BASIC_SAFETY_EDU_CONFIRM' || d.documentType === 'SAFETY_EDUCATION_NEW_HIRE'))?.educationDate ?? null,
+        dailyWage: w.contracts[0]?.dailyWage ?? 0,
+        monthWage: monthWageMap.get(w.id) ?? 0,
+        totalWage: totalWageMap.get(w.id) ?? 0,
       })),
       total,
       page,

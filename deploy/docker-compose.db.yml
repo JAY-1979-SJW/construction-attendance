@@ -1,0 +1,50 @@
+# DB 서버 전용 docker-compose
+# 배포 위치: 192.168.120.18 (공용 DB 서버)
+# 실행: docker compose -f docker-compose.db.yml up -d
+#
+# 방화벽 설정 (DB 서버에서 실행):
+#   ufw allow from <APP_SERVER_1_IP> to any port 5432
+#   ufw allow from <APP_SERVER_2_IP> to any port 5432
+#   ufw deny 5432  # 그 외 외부 접근 차단
+
+services:
+  attendance-db:
+    image: postgres:15-alpine
+    container_name: attendance_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD 환경변수 필수}
+      POSTGRES_DB: construction_attendance
+    ports:
+      # 앱 서버에서 직접 접근 가능하도록 호스트 포트 노출
+      # 방화벽으로 앱 서버 IP만 허용할 것
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d  # 초기화 SQL (선택)
+    networks:
+      - db_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # 성능 튜닝 (운영 환경 조정 필요)
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c work_mem=4MB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c log_min_duration_statement=1000
+
+networks:
+  db_net:
+    driver: bridge
+
+volumes:
+  pgdata:

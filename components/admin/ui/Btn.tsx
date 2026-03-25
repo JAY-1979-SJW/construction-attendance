@@ -31,7 +31,7 @@ export function Btn({
 
   // primary = navy, orange = CTA, secondary = white ghost
   const variants: Record<BtnVariant, string> = {
-    primary:   'bg-[#071020] text-white hover:bg-[#1E293B]',
+    primary:   'bg-[#F5F7FA] text-[#374151] border border-[#E5E7EB] hover:bg-[#E5E7EB]',
     orange:    'bg-[#F97316] text-white hover:bg-[#EA580C]',
     secondary: 'bg-white text-[#374151] border border-[#E5E7EB] hover:bg-[#F9FAFB] hover:border-[#D1D5DB]',
     danger:    'bg-[#B91C1C] text-white hover:bg-[#991B1B]',

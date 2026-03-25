@@ -75,9 +75,9 @@ export default function LandingPage() {
           <div className="w-full lg:w-[420px] shrink-0">
             <div className="bg-white rounded-[16px] border border-[#E5E7EB] shadow-[0_4px_24px_rgba(0,0,0,0.07)] overflow-hidden">
               {/* 미리보기 상단 */}
-              <div className="bg-[#0F172A] px-5 py-3 flex items-center gap-2">
+              <div className="bg-[#F5F7FA] px-5 py-3 flex items-center gap-2 border-b border-[#E5E7EB]">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#F97316]" />
-                <span className="text-[12px] text-[#94A3B8]">관리자 대시보드 — 오늘 현황</span>
+                <span className="text-[12px] text-[#6B7280]">관리자 대시보드 — 오늘 현황</span>
               </div>
               {/* 수치 요약 */}
               <div className="grid grid-cols-3 border-b border-[#F3F4F6]">

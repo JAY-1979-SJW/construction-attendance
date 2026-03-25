@@ -5,38 +5,58 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import AdminSidebar from './AdminSidebar'
 
+// 사이드바 폭과 동기화
+const SIDEBAR_WIDTH = 220
+
+// 경로 → 상단 섹션 이름 매핑
+// 숨긴 라우트도 포함(직접 접근 시 이름 표시 유지)
 const SECTION_MAP: Record<string, string> = {
-  '/admin/attendance':              '출퇴근 조회',
-  '/admin/presence-checks':        '체류확인 현황',
-  '/admin/exceptions':              '예외 승인',
-  '/admin/work-confirmations':      '근무확정',
-  '/admin/corrections':             '정정 이력',
-  '/admin/workers':                 '근로자 관리',
-  '/admin/companies':               '회사 관리',
-  '/admin/sites':                   '현장 관리',
-  '/admin/site-access-groups':      '접근 그룹',
-  '/admin/site-admin-assignments':  '관리자 배정',
-  '/admin/site-imports':            '데이터 가져오기',
-  '/admin/approvals':               '통합 승인 센터',
-  '/admin/device-requests':         '기기 변경 요청',
-  '/admin/company-admins':          '회사 관리자',
+  '/admin':                          '대시보드',
+  '/admin/attendance':               '출퇴근관리',
+  '/admin/presence-checks':         '출퇴근관리',
+  '/admin/exceptions':              '출퇴근관리',
+  '/admin/work-confirmations':      '출퇴근관리',
+  '/admin/corrections':             '출퇴근관리',
+  '/admin/workers':                 '근로자관리',
+  '/admin/companies':               '근로자관리',
+  '/admin/registrations':           '근로자관리',
+  '/admin/approvals':               '근로자관리',
+  '/admin/device-requests':         '근로자관리',
+  '/admin/sites':                   '현장관리',
+  '/admin/site-access-groups':      '현장관리',
+  '/admin/site-admin-assignments':  '현장관리',
+  '/admin/site-imports':            '현장관리',
   '/admin/settings':                '설정',
-  '/admin/audit-logs':              '감사 로그',
-  '/admin/super-users':             '슈퍼유저',
+  '/admin/company-admins':          '설정',
+  '/admin/audit-logs':              '설정',
+  '/admin/super-users':             '설정',
+  '/admin/policies':                '설정',
+  // 범위 외(숨김) 라우트 — 직접 접근 시에도 섹션 이름 표시
   '/admin/contracts':               '계약 관리',
   '/admin/wage-calculations':       '세금/노임 계산',
   '/admin/month-closings':          '월마감',
+  '/admin/labor':                   '노무 일지',
+  '/admin/labor-faqs':              '노동법 FAQ',
   '/admin/insurance-eligibility':   '4대보험 판정',
   '/admin/insurance-rates':         '보험요율 관리',
   '/admin/subcontractor-settlements': '협력사 정산',
   '/admin/retirement-mutual':       '퇴직공제',
   '/admin/materials':               '자재 관리',
   '/admin/document-center':         '문서 센터',
-  '/admin/labor':                   '노무 일지',
-  '/admin/labor-faqs':              '노동법 FAQ',
   '/admin/operations/print-center': '출력 센터',
   '/admin/operations/today-tasks':  '오늘 업무',
   '/admin/pilot':                   '파일럿 모니터',
+}
+
+function getSectionName(pathname: string): string {
+  if (pathname === '/admin') return '대시보드'
+  // 정확히 일치하는 경로 우선
+  if (SECTION_MAP[pathname]) return SECTION_MAP[pathname]
+  // 접두사 매핑 (가장 긴 일치 우선)
+  const match = Object.entries(SECTION_MAP)
+    .filter(([k]) => k !== '/admin' && pathname.startsWith(k + '/'))
+    .sort((a, b) => b[0].length - a[0].length)[0]
+  return match ? match[1] : ''
 }
 
 export default function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -57,10 +77,7 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
 
   if (pathname === '/admin/login') return <>{children}</>
 
-  const sectionName =
-    SECTION_MAP[pathname] ??
-    Object.entries(SECTION_MAP).find(([k]) => pathname.startsWith(k + '/'))?.[1] ??
-    (pathname === '/admin' ? '대시보드' : '')
+  const sectionName = getSectionName(pathname)
 
   return (
     <div className="flex min-h-screen bg-[#F5F7FA]">
@@ -77,18 +94,21 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
       {/* 메인 영역 */}
       <div
         className="flex-1 min-h-screen flex flex-col transition-all duration-300"
-        style={{ marginLeft: sidebarOpen ? 240 : 0 }}
+        style={{ marginLeft: sidebarOpen ? SIDEBAR_WIDTH : 0 }}
       >
-        {/* TopBar — 메인페이지 헤더 언어 */}
+        {/* TopBar */}
         <header className="sticky top-0 z-20 shrink-0">
           {/* 4px 오렌지 상단 라인 */}
           <div className="h-1 bg-[#F97316]" />
-          {/* 흰색 헤더 바 */}
-          <div className="bg-white border-b border-[#F3F4F6] flex items-center h-[52px] px-4 gap-3">
+          {/* 헤더 바 */}
+          <div
+            className="bg-white flex items-center h-[52px] px-4 gap-3"
+            style={{ borderBottom: '1px solid #F3F4F6' }}
+          >
             {/* 햄버거 */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="flex flex-col gap-[5px] p-2 rounded-[8px] hover:bg-[#F3F4F6] transition-colors"
+              className="flex flex-col gap-[5px] p-2 rounded-[8px] hover:bg-[#F3F4F6] transition-colors shrink-0"
               aria-label="메뉴 토글"
             >
               <span
@@ -110,8 +130,8 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
 
             {/* 브랜드 (사이드바 접힌 상태에서 표시) */}
             {!sidebarOpen && (
-              <Link href="/admin" className="flex items-center gap-2 no-underline">
-                <div className="w-7 h-7 bg-[#FFF7ED] rounded-[8px] flex items-center justify-center shrink-0">
+              <Link href="/admin" className="flex items-center gap-2 no-underline shrink-0">
+                <div className="w-7 h-7 bg-[#FFF7ED] rounded-[8px] flex items-center justify-center">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -123,13 +143,13 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
               </Link>
             )}
 
-            {/* 현재 섹션 이름 */}
+            {/* 현재 섹션명 */}
             {sectionName && (
               <span className="text-[13px] font-medium text-[#374151]">{sectionName}</span>
             )}
 
             {/* 관리자 포털 뱃지 */}
-            <span className="ml-auto text-[11px] font-semibold text-[#F97316] border border-[#FDBA74] bg-[#FFF7ED] rounded-full px-3 py-[3px]">
+            <span className="ml-auto text-[11px] font-semibold text-[#F97316] border border-[#FDBA74] bg-[#FFF7ED] rounded-full px-3 py-[3px] shrink-0">
               관리자 포털
             </span>
           </div>
