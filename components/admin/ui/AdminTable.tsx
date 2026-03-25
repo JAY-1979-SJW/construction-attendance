@@ -1,0 +1,84 @@
+// AdminTable — 표준 테이블 컨테이너
+export function AdminTable({
+  headers,
+  children,
+  className,
+}: {
+  headers: (string | React.ReactNode)[]
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={`bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden ${className ?? ''}`}>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-[#F3F4F6]">
+              {headers.map((h, i) => (
+                <th
+                  key={i}
+                  className="text-left px-3 py-[10px] text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB] whitespace-nowrap"
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>{children}</tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// AdminTr — 테이블 행
+export function AdminTr({
+  children,
+  onClick,
+  highlighted,
+  className,
+}: {
+  children: React.ReactNode
+  onClick?: () => void
+  highlighted?: boolean
+  className?: string
+}) {
+  return (
+    <tr
+      onClick={onClick}
+      className={`border-b border-[#F9FAFB] last:border-b-0 transition-colors ${
+        onClick ? 'cursor-pointer' : ''
+      } ${
+        highlighted ? 'bg-[#FFF1F2] hover:bg-[#FFE4E6]' : 'hover:bg-[#FAFAFA]'
+      } ${className ?? ''}`}
+    >
+      {children}
+    </tr>
+  )
+}
+
+// AdminTd — 테이블 셀
+export function AdminTd({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <td className={`px-3 py-[10px] text-[13px] text-[#374151] whitespace-nowrap ${className ?? ''}`}>
+      {children}
+    </td>
+  )
+}
+
+// EmptyRow — 데이터 없을 때
+export function EmptyRow({ colSpan = 99, message = '데이터가 없습니다.' }: { colSpan?: number; message?: string }) {
+  return (
+    <tr>
+      <td colSpan={colSpan} className="text-center py-12 text-[#9CA3AF] text-[13px]">
+        {message}
+      </td>
+    </tr>
+  )
+}

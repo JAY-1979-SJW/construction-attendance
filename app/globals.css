@@ -189,3 +189,72 @@ h1, h2, h3, h4, h5, h6 {
 
 /* 상단 오렌지 보더 */
 .border-top-accent { border-top: 3px solid #F47920; }
+
+/* ===== 관리자 라이트 UI 시스템 =====
+   App Bg: #F5F7FA | Surface: #FFFFFF | Navy: #071020
+   Accent: #F97316 | Border: #E5E7EB | Text: #111827 | Muted: #6B7280
+*/
+
+/* 관리자 공통 입력 (라이트) */
+.admin-input {
+  padding: 8px 12px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #111827;
+  background: #FFFFFF;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.admin-input:focus { border-color: #F97316; }
+.admin-input::placeholder { color: #9CA3AF; }
+
+/* 관리자 select */
+.admin-select {
+  padding: 8px 12px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #111827;
+  background: #FFFFFF;
+  cursor: pointer;
+  outline: none;
+}
+
+/* 관리자 테이블 헤더 th 공통 */
+.admin-th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4B5563;
+  border-bottom: 1px solid #E5E7EB;
+  white-space: nowrap;
+  background: #F3F4F6;
+}
+
+/* 관리자 테이블 td 공통 */
+.admin-td {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #374151;
+  border-bottom: 1px solid #F9FAFB;
+  white-space: nowrap;
+}
+
+/* 관리자 모달 내부 섹션 */
+.admin-modal-section {
+  background: #F9FAFB;
+  border: 1px solid #F3F4F6;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.admin-modal-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}

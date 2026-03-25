@@ -130,17 +130,17 @@ function ApprovalsContent() {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-[22px] font-bold text-[#111827] mb-5">승인 대기</h1>
+    <div className="p-4 md:p-6 bg-[#F5F7FA] min-h-screen">
+      <h1 className="text-[20px] font-bold text-[#111827] mb-5 m-0">승인 관리</h1>
 
-      <div className="flex border-b border-[#e5e7eb] mb-0 flex-wrap gap-[2px]">
+      <div className="flex border-b border-[#E5E7EB] mb-0 flex-wrap gap-[2px] bg-white rounded-t-[10px] px-2 pt-1">
         {TABS.map(t => (
           <button
             key={t.key}
-            className={`px-[18px] py-[10px] border-none border-b-2 bg-transparent cursor-pointer text-sm -mb-px transition-colors ${
+            className={`px-[16px] py-[10px] border-none border-b-2 bg-transparent cursor-pointer text-[13px] -mb-px transition-colors ${
               activeTab === t.key
                 ? 'text-[#F97316] border-b-[#F97316] font-semibold border-solid'
-                : 'text-[#6b7280] border-transparent'
+                : 'text-[#6B7280] border-transparent hover:text-[#374151]'
             }`}
             onClick={() => switchTab(t.key)}
           >
@@ -276,7 +276,7 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
   const pendingCount = items.filter(i => i.status === 'PENDING').length
 
   return (
-    <div className="bg-white rounded-b-lg border border-[#e5e7eb] border-t-0 p-6">
+    <div className="bg-white rounded-b-[10px] border border-[#E5E7EB] border-t-0 p-6">
       {/* 상태 필터 */}
       <div className="flex gap-2 mb-4 items-center flex-wrap">
         {tab !== 'ext-companies' && ['PENDING', 'APPROVED', 'REJECTED'].map(s => (

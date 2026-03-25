@@ -201,10 +201,10 @@ export default function WorkersPage() {
     p.length === 11 ? `${p.slice(0, 3)}-${p.slice(3, 7)}-${p.slice(7)}` : p
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-6 bg-[#F5F7FA] min-h-screen">
         <div className="flex justify-between items-center mb-5">
-          <h1 className="text-[22px] font-bold m-0 text-white">근로자 관리 ({total}명)</h1>
-          {canMutate && <button onClick={() => setShowForm(true)} className="px-5 py-[10px] bg-[#F47920] text-white border-none rounded-lg cursor-pointer text-sm font-semibold">+ 근로자 등록</button>}
+          <h1 className="text-[20px] font-bold m-0 text-[#111827]">근로자 관리 ({total}명)</h1>
+          {canMutate && <button onClick={() => setShowForm(true)} className="px-4 py-[7px] bg-[#F97316] text-white border-none rounded-[8px] cursor-pointer text-[13px] font-semibold hover:bg-[#EA580C] transition-colors">+ 근로자 등록</button>}
         </div>
 
         <div className="flex gap-2 mb-3 flex-wrap">
@@ -214,9 +214,9 @@ export default function WorkersPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && load()}
-            className="flex-1 px-[14px] py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-sm min-w-[200px] max-w-[480px] bg-card text-white"
+            className="admin-input flex-1 min-w-[200px] max-w-[480px]"
           />
-          <select value={filterEmpType} onChange={e => setFilterEmpType(e.target.value)} className="px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-card text-white cursor-pointer">
+          <select value={filterEmpType} onChange={e => setFilterEmpType(e.target.value)} className="admin-select">
             <option value="">전체 고용형태</option>
             <option value="DAILY_CONSTRUCTION">건설일용</option>
             <option value="REGULAR">상용직</option>
@@ -225,12 +225,12 @@ export default function WorkersPage() {
             <option value="BUSINESS_33">3.3%사업소득</option>
             <option value="OTHER">기타</option>
           </select>
-          <select value={filterOrgType} onChange={e => setFilterOrgType(e.target.value)} className="px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-card text-white cursor-pointer">
+          <select value={filterOrgType} onChange={e => setFilterOrgType(e.target.value)} className="admin-select">
             <option value="">전체 소속</option>
             <option value="DIRECT">직영</option>
             <option value="SUBCONTRACTOR">협력사</option>
           </select>
-          <button onClick={() => load()} className="px-5 py-[10px] bg-brand border border-[rgba(91,164,217,0.3)] rounded-lg cursor-pointer text-sm text-white">검색</button>
+          <button onClick={() => load()} className="px-4 py-2 bg-[#071020] hover:bg-[#1E293B] border-none rounded-[8px] cursor-pointer text-[13px] text-white font-semibold transition-colors">검색</button>
         </div>
         {/* 재직 상태 필터 pills */}
         <div className="flex gap-2 mb-4 items-center">
@@ -242,10 +242,10 @@ export default function WorkersPage() {
             <button
               key={opt.value}
               onClick={() => setFilterActive(opt.value)}
-              className={`px-3 py-1.5 rounded-md text-[12px] font-semibold border cursor-pointer transition-colors ${
+              className={`px-3 py-1.5 rounded-[8px] text-[12px] font-semibold border cursor-pointer transition-colors ${
                 filterActive === opt.value
                   ? 'bg-[#F97316] border-[#F97316] text-white'
-                  : 'bg-transparent border-[rgba(91,164,217,0.3)] text-[#9CA3AF] hover:border-[rgba(91,164,217,0.55)] hover:text-white'
+                  : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:border-[#D1D5DB] hover:text-[#374151]'
               }`}
             >
               {opt.label}
@@ -253,13 +253,14 @@ export default function WorkersPage() {
           ))}
         </div>
 
-        {loading ? <p className="text-muted-brand">로딩 중...</p> : (
-          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-x-auto">
+        {loading ? <p className="text-[#9CA3AF] text-sm py-10 text-center">로딩 중...</p> : (
+          <div className="bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-[rgba(91,164,217,0.07)]">
+                <tr className="bg-[#F3F4F6]">
                   {['이름', '연락처', '소속회사', '직종', '고용형태', '소속구분', '기기', '퇴직공제', '신분증', '상태', '등록일', ''].map((h) => (
-                    <th key={h} className="text-left px-3 py-[10px] text-[11px] font-bold text-[#94A3B8] border-b border-[rgba(91,164,217,0.25)]">{h}</th>
+                    <th key={h} className="admin-th">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -276,17 +277,17 @@ export default function WorkersPage() {
                   (filterActive === '' || (filterActive === 'active' ? w.isActive : !w.isActive))
                 ).map((w) => (
                   <tr key={w.id} style={{ opacity: w.isActive ? 1 : 0.6 }} className={!w.isActive ? 'bg-[#FFF5F5]' : ''}>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{w.name}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{formatPhone(w.phone)}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{w.primaryCompany?.companyName ?? <span className="text-[#bbb]">—</span>}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{w.jobTitle}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">
+                    <td className="admin-td">{w.name}</td>
+                    <td className="admin-td">{formatPhone(w.phone)}</td>
+                    <td className="admin-td">{w.primaryCompany?.companyName ?? <span className="text-[#bbb]">—</span>}</td>
+                    <td className="admin-td">{w.jobTitle}</td>
+                    <td className="admin-td">
                       <span className="text-xs text-muted-brand">
                         {EMP_LABELS[w.employmentType ?? ''] ?? w.employmentType ?? '—'}
                         {w.foreignerYn && <span className="ml-1 text-[#f57c00]">외</span>}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">
+                    <td className="admin-td">
                       <span style={{
                         fontSize: '11px',
                         color: w.organizationType === 'SUBCONTRACTOR' ? '#e65100' : '#555',
@@ -296,8 +297,8 @@ export default function WorkersPage() {
                         {w.organizationType === 'SUBCONTRACTOR' ? '협력사' : '직영'}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{w.deviceCount > 0 ? `${w.deviceCount}대` : '미등록'}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">
+                    <td className="admin-td">{w.deviceCount > 0 ? `${w.deviceCount}대` : '미등록'}</td>
+                    <td className="admin-td">
                       {w.retirementMutualStatus === 'TARGET' && (
                         <span className="inline-block px-2 py-[2px] rounded text-[11px] font-semibold bg-[rgba(244,121,32,0.12)] text-[#F47920]">대상</span>
                       )}
@@ -311,7 +312,7 @@ export default function WorkersPage() {
                         <span className="text-xs text-[#bbb]">—</span>
                       )}
                     </td>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">
+                    <td className="admin-td">
                       <div className="flex items-center gap-[6px]">
                         <IdVerificationBadge status={w.idVerificationStatus} />
                         <button
@@ -322,13 +323,13 @@ export default function WorkersPage() {
                         </button>
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">
+                    <td className="admin-td">
                       {w.isActive
                         ? <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#16A34A] border border-[#A7F3D0]">재직중</span>
                         : <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#FEE2E2] text-[#B91C1C] border border-[#F87171]">퇴사</span>
                       }
                     </td>
-                    <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white">{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
+                    <td className="admin-td">{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
                     <td className="px-3 py-3 text-sm border-b border-[#f5f5f5] text-white whitespace-nowrap">
                       <Link href={`/admin/workers/${w.id}`} className="text-xs text-secondary-brand no-underline mr-[6px]">상세</Link>
                       {canMutate && <button onClick={() => openEdit(w)} className="px-[10px] py-1 text-xs bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer mr-1">수정</button>}
@@ -345,6 +346,7 @@ export default function WorkersPage() {
                 ))}
               </tbody>
             </table>
+            </div>{/* overflow-x-auto */}
           </div>
         )}
 
@@ -353,9 +355,9 @@ export default function WorkersPage() {
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
             {guideStep === 'guide' ? (
               /* ─ 안내 단계 ─ */
-              <div className="bg-card rounded-xl p-8 w-[740px] max-h-[90vh] overflow-y-auto">
+              <div className="bg-white rounded-xl p-8 w-[740px] max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
                 <div className="flex justify-between items-center mb-[6px]">
-                  <h3 className="text-lg font-bold m-0 text-white">근로유형 / 계약유형 선택 안내</h3>
+                  <h3 className="text-lg font-bold m-0 text-[#111827]">근로유형 / 계약유형 선택 안내</h3>
                   <button onClick={closeRegModal} className="bg-none border-none text-[20px] cursor-pointer text-[#999]">✕</button>
                 </div>
                 <p className="text-[13px] text-muted-brand mb-4 leading-[1.6]">
@@ -368,20 +370,20 @@ export default function WorkersPage() {
                 <div className="overflow-x-auto mb-[14px]">
                   <table className="w-full border-collapse text-xs">
                     <thead>
-                      <tr className="bg-brand">
+                      <tr className="bg-[#F3F4F6]">
                         {['유형', '이런 경우 선택', '계약 종료일', '근태/계산 기준', '생성 문서/처리'].map(h => (
-                          <th key={h} className="px-[10px] py-[7px] border border-[rgba(255,255,255,0.12)] text-left text-muted-brand font-bold whitespace-nowrap">{h}</th>
+                          <th key={h} className="px-[10px] py-[7px] border border-[#E5E7EB] text-left text-[#4B5563] font-bold whitespace-nowrap text-[11px]">{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {ADMIN_TYPE_GUIDES.map(g => (
                         <tr key={g.code} className="align-top">
-                          <td style={{ padding: '7px 10px', border: '1px solid rgba(255,255,255,0.12)', fontWeight: 700, color: g.accentColor, whiteSpace: 'nowrap' }}>{g.icon} {g.label}</td>
-                          <td className="px-[10px] py-[7px] border border-[rgba(255,255,255,0.12)] text-[#444] text-[11px]">{g.tableRow.whenToSelect}</td>
-                          <td className="px-[10px] py-[7px] border border-[rgba(255,255,255,0.12)] text-[#444] text-[11px] whitespace-nowrap">{g.tableRow.endDateConcept}</td>
-                          <td className="px-[10px] py-[7px] border border-[rgba(255,255,255,0.12)] text-[#444] text-[11px]">{g.tableRow.calcBasis}</td>
-                          <td className="px-[10px] py-[7px] border border-[rgba(255,255,255,0.12)] text-[#444] text-[11px]">{g.tableRow.documents}</td>
+                          <td style={{ padding: '7px 10px', border: '1px solid #E5E7EB', fontWeight: 700, color: g.accentColor, whiteSpace: 'nowrap' }}>{g.icon} {g.label}</td>
+                          <td className="px-[10px] py-[7px] border border-[#E5E7EB] text-[#374151] text-[11px]">{g.tableRow.whenToSelect}</td>
+                          <td className="px-[10px] py-[7px] border border-[#E5E7EB] text-[#374151] text-[11px] whitespace-nowrap">{g.tableRow.endDateConcept}</td>
+                          <td className="px-[10px] py-[7px] border border-[#E5E7EB] text-[#374151] text-[11px]">{g.tableRow.calcBasis}</td>
+                          <td className="px-[10px] py-[7px] border border-[#E5E7EB] text-[#374151] text-[11px]">{g.tableRow.documents}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -448,7 +450,7 @@ export default function WorkersPage() {
                       </div>
 
                       <div className="border-t border-[#f0f0f0] pt-3 flex justify-between items-center gap-[10px]">
-                        <button onClick={closeRegModal} className="flex-none px-5 py-2 bg-brand text-white border border-[rgba(91,164,217,0.3)] rounded-lg cursor-pointer text-[13px]">취소</button>
+                        <button onClick={closeRegModal} className="flex-none px-5 py-2 bg-white text-[#6B7280] border border-[#E5E7EB] rounded-[8px] cursor-pointer text-[13px] hover:bg-[#F9FAFB] transition-colors">취소</button>
                         <button
                           disabled={!selectedGuideCode}
                           onClick={() => setGuideStep('form')}
@@ -471,9 +473,9 @@ export default function WorkersPage() {
               </div>
             ) : (
               /* ─ 등록 폼 단계 ─ */
-              <div className="bg-card rounded-xl p-8 w-[400px] max-w-[90vw]">
+              <div className="bg-white rounded-xl p-8 w-[400px] max-w-[90vw] shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold m-0 text-white">근로자 등록</h3>
+                  <h3 className="text-lg font-bold m-0 text-[#111827]">근로자 등록</h3>
                   <button onClick={() => setGuideStep('guide')} className="bg-none border-none text-[13px] cursor-pointer text-secondary-brand underline">← 유형 안내</button>
                 </div>
                 {[
@@ -482,22 +484,22 @@ export default function WorkersPage() {
                   { label: '직종/역할', key: 'jobTitle', placeholder: '형틀목공' },
                 ].map(({ label, key, placeholder }) => (
                   <div key={key} className="mb-3">
-                    <label className="block text-[13px] text-muted-brand mb-1">{label}</label>
+                    <label className="block text-[12px] font-semibold text-[#6B7280] mb-1">{label}</label>
                     <input
                       type="text"
                       placeholder={placeholder}
                       value={form[key as keyof typeof form] as string}
                       onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                      className="w-full px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-md bg-brand text-white box-border"
+                      className="admin-input w-full box-border"
                     />
                   </div>
                 ))}
                 <div className="mb-3">
-                  <label className="block text-[13px] text-muted-brand mb-1">고용형태</label>
+                  <label className="block text-[12px] font-semibold text-[#6B7280] mb-1">고용형태</label>
                   <select
                     value={form.employmentType}
                     onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
-                    className="w-full px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-md bg-brand text-white box-border"
+                    className="admin-input w-full box-border"
                   >
                     <option value="DAILY_CONSTRUCTION">건설일용 (일 단위 공수)</option>
                     <option value="REGULAR">상용직 (근태 관리)</option>
@@ -508,11 +510,11 @@ export default function WorkersPage() {
                   </select>
                 </div>
                 <div className="mb-3">
-                  <label className="block text-[13px] text-muted-brand mb-1">소속구분</label>
+                  <label className="block text-[12px] font-semibold text-[#6B7280] mb-1">소속구분</label>
                   <select
                     value={form.organizationType}
                     onChange={(e) => setForm({ ...form, organizationType: e.target.value })}
-                    className="w-full px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-md bg-brand text-white box-border"
+                    className="admin-input w-full box-border"
                   >
                     <option value="DIRECT">직영</option>
                     <option value="SUBCONTRACTOR">협력사 소속</option>
@@ -530,14 +532,14 @@ export default function WorkersPage() {
                     checked={form.foreignerYn as boolean}
                     onChange={(e) => setForm({ ...form, foreignerYn: e.target.checked })}
                   />
-                  <label htmlFor="foreignerYn" className="text-sm text-white">외국인 근로자</label>
+                  <label htmlFor="foreignerYn" className="text-sm text-[#374151]">외국인 근로자</label>
                 </div>
                 {formError && <p className="text-[#e53935] text-[13px] m-0 mb-3">{formError}</p>}
                 <div className="flex gap-2 mt-4">
                   <button onClick={handleSave} disabled={saving} className="flex-1 py-3 bg-[#F47920] text-white border-none rounded-md cursor-pointer font-bold">
                     {saving ? '저장 중...' : '등록'}
                   </button>
-                  <button onClick={closeRegModal} className="flex-1 py-3 bg-brand text-[#CBD5E0] border-none rounded-md cursor-pointer">취소</button>
+                  <button onClick={closeRegModal} className="flex-1 py-3 bg-white text-[#6B7280] border border-[#E5E7EB] rounded-[8px] cursor-pointer hover:bg-[#F9FAFB] transition-colors">취소</button>
                 </div>
               </div>
             )}
@@ -547,21 +549,21 @@ export default function WorkersPage() {
         {/* ── 수정 모달 ─────────────────────────────────────── */}
         {editTarget && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
-            <div className="bg-card rounded-xl p-8 w-[400px] max-w-[90vw]">
-              <h3 className="text-lg font-bold m-0 mb-5 text-white">근로자 수정 — {editTarget.name}</h3>
+            <div className="bg-white rounded-xl p-8 w-[400px] max-w-[90vw] shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
+              <h3 className="text-lg font-bold m-0 mb-5 text-[#111827]">근로자 수정 — {editTarget.name}</h3>
               {[
                 { label: '이름', key: 'name', placeholder: '' },
                 { label: '휴대폰', key: 'phone', placeholder: '01012345678' },
                 { label: '직종/역할', key: 'jobTitle', placeholder: '' },
               ].map(({ label, key, placeholder }) => (
                 <div key={key} className="mb-3">
-                  <label className="block text-[13px] text-muted-brand mb-1">{label}</label>
+                  <label className="block text-[12px] font-semibold text-[#6B7280] mb-1">{label}</label>
                   <input
                     type="text"
                     placeholder={placeholder}
                     value={editForm[key as keyof typeof editForm] as string}
                     onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
-                    className="w-full px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-md bg-brand text-white box-border"
+                    className="admin-input w-full box-border"
                   />
                 </div>
               ))}
@@ -572,14 +574,14 @@ export default function WorkersPage() {
                   checked={editActive}
                   onChange={(e) => setEditActive(e.target.checked)}
                 />
-                <label htmlFor="editActive" className="text-sm text-white">활성 상태</label>
+                <label htmlFor="editActive" className="text-sm text-[#374151]">활성 상태</label>
               </div>
               {editError && <p className="text-[#e53935] text-[13px] m-0 mb-3">{editError}</p>}
               <div className="flex gap-2 mt-4">
                 <button onClick={handleEdit} disabled={editSaving} className="flex-1 py-3 bg-[#F47920] text-white border-none rounded-md cursor-pointer font-bold">
                   {editSaving ? '저장 중...' : '저장'}
                 </button>
-                <button onClick={() => setEditTarget(null)} className="flex-1 py-3 bg-brand text-[#CBD5E0] border-none rounded-md cursor-pointer">취소</button>
+                <button onClick={() => setEditTarget(null)} className="flex-1 py-3 bg-white text-[#6B7280] border border-[#E5E7EB] rounded-[8px] cursor-pointer hover:bg-[#F9FAFB] transition-colors">취소</button>
               </div>
             </div>
           </div>
@@ -588,7 +590,7 @@ export default function WorkersPage() {
         {/* ── 비활성화 확인 모달 ────────────────────────────── */}
         {deleteTarget && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
-            <div className="bg-card rounded-xl p-8 max-w-[360px] w-full">
+            <div className="bg-white rounded-xl p-8 max-w-[360px] w-full shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
               <h3 className="text-lg font-bold m-0 mb-5 text-[#c62828]">근로자 비활성화</h3>
               <p className="text-sm text-muted-brand mb-2">
                 <strong>{deleteTarget.name}</strong> ({formatPhone(deleteTarget.phone)}) 을 비활성화합니다.
@@ -601,7 +603,7 @@ export default function WorkersPage() {
                 <button onClick={handleDelete} disabled={deleting} className="flex-1 py-3 bg-[#c62828] text-white border-none rounded-md cursor-pointer font-bold">
                   {deleting ? '처리 중...' : '비활성화'}
                 </button>
-                <button onClick={() => setDeleteTarget(null)} className="flex-1 py-3 bg-brand text-[#CBD5E0] border-none rounded-md cursor-pointer">취소</button>
+                <button onClick={() => setDeleteTarget(null)} className="flex-1 py-3 bg-white text-[#6B7280] border border-[#E5E7EB] rounded-[8px] cursor-pointer hover:bg-[#F9FAFB] transition-colors">취소</button>
               </div>
             </div>
           </div>
@@ -681,33 +683,32 @@ function IdentityUploadModal({ workerId, workerName, onClose, onSuccess }: {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-4">
-      <div className="bg-card rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] w-full max-w-[480px]">
-        <div className="px-6 py-5 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between">
-          <h2 className="m-0 text-base font-semibold text-white">신분증 업로드 — {workerName}</h2>
-          <button onClick={onClose} className="bg-none border-none cursor-pointer text-[20px] text-muted-brand leading-none">✕</button>
+      <div className="bg-white rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] w-full max-w-[480px] border border-[#E5E7EB]">
+        <div className="px-6 py-5 border-b border-[#F3F4F6] flex items-center justify-between">
+          <h2 className="m-0 text-base font-semibold text-[#111827]">신분증 업로드 — {workerName}</h2>
+          <button onClick={onClose} className="bg-none border-none cursor-pointer text-[20px] text-[#9CA3AF] hover:text-[#374151] leading-none">✕</button>
         </div>
         <div className="px-6 py-5 flex flex-col gap-4">
           <label className="block">
-            <span className="text-[13px] font-medium text-muted-brand block mb-[6px]">신분증 이미지 (JPG/PNG, 최대 10MB)</span>
+            <span className="text-[13px] font-medium text-[#6B7280] block mb-[6px]">신분증 이미지 (JPG/PNG, 최대 10MB)</span>
             <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onChange={handleFile}
-              className="block w-full text-[13px] text-muted-brand" />
+              className="block w-full text-[13px] text-[#374151]" />
           </label>
           {preview && (
-            <div className="border border-[rgba(255,255,255,0.08)] rounded-lg overflow-hidden">
+            <div className="border border-[#E5E7EB] rounded-lg overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={preview} alt="미리보기" className="w-full max-h-[192px] object-contain bg-brand block" />
+              <img src={preview} alt="미리보기" className="w-full max-h-[192px] object-contain bg-[#F9FAFB] block" />
             </div>
           )}
-          {error && <p className="text-[13px] text-[#dc2626] m-0">{error}</p>}
-          <div className="text-xs text-muted-brand bg-brand rounded-md px-3 py-[10px]">
+          {error && <p className="text-[13px] text-[#DC2626] m-0">{error}</p>}
+          <div className="text-xs text-[#6B7280] bg-[#F9FAFB] border border-[#F3F4F6] rounded-md px-3 py-[10px]">
             ⚠️ 원본 이미지는 암호화 저장되며 관리자만 열람 가능합니다.
           </div>
         </div>
-        <div className="px-6 py-4 border-t border-[rgba(255,255,255,0.08)] flex gap-[10px] justify-end">
-          <button onClick={onClose} className="px-4 py-2 text-[13px] text-muted-brand bg-brand border-none rounded-lg cursor-pointer">취소</button>
+        <div className="px-6 py-4 border-t border-[#F3F4F6] flex gap-[10px] justify-end">
+          <button onClick={onClose} className="px-4 py-2 text-[13px] text-[#6B7280] bg-white border border-[#E5E7EB] rounded-[8px] cursor-pointer hover:bg-[#F9FAFB] transition-colors">취소</button>
           <button onClick={handleUpload} disabled={!file || loading}
-            className="px-5 py-2 text-[13px] bg-[#F47920] text-white border-none rounded-lg cursor-pointer"
-            style={{ opacity: (!file || loading) ? 0.5 : 1 }}>
+            className="px-5 py-2 text-[13px] bg-[#F97316] hover:bg-[#EA580C] text-white border-none rounded-[8px] cursor-pointer disabled:opacity-50 transition-colors">
             {loading ? 'AI 분석 중...' : '업로드 + AI 분석'}
           </button>
         </div>
@@ -761,101 +762,99 @@ function ScanResultModal({ workerId, result, onClose, onVerify, onReject }: {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-4">
-      <div className="bg-card rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] w-full max-w-[680px] max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] w-full max-w-[680px] max-h-[90vh] overflow-y-auto border border-[#E5E7EB]">
         {/* 헤더 */}
-        <div className="px-6 py-5 border-b border-[rgba(255,255,255,0.08)] flex items-start justify-between sticky top-0 bg-card z-10">
+        <div className="px-6 py-5 border-b border-[#F3F4F6] flex items-start justify-between sticky top-0 bg-white z-10">
           <div>
-            <h2 className="m-0 mb-1 text-base font-semibold text-white">AI 분석 결과</h2>
-            <p className="m-0 text-xs text-muted-brand">
+            <h2 className="m-0 mb-1 text-base font-semibold text-[#111827]">AI 분석 결과</h2>
+            <p className="m-0 text-xs text-[#6B7280]">
               상태: <span className="font-medium">{reviewLabel[result.reviewStatus] ?? result.reviewStatus}</span> · 스캔: {result.scanStatus}
             </p>
           </div>
-          <button onClick={onClose} className="bg-none border-none cursor-pointer text-[20px] text-muted-brand leading-none">✕</button>
+          <button onClick={onClose} className="bg-none border-none cursor-pointer text-[20px] text-[#9CA3AF] hover:text-[#374151] leading-none">✕</button>
         </div>
         {/* 본문 */}
         <div className="px-6 py-5 flex flex-col gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-[13px] font-medium text-white">문서 종류:</span>
-            <span className="px-[10px] py-[2px] text-xs bg-[#dbeafe] text-[#1d4ed8] rounded-full font-medium">
+            <span className="text-[13px] font-medium text-[#374151]">문서 종류:</span>
+            <span className="px-[10px] py-[2px] text-xs bg-[#DBEAFE] text-[#1D4ED8] rounded-full font-medium">
               {docTypeLabel[p.documentType] ?? p.documentType}
             </span>
           </div>
           <div className="grid grid-cols-2 gap-[10px]">
             {fields.filter(item => item.value).map(item => (
-              <div key={item.label} className="bg-brand rounded-lg px-3 py-[10px]">
-                <div className="text-[11px] text-muted-brand mb-[2px]">{item.label}</div>
-                <div className="text-[13px] font-medium text-white break-all">{item.value}</div>
+              <div key={item.label} className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-lg px-3 py-[10px]">
+                <div className="text-[11px] text-[#9CA3AF] mb-[2px]">{item.label}</div>
+                <div className="text-[13px] font-medium text-[#111827] break-all">{item.value}</div>
               </div>
             ))}
           </div>
           {p.confidence && Object.keys(p.confidence).length > 0 && (
-            <div className="bg-[rgba(91,164,217,0.1)] rounded-lg p-3">
-              <div className="text-xs font-medium text-secondary-brand mb-[6px]">AI 신뢰도</div>
+            <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg p-3">
+              <div className="text-xs font-medium text-[#2563EB] mb-[6px]">AI 신뢰도</div>
               <div className="flex gap-3 flex-wrap">
                 {Object.entries(p.confidence).map(([k, v]) => (
-                  <span key={k} className="text-xs text-muted-brand">{k}: <strong>{Math.round(Number(v) * 100)}%</strong></span>
+                  <span key={k} className="text-xs text-[#374151]">{k}: <strong>{Math.round(Number(v) * 100)}%</strong></span>
                 ))}
               </div>
             </div>
           )}
-          <div className="border border-[rgba(255,255,255,0.08)] rounded-lg overflow-hidden">
+          <div className="border border-[#E5E7EB] rounded-lg overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`/api/admin/identity-documents/${result.documentId}/file?variant=masked`}
               alt="마스킹본"
-              className="w-full max-h-[224px] object-contain bg-brand block"
+              className="w-full max-h-[224px] object-contain bg-[#F9FAFB] block"
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
             />
-            <div className="px-2 py-2 text-xs text-muted-brand text-center">마스킹본 (민감정보 가림)</div>
+            <div className="px-2 py-2 text-xs text-[#6B7280] text-center">마스킹본 (민감정보 가림)</div>
           </div>
           <a
             href={`/api/admin/identity-documents/${result.documentId}/file?variant=original`}
             target="_blank" rel="noopener noreferrer"
-            className="text-xs text-muted-brand underline"
+            className="text-xs text-[#6B7280] underline"
           >
             원본 보기 (관리자 전용)
           </a>
-          <div className="bg-brand rounded-lg p-[14px]">
+          <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-lg p-[14px]">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[13px] font-medium text-white">근로자 데이터 자동 반영</span>
+              <span className="text-[13px] font-medium text-[#374151]">근로자 데이터 자동 반영</span>
               <button onClick={handleApply} disabled={applying}
-                className="text-xs px-3 py-1 bg-[#4f46e5] text-white border-none rounded-md cursor-pointer disabled:opacity-50"
-                style={{ opacity: applying ? 0.5 : 1 }}>
+                className="text-xs px-3 py-1 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-none rounded-[6px] cursor-pointer disabled:opacity-50 transition-colors">
                 {applying ? '반영 중...' : '빈 필드에 반영'}
               </button>
             </div>
-            {applyMsg && <p className="text-xs text-[#15803d] m-0 mb-1">{applyMsg}</p>}
-            <p className="text-xs text-muted-brand m-0">기존 데이터가 있는 필드는 덮어쓰지 않습니다.</p>
+            {applyMsg && <p className="text-xs text-[#15803D] m-0 mb-1">{applyMsg}</p>}
+            <p className="text-xs text-[#6B7280] m-0">기존 데이터가 있는 필드는 덮어쓰지 않습니다.</p>
           </div>
           {showReject && (
-            <div className="border border-[#fca5a5] rounded-lg p-[14px] bg-[#fff5f5] flex flex-col gap-2">
+            <div className="border border-[#F87171] rounded-lg p-[14px] bg-[#FFF5F5] flex flex-col gap-2">
               <select value={rejectStatus} onChange={e => setRejectStatus(e.target.value)}
-                className="w-full text-[13px] border border-[rgba(91,164,217,0.3)] rounded-md px-2 py-2">
+                className="admin-select w-full">
                 <option value="REJECTED">반려</option>
                 <option value="RESCAN_REQUIRED">재스캔 요청</option>
               </select>
               <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)}
                 placeholder="사유 입력 (필수)" rows={2}
-                className="w-full text-[13px] border border-[rgba(91,164,217,0.3)] rounded-md px-2 py-2 resize-none box-border" />
+                className="admin-input w-full resize-none box-border" />
               <div className="flex gap-2 justify-end">
                 <button onClick={() => setShowReject(false)}
-                  className="text-xs bg-none border-none cursor-pointer text-[#6b7280] underline">취소</button>
+                  className="text-xs bg-transparent border-none cursor-pointer text-[#6B7280] underline">취소</button>
                 <button onClick={() => { if (rejectReason) onReject(rejectStatus, rejectReason) }} disabled={!rejectReason}
-                  className="text-xs px-3 py-1 bg-[#dc2626] text-white border-none rounded-md cursor-pointer disabled:opacity-50"
-                  style={{ opacity: !rejectReason ? 0.5 : 1 }}>확인</button>
+                  className="text-xs px-3 py-1 bg-[#DC2626] hover:bg-[#B91C1C] text-white border-none rounded-[6px] cursor-pointer disabled:opacity-50 transition-colors">확인</button>
               </div>
             </div>
           )}
         </div>
         {/* 하단 버튼 */}
-        <div className="px-6 py-4 border-t border-[rgba(255,255,255,0.08)] flex gap-[10px] justify-between sticky bottom-0 bg-card">
+        <div className="px-6 py-4 border-t border-[#F3F4F6] flex gap-[10px] justify-between sticky bottom-0 bg-white">
           <button onClick={() => setShowReject(!showReject)}
-            className="px-4 py-2 text-[13px] border border-[#fca5a5] text-[#dc2626] bg-[#1E3350] rounded-lg cursor-pointer">
+            className="px-4 py-2 text-[13px] border border-[#F87171] text-[#DC2626] bg-white hover:bg-[#FFF5F5] rounded-[8px] cursor-pointer transition-colors">
             반려 / 재스캔
           </button>
           <div className="flex gap-2">
             <button onClick={onClose}
-              className="px-4 py-2 text-[13px] text-muted-brand bg-brand border-none rounded-lg cursor-pointer">닫기</button>
+              className="px-4 py-2 text-[13px] text-[#6B7280] bg-white border border-[#E5E7EB] rounded-[8px] cursor-pointer hover:bg-[#F9FAFB] transition-colors">닫기</button>
             <button onClick={onVerify}
               className="px-5 py-2 text-[13px] bg-[#16a34a] text-white border-none rounded-lg cursor-pointer">검토 완료</button>
           </div>

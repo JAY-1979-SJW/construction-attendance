@@ -328,10 +328,10 @@ export default function SitesPage() {
   }
 
   // shared Tailwind class strings
-  const inputCls = "w-full px-3 py-[10px] text-sm border border-[rgba(91,164,217,0.3)] rounded-md box-border bg-[#1B2838] text-white"
-  const labelCls = "block text-[13px] text-muted-brand mb-1 font-semibold"
-  const saveBtnCls = "flex-1 py-3 bg-accent text-white border-none rounded-md cursor-pointer font-bold"
-  const cancelBtnCls = "flex-1 py-3 bg-brand text-[#CBD5E0] border-none rounded-md cursor-pointer"
+  const inputCls = "admin-input w-full box-border"
+  const labelCls = "block text-[13px] font-semibold text-[#6B7280] mb-1"
+  const saveBtnCls = "flex-1 py-3 bg-[#071020] text-white border-none rounded-[8px] cursor-pointer font-bold hover:bg-[#1E293B] transition-colors"
+  const cancelBtnCls = "flex-1 py-3 bg-white text-[#6B7280] border border-[#E5E7EB] rounded-[8px] cursor-pointer hover:bg-[#F9FAFB] transition-colors"
 
   const renderFormFields = (
     f: typeof emptyForm,
@@ -403,13 +403,13 @@ export default function SitesPage() {
   )
 
   return (
-    <div className="p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-[22px] font-bold m-0 flex items-baseline gap-[6px]">
-            현장 관리 {!loading && <span className="text-base font-normal text-muted-brand">({sites.length}개)</span>}
+    <div className="p-4 md:p-6 bg-[#F5F7FA] min-h-screen">
+        <div className="flex justify-between items-center mb-5">
+          <h1 className="text-[20px] font-bold m-0 text-[#111827] flex items-baseline gap-2">
+            현장 관리 {!loading && <span className="text-base font-normal text-[#6B7280]">({sites.length}개)</span>}
           </h1>
           {canMutate && (
-            <button onClick={() => { setShowForm(true); setFormGeoStatus('idle'); setForm(emptyForm) }} className="px-5 py-[10px] bg-accent text-white border-none rounded-lg cursor-pointer text-sm font-semibold">
+            <button onClick={() => { setShowForm(true); setFormGeoStatus('idle'); setForm(emptyForm) }} className="px-4 py-[7px] bg-[#F97316] hover:bg-[#EA580C] text-white border-none rounded-[8px] cursor-pointer text-[13px] font-semibold transition-colors">
               + 현장 등록
             </button>
           )}
@@ -420,7 +420,7 @@ export default function SitesPage() {
             {sites.length === 0 && <p className="text-[#999]">등록된 현장이 없습니다.</p>}
             {sites.map((site) => (
               <div key={site.id}
-                className={`rounded-xl p-5 shadow-[0_1px_4px_rgba(0,0,0,0.07)] flex flex-col ${site.isActive ? 'bg-card' : 'bg-[#1a1f2a] opacity-70'}`}>
+                className={`rounded-xl p-5 shadow-[0_1px_4px_rgba(0,0,0,0.05)] flex flex-col border ${site.isActive ? 'bg-white border-[#E5E7EB]' : 'bg-[#F9FAFB] border-[#E5E7EB] opacity-70'}`}>
 
                 {/* 헤더 */}
                 <div className="flex justify-between items-start mb-[6px]">
@@ -444,27 +444,27 @@ export default function SitesPage() {
                     {canMutate && (
                       <>
                         <button onClick={() => openPolicyModal(site)}
-                          className="px-[10px] py-1 text-xs text-muted-brand border border-[rgba(91,164,217,0.3)] bg-transparent hover:border-[rgba(91,164,217,0.55)] rounded cursor-pointer transition-colors">근무정책</button>
+                          className="px-[10px] py-1 text-xs text-[#6B7280] border border-[#E5E7EB] bg-white hover:border-[#D1D5DB] hover:bg-[#F9FAFB] rounded-[6px] cursor-pointer transition-colors">근무정책</button>
                         <button onClick={() => openEdit(site)}
-                          className="px-[10px] py-1 text-xs text-muted-brand border border-[rgba(91,164,217,0.3)] bg-transparent hover:border-[rgba(91,164,217,0.55)] rounded cursor-pointer transition-colors">수정</button>
+                          className="px-[10px] py-1 text-xs text-[#6B7280] border border-[#E5E7EB] bg-white hover:border-[#D1D5DB] hover:bg-[#F9FAFB] rounded-[6px] cursor-pointer transition-colors">수정</button>
                       </>
                     )}
                   </div>
                 </div>
 
                 {/* 주소 + 기간 */}
-                <div className="text-[13px] text-muted-brand my-[6px] mb-2">{site.address}</div>
+                <div className="text-[13px] text-[#6B7280] my-[6px] mb-2">{site.address}</div>
                 <div className="flex gap-3 mb-2 flex-wrap">
-                  <span className="text-[11px] text-muted-brand bg-[#f0f0f0] px-2 py-[2px] rounded-[10px]">반경 {site.allowedRadius}m</span>
-                  {site.openedAt && <span className="text-[11px] text-muted-brand bg-[#f0f0f0] px-2 py-[2px] rounded-[10px]">착공 {fmtDate(site.openedAt)}</span>}
-                  {site.closedAt && <span className="text-[11px] text-muted-brand bg-[#f0f0f0] px-2 py-[2px] rounded-[10px]">준공 {fmtDate(site.closedAt)}</span>}
+                  <span className="text-[11px] text-[#6B7280] bg-[#F3F4F6] px-2 py-[2px] rounded-[10px]">반경 {site.allowedRadius}m</span>
+                  {site.openedAt && <span className="text-[11px] text-[#6B7280] bg-[#F3F4F6] px-2 py-[2px] rounded-[10px]">착공 {fmtDate(site.openedAt)}</span>}
+                  {site.closedAt && <span className="text-[11px] text-[#6B7280] bg-[#F3F4F6] px-2 py-[2px] rounded-[10px]">준공 {fmtDate(site.closedAt)}</span>}
                 </div>
                 {site.notes && <div className="text-xs text-[#777] my-1 mb-2 italic">{site.notes}</div>}
 
                 {/* 배정 회사 섹션 */}
-                <div className="bg-brand rounded-lg p-3 my-[10px]">
+                <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-lg p-3 my-[10px]">
                   <div className="flex justify-between items-center mb-2">
-                    <div className="text-[11px] font-bold text-muted-brand uppercase tracking-[0.05em]">배정 회사</div>
+                    <div className="text-[11px] font-bold text-[#6B7280] uppercase tracking-[0.05em]">배정 회사</div>
                     {canMutate && (
                       <button onClick={() => {
                         setAssignSite(site); loadCompanies()
@@ -482,7 +482,7 @@ export default function SitesPage() {
                     <div key={a.id} className="flex items-start gap-2 py-2 border-t border-[#eee]">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-[6px] flex-wrap">
-                          <span className="text-[13px] font-semibold text-[#CBD5E0]">{a.company.companyName}</span>
+                          <span className="text-[13px] font-semibold text-[#111827]">{a.company.companyName}</span>
                           <span className="text-[11px] bg-[rgba(244,121,32,0.12)] text-accent px-[6px] py-[1px] rounded">{CONTRACT_TYPE_LABELS[a.contractType] ?? a.contractType}</span>
                           {a.company.companyType && <span className="text-[11px] bg-[#f3e5f5] text-[#6a1b9a] px-[6px] py-[1px] rounded">{a.company.companyType}</span>}
                         </div>
@@ -490,7 +490,7 @@ export default function SitesPage() {
                           {fmtDate(a.startDate)} ~ {fmtDate(a.endDate)}
                           {a.managerName && <span className="ml-2">담당: {a.managerName}{a.managerPhone ? ` (${a.managerPhone})` : ''}</span>}
                         </div>
-                        {a.notes && <div className="text-[11px] text-muted-brand mt-[2px]">{a.notes}</div>}
+                        {a.notes && <div className="text-[11px] text-[#6B7280] mt-[2px]">{a.notes}</div>}
                       </div>
                       {canMutate && (
                         <button onClick={() => handleDeleteAssignment(site.id, a.id)}
@@ -504,9 +504,9 @@ export default function SitesPage() {
                 {/* 상세 패널 (토글) */}
                 {detailSite?.id === site.id && (
                   <div className="border-t border-[#f0f0f0] mt-[10px] pt-[10px]">
-                    <div className="flex gap-2 text-xs text-muted-brand mb-1"><span className="w-[70px] shrink-0 font-semibold text-muted-brand">위도</span><span>{site.latitude}</span></div>
-                    <div className="flex gap-2 text-xs text-muted-brand mb-1"><span className="w-[70px] shrink-0 font-semibold text-muted-brand">경도</span><span>{site.longitude}</span></div>
-                    <div className="flex gap-2 text-xs text-muted-brand mb-1"><span className="w-[70px] shrink-0 font-semibold text-muted-brand">등록일</span><span>{fmtDate(site.createdAt)}</span></div>
+                    <div className="flex gap-2 text-xs text-[#6B7280] mb-1"><span className="w-[70px] shrink-0 font-semibold text-[#6B7280]">위도</span><span>{site.latitude}</span></div>
+                    <div className="flex gap-2 text-xs text-[#6B7280] mb-1"><span className="w-[70px] shrink-0 font-semibold text-[#6B7280]">경도</span><span>{site.longitude}</span></div>
+                    <div className="flex gap-2 text-xs text-[#6B7280] mb-1"><span className="w-[70px] shrink-0 font-semibold text-[#6B7280]">등록일</span><span>{fmtDate(site.createdAt)}</span></div>
                   </div>
                 )}
               </div>
@@ -517,7 +517,7 @@ export default function SitesPage() {
         {/* ── 등록 모달 ──────────────────────────────────────── */}
         {showForm && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] overflow-y-auto py-6 px-6">
-            <div className="bg-card rounded-xl p-8 w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl p-8 w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
               <h3 className="text-[18px] font-bold mb-5">현장 등록</h3>
               {renderFormFields(form, 'form', (k, v) => setForm((f) => ({ ...f, [k]: v })), formGeoStatus)}
               {formError && <p className="text-[#e53935] text-[13px] mb-3">{formError}</p>}
@@ -532,7 +532,7 @@ export default function SitesPage() {
         {/* ── 수정 모달 ──────────────────────────────────────── */}
         {editTarget && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] overflow-y-auto py-6 px-6">
-            <div className="bg-card rounded-xl p-8 w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl p-8 w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
               <h3 className="text-[18px] font-bold mb-5">현장 수정 — {editTarget.name}</h3>
               {renderFormFields(editForm, 'edit', (k, v) => setEditForm((f) => ({ ...f, [k]: v })), editGeoStatus)}
               <div className="flex items-center gap-2 mb-4">
@@ -551,7 +551,7 @@ export default function SitesPage() {
         {/* ── 회사 배정 모달 ─────────────────────────────────── */}
         {assignSite && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] overflow-y-auto py-6 px-6">
-            <div className="bg-card rounded-xl p-8 w-[480px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl p-8 w-[480px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
               <h3 className="text-[18px] font-bold mb-5">회사 배정 — {assignSite.name}</h3>
               <div className="mb-[14px]">
                 <label className={labelCls}>회사 *</label>
@@ -605,9 +605,9 @@ export default function SitesPage() {
         {/* ── 근무시간 정책 모달 ──────────────────────────────── */}
         {policySite && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] overflow-y-auto py-6 px-6">
-            <div className="bg-card rounded-xl p-8 w-[480px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl p-8 w-[480px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
               <h3 className="text-[18px] font-bold mb-5">근무시간 정책 — {policySite.name}</h3>
-              <p className="text-xs text-muted-brand mb-4 leading-relaxed">
+              <p className="text-xs text-[#6B7280] mb-4 leading-relaxed">
                 빈칸 = 회사 기본값 사용 (출근 07:00 / 퇴근 17:00 / 휴게 60분).<br />
                 <strong>휴게시간 차감(분)</strong>이 공수 계산에 직접 영향을 줍니다.
               </p>
@@ -669,11 +669,11 @@ export default function SitesPage() {
         {/* ── 등록 완료 알림 ──────────────────────────────────── */}
         {registered && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
-            <div className="bg-card rounded-xl p-8 w-[480px] max-w-[95vw]">
+            <div className="bg-white rounded-xl p-8 w-[480px] max-w-[95vw] border border-[#E5E7EB] shadow-lg">
               <div className="text-[40px] text-center mb-3">✅</div>
-              <h3 className="m-0 mb-3 text-center text-[18px] font-bold">현장 등록 완료</h3>
-              <p className="text-sm text-muted-brand text-center mb-4">{registered} 현장이 등록되었습니다.</p>
-              <button onClick={() => setRegistered(null)} className="w-full py-3 bg-accent text-white border-none rounded-md cursor-pointer font-bold mt-4">확인</button>
+              <h3 className="m-0 mb-3 text-center text-[18px] font-bold text-[#111827]">현장 등록 완료</h3>
+              <p className="text-sm text-[#6B7280] text-center mb-4">{registered} 현장이 등록되었습니다.</p>
+              <button onClick={() => setRegistered(null)} className="w-full py-3 bg-[#F97316] text-white border-none rounded-[8px] cursor-pointer font-bold mt-4 hover:bg-[#EA580C] transition-colors">확인</button>
             </div>
           </div>
         )}

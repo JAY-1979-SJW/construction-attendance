@@ -78,20 +78,19 @@ export default function AdminDashboard() {
   const pendingApproval = (summary?.pendingDeviceRequests ?? 0) + (summary?.pendingExceptions ?? 0)
 
   return (
-    // [7] 전체 상단 패딩 소폭 축소
     <div className="p-4 md:p-6 bg-[#F5F7FA] min-h-screen">
 
-      {/* ── 헤더 [7] mb-4로 축소 ── */}
+      {/* ── 헤더 ── */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <h1 className="text-[20px] font-bold text-[#0F172A] m-0">대시보드</h1>
+          <h1 className="text-[20px] font-bold text-[#111827] m-0">대시보드</h1>
           <span className="text-[11px] font-semibold text-[#6B7280] bg-[#F3F4F6] border border-[#E5E7EB] rounded-full px-2.5 py-1 tabular-nums">
             {todayStr} 기준
           </span>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Link href="/admin/attendance"
-            className="no-underline flex items-center gap-1.5 text-[13px] font-semibold text-white bg-[#0F172A] hover:bg-[#1E293B] rounded-[8px] px-3.5 py-1.5 transition-colors">
+            className="no-underline flex items-center gap-1.5 text-[13px] font-semibold text-white bg-[#071020] hover:bg-[#1E293B] rounded-[8px] px-3.5 py-1.5 transition-colors">
             출근현황
           </Link>
           <Link href="/admin/device-requests"
