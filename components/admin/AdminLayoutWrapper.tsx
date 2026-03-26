@@ -233,13 +233,15 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
           </div>
         </header>
 
+        {/* 페이지 타이틀 — shrink-0, 스크롤 영역 밖 (절대 고정) */}
+        {pageTitle && (
+          <div className="shrink-0 bg-[#F5F7FA] px-5 md:px-6 pt-4 pb-3" style={{ borderBottom: '1px solid #E5E7EB' }}>
+            <h1 className="text-[18px] font-bold text-[#0F172A]">{pageTitle}</h1>
+          </div>
+        )}
+
         {/* 콘텐츠 (독립 스크롤) */}
         <div className="flex-1 overflow-auto bg-[#F5F7FA]">
-          {pageTitle && (
-            <div className="sticky top-0 z-10 bg-[#F5F7FA] px-5 md:px-6 pt-5 md:pt-6 pb-3">
-              <h1 className="text-[18px] font-bold text-[#0F172A]">{pageTitle}</h1>
-            </div>
-          )}
           {children}
         </div>
       </div>
