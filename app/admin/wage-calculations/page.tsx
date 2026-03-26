@@ -159,23 +159,3 @@ export default function WageCalculationsPage() {
   )
 }
 
-const NAV_ITEMS = [
-  { href: '/admin',                       label: '대시보드' },
-  { href: '/admin/workers',               label: '근로자 관리' },
-  { href: '/admin/companies', label: '회사 관리' },
-  { href: '/admin/sites',                 label: '현장 관리' },
-  { href: '/admin/attendance',            label: '출퇴근 조회' },
-  { href: '/admin/presence-checks',       label: '체류확인 현황' },
-  { href: '/admin/presence-report',       label: '체류확인 리포트' },
-  { href: '/admin/work-confirmations',    label: '근무확정' },
-  { href: '/admin/contracts',             label: '인력/계약 관리' },
-  { href: '/admin/insurance-eligibility', label: '보험판정' },
-  { href: '/admin/wage-calculations',     label: '세금/노임 계산' },
-  { href: '/admin/filing-exports',        label: '신고자료 내보내기' },
-  { href: '/admin/retirement-mutual',     label: '퇴직공제' },
-  { href: '/admin/labor-cost-summaries',  label: '노무비 집계' },
-  { href: '/admin/month-closings',        label: '월마감' },
-  { href: '/admin/corrections',           label: '정정 이력' },
-  { href: '/admin/exceptions',            label: '예외 승인' },
-  { href: '/admin/device-requests',       label: '기기 변경' },
-]

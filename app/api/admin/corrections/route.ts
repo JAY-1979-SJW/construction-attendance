@@ -1,21 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
+import { ok, unauthorized, internalError } from '@/lib/utils/response'
 
 export async function GET(req: NextRequest) {
-  const session = await getAdminSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const session = await getAdminSession()
+    if (!session) return unauthorized()
 
-  const { searchParams } = new URL(req.url)
-  const domainType = searchParams.get('domainType')
-  const actedBy = searchParams.get('actedBy')
-  const from = searchParams.get('from')
-  const to = searchParams.get('to')
-  const page = parseInt(searchParams.get('page') ?? '1')
-  const pageSize = parseInt(searchParams.get('pageSize') ?? '50')
+    const { searchParams } = new URL(req.url)
+    const domainType = searchParams.get('domainType')
+    const actedBy = searchParams.get('actedBy')
+    const from = searchParams.get('from')
+    const to = searchParams.get('to')
+    const page = parseInt(searchParams.get('page') ?? '1')
+    const pageSize = parseInt(searchParams.get('pageSize') ?? '50')
 
-  const logs = await prisma.correctionLog.findMany({
-    where: {
+    const where = {
       ...(domainType ? { domainType: domainType as never } : {}),
       ...(actedBy ? { actedBy } : {}),
       ...(from || to ? {
@@ -24,18 +25,21 @@ export async function GET(req: NextRequest) {
           ...(to ? { lte: new Date(to) } : {}),
         },
       } : {}),
-    },
-    orderBy: { actedAt: 'desc' },
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-  })
+    }
 
-  const total = await prisma.correctionLog.count({
-    where: {
-      ...(domainType ? { domainType: domainType as never } : {}),
-      ...(actedBy ? { actedBy } : {}),
-    },
-  })
+    const [items, total] = await Promise.all([
+      prisma.correctionLog.findMany({
+        where,
+        orderBy: { actedAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.correctionLog.count({ where }),
+    ])
 
-  return NextResponse.json({ logs, total, page, pageSize })
+    return ok({ items, total, page, pageSize })
+  } catch (err) {
+    console.error('[corrections GET]', err)
+    return internalError()
+  }
 }
