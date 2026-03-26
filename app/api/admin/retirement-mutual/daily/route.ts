@@ -1,32 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
+import { ok, unauthorized, internalError } from '@/lib/utils/response'
 
 export async function GET(req: NextRequest) {
-  const session = await getAdminSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const session = await getAdminSession()
+    if (!session) return unauthorized()
 
-  const { searchParams } = new URL(req.url)
-  const monthKey = searchParams.get('monthKey')
-  const siteId = searchParams.get('siteId')
-  const workerId = searchParams.get('workerId')
+    const { searchParams } = new URL(req.url)
+    const monthKey = searchParams.get('monthKey')
+    const siteId = searchParams.get('siteId')
+    const workerId = searchParams.get('workerId')
 
-  if (!monthKey) return NextResponse.json({ error: 'monthKey required' }, { status: 400 })
+    if (!monthKey) return NextResponse.json({ error: 'monthKey required' }, { status: 400 })
 
-  const records = await prisma.retirementMutualDailyRecord.findMany({
-    where: {
-      monthKey,
-      ...(siteId ? { siteId } : {}),
-      ...(workerId ? { workerId } : {}),
-    },
-    include: {
-      worker: { select: { id: true, name: true } },
-      site: { select: { id: true, name: true } },
-    },
-    orderBy: [{ workDate: 'asc' }, { workerId: 'asc' }],
-  })
+    const records = await prisma.retirementMutualDailyRecord.findMany({
+      where: {
+        monthKey,
+        ...(siteId ? { siteId } : {}),
+        ...(workerId ? { workerId } : {}),
+      },
+      include: {
+        worker: { select: { id: true, name: true } },
+        site: { select: { id: true, name: true } },
+      },
+      orderBy: [{ workDate: 'asc' }, { workerId: 'asc' }],
+    })
 
-  return NextResponse.json({ records })
+    return ok({ items: records })
+  } catch (err) {
+    console.error('[retirement-mutual/daily GET]', err)
+    return internalError()
+  }
 }
 
 export async function PATCH(req: NextRequest) {

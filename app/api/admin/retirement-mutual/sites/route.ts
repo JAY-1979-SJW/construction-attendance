@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
+import { ok, unauthorized, internalError } from '@/lib/utils/response'
 
 export async function GET(req: NextRequest) {
-  const session = await getAdminSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const session = await getAdminSession()
+    if (!session) return unauthorized()
 
-  const sites = await prisma.retirementMutualSite.findMany({
-    include: { site: { select: { id: true, name: true } } },
-    orderBy: { createdAt: 'desc' },
-  })
+    const sites = await prisma.retirementMutualSite.findMany({
+      include: { site: { select: { id: true, name: true } } },
+      orderBy: { createdAt: 'desc' },
+    })
 
-  return NextResponse.json({ sites })
+    return ok({ items: sites })
+  } catch (err) {
+    console.error('[retirement-mutual/sites GET]', err)
+    return internalError()
+  }
 }
