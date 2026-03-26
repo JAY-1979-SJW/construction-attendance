@@ -1,8 +1,13 @@
 /**
  * OAuth 완료 후 브릿지 핸들러
  * NextAuth 세션(이메일)을 읽어 기존 JWT 쿠키(worker_token / admin_token)로 변환
+ *
+ * auth_intent=register 쿠키가 있으면 → 신규 가입 모드
+ *   → Worker를 PENDING 상태로 생성 → /register/complete 리다이렉트
+ * 그 외 → 일반 로그인 모드
  */
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { auth } from '@/lib/auth/nextauth'
 import { prisma } from '@/lib/db/prisma'
 import { signToken } from '@/lib/auth/jwt'
@@ -23,6 +28,11 @@ export async function GET(req: Request) {
 
   const email = session.user.email
   const name = session.user.name ?? '사용자'
+
+  // 쿠키에서 가입 의도 확인
+  const cookieStore = await cookies()
+  const authIntent = cookieStore.get('auth_intent')?.value
+  const isRegisterMode = authIntent === 'register'
 
   try {
     // ── 관리자 ─────────────────────────────────────────────
@@ -52,27 +62,88 @@ export async function GET(req: Request) {
         httpOnly: true, secure: true, sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, path: '/',
       })
+      clearIntentCookies(res)
       return res
     }
 
     // ── 근로자 ─────────────────────────────────────────────
-    let worker = await prisma.worker.findFirst({ where: { email } })
-    if (!worker) {
-      worker = await prisma.worker.create({
-        data: {
-          name,
-          email,
-          phone: null,
-          jobTitle: '미설정',
-          accountStatus: 'APPROVED',
-          isActive: true,
-        },
+    const existingWorker = await prisma.worker.findFirst({ where: { email } })
+
+    if (existingWorker) {
+      // 기존 계정 → 로그인
+      if (!existingWorker.isActive || existingWorker.accountStatus === 'REJECTED') {
+        return NextResponse.redirect(`${BASE_URL}/login?error=inactive`)
+      }
+
+      // 가입 모드인데 이미 계정 있음 → 로그인 페이지로
+      if (isRegisterMode) {
+        const res = NextResponse.redirect(`${BASE_URL}/register?error=already_registered`)
+        clearIntentCookies(res)
+        return res
+      }
+
+      // 프로필 미완성 (phone이 없으면) → 프로필 완성 페이지
+      if (!existingWorker.phone) {
+        const token = await signToken({ sub: existingWorker.id, type: 'worker' })
+        const res = NextResponse.redirect(`${BASE_URL}/register/complete`)
+        res.cookies.set('worker_token', token, {
+          httpOnly: true, secure: true, sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 7, path: '/',
+        })
+        clearIntentCookies(res)
+        return res
+      }
+
+      // 승인 대기 중이면 pending 페이지
+      if (existingWorker.accountStatus === 'PENDING') {
+        const token = await signToken({ sub: existingWorker.id, type: 'worker' })
+        const res = NextResponse.redirect(`${BASE_URL}/register/pending`)
+        res.cookies.set('worker_token', token, {
+          httpOnly: true, secure: true, sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 7, path: '/',
+        })
+        clearIntentCookies(res)
+        return res
+      }
+
+      const token = await signToken({ sub: existingWorker.id, type: 'worker' })
+      const res = NextResponse.redirect(`${BASE_URL}/attendance`)
+      res.cookies.set('worker_token', token, {
+        httpOnly: true, secure: true, sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7, path: '/',
       })
+      clearIntentCookies(res)
+      return res
     }
-    if (!worker.isActive || worker.accountStatus === 'REJECTED') {
-      return NextResponse.redirect(`${BASE_URL}/login?error=inactive`)
-    }
+
+    // ── 신규 근로자 생성 ──────────────────────────────────
+    const accountStatus = isRegisterMode ? 'PENDING' : 'APPROVED'
+
+    const worker = await prisma.worker.create({
+      data: {
+        name,
+        email,
+        phone: null,
+        jobTitle: '미설정',
+        accountStatus,
+        isActive: true,
+      },
+    })
+
     const token = await signToken({ sub: worker.id, type: 'worker' })
+
+    // 가입 모드 → 프로필 완성 페이지
+    if (isRegisterMode) {
+      const res = NextResponse.redirect(`${BASE_URL}/register/complete`)
+      res.cookies.set('worker_token', token, {
+        httpOnly: true, secure: true, sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7, path: '/',
+      })
+      clearIntentCookies(res)
+      return res
+    }
+
+    // 일반 로그인 → 바로 출퇴근
     const res = NextResponse.redirect(`${BASE_URL}/attendance`)
     res.cookies.set('worker_token', token, {
       httpOnly: true, secure: true, sameSite: 'lax',
@@ -83,4 +154,9 @@ export async function GET(req: Request) {
     console.error('[auth/complete]', err)
     return NextResponse.redirect(`${BASE_URL}/login?error=server`)
   }
+}
+
+function clearIntentCookies(res: NextResponse) {
+  res.cookies.set('auth_intent', '', { maxAge: 0, path: '/' })
+  res.cookies.set('register_consent', '', { maxAge: 0, path: '/' })
 }

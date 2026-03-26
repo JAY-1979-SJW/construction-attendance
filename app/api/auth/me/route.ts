@@ -27,9 +27,11 @@ export async function GET() {
     return ok({
       id: worker.id,
       name: worker.name,
+      email: worker.email ?? null,
       phone: worker.phone,
       company: worker.companyAssignments[0]?.company.companyName ?? '',
       jobTitle: worker.jobTitle,
+      accountStatus: worker.accountStatus,
       devices: worker.devices,
     })
   } catch (err) {
