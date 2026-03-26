@@ -47,13 +47,13 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
       : '내부 운영'
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-[#f5f6f8]">
+    <div className="h-screen flex flex-col font-sans bg-[#f5f6f8] overflow-hidden">
       <OpsTopNav
         userName={session.name}
         roleLabel={roleLabel}
         isReadOnly={isReadOnly}
       />
-      <main className="flex-1">
+      <main className="flex-1 overflow-auto">
         {children}
       </main>
     </div>

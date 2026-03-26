@@ -31,7 +31,7 @@ export default function OpsTopNav({ userName, roleLabel, isReadOnly }: Props) {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-[#E5E7EB] shadow-sm">
+    <header className="shrink-0 z-40 bg-white border-b border-[#E5E7EB] shadow-sm">
       {/* 상단 바: 로고 + 사용자정보 + 로그아웃 */}
       <div className="flex items-center justify-between h-12 px-5 border-b border-[#F3F4F6]">
         <div className="flex items-center gap-2">
