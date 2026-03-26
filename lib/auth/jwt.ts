@@ -1,11 +1,18 @@
 import { SignJWT, jwtVerify } from 'jose'
 import type { JwtPayload } from '@/types/auth'
 
-if (!process.env.JWT_SECRET) {
-  throw new Error('[FATAL] JWT_SECRET 환경변수가 설정되지 않았습니다. 서버를 시작할 수 없습니다.')
-}
-const secret = new TextEncoder().encode(process.env.JWT_SECRET)
 const algorithm = 'HS256'
+
+let _secret: Uint8Array | null = null
+function getSecret(): Uint8Array {
+  if (!_secret) {
+    if (!process.env.JWT_SECRET) {
+      throw new Error('[FATAL] JWT_SECRET 환경변수가 설정되지 않았습니다. 서버를 시작할 수 없습니다.')
+    }
+    _secret = new TextEncoder().encode(process.env.JWT_SECRET)
+  }
+  return _secret
+}
 
 export async function signToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): Promise<string> {
   const expiresIn = process.env.JWT_EXPIRES_IN ?? '7d'
@@ -13,12 +20,12 @@ export async function signToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): Promi
     .setProtectedHeader({ alg: algorithm })
     .setIssuedAt()
     .setExpirationTime(expiresIn)
-    .sign(secret)
+    .sign(getSecret())
 }
 
 export async function verifyToken(token: string): Promise<JwtPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, secret)
+    const { payload } = await jwtVerify(token, getSecret())
     return payload as unknown as JwtPayload
   } catch {
     return null
