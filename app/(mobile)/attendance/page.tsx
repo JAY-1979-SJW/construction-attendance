@@ -116,6 +116,15 @@ export default function AttendancePage() {
         setLoading(false)
         return
       }
+      // PENDING / REJECTED 사용자 → 승인대기 또는 로그인으로 이동
+      if (meData.data.accountStatus === 'PENDING') {
+        router.push('/register/pending')
+        return
+      }
+      if (meData.data.accountStatus === 'REJECTED') {
+        router.push('/login?error=inactive')
+        return
+      }
       setWorker(meData.data)
       setToday(todayData.data)
       setLoading(false)
