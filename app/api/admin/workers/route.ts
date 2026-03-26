@@ -104,11 +104,11 @@ export async function GET(request: NextRequest) {
             checkInAt: true,
             checkOutAt: true,
             status: true,
-            site: { select: { name: true } },
+            checkInSite: { select: { name: true } },
           },
         })
       : []
-    const todayMap = new Map(todayLogs.map(l => [l.workerId, l]))
+    const todayMap = new Map(todayLogs.map(l => [l.workerId, { ...l, siteName: l.checkInSite.name }]))
 
     const monthKey = new Date().toISOString().slice(0, 7)
     const [monthWages, totalWages] = workerIds.length > 0
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
         todayAttendance: (() => {
           const log = todayMap.get(w.id)
           if (!log) return null
-          return { siteId: log.siteId, siteName: log.site.name, checkInAt: log.checkInAt, checkOutAt: log.checkOutAt, status: log.status }
+          return { siteId: log.siteId, siteName: log.siteName, checkInAt: log.checkInAt, checkOutAt: log.checkOutAt, status: log.status }
         })(),
         // 계약 자동채움용 마스킹 계좌 — 레거시 bankName/bankAccount 응답 제외
         bankAccountSecure: w.bankAccountSecure
