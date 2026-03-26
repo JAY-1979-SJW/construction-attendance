@@ -257,21 +257,17 @@ function ReportsPageInner() {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full text-[13px] table-fixed min-w-[1000px]">
+                <table className="w-full text-[13px]">
                   <thead className="sticky top-0 z-10 bg-white">
                     <tr className="text-left text-[11px] text-[#9CA3AF] border-b border-[#F3F4F6]">
-                      <th className="py-2 font-normal w-[90px] sticky left-0 z-10 bg-white">현장</th>
-                      <th className="py-2 font-normal w-[70px] sticky left-[90px] z-10 bg-white shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)]">근로자</th>
-                      <th className="py-2 font-normal w-[56px]">고용</th>
-                      <th className="py-2 font-normal w-[56px]">직종</th>
-                      <th className="py-2 font-normal w-[130px]">작업위치</th>
-                      <th className="py-2 font-normal w-[160px]">공종/작업</th>
-                      <th className="py-2 font-normal w-[160px]">금일 작업</th>
-                      <th className="py-2 font-normal text-center w-[44px]">반복</th>
-                      <th className="py-2 font-normal text-right w-[36px]">일</th>
-                      <th className="py-2 font-normal text-right w-[36px]">월</th>
-                      <th className="py-2 font-normal text-right w-[36px]">총</th>
-                      <th className="py-2 font-normal text-center w-[64px]">상태</th>
+                      <th className="py-2 font-normal">작업일자</th>
+                      <th className="py-2 font-normal">근로자</th>
+                      <th className="py-2 font-normal">직종</th>
+                      <th className="py-2 font-normal">현장</th>
+                      <th className="py-2 font-normal">근무시간</th>
+                      <th className="py-2 font-normal">공종/작업사항</th>
+                      <th className="py-2 font-normal text-center">사진</th>
+                      <th className="py-2 font-normal text-center">상태</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -284,31 +280,27 @@ function ReportsPageInner() {
                               ? 'bg-[#FAFFFE] hover:bg-[#F0FDF4]'
                               : 'hover:bg-[#FAFAFA]'
                         }`}>
-                        <td className="py-2.5 text-[#6B7280] truncate sticky left-0 z-[5] bg-inherit" title={item.site.name}>{item.site.name}</td>
-                        <td className="py-2.5 text-[#0F172A] font-medium truncate sticky left-[90px] z-[5] bg-inherit shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)]">{item.worker.name}</td>
-                        <td className="py-2.5 text-[#6B7280] text-[12px]">{EMP_LABEL[item.employmentType] || item.employmentType}</td>
-                        <td className="py-2.5 text-[#6B7280] text-[12px] truncate">{item.jobTitle || '-'}</td>
-                        <td className="py-2.5 text-[#6B7280] text-[12px] truncate" title={item.locationDisplayName || ''}>
-                          {item.locationDisplayName || '-'}
+                        <td className="py-2.5 text-[#6B7280] text-[12px] whitespace-nowrap">{item.reportDate?.slice(5, 10)}</td>
+                        <td className="py-2.5 text-[#0F172A] font-medium">{item.worker.name}</td>
+                        <td className="py-2.5 text-[#6B7280] text-[12px]">{item.jobTitle || '-'}</td>
+                        <td className="py-2.5 text-[#6B7280] text-[12px] max-w-[120px] truncate" title={item.site.name}>{item.site.name}</td>
+                        <td className="py-2.5 text-[#6B7280] text-[12px] whitespace-nowrap">
+                          {item.workStartTime && item.workEndTime
+                            ? `${item.workStartTime}~${item.workEndTime}`
+                            : item.workStartTime || item.workEndTime || '-'}
                         </td>
-                        <td className="py-2.5 text-[#374151]">
-                          <div className="line-clamp-2 text-[12px]">
-                            {item.tradeFamilyLabel && <span className="text-[#9CA3AF]">{item.tradeFamilyLabel} &gt; </span>}
-                            {item.tradeLabel && <span className="text-[#6B7280]">{item.tradeLabel} &gt; </span>}
-                            <span>{item.taskLabel || '-'}</span>
+                        <td className="py-2.5 text-[#374151] max-w-[200px]">
+                          <div className="line-clamp-1 text-[12px]">
+                            {[item.tradeFamilyLabel, item.tradeLabel, item.taskLabel].filter(Boolean).join(' > ') || '-'}
                           </div>
                         </td>
-                        <td className="py-2.5 text-[#374151]">
-                          <div className="line-clamp-2 text-[12px]">{item.todayWork || '-'}</div>
-                        </td>
                         <td className="py-2.5 text-center">
-                          {item.consecutiveDays > 1 && (
-                            <span className="text-[11px] bg-[#FFF7ED] text-[#F97316] px-1.5 py-0.5 rounded-full">{item.consecutiveDays}일</span>
+                          {item.photos && item.photos.length > 0 ? (
+                            <span className="text-[11px] text-[#3B82F6]">{item.photos.length}장</span>
+                          ) : (
+                            <span className="text-[11px] text-[#D1D5DB]">-</span>
                           )}
                         </td>
-                        <td className="py-2.5 text-right font-medium text-[#F97316]">{Number(item.todayManDays)}</td>
-                        <td className="py-2.5 text-right text-[#3B82F6]">{Number(item.monthlyManDays)}</td>
-                        <td className="py-2.5 text-right text-[#6B7280]">{Number(item.totalManDays)}</td>
                         <td className="py-2.5 text-center">
                           <StatusBadge status={item.status} />
                         </td>
