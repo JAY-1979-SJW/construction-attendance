@@ -33,6 +33,7 @@ interface ReportItem {
   monthlyManDays: number
   totalManDays: number
   notes: string | null
+  photos: string[]
   employmentType: string
   jobTitle: string
   status: string
@@ -111,6 +112,7 @@ function ReportsPageInner() {
   const [selected, setSelected] = useState<ReportItem | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const [adminMemo, setAdminMemo] = useState('')
+  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
 
   // ── 데이터 로딩 ────────────────────────────────────────────
 
@@ -229,7 +231,7 @@ function ReportsPageInner() {
               </thead>
               <tbody>
                 {missing.map((m) => (
-                  <tr key={m.workerId} className="border-b border-[#F9FAFB] hover:bg-[#FAFAFA]">
+                  <tr key={m.workerId} className="border-b border-[#F9FAFB] bg-[#FEF2F2]/40 hover:bg-[#FEE2E2]/30">
                     <td className="py-2.5 text-[#0F172A] font-medium">{m.workerName}</td>
                     <td className="py-2.5 text-[#6B7280]">{m.siteName}</td>
                     <td className="py-2.5 text-[#6B7280]">{m.jobTitle}</td>
@@ -255,32 +257,49 @@ function ReportsPageInner() {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full text-[13px]">
-                  <thead>
+                <table className="w-full text-[13px] table-fixed min-w-[1000px]">
+                  <thead className="sticky top-0 z-10 bg-white">
                     <tr className="text-left text-[11px] text-[#9CA3AF] border-b border-[#F3F4F6]">
-                      <th className="py-2 font-normal">현장</th>
-                      <th className="py-2 font-normal">근로자</th>
-                      <th className="py-2 font-normal">고용형태</th>
-                      <th className="py-2 font-normal">작업위치</th>
-                      <th className="py-2 font-normal">공종/작업</th>
-                      <th className="py-2 font-normal text-center">반복</th>
-                      <th className="py-2 font-normal text-right">일</th>
-                      <th className="py-2 font-normal text-right">월</th>
-                      <th className="py-2 font-normal text-right">총</th>
-                      <th className="py-2 font-normal text-center">상태</th>
+                      <th className="py-2 font-normal w-[90px] sticky left-0 z-10 bg-white">현장</th>
+                      <th className="py-2 font-normal w-[70px] sticky left-[90px] z-10 bg-white shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)]">근로자</th>
+                      <th className="py-2 font-normal w-[56px]">고용</th>
+                      <th className="py-2 font-normal w-[56px]">직종</th>
+                      <th className="py-2 font-normal w-[130px]">작업위치</th>
+                      <th className="py-2 font-normal w-[160px]">공종/작업</th>
+                      <th className="py-2 font-normal w-[160px]">금일 작업</th>
+                      <th className="py-2 font-normal text-center w-[44px]">반복</th>
+                      <th className="py-2 font-normal text-right w-[36px]">일</th>
+                      <th className="py-2 font-normal text-right w-[36px]">월</th>
+                      <th className="py-2 font-normal text-right w-[36px]">총</th>
+                      <th className="py-2 font-normal text-center w-[64px]">상태</th>
                     </tr>
                   </thead>
                   <tbody>
                     {items.map((item) => (
                       <tr key={item.id} onClick={() => openDetail(item)}
-                        className="border-b border-[#F9FAFB] hover:bg-[#FAFAFA] cursor-pointer transition-colors">
-                        <td className="py-2.5 text-[#6B7280] max-w-[100px] truncate">{item.site.name}</td>
-                        <td className="py-2.5 text-[#0F172A] font-medium">{item.worker.name}</td>
+                        className={`border-b border-[#F9FAFB] cursor-pointer transition-colors ${
+                          detailOpen && selected?.id === item.id
+                            ? 'bg-[#FFF7ED]'
+                            : item.status === 'CONFIRMED'
+                              ? 'bg-[#FAFFFE] hover:bg-[#F0FDF4]'
+                              : 'hover:bg-[#FAFAFA]'
+                        }`}>
+                        <td className="py-2.5 text-[#6B7280] truncate sticky left-0 z-[5] bg-inherit" title={item.site.name}>{item.site.name}</td>
+                        <td className="py-2.5 text-[#0F172A] font-medium truncate sticky left-[90px] z-[5] bg-inherit shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)]">{item.worker.name}</td>
                         <td className="py-2.5 text-[#6B7280] text-[12px]">{EMP_LABEL[item.employmentType] || item.employmentType}</td>
-                        <td className="py-2.5 text-[#6B7280] max-w-[120px] truncate text-[12px]">{item.locationDisplayName || '-'}</td>
-                        <td className="py-2.5 text-[#374151] max-w-[160px] truncate">
-                          {item.taskLabel || item.todayWork || '-'}
-                          {item.tradeLabel && <span className="text-[11px] text-[#9CA3AF] ml-1">({item.tradeLabel})</span>}
+                        <td className="py-2.5 text-[#6B7280] text-[12px] truncate">{item.jobTitle || '-'}</td>
+                        <td className="py-2.5 text-[#6B7280] text-[12px] truncate" title={item.locationDisplayName || ''}>
+                          {item.locationDisplayName || '-'}
+                        </td>
+                        <td className="py-2.5 text-[#374151]">
+                          <div className="line-clamp-2 text-[12px]">
+                            {item.tradeFamilyLabel && <span className="text-[#9CA3AF]">{item.tradeFamilyLabel} &gt; </span>}
+                            {item.tradeLabel && <span className="text-[#6B7280]">{item.tradeLabel} &gt; </span>}
+                            <span>{item.taskLabel || '-'}</span>
+                          </div>
+                        </td>
+                        <td className="py-2.5 text-[#374151]">
+                          <div className="line-clamp-2 text-[12px]">{item.todayWork || '-'}</div>
                         </td>
                         <td className="py-2.5 text-center">
                           {item.consecutiveDays > 1 && (
@@ -367,6 +386,27 @@ function ReportsPageInner() {
               {/* 특이사항 */}
               {selected.notes && <WorkSection label="특이사항" text={selected.notes} />}
 
+              {/* 첨부 사진 */}
+              <div>
+                <div className="text-[12px] font-semibold text-[#374151] mb-1">첨부 사진</div>
+                {selected.photos && selected.photos.length > 0 ? (
+                  <div className="flex gap-2">
+                    {selected.photos.map((p, i) => (
+                      <button key={i} onClick={() => setPreviewPhoto(p)}
+                        className="w-[80px] h-[80px] rounded-lg overflow-hidden border border-[#E5E7EB] hover:border-[#F97316] transition-colors">
+                        <img
+                          src={`/api/admin/daily-reports/photos/file?path=${encodeURIComponent(p)}`}
+                          alt={`사진 ${i + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-[13px] text-[#9CA3AF] bg-[#F9FAFB] rounded-lg p-3">첨부 사진 없음</div>
+                )}
+              </div>
+
               {/* 관리자 메모 */}
               <div>
                 <div className="text-[12px] font-semibold text-[#374151] mb-1">관리자 메모</div>
@@ -393,6 +433,25 @@ function ReportsPageInner() {
               )}
               <Btn variant="secondary" onClick={() => setDetailOpen(false)}>닫기</Btn>
             </div>
+          </div>
+        </>
+      )}
+
+      {/* ── 사진 확대 모달 ────────────────────────────────── */}
+      {previewPhoto && (
+        <>
+          <div className="fixed inset-0 bg-black/70 z-[60]" onClick={() => setPreviewPhoto(null)} />
+          <div className="fixed inset-0 z-[61] flex items-center justify-center p-8" onClick={() => setPreviewPhoto(null)}>
+            <img
+              src={`/api/admin/daily-reports/photos/file?path=${encodeURIComponent(previewPhoto)}`}
+              alt="사진 확대"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button onClick={() => setPreviewPhoto(null)}
+              className="absolute top-4 right-4 w-8 h-8 bg-black/50 rounded-full text-white flex items-center justify-center text-[16px] hover:bg-black/70">
+              ✕
+            </button>
           </div>
         </>
       )}

@@ -4,10 +4,14 @@
  */
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
+import { unlink } from 'fs/promises'
+import { join } from 'path'
 import { getWorkerSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, badRequest, unauthorized, forbidden, internalError } from '@/lib/utils/response'
 import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
+
+const UPLOAD_DIR = process.env.UPLOAD_DIR ?? '/app/uploads'
 
 const saveSchema = z.object({
   siteId:           z.string().min(1),
@@ -39,6 +43,7 @@ const saveSchema = z.object({
   materialUsedYn:   z.boolean().optional(),
   materialNote:     z.string().nullable().optional(),
   todayManDays:     z.number().min(0).max(3).optional(),
+  photos:           z.array(z.string()).optional(),
   copiedFromPreviousYn: z.boolean().optional(),
   copiedToTomorrowYn:   z.boolean().optional(),
 })
@@ -114,6 +119,20 @@ export async function POST(req: NextRequest) {
       session.sub, reportDate, d.todayManDays ?? 1.0
     )
 
+    // 사진 삭제 대비: 기존 photos 조회
+    let oldPhotos: string[] = []
+    if (d.photos !== undefined) {
+      const existing = await prisma.workerDailyReport.findUnique({
+        where: {
+          workerId_siteId_reportDate: {
+            workerId: session.sub, siteId: d.siteId, reportDate,
+          },
+        },
+        select: { photos: true },
+      })
+      oldPhotos = existing?.photos ?? []
+    }
+
     const shared = {
       tradeFamilyCode:  d.tradeFamilyCode ?? null,
       tradeFamilyLabel: d.tradeFamilyLabel ?? null,
@@ -138,6 +157,7 @@ export async function POST(req: NextRequest) {
       notes:           d.notes ?? null,
       materialUsedYn:  d.materialUsedYn ?? false,
       materialNote:    d.materialNote ?? null,
+      ...(d.photos !== undefined ? { photos: d.photos } : {}),
       copiedFromPreviousYn: d.copiedFromPreviousYn ?? false,
       copiedToTomorrowYn:   d.copiedToTomorrowYn ?? false,
     }
@@ -162,6 +182,26 @@ export async function POST(req: NextRequest) {
       update: shared,
       include: { site: { select: { id: true, name: true } } },
     })
+
+    // 삭제된 사진 파일 정리 (비동기, 실패해도 저장 결과에 영향 없음)
+    if (d.photos !== undefined && oldPhotos.length > 0) {
+      const newSet = new Set(d.photos)
+      const removed = oldPhotos.filter(p => !newSet.has(p))
+      for (const photoPath of removed) {
+        // 다른 일보에서 참조 중인지 확인
+        const refCount = await prisma.workerDailyReport.count({
+          where: { photos: { has: photoPath } },
+        })
+        if (refCount === 0) {
+          // 경로 안전 검증
+          if (!photoPath.includes('..') && photoPath.startsWith('daily-report-photos/')) {
+            unlink(join(UPLOAD_DIR, photoPath)).catch((err) => {
+              if (err.code !== 'ENOENT') console.error('[photo-cleanup]', photoPath, err)
+            })
+          }
+        }
+      }
+    }
 
     return ok(report, '작업일보가 저장되었습니다.')
   } catch (err) {
