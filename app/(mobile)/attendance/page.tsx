@@ -26,6 +26,8 @@ interface WorkerInfo {
   name: string
   company: string
   jobTitle: string
+  accountStatus?: string
+  devices?: { id: string }[]
 }
 
 interface AvailableSite {
@@ -489,6 +491,30 @@ export default function AttendancePage() {
         </div>
       )}
 
+      {/* ── 첫 진입 안내 (현장 미배정 / 기기 미등록) ── */}
+      {!isPreview && !today && availableSites.length === 0 && (
+        <div className="bg-card rounded-2xl p-5 mb-4 border border-[rgba(249,115,22,0.3)]">
+          <div className="text-[15px] font-bold text-white mb-3">시작하기</div>
+          <div className="space-y-[10px]">
+            <div className="flex items-center gap-3">
+              <span className="w-6 h-6 rounded-full bg-[rgba(22,163,74,0.15)] text-[#16a34a] text-[12px] font-bold flex items-center justify-center shrink-0">✓</span>
+              <span className="text-[13px] text-[#A0AEC0]">계정 승인 완료</span>
+            </div>
+            {(!worker?.devices || worker.devices.length === 0) && (
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-6 rounded-full bg-[rgba(249,115,22,0.15)] text-[#F97316] text-[12px] font-bold flex items-center justify-center shrink-0">!</span>
+                <span className="text-[13px] text-[#F97316]">기기 등록이 필요합니다</span>
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              <span className="w-6 h-6 rounded-full bg-[rgba(249,115,22,0.15)] text-[#F97316] text-[12px] font-bold flex items-center justify-center shrink-0">!</span>
+              <span className="text-[13px] text-[#F97316]">배정된 현장이 없습니다</span>
+            </div>
+          </div>
+          <p className="text-[12px] text-[#718096] mt-3 mb-0">현장 관리자에게 현장 참여를 요청하세요.</p>
+        </div>
+      )}
+
       {/* 오늘 현황 + 직접 출퇴근 */}
       <div className="bg-card rounded-2xl p-6 mb-4">
         <div className="text-[13px] text-muted-brand mb-3">오늘의 출퇴근</div>
@@ -687,12 +713,14 @@ export default function AttendancePage() {
               </div>
             ) : (
               <div className="text-center py-5 text-muted-brand">
-                <p>오늘 출근 기록이 없습니다.</p>
-                <p className="text-[13px] text-[#A0AEC0]">
-                  {!isPreview && availableSites.length === 0
-                    ? '배정된 현장이 없습니다. 관리자에게 문의하세요.'
-                    : '현장 목록에서 출근할 현장을 선택하세요.'}
-                </p>
+                {!isPreview && availableSites.length === 0 ? (
+                  <>
+                    <p className="text-[14px] mb-1">배정된 현장이 없습니다</p>
+                    <p className="text-[12px] text-[#718096]">관리자에게 현장 참여를 요청하세요.</p>
+                  </>
+                ) : (
+                  <p>현장 목록에서 출근할 현장을 선택하세요.</p>
+                )}
               </div>
             )}
           </div>
