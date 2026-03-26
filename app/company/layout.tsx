@@ -34,7 +34,16 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
         <div className="flex-1" />
         <LogoutButton />
       </nav>
-      <main className="flex-1 bg-[#f5f6f8] overflow-auto">{children}</main>
+      <main className="flex-1 bg-[#f5f6f8] overflow-auto">
+        {/* 상단 헤더 고정 */}
+        <header className="sticky top-0 z-10 bg-white border-b border-[#E5E7EB]">
+          <div className="h-1 bg-[#F97316]" />
+          <div className="h-[48px] flex items-center px-5">
+            <span className="text-[14px] font-bold text-[#0F172A]">업체 관리 포털</span>
+          </div>
+        </header>
+        {children}
+      </main>
     </div>
   )
 }
