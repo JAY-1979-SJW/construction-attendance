@@ -434,7 +434,9 @@ export default function WorkersPage() {
   const hasPanelOpen = selectedId !== null
 
   return (
-    <PageShell className="flex flex-col gap-4">
+    <PageShell className="flex flex-col gap-4" header={
+      <h1 className="text-[18px] font-bold text-[#0F172A]">근로자관리</h1>
+    }>
 
       {/* ── 저장 토스트 ── */}
       {toast && (

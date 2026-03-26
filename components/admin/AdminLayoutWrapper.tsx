@@ -103,11 +103,11 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
 
       {/* 메인 영역 */}
       <div
-        className="flex-1 min-h-screen flex flex-col transition-all duration-300"
+        className="flex-1 h-screen flex flex-col overflow-hidden transition-all duration-300"
         style={{ marginLeft: sidebarOpen ? SIDEBAR_WIDTH : 0 }}
       >
         {/* TopBar */}
-        <header className="sticky top-0 z-20 shrink-0">
+        <header className="shrink-0 z-20">
           {/* 4px 오렌지 상단 라인 */}
           <div className="h-1 bg-[#F97316]" />
           {/* 헤더 바 */}
@@ -165,8 +165,8 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
           </div>
         </header>
 
-        {/* 콘텐츠 */}
-        <div className="flex-1 bg-[#F5F7FA]">
+        {/* 콘텐츠 (독립 스크롤) */}
+        <div className="flex-1 overflow-auto bg-[#F5F7FA]">
           {children}
         </div>
       </div>

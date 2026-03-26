@@ -803,7 +803,9 @@ export default function SitesPage() {
 
   // ── 렌더 ──────────────────────────────────────────────────────────────────
   return (
-    <PageShell className="flex flex-col gap-4">
+    <PageShell className="flex flex-col gap-4" header={
+      <h1 className="text-[18px] font-bold text-[#0F172A]">현장관리</h1>
+    }>
 
       {/* ── KPI 7개 ─────────────────────────────────────────── */}
       {/* 종료임박은 계약 기준(cpStatus=ENDING_SOON)으로 집계 */}
