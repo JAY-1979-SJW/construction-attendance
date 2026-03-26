@@ -132,7 +132,7 @@ export default function RegistrationsPage() {
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
-                {['이름', '전화번호', '직종', '아이디', '상태', '신청일', ''].map(h => (
+                {['이름', '이메일', '직종', '가입일시', '상태', ''].map(h => (
                   <th
                     key={h}
                     className="bg-[#1E3350] px-[14px] py-3 text-left font-bold text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]"
@@ -143,10 +143,13 @@ export default function RegistrationsPage() {
             <tbody>
               {data.map(r => (
                 <tr key={r.id} className="border-b border-[#f0f0f0]">
-                  <td className="px-[14px] py-3 align-middle">{r.name}</td>
-                  <td className="px-[14px] py-3 align-middle">{r.phone}</td>
+                  <td className="px-[14px] py-3 align-middle">
+                    <div className="font-semibold">{r.name}</div>
+                    {r.phone && <div className="text-[11px] text-muted-brand">{r.phone}</div>}
+                  </td>
+                  <td className="px-[14px] py-3 align-middle text-[13px]">{r.email ?? <span className="text-muted-brand">-</span>}</td>
                   <td className="px-[14px] py-3 align-middle">{r.jobTitle}</td>
-                  <td className="px-[14px] py-3 align-middle">{r.username ?? '-'}</td>
+                  <td className="px-[14px] py-3 align-middle text-[13px] text-muted-brand">{new Date(r.createdAt).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
                   <td className="px-[14px] py-3 align-middle">
                     <span
                       className="inline-block text-white text-[11px] font-bold px-2 py-[3px] rounded-xl"
@@ -156,7 +159,6 @@ export default function RegistrationsPage() {
                     </span>
                     {r.rejectReason && <div className="text-[11px] text-[#c62828] mt-1 max-w-[160px]">{r.rejectReason}</div>}
                   </td>
-                  <td className="px-[14px] py-3 align-middle">{new Date(r.createdAt).toLocaleDateString()}</td>
                   <td className="px-[14px] py-3 align-middle">
                     {r.accountStatus === 'PENDING' && (
                       <div className="flex gap-[6px]">
