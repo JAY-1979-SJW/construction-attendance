@@ -82,8 +82,8 @@ export async function GET(req: Request) {
         return res
       }
 
-      // 프로필 미완성 (phone이 없으면) → 프로필 완성 페이지
-      if (!existingWorker.phone) {
+      // 프로필 미완성 (jobTitle이 미설정이면) → 프로필 완성 페이지
+      if (existingWorker.jobTitle === '미설정') {
         const token = await signToken({ sub: existingWorker.id, type: 'worker' })
         const res = NextResponse.redirect(`${BASE_URL}/register/complete`)
         res.cookies.set('worker_token', token, {
