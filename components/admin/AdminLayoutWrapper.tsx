@@ -69,6 +69,73 @@ function getSectionName(pathname: string): string {
   return match ? match[1] : ''
 }
 
+// 경로 → 페이지 타이틀 (전체 admin 페이지 커버)
+const PAGE_TITLE_MAP: Record<string, string> = {
+  '/admin':                                    '운영 대시보드',
+  '/admin/attendance':                         '출퇴근관리',
+  '/admin/presence-checks':                    '중간 체류확인',
+  '/admin/exceptions':                         '예외 승인',
+  '/admin/work-confirmations':                 '근무확정',
+  '/admin/corrections':                        '정정 이력',
+  '/admin/workers':                            '근로자관리',
+  '/admin/companies':                          '회사관리',
+  '/admin/registrations':                      '회원가입 승인',
+  '/admin/approvals':                          '승인 관리',
+  '/admin/device-requests':                    '기기 등록 신청',
+  '/admin/company-admin-requests':             '업체관리자 신청',
+  '/admin/company-admins':                     '업체관리자',
+  '/admin/sites':                              '현장관리',
+  '/admin/site-access-groups':                 '현장 접근 그룹',
+  '/admin/site-admin-assignments':             '현장관리자 배치',
+  '/admin/site-imports':                       '현장 Import',
+  '/admin/site-join-requests':                 '현장 참여 신청',
+  '/admin/site-locations':                     '현장 위치 마스터',
+  '/admin/settings':                           '시스템 설정',
+  '/admin/audit-logs':                         '감사 로그',
+  '/admin/super-users':                        '관리자 계정',
+  '/admin/policies':                           '정책 관리',
+  '/admin/contracts':                          '계약 관리',
+  '/admin/wage-calculations':                  '급여 계산',
+  '/admin/month-closings':                     '월 마감',
+  '/admin/wage':                               '노임관리',
+  '/admin/labor':                              '노무관리',
+  '/admin/labor-faqs':                         '노무 FAQ',
+  '/admin/insurance-eligibility':              '보험 자격 판정',
+  '/admin/insurance-rates':                    '보험요율 관리',
+  '/admin/subcontractor-settlements':          '협력사 정산',
+  '/admin/retirement-mutual':                  '퇴직공제',
+  '/admin/materials':                          '자재 관리',
+  '/admin/materials/requests':                 '자재 청구',
+  '/admin/materials/purchase-orders':          '발주 관리',
+  '/admin/materials/inventory':                '자재 재고',
+  '/admin/materials/estimates':                '내역서 분석',
+  '/admin/document-center':                    '문서 센터',
+  '/admin/operations/print-center':            '출력 센터',
+  '/admin/operations/today-tasks':             '오늘 업무',
+  '/admin/operations/attendance-exceptions':   '출퇴근 이상 센터',
+  '/admin/operations/labor-review':            '노무 검토',
+  '/admin/operations-dashboard':               '운영 대시보드',
+  '/admin/pilot':                              '파일럿 모니터',
+  '/admin/devices':                            '기기 관리',
+  '/admin/devices-anomaly':                    '기기 이상 탐지',
+  '/admin/presence-report':                    '체류 리포트',
+  '/admin/labor-cost-summaries':               '노무비 집계',
+  '/admin/temp-docs':                          '임시 문서',
+  '/admin/reports':                            '작업일보 관리',
+}
+
+function getPageTitle(pathname: string): string {
+  if (PAGE_TITLE_MAP[pathname]) return PAGE_TITLE_MAP[pathname]
+  // 동적 라우트: 상위 경로 순서대로 탐색
+  const segments = pathname.split('/')
+  while (segments.length > 2) {
+    segments.pop()
+    const parent = segments.join('/')
+    if (PAGE_TITLE_MAP[parent]) return PAGE_TITLE_MAP[parent]
+  }
+  return ''
+}
+
 export default function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -88,6 +155,7 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
   if (pathname === '/admin/login') return <>{children}</>
 
   const sectionName = getSectionName(pathname)
+  const pageTitle = getPageTitle(pathname)
 
   return (
     <div className="flex min-h-screen bg-[#F5F7FA]">
@@ -167,6 +235,11 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
 
         {/* 콘텐츠 (독립 스크롤) */}
         <div className="flex-1 overflow-auto bg-[#F5F7FA]">
+          {pageTitle && (
+            <div className="sticky top-0 z-10 bg-[#F5F7FA] px-5 md:px-6 pt-5 md:pt-6 pb-3">
+              <h1 className="text-[18px] font-bold text-[#0F172A]">{pageTitle}</h1>
+            </div>
+          )}
           {children}
         </div>
       </div>

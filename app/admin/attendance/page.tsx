@@ -599,9 +599,7 @@ function AttendancePageInner() {
   const quickCheckoutRef = useRef<HTMLInputElement>(null)
 
   return (
-    <PageShell className="flex flex-col gap-4" header={
-      <h1 className="text-[18px] font-bold text-[#0F172A]">출퇴근관리</h1>
-    }>
+    <PageShell className="flex flex-col gap-4">
 
       {/* ── 저장 토스트 ── */}
       {toast && (

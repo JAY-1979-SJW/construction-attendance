@@ -118,11 +118,7 @@ export default function LaborPage() {
   }
 
   return (
-    <div className="bg-[#F5F7FA]">
-      <div className="sticky top-0 z-10 bg-[#F5F7FA] px-8 pt-8 pb-3">
-        <h1 className="text-[18px] font-bold text-[#0F172A]">노무관리</h1>
-      </div>
-      <div className="px-8 pb-8">
+    <div className="p-5 md:p-6 bg-[#F5F7FA]">
 
       {/* 노무 관제 허브 */}
       <div className="flex gap-3 mb-6 flex-wrap">
@@ -337,7 +333,6 @@ export default function LaborPage() {
         <div className="flex items-center gap-2.5 mt-2 text-xs text-muted-brand">
           인정 현장 기준: 이동 이력이 있으면 마지막 현장 기준 / 없으면 출근 현장 기준
         </div>
-      </div>
       </div>
     </div>
   )

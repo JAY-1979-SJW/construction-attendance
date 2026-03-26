@@ -166,14 +166,10 @@ export default function WagePage() {
   }, {})
 
   return (
-    <div className="bg-[#F5F7FA]">
-      <div className="sticky top-0 z-10 bg-[#F5F7FA] px-8 pt-8 pb-3">
-        <h1 className="text-[18px] font-bold text-[#0F172A] m-0">노임관리</h1>
-        <p className="text-[12px] text-[#9CA3AF] mt-1 m-0">
-          출퇴근 기록 → 공수 → 노임 집계 / 공수 기준: 점심 제외 8시간 이상=1.0공수, 4~8시간=0.5공수
-        </p>
-      </div>
-      <div className="px-8 pb-8">
+    <div className="p-5 md:p-6 bg-[#F5F7FA]">
+      <p className="text-[12px] text-[#9CA3AF] mb-4 m-0">
+        출퇴근 기록 → 공수 → 노임 집계 / 공수 기준: 점심 제외 8시간 이상=1.0공수, 4~8시간=0.5공수
+      </p>
 
       {/* 필터 */}
       <div className="bg-card rounded-xl p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)] flex gap-3 flex-wrap items-end">
@@ -454,7 +450,6 @@ export default function WagePage() {
           {toast.ok ? '✓' : '✗'} {toast.msg}
         </div>
       )}
-      </div>
     </div>
   )
 }

@@ -131,7 +131,7 @@ function ApprovalsContent() {
   }
 
   return (
-    <PageShell header={<h1 className="text-[18px] font-bold text-[#0F172A]">승인 관리</h1>}>
+    <PageShell>
 
       <div className="flex border-b border-[#E5E7EB] mb-0 flex-wrap gap-[2px] bg-white rounded-t-[10px] px-2 pt-1">
         {TABS.map(t => (

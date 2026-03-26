@@ -167,12 +167,11 @@ function ReportsPageInner() {
   const showMissing = status === 'MISSING'
 
   return (
-    <PageShell header={
-      <div className="flex items-center justify-between">
-        <h1 className="text-[18px] font-bold text-[#0F172A]">작업일보 관리</h1>
+    <PageShell>
+
+      <div className="flex justify-end mb-3">
         <Btn variant="ghost" size="sm" onClick={fetchData}>새로고침</Btn>
       </div>
-    }>
 
       {/* ── KPI ────────────────────────────────────────── */}
       {summary && (

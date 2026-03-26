@@ -322,12 +322,10 @@ export default function AdminDashboard() {
   const issueCount = (summary?.todayMissing ?? 0) + (summary?.todayException ?? 0)
 
   return (
-    <PageShell header={
-      <div className="flex items-start justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-[18px] font-bold text-[#0F172A] m-0">운영 대시보드</h1>
-          <p className="text-[12px] text-[#9CA3AF] mt-1 m-0">인원·노임·현장 운영 현황 통합 확인</p>
-        </div>
+    <PageShell>
+
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+        <p className="text-[12px] text-[#9CA3AF] m-0">인원·노임·현장 운영 현황 통합 확인</p>
         <div className="flex items-center gap-2 flex-wrap">
           <input
             type="date"
@@ -356,7 +354,6 @@ export default function AdminDashboard() {
           </Btn>
         </div>
       </div>
-    }>
 
       {/* ── 계약기간 보조 정보 바 (특정 현장 선택 시) ────────────────────── */}
       {selectedSiteInfo && (

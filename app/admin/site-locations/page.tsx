@@ -86,7 +86,7 @@ export default function SiteLocationsPage() {
   }
 
   return (
-    <PageShell header={<h1 className="text-[18px] font-bold text-[#0F172A]">현장 위치 마스터</h1>}>
+    <PageShell>
 
       {/* 현장 선택 */}
       <SectionCard className="mb-4">
