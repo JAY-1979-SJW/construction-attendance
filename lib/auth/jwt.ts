@@ -1,9 +1,10 @@
 import { SignJWT, jwtVerify } from 'jose'
 import type { JwtPayload } from '@/types/auth'
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? 'fallback-dev-secret-change-in-production'
-)
+if (!process.env.JWT_SECRET) {
+  throw new Error('[FATAL] JWT_SECRET 환경변수가 설정되지 않았습니다. 서버를 시작할 수 없습니다.')
+}
+const secret = new TextEncoder().encode(process.env.JWT_SECRET)
 const algorithm = 'HS256'
 
 export async function signToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): Promise<string> {

@@ -84,9 +84,14 @@ function RegisterContent() {
       location: consentLocation, marketing: consentMarketing,
       documentIds: Object.fromEntries(policyDocs.map(d => [d.documentType, d.id])),
     })
-    document.cookie = `auth_intent=register; path=/; max-age=600; SameSite=Lax`
-    document.cookie = `register_consent=${encodeURIComponent(consent)}; path=/; max-age=600; SameSite=Lax`
-    signIn(provider, { callbackUrl: '/api/auth/complete' })
+    // httpOnly 쿠키로 서버 발급 후 OAuth 진행
+    fetch('/api/auth/register-intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ consent }),
+    }).then(() => {
+      signIn(provider, { callbackUrl: '/api/auth/complete' })
+    })
   }
 
   function handleCheckAll(checked: boolean) {

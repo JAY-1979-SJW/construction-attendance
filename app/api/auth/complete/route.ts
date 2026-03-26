@@ -117,7 +117,13 @@ export async function GET(req: Request) {
     }
 
     // ── 신규 근로자 생성 ──────────────────────────────────
-    const accountStatus = isRegisterMode ? 'PENDING' : 'APPROVED'
+    // 가입 모드가 아닌 경우(로그인만 시도) → 가입 페이지로 리다이렉트
+    // 승인 흐름 우회 방지: 명시적 가입 절차를 거쳐야만 계정 생성
+    if (!isRegisterMode) {
+      const res = NextResponse.redirect(`${BASE_URL}/register?error=not_registered`)
+      clearIntentCookies(res)
+      return res
+    }
 
     const worker = await prisma.worker.create({
       data: {
@@ -125,30 +131,18 @@ export async function GET(req: Request) {
         email,
         phone: null,
         jobTitle: '미설정',
-        accountStatus,
+        accountStatus: 'PENDING',
         isActive: true,
       },
     })
 
     const token = await signToken({ sub: worker.id, type: 'worker' })
-
-    // 가입 모드 → 프로필 완성 페이지
-    if (isRegisterMode) {
-      const res = NextResponse.redirect(`${BASE_URL}/register/complete`)
-      res.cookies.set('worker_token', token, {
-        httpOnly: true, secure: true, sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, path: '/',
-      })
-      clearIntentCookies(res)
-      return res
-    }
-
-    // 일반 로그인 → 바로 출퇴근
-    const res = NextResponse.redirect(`${BASE_URL}/attendance`)
+    const res = NextResponse.redirect(`${BASE_URL}/register/complete`)
     res.cookies.set('worker_token', token, {
       httpOnly: true, secure: true, sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, path: '/',
     })
+    clearIntentCookies(res)
     return res
   } catch (err) {
     console.error('[auth/complete]', err)

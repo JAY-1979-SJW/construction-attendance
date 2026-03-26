@@ -28,7 +28,20 @@ export const COMPANY_PUBLIC_PATHS = ['/company/login', '/api/company/auth/login'
 /** 인증이 필요한 업체 관리자 경로 접두사 */
 export const COMPANY_PATHS = ['/company', '/api/company']
 
+// ─── 관리자 전용 추가 경로 (admin_token 필요) ────────────────────────────────
+
+/** admin_token이 필요한 추가 페이지 경로 접두사 */
+export const ADMIN_EXTRA_PATHS = ['/labor', '/ops']
+
 // ─── 근로자 경로 ─────────────────────────────────────────────────────────────
+
+/** worker_token이 필요한 페이지 경로 (모바일 라우트 그룹 + /my) */
+export const WORKER_PROTECTED_PAGES = [
+  '/attendance',
+  '/daily-report',
+  '/contracts',
+  '/my',
+]
 
 /** worker_token이 필요한 API 경로 접두사 */
 export const WORKER_PROTECTED_PATHS = [
@@ -38,14 +51,15 @@ export const WORKER_PROTECTED_PATHS = [
   '/api/auth/logout',
   '/api/export',
   '/api/worker',
+  '/api/sites',
 ]
 
 /** 토큰 불필요 공개 API 경로 */
 export const PUBLIC_API_PATHS = [
   '/api/auth/login',
   '/api/auth/register',
+  '/api/auth/register-intent',
   '/api/health',
-  '/api/sites/list',
   '/api/policies',
 ]
 

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma'
 import { signToken } from '@/lib/auth/jwt'
 import { badRequest, unauthorized, internalError } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { checkRateLimit, resetRateLimit } from '@/lib/auth/rate-limit'
 import bcrypt from 'bcryptjs'
 
 const schema = z.object({
@@ -19,11 +20,29 @@ export async function POST(request: NextRequest) {
 
     const { email, password } = parsed.data
 
+    // Rate limiting: IP + email 기준 각각 5회/1분
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+    const ipCheck = checkRateLimit(`login:ip:${ip}`, { maxAttempts: 10, windowMs: 60_000 })
+    const emailCheck = checkRateLimit(`login:email:${email}`, { maxAttempts: 5, windowMs: 60_000 })
+
+    if (!ipCheck.allowed || !emailCheck.allowed) {
+      const retryMs = Math.max(ipCheck.retryAfterMs, emailCheck.retryAfterMs)
+      const retrySec = Math.ceil(retryMs / 1000)
+      return NextResponse.json(
+        { success: false, message: `로그인 시도가 너무 많습니다. ${retrySec}초 후 다시 시도해주세요.` },
+        { status: 429 }
+      )
+    }
+
     const admin = await prisma.adminUser.findUnique({ where: { email }, select: { id: true, name: true, email: true, passwordHash: true, role: true, isActive: true, companyId: true } })
     if (!admin || !admin.isActive) return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
 
     const valid = await bcrypt.compare(password, admin.passwordHash)
     if (!valid) return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
+
+    // 로그인 성공 → rate limit 초기화
+    resetRateLimit(`login:ip:${ip}`)
+    resetRateLimit(`login:email:${email}`)
 
     const token = await signToken({
       sub: admin.id,

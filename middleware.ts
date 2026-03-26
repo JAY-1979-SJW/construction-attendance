@@ -3,8 +3,10 @@ import { verifyToken } from '@/lib/auth/jwt'
 import {
   ADMIN_PUBLIC_PATHS,
   ADMIN_PATHS,
+  ADMIN_EXTRA_PATHS,
   COMPANY_PUBLIC_PATHS,
   COMPANY_PATHS,
+  WORKER_PROTECTED_PAGES,
   WORKER_PROTECTED_PATHS,
   ROUTE_REDIRECT,
 } from '@/lib/policies/route-policy'
@@ -74,6 +76,36 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // ── 관리자 전용 추가 경로 (/labor, /ops) ─────────────────────
+  if (ADMIN_EXTRA_PATHS.some((p) => pathname.startsWith(p))) {
+    const token = request.cookies.get('admin_token')?.value
+    if (!token) {
+      return NextResponse.redirect(new URL('/admin/login', request.url))
+    }
+
+    try {
+      const payload = await verifyToken(token)
+      if (!payload || payload.type !== 'admin') throw new Error('Invalid token type')
+    } catch {
+      return NextResponse.redirect(new URL('/admin/login', request.url))
+    }
+  }
+
+  // ── 근로자 페이지 경로 (/attendance, /daily-report, /contracts, /my) ──
+  if (WORKER_PROTECTED_PAGES.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
+    const token = request.cookies.get('worker_token')?.value
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    try {
+      const payload = await verifyToken(token)
+      if (!payload || payload.type !== 'worker') throw new Error('Invalid token type')
+    } catch {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
   // ── Worker API 경로 ──────────────────────────────────────────
   if (WORKER_PROTECTED_PATHS.some((p) => pathname.startsWith(p))) {
     const token = request.cookies.get('worker_token')?.value
@@ -98,11 +130,21 @@ export const config = {
     '/api/admin/:path*',
     '/company/:path*',
     '/api/company/:path*',
+    '/labor/:path*',
+    '/ops/:path*',
+    '/attendance',
+    '/attendance/:path*',
+    '/daily-report',
+    '/daily-report/:path*',
+    '/contracts/:path*',
+    '/my',
+    '/my/:path*',
     '/api/attendance/:path*',
     '/api/device/:path*',
     '/api/auth/me',
     '/api/auth/logout',
     '/api/export/:path*',
     '/api/worker/:path*',
+    '/api/sites/:path*',
   ],
 }
