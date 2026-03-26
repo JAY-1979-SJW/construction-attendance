@@ -93,10 +93,11 @@ export async function GET(request: NextRequest) {
     const workerIds = workers.map(w => w.id)
 
     // ── 오늘 출근 현황 조회 ─────────────────────────────────────
-    const todayStr = new Date().toISOString().slice(0, 10)
+    const now = new Date()
+    const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     const todayLogs = workerIds.length > 0
       ? await prisma.attendanceLog.findMany({
-          where: { workerId: { in: workerIds }, workDate: todayStr },
+          where: { workerId: { in: workerIds }, workDate: todayDate },
           select: {
             workerId: true,
             siteId: true,
