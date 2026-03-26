@@ -21,11 +21,11 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: '출퇴근',  icon: '🕐', href: '/attendance',         match: ['/attendance'] },
-  { label: '내 문서', icon: '📄', href: '/my/documents',       match: ['/my/documents'] },
-  { label: '내 정보', icon: '👤', href: '/my/status',          match: ['/my/status', '/my'] },
-  { label: '공지',    icon: '📢', href: '/my/notices',         match: ['/my/notices'] },
-  { label: '요청',    icon: '📝', href: '/my/requests',        match: ['/my/requests'] },
+  { label: '출퇴근',    icon: '🕐', href: '/attendance',       match: ['/attendance'] },
+  { label: '작업일보',  icon: '📋', href: '/daily-report',     match: ['/daily-report'] },
+  { label: '내 정보',   icon: '👤', href: '/my/status',        match: ['/my/status', '/my'] },
+  { label: '공지',      icon: '📢', href: '/my/notices',       match: ['/my/notices'] },
+  { label: '요청',      icon: '📝', href: '/my/requests',      match: ['/my/requests'] },
 ]
 
 export default function WorkerBottomNav() {

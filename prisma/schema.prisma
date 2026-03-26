@@ -471,6 +471,20 @@ enum SiteWorkLogStatus {
   LOCKED     // 확정/잠금
 }
 
+// ─── 근로자 작업일보 Enums ─────────────────────────────────
+
+enum WorkerReportStatus {
+  WRITTEN     // 작성완료
+  CONFIRMED   // 확인완료 (관리자)
+}
+
+enum ReportEmploymentType {
+  DIRECT          // 직영
+  DAILY           // 일용
+  OUTSOURCE_LEAD  // 외주팀장
+  OUTSOURCE_CREW  // 외주팀원
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model AdminUser {
@@ -662,6 +676,8 @@ model Worker {
   dailyWorkerStatuses        SiteDailyWorkerStatus[]
   // 자재 요청 (worker 요청자)
   materialRequests           MaterialRequest[]        @relation("WorkerMaterialRequests")
+  // 근로자 작업일보
+  dailyReports               WorkerDailyReport[]
 
   @@map("workers")
 }
@@ -719,6 +735,9 @@ model Site {
   estimateDocuments          EstimateDocument[]
   materialRequests           MaterialRequest[]
   purchaseOrders             PurchaseOrder[]
+  // 근로자 작업일보
+  workerDailyReports         WorkerDailyReport[]
+  locationMasters            SiteLocationMaster[]
 
   @@map("sites")
 }
@@ -3733,4 +3752,147 @@ model GoodsReceiptItem {
   @@index([goodsReceiptId])
   @@index([poItemId])
   @@map("goods_receipt_items")
+}
+
+// ─── 근로자 작업일보 ────────────────────────────────────────────────────────────
+
+model WorkerDailyReport {
+  id                  String               @id @default(cuid())
+  workerId            String
+  siteId              String
+  attendanceLogId     String?              // AttendanceLog 연결 (soft ref)
+  reportDate          DateTime             @db.Date
+  // ── 고용/직종 스냅샷 ─────────────────────────────────────
+  employmentType      ReportEmploymentType @default(DIRECT)
+  jobTitle            String               @default("미설정")
+  // ── 공종/작업사항 (표준 선택형) ──────────────────────────
+  tradeFamilyCode     String?              // 공종계열 코드 (ELEC, MECH, CIVIL 등)
+  tradeFamilyLabel    String?              // 공종계열 표시명
+  tradeCode           String?              // 세부공종 코드 (ELECTRICAL, FIRE_ELEC 등)
+  tradeLabel          String?              // 세부공종 표시명 (전기, 소방전기 등)
+  taskCode            String?              // 작업사항 코드 (SLAB_CONDUIT 등)
+  taskLabel           String?              // 작업사항 표시명 (슬라브 배관 등)
+  workDetail          String?              @db.Text  // 세부 작업 설명 (자유입력)
+  // ── 작업 위치 (선택형) ───────────────────────────────────
+  buildingName        String?              // 동 (A동, B동 등)
+  floorLabel          String?              // 층 (지하2층, 12층 등)
+  locationDetail      String?              // 상세위치 (EPS실, 복도 등)
+  locationDisplayName String?              // 조합 표시명 (A동 지하2층 EPS실)
+  // ── 작업 3구조 ───────────────────────────────────────────
+  yesterdayWork       String?              @db.Text
+  todayWork           String?              @db.Text
+  tomorrowWork        String?              @db.Text
+  // ── 작업 분류 (레거시 — 공종/작업사항으로 대체) ──────────
+  workType            String?
+  processType         String?
+  // ── 작업시간 ─────────────────────────────────────────────
+  workStartTime       String?              // HH:mm
+  workEndTime         String?              // HH:mm
+  // ── 반복·공수 ────────────────────────────────────────────
+  consecutiveDays     Int                  @default(1)    // 동일 작업 연속일수
+  todayManDays        Decimal              @default(1.0)  @db.Decimal(4, 1)
+  monthlyManDays      Decimal              @default(0)    @db.Decimal(6, 1)
+  totalManDays        Decimal              @default(0)    @db.Decimal(8, 1)
+  // ── 부가 정보 ────────────────────────────────────────────
+  notes               String?              @db.Text
+  materialUsedYn      Boolean              @default(false)
+  materialNote        String?
+  photos              String[]             @default([])
+  // ── 복사 플래그 ──────────────────────────────────────────
+  copiedFromPreviousYn Boolean             @default(false)
+  copiedToTomorrowYn   Boolean             @default(false)
+  // ── 관리자 확인 ──────────────────────────────────────────
+  status              WorkerReportStatus   @default(WRITTEN)
+  confirmedById       String?
+  confirmedAt         DateTime?
+  adminMemo           String?              @db.Text
+  // ── 타임스탬프 ───────────────────────────────────────────
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([workerId, siteId, reportDate])
+  @@index([siteId, reportDate])
+  @@index([workerId, reportDate])
+  @@index([status])
+  @@index([tradeFamilyCode, tradeCode, taskCode])
+  @@map("worker_daily_reports")
+}
+
+// ─── 현장별 위치 마스터 ─────────────────────────────────────────────────────
+
+model SiteLocationMaster {
+  id              String   @id @default(cuid())
+  siteId          String
+  buildingName    String               // 동 (A동, B동 등)
+  floorOrder      Int      @default(0) // 정렬 순서 (지하 음수, 지상 양수)
+  floorLabel      String               // 층 표시 (지하2층, 12층, 옥탑 등)
+  detailLabel     String?              // 상세위치 (EPS실, 복도, 기계실 등)
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, buildingName])
+  @@index([siteId, isActive])
+  @@map("site_location_masters")
+}
+
+// ─── 공종 계열 마스터 ───────────────────────────────────────────────────────
+
+model TradeFamilyMaster {
+  id          String   @id @default(cuid())
+  code        String   @unique  // ELEC, MECH, CIVIL, ARCH, ETC
+  label       String             // 전기계열, 기계계열, 토목계열 등
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  trades TradeMaster[]
+  tasks  TaskMaster[]
+
+  @@map("trade_family_masters")
+}
+
+// ─── 세부 공종 마스터 ───────────────────────────────────────────────────────
+
+model TradeMaster {
+  id              String   @id @default(cuid())
+  tradeFamilyId   String
+  code            String   @unique  // ELECTRICAL, FIRE_ELEC, FIRE_MECH, TELECOM 등
+  label           String             // 전기, 소방전기, 소방기계, 통신 등
+  sortOrder       Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  family TradeFamilyMaster @relation(fields: [tradeFamilyId], references: [id], onDelete: Cascade)
+
+  @@index([tradeFamilyId])
+  @@map("trade_masters")
+}
+
+// ─── 작업사항 마스터 (계열 기준) ────────────────────────────────────────────
+
+model TaskMaster {
+  id              String   @id @default(cuid())
+  tradeFamilyId   String               // 계열에 연결 (계열 공통 작업사항)
+  tradeId         String?              // 특정 공종 전용이면 지정, null이면 계열 공통
+  code            String   @unique     // SLAB_CONDUIT, WIRING, BOX_MOUNT 등
+  label           String               // 슬라브 배관, 입선, 박스 취부 등
+  sortOrder       Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  family TradeFamilyMaster @relation(fields: [tradeFamilyId], references: [id], onDelete: Cascade)
+
+  @@index([tradeFamilyId])
+  @@index([tradeId])
+  @@map("task_masters")
 }
