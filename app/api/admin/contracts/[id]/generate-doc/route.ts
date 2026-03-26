@@ -9,7 +9,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
 import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
 import {
   renderDailyEmploymentContract,
@@ -81,6 +81,7 @@ export async function POST(
     },
   })
   if (!contract) return NextResponse.json({ error: '계약 없음' }, { status: 404 })
+  if (contract.siteId && !await canAccessSite(session, contract.siteId)) return siteAccessDenied()
 
   const body = await req.json().catch(() => ({}))
   const { docType, extraData = {} } = body as { docType: string; extraData?: Record<string, unknown> }

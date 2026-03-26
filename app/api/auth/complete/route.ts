@@ -60,7 +60,7 @@ export async function GET(req: Request) {
       const res = NextResponse.redirect(`${BASE_URL}/admin`)
       res.cookies.set('admin_token', token, {
         httpOnly: true, secure: true, sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, path: '/',
+        maxAge: 60 * 60 * 24, path: '/', // 1일 (JWT 만료와 일치)
       })
       clearIntentCookies(res)
       return res

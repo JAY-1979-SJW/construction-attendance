@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES, buildWorkerScopeWhere } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { unauthorized, badRequest, notFound, internalError } from '@/lib/utils/response'
@@ -35,6 +35,17 @@ export async function PATCH(
       include: { worker: { select: { name: true, phone: true } } },
     })
     if (!device) return notFound('기기를 찾을 수 없습니다.')
+
+    // site scope 검사: device의 worker가 접근 가능한 범위인지 확인
+    const scopeWhere = await buildWorkerScopeWhere(session)
+    if (scopeWhere === false) return NextResponse.json({ success: false, message: '접근 권한이 없습니다.' }, { status: 403 })
+    if (Object.keys(scopeWhere).length > 0) {
+      const allowed = await prisma.worker.findFirst({
+        where: { id: device.workerId, ...scopeWhere },
+        select: { id: true },
+      })
+      if (!allowed) return NextResponse.json({ success: false, message: '이 근로자에 대한 접근 권한이 없습니다.' }, { status: 403 })
+    }
 
     if (action === 'BLOCK') {
       await prisma.workerDevice.update({

@@ -4,7 +4,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
 import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
 
 export async function POST(
@@ -19,6 +19,7 @@ export async function POST(
     include: { worker: { select: { name: true } } },
   })
   if (!contract) return NextResponse.json({ error: '계약 없음' }, { status: 404 })
+  if (contract.siteId && !await canAccessSite(session, contract.siteId)) return siteAccessDenied()
   if (!contract.signedAt) {
     return NextResponse.json({ error: '서명 완료 후 교부 가능합니다' }, { status: 400 })
   }

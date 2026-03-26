@@ -4,7 +4,7 @@
  */
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, badRequest, unauthorized, notFound, internalError } from '@/lib/utils/response'
 
@@ -40,6 +40,8 @@ export async function GET(
 
     if (!report) return notFound('작업일보를 찾을 수 없습니다.')
 
+    if (report.siteId && !(await canAccessSite(session, report.siteId))) return siteAccessDenied()
+
     return ok(report)
   } catch (err) {
     console.error('[admin/daily-reports/[id] GET]', err)
@@ -68,6 +70,8 @@ export async function PATCH(
 
     const existing = await prisma.workerDailyReport.findUnique({ where: { id } })
     if (!existing) return notFound('작업일보를 찾을 수 없습니다.')
+
+    if (existing.siteId && !(await canAccessSite(session, existing.siteId))) return siteAccessDenied()
 
     const updateData: any = {}
     if (d.adminMemo !== undefined) updateData.adminMemo = d.adminMemo

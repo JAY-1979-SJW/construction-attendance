@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
 import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
 
 // GET /api/admin/contracts/[id]
@@ -17,6 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     },
   })
   if (!contract) return NextResponse.json({ error: '계약 없음' }, { status: 404 })
+  if (contract.site?.id && !await canAccessSite(session, contract.site.id)) return siteAccessDenied()
 
   return NextResponse.json({ success: true, data: contract })
 }
@@ -28,6 +29,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   const existing = await prisma.workerContract.findUnique({ where: { id: params.id } })
   if (!existing) return NextResponse.json({ error: '계약 없음' }, { status: 404 })
+  if (existing.siteId && !await canAccessSite(session, existing.siteId)) return siteAccessDenied()
 
   if (existing.contractStatus === 'ENDED') {
     return NextResponse.json({ error: '종료된 계약은 수정할 수 없습니다.' }, { status: 400 })

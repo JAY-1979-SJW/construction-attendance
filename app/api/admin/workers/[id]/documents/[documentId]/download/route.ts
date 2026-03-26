@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, buildWorkerScopeWhere } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { readDocumentFile } from '@/lib/storage/document-storage'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
@@ -18,6 +18,17 @@ export async function GET(
   const { id: workerId, documentId } = await params
   const { searchParams } = new URL(request.url)
   const inline = searchParams.get('inline') === '1'  // inline=1 이면 브라우저에서 열기, 아니면 다운로드
+
+  // site scope 검사: workerId가 접근 가능한 범위인지 확인
+  const scopeWhere = await buildWorkerScopeWhere(session)
+  if (scopeWhere === false) return NextResponse.json({ error: '접근 권한이 없습니다.' }, { status: 403 })
+  if (Object.keys(scopeWhere).length > 0) {
+    const allowed = await prisma.worker.findFirst({
+      where: { id: workerId, ...scopeWhere },
+      select: { id: true },
+    })
+    if (!allowed) return NextResponse.json({ error: '이 근로자에 대한 접근 권한이 없습니다.' }, { status: 403 })
+  }
 
   const doc = await prisma.workerDocument.findFirst({
     where: { id: documentId, workerId },

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
 import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
 
 // POST /api/admin/contracts/[id]/activate
@@ -11,6 +11,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const contract = await prisma.workerContract.findUnique({ where: { id: params.id } })
   if (!contract) return NextResponse.json({ error: '계약 없음' }, { status: 404 })
+  if (contract.siteId && !await canAccessSite(session, contract.siteId)) return siteAccessDenied()
 
   if (contract.contractStatus === 'ACTIVE') {
     return NextResponse.json({ error: '이미 활성 계약입니다.' }, { status: 400 })

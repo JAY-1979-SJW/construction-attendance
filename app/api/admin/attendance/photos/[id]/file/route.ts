@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { unauthorized, notFound, internalError } from '@/lib/utils/response'
 
@@ -21,9 +21,11 @@ export async function GET(
 
     const photo = await prisma.attendancePhotoEvidence.findUnique({
       where: { id: params.id },
-      select: { filePath: true, mimeType: true },
+      select: { filePath: true, mimeType: true, siteId: true },
     })
     if (!photo) return notFound('사진을 찾을 수 없습니다.')
+
+    if (photo.siteId && !(await canAccessSite(session, photo.siteId))) return siteAccessDenied()
 
     const fullPath = join(UPLOAD_DIR, photo.filePath)
     const buffer = await readFile(fullPath)
