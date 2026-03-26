@@ -26,7 +26,8 @@ interface Worker {
   retirementMutualStatus: string
   createdAt: string
   primaryCompany: { id: string; companyName: string } | null
-  activeSites: { id: string; name: string }[]
+  activeSites: { id: string; name: string; isPrimary?: boolean }[]
+  todayAttendance: { siteId: string; siteName: string; checkInAt: string | null; checkOutAt: string | null; status: string } | null
   // 서류/교육 상태
   hasContract: boolean
   contractDate: string | null
@@ -539,7 +540,7 @@ export default function WorkersPage() {
                 <table className="w-full border-collapse text-[13px]" style={{ minWidth: 840 }}>
                   <thead>
                     <tr className="border-b border-[#F3F4F6] bg-[#FAFAFA]">
-                      {['이름', '직종', '소속현장', '상태', '투입가능', '근로계약서', '안전교육', '안전교육증', '일당', '월 누계', '확인상태'].map(h => (
+                      {['이름', '직종', '주배정현장', '오늘출근', '상태', '투입가능', '근로계약서', '안전교육', '안전교육증', '일당', '월 누계', '확인상태'].map(h => (
                         <th key={h} className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
@@ -568,12 +569,27 @@ export default function WorkersPage() {
                           </td>
                           {/* 직종 */}
                           <td className="px-3 py-2.5 text-[12px] text-[#6B7280] whitespace-nowrap">{w.jobTitle}</td>
-                          {/* 소속 현장 */}
-                          <td className="px-3 py-2.5 max-w-[100px]">
-                            {w.activeSites.length > 0
-                              ? <div className="text-[12px] text-[#374151] truncate">{w.activeSites[0].name}{w.activeSites.length > 1 && <span className="text-[10px] text-[#9CA3AF] ml-1">+{w.activeSites.length - 1}</span>}</div>
-                              : <span className="text-[11px] text-[#D1D5DB]">미배치</span>
-                            }
+                          {/* 주배정 현장 */}
+                          <td className="px-3 py-2.5 max-w-[110px]">
+                            {(() => {
+                              const primary = w.activeSites.find(s => s.isPrimary)
+                              if (primary) return <div className="text-[12px] text-[#374151] truncate">{primary.name}{w.activeSites.length > 1 && <span className="text-[10px] text-[#9CA3AF] ml-1">+{w.activeSites.length - 1}</span>}</div>
+                              if (w.activeSites.length > 0) return <div className="text-[12px] text-[#374151] truncate">{w.activeSites[0].name}{w.activeSites.length > 1 && <span className="text-[10px] text-[#9CA3AF] ml-1">+{w.activeSites.length - 1}</span>}</div>
+                              return <span className="text-[11px] font-semibold text-[#D97706] bg-[#FEF3C7] px-[6px] py-[1px] rounded">미배정</span>
+                            })()}
+                          </td>
+                          {/* 오늘 출근 */}
+                          <td className="px-3 py-2.5">
+                            {w.todayAttendance ? (
+                              <div>
+                                <span className="text-[11px] font-semibold text-[#16A34A] bg-[#DCFCE7] px-[6px] py-[1px] rounded">출근</span>
+                                <div className="text-[10px] text-[#6B7280] mt-[2px] truncate max-w-[80px]">{w.todayAttendance.siteName}</div>
+                              </div>
+                            ) : w.activeSites.length === 0 ? (
+                              <span className="text-[11px] text-[#D1D5DB]">-</span>
+                            ) : (
+                              <span className="text-[11px] font-semibold text-[#9CA3AF] bg-[#F3F4F6] px-[6px] py-[1px] rounded">미출근</span>
+                            )}
                           </td>
                           {/* 상태 */}
                           <td className="px-3 py-2.5">
@@ -701,13 +717,42 @@ export default function WorkersPage() {
                   <PanelRow label="전체 누계" value={<span className="text-[#6B7280]">{fmtWageFull(selected.totalWage)}</span>} />
                 </PanelSection>
 
-                {/* D. 현장 배치 */}
-                <PanelSection label="D. 현장 배치">
+                {/* D. 오늘 출근 */}
+                {selected.todayAttendance && (
+                  <PanelSection label="D. 오늘 출근">
+                    <div className="rounded-[8px] border border-[#DCFCE7] bg-[#F0FDF4] px-3 py-2.5">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[12px] font-semibold text-[#16A34A]">{selected.todayAttendance.siteName}</span>
+                        <span className="text-[11px] font-bold text-[#16A34A] bg-[#DCFCE7] px-[6px] py-[1px] rounded">
+                          {selected.todayAttendance.status === 'WORKING' ? '근무중' : selected.todayAttendance.status === 'COMPLETED' ? '퇴근' : selected.todayAttendance.status}
+                        </span>
+                      </div>
+                      <div className="text-[12px] text-[#374151]">
+                        출근 {selected.todayAttendance.checkInAt ? new Date(selected.todayAttendance.checkInAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}
+                        {selected.todayAttendance.checkOutAt && (
+                          <span className="ml-2">퇴근 {new Date(selected.todayAttendance.checkOutAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</span>
+                        )}
+                      </div>
+                      {/* 주배정과 실제 출근 현장이 다르면 경고 */}
+                      {(() => {
+                        const primary = selected.activeSites.find(s => s.isPrimary)
+                        if (primary && primary.id !== selected.todayAttendance!.siteId) {
+                          return <div className="text-[11px] text-[#D97706] mt-1">⚠ 주배정({primary.name})과 다른 현장 출근</div>
+                        }
+                        return null
+                      })()}
+                    </div>
+                  </PanelSection>
+                )}
+
+                {/* E. 현장 배치 */}
+                <PanelSection label={selected.todayAttendance ? "E. 현장 배치" : "D. 현장 배치"}>
                   {selected.activeSites.length > 0 ? (
                     selected.activeSites.map(s => (
                       <div key={s.id} className="flex items-center gap-2 mb-2">
                         <div className="w-2 h-2 rounded-full bg-[#16A34A] shrink-0" />
                         <span className="text-[13px] text-[#374151]">{s.name}</span>
+                        {s.isPrimary && <span className="text-[10px] font-bold text-[#F97316] bg-[#FFF7ED] px-[4px] py-[1px] rounded">주</span>}
                         <span className="text-[11px] text-[#9CA3AF]">배치중</span>
                       </div>
                     ))

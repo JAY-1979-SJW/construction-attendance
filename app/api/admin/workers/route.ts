@@ -91,6 +91,24 @@ export async function GET(request: NextRequest) {
     ])
 
     const workerIds = workers.map(w => w.id)
+
+    // ── 오늘 출근 현황 조회 ─────────────────────────────────────
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const todayLogs = workerIds.length > 0
+      ? await prisma.attendanceLog.findMany({
+          where: { workerId: { in: workerIds }, workDate: todayStr },
+          select: {
+            workerId: true,
+            siteId: true,
+            checkInAt: true,
+            checkOutAt: true,
+            status: true,
+            site: { select: { name: true } },
+          },
+        })
+      : []
+    const todayMap = new Map(todayLogs.map(l => [l.workerId, l]))
+
     const monthKey = new Date().toISOString().slice(0, 7)
     const [monthWages, totalWages] = workerIds.length > 0
       ? await Promise.all([
@@ -124,7 +142,12 @@ export async function GET(request: NextRequest) {
         idVerificationStatus: w.idVerificationStatus,
         createdAt: w.createdAt,
         primaryCompany: w.companyAssignments[0]?.company ?? null,
-        activeSites: w.siteAssignments.map(a => a.site),
+        activeSites: w.siteAssignments.map(a => ({ ...a.site, isPrimary: a.isPrimary })),
+        todayAttendance: (() => {
+          const log = todayMap.get(w.id)
+          if (!log) return null
+          return { siteId: log.siteId, siteName: log.site.name, checkInAt: log.checkInAt, checkOutAt: log.checkOutAt, status: log.status }
+        })(),
         // 계약 자동채움용 마스킹 계좌 — 레거시 bankName/bankAccount 응답 제외
         bankAccountSecure: w.bankAccountSecure
           ? { bankName: w.bankAccountSecure.bankName, accountNumberMasked: w.bankAccountSecure.accountNumberMasked }

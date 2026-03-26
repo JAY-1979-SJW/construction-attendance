@@ -67,6 +67,7 @@ interface SummaryData {
   exception: number
   needsAction: number
   todayWage: number
+  unassigned?: number
 }
 
 interface SiteOption {
@@ -374,6 +375,21 @@ function AttendancePageInner() {
         if (!data.success) { router.push('/admin/login'); return }
         setItems(data.data.items)
         setTotal(data.data.total)
+        // 미배정 인원 수 추가 조회
+        fetch('/api/admin/workers?pageSize=1')
+          .then(r => r.json())
+          .then(wd => {
+            const allWorkers = wd.data?.items ?? []
+            // pageSize=1이므로 총 건수만 사용, 미배정은 별도 조회
+            fetch('/api/admin/workers?pageSize=500')
+              .then(r2 => r2.json())
+              .then(wd2 => {
+                const unassigned = (wd2.data?.items ?? []).filter((w: { activeSites: unknown[]; isActive: boolean; accountStatus: string }) => w.activeSites.length === 0 && w.isActive && w.accountStatus === 'APPROVED').length
+                setSummary(prev => prev ? { ...prev, unassigned } : prev)
+              })
+              .catch(() => {})
+          })
+          .catch(() => {})
         setSummary(data.data.summary)
         setSiteOptions(data.data.siteOptions ?? [])
         setLoading(false)
@@ -627,6 +643,14 @@ function AttendancePageInner() {
             sub={summary.todayWage > 0 ? fmtWageFull(summary.todayWage) : undefined}
             color="#F97316"
           />
+          {summary.unassigned != null && summary.unassigned > 0 && (
+            <KpiCard
+              label="미배정"
+              value={summary.unassigned}
+              sub="명"
+              color="#D97706"
+            />
+          )}
         </div>
       )}
 
