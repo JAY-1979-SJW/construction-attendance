@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose'
 import type { JwtPayload } from '@/types/auth'
+import { isBlacklisted } from '@/lib/auth/token-blacklist'
 
 const algorithm = 'HS256'
 
@@ -15,7 +16,9 @@ function getSecret(): Uint8Array {
 }
 
 export async function signToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): Promise<string> {
-  const expiresIn = process.env.JWT_EXPIRES_IN ?? '7d'
+  // admin: 1일, worker: 7일 (환경변수로 override 가능)
+  const defaultExpiry = payload.type === 'admin' ? '1d' : '7d'
+  const expiresIn = process.env.JWT_EXPIRES_IN ?? defaultExpiry
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: algorithm })
     .setIssuedAt()
@@ -25,6 +28,7 @@ export async function signToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): Promi
 
 export async function verifyToken(token: string): Promise<JwtPayload | null> {
   try {
+    if (isBlacklisted(token)) return null
     const { payload } = await jwtVerify(token, getSecret())
     return payload as unknown as JwtPayload
   } catch {
