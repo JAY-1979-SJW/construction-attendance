@@ -1,12 +1,15 @@
 import { NextRequest } from 'next/server'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, requireRole } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
-import { ok, unauthorized, internalError } from '@/lib/utils/response'
+import { ok, unauthorized, forbidden, internalError } from '@/lib/utils/response'
+import { SUPER_ADMIN_ONLY_ROLES } from '@/lib/policies/security-policy'
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
+    const deny = requireRole(session, SUPER_ADMIN_ONLY_ROLES)
+    if (deny) return deny
 
     const { searchParams } = new URL(request.url)
     const dateFrom   = searchParams.get('dateFrom')

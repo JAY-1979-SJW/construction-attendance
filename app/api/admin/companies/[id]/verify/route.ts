@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, requireRole } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { SUPER_ADMIN_ONLY_ROLES } from '@/lib/policies/security-policy'
 
 // POST /api/admin/companies/[id]/verify — 외부회사 사업자 인증 승인
 export async function POST(
@@ -10,6 +11,8 @@ export async function POST(
 ) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const deny = requireRole(session, SUPER_ADMIN_ONLY_ROLES)
+  if (deny) return deny
 
   const { id } = await params
   const body = await req.json().catch(() => ({}))

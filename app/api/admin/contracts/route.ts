@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, requireRole } from '@/lib/auth/guards'
 import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { MUTATE_ALLOWED_ROLES } from '@/lib/policies/security-policy'
 
 // GET /api/admin/contracts
 export async function GET(req: NextRequest) {
@@ -48,6 +49,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: '인증 필요' }, { status: 401 })
+  const deny = requireRole(session, MUTATE_ALLOWED_ROLES)
+  if (deny) return deny
 
   const body = await req.json().catch(() => ({}))
   const {

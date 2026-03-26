@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, requireRole } from '@/lib/auth/guards'
 import { closeMonth } from '@/lib/labor/month-closing'
 import { prisma } from '@/lib/db/prisma'
+import { MUTATE_ALLOWED_ROLES } from '@/lib/policies/security-policy'
 
 function badRequest(message: string) {
   return NextResponse.json({ error: message }, { status: 400 })
@@ -10,6 +11,8 @@ function badRequest(message: string) {
 export async function POST(req: NextRequest) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const deny = requireRole(session, MUTATE_ALLOWED_ROLES)
+  if (deny) return deny
 
   const body = await req.json()
   const { monthKey } = body

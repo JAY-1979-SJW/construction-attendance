@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, requireRole } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { MUTATE_ALLOWED_ROLES, SUPER_ADMIN_ONLY_ROLES } from '@/lib/policies/security-policy'
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getAdminSession()
@@ -40,6 +41,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const deny = requireRole(session, MUTATE_ALLOWED_ROLES)
+  if (deny) return deny
 
   const body = await req.json().catch(() => ({}))
 
@@ -87,6 +90,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const deny = requireRole(session, SUPER_ADMIN_ONLY_ROLES)
+  if (deny) return deny
 
   const body = await req.json().catch(() => ({}))
   const existing = await prisma.company.findUnique({ where: { id: params.id } })
