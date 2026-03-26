@@ -15,6 +15,30 @@ interface PolicyDoc {
   isRequired: boolean
 }
 
+/* ── 스텝 인디케이터 ─────────────────────────────── */
+function StepBar({ current }: { current: number }) {
+  const steps = ['약관동의', '소셜인증', '정보입력', '승인대기']
+  return (
+    <div className="flex items-center justify-between mb-8 px-2">
+      {steps.map((label, i) => {
+        const step = i + 1
+        const done = step < current
+        const active = step === current
+        return (
+          <div key={label} className="flex flex-col items-center flex-1">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold mb-1 transition-colors ${
+              done ? 'bg-[#16a34a] text-white' : active ? 'bg-[#F97316] text-white' : 'bg-[#E5E7EB] text-[#9CA3AF]'
+            }`}>
+              {done ? '✓' : step}
+            </div>
+            <span className={`text-[11px] ${active ? 'text-[#F97316] font-semibold' : 'text-[#9CA3AF]'}`}>{label}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function RegisterContent() {
   const [loading, setLoading] = useState<string | null>(null)
   const params = useSearchParams()
@@ -55,20 +79,24 @@ function RegisterContent() {
     }
     setError('')
     setLoading(provider)
-
-    // 회원가입 의도 + 약관 동의 정보를 쿠키에 저장 (OAuth 콜백에서 읽음)
     const consent = JSON.stringify({
-      terms: consentTerms,
-      privacy: consentPrivacy,
-      location: consentLocation,
-      marketing: consentMarketing,
+      terms: consentTerms, privacy: consentPrivacy,
+      location: consentLocation, marketing: consentMarketing,
       documentIds: Object.fromEntries(policyDocs.map(d => [d.documentType, d.id])),
     })
     document.cookie = `auth_intent=register; path=/; max-age=600; SameSite=Lax`
     document.cookie = `register_consent=${encodeURIComponent(consent)}; path=/; max-age=600; SameSite=Lax`
-
     signIn(provider, { callbackUrl: '/api/auth/complete' })
   }
+
+  function handleCheckAll(checked: boolean) {
+    setConsentTerms(checked)
+    setConsentPrivacy(checked)
+    setConsentLocation(checked)
+    setConsentMarketing(checked)
+  }
+
+  const allChecked = consentTerms && consentPrivacy && consentLocation && consentMarketing
 
   const termsDoc = getDoc('TERMS_OF_SERVICE')
   const privacyDoc = getDoc('PRIVACY_POLICY')
@@ -77,78 +105,77 @@ function RegisterContent() {
 
   return (
     <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center p-6">
-      <div className="bg-white rounded-2xl px-8 py-10 w-full max-w-[520px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#E5E7EB] border-t-[3px] border-t-[#F97316]">
-        <div className="text-center mb-5">
-          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} className="w-[180px] h-auto mx-auto block rounded-2xl" priority />
+      <div className="bg-white rounded-2xl px-8 py-9 w-full max-w-[480px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#E5E7EB] border-t-[3px] border-t-[#F97316]">
+        <div className="text-center mb-4">
+          <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} className="w-[140px] h-auto mx-auto block rounded-2xl" priority />
         </div>
-        <h1 className="text-2xl font-extrabold text-[#111827] tracking-[-0.5px] mb-2">근로자 회원가입</h1>
-        <p className="text-sm text-[#6B7280] leading-[1.6] mb-7">
-          카카오 또는 Google 계정으로 간편 가입 후<br />관리자 승인을 받으면 출퇴근이 가능합니다.
-        </p>
+
+        <StepBar current={1} />
+
+        <h1 className="text-[20px] font-extrabold text-[#111827] tracking-[-0.5px] mb-1">근로자 회원가입</h1>
+        <p className="text-[13px] text-[#6B7280] leading-[1.6] mb-5">약관에 동의한 후 카카오 또는 Google로 가입합니다.</p>
 
         {(error || errorKey) && (
-          <div className="bg-[rgba(220,38,38,0.08)] border border-[rgba(220,38,38,0.3)] rounded-[10px] px-4 py-3 mb-5 text-[#dc2626] text-sm">
+          <div className="bg-[rgba(220,38,38,0.08)] border border-[rgba(220,38,38,0.3)] rounded-[10px] px-4 py-3 mb-4 text-[#dc2626] text-[13px]">
             {error || ERROR_MSG[errorKey] || '가입 중 오류가 발생했습니다.'}
           </div>
         )}
 
         {/* 약관 동의 */}
-        <div className="mb-6 p-[18px] bg-[#F9FAFB] rounded-xl border border-[#E5E7EB]">
-          <div className="text-[13px] font-bold mb-[14px] text-[#374151] tracking-[0.5px]">약관 동의</div>
+        <div className="mb-5 p-4 bg-[#F9FAFB] rounded-xl border border-[#E5E7EB]">
+          {/* 전체 동의 */}
+          <label className="flex items-center gap-2 cursor-pointer pb-3 mb-3 border-b border-[#E5E7EB]">
+            <input type="checkbox" checked={allChecked} onChange={e => handleCheckAll(e.target.checked)} className="w-[18px] h-[18px] accent-[#F97316]" />
+            <span className="text-[14px] font-bold text-[#111827]">전체 동의</span>
+          </label>
 
           {[
             { key: 'TERMS_OF_SERVICE', label: '서비스 이용약관', doc: termsDoc, checked: consentTerms, set: setConsentTerms, required: true },
             { key: 'PRIVACY_POLICY', label: '개인정보 수집·이용 동의', doc: privacyDoc, checked: consentPrivacy, set: setConsentPrivacy, required: true },
-            { key: 'LOCATION_POLICY', label: '위치정보 이용 동의 (GPS 출퇴근)', doc: locationDoc, checked: consentLocation, set: setConsentLocation, required: true },
+            { key: 'LOCATION_POLICY', label: '위치정보 이용 동의', doc: locationDoc, checked: consentLocation, set: setConsentLocation, required: true },
             { key: 'MARKETING_NOTICE', label: '마케팅 정보 수신 동의', doc: marketingDoc, checked: consentMarketing, set: setConsentMarketing, required: false },
           ].map(item => (
-            <div key={item.key} className="mb-[10px] border-b border-[#ECEFF3] pb-[10px]">
-              <div className="flex items-start justify-between gap-2 text-[13px] text-[#374151]">
-                <label className="flex items-start gap-2 cursor-pointer flex-1">
-                  <input type="checkbox" checked={item.checked} onChange={e => item.set(e.target.checked)} />
+            <div key={item.key} className="mb-2">
+              <div className="flex items-center justify-between gap-2 text-[13px] text-[#374151]">
+                <label className="flex items-center gap-2 cursor-pointer flex-1">
+                  <input type="checkbox" checked={item.checked} onChange={e => item.set(e.target.checked)} className="w-4 h-4 accent-[#F97316]" />
                   <span>
-                    <span className={item.required ? 'text-[#F97316]' : 'text-[#9CA3AF]'}>[{item.required ? '필수' : '선택'}]</span>{' '}
-                    {item.doc ? `${item.doc.title} (v${item.doc.version})` : item.label}
+                    <span className={item.required ? 'text-[#F97316] font-semibold' : 'text-[#9CA3AF]'}>{item.required ? '필수' : '선택'}</span>{' '}
+                    {item.doc ? item.doc.title : item.label}
                   </span>
                 </label>
                 {item.doc && (
-                  <button type="button" className="text-[12px] text-[#F97316] bg-[#FFF7ED] border border-[rgba(249,115,22,0.3)] rounded-[6px] px-[10px] py-[3px] cursor-pointer whitespace-nowrap" onClick={() => setExpandedDoc(expandedDoc === item.key ? null : item.key)}>
-                    {expandedDoc === item.key ? '닫기' : '내용 보기'}
+                  <button type="button" className="text-[11px] text-[#6B7280] underline cursor-pointer bg-transparent border-0 p-0" onClick={() => setExpandedDoc(expandedDoc === item.key ? null : item.key)}>
+                    {expandedDoc === item.key ? '닫기' : '보기'}
                   </button>
                 )}
               </div>
               {expandedDoc === item.key && item.doc && (
-                <div className="mt-2 text-[12px] text-[#4B5563] bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-3 max-h-[200px] overflow-y-auto whitespace-pre-wrap leading-[1.6]">{item.doc.contentMd}</div>
+                <div className="mt-1 ml-6 text-[11px] text-[#4B5563] bg-white border border-[#E5E7EB] rounded-lg p-3 max-h-[150px] overflow-y-auto whitespace-pre-wrap leading-[1.6]">{item.doc.contentMd}</div>
               )}
             </div>
           ))}
-
-          {!allRequired && (
-            <p className="text-[12px] text-[#9CA3AF] mt-2">* 필수 항목에 모두 동의해야 가입이 가능합니다.</p>
-          )}
         </div>
 
         {/* 소셜 가입 버튼 */}
         <div className="space-y-3">
           <button
             onClick={() => handleSignUp('kakao')}
-            disabled={!!loading}
-            className="w-full h-12 rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all disabled:opacity-60"
+            disabled={!!loading || !allRequired}
+            className="w-full h-[48px] rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: '#FEE500', color: '#191919' }}
           >
             {loading === 'kakao'
               ? <span className="w-5 h-5 border-2 border-yellow-400 border-t-yellow-700 rounded-full animate-spin" />
-              : <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="#191919">
-                  <path d="M12 3C6.48 3 2 6.73 2 11.35c0 2.99 1.87 5.62 4.69 7.13l-1.2 4.41 5.13-3.4c.45.06.91.09 1.38.09 5.52 0 10-3.73 10-8.32C22 6.73 17.52 3 12 3z"/>
-                </svg>
+              : <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="#191919"><path d="M12 3C6.48 3 2 6.73 2 11.35c0 2.99 1.87 5.62 4.69 7.13l-1.2 4.41 5.13-3.4c.45.06.91.09 1.38.09 5.52 0 10-3.73 10-8.32C22 6.73 17.52 3 12 3z"/></svg>
             }
             카카오로 가입하기
           </button>
 
           <button
             onClick={() => handleSignUp('google')}
-            disabled={!!loading}
-            className="w-full h-12 rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all border border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB] disabled:opacity-60 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
+            disabled={!!loading || !allRequired}
+            className="w-full h-[48px] rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all border border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB] disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
           >
             {loading === 'google'
               ? <span className="w-5 h-5 border-2 border-[#E5E7EB] border-t-[#6B7280] rounded-full animate-spin" />
@@ -163,9 +190,13 @@ function RegisterContent() {
           </button>
         </div>
 
-        <div className="flex flex-col gap-2 mt-6 text-center">
-          <Link href="/login" className="text-[#F97316] text-[13px] no-underline">이미 계정이 있으신가요? 로그인</Link>
-          <Link href="/register/company-admin" className="text-[#6B7280] text-[13px] no-underline hover:text-[#F97316]">업체 관리자로 신청하기</Link>
+        {!allRequired && (
+          <p className="text-[11px] text-[#9CA3AF] text-center mt-3">필수 약관에 동의하면 가입 버튼이 활성화됩니다.</p>
+        )}
+
+        <div className="flex flex-col gap-2 mt-5 text-center">
+          <Link href="/login" className="text-[#F97316] text-[13px] no-underline font-medium">이미 계정이 있으신가요? 로그인</Link>
+          <Link href="/register/company-admin" className="text-[#6B7280] text-[12px] no-underline hover:text-[#F97316]">업체 관리자로 신청</Link>
         </div>
       </div>
     </div>
