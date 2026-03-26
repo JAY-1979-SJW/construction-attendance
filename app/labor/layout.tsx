@@ -4,7 +4,7 @@ export default function LaborLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
       <LaborSidebar />
-      <main className="ml-[220px] min-h-screen">
+      <main className="ml-[220px] min-h-screen bg-[#F5F7FA]">
         {/* 상단 헤더 고정 */}
         <header className="sticky top-0 z-10 bg-white border-b border-[#E5E7EB]">
           <div className="h-1 bg-[#F97316]" />

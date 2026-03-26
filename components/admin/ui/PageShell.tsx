@@ -3,7 +3,7 @@ import React from 'react'
 // PageShell — 페이지 기본 패딩 래퍼
 export function PageShell({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`p-5 md:p-6 bg-[#F5F7FA] min-h-screen ${className ?? ''}`}>
+    <div className={`p-5 md:p-6 bg-[#F5F7FA] ${className ?? ''}`}>
       {children}
     </div>
   )
