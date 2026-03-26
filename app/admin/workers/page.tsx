@@ -237,6 +237,11 @@ export default function WorkersPage() {
   const [docDate, setDocDate]         = useState('')
   const [docSaving, setDocSaving]     = useState(false)
 
+  // 현장 배정 폼
+  const [showAssign, setShowAssign] = useState(false)
+  const [assignSiteId, setAssignSiteId] = useState('')
+  const [assignSaving, setAssignSaving] = useState(false)
+
   // 등록 모달
   const [showRegister, setShowRegister] = useState(false)
 
@@ -339,6 +344,35 @@ export default function WorkersPage() {
     showToast(true, '수정이 저장됐습니다.')
   }
 
+  // 현장 배정 처리
+  const saveSiteAssign = async () => {
+    if (!selected || !assignSiteId) return
+    setAssignSaving(true)
+    // 현장의 소속 회사 ID 확인 (사이트 옵션에서)
+    const site = siteOptions.find(s => s.id === assignSiteId)
+    const res = await fetch(`/api/admin/workers/${selected.id}/site-assignments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        siteId: assignSiteId,
+        companyId: selected.primaryCompany?.id ?? '',
+        assignedFrom: new Date().toISOString(),
+        tradeType: selected.jobTitle,
+        isPrimary: selected.activeSites.length === 0,
+      }),
+    })
+    const data = await res.json()
+    if (data.success) {
+      showToast(true, `${site?.name ?? '현장'} 배정 완료`)
+      setShowAssign(false)
+      setAssignSiteId('')
+      load()
+    } else {
+      showToast(false, data.error ?? data.message ?? '배정 실패')
+    }
+    setAssignSaving(false)
+  }
+
   // 서류/교육 처리
   const saveDocProcess = async () => {
     if (!selected || !processingDoc || !docDate) return
@@ -370,7 +404,8 @@ export default function WorkersPage() {
     if (eligFilter === 'blocked' && getEligibility(w) !== 'blocked') return false
     if (eligFilter === 'docs_missing' && getEligibility(w) !== 'docs_missing') return false
     if (eligFilter === 'edu_missing' && getEligibility(w) !== 'edu_missing') return false
-    if (siteFilter && !w.activeSites.some(s => s.id === siteFilter)) return false
+    if (siteFilter === '__unassigned__' && w.activeSites.length > 0) return false
+    if (siteFilter && siteFilter !== '__unassigned__' && !w.activeSites.some(s => s.id === siteFilter)) return false
     return true
   })
 
@@ -425,6 +460,7 @@ export default function WorkersPage() {
             className="h-9 px-3 text-[13px] rounded-[8px] border border-[#E5E7EB] bg-white text-[#374151] outline-none focus:border-[#F97316]"
           >
             <option value="">전체 현장</option>
+            <option value="__unassigned__">미배치</option>
             {siteOptions.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
           <FilterSelect value={sortKey} onChange={e => setSortKey(e.target.value)}>
@@ -676,7 +712,36 @@ export default function WorkersPage() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-[13px] text-[#D97706]">현장 미배치 상태</div>
+                    <div className="text-[13px] text-[#D97706] mb-2">현장 미배치 상태</div>
+                  )}
+                  {canMutate && !showAssign && (
+                    <button onClick={() => setShowAssign(true)} className="mt-1 text-[12px] text-[#F97316] font-semibold bg-transparent border border-[#F97316] rounded-[6px] px-3 py-[5px] cursor-pointer hover:bg-[rgba(249,115,22,0.06)]">
+                      + 현장 배정
+                    </button>
+                  )}
+                  {showAssign && (
+                    <div className="mt-2 p-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg">
+                      <select
+                        className="w-full h-8 px-2 text-[13px] border border-[#E5E7EB] rounded-[6px] bg-white mb-2 outline-none focus:border-[#F97316]"
+                        value={assignSiteId} onChange={e => setAssignSiteId(e.target.value)}
+                      >
+                        <option value="">현장 선택</option>
+                        {siteOptions
+                          .filter(s => !selected.activeSites.some(a => a.id === s.id))
+                          .map(s => <option key={s.id} value={s.id}>{s.name}</option>)
+                        }
+                      </select>
+                      <div className="flex gap-2">
+                        <button onClick={saveSiteAssign} disabled={!assignSiteId || assignSaving}
+                          className="flex-1 py-[5px] bg-[#F97316] text-white border-none rounded-[6px] text-[12px] font-semibold cursor-pointer disabled:opacity-50">
+                          {assignSaving ? '처리중...' : '배정'}
+                        </button>
+                        <button onClick={() => { setShowAssign(false); setAssignSiteId('') }}
+                          className="px-3 py-[5px] bg-white border border-[#E5E7EB] rounded-[6px] text-[12px] text-[#6B7280] cursor-pointer">
+                          취소
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </PanelSection>
 

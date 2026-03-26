@@ -668,59 +668,63 @@ export default function AttendancePage() {
             )}
             {!isPreview && availableSites.length > 0 ? (
               <div>
-                <p className="text-sm text-[#A0AEC0] mb-3">배정된 현장을 선택하여 출근하세요.</p>
-                {availableSites.map(site => (
-                  <div
-                    key={site.siteId}
-                    className="rounded-xl p-[14px] mb-[10px]"
-                    style={{
-                      border: `2px solid ${site.withinRadius ? '#2e7d32' : 'rgba(91,164,217,0.2)'}`,
-                      background: site.withinRadius ? 'rgba(46,125,50,0.12)' : '#2a3f5a',
-                    }}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <div className="text-[15px] font-bold text-white">{site.siteName}</div>
-                        <div className="text-xs text-[#A0AEC0]">{site.companyName}</div>
-                      </div>
-                      {site.distanceMeters !== null && (
-                        <div className="text-right shrink-0 ml-2">
-                          <div
-                            className="text-[13px] font-bold"
-                            style={{ color: site.withinRadius ? '#2e7d32' : '#666' }}
-                          >
-                            {site.distanceMeters}m
-                          </div>
-                          <div
-                            className="text-[11px]"
-                            style={{ color: site.withinRadius ? '#388e3c' : '#999' }}
-                          >
-                            {site.withinRadius ? '반경 내' : `허용 ${site.allowedRadiusMeters}m`}
-                          </div>
-                        </div>
+                {/* 현장 1개: 즉시 출근 강조 */}
+                {availableSites.length === 1 ? (
+                  <div className="rounded-xl p-5" style={{ border: '2px solid #2e7d32', background: 'rgba(46,125,50,0.10)' }}>
+                    <div className="text-[16px] font-bold text-white mb-1">{availableSites[0].siteName}</div>
+                    <div className="text-[12px] text-[#A0AEC0] mb-4">{availableSites[0].companyName}
+                      {availableSites[0].distanceMeters !== null && (
+                        <span className="ml-2" style={{ color: availableSites[0].withinRadius ? '#4caf50' : '#999' }}>
+                          {availableSites[0].distanceMeters}m {availableSites[0].withinRadius ? '(반경 내)' : `(허용 ${availableSites[0].allowedRadiusMeters}m)`}
+                        </span>
                       )}
                     </div>
                     <button
-                      onClick={() => handleDirectCheckIn(site.siteId)}
+                      onClick={() => handleDirectCheckIn(availableSites[0].siteId)}
                       disabled={checkInLoading}
-                      className="w-full py-3 text-[15px] font-bold bg-[#2e7d32] text-white border-none rounded-[10px] cursor-pointer"
+                      className="w-full py-[14px] text-[16px] font-bold bg-[#2e7d32] text-white border-none rounded-xl cursor-pointer shadow-[0_4px_12px_rgba(46,125,50,0.3)]"
                       style={{ opacity: checkInLoading ? 0.6 : 1 }}
                     >
                       {checkInLoading ? '출근 처리 중...' : '출근하기'}
                     </button>
                   </div>
-                ))}
+                ) : (
+                  /* 현장 여러 개: 선택 목록 */
+                  <>
+                    <p className="text-[13px] text-[#A0AEC0] mb-3">출근할 현장을 선택하세요</p>
+                    {availableSites.map(site => (
+                      <div key={site.siteId} className="rounded-xl p-[14px] mb-[10px]"
+                        style={{ border: `2px solid ${site.withinRadius ? '#2e7d32' : 'rgba(91,164,217,0.2)'}`, background: site.withinRadius ? 'rgba(46,125,50,0.10)' : '#2a3f5a' }}>
+                        <div className="flex justify-between items-center mb-2">
+                          <div>
+                            <div className="text-[15px] font-bold text-white">{site.siteName}</div>
+                            <div className="text-[11px] text-[#A0AEC0]">{site.companyName}</div>
+                          </div>
+                          {site.distanceMeters !== null && (
+                            <div className="text-right shrink-0 ml-2">
+                              <div className="text-[12px] font-bold" style={{ color: site.withinRadius ? '#2e7d32' : '#666' }}>{site.distanceMeters}m</div>
+                              <div className="text-[10px]" style={{ color: site.withinRadius ? '#388e3c' : '#999' }}>{site.withinRadius ? '반경 내' : `허용 ${site.allowedRadiusMeters}m`}</div>
+                            </div>
+                          )}
+                        </div>
+                        <button onClick={() => handleDirectCheckIn(site.siteId)} disabled={checkInLoading}
+                          className="w-full py-[11px] text-[14px] font-bold bg-[#2e7d32] text-white border-none rounded-[10px] cursor-pointer"
+                          style={{ opacity: checkInLoading ? 0.6 : 1 }}>
+                          {checkInLoading ? '처리 중...' : '출근하기'}
+                        </button>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            ) : !isPreview ? (
+              <div className="text-center py-5 text-muted-brand">
+                <p className="text-[14px] mb-1">배정된 현장이 없습니다</p>
+                <p className="text-[12px] text-[#718096]">관리자에게 현장 참여를 요청하세요.</p>
               </div>
             ) : (
               <div className="text-center py-5 text-muted-brand">
-                {!isPreview && availableSites.length === 0 ? (
-                  <>
-                    <p className="text-[14px] mb-1">배정된 현장이 없습니다</p>
-                    <p className="text-[12px] text-[#718096]">관리자에게 현장 참여를 요청하세요.</p>
-                  </>
-                ) : (
-                  <p>현장 목록에서 출근할 현장을 선택하세요.</p>
-                )}
+                <p>출근 가능한 현장이 없습니다.</p>
               </div>
             )}
           </div>
