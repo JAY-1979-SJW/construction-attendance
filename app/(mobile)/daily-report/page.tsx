@@ -595,7 +595,6 @@ export default function DailyReportPage() {
       <WorkerTopBar />
       <div className="pt-14 pb-20 px-4">
         <div className="bg-white rounded-xl p-6 mt-4 text-center">
-          <div className="text-[40px] mb-3">📋</div>
           <div className="text-[#374151] font-semibold text-[15px] mb-1">작업일보</div>
           <div className="text-[#9CA3AF] text-[13px]">
             오늘 출근 기록이 없습니다.<br />출근 후 작업일보를 작성할 수 있습니다.
@@ -610,277 +609,96 @@ export default function DailyReportPage() {
     <div className="min-h-screen bg-[#F5F5F5]">
       <WorkerTopBar />
       <div className="pt-14 pb-24 px-4">
-        {/* ── 1. 상단 기본정보 ─────────────────────────────── */}
+
+        {/* ── 현장 + 작업일자 ─────────────────────────────── */}
         <div className="bg-white rounded-xl p-4 mt-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[15px] font-bold text-[#0F172A]">오늘 작업일보</span>
-            <span className="text-[12px] text-[#9CA3AF]">{todayStr}</span>
+          <div className="text-[16px] font-bold text-[#0F172A]">작업일보</div>
+          <div className="mt-1.5 text-[13px] text-[#6B7280]">
+            {attendance.checkInSite.name}
           </div>
-          <div className="text-[13px] text-[#6B7280] mb-1">
-            {attendance.checkInSite.name} · {workerName} · {workerJobTitle}
-          </div>
-          {/* 고용형태 + 공수 */}
-          <div className="flex gap-2 mt-3 mb-2">
-            {EMP_TYPES.map((t) => (
-              <button key={t.value} onClick={() => setEmpType(t.value)}
-                className="flex-1 text-[11px] py-1.5 rounded-lg border transition-colors"
-                style={{
-                  background: empType === t.value ? '#FFF7ED' : '#fff',
-                  borderColor: empType === t.value ? '#F97316' : '#E5E7EB',
-                  color: empType === t.value ? '#F97316' : '#6B7280',
-                  fontWeight: empType === t.value ? 600 : 400,
-                }}>
-                {t.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-3 text-[12px]">
-            <span className="text-[#9CA3AF]">일 공수</span>
-            {[0.5, 1.0, 1.5].map((v) => (
-              <button key={v} onClick={() => setTodayManDays(v)}
-                className="px-3 py-1 rounded-lg border transition-colors"
-                style={{
-                  background: todayManDays === v ? '#FFF7ED' : '#fff',
-                  borderColor: todayManDays === v ? '#F97316' : '#E5E7EB',
-                  color: todayManDays === v ? '#F97316' : '#6B7280',
-                  fontWeight: todayManDays === v ? 600 : 400,
-                }}>
-                {v}
-              </button>
-            ))}
-            {report && (
-              <span className="ml-auto text-[#3B82F6]">월 {Number(report.monthlyManDays)}공수</span>
-            )}
+          <div className="text-[13px] text-[#6B7280]">
+            {todayStr} · {workerName} · {workerJobTitle}
           </div>
         </div>
 
-        {/* ── 2. 어제 / 금일 / 명일 작업 ──────────────────── */}
-        <div className="bg-white rounded-xl p-4 mt-3 space-y-3">
-          <div>
-            <div className="text-[13px] font-semibold text-[#374151] mb-1">어제 작업</div>
-            <textarea placeholder="어제 수행한 작업 내용" value={yesterdayWork}
-              onChange={(e) => setYesterdayWork(e.target.value)} rows={2}
-              className="w-full text-[13px] border border-[#E5E7EB] rounded-lg px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316] resize-none"
-            />
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[13px] font-semibold text-[#374151]">금일 작업</div>
-              {report && report.consecutiveDays > 1 && (
-                <span className="text-[11px] bg-[#FFF7ED] text-[#F97316] px-2 py-0.5 rounded-full font-medium">
-                  {report.consecutiveDays}일째 진행중
-                </span>
-              )}
-            </div>
-            <textarea placeholder="오늘 수행한 작업 내용" value={todayWork}
-              onChange={(e) => setTodayWork(e.target.value)} rows={3}
-              className="w-full text-[13px] border border-[#E5E7EB] rounded-lg px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316] resize-none"
-            />
-          </div>
-          <div>
-            <div className="text-[13px] font-semibold text-[#374151] mb-1">명일 작업</div>
-            <textarea placeholder="내일 예정된 작업 내용" value={tomorrowWork}
-              onChange={(e) => setTomorrowWork(e.target.value)} rows={2}
-              className="w-full text-[13px] border border-[#E5E7EB] rounded-lg px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316] resize-none"
-            />
-          </div>
-        </div>
-
-        {/* ── 3. 빠른 입력 버튼 ─────────────────────────────── */}
-        <div className="flex gap-2 mt-3">
-          {yesterdayReport && (
-            <button onClick={loadYesterday}
-              className="flex-1 text-[12px] py-2.5 rounded-lg bg-[#F0F9FF] text-[#3B82F6] font-medium border border-[#BFDBFE]">
-              어제 작업 불러오기
-            </button>
-          )}
-          <button onClick={() => setShowSuggestions(!showSuggestions)}
-            className="flex-1 text-[12px] py-2.5 rounded-lg bg-[#FFF7ED] text-[#F97316] font-medium border border-[#FDBA74]">
-            최근 작업 선택
-          </button>
-          <button onClick={copyToTomorrow}
-            className="flex-1 text-[12px] py-2.5 rounded-lg bg-[#F0FDF4] text-[#22C55E] font-medium border border-[#BBF7D0]">
-            금일→명일 복사
-          </button>
-        </div>
-
-        {/* ── 제안 목록 ──────────────────────────────────────── */}
-        {showSuggestions && (recentItems.length > 0 || frequentItems.length > 0) && (
-          <div className="bg-white rounded-xl mt-2 border border-[#E5E7EB] overflow-hidden">
-            {recentItems.length > 0 && (
-              <>
-                <div className="text-[11px] text-[#9CA3AF] px-3 py-1.5 bg-[#F9FAFB]">최근 작업</div>
-                {recentItems.map((item, i) => (
-                  <button key={`r-${i}`} onClick={() => selectSuggestion(item)}
-                    className="w-full text-left text-[13px] px-3 py-2 text-[#374151] border-t border-[#F3F4F6] hover:bg-[#FFF7ED] transition-colors">
-                    <span className="font-medium">{item.text}</span>
-                    {item.tradeLabel && <span className="text-[11px] text-[#9CA3AF] ml-2">{item.tradeLabel}</span>}
-                    {item.locationDisplayName && <span className="text-[11px] text-[#9CA3AF] ml-1">· {item.locationDisplayName}</span>}
-                  </button>
-                ))}
-              </>
-            )}
-            {frequentItems.length > 0 && (
-              <>
-                <div className="text-[11px] text-[#9CA3AF] px-3 py-1.5 bg-[#F9FAFB]">자주 쓰는 작업</div>
-                {frequentItems.map((item, i) => (
-                  <button key={`f-${i}`} onClick={() => selectSuggestion(item)}
-                    className="w-full text-left text-[13px] px-3 py-2 text-[#374151] border-t border-[#F3F4F6] hover:bg-[#FFF7ED] transition-colors">
-                    <span className="font-medium">{item.text}</span>
-                    <span className="text-[11px] text-[#9CA3AF] ml-2">({item.count}회)</span>
-                  </button>
-                ))}
-              </>
-            )}
-            <button onClick={() => setShowSuggestions(false)}
-              className="w-full text-[11px] text-[#9CA3AF] py-1.5 bg-[#F9FAFB] border-t border-[#E5E7EB]">
-              닫기
-            </button>
-          </div>
-        )}
-
-        {/* ── 4. 공종 / 작업사항 선택 ──────────────────────── */}
+        {/* ── 공종 / 작업사항 ────────────────────────────── */}
         <div className="bg-white rounded-xl p-4 mt-3">
-          <div className="text-[13px] font-semibold text-[#374151] mb-2">공종 / 작업사항</div>
-          <div className="flex gap-2 mb-2">
+          <div className="text-[13px] font-semibold text-[#374151] mb-3">공종 / 작업사항</div>
+          <div className="space-y-2.5">
             <DropSel label="공종계열" value={familyCode}
               onChange={(v) => { setFamilyCode(v); setTradeCode(''); setTaskCode('') }}
               options={families.map((f) => ({ value: f.code, label: f.label }))}
             />
-            <DropSel label="세부공종" value={tradeCode}
-              onChange={(v) => { setTradeCode(v); setTaskCode('') }}
-              options={tradeOptions}
-            />
-          </div>
-          <DropSel label="작업사항" value={taskCode}
-            onChange={setTaskCode}
-            options={taskOptions}
-            placeholder="작업사항 선택 (또는 직접입력)"
-          />
-          {/* 선택 요약 breadcrumb */}
-          {tradeSummary && (
-            <div className="mt-2 text-[12px] text-[#6B7280] bg-[#F9FAFB] rounded-lg px-3 py-1.5">
-              {tradeSummary}
-            </div>
-          )}
-          <textarea
-            placeholder="세부 작업 내용 (선택사항)"
-            value={workDetail}
-            onChange={(e) => setWorkDetail(e.target.value)}
-            rows={2}
-            className="w-full mt-2 text-[13px] border border-[#E5E7EB] rounded-lg px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316] resize-none"
-          />
-        </div>
-
-        {/* ── 5. 작업 위치 ──────────────────────────────────── */}
-        <div className="bg-white rounded-xl p-4 mt-3">
-          <div className="text-[13px] font-semibold text-[#374151] mb-2">작업 위치</div>
-          <div className="flex gap-2">
-            <Sel label="동" value={building}
-              onChange={(v) => { setBuilding(v); setFloor(''); setLocDetail('') }}
-              options={buildings.map((b) => ({ value: b, label: b }))}
-              placeholder="동 선택"
-            />
-            <FloorSel value={floor}
-              onChange={(v) => { setFloor(v); setLocDetail('') }}
-              floors={floorList}
-              building={building}
-            />
-            {detailOptions.length > 0 ? (
-              <Sel label="상세위치" value={locDetail}
-                onChange={setLocDetail}
-                options={detailOptions}
-                placeholder="상세위치"
+            <div className="flex gap-2">
+              <DropSel label="세부공종" value={tradeCode}
+                onChange={(v) => { setTradeCode(v); setTaskCode('') }}
+                options={tradeOptions}
               />
-            ) : (
-              <div className="flex-1 min-w-0">
-                <div className="text-[11px] text-[#9CA3AF] mb-1">상세위치</div>
-                <input type="text" placeholder="직접입력" value={locDetail}
-                  onChange={(e) => setLocDetail(e.target.value)}
-                  className="w-full text-[13px] border border-[#E5E7EB] rounded-lg px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316]"
-                />
+              <DropSel label="작업사항" value={taskCode}
+                onChange={setTaskCode}
+                options={taskOptions}
+              />
+            </div>
+            {tradeSummary && (
+              <div className="text-[12px] text-[#6B7280] bg-[#F9FAFB] rounded-xl px-3 py-1.5">
+                {tradeSummary}
               </div>
             )}
-          </div>
-          {locationSummary && (
-            <div className="text-[12px] text-[#F97316] mt-2">
-              {locationSummary}
-            </div>
-          )}
-        </div>
-
-        {/* ── 6. 작업시간 + 특이사항 + 자재 ─────────────────── */}
-        <div className="bg-white rounded-xl p-4 mt-3 space-y-3">
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <div className="text-[11px] text-[#9CA3AF] mb-1">작업시간</div>
-              <div className="flex gap-2 items-center">
-                <input type="time" value={workStart} onChange={(e) => setWorkStart(e.target.value)}
-                  className="flex-1 text-[13px] border border-[#E5E7EB] rounded-lg px-2 py-2 bg-white focus:outline-none focus:border-[#F97316]" />
-                <span className="text-[#9CA3AF]">~</span>
-                <input type="time" value={workEnd} onChange={(e) => setWorkEnd(e.target.value)}
-                  className="flex-1 text-[13px] border border-[#E5E7EB] rounded-lg px-2 py-2 bg-white focus:outline-none focus:border-[#F97316]" />
-              </div>
-            </div>
-          </div>
-          <div>
-            <div className="text-[11px] text-[#9CA3AF] mb-1">특이사항</div>
-            <textarea placeholder="특이사항이 있으면 입력" value={notes}
-              onChange={(e) => setNotes(e.target.value)} rows={2}
-              className="w-full text-[13px] border border-[#E5E7EB] rounded-lg px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316] resize-none" />
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-[11px] text-[#9CA3AF]">자재사용</div>
-            <button onClick={() => setMaterialUsed(!materialUsed)}
-              className="text-[12px] px-3 py-1 rounded-lg border transition-colors"
-              style={{
-                background: materialUsed ? '#FFF7ED' : '#fff',
-                borderColor: materialUsed ? '#F97316' : '#E5E7EB',
-                color: materialUsed ? '#F97316' : '#6B7280',
-              }}>
-              {materialUsed ? '있음' : '없음'}
-            </button>
-            {materialUsed && (
-              <input type="text" placeholder="자재 메모" value={materialNote}
-                onChange={(e) => setMaterialNote(e.target.value)}
-                className="flex-1 text-[13px] border border-[#E5E7EB] rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-[#F97316]" />
-            )}
+            <textarea
+              placeholder="세부 작업 내용"
+              value={workDetail}
+              onChange={(e) => setWorkDetail(e.target.value)}
+              rows={2}
+              className="w-full text-[14px] border border-[#E5E7EB] rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316] resize-none"
+            />
           </div>
         </div>
 
-        {/* ── 7. 사진 첨부 ───────────────────────────────────── */}
+        {/* ── 근무시간 ───────────────────────────────────── */}
         <div className="bg-white rounded-xl p-4 mt-3">
-          <div className="text-[13px] font-semibold text-[#374151] mb-2">
-            사진 첨부 <span className="text-[11px] font-normal text-[#9CA3AF]">({photos.length}/3)</span>
+          <div className="text-[13px] font-semibold text-[#374151] mb-2">근무시간</div>
+          <div className="flex gap-2 items-center">
+            <input type="time" value={workStart} onChange={(e) => setWorkStart(e.target.value)}
+              className="flex-1 text-[14px] border border-[#E5E7EB] rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316]" />
+            <span className="text-[14px] text-[#9CA3AF]">~</span>
+            <input type="time" value={workEnd} onChange={(e) => setWorkEnd(e.target.value)}
+              className="flex-1 text-[14px] border border-[#E5E7EB] rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316]" />
           </div>
-          <div className="flex gap-2 flex-wrap">
+        </div>
+
+        {/* ── 사진 ───────────────────────────────────────── */}
+        <div className="bg-white rounded-xl p-4 mt-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-[13px] font-semibold text-[#374151]">사진</div>
+            <span className="text-[11px] text-[#9CA3AF]">{photos.length}/3</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
             {photos.map((p, i) => (
-              <div key={i} className="relative w-[80px] h-[80px] rounded-lg overflow-hidden border border-[#E5E7EB]">
+              <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-[#E5E7EB]">
                 <img
                   src={`/api/worker/daily-reports/photos/file?path=${encodeURIComponent(p)}`}
-                  alt={`사진 ${i + 1}`}
+                  alt=""
                   className="w-full h-full object-cover"
                 />
                 <button onClick={() => removePhoto(i)}
-                  className="absolute top-1 right-1 w-5 h-5 bg-black/50 rounded-full text-white text-[11px] flex items-center justify-center leading-none">
+                  className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/50 rounded-full text-white text-[12px] flex items-center justify-center">
                   ✕
                 </button>
               </div>
             ))}
             {photos.length < 3 && (
-              <label className="w-[80px] h-[80px] rounded-lg border-2 border-dashed border-[#D1D5DB] flex flex-col items-center justify-center cursor-pointer active:bg-[#F9FAFB]">
+              <label className="aspect-square rounded-xl border-2 border-dashed border-[#D1D5DB] flex flex-col items-center justify-center cursor-pointer active:bg-[#F9FAFB]">
                 <input type="file" accept="image/*" capture="environment" className="hidden"
                   onChange={handlePhotoUpload} disabled={uploading} />
                 {uploading ? (
-                  <div className="text-[11px] text-[#9CA3AF] text-center">업로드<br />중...</div>
+                  <div className="text-[12px] text-[#9CA3AF]">업로드 중...</div>
                 ) : (
                   <>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[#D1D5DB]">
                       <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/>
                       <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5"/>
-                      <path d="M7 5V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
-                    <div className="text-[10px] text-[#9CA3AF] mt-0.5">추가</div>
+                    <div className="text-[11px] text-[#9CA3AF] mt-1">사진 추가</div>
                   </>
                 )}
               </label>
@@ -888,33 +706,26 @@ export default function DailyReportPage() {
           </div>
         </div>
 
-        {/* ── 8. 자동 표시 영역 ─────────────────────────────── */}
-        {report && (
-          <div className="flex gap-3 mt-3">
-            {report.consecutiveDays > 1 && (
-              <div className="bg-[#FFF7ED] px-3 py-2 rounded-lg text-[12px]">
-                <span className="text-[#F97316] font-semibold">반복 {report.consecutiveDays}일째</span>
-              </div>
-            )}
-            <div className="bg-[#FFF7ED] px-3 py-2 rounded-lg text-[12px]">
-              <span className="text-[#9CA3AF]">일 </span>
-              <span className="font-semibold text-[#F97316]">{Number(report.todayManDays)}공수</span>
-            </div>
-            <div className="bg-[#F0F9FF] px-3 py-2 rounded-lg text-[12px]">
-              <span className="text-[#9CA3AF]">월 </span>
-              <span className="font-semibold text-[#3B82F6]">{Number(report.monthlyManDays)}공수</span>
-            </div>
-          </div>
-        )}
+        {/* ── 메모 / 특이사항 ────────────────────────────── */}
+        <div className="bg-white rounded-xl p-4 mt-3">
+          <div className="text-[13px] font-semibold text-[#374151] mb-2">메모 / 특이사항</div>
+          <textarea
+            placeholder="메모나 특이사항을 입력하세요"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+            className="w-full text-[14px] border border-[#E5E7EB] rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316] resize-none"
+          />
+        </div>
 
-        {/* ── 메시지 ─────────────────────────────────────────── */}
+        {/* ── 메시지 ─────────────────────────────────────── */}
         {msg && <div className="mt-3 text-center text-[13px] text-[#F97316] font-medium">{msg}</div>}
 
-        {/* ── 저장 버튼 ──────────────────────────────────────── */}
+        {/* ── 저장 버튼 ──────────────────────────────────── */}
         <button onClick={handleSave} disabled={saving}
-          className="w-full mt-4 py-4 rounded-xl text-white text-[15px] font-bold transition-colors"
+          className="w-full mt-4 py-3.5 rounded-xl text-white text-[15px] font-bold transition-colors"
           style={{ background: saving ? '#FDBA74' : '#F97316' }}>
-          {saving ? '저장 중...' : '저장'}
+          {saving ? '저장 중...' : report ? '수정 저장' : '저장'}
         </button>
       </div>
       <WorkerBottomNav />
