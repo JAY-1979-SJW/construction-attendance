@@ -132,15 +132,43 @@ const STATUS_LABEL: Record<string, string> = {
   ADJUSTED: '수정됨',
 }
 
-// ── 확인상태 도출 ─────────────────────────────────────────────────────────────
-function getConfirmStatus(r: AttendanceRecord): { label: string; color: string; bg: string } {
-  if (r.status === 'EXCEPTION') return { label: '확인필요', color: '#B91C1C', bg: '#FEE2E2' }
-  if (r.status === 'MISSING_CHECKOUT') return { label: '확인필요', color: '#B91C1C', bg: '#FEE2E2' }
-  if (r.checkInWithinRadius === false || r.checkOutWithinRadius === false)
-    return { label: '확인필요', color: '#B91C1C', bg: '#FEE2E2' }
-  if (r.manualAdjustedYn || r.status === 'ADJUSTED')
-    return { label: '수정됨', color: '#7C3AED', bg: '#F3E8FF' }
-  return { label: '정상', color: '#16A34A', bg: '#DCFCE7' }
+// ── 퇴근누락 의심 기준: 오후 9시(KST) 이후 WORKING이면 퇴근누락 의심 ──
+const CHECKOUT_SUSPECT_HOUR = 21
+
+// ── 확인상태 + 사유 도출 ─────────────────────────────────────────────────────
+interface ConfirmResult { label: string; reason: string; color: string; bg: string }
+
+function getConfirmStatus(r: AttendanceRecord, workers?: WorkerBrief[]): ConfirmResult {
+  const reasons: string[] = []
+
+  // 현장불일치
+  if (workers) {
+    const w = workers.find(w2 => w2.id === r.workerId)
+    const primary = w?.activeSites.find(s => s.isPrimary)
+    if (primary && primary.id !== r.siteId) reasons.push('현장불일치')
+    if (w && w.activeSites.length === 0) reasons.push('미배정')
+  }
+
+  // 퇴근누락 의심 (WORKING 상태 + 현재 시각이 기준 초과)
+  if (r.status === 'WORKING' && !r.checkOutAt) {
+    const now = new Date()
+    const kstHour = (now.getUTCHours() + 9) % 24
+    if (kstHour >= CHECKOUT_SUSPECT_HOUR) reasons.push('퇴근누락')
+  }
+
+  if (r.status === 'MISSING_CHECKOUT') reasons.push('퇴근누락')
+  if (r.status === 'EXCEPTION') reasons.push('예외')
+  if (r.checkInWithinRadius === false) reasons.push('GPS범위외')
+  if (r.checkOutWithinRadius === false) reasons.push('퇴근GPS')
+  if (r.manualAdjustedYn || r.status === 'ADJUSTED') {
+    if (reasons.length === 0) return { label: '수정됨', reason: '수동수정', color: '#7C3AED', bg: '#F3E8FF' }
+    reasons.push('수동수정')
+  }
+
+  if (reasons.length > 0) {
+    return { label: '확인필요', reason: reasons[0], color: '#B91C1C', bg: '#FEE2E2' }
+  }
+  return { label: '정상', reason: '', color: '#16A34A', bg: '#DCFCE7' }
 }
 
 function isNeedsReview(r: AttendanceRecord): boolean {
@@ -358,6 +386,10 @@ function AttendancePageInner() {
   const [photos, setPhotos]           = useState<PhotoRecord[]>([])
   const [photosLoading, setPhotosLoading] = useState(false)
 
+  // 운영 메모
+  const [memoText, setMemoText]       = useState('')
+  const [memoSaving, setMemoSaving]   = useState(false)
+
   // 수정 폼
   const [correcting, setCorrecting]   = useState(false)
   const [correctCheckIn, setCorrectCheckIn]   = useState('')
@@ -443,6 +475,7 @@ function AttendancePageInner() {
     setManualReason('')
     setCorrectNote('')
     setCorrectError('')
+    setMemoText('')
     setPhotos([])
     loadPhotos(id)
   }
@@ -743,7 +776,7 @@ function AttendancePageInner() {
                   <tbody>
                     {sorted.map(item => {
                       const md = calcManDay(item.workedMinutesFinal ?? item.workedMinutesRaw)
-                      const cs = getConfirmStatus(item)
+                      const cs = getConfirmStatus(item, allWorkers)
                       const isSelected = item.id === selectedId
                       const rowBg =
                         isSelected        ? 'bg-[#FFF7ED]' :
@@ -809,8 +842,11 @@ function AttendancePageInner() {
                               className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
                               style={{ color: cs.color, backgroundColor: cs.bg }}
                             >
-                              {cs.label}
+                              {cs.label}{cs.reason && ` · ${cs.reason}`}
                             </span>
+                            {item.adminNote && (
+                              <div className="text-[10px] text-[#6B7280] mt-[2px] max-w-[120px] truncate" title={item.adminNote}>📝 {item.adminNote}</div>
+                            )}
                           </td>
                         </tr>
                       )
@@ -908,13 +944,46 @@ function AttendancePageInner() {
                       </>
                     )
                   })()}
-                  <div className="h-px bg-[#F3F4F6] my-2" />
-                  <div className="flex gap-2">
-                    <button onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(selected.workerName)}`)} className="flex-1 text-[11px] text-[#F97316] border border-[#F97316] bg-transparent rounded-[6px] py-[5px] cursor-pointer font-semibold hover:bg-[rgba(249,115,22,0.06)]">근로자 상세</button>
+                </PanelSection>
+
+                {/* B. 운영 메모 */}
+                <PanelSection label="B. 운영 메모">
+                  {selected.adminNote && !memoText && (
+                    <div className="mb-2 p-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg">
+                      <div className="text-[12px] text-[#374151]">{selected.adminNote}</div>
+                    </div>
+                  )}
+                  <textarea
+                    className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-[12px] bg-white resize-none outline-none focus:border-[#F97316] placeholder:text-[#9CA3AF]"
+                    rows={2}
+                    value={memoText}
+                    onChange={e => setMemoText(e.target.value)}
+                    placeholder={selected.adminNote ? '메모 수정...' : '운영 메모 입력...'}
+                  />
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={async () => {
+                        if (!memoText.trim()) return
+                        setMemoSaving(true)
+                        await fetch(`/api/admin/attendance/${selected.id}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ adminNote: memoText.trim() }),
+                        })
+                        setMemoSaving(false)
+                        setMemoText('')
+                        load()
+                      }}
+                      disabled={!memoText.trim() || memoSaving}
+                      className="px-3 py-[5px] bg-[#F97316] text-white border-none rounded-[6px] text-[11px] font-semibold cursor-pointer disabled:opacity-40"
+                    >
+                      {memoSaving ? '저장중...' : '메모 저장'}
+                    </button>
+                    <button onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(selected.workerName)}`)} className="px-3 py-[5px] text-[11px] text-[#F97316] border border-[#F97316] bg-transparent rounded-[6px] cursor-pointer font-semibold hover:bg-[rgba(249,115,22,0.06)]">근로자 상세</button>
                   </div>
                 </PanelSection>
 
-                {/* B. 출퇴근 정보 */}
+                {/* C. 출퇴근 정보 */}
                 <PanelSection label="B. 출퇴근 정보" warn={isNeedsReview(selected)}>
                   {selected.exceptionReason && (
                     <div className="mb-3 rounded-[8px] bg-[#FEF2F2] border border-[#FCA5A5] px-3 py-2">
