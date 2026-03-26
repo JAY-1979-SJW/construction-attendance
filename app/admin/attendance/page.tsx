@@ -67,7 +67,20 @@ interface SummaryData {
   exception: number
   needsAction: number
   todayWage: number
-  unassigned?: number
+  unassigned: number
+  notCheckedIn: number
+  siteMismatch: number
+}
+
+interface WorkerBrief {
+  id: string
+  name: string
+  phone: string
+  jobTitle: string
+  activeSites: { id: string; name: string; isPrimary?: boolean }[]
+  todayAttendance: { siteId: string; siteName: string; checkInAt: string | null; checkOutAt: string | null; status: string } | null
+  accountStatus: string
+  isActive: boolean
 }
 
 interface SiteOption {
@@ -334,6 +347,7 @@ function AttendancePageInner() {
 
   // 데이터
   const [items, setItems]             = useState<AttendanceRecord[]>([])
+  const [allWorkers, setAllWorkers]   = useState<WorkerBrief[]>([])
   const [summary, setSummary]         = useState<SummaryData | null>(null)
   const [siteOptions, setSiteOptions] = useState<SiteOption[]>([])
   const [total, setTotal]             = useState(0)
@@ -366,35 +380,42 @@ function AttendancePageInner() {
     setLoading(true)
     const params = new URLSearchParams({ date, pageSize: '500' })
     if (siteId)       params.set('siteId', siteId)
-    if (statusFilter) params.set('status', statusFilter)
+    if (statusFilter && !['NOT_CHECKED_IN', 'UNASSIGNED', 'SITE_MISMATCH'].includes(statusFilter)) {
+      params.set('status', statusFilter)
+    }
     if (nameSearch)   params.set('name', nameSearch)
 
-    fetch(`/api/admin/attendance?${params}`)
-      .then(r => r.json())
-      .then(data => {
-        if (!data.success) { router.push('/admin/login'); return }
-        setItems(data.data.items)
-        setTotal(data.data.total)
-        // 미배정 인원 수 추가 조회
-        fetch('/api/admin/workers?pageSize=1')
-          .then(r => r.json())
-          .then(wd => {
-            const allWorkers = wd.data?.items ?? []
-            // pageSize=1이므로 총 건수만 사용, 미배정은 별도 조회
-            fetch('/api/admin/workers?pageSize=500')
-              .then(r2 => r2.json())
-              .then(wd2 => {
-                const unassigned = (wd2.data?.items ?? []).filter((w: { activeSites: unknown[]; isActive: boolean; accountStatus: string }) => w.activeSites.length === 0 && w.isActive && w.accountStatus === 'APPROVED').length
-                setSummary(prev => prev ? { ...prev, unassigned } : prev)
-              })
-              .catch(() => {})
-          })
-          .catch(() => {})
-        setSummary(data.data.summary)
-        setSiteOptions(data.data.siteOptions ?? [])
-        setLoading(false)
+    Promise.all([
+      fetch(`/api/admin/attendance?${params}`).then(r => r.json()),
+      fetch('/api/admin/workers?pageSize=500').then(r => r.json()),
+    ]).then(([attData, wkData]) => {
+      if (!attData.success) { router.push('/admin/login'); return }
+      setItems(attData.data.items)
+      setTotal(attData.data.total)
+      setSiteOptions(attData.data.siteOptions ?? [])
+
+      const workers: WorkerBrief[] = (wkData.data?.items ?? []).filter((w: WorkerBrief) => w.isActive && w.accountStatus === 'APPROVED')
+      setAllWorkers(workers)
+
+      // 확장 요약 계산
+      const checkedInWorkerIds = new Set(attData.data.items.map((i: AttendanceRecord) => i.workerId))
+      const unassigned = workers.filter((w: WorkerBrief) => w.activeSites.length === 0).length
+      const assignedNotCheckedIn = workers.filter((w: WorkerBrief) => w.activeSites.length > 0 && !checkedInWorkerIds.has(w.id)).length
+      const siteMismatch = attData.data.items.filter((i: AttendanceRecord) => {
+        const w = workers.find((w2: WorkerBrief) => w2.id === i.workerId)
+        if (!w) return false
+        const primary = w.activeSites.find((s: { isPrimary?: boolean }) => s.isPrimary)
+        return primary && primary.id !== i.siteId
+      }).length
+
+      setSummary({
+        ...attData.data.summary,
+        unassigned,
+        notCheckedIn: assignedNotCheckedIn,
+        siteMismatch,
       })
-      .catch(() => setLoading(false))
+      setLoading(false)
+    }).catch(() => setLoading(false))
   }, [date, siteId, statusFilter, nameSearch, router])
 
   useEffect(() => { load() }, [load])
@@ -500,7 +521,24 @@ function AttendancePageInner() {
     return 4
   }
 
-  const sorted = [...items].sort((a, b) => {
+  // 미출근/미배정/현장불일치 필터용 가상 행 생성
+  const checkedInWorkerIds = new Set(items.map(i => i.workerId))
+  const notCheckedInWorkers = allWorkers.filter(w => w.activeSites.length > 0 && !checkedInWorkerIds.has(w.id))
+  const unassignedWorkers = allWorkers.filter(w => w.activeSites.length === 0)
+  const siteMismatchItems = items.filter(i => {
+    const w = allWorkers.find(w2 => w2.id === i.workerId)
+    const primary = w?.activeSites.find(s => s.isPrimary)
+    return primary && primary.id !== i.siteId
+  })
+
+  // 필터별 표시할 아이템 결정
+  const displayItems: AttendanceRecord[] =
+    statusFilter === 'NOT_CHECKED_IN' ? [] :
+    statusFilter === 'UNASSIGNED' ? [] :
+    statusFilter === 'SITE_MISMATCH' ? siteMismatchItems :
+    items
+
+  const sorted = [...displayItems].sort((a, b) => {
     switch (sortKey) {
       case 'needsAction': return reviewRank(a) - reviewRank(b)
       case 'missing':
@@ -581,11 +619,12 @@ function AttendancePageInner() {
         <div className="px-5 py-2.5 flex items-center gap-2 flex-wrap">
           {[
             { value: '',                 label: '전체' },
-            { value: 'WORKING',          label: '출근중' },
+            { value: 'WORKING',          label: '근무중' },
             { value: 'COMPLETED',        label: '퇴근완료' },
-            { value: 'MISSING_CHECKOUT', label: '미출근' },
+            { value: 'NOT_CHECKED_IN',   label: '미출근' },
+            { value: 'UNASSIGNED',       label: '미배정' },
+            { value: 'SITE_MISMATCH',    label: '현장불일치' },
             { value: 'EXCEPTION',        label: '확인필요' },
-            { value: 'ADJUSTED',         label: '수정됨' },
           ].map(opt => (
             <FilterPill
               key={opt.value}
@@ -599,18 +638,18 @@ function AttendancePageInner() {
         </div>
       </SectionCard>
 
-      {/* ── 요약 KPI 6개 ── */}
+      {/* ── 요약 KPI ── */}
       {summary && (
         <div className="flex gap-3">
           <KpiCard
-            label="조회 인원"
+            label="오늘 출근"
             value={summary.total}
             sub="명"
             onClick={() => setStatusFilter('')}
             active={statusFilter === ''}
           />
           <KpiCard
-            label="출근중"
+            label="근무중"
             value={summary.working}
             color="#16A34A"
             onClick={() => setStatusFilter('WORKING')}
@@ -625,30 +664,18 @@ function AttendancePageInner() {
           />
           <KpiCard
             label="미출근"
-            value={summary.missing}
-            color={summary.missing > 0 ? '#D97706' : '#6B7280'}
-            onClick={() => setStatusFilter('MISSING_CHECKOUT')}
-            active={statusFilter === 'MISSING_CHECKOUT'}
+            value={summary.notCheckedIn}
+            color={summary.notCheckedIn > 0 ? '#D97706' : '#6B7280'}
+            onClick={() => setStatusFilter('NOT_CHECKED_IN')}
+            active={statusFilter === 'NOT_CHECKED_IN'}
           />
-          <KpiCard
-            label="확인필요"
-            value={summary.exception}
-            color={summary.exception > 0 ? '#DC2626' : '#6B7280'}
-            onClick={() => setStatusFilter('EXCEPTION')}
-            active={statusFilter === 'EXCEPTION'}
-          />
-          <KpiCard
-            label="오늘 총 노임"
-            value={fmtWage(summary.todayWage)}
-            sub={summary.todayWage > 0 ? fmtWageFull(summary.todayWage) : undefined}
-            color="#F97316"
-          />
-          {summary.unassigned != null && summary.unassigned > 0 && (
+          {summary.unassigned > 0 && (
             <KpiCard
               label="미배정"
               value={summary.unassigned}
-              sub="명"
               color="#D97706"
+              onClick={() => setStatusFilter('UNASSIGNED')}
+              active={statusFilter === 'UNASSIGNED'}
             />
           )}
         </div>
@@ -703,7 +730,7 @@ function AttendancePageInner() {
                 <table className="w-full border-collapse text-[13px]" style={{ minWidth: 780 }}>
                   <thead>
                     <tr className="border-b border-[#F3F4F6] bg-[#FAFAFA]">
-                      {['이름', '현장', '출근', '퇴근', '근무상태', '공수', '일노임', '출사', '퇴사', '확인상태'].map(h => (
+                      {['이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인'].map(h => (
                         <th
                           key={h}
                           className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap"
@@ -733,64 +760,48 @@ function AttendancePageInner() {
                           {/* 이름 */}
                           <td className="px-3 py-2.5">
                             <div className="font-semibold text-[#111827] whitespace-nowrap">{item.workerName}</div>
-                            {item.company && (
-                              <div className="text-[11px] text-[#9CA3AF]">{item.company}</div>
-                            )}
                           </td>
-                          {/* 현장 */}
+                          {/* 직종 */}
+                          <td className="px-3 py-2.5 text-[12px] text-[#6B7280] whitespace-nowrap">{item.jobTitle}</td>
+                          {/* 주배정 현장 */}
                           <td className="px-3 py-2.5 max-w-[100px]">
-                            <div className="text-[#6B7280] truncate text-[12px]">{item.siteName}</div>
-                            {item.hasSiteMove && (
-                              <span className="text-[10px] bg-[#EFF6FF] text-[#2563EB] px-1 py-[1px] rounded">
-                                +{item.moveCount}이동
-                              </span>
-                            )}
+                            {(() => {
+                              const w = allWorkers.find(w2 => w2.id === item.workerId)
+                              const primary = w?.activeSites.find(s => s.isPrimary)
+                              if (primary) return <div className="text-[12px] text-[#374151] truncate">{primary.name}</div>
+                              if (w && w.activeSites.length > 0) return <div className="text-[12px] text-[#374151] truncate">{w.activeSites[0].name}</div>
+                              return <span className="text-[11px] font-semibold text-[#D97706] bg-[#FEF3C7] px-[6px] py-[1px] rounded">미배정</span>
+                            })()}
+                          </td>
+                          {/* 실제 출근 현장 */}
+                          <td className="px-3 py-2.5 max-w-[100px]">
+                            <div className="text-[12px] text-[#374151] truncate">{item.siteName}</div>
+                            {(() => {
+                              const w = allWorkers.find(w2 => w2.id === item.workerId)
+                              const primary = w?.activeSites.find(s => s.isPrimary)
+                              if (primary && primary.id !== item.siteId) {
+                                return <span className="text-[10px] font-bold text-[#D97706] bg-[#FEF3C7] px-1 py-[1px] rounded">불일치</span>
+                              }
+                              return null
+                            })()}
                           </td>
                           {/* 출근 */}
                           <td className="px-3 py-2.5 tabular-nums whitespace-nowrap">
                             <span className={item.checkInWithinRadius === false ? 'text-[#DC2626]' : 'text-[#374151]'}>
                               {fmtTime(item.checkInAt)}
                             </span>
-                            {item.checkInWithinRadius === false && (
-                              <span className="ml-1 text-[9px] text-[#DC2626] font-bold">GPS!</span>
-                            )}
                           </td>
                           {/* 퇴근 */}
                           <td className="px-3 py-2.5 tabular-nums whitespace-nowrap">
                             {item.checkOutAt ? (
-                              <span className={item.checkOutWithinRadius === false ? 'text-[#DC2626]' : 'text-[#374151]'}>
-                                {fmtTime(item.checkOutAt)}
-                                {item.isAutoCheckout && (
-                                  <span className="ml-1 text-[9px] bg-[#FEE2E2] text-[#B91C1C] px-1 rounded font-bold">AUTO</span>
-                                )}
-                              </span>
+                              <span className="text-[#374151]">{fmtTime(item.checkOutAt)}</span>
                             ) : (
                               <span className="text-[#D1D5DB]">-</span>
                             )}
                           </td>
-                          {/* 근무상태 */}
+                          {/* 상태 */}
                           <td className="px-3 py-2.5">
                             <StatusBadge status={item.status} label={STATUS_LABEL[item.status] ?? item.status} />
-                          </td>
-                          {/* 공수 */}
-                          <td className="px-3 py-2.5 text-right tabular-nums">
-                            <span className="text-[13px] font-bold" style={{ color: md.color }}>{md.value}</span>
-                          </td>
-                          {/* 일노임 */}
-                          <td className="px-3 py-2.5 text-right tabular-nums">
-                            {item.dayWage > 0 ? (
-                              <span className="font-semibold text-[#374151]">{fmtWage(item.dayWage)}</span>
-                            ) : (
-                              <span className="text-[#D1D5DB]">-</span>
-                            )}
-                          </td>
-                          {/* 출근사진 */}
-                          <td className="px-3 py-2.5 text-center">
-                            <PhotoIcon has={item.hasCheckInPhoto} />
-                          </td>
-                          {/* 퇴근사진 */}
-                          <td className="px-3 py-2.5 text-center">
-                            <PhotoIcon has={item.hasCheckOutPhoto} />
                           </td>
                           {/* 확인상태 */}
                           <td className="px-3 py-2.5">
@@ -804,6 +815,36 @@ function AttendancePageInner() {
                         </tr>
                       )
                     })}
+                    {/* 미출근 행 (NOT_CHECKED_IN 필터 또는 전체) */}
+                    {(statusFilter === 'NOT_CHECKED_IN' || statusFilter === '') && notCheckedInWorkers.map(w => {
+                      if (statusFilter === '' && items.length > 0) return null // 전체 모드에서는 출근자만 표시
+                      const primary = w.activeSites.find(s => s.isPrimary) ?? w.activeSites[0]
+                      return (
+                        <tr key={`nc-${w.id}`} className="border-b border-[#F9FAFB] bg-[#FFFBEB] hover:bg-[#FEF3C7] cursor-pointer" onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)}>
+                          <td className="px-3 py-2.5 font-semibold text-[#111827]">{w.name}</td>
+                          <td className="px-3 py-2.5 text-[12px] text-[#6B7280]">{w.jobTitle}</td>
+                          <td className="px-3 py-2.5 text-[12px] text-[#374151]">{primary?.name ?? '-'}</td>
+                          <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
+                          <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
+                          <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
+                          <td className="px-3 py-2.5"><span className="text-[11px] font-semibold text-[#D97706] bg-[#FEF3C7] px-[6px] py-[1px] rounded">미출근</span></td>
+                          <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
+                        </tr>
+                      )
+                    })}
+                    {/* 미배정 행 */}
+                    {statusFilter === 'UNASSIGNED' && unassignedWorkers.map(w => (
+                      <tr key={`ua-${w.id}`} className="border-b border-[#F9FAFB] bg-[#FEF2F2] hover:bg-[#FEE2E2] cursor-pointer" onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)}>
+                        <td className="px-3 py-2.5 font-semibold text-[#111827]">{w.name}</td>
+                        <td className="px-3 py-2.5 text-[12px] text-[#6B7280]">{w.jobTitle}</td>
+                        <td className="px-3 py-2.5"><span className="text-[11px] font-semibold text-[#D97706] bg-[#FEF3C7] px-[6px] py-[1px] rounded">미배정</span></td>
+                        <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
+                        <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
+                        <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
+                        <td className="px-3 py-2.5"><span className="text-[11px] font-semibold text-[#D97706] bg-[#FEF3C7] px-[6px] py-[1px] rounded">미배정</span></td>
+                        <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -855,15 +896,22 @@ function AttendancePageInner() {
                   <PanelRow label="소속" value={selected.company || '-'} />
                   <PanelRow label="직종" value={selected.jobTitle || '-'} />
                   <PanelRow label="연락처" value={selected.workerPhone || '-'} />
+                  {(() => {
+                    const w = allWorkers.find(w2 => w2.id === selected.workerId)
+                    const primary = w?.activeSites.find(s => s.isPrimary) ?? w?.activeSites[0]
+                    return (
+                      <>
+                        <PanelRow label="주배정" value={primary?.name ?? <span className="text-[#D97706]">미배정</span>} warn={!primary} />
+                        {primary && primary.id !== selected.siteId && (
+                          <div className="mb-2 text-[11px] text-[#D97706] bg-[#FEF3C7] rounded px-2 py-1">⚠ 주배정 현장과 다른 곳에 출근</div>
+                        )}
+                      </>
+                    )
+                  })()}
                   <div className="h-px bg-[#F3F4F6] my-2" />
-                  <PanelRow
-                    label="이번달 누적"
-                    value={<span className="font-semibold text-[#374151]">{fmtWageFull(selected.monthWage)}</span>}
-                  />
-                  <PanelRow
-                    label="전체 누적"
-                    value={<span className="text-[#6B7280]">{fmtWageFull(selected.totalWage)}</span>}
-                  />
+                  <div className="flex gap-2">
+                    <button onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(selected.workerName)}`)} className="flex-1 text-[11px] text-[#F97316] border border-[#F97316] bg-transparent rounded-[6px] py-[5px] cursor-pointer font-semibold hover:bg-[rgba(249,115,22,0.06)]">근로자 상세</button>
+                  </div>
                 </PanelSection>
 
                 {/* B. 출퇴근 정보 */}
