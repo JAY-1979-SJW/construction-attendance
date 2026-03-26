@@ -46,7 +46,16 @@ const SECTION_MAP: Record<string, string> = {
   '/admin/document-center':         '문서 센터',
   '/admin/operations/print-center': '출력 센터',
   '/admin/operations/today-tasks':  '오늘 업무',
+  '/admin/operations/attendance-exceptions': '출퇴근 이상 센터',
+  '/admin/operations/labor-review': '노무 검토',
   '/admin/pilot':                   '파일럿 모니터',
+  '/admin/devices':                 '기기 관리',
+  '/admin/devices-anomaly':         '기기 이상 탐지',
+  '/admin/presence-report':         '체류 리포트',
+  '/admin/labor-cost-summaries':    '노무비 집계',
+  '/admin/temp-docs':               '임시 문서',
+  '/admin/company-admin-requests':  '근로자관리',
+  '/admin/site-join-requests':      '현장관리',
 }
 
 function getSectionName(pathname: string): string {
