@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { verifyToken } from './jwt'
 import { forbidden, unauthorized } from '@/lib/utils/response'
+import { isUserRevoked } from './user-revocation'
 import type { JwtPayload } from '@/types/auth'
 import {
   MUTATE_ALLOWED_ROLES,
@@ -58,7 +59,11 @@ export async function getWorkerSession(): Promise<JwtPayload | null> {
   const cookieStore = await cookies()
   const token = cookieStore.get('worker_token')?.value
   if (!token) return null
-  return verifyToken(token)
+  const payload = await verifyToken(token)
+  if (!payload) return null
+  // 비밀번호/상태 변경 후 발급된 토큰만 유효
+  if (isUserRevoked(payload.sub, payload.iat)) return null
+  return payload
 }
 
 export async function getAdminSession(): Promise<JwtPayload | null> {
@@ -67,6 +72,8 @@ export async function getAdminSession(): Promise<JwtPayload | null> {
   if (!token) return null
   const payload = await verifyToken(token)
   if (!payload || payload.type !== 'admin') return null
+  // 비밀번호/권한 변경, 비활성화 후 발급된 토큰만 유효
+  if (isUserRevoked(payload.sub, payload.iat)) return null
   return payload
 }
 

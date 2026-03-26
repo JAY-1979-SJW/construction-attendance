@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma'
 import { getAdminSession } from '@/lib/auth/guards'
 import { ok, badRequest, unauthorized, internalError } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { revokeUserTokens } from '@/lib/auth/user-revocation'
 
 // GET /api/admin/auth/me — 현재 관리자 정보 조회
 export async function GET() {
@@ -86,6 +87,11 @@ export async function PATCH(request: NextRequest) {
       targetId: session.sub,
       description: `관리자 본인 정보 변경: ${updated.name} | 변경항목: ${changed.join(', ')}`,
     })
+
+    // 비밀번호 변경 시 기존 토큰 전부 무효화 (현재 세션 포함)
+    if (newPassword) {
+      revokeUserTokens(session.sub)
+    }
 
     return ok(updated, '정보가 변경되었습니다.')
   } catch (err) {

@@ -37,6 +37,10 @@ export async function middleware(request: NextRequest) {
         }
         return NextResponse.redirect(new URL(ROUTE_REDIRECT.COMPANY_ADMIN_MISMATCH, request.url))
       }
+      // VIEWER는 읽기 전용 — API mutation 요청 차단
+      if (payload.role === 'VIEWER' && pathname.startsWith('/api/') && request.method !== 'GET') {
+        return NextResponse.json({ success: false, message: 'VIEWER 역할은 읽기 전용입니다.' }, { status: 403 })
+      }
     } catch {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json({ success: false, message: '유효하지 않은 토큰입니다.' }, { status: 401 })
