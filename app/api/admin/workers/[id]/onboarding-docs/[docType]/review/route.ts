@@ -35,14 +35,14 @@ export async function POST(
     return badRequest('반려 사유를 입력하세요.')
   }
 
-  // siteId 결정: 명시 안 하면 해당 근로자의 첫 패키지에서 가져옴
+  // siteId 결정: 명시 안 하면 해당 문서가 SUBMITTED인 패키지에서 가져옴
   let resolvedSiteId: string | null = siteId ?? null
   if (!resolvedSiteId) {
-    const pkg = await prisma.workerDocumentPackage.findFirst({
-      where: { workerId },
+    const doc = await prisma.onboardingDocument.findFirst({
+      where: { workerId, docType: docType as any, status: 'SUBMITTED' },
       select: { siteId: true },
     })
-    resolvedSiteId = pkg?.siteId ?? null
+    resolvedSiteId = doc?.siteId ?? null
   }
 
   try {
