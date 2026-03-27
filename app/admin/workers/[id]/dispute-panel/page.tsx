@@ -2,6 +2,7 @@
 
 import { useEffect, useState, use } from 'react'
 import Link from 'next/link'
+import { Modal } from '@/components/admin/ui'
 
 /**
  * 관리자 분쟁방어 패널
@@ -513,53 +514,48 @@ export default function DisputePanelPage({ params }: { params: Promise<{ id: str
       )}
 
       {/* 새 분쟁 케이스 모달 */}
-      {showNewCase && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
-          <div className="bg-white rounded-xl p-6 w-full max-w-[480px] mx-4">
-            <h2 className="m-0 mb-5 text-[18px] font-black">분쟁 케이스 개설</h2>
-            <div className="mb-3.5">
-              <label className="block text-[13px] font-bold mb-1.5">분쟁 유형</label>
-              <select
-                value={newCaseForm.disputeType}
-                onChange={e => setNewCaseForm(f => ({ ...f, disputeType: e.target.value }))}
-                className="w-full px-2.5 py-2.5 border border-white/[0.12] rounded-lg text-[14px]"
-              >
-                <option value="">선택...</option>
-                {Object.entries(DISPUTE_TYPE_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-              </select>
-            </div>
-            <div className="mb-3.5">
-              <label className="block text-[13px] font-bold mb-1.5">제목</label>
-              <input
-                value={newCaseForm.title}
-                onChange={e => setNewCaseForm(f => ({ ...f, title: e.target.value }))}
-                placeholder="예: 2026-03 임금 지급 관련 이의제기"
-                className="w-full px-2.5 py-2.5 border border-white/[0.12] rounded-lg text-[14px] box-border"
-              />
-            </div>
-            <div className="mb-5">
-              <label className="block text-[13px] font-bold mb-1.5">요약 (선택)</label>
-              <textarea
-                value={newCaseForm.summary}
-                onChange={e => setNewCaseForm(f => ({ ...f, summary: e.target.value }))}
-                rows={3}
-                className="w-full px-2.5 py-2.5 border border-white/[0.12] rounded-lg text-[14px] resize-y box-border"
-              />
-            </div>
-            <div className="flex gap-2.5">
-              <button onClick={() => setShowNewCase(false)} className="flex-1 py-3 border border-white/[0.12] rounded-lg bg-white cursor-pointer text-[14px]">취소</button>
-              <button
-                onClick={handleOpenCase}
-                disabled={!newCaseForm.disputeType || !newCaseForm.title || submitting}
-                className="flex-1 py-3 border-none rounded-lg text-white cursor-pointer text-[14px] font-bold"
-                style={{ background: (!newCaseForm.disputeType || !newCaseForm.title) ? '#bdbdbd' : '#e53935' }}
-              >
-                {submitting ? '처리 중...' : '케이스 개설'}
-              </button>
-            </div>
-          </div>
+      <Modal open={showNewCase} onClose={() => setShowNewCase(false)} title="분쟁 케이스 개설">
+        <div className="mb-3.5">
+          <label className="block text-[13px] font-bold mb-1.5">분쟁 유형</label>
+          <select
+            value={newCaseForm.disputeType}
+            onChange={e => setNewCaseForm(f => ({ ...f, disputeType: e.target.value }))}
+            className="w-full px-2.5 py-2.5 border border-white/[0.12] rounded-lg text-[14px]"
+          >
+            <option value="">선택...</option>
+            {Object.entries(DISPUTE_TYPE_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
         </div>
-      )}
+        <div className="mb-3.5">
+          <label className="block text-[13px] font-bold mb-1.5">제목</label>
+          <input
+            value={newCaseForm.title}
+            onChange={e => setNewCaseForm(f => ({ ...f, title: e.target.value }))}
+            placeholder="예: 2026-03 임금 지급 관련 이의제기"
+            className="w-full px-2.5 py-2.5 border border-white/[0.12] rounded-lg text-[14px] box-border"
+          />
+        </div>
+        <div className="mb-5">
+          <label className="block text-[13px] font-bold mb-1.5">요약 (선택)</label>
+          <textarea
+            value={newCaseForm.summary}
+            onChange={e => setNewCaseForm(f => ({ ...f, summary: e.target.value }))}
+            rows={3}
+            className="w-full px-2.5 py-2.5 border border-white/[0.12] rounded-lg text-[14px] resize-y box-border"
+          />
+        </div>
+        <div className="flex gap-2.5">
+          <button onClick={() => setShowNewCase(false)} className="flex-1 py-3 border border-white/[0.12] rounded-lg bg-white cursor-pointer text-[14px]">취소</button>
+          <button
+            onClick={handleOpenCase}
+            disabled={!newCaseForm.disputeType || !newCaseForm.title || submitting}
+            className="flex-1 py-3 border-none rounded-lg text-white cursor-pointer text-[14px] font-bold"
+            style={{ background: (!newCaseForm.disputeType || !newCaseForm.title) ? '#bdbdbd' : '#e53935' }}
+          >
+            {submitting ? '처리 중...' : '케이스 개설'}
+          </button>
+        </div>
+      </Modal>
     </div>
   )
 }

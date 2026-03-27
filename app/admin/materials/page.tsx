@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Modal, Toast } from '@/components/admin/ui'
 
 interface Site {
   id: string
@@ -173,11 +174,7 @@ export default function MaterialsPage() {
         </div>
 
         {/* Upload Modal */}
-        {showUpload && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
-            <div className="bg-card rounded-[12px] p-8 w-[480px] max-w-[90vw] shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
-              <h2 className="m-0 mb-5 text-[18px] font-bold">내역서 업로드</h2>
-
+        <Modal open={showUpload} onClose={() => { setShowUpload(false); setUploadError('') }} title="내역서 업로드">
               <label className="block text-[13px] font-semibold text-muted-brand mb-[6px] mt-4">파일 선택 (xlsx / xls)</label>
               <input
                 ref={fileInputRef}
@@ -211,9 +208,7 @@ export default function MaterialsPage() {
                 className="w-full px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm resize-y box-border"
               />
 
-              {uploadError && (
-                <div className="bg-[#ffebee] text-[#b71c1c] px-[14px] py-[10px] rounded-md text-[13px] mt-3">{uploadError}</div>
-              )}
+              {uploadError && <Toast message={uploadError} variant="error" />}
 
               <div className="flex gap-3 justify-end mt-5">
                 <button onClick={() => { setShowUpload(false); setUploadError('') }} className="px-5 py-[10px] bg-[#e0e0e0] text-[#CBD5E0] border-0 rounded-md cursor-pointer text-sm" disabled={uploading}>취소</button>
@@ -221,9 +216,7 @@ export default function MaterialsPage() {
                   {uploading ? '업로드 중...' : '업로드'}
                 </button>
               </div>
-            </div>
-          </div>
-        )}
+        </Modal>
 
         {/* Filters */}
         <div className="flex gap-3 items-center mb-4">

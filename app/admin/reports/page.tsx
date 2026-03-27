@@ -6,7 +6,7 @@ import {
   PageShell, SectionCard, PageHeader,
   FilterInput, FilterSelect, FilterPill,
   AdminTable, AdminTr, AdminTd, EmptyRow,
-  StatusBadge, Btn,
+  StatusBadge, Btn, Modal,
 } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
@@ -301,7 +301,7 @@ function ReportsPageInner() {
       {/* ── 상세 패널 ──────────────────────────────────── */}
       {detailOpen && selected && (
         <>
-          <div className="fixed inset-0 bg-black/20 z-40" onClick={() => setDetailOpen(false)} />
+          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setDetailOpen(false)} />
           <div className="fixed top-0 right-0 h-screen w-[460px] bg-white z-50 flex flex-col shadow-xl">
             <div className="h-1 bg-[#F97316]" />
             <div className="flex items-center justify-between px-5 py-3 border-b border-[#F3F4F6]">
@@ -401,23 +401,15 @@ function ReportsPageInner() {
       )}
 
       {/* ── 사진 확대 모달 ────────────────────────────────── */}
-      {previewPhoto && (
-        <>
-          <div className="fixed inset-0 bg-black/70 z-[60]" onClick={() => setPreviewPhoto(null)} />
-          <div className="fixed inset-0 z-[61] flex items-center justify-center p-8" onClick={() => setPreviewPhoto(null)}>
-            <img
-              src={`/api/admin/daily-reports/photos/file?path=${encodeURIComponent(previewPhoto)}`}
-              alt="사진 확대"
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            />
-            <button onClick={() => setPreviewPhoto(null)}
-              className="absolute top-4 right-4 w-8 h-8 bg-black/50 rounded-full text-white flex items-center justify-center text-[16px] hover:bg-black/70">
-              ✕
-            </button>
-          </div>
-        </>
-      )}
+      <Modal open={!!previewPhoto} onClose={() => setPreviewPhoto(null)} title="사진 확대" width={720}>
+        {previewPhoto && (
+          <img
+            src={`/api/admin/daily-reports/photos/file?path=${encodeURIComponent(previewPhoto)}`}
+            alt="사진 확대"
+            className="max-w-full max-h-[70vh] object-contain rounded-lg mx-auto block"
+          />
+        )}
+      </Modal>
     </PageShell>
   )
 }

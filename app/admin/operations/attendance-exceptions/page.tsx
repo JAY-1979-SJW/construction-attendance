@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { Modal } from '@/components/admin/ui'
 
 /**
  * 출퇴근 예외/누락 처리 센터
@@ -215,10 +216,9 @@ export default function AttendanceExceptionsPage() {
       )}
 
       {/* 처리 모달 */}
-      {target && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
-          <div className="bg-white rounded-xl p-7 w-[460px] max-w-[95vw]">
-            <h2 className="m-0 mb-[6px] text-base font-black">출퇴근 처리</h2>
+      <Modal open={!!target} onClose={() => setTarget(null)} title="출퇴근 처리">
+        {target && (
+          <>
             <div className="text-[13px] text-muted-brand mb-5">
               {target.workerName} · {target.workDate} · {target.siteName}
             </div>
@@ -275,9 +275,9 @@ export default function AttendanceExceptionsPage() {
                 {saving ? '처리 중...' : '처리 확정'}
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   )
 }

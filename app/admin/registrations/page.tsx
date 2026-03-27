@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { PageShell, PageHeader, SectionCard, FilterBar, FilterInput, AdminTable, AdminTr, AdminTd, StatusBadge, Btn, FormTextarea, ModalFooter } from '@/components/admin/ui'
+import { PageShell, PageHeader, SectionCard, FilterBar, FilterInput, AdminTable, AdminTr, AdminTd, StatusBadge, Btn, FormTextarea, ModalFooter, Modal } from '@/components/admin/ui'
 
 /** 서류 항목 정의 */
 const DOCUMENTS = [
@@ -151,23 +151,18 @@ export default function RegistrationsPage() {
       )}
 
       {/* ── 반려 모달 ── */}
-      {rejectId && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
-          <div className="bg-card rounded-xl p-7 w-[360px] shadow-[0_8px_32px_rgba(0,0,0,0.15)]">
-            <h3 className="m-0 mb-4 text-base font-bold">반려 사유</h3>
-            <FormTextarea
-              value={rejectReason} onChange={e => setRejectReason(e.target.value)}
-              placeholder="반려 사유를 입력하세요." rows={3}
-            />
-            <ModalFooter>
-              <Btn variant="ghost" onClick={() => { setRejectId(null); setRejectReason('') }}>취소</Btn>
-              <Btn variant="danger" onClick={() => reject(rejectId)} disabled={processing === rejectId}>
-                {processing === rejectId ? '처리 중...' : '반려'}
-              </Btn>
-            </ModalFooter>
-          </div>
-        </div>
-      )}
+      <Modal open={!!rejectId} onClose={() => { setRejectId(null); setRejectReason('') }} title="반려 사유">
+        <FormTextarea
+          value={rejectReason} onChange={e => setRejectReason(e.target.value)}
+          placeholder="반려 사유를 입력하세요." rows={3}
+        />
+        <ModalFooter>
+          <Btn variant="ghost" onClick={() => { setRejectId(null); setRejectReason('') }}>취소</Btn>
+          <Btn variant="danger" onClick={() => rejectId && reject(rejectId)} disabled={!!rejectId && processing === rejectId}>
+            {rejectId && processing === rejectId ? '처리 중...' : '반려'}
+          </Btn>
+        </ModalFooter>
+      </Modal>
 
       <div className="flex gap-5">
         {/* ── 목록 ── */}

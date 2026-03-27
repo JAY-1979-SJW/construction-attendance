@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Modal, Toast } from '@/components/admin/ui'
 
 interface CompanyAdminRequest {
   id: string
@@ -122,12 +123,9 @@ export default function CompanyAdminRequestsPage() {
       )}
 
       {/* 모달 */}
-      {mode && selected && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
-          <div className="bg-card rounded-xl p-7 w-[440px] shadow-[0_8px_32px_rgba(0,0,0,0.15)]">
-            <h3 className="m-0 mb-3 text-base font-bold">
-              {mode === 'approve' ? '업체 관리자 승인' : '신청 반려'}
-            </h3>
+      <Modal open={!!(mode && selected)} onClose={closeModal} title={mode === 'approve' ? '업체 관리자 승인' : '신청 반려'}>
+        {selected && (
+          <>
             <div className="grid grid-cols-[80px_1fr] gap-x-3 gap-y-2 text-sm mb-4 p-[14px] bg-brand rounded-lg">
               <span className="text-muted-brand font-semibold">업체명</span><span>{selected.companyName}</span>
               <span className="text-muted-brand font-semibold">사업자번호</span><span>{selected.businessNumber}</span>
@@ -176,9 +174,9 @@ export default function CompanyAdminRequestsPage() {
                   >{processing ? '처리 중...' : '반려'}</button>
               }
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
 
       {loading ? (
         <div className="text-center py-[60px] text-muted-brand text-[15px]">로딩 중...</div>

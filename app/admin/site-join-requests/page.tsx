@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Modal } from '@/components/admin/ui'
 
 interface JoinRequest {
   id: string
@@ -87,26 +88,21 @@ export default function SiteJoinRequestsPage() {
         <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-lg px-4 py-3 mb-4 text-[#2e7d32] text-[14px]">{msg}</div>
       )}
 
-      {rejectId && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
-          <div className="bg-card rounded-[12px] p-7 w-[360px] shadow-[0_8px_32px_rgba(0,0,0,0.15)]">
-            <h3 className="m-0 mb-4">반려 사유 입력</h3>
-            <textarea
-              className="w-full px-[10px] py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[14px] mb-4 box-border resize-y"
-              value={rejectReason}
-              onChange={e => setRejectReason(e.target.value)}
-              placeholder="반려 사유를 입력하세요."
-              rows={4}
-            />
-            <div className="flex gap-2 justify-end">
-              <button className="px-4 py-2 bg-[#eee] border-0 rounded-lg text-[14px] cursor-pointer" onClick={() => { setRejectId(null); setRejectReason('') }}>취소</button>
-              <button className="px-4 py-2 bg-[#c62828] text-white border-0 rounded-lg text-[14px] cursor-pointer font-bold" onClick={() => reject(rejectId)} disabled={processing === rejectId}>
-                {processing === rejectId ? '처리 중...' : '반려'}
-              </button>
-            </div>
-          </div>
+      <Modal open={!!rejectId} onClose={() => { setRejectId(null); setRejectReason('') }} title="반려 사유 입력">
+        <textarea
+          className="w-full px-[10px] py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[14px] mb-4 box-border resize-y"
+          value={rejectReason}
+          onChange={e => setRejectReason(e.target.value)}
+          placeholder="반려 사유를 입력하세요."
+          rows={4}
+        />
+        <div className="flex gap-2 justify-end">
+          <button className="px-4 py-2 bg-[#eee] border-0 rounded-lg text-[14px] cursor-pointer" onClick={() => { setRejectId(null); setRejectReason('') }}>취소</button>
+          <button className="px-4 py-2 bg-[#c62828] text-white border-0 rounded-lg text-[14px] cursor-pointer font-bold" onClick={() => rejectId && reject(rejectId)} disabled={!!rejectId && processing === rejectId}>
+            {rejectId && processing === rejectId ? '처리 중...' : '반려'}
+          </button>
         </div>
-      )}
+      </Modal>
 
       {loading ? (
         <div className="text-center py-[60px] text-muted-brand text-[15px]">로딩 중...</div>

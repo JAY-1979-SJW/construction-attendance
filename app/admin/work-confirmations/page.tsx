@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { Modal } from '@/components/admin/ui'
 
 interface WorkConfirmation {
   id: string
@@ -212,10 +213,9 @@ export default function WorkConfirmationsPage() {
     </div>
 
       {/* 확정 모달 */}
-      {editTarget && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]">
-          <div className="bg-card rounded-2xl p-8 w-[480px] max-w-[90vw] shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
-            <h3 className="m-0 mb-4">{editTarget.workDate} — {editTarget.worker.name}</h3>
+      <Modal open={!!editTarget} onClose={() => setEditTarget(null)} title={editTarget ? `${editTarget.workDate} — ${editTarget.worker.name}` : ''}>
+        {editTarget && (
+          <>
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
                 <label className="block text-[12px] text-muted-brand mb-1 font-semibold">근무 유형</label>
@@ -245,9 +245,9 @@ export default function WorkConfirmationsPage() {
               <button onClick={() => handleSave('confirm')} disabled={saving} className="px-4 py-2 bg-[#2e7d32] text-white border-0 rounded-md cursor-pointer text-[14px] font-semibold">{saving ? '저장 중...' : '확정'}</button>
               <button onClick={() => setEditTarget(null)} className="px-4 py-2 bg-[rgba(91,164,217,0.1)] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[14px]">취소</button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </>
   )
 }

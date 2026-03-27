@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Modal } from '@/components/admin/ui'
 
 interface PODetail {
   id: string
@@ -423,10 +424,7 @@ export default function PurchaseOrderDetailPage({ params }: { params: Promise<{ 
         </div>
 
       {/* 취소 모달 */}
-      {showCancelModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[3000]">
-          <div className="bg-card rounded-[10px] p-6 w-[420px] max-w-[95vw]">
-            <h3 className="text-base font-bold m-0 mb-4 text-white">발주 취소</h3>
+      <Modal open={showCancelModal} onClose={() => { setShowCancelModal(false); setCancelReason('') }} title="발주 취소">
             <div className="mb-2 text-[13px] text-muted-brand">취소 사유 (선택)</div>
             <textarea
               value={cancelReason}
@@ -439,16 +437,10 @@ export default function PurchaseOrderDetailPage({ params }: { params: Promise<{ 
               <button onClick={() => { setShowCancelModal(false); setCancelReason('') }} className="px-4 py-2 bg-white/[0.08] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px]">닫기</button>
               <button onClick={handleCancel} disabled={actionLoading} className="px-4 py-2 bg-[rgba(183,28,28,0.15)] text-[#ef5350] border border-[rgba(183,28,28,0.3)] rounded-md cursor-pointer text-[13px]">취소 확정</button>
             </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* 입고 처리 모달 */}
-      {showReceiveModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[3000]">
-          <div className="bg-card rounded-[10px] p-6 w-[680px] max-w-[95vw] max-h-[90vh] flex flex-col">
-            <h3 className="text-base font-bold m-0 mb-4 text-white">입고 처리</h3>
-
+      <Modal open={showReceiveModal} onClose={() => setShowReceiveModal(false)} title="입고 처리" width={680}>
             <div className="overflow-y-auto flex-1">
               <table className="w-full border-collapse mb-4">
                 <thead>
@@ -518,9 +510,7 @@ export default function PurchaseOrderDetailPage({ params }: { params: Promise<{ 
               <button onClick={() => setShowReceiveModal(false)} className="px-4 py-2 bg-white/[0.08] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px]">닫기</button>
               <button onClick={handleReceive} disabled={actionLoading} className="px-[18px] py-2 bg-[#2e7d32] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">입고 확정</button>
             </div>
-          </div>
-        </div>
-      )}
+      </Modal>
     </div>
   )
 }

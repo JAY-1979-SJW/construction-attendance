@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import MaterialPickerModal from '@/components/admin/MaterialPickerModal'
+import { Modal } from '@/components/admin/ui'
 
 interface OrderableItem {
   id: string
@@ -483,10 +484,7 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
       )}
 
       {/* 반려 모달 */}
-      {showRejectModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[3000]">
-          <div className="bg-card rounded-[10px] p-6 w-[420px] max-w-[95vw]">
-            <h3 className="text-base font-bold m-0 mb-4 text-white">반려 처리</h3>
+      <Modal open={showRejectModal} onClose={() => { setShowRejectModal(false); setRejectReason('') }} title="반려 처리">
             <div className="mb-2 text-[13px] text-muted-brand">반려 사유 *</div>
             <textarea
               value={rejectReason}
@@ -499,9 +497,7 @@ export default function MaterialRequestDetailPage({ params }: { params: Promise<
               <button onClick={() => { setShowRejectModal(false); setRejectReason('') }} className="px-4 py-2 bg-white/[0.08] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px]">취소</button>
               <button onClick={handleReject} disabled={actionLoading} className="px-[18px] py-2 bg-[#b71c1c] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">반려 확정</button>
             </div>
-          </div>
-        </div>
-      )}
+      </Modal>
     </div>
   )
 }

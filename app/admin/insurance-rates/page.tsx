@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { Modal } from '@/components/admin/ui'
 
 // ─── 타입 ─────────────────────────────────────────────────
 
@@ -403,16 +404,9 @@ export default function InsuranceRatesPage() {
       )}
 
       {/* 상세/상태 전환 모달 */}
-      {selected && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-lg">
-                {RATE_TYPE_LABEL[selected.rateType]} — {selected.effectiveYear}년
-              </h3>
-              <button onClick={() => { setSelected(null); setActionNote('') }} className="text-gray-400 hover:text-gray-700">✕</button>
-            </div>
-
+      <Modal open={!!selected} onClose={() => { setSelected(null); setActionNote('') }} title={selected ? `${RATE_TYPE_LABEL[selected.rateType]} — ${selected.effectiveYear}년` : ''}>
+        {selected && (
+          <div className="space-y-4">
             <div className="text-sm space-y-2 bg-gray-50 rounded p-3">
               <div className="flex justify-between"><span className="text-gray-500">합산 요율</span><strong>{fmt(selected.totalRatePct)}</strong></div>
               <div className="flex justify-between"><span className="text-gray-500">근로자 부담</span><strong className="text-blue-700">{fmt(selected.employeeRatePct)}</strong></div>
@@ -487,8 +481,8 @@ export default function InsuranceRatesPage() {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   )
 }

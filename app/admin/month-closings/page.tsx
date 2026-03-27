@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { Modal } from '@/components/admin/ui'
 
 interface PrecheckResult {
   canClose: boolean
@@ -264,35 +265,30 @@ export default function MonthClosingsPage() {
         )}
 
       {/* 재오픈 모달 */}
-      {showReopenModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-card rounded-xl p-6 w-[400px] shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
-            <h3 className="text-base font-bold mb-4">재오픈 사유 입력</h3>
-            <textarea
-              value={reopenReason}
-              onChange={(e) => setReopenReason(e.target.value)}
-              placeholder="재오픈 사유를 입력하세요"
-              className="w-full border border-[rgba(91,164,217,0.2)] rounded-md px-2.5 py-2.5 h-24 text-[13px] resize-y box-border"
-            />
-            <div className="flex gap-2 justify-end mt-4">
-              <button
-                onClick={() => { setShowReopenModal(false); setReopenReason('') }}
-                className="px-4 py-2 border border-[rgba(91,164,217,0.2)] rounded-md bg-card cursor-pointer text-[13px]"
-              >
-                취소
-              </button>
-              <button
-                onClick={runReopen}
-                disabled={loading || !reopenReason.trim()}
-                className="px-4 py-2 text-white border-none rounded-md cursor-pointer text-[13px] font-semibold"
-                style={{ background: '#e65100', opacity: (loading || !reopenReason.trim()) ? 0.5 : 1 }}
-              >
-                재오픈
-              </button>
-            </div>
-          </div>
+      <Modal open={showReopenModal} onClose={() => { setShowReopenModal(false); setReopenReason('') }} title="재오픈 사유 입력">
+        <textarea
+          value={reopenReason}
+          onChange={(e) => setReopenReason(e.target.value)}
+          placeholder="재오픈 사유를 입력하세요"
+          className="w-full border border-[rgba(91,164,217,0.2)] rounded-md px-2.5 py-2.5 h-24 text-[13px] resize-y box-border"
+        />
+        <div className="flex gap-2 justify-end mt-4">
+          <button
+            onClick={() => { setShowReopenModal(false); setReopenReason('') }}
+            className="px-4 py-2 border border-[rgba(91,164,217,0.2)] rounded-md bg-card cursor-pointer text-[13px]"
+          >
+            취소
+          </button>
+          <button
+            onClick={runReopen}
+            disabled={loading || !reopenReason.trim()}
+            className="px-4 py-2 text-white border-none rounded-md cursor-pointer text-[13px] font-semibold"
+            style={{ background: '#e65100', opacity: (loading || !reopenReason.trim()) ? 0.5 : 1 }}
+          >
+            재오픈
+          </button>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

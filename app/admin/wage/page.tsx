@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { FloatingToast } from '@/components/admin/ui'
 
 // ── 타입 ─────────────────────────────────────────────────────
 interface WageSummaryItem {
@@ -442,13 +443,7 @@ export default function WagePage() {
 
       {/* 토스트 */}
       {toast && (
-        <div
-          className={`fixed bottom-6 right-6 z-[100] px-4 py-3 rounded-xl shadow-lg text-sm font-semibold flex items-center gap-2 ${
-            toast.ok ? 'bg-[#2e7d32] text-white' : 'bg-[#c62828] text-white'
-          }`}
-        >
-          {toast.ok ? '✓' : '✗'} {toast.msg}
-        </div>
+        <FloatingToast message={toast.msg} ok={toast.ok} onDone={() => setToast(null)} />
       )}
     </div>
   )

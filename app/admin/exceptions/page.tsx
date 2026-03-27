@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
+import { Modal, Toast } from '@/components/admin/ui'
 
 interface ExceptionRecord {
   id: string
@@ -96,10 +97,9 @@ export default function ExceptionsPage() {
       )}
 
       {/* 처리 모달 */}
-      {selected && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
-          <div className="bg-card rounded-xl p-8 w-[400px] max-w-[90vw]">
-            <h3 className="mt-0 mb-4">예외 처리</h3>
+      <Modal open={!!selected} onClose={() => setSelected(null)} title="예외 처리">
+        {selected && (
+          <>
             <p className="text-sm text-muted-brand mb-4">
               {selected.workerName} · {selected.siteName} · {selected.workDate}
             </p>
@@ -115,15 +115,15 @@ export default function ExceptionsPage() {
               <label className="block text-[13px] text-muted-brand mb-1">메모</label>
               <input type="text" value={approveData.note} onChange={(e) => setApproveData({ ...approveData, note: e.target.value })} className="w-full px-3 py-2 text-sm border border-secondary-brand/30 rounded-md box-border" placeholder="처리 메모 (선택)" />
             </div>
-            {msg && <p className="text-[#2e7d32] text-[13px]">{msg}</p>}
+            {msg && <Toast message={msg} variant="success" />}
             <div className="flex gap-2 mt-4">
               {canMutate && <button onClick={() => handleAction('APPROVE')} disabled={processing} className="flex-1 py-2.5 bg-[#2e7d32] text-white border-none rounded-md cursor-pointer font-bold">승인</button>}
               {canMutate && <button onClick={() => handleAction('REJECT')} disabled={processing} className="flex-1 py-2.5 bg-[#e53935] text-white border-none rounded-md cursor-pointer font-bold">반려</button>}
               <button onClick={() => setSelected(null)} className="flex-1 py-2.5 bg-brand text-[#CBD5E0] border-none rounded-md cursor-pointer">닫기</button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   )
 }

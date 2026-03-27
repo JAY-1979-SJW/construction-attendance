@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { DOC_PACKAGES, getDocPackageForTemplate } from '@/lib/contracts/index'
 import { DANGER_PHRASE_UI } from '@/lib/policies/contract-policy'
-import { FormInput, FormSelect, ModalFooter, Btn } from '@/components/admin/ui'
+import { FormInput, FormSelect, Modal, ModalFooter, Btn } from '@/components/admin/ui'
 
 // ─── 타입 ─────────────────────────────────────────────────────
 
@@ -579,22 +579,17 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       </div>
 
       {/* 문서 미리보기 모달 */}
-      {previewDoc && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-card rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="font-semibold">{previewDoc.title}</h3>
-              <button onClick={() => setPreviewDoc(null)} className="text-[#718096] hover:text-[#CBD5E0] text-xl">✕</button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6">
+      <Modal open={!!previewDoc} onClose={() => setPreviewDoc(null)} title={previewDoc?.title ?? ''} width={768}>
+            <div className="flex-1 overflow-y-auto">
               <pre className="text-xs font-mono whitespace-pre-wrap leading-relaxed text-[#CBD5E0]">
-                {previewDoc.content}
+                {previewDoc?.content}
               </pre>
             </div>
             <ModalFooter>
               <Btn
                 variant="secondary"
                 onClick={() => {
+                  if (!previewDoc) return
                   const blob = new Blob([previewDoc.content], { type: 'text/plain; charset=utf-8' })
                   const url  = URL.createObjectURL(blob)
                   const a    = document.createElement('a')
@@ -605,15 +600,10 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
               </Btn>
               <Btn variant="ghost" onClick={() => setPreviewDoc(null)}>닫기</Btn>
             </ModalFooter>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* 서명 모달 */}
-      {showSignModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-card rounded-xl shadow-2xl w-full max-w-sm p-6">
-            <h3 className="font-semibold text-white mb-4">계약서 서명 처리</h3>
+      <Modal open={showSignModal} onClose={() => setShowSignModal(false)} title="계약서 서명 처리">
             <p className="text-sm text-[#718096] mb-4">
               서명 처리 시 계약 상태가 ACTIVE로 변경됩니다.
             </p>
@@ -630,15 +620,10 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
                 {processing ? '처리 중...' : '서명 완료'}
               </Btn>
             </ModalFooter>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* 교부 모달 */}
-      {showDeliverModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-card rounded-xl shadow-2xl w-full max-w-sm p-6">
-            <h3 className="font-semibold text-white mb-4">계약서 교부 처리</h3>
+      <Modal open={showDeliverModal} onClose={() => setShowDeliverModal(false)} title="계약서 교부 처리">
             <FormSelect
               label="교부 방법"
               value={deliverMethod}
@@ -656,9 +641,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
                 {processing ? '처리 중...' : '교부 완료'}
               </Btn>
             </ModalFooter>
-          </div>
-        </div>
-      )}
+      </Modal>
     </div>
   )
 }
