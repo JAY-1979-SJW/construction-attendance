@@ -122,20 +122,29 @@ export async function POST(
   // 파일명도 snapshot 기준 이름 사용 (base.workerName = snapshot-first 해소된 값)
   const fileName = `${rendered.title}_${base.workerName}_${today}.txt`
 
-  const doc = await prisma.generatedDocument.create({
-    data: {
-      workerId:     contract.workerId,
-      contractId:   contract.id,
-      documentType: docType as never,
-      filePath:     '',
-      fileName,
-      mimeType:     'text/plain',
-      contentText,
-      contentJson:  rendered as never,
-      status:       'DRAFT',
-      generatedBy:  session.sub,
-    },
-  })
+  // docType 'CONTRACT' → DB enum 매핑 (GeneratedDocumentType에 CONTRACT가 없음)
+  const resolvedDocType = resolveDocumentType(docType, tmpl)
+
+  let doc
+  try {
+    doc = await prisma.generatedDocument.create({
+      data: {
+        workerId:     contract.workerId,
+        contractId:   contract.id,
+        documentType: resolvedDocType as never,
+        filePath:     '',
+        fileName,
+        mimeType:     'text/plain',
+        contentText,
+        contentJson:  rendered as never,
+        status:       'DRAFT',
+        generatedBy:  session.sub,
+      },
+    })
+  } catch (dbErr) {
+    console.error('[generate-doc] DB 저장 실패:', dbErr)
+    return NextResponse.json({ error: `문서 DB 저장 실패: ${(dbErr as Error).message}` }, { status: 500 })
+  }
 
   await writeAdminAuditLog({
     adminId:    session.sub,
@@ -175,8 +184,10 @@ function renderDoc(
     // ── 계약서 본문 ──────────────────────────────────────────
     case 'CONTRACT':
     case 'DAILY_CONTRACT':
-      if (tmpl === 'REGULAR_EMPLOYMENT')    return renderRegularEmploymentContract(base, false)
-      if (tmpl === 'FIXED_TERM_EMPLOYMENT') return renderRegularEmploymentContract(base, true)
+      if (tmpl === 'REGULAR_EMPLOYMENT' || tmpl === 'CONTINUOUS_EMPLOYMENT')
+        return renderRegularEmploymentContract(base, false)
+      if (tmpl === 'FIXED_TERM_EMPLOYMENT' || tmpl === 'MONTHLY_FIXED_EMPLOYMENT')
+        return renderRegularEmploymentContract(base, true)
       if (tmpl === 'SUBCONTRACT_WITH_BIZ' || tmpl === 'FREELANCER_SERVICE') {
         return renderSubcontractBizContract(base)
       }
@@ -377,6 +388,17 @@ function buildSubcontractData(base: ContractData, contract: Record<string, unkno
     equipmentByContractor: true,
     materialByContractor:  false,
   } as SubcontractData
+}
+
+/**
+ * docType 'CONTRACT' → DB GeneratedDocumentType enum 매핑
+ * DB enum에 CONTRACT가 없으므로 contractTemplateType에 따라 분기
+ */
+function resolveDocumentType(docType: string, tmpl: string): string {
+  if (docType !== 'CONTRACT') return docType
+  if (tmpl === 'DAILY_EMPLOYMENT') return 'DAILY_CONTRACT'
+  if (tmpl === 'SUBCONTRACT_WITH_BIZ' || tmpl === 'FREELANCER_SERVICE') return 'SERVICE_CONTRACT'
+  return 'REGULAR_CONTRACT'
 }
 
 function buildTeamData(base: ContractData, contract: Record<string, unknown>): TeamLeaderData {
