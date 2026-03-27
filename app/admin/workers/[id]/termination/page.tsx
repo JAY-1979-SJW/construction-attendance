@@ -267,7 +267,7 @@ export default function TerminationPage() {
 
       {/* ── Step 1: 기본정보 ─────────────────────────────────────────────────── */}
       {step === 1 && (
-        <div className="bg-white border border-white/[0.12] rounded-xl p-6">
+        <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5">
           <h2 className="m-0 mb-5 text-[16px] font-bold">Step 1 — 종료 기본정보 입력</h2>
 
           <Field label="종료 유형" required>
@@ -325,7 +325,7 @@ export default function TerminationPage() {
 
       {/* ── Step 2: 자동점검 결과 ────────────────────────────────────────────── */}
       {step === 2 && (
-        <div className="bg-white border border-white/[0.12] rounded-xl p-6">
+        <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5">
           <h2 className="m-0 mb-5 text-[16px] font-bold">Step 2 — 자동점검 결과</h2>
 
           {hasCritical && (
@@ -377,7 +377,7 @@ export default function TerminationPage() {
 
       {/* ── Step 3: 누락항목 보완 ────────────────────────────────────────────── */}
       {step === 3 && (
-        <div className="bg-white border border-white/[0.12] rounded-xl p-6">
+        <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5">
           <h2 className="m-0 mb-4 text-[16px] font-bold">Step 3 — 누락항목 보완</h2>
           <p className="m-0 mb-5 text-[13px] text-muted-brand">
             아래 항목들을 보완한 후 재점검을 실행하세요. 치명 항목은 반드시 처리해 주세요.
@@ -417,7 +417,7 @@ export default function TerminationPage() {
 
       {/* ── Step 4: 최종 확인 ────────────────────────────────────────────────── */}
       {step === 4 && (
-        <div className="bg-white border border-white/[0.12] rounded-xl p-6">
+        <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5">
           <h2 className="m-0 mb-1.5 text-[16px] font-bold">Step 4 — 관리자 최종 확인</h2>
           <p className="m-0 mb-5 text-[13px] text-muted-brand">
             아래 항목을 모두 확인한 후 종료를 확정할 수 있습니다.

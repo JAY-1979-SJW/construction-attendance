@@ -128,14 +128,14 @@ export default function DevicesAnomalyPage() {
             <div className="text-[12px] font-semibold" style={{ color: style.color }}>{label}</div>
           </div>
         ))}
-        <div className="bg-brand border border-white/10 rounded-[10px] px-6 py-[14px] min-w-[120px] text-center">
+        <div className="bg-white border border-[#E5E7EB] rounded-[12px] px-6 py-[14px] min-w-[120px] text-center">
           <div className="text-[28px] font-bold text-muted-brand">{anomalies.length}</div>
           <div className="text-[12px] font-semibold text-muted-brand">전체</div>
         </div>
       </div>
 
       {/* 테이블 */}
-      <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
+      <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
         {loading ? (
           <div className="py-12 text-center text-[#999]">탐지 중...</div>
         ) : anomalies.length === 0 ? (

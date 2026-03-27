@@ -197,7 +197,7 @@ export default function CompanyDetailPage() {
         )}
 
         {/* Section 1: 기본 정보 */}
-        <div className="bg-card rounded-xl p-6 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="bg-white rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           <h2 className="text-base font-bold m-0 mb-4 text-white">기본 정보</h2>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
             <div>
@@ -261,7 +261,7 @@ export default function CompanyDetailPage() {
         </div>
 
         {/* Section 2: 기능 플래그 관리 */}
-        <div className="bg-card rounded-xl p-6 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="bg-white rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           <h2 className="text-base font-bold m-0 mb-4 text-white">기능 플래그 관리</h2>
           <p className="text-[13px] text-muted-brand mb-4">(유료) 표시 항목은 유료 플랜에서 제공되는 기능입니다.</p>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-2.5">
@@ -320,7 +320,7 @@ export default function CompanyDetailPage() {
         </div>
 
         {/* Section 3: 업체 관리자 계정 */}
-        <div className="bg-card rounded-xl p-6 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="bg-white rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           <h2 className="text-base font-bold m-0 mb-4 text-white">업체 관리자 계정</h2>
           {admins.length === 0 ? (
             <div className="py-6 text-center text-[#718096] text-sm">등록된 관리자 계정이 없습니다.</div>

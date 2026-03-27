@@ -84,7 +84,7 @@ export default function PurchaseOrdersPage() {
           <span className="text-muted-brand text-sm">총 {total}건</span>
         </div>
 
-        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {loading ? (
             <div className="text-center py-12 text-muted-brand">로딩 중...</div>
           ) : orders.length === 0 ? (

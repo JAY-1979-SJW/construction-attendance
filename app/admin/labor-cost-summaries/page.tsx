@@ -152,7 +152,7 @@ export default function LaborCostSummariesPage() {
             { label: '총 노임',     value: fmtWon(totals.totalWage),        color: '#e65100' },
             { label: '총 원천세',   value: fmtWon(totals.withholdingTax),   color: '#b71c1c' },
           ].map((c) => (
-            <div key={c.label} className="bg-card rounded-[10px] px-5 py-4 min-w-[140px] shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
+            <div key={c.label} className="bg-white rounded-[12px] px-5 py-4 min-w-[140px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
               style={{ borderTop: `4px solid ${c.color}` }}>
               <div className="text-[18px] font-bold" style={{ color: c.color }}>{c.value}</div>
               <div className="text-xs text-muted-brand">{c.label}</div>
@@ -162,7 +162,7 @@ export default function LaborCostSummariesPage() {
       )}
 
       {/* 테이블 */}
-      <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+      <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
         {loading ? (
           <div className="py-8 text-center text-[#999]">로딩 중...</div>
         ) : (

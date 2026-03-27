@@ -702,7 +702,7 @@ export default function SiteDetailPage() {
             {infoLoading ? (
               <div className="text-center text-[#718096] py-8">불러오는 중...</div>
             ) : infoEditing ? (
-              <div className="bg-[#EFF6FF] border border-blue-500/30 rounded-xl p-5 space-y-4">
+              <div className="bg-[#EFF6FF] border border-blue-500/30 rounded-[12px] p-5 space-y-4">
                 <h3 className="text-sm font-semibold text-blue-600">기본정보 수정</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
@@ -772,7 +772,7 @@ export default function SiteDetailPage() {
                 </div>
               </div>
             ) : siteInfo ? (
-              <div className="bg-card border border-[#E5E7EB] rounded-xl p-5 space-y-4">
+              <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5 space-y-4">
                 <div className="grid grid-cols-2 gap-y-3 text-sm">
                   <div>
                     <span className="text-xs text-[#718096] block">현장명</span>
@@ -873,7 +873,7 @@ export default function SiteDetailPage() {
 
             {/* 참여회사 추가 폼 */}
             {showCompanyForm && (
-              <div className="bg-[#EFF6FF] border border-blue-500/30 rounded-xl p-5 space-y-4 mb-4">
+              <div className="bg-[#EFF6FF] border border-blue-500/30 rounded-[12px] p-5 space-y-4 mb-4">
                 <h3 className="text-sm font-semibold text-blue-600">참여회사 추가</h3>
 
                 {/* 모드 선택 */}
@@ -1025,12 +1025,12 @@ export default function SiteDetailPage() {
             {scLoading ? (
               <div className="text-center text-[#718096] py-8">불러오는 중...</div>
             ) : siteCompanies.length === 0 ? (
-              <div className="text-center text-[#718096] py-8 bg-card border border-[#E5E7EB] rounded-xl">
+              <div className="text-center text-[#718096] py-8 bg-white border border-[#E5E7EB] rounded-[12px]">
                 <p className="mb-2">등록된 참여회사가 없습니다.</p>
                 <p className="text-xs">위 버튼으로 참여회사를 추가하세요.</p>
               </div>
             ) : (
-              <div className="bg-card border border-[#E5E7EB] rounded-lg overflow-hidden">
+              <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
@@ -1162,7 +1162,7 @@ export default function SiteDetailPage() {
 
             {/* 배치 폼 */}
             {showAssignForm && (
-              <div className="bg-[#EFF6FF] border border-blue-500/30 rounded-xl p-5 space-y-4 mb-4">
+              <div className="bg-[#EFF6FF] border border-blue-500/30 rounded-[12px] p-5 space-y-4 mb-4">
                 <h3 className="text-sm font-semibold text-blue-600">근로자 현장 배치</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {/* 근로자 검색 */}
@@ -1179,7 +1179,7 @@ export default function SiteDetailPage() {
                     />
                     {wsSearching && <p className="text-xs text-[#718096] mt-1">검색 중...</p>}
                     {workerSearchResults.length > 0 && (
-                      <div className="border border-[#D1D5DB] rounded bg-card shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-1 max-h-40 overflow-y-auto">
+                      <div className="border border-[#D1D5DB] rounded bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-1 max-h-40 overflow-y-auto">
                         {workerSearchResults.map((w) => (
                           <button
                             key={w.id}
@@ -1253,12 +1253,12 @@ export default function SiteDetailPage() {
             {awLoading ? (
               <div className="text-center text-[#718096] py-8">불러오는 중...</div>
             ) : assignedWorkers.length === 0 ? (
-              <div className="text-center text-[#718096] py-8 bg-card border border-[#E5E7EB] rounded-xl">
+              <div className="text-center text-[#718096] py-8 bg-white border border-[#E5E7EB] rounded-[12px]">
                 <p className="mb-2">배치된 근로자가 없습니다.</p>
                 <p className="text-xs">위 버튼으로 근로자를 이 현장에 배치하세요.</p>
               </div>
             ) : (
-              <div className="bg-card border border-[#E5E7EB] rounded-lg overflow-hidden">
+              <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
@@ -1423,7 +1423,7 @@ export default function SiteDetailPage() {
                 {notices.map((n) => (
                   <div
                     key={n.id}
-                    className={`bg-card border rounded-lg p-4 ${n.isTodayHighlight ? 'border-blue-400 shadow-[0_2px_8px_rgba(0,0,0,0.35)]' : 'border-[#E5E7EB]'}`}
+                    className={`bg-white border rounded-[12px] p-5 ${n.isTodayHighlight ? 'border-blue-400 shadow-[0_1px_3px_rgba(0,0,0,0.08)]' : 'border-[#E5E7EB]'}`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -1564,7 +1564,7 @@ export default function SiteDetailPage() {
             ) : (
               <div className="space-y-3">
                 {schedules.map((s) => (
-                  <div key={s.id} className="bg-card border border-[#E5E7EB] rounded-lg p-4">
+                  <div key={s.id} className="bg-white border border-[#E5E7EB] rounded-[12px] p-5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs bg-[rgba(255,255,255,0.08)] text-[#374151] px-2 py-0.5 rounded">
@@ -1674,7 +1674,7 @@ export default function SiteDetailPage() {
             ) : workers.length === 0 ? (
               <div className="text-center text-[#718096] py-8">해당 날짜 인원 데이터가 없습니다.</div>
             ) : (
-              <div className="bg-card border border-[#E5E7EB] rounded-lg overflow-hidden">
+              <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">

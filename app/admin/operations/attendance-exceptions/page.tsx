@@ -140,7 +140,7 @@ export default function AttendanceExceptionsPage() {
       )}
 
       {/* 목록 */}
-      <div className="bg-white border border-white/10 rounded-[10px] overflow-hidden">
+      <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
         <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr className="bg-[#263238] text-white">
@@ -225,7 +225,7 @@ export default function AttendanceExceptionsPage() {
 
             <div className="mb-[14px]">
               <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">처리 유형 *</label>
-              <select value={action} onChange={e => setAction(e.target.value)} className="w-full px-3 py-[9px] border border-white/10 rounded-[7px] text-sm outline-none box-border">
+              <select value={action} onChange={e => setAction(e.target.value)} className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-[7px] text-sm outline-none box-border">
                 <option value="">선택하세요</option>
                 {target.status === 'MISSING_CHECKOUT' && (
                   <option value="SET_CHECKOUT">퇴근시간 설정</option>
@@ -247,7 +247,7 @@ export default function AttendanceExceptionsPage() {
                   type="datetime-local"
                   value={checkOut}
                   onChange={e => setCheckOut(e.target.value)}
-                  className="w-full px-3 py-[9px] border border-white/10 rounded-[7px] text-sm outline-none box-border"
+                  className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-[7px] text-sm outline-none box-border"
                 />
               </div>
             )}
@@ -259,12 +259,12 @@ export default function AttendanceExceptionsPage() {
                 onChange={e => setNote(e.target.value)}
                 placeholder="처리 사유를 입력하세요 (감사로그에 기록됨)"
                 rows={3}
-                className="w-full px-3 py-[9px] border border-white/10 rounded-[7px] text-sm outline-none box-border resize-y"
+                className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-[7px] text-sm outline-none box-border resize-y"
               />
             </div>
 
             <div className="flex gap-[10px]">
-              <button onClick={() => setTarget(null)} className="flex-1 py-3 border border-white/10 rounded-lg bg-white cursor-pointer text-sm">
+              <button onClick={() => setTarget(null)} className="flex-1 py-3 border border-[#E5E7EB] rounded-lg bg-white cursor-pointer text-sm">
                 취소
               </button>
               <button

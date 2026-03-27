@@ -310,7 +310,7 @@ export default function MaterialRequestDetailPage() {
         </div>
 
         {/* 기본 정보 카드 */}
-        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {editMode ? (
             <div>
               <div className="grid grid-cols-2 gap-4 mb-4">
@@ -345,7 +345,7 @@ export default function MaterialRequestDetailPage() {
         </div>
 
         {/* 품목 목록 */}
-        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-4">
+        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-[15px] font-semibold m-0">
               청구 품목 <span className="text-muted-brand font-normal">({req.items.length}건)</span>
@@ -398,7 +398,7 @@ export default function MaterialRequestDetailPage() {
 
         {/* 발주 현황 — APPROVED 상태에서만 표시 */}
         {req.status === 'APPROVED' && orderableItems.length > 0 && (
-          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-4">
+          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-[15px] font-semibold m-0">발주 현황</h2>
               <button
@@ -445,7 +445,7 @@ export default function MaterialRequestDetailPage() {
         )}
 
         {/* 상태 이력 */}
-        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-4">
+        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
           <h2 className="text-[15px] font-semibold m-0 mb-4">상태 이력</h2>
           <div className="flex flex-col gap-2">
             {req.history.map((h, i) => (

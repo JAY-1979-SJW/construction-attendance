@@ -146,7 +146,7 @@ export default function LaborFaqsPage() {
 
         {/* 우측: FAQ 챗 위젯 */}
         {showChat && (
-          <div className="w-96 shrink-0 sticky top-6 h-[600px]">
+          <div className="w-96 shrink-0 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
             <FaqChatWidget
               page="labor-faqs"
               onClose={() => setShowChat(false)}

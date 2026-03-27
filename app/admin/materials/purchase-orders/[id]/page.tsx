@@ -279,7 +279,7 @@ export default function PurchaseOrderDetailPage() {
         </div>
 
         {/* 기본 정보 카드 */}
-        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {editMode ? (
             <div>
               <div className="grid grid-cols-2 gap-4 mb-4">
@@ -311,7 +311,7 @@ export default function PurchaseOrderDetailPage() {
         </div>
 
         {/* 발주 품목 */}
-        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-4">
+        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-[15px] font-semibold m-0">
               발주 품목 <span className="text-muted-brand font-normal">({po.items.length}건)</span>
@@ -355,7 +355,7 @@ export default function PurchaseOrderDetailPage() {
 
         {/* 입고 이력 */}
         {po.goodsReceipts.length > 0 && (
-          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-4">
+          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
             <h2 className="text-[15px] font-semibold m-0 mb-4">
               입고 이력 <span className="text-muted-brand font-normal">({po.goodsReceipts.length}건)</span>
             </h2>
@@ -393,7 +393,7 @@ export default function PurchaseOrderDetailPage() {
         )}
 
         {/* 상태 이력 */}
-        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-4">
+        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
           <h2 className="text-[15px] font-semibold m-0 mb-4">상태 이력</h2>
           <div className="flex flex-col gap-2">
             {po.history.map((h, i) => (

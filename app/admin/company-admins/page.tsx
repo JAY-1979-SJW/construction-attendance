@@ -88,7 +88,7 @@ export default function CompanyAdminsPage() {
       )}
 
       {showForm && (
-        <div className="bg-brand border border-[rgba(91,164,217,0.3)] rounded-xl p-6 mb-6">
+        <div className="bg-brand border border-[rgba(91,164,217,0.3)] rounded-[12px] p-5 mb-6">
           <h3 className="m-0 mb-4 text-[15px] font-semibold">업체 관리자 계정 생성</h3>
           <div className="grid grid-cols-[100px_1fr] gap-x-3 gap-y-[10px] items-center">
             <label className="text-[13px] font-semibold text-muted-brand">이름</label>
@@ -144,7 +144,7 @@ export default function CompanyAdminsPage() {
               {['이름', '이메일', '소속 업체', '상태', '마지막 로그인', '생성일', '조작'].map((h) => (
                 <th
                   key={h}
-                  className="px-3 py-[10px] bg-brand border border-white/[0.12] text-left font-semibold"
+                  className="px-3 py-[10px] bg-brand border border-[#E5E7EB] text-left font-semibold"
                 >{h}</th>
               ))}
             </tr>

@@ -95,7 +95,7 @@ export default function CompanyAdminRequestsPage() {
             className={`px-[18px] py-2 rounded-[20px] border text-sm cursor-pointer transition-colors ${
               filter === st
                 ? 'bg-[#F47920] text-white border-[#1976d2] font-bold'
-                : 'bg-card border-white/[0.12] text-muted-brand'
+                : 'bg-white border-[#E5E7EB] text-muted-brand'
             }`}
             onClick={() => setFilter(st)}
           >

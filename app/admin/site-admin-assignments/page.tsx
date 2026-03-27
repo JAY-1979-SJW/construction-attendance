@@ -226,7 +226,7 @@ export default function SiteAdminAssignmentsPage() {
         {loading ? (
           <div className="text-center text-gray-400 py-12">불러오는 중...</div>
         ) : assignments.length === 0 ? (
-          <div className="text-center text-gray-400 py-12 bg-white border rounded-xl">
+          <div className="text-center text-gray-400 py-12 bg-white border border-[#E5E7EB] rounded-[12px]">
             배정 내역이 없습니다.
           </div>
         ) : (

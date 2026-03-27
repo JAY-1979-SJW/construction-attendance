@@ -186,7 +186,7 @@ function ReportsPageInner() {
             { label: '미확인', value: summary.writtenCount, color: '#F97316' },
             { label: '미작성', value: summary.missingCount, color: '#EF4444' },
           ].map((kpi) => (
-            <div key={kpi.label} className="bg-white rounded-xl p-3 text-center border border-[#F3F4F6]">
+            <div key={kpi.label} className="bg-white rounded-[12px] p-3 text-center border border-[#E5E7EB]">
               <div className="text-[11px] text-[#9CA3AF] mb-1">{kpi.label}</div>
               <div className="text-[20px] font-bold" style={{ color: kpi.color }}>{kpi.value}</div>
             </div>

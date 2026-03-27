@@ -96,12 +96,12 @@ export default function PresenceReportPage() {
             <p className="text-sm text-muted-brand m-0">일자별 완료율·미응답률·위치이탈률·검토필요 비율 집계</p>
           </div>
           <div className="flex gap-[10px] items-center">
-            <select value={days} onChange={(e) => setDays(Number(e.target.value))} className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-card">
+            <select value={days} onChange={(e) => setDays(Number(e.target.value))} className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-white">
               <option value={7}>최근 7일</option>
               <option value={14}>최근 14일</option>
               <option value={30}>최근 30일</option>
             </select>
-            <select value={siteId} onChange={(e) => setSiteId(e.target.value)} className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-card">
+            <select value={siteId} onChange={(e) => setSiteId(e.target.value)} className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-white">
               <option value="">전체 현장</option>
               {data?.sites.map((site) => (
                 <option key={site.id} value={site.id}>{site.name}</option>
@@ -126,7 +126,7 @@ export default function PresenceReportPage() {
                 { label: '검토필요 비율', value: data.totals.reviewRate,   unit: '%',   color: pctColor(data.totals.reviewRate, true) },
                 { label: '수동 처리율', value: data.totals.manualRate,     unit: '%',   color: '#546e7a' },
               ].map((c) => (
-                <div key={c.label} className="bg-card rounded-[10px] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]" style={{ borderTop: `4px solid ${c.color}` }}>
+                <div key={c.label} className="bg-white rounded-[12px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]" style={{ borderTop: `4px solid ${c.color}` }}>
                   <div className="text-[26px] font-bold mb-1" style={{ color: c.color }}>
                     {c.value != null ? `${c.value}${c.unit}` : '-'}
                   </div>
@@ -136,7 +136,7 @@ export default function PresenceReportPage() {
             </div>
 
             {/* 일자별 표 */}
-            <div className="bg-card rounded-[10px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+            <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
               <div className="text-[15px] font-bold mb-4">일자별 체류확인 현황</div>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
@@ -190,7 +190,7 @@ export default function PresenceReportPage() {
 
             {/* 현장별 비교 */}
             {data.siteBreakdown.length > 1 && (
-              <div className="bg-card rounded-[10px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-5">
+              <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-5">
                 <div className="text-[15px] font-bold mb-4">현장별 완료율 비교</div>
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">

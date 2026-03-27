@@ -567,7 +567,7 @@ export default function SitesPage() {
     const days = daysUntil(s.closedAt)
 
     return (
-      <div className="w-[360px] flex-shrink-0 flex flex-col gap-3 sticky top-0 max-h-screen overflow-y-auto pb-4">
+      <div className="w-[360px] flex-shrink-0 flex flex-col gap-3 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto pb-4">
 
         {/* 헤더: 현장명 + 두 상태 배지 */}
         <SectionCard>
@@ -782,71 +782,73 @@ export default function SitesPage() {
 
   // ── 렌더 ──────────────────────────────────────────────────────────────────
   return (
-    <PageShell>
-      {/* ── KPI + 필터 고정 영역 ─────────────────────────────── */}
-      <div className="sticky top-0 z-10 bg-[#F5F7FA] px-5 md:px-6 pt-4 pb-3 flex flex-col gap-3">
-        <PageHeader
-          title="현장관리"
-          description="등록된 현장을 관리합니다"
-          badge={<PageBadge>{loading ? '...' : `${filtered.length}개`}</PageBadge>}
-        />
-        {/* KPI 7개 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-          <KpiCard label="전체 현장"      value={summary.total}      unit="개" accentColor="#E5E7EB" />
-          <KpiCard label="운영중"          value={summary.active}     unit="개" accentColor="#10B981" />
-          <KpiCard label="종료임박 (계약)" value={summary.endingSoon} unit="개" accentColor="#F97316" />
-          <KpiCard label="확인필요"        value={summary.attention}  unit="개" accentColor="#EF4444" />
-          <KpiCard label="오늘 노임"       value={fmtWon(summary.todayTotal)} accentColor="#6366F1" />
-          <KpiCard label="월 누계 노임"    value={fmtWon(summary.monthTotal)} accentColor="#8B5CF6" />
-          <KpiCard label="총 누계 노임"    value={fmtWon(summary.grandTotal)} accentColor="#0EA5E9" />
-        </div>
-        {/* 필터바 */}
-        <SectionCard padding={false}>
-          <div className="px-4 py-3 flex flex-wrap items-center gap-2">
-            <FilterInput
-              type="text"
-              placeholder="현장명 검색"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-[180px]"
-            />
-            {/* 운영 상태 필터 */}
-            {(['ALL','ACTIVE','UPCOMING','SUSPENDED','CLOSED','ATTENTION'] as const).map(v => (
-              <FilterPill key={v} active={opFilter === v} onClick={() => setOpFilter(v)}>
-                {v === 'ALL' ? '전체' : OP_LABEL[v as OpStatus] ?? v}
-              </FilterPill>
-            ))}
-            {/* 계약 상태 필터 */}
-            <FilterSelect value={cpFilter} onChange={e => setCpFilter(e.target.value as CpStatus | 'ALL')}>
-              <option value="ALL">계약 전체</option>
-              <option value="IN_PROGRESS">진행중</option>
-              <option value="NOT_STARTED">시작전</option>
-              <option value="ENDING_SOON">종료임박</option>
-              <option value="ENDED">종료됨</option>
-              <option value="UNSET">미입력</option>
-            </FilterSelect>
-            {/* 정렬 */}
-            <FilterSelect value={sortKey} onChange={e => setSortKey(e.target.value)}>
-              <option value="ATTENTION_FIRST">확인필요 우선</option>
-              <option value="ENDING_SOON_FIRST">종료임박 우선</option>
-              <option value="MOST_WORKERS">인원 많은 순</option>
-              <option value="TODAY_WAGE_DESC">오늘 노임 큰 순</option>
-              <option value="TOTAL_WAGE_DESC">총 누계 큰 순</option>
-              <option value="NAME_ASC">이름순</option>
-            </FilterSelect>
-            <FilterSpacer />
-            <Btn variant="ghost" size="sm" onClick={load}>새로고침</Btn>
-            {canMutate && (
-              <Btn variant="orange" onClick={() => { setShowForm(true); setFormGeoStatus('idle'); setForm(emptyForm) }}>
-                + 현장 등록
-              </Btn>
-            )}
+    <PageShell
+      className="flex flex-col gap-4"
+      header={
+        <div className="flex flex-col gap-3">
+          <PageHeader
+            title="현장관리"
+            description="등록된 현장을 관리합니다"
+            badge={<PageBadge>{loading ? '...' : `${filtered.length}개`}</PageBadge>}
+          />
+          {/* KPI 7개 */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+            <KpiCard label="전체 현장"      value={summary.total}      unit="개" accentColor="#E5E7EB" />
+            <KpiCard label="운영중"          value={summary.active}     unit="개" accentColor="#10B981" />
+            <KpiCard label="종료임박 (계약)" value={summary.endingSoon} unit="개" accentColor="#F97316" />
+            <KpiCard label="확인필요"        value={summary.attention}  unit="개" accentColor="#EF4444" />
+            <KpiCard label="오늘 노임"       value={fmtWon(summary.todayTotal)} accentColor="#6366F1" />
+            <KpiCard label="월 누계 노임"    value={fmtWon(summary.monthTotal)} accentColor="#8B5CF6" />
+            <KpiCard label="총 누계 노임"    value={fmtWon(summary.grandTotal)} accentColor="#0EA5E9" />
           </div>
-        </SectionCard>
-      </div>
+          {/* 필터바 */}
+          <SectionCard padding={false}>
+            <div className="px-4 py-3 flex flex-wrap items-center gap-2">
+              <FilterInput
+                type="text"
+                placeholder="현장명 검색"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-[180px]"
+              />
+              {/* 운영 상태 필터 */}
+              {(['ALL','ACTIVE','UPCOMING','SUSPENDED','CLOSED','ATTENTION'] as const).map(v => (
+                <FilterPill key={v} active={opFilter === v} onClick={() => setOpFilter(v)}>
+                  {v === 'ALL' ? '전체' : OP_LABEL[v as OpStatus] ?? v}
+                </FilterPill>
+              ))}
+              {/* 계약 상태 필터 */}
+              <FilterSelect value={cpFilter} onChange={e => setCpFilter(e.target.value as CpStatus | 'ALL')}>
+                <option value="ALL">계약 전체</option>
+                <option value="IN_PROGRESS">진행중</option>
+                <option value="NOT_STARTED">시작전</option>
+                <option value="ENDING_SOON">종료임박</option>
+                <option value="ENDED">종료됨</option>
+                <option value="UNSET">미입력</option>
+              </FilterSelect>
+              {/* 정렬 */}
+              <FilterSelect value={sortKey} onChange={e => setSortKey(e.target.value)}>
+                <option value="ATTENTION_FIRST">확인필요 우선</option>
+                <option value="ENDING_SOON_FIRST">종료임박 우선</option>
+                <option value="MOST_WORKERS">인원 많은 순</option>
+                <option value="TODAY_WAGE_DESC">오늘 노임 큰 순</option>
+                <option value="TOTAL_WAGE_DESC">총 누계 큰 순</option>
+                <option value="NAME_ASC">이름순</option>
+              </FilterSelect>
+              <FilterSpacer />
+              <Btn variant="ghost" size="sm" onClick={load}>새로고침</Btn>
+              {canMutate && (
+                <Btn variant="orange" onClick={() => { setShowForm(true); setFormGeoStatus('idle'); setForm(emptyForm) }}>
+                  + 현장 등록
+                </Btn>
+              )}
+            </div>
+          </SectionCard>
+        </div>
+      }
+    >
 
       {/* ── 2컬럼: 목록 + 패널 ──────────────────────────────── */}
-      <div className="px-5 md:px-6 pb-5 md:pb-6 flex flex-col gap-4">
       <div className="flex gap-4 items-start">
 
         {/* 현장 목록 */}
@@ -1055,7 +1057,6 @@ export default function SitesPage() {
         )}
       </Modal>
 
-      </div>
     </PageShell>
   )
 }

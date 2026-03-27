@@ -815,7 +815,7 @@ export default function EstimateDetailPage() {
         </div>
 
         {/* Header card */}
-        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-6">
+        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-6">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-[20px] font-bold m-0 mb-2">{doc.fileName}</h1>
@@ -859,7 +859,7 @@ export default function EstimateDetailPage() {
           ))}
         </div>
 
-        <div className="bg-card rounded-b-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+        <div className="bg-white rounded-b-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
 
           {/* Tab: Sheet List */}
           {activeTab === 'sheets' && (

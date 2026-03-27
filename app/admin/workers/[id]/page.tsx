@@ -320,7 +320,7 @@ export default function WorkerDetailPage() {
         </div>
 
         {/* 탭 컨텐츠 */}
-        <div className="bg-white rounded-lg p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {tab === 'info' && <InfoTab worker={worker} onRefresh={load} onNavigateDoc={(doc) => {
             if (doc.actionType === 'CONTRACT_NEW') {
               router.push(`/admin/contracts/new?workerId=${worker.id}`)
@@ -925,7 +925,7 @@ function InsuranceTab({ statuses, onAdd }: { statuses: InsuranceStatus[]; onAdd:
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]">
-      <div className="bg-white rounded-xl p-7 w-[480px] max-h-[80vh] overflow-y-auto">
+      <div className="bg-white rounded-[12px] p-5 w-[480px] max-h-[80vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-5">
           <h3 className="m-0 text-base">{title}</h3>
           <button onClick={onClose} className="bg-transparent border-none text-lg cursor-pointer text-muted-brand">✕</button>
@@ -1673,7 +1673,7 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
       {/* 생성 폼 모달 */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
-          <div className="bg-white rounded-xl p-7 w-[480px] max-h-[80vh] overflow-y-auto">
+          <div className="bg-white rounded-[12px] p-5 w-[480px] max-h-[80vh] overflow-y-auto">
             <h3 className="mt-0 mb-5 text-[16px]">안전문서 생성</h3>
 
             <div className="mb-3.5">
@@ -1917,7 +1917,7 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
       {/* 미리보기 모달 */}
       {previewDoc && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
-          <div className="bg-white rounded-xl p-7 w-[700px] max-h-[85vh] overflow-y-auto">
+          <div className="bg-white rounded-[12px] p-5 w-[700px] max-h-[85vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="m-0 text-[16px]">{SAFETY_DOC_LABELS[previewDoc.documentType] || previewDoc.documentType}</h3>
               <button onClick={() => setPreviewDoc(null)} className="border-none bg-transparent text-[20px] cursor-pointer">✕</button>
@@ -2188,7 +2188,7 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
         )}
 
         {showNotice && (
-          <div className="bg-brand border border-white/[0.12] rounded-[10px] p-4 mt-3">
+          <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5 mt-3">
             <h4 className="mt-0 mb-3 text-[13px] font-bold">통지서 발행 — {workerName}</h4>
             <select value={nForm.noticeType} onChange={e => setNForm(f => ({ ...f, noticeType: e.target.value }))}
               className="w-full px-2 py-2 mb-2 border border-secondary-brand/20 rounded-md text-[13px]">
@@ -2362,7 +2362,7 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
       {/* 검토 모달 */}
       {reviewModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setReviewModal(null)}>
-          <div className="bg-white rounded-xl p-6 w-[420px] max-w-[90vw]" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-[12px] p-5 w-[420px] max-w-[90vw]" onClick={e => e.stopPropagation()}>
             <h3 className="text-base font-bold mb-4">
               {reviewModal.action === 'APPROVE' ? '문서 승인' : '문서 반려'}
             </h3>

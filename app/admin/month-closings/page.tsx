@@ -201,7 +201,7 @@ export default function MonthClosingsPage() {
 
         {/* 사전검사 결과 */}
         {precheck && (
-          <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">
               사전검사 결과
             </div>
@@ -217,7 +217,7 @@ export default function MonthClosingsPage() {
                   { label: '퇴직공제 미생성', value: precheck.summary.missingRetirement, warn: precheck.summary.missingRetirement > 0 },
                   { label: '신고자료 미생성', value: precheck.summary.missingExports, warn: precheck.summary.missingExports > 0 },
                 ].map((card) => (
-                  <div key={card.label} className="bg-card rounded-[10px] px-3 py-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)] text-center"
+                  <div key={card.label} className="bg-white rounded-[12px] px-3 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)] text-center"
                     style={{ borderTop: `4px solid ${card.warn ? '#e53935' : '#e0e0e0'}` }}>
                     <div className="text-[28px] font-bold" style={{ color: card.warn ? '#e53935' : '#333' }}>
                       {card.value}

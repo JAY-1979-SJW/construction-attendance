@@ -110,7 +110,7 @@ function EvidencePageContent() {
   if (loading) return <div className="p-8 text-center text-[#718096]">종료 증빙 패키지 로딩 중...</div>
   if (error)   return (
     <div className="p-8">
-      <div className="bg-red-50 border border-red-400 rounded p-6 text-center">
+      <div className="bg-red-50 border border-red-400 rounded-[12px] p-5 text-center">
         <p className="text-red-700 font-bold text-lg mb-2">⚠ 증빙 패키지를 생성할 수 없습니다</p>
         <p className="text-red-600 text-sm">{error}</p>
         <button onClick={() => router.back()} className="mt-4 px-4 py-2 border border-[rgba(91,164,217,0.25)] rounded text-sm">돌아가기</button>
@@ -150,7 +150,7 @@ function EvidencePageContent() {
       )}
 
       {/* 표지 */}
-      <div className="border-2 border-[rgba(91,164,217,0.25)] rounded p-6 mb-6 text-center">
+      <div className="border-2 border-[rgba(91,164,217,0.25)] rounded-[12px] p-5 mb-6 text-center">
         <h1 className="text-2xl font-bold mb-1">종료 증빙 패키지</h1>
         <p className="text-[#718096] text-sm mb-4">Termination Evidence Package</p>
         <div className="grid grid-cols-2 gap-2 text-sm text-left max-w-sm mx-auto">

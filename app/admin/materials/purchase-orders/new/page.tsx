@@ -145,7 +145,7 @@ function NewPurchaseOrderInner() {
         ) : (
           <form onSubmit={handleSubmit}>
             {/* 기본 정보 */}
-            <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+            <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
               <div className="text-sm font-semibold mb-4 text-white">발주 정보</div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-[6px]">
@@ -161,7 +161,7 @@ function NewPurchaseOrderInner() {
             </div>
 
             {/* 품목 선택 */}
-            <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mt-4">
+            <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
               <div className="text-sm font-semibold mb-4 text-white">
                 발주 품목 선택
                 <span className="text-[12px] text-muted-brand font-normal ml-2">

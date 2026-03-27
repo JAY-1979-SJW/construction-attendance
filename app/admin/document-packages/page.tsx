@@ -89,7 +89,7 @@ export default function DocumentPackagesPage() {
         <div className="text-center py-12 text-sm text-[#718096]">불러오는 중...</div>
       ) : viewMode === 'pending' ? (
         /* 검토대기 문서 목록 */
-        <div className="bg-white rounded-xl shadow-sm border border-[#e8e8e8]">
+        <div className="bg-white rounded-[12px] shadow-sm border border-[#E5E7EB]">
           <div className="px-4 py-3 border-b border-[#e0e0e0] text-sm font-bold text-[#37474f]">
             검토대기 문서 ({pendingDocs.length}건)
           </div>
@@ -138,7 +138,7 @@ export default function DocumentPackagesPage() {
         </div>
       ) : (
         /* 근로자별 패키지 목록 */
-        <div className="bg-white rounded-xl shadow-sm border border-[#e8e8e8]">
+        <div className="bg-white rounded-[12px] shadow-sm border border-[#E5E7EB]">
           <div className="px-4 py-3 border-b border-[#e0e0e0] text-sm font-bold text-[#37474f]">
             전체 {total}명
           </div>

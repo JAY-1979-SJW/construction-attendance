@@ -96,7 +96,7 @@ export default function PilotMonitorPage() {
                 return (
                   <div
                     key={key}
-                    className="bg-card rounded-[10px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)] relative"
+                    className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] relative"
                     style={{
                       borderTop: `4px solid ${isAlert ? '#d32f2f' : color}`,
                       background: isAlert ? '#fff8f8' : undefined,
@@ -114,7 +114,7 @@ export default function PilotMonitorPage() {
             </div>
 
             {/* 운영 기준 안내 */}
-            <div className="bg-card rounded-[10px] px-6 py-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+            <div className="bg-white rounded-[12px] px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
               <div className="text-[14px] font-bold mb-3 text-[#444]">운영 기준</div>
               <ul className="m-0 pl-5 text-[13px] text-muted-brand leading-[2]">
                 <li>승인 대기 30분 이상 방치 금지 — <strong>pendingDevices &gt; 0</strong> 즉시 처리</li>

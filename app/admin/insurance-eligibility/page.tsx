@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { PageShell } from '@/components/admin/ui/PageShell'
 
 interface InsuranceItem {
   id: string
@@ -65,14 +66,13 @@ export default function InsuranceEligibilityPage() {
   const check = (v: boolean) => v ? <span className="text-[#2e7d32] font-bold">✅ 적용</span>
                                   : <span className="text-muted-brand">✗ 제외</span>
 
-  return (
-    <div className="p-8">
+  const filterHeader = (
+    <>
       <h1 className="text-2xl font-bold mb-2">4대보험 적용 판정</h1>
       <p className="text-[13px] text-muted-brand -mt-3 mb-5">
         국민연금 월 8일 이상/220만원 이상 · 건강보험 1개월 미만 일용 제외 · 고용보험 근로내용확인신고 대상
       </p>
-
-      <div className="flex gap-3 mb-5 flex-wrap items-center">
+      <div className="flex gap-3 flex-wrap items-center">
         <input type="month" value={monthKey} onChange={(e) => setMonthKey(e.target.value)} className="px-2.5 py-2 border border-secondary-brand/20 rounded-md text-sm bg-card" />
         <select value={filter} onChange={(e) => setFilter(e.target.value)} className="px-2.5 py-2 border border-secondary-brand/20 rounded-md text-sm bg-card">
           <option value="all">전체</option>
@@ -83,10 +83,14 @@ export default function InsuranceEligibilityPage() {
           {running ? '판정 중...' : '보험판정 실행'}
         </button>
       </div>
+    </>
+  )
 
+  return (
+    <PageShell header={filterHeader}>
       {msg && <div className="px-4 py-3 bg-secondary-brand/10 rounded-lg mb-4 text-sm text-[#4A93C8]">{msg}</div>}
 
-      <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+      <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
         {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
@@ -128,6 +132,6 @@ export default function InsuranceEligibilityPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   )
 }

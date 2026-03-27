@@ -344,7 +344,7 @@ export default function PresenceChecksPage() {
               { label: '위치이탈', value: summary.outOfFence,  color: '#e65100' },
               { label: '검토필요', value: summary.review,      color: '#f57f17' },
             ].map((c) => (
-              <div key={c.label} className="bg-card rounded-[10px] p-[14px] shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
+              <div key={c.label} className="bg-white rounded-[12px] p-[14px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
                 style={{ borderTop: `4px solid ${c.color}` }}>
                 <div className="text-[26px] font-bold mb-0.5" style={{ color: c.color }}>{c.value}</div>
                 <div className="text-[12px] text-muted-brand">{c.label}</div>
@@ -354,7 +354,7 @@ export default function PresenceChecksPage() {
         )}
 
         {/* Table */}
-        <div className="bg-card rounded-[10px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           <div className="text-[15px] font-bold mb-[14px] flex items-center gap-2.5">
             {date} 체류확인 목록
             {summary && summary.review > 0 && (
@@ -456,7 +456,7 @@ export default function PresenceChecksPage() {
 
       {/* ── Detail Panel ── */}
       {(selected || detailLoading) && (
-        <aside className="fixed right-0 top-0 w-[420px] h-screen bg-card border-l border-[#e0e0e0] shadow-[-4px_0_20px_rgba(0,0,0,0.08)] flex flex-col z-[100] overflow-hidden">
+        <aside className="fixed right-0 top-0 w-[420px] h-screen bg-white border-l border-[#e0e0e0] shadow-[-4px_0_20px_rgba(0,0,0,0.08)] flex flex-col z-[100] overflow-hidden">
           <div className="flex justify-between items-center px-5 py-4 border-b border-[#f0f0f0] flex-shrink-0">
             <span className="text-base font-bold">체류확인 상세</span>
             <button onClick={() => setSelected(null)}

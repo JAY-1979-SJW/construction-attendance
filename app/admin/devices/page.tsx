@@ -106,7 +106,7 @@ export default function DevicesPage() {
         </div>
 
         {loading ? <p>로딩 중...</p> : (
-          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-x-auto">
+          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b-2 border-[rgba(91,164,217,0.2)]">

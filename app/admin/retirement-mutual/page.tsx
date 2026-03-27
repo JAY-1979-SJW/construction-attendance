@@ -205,7 +205,7 @@ export default function RetirementMutualPage() {
               type="month"
               value={monthKey}
               onChange={(e) => setMonthKey(e.target.value)}
-              className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-card"
+              className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-white"
             />
             {tab === 'daily' && (
               <input
@@ -213,7 +213,7 @@ export default function RetirementMutualPage() {
                 placeholder="현장 ID 필터"
                 value={dailySiteFilter}
                 onChange={(e) => setDailySiteFilter(e.target.value)}
-                className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-card w-40"
+                className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-white w-40"
               />
             )}
           </div>
@@ -227,7 +227,7 @@ export default function RetirementMutualPage() {
 
         {/* 현장설정 탭 */}
         {tab === 'sites' && (
-          <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">퇴직공제 대상 현장</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
               <div className="overflow-x-auto">
@@ -269,7 +269,7 @@ export default function RetirementMutualPage() {
 
         {/* 근로자설정 탭 */}
         {tab === 'workers' && (
-          <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">퇴직공제 대상 근로자</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
               <div className="overflow-x-auto">
@@ -312,7 +312,7 @@ export default function RetirementMutualPage() {
 
         {/* 일별내역 탭 */}
         {tab === 'daily' && (
-          <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">일별 퇴직공제 내역</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
               <div className="overflow-x-auto">
@@ -355,7 +355,7 @@ export default function RetirementMutualPage() {
 
         {/* 월별요약 탭 */}
         {tab === 'monthly' && (
-          <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">월별 퇴직공제 요약</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
               <div className="overflow-x-auto">
@@ -395,7 +395,7 @@ export default function RetirementMutualPage() {
 
         {/* Export 탭 */}
         {tab === 'export' && (
-          <div className="bg-card rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <div className="font-bold text-[14px] mb-4">퇴직공제 자료 생성</div>
             <p className="text-[13px] text-muted-brand mb-5">
               선택한 귀속연월의 퇴직공제 신고 기초자료를 생성합니다.

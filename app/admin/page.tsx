@@ -99,7 +99,7 @@ function SiteSelect({
       </button>
 
       {open && (
-        <div className="absolute top-full mt-1 left-0 z-30 bg-white border border-[#E5E7EB] rounded-[10px] shadow-lg min-w-[220px] max-h-[300px] flex flex-col">
+        <div className="absolute top-full mt-1 left-0 z-30 bg-white border border-[#E5E7EB] rounded-[12px] shadow-lg min-w-[220px] max-h-[300px] flex flex-col">
           <div className="p-2 border-b border-[#F3F4F6]">
             <input
               autoFocus
@@ -107,7 +107,7 @@ function SiteSelect({
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="현장 검색..."
-              className="w-full h-8 px-3 border border-[#E5E7EB] rounded-[6px] text-[12px] text-[#111827] focus:outline-none focus:border-[#F97316] placeholder:text-[#9CA3AF]"
+              className="w-full h-9 px-3 border border-[#E5E7EB] rounded-[6px] text-[12px] text-[#111827] focus:outline-none focus:border-[#F97316] placeholder:text-[#9CA3AF]"
             />
           </div>
           <div className="overflow-y-auto flex-1 py-1">
@@ -358,7 +358,7 @@ export default function AdminDashboard() {
 
       {/* ── 계약기간 보조 정보 바 (특정 현장 선택 시) ────────────────────── */}
       {selectedSiteInfo && (
-        <div className="mb-4 bg-white rounded-[10px] border border-[#E5E7EB] px-5 py-3 flex flex-wrap items-center gap-x-6 gap-y-2">
+        <div className="mb-4 bg-white rounded-[12px] border border-[#E5E7EB] px-5 py-3 flex flex-wrap items-center gap-x-6 gap-y-2">
           <div className="flex items-center gap-2">
             <span className="text-[13px] font-semibold text-[#374151]">{selectedSiteInfo.name}</span>
             {remainingDays !== null && remainingDays <= 0 && (

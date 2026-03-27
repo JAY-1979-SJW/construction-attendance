@@ -110,7 +110,7 @@ export default function AuditLogsPage() {
         </p>
 
         {/* 필터 */}
-        <div className="bg-card rounded-[10px] p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+        <div className="bg-white rounded-[12px] p-5 mb-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           <div className="flex gap-3 items-end flex-wrap">
             <div className="flex flex-col gap-1">
               <label className="text-[12px] text-muted-brand">시작일</label>
@@ -170,7 +170,7 @@ export default function AuditLogsPage() {
         </div>
 
         {loading ? <p className="text-muted-brand">로딩 중...</p> : (
-          <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden overflow-x-auto">
+          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr>

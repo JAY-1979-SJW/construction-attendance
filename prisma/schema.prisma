@@ -2643,13 +2643,15 @@ enum ContractKind {
 }
 
 enum ContractTemplateType {
-  DAILY_EMPLOYMENT       // 일용 근로계약서
-  REGULAR_EMPLOYMENT     // 상용 근로계약서
-  FIXED_TERM_EMPLOYMENT  // 기간제 근로계약서
-  FREELANCER_SERVICE     // 프리랜서 용역계약서
-  OFFICE_SERVICE         // 사무보조 용역계약서
-  SUBCONTRACT_WITH_BIZ   // 사업자 있는 외주팀 도급계약서
-  NONBUSINESS_TEAM_REVIEW // 사업자 없는 팀장형 서면 (검토 필요)
+  DAILY_EMPLOYMENT            // 일용 근로계약서
+  REGULAR_EMPLOYMENT          // 상용 근로계약서
+  FIXED_TERM_EMPLOYMENT       // 기간제 근로계약서
+  MONTHLY_FIXED_EMPLOYMENT    // 월단위 기간제 근로계약서
+  CONTINUOUS_EMPLOYMENT       // 계속근로형 근로계약서
+  FREELANCER_SERVICE          // 프리랜서 용역계약서
+  OFFICE_SERVICE              // 사무보조 용역계약서
+  SUBCONTRACT_WITH_BIZ        // 사업자 있는 외주팀 도급계약서
+  NONBUSINESS_TEAM_REVIEW     // 사업자 없는 팀장형 서면 (검토 필요)
 }
 
 enum ContractStatus {

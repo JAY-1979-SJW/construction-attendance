@@ -173,7 +173,7 @@ export default function WagePage() {
       </p>
 
       {/* 필터 */}
-      <div className="bg-card rounded-xl p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)] flex gap-3 flex-wrap items-end">
+      <div className="bg-white rounded-[12px] p-5 mb-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] flex gap-3 flex-wrap items-end">
         <div>
           <label className="block text-xs text-muted-brand mb-1 font-semibold">귀속연월</label>
           <input
@@ -231,7 +231,7 @@ export default function WagePage() {
           ].map((c) => (
             <div
               key={c.label}
-              className="bg-card rounded-[12px] p-5 min-w-[140px] shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
+              className="bg-white rounded-[12px] p-5 min-w-[140px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
               style={{ borderTop: `4px solid ${c.color}` }}
             >
               <div className="text-[22px] font-bold" style={{ color: c.color }}>{c.value}</div>
@@ -263,7 +263,7 @@ export default function WagePage() {
 
       {/* ── 탭1: 노임 집계 ─────────────────────────────────── */}
       {tab === 'summary' && (
-        <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+        <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
           {loading ? (
             <div className="py-10 text-center text-[#999]">집계 중...</div>
           ) : (
@@ -357,7 +357,7 @@ export default function WagePage() {
 
       {/* ── 탭2: 단가 관리 ─────────────────────────────────── */}
       {tab === 'rates' && (
-        <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+        <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
           <div className="px-5 py-3.5 border-b border-[rgba(91,164,217,0.15)]">
             <p className="text-xs text-muted-brand m-0">
               * 단가는 근로자 계약서의 일당(dailyWage)을 기준으로 합니다.
@@ -430,7 +430,7 @@ export default function WagePage() {
       )}
 
       {/* 집계 기준 안내 */}
-      <div className="mt-5 bg-card rounded-xl px-5 py-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+      <div className="mt-5 bg-white rounded-[12px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
         <div className="text-xs font-semibold text-muted-brand mb-2 uppercase">공수 계산 기준</div>
         <div className="grid grid-cols-1 gap-1.5 text-xs text-muted-brand">
           <div>· 근무 경과 4시간 초과 시 점심 60분 자동 차감 → 실근로 시간 산출</div>

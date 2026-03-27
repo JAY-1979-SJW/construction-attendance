@@ -344,7 +344,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       <div className="grid grid-cols-3 gap-6">
         {/* 계약 정보 */}
         <div className="col-span-1 space-y-4">
-          <div className="bg-card border rounded-lg p-4 space-y-3">
+          <div className="bg-white border rounded-[12px] p-5 space-y-3">
             <h2 className="font-semibold text-[#CBD5E0] text-sm">계약 기본 정보</h2>
             <dl className="space-y-1.5 text-xs">
               <div className="flex justify-between">
@@ -384,7 +384,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             </dl>
           </div>
 
-          <div className="bg-card border rounded-lg p-4 space-y-3">
+          <div className="bg-white border rounded-[12px] p-5 space-y-3">
             <h2 className="font-semibold text-[#CBD5E0] text-sm">임금 조건</h2>
             <dl className="space-y-1.5 text-xs">
               {contract.dailyWage > 0 && (
@@ -416,7 +416,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             </dl>
           </div>
 
-          <div className="bg-card border rounded-lg p-4 space-y-2">
+          <div className="bg-white border rounded-[12px] p-5 space-y-2">
             <h2 className="font-semibold text-[#CBD5E0] text-sm">4대보험</h2>
             <div className="grid grid-cols-2 gap-1 text-xs">
               {[
@@ -437,7 +437,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
         {/* 문서 패키지 */}
         <div className="col-span-2 space-y-4">
-          <div className="bg-card border rounded-lg p-5">
+          <div className="bg-white border rounded-[12px] p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-white">문서 패키지 — {
                 packageKey === 'DIRECT_EMPLOYEE'  ? 'A. 직접고용 (일용직)' :
@@ -522,7 +522,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 특약사항 */}
           {contract.specialTerms && (
-            <div className="bg-card border rounded-lg p-4">
+            <div className="bg-white border rounded-[12px] p-5">
               <h2 className="font-semibold text-[#CBD5E0] text-sm mb-2">특약사항</h2>
               <p className="text-sm text-[#CBD5E0] whitespace-pre-wrap">{contract.specialTerms}</p>
             </div>
@@ -530,7 +530,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 근로시간 상세 */}
           {(contract.breakStartTime || contract.weeklyWorkDays || contract.holidayRule) && (
-            <div className="bg-card border rounded-lg p-4 space-y-2">
+            <div className="bg-white border rounded-[12px] p-5 space-y-2">
               <h2 className="font-semibold text-[#CBD5E0] text-sm">근로시간 상세</h2>
               <dl className="space-y-1.5 text-xs">
                 {contract.breakStartTime && (
@@ -563,7 +563,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 수당 */}
           {contract.allowanceJson && contract.allowanceJson.length > 0 && (
-            <div className="bg-card border rounded-lg p-4 space-y-2">
+            <div className="bg-white border rounded-[12px] p-5 space-y-2">
               <h2 className="font-semibold text-[#CBD5E0] text-sm">수당 항목</h2>
               <dl className="space-y-1.5 text-xs">
                 {contract.allowanceJson.map((a, i) => (
@@ -578,7 +578,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 버전 이력 */}
           {versions.length > 0 && (
-            <div className="bg-card border rounded-lg p-4">
+            <div className="bg-white border rounded-[12px] p-5">
               <h2 className="font-semibold text-[#CBD5E0] text-sm mb-3">버전 이력</h2>
               <div className="space-y-2">
                 {versions.map(v => (
@@ -601,7 +601,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 메모 */}
           {contract.notes && (
-            <div className="bg-card border rounded-lg p-4">
+            <div className="bg-white border rounded-[12px] p-5">
               <h2 className="font-semibold text-[#CBD5E0] text-sm mb-2">내부 메모</h2>
               <p className="text-sm text-[#718096]">{contract.notes}</p>
             </div>

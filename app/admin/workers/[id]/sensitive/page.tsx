@@ -188,7 +188,7 @@ export default function WorkerSensitivePage() {
 
         {/* ── 민감정보 ── */}
         {activeTab === 'sensitive' && (
-          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <h3 className="text-[15px] font-bold mt-0 mb-3">현재 저장값 (마스킹)</h3>
             {sensitive ? (
               <div className="flex flex-col">
@@ -240,7 +240,7 @@ export default function WorkerSensitivePage() {
 
         {/* ── 계좌정보 ── */}
         {activeTab === 'bank' && (
-          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <h3 className="text-[15px] font-bold mt-0 mb-3">현재 저장값 (마스킹)</h3>
             {bank ? (
               <div className="flex flex-col">
@@ -270,7 +270,7 @@ export default function WorkerSensitivePage() {
 
         {/* ── 노무/보험 상태 ── */}
         {activeTab === 'compliance' && (
-          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <div className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-md px-3.5 py-2 text-[13px] text-[#4A93C8] mb-4">
               출퇴근 가능 여부와 이 상태는 별도입니다. 근로자가 출퇴근 가능해도 보험 미완료일 수 있습니다.
             </div>
@@ -324,7 +324,7 @@ export default function WorkerSensitivePage() {
 
         {/* ── 원문 복호화 (SUPER_ADMIN만) ── */}
         {activeTab === 'decrypt' && isSuperAdmin && (
-          <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <div className="bg-[#fff3e0] border border-[#ff9800] rounded-lg px-4 py-3 mb-5 text-[13px] text-[#e65100]">
               복호화 조회는 감사로그에 기록됩니다. 반드시 업무상 필요한 경우에만 사용하세요.
               <br />화면 캡처 · 공유 · 재저장을 금지합니다.

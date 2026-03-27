@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { PageShell } from '@/components/admin/ui/PageShell'
 
 interface CorrectionRecord {
   id: string
@@ -81,39 +82,41 @@ export default function CorrectionsPage() {
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
-  return (
-    <div className="p-8 overflow-auto">
-        <h1 className="text-2xl font-bold m-0 mb-2">정정 이력</h1>
-        <p className="text-[13px] text-muted-brand mb-5">
-          데이터 수정/정정 이력을 조회합니다
-        </p>
-
-        {/* 필터 영역 */}
-        <div className="bg-card rounded-xl p-6 mb-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
-          <div className="flex gap-3 flex-wrap items-end">
-            <div>
-              <label className="block text-xs text-muted-brand mb-1 font-semibold">도메인</label>
-              <select value={domainFilter} onChange={(e) => { setDomainFilter(e.target.value); setPage(1) }}
-                className="input-base">
-                {DOMAIN_TYPES.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-muted-brand mb-1 font-semibold">시작일</label>
-              <input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPage(1) }}
-                className="input-base" />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-brand mb-1 font-semibold">종료일</label>
-              <input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPage(1) }}
-                className="input-base" />
-            </div>
-            <button onClick={() => { setPage(1); load() }} className="btn-primary">조회</button>
+  const filterHeader = (
+    <>
+      <h1 className="text-2xl font-bold m-0 mb-2">정정 이력</h1>
+      <p className="text-[13px] text-muted-brand mb-5">
+        데이터 수정/정정 이력을 조회합니다
+      </p>
+      <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="flex gap-3 flex-wrap items-end">
+          <div>
+            <label className="block text-xs text-muted-brand mb-1 font-semibold">도메인</label>
+            <select value={domainFilter} onChange={(e) => { setDomainFilter(e.target.value); setPage(1) }}
+              className="input-base">
+              {DOMAIN_TYPES.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
+            </select>
           </div>
+          <div>
+            <label className="block text-xs text-muted-brand mb-1 font-semibold">시작일</label>
+            <input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPage(1) }}
+              className="input-base" />
+          </div>
+          <div>
+            <label className="block text-xs text-muted-brand mb-1 font-semibold">종료일</label>
+            <input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPage(1) }}
+              className="input-base" />
+          </div>
+          <button onClick={() => { setPage(1); load() }} className="btn-primary">조회</button>
         </div>
+      </div>
+    </>
+  )
 
+  return (
+    <PageShell header={filterHeader}>
         {/* 결과 테이블 */}
-        <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+        <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
           <div className="px-5 py-4 border-b border-[rgba(91,164,217,0.15)] flex justify-between items-center">
             <span className="font-bold text-sm">정정 이력 목록</span>
             <span className="text-xs text-muted-brand">전체 {total.toLocaleString('ko-KR')}건</span>
@@ -205,7 +208,7 @@ export default function CorrectionsPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3.5 py-1.5 border border-[rgba(91,164,217,0.2)] rounded-md bg-card cursor-pointer text-[13px] disabled:opacity-40"
+                className="px-3.5 py-1.5 border border-[rgba(91,164,217,0.2)] rounded-md bg-white cursor-pointer text-[13px] disabled:opacity-40"
               >
                 이전
               </button>
@@ -213,14 +216,14 @@ export default function CorrectionsPage() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3.5 py-1.5 border border-[rgba(91,164,217,0.2)] rounded-md bg-card cursor-pointer text-[13px] disabled:opacity-40"
+                className="px-3.5 py-1.5 border border-[rgba(91,164,217,0.2)] rounded-md bg-white cursor-pointer text-[13px] disabled:opacity-40"
               >
                 다음
               </button>
             </div>
           )}
         </div>
-    </div>
+    </PageShell>
   )
 }
 

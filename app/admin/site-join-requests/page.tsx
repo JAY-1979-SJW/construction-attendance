@@ -77,7 +77,7 @@ export default function SiteJoinRequestsPage() {
             'px-[18px] py-2 rounded-[20px] text-sm cursor-pointer',
             filter === st
               ? 'bg-accent text-white border border-[#1976d2] font-bold'
-              : 'bg-card border border-white/10 text-muted-brand',
+              : 'bg-white border border-[#E5E7EB] text-muted-brand',
           ].join(' ')}>
             {STATUS_LABEL[st]}
           </button>

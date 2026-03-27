@@ -169,7 +169,7 @@ export default function CompaniesPage() {
 
         {/* 등록/수정 폼 */}
         {showForm && (
-          <div className="bg-card rounded-xl p-6 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+          <div className="bg-white rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
             <h3 className="m-0 mb-4 text-base">{editId ? '회사 수정' : '회사 등록'}</h3>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
               {[
@@ -220,7 +220,7 @@ export default function CompaniesPage() {
         )}
 
         {/* 테이블 */}
-        <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
+        <div className="bg-white rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
           {loading ? (
             <div className="py-8 text-center text-[#999]">로딩 중...</div>
           ) : (
@@ -256,9 +256,9 @@ export default function CompaniesPage() {
                         <span className={`font-semibold text-xs ${c.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>{c.isActive ? '활성' : '비활성'}</span>
                       </td>
                       <td className="px-4 py-3 text-sm text-[#CBD5E0]">
-                        <button onClick={() => openEdit(c)} className="px-2.5 py-1 bg-transparent border border-white/[0.12] rounded text-xs text-secondary-brand cursor-pointer">수정</button>
+                        <button onClick={() => openEdit(c)} className="px-2.5 py-1 bg-transparent border border-[#E5E7EB] rounded text-xs text-secondary-brand cursor-pointer">수정</button>
                         {c.isActive && (
-                          <button onClick={() => handleDeactivate(c.id, c.companyName)} className="px-2.5 py-1 bg-transparent border border-white/[0.12] rounded text-xs text-[#c62828] cursor-pointer ml-1">비활성화</button>
+                          <button onClick={() => handleDeactivate(c.id, c.companyName)} className="px-2.5 py-1 bg-transparent border border-[#E5E7EB] rounded text-xs text-[#c62828] cursor-pointer ml-1">비활성화</button>
                         )}
                       </td>
                     </tr>

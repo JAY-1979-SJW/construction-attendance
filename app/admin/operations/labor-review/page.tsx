@@ -161,7 +161,7 @@ export default function LaborReviewPage() {
       )}
 
       {/* 목록 */}
-      <div className="bg-white border border-white/10 rounded-[10px] overflow-hidden">
+      <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-[13px] min-w-[900px]">
             <thead>
@@ -251,7 +251,7 @@ export default function LaborReviewPage() {
 
 function SummaryCard({ label, value, color = '#1565c0' }: { label: string; value: number; color?: string }) {
   return (
-    <div className="bg-brand border border-white/10 rounded-lg px-4 py-[10px] min-w-[100px]">
+    <div className="bg-white border border-[#E5E7EB] rounded-[12px] px-4 py-[10px] min-w-[100px]">
       <div className="text-[11px] text-muted-brand">{label}</div>
       <div style={{ fontSize: '22px', fontWeight: 800, color }}>{value}</div>
     </div>

@@ -479,7 +479,7 @@ function NewContractPage() {
       {/* 계약 유형 변경 확인 다이얼로그 */}
       {pendingTypeChange && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-card rounded-xl shadow-xl p-6 max-w-sm w-full mx-4">
+          <div className="bg-white rounded-[12px] shadow-xl p-5 max-w-sm w-full mx-4">
             <h3 className="font-bold text-base text-white mb-2">계약 유형 변경</h3>
             <p className="text-sm text-[#CBD5E0] mb-1">
               <span className="font-semibold text-orange-700">{pendingTypeChange.label}</span> 유형으로 변경하시겠습니까?
@@ -513,7 +513,7 @@ function NewContractPage() {
       )}
 
       {/* 근로유형 / 계약유형 선택 안내 — 기본 노출 */}
-      <div className="bg-card border-2 border-blue-200 rounded-lg overflow-hidden">
+      <div className="bg-white border-2 border-blue-200 rounded-lg overflow-hidden">
         {/* 헤더 (항상 표시) */}
         <div className="bg-blue-50 px-5 py-4 flex items-start justify-between gap-3">
           <div>
@@ -626,7 +626,7 @@ function NewContractPage() {
       </div>
 
       {/* Step 1: 계약 유형 분류 */}
-      <div className="bg-card border rounded-lg p-5 space-y-4">
+      <div className="bg-white border rounded-lg p-5 space-y-4">
         <h2 className="font-semibold text-white">1단계: 계약 유형 분류</h2>
         <p className="text-xs text-[#718096]">
           가장 중요한 첫 단계입니다. 실제 운영 구조에 맞는 유형을 선택하세요.
@@ -651,7 +651,7 @@ function NewContractPage() {
 
       {/* 외주팀 사업자 유무 체크 */}
       {(isSubcontractBiz || isTeamReview) && (
-        <div className="bg-card border rounded-lg p-5 space-y-4">
+        <div className="bg-white border rounded-lg p-5 space-y-4">
           <h2 className="font-semibold text-white">외주팀 분류 확인</h2>
 
           {isSubcontractBiz && (
@@ -718,7 +718,7 @@ function NewContractPage() {
         const stageKey = blockingErrors.length > 0 ? 'SAVEABLE' : 'GENERATABLE'
         const stageInfo = STAGE_LABELS[stageKey]
         return (
-          <div className="bg-card border rounded-lg p-5 space-y-3">
+          <div className="bg-white border rounded-lg p-5 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-white">생성 예정 문서</h2>
               <span className="text-xs font-semibold rounded-full px-3 py-1" style={{ background: stageInfo.color + '18', color: stageInfo.color }}>
@@ -762,7 +762,7 @@ function NewContractPage() {
 
       {/* Step 2: 공사 및 직종 정보 (직접고용만) */}
       {isDirectEmployment && (
-        <div className="bg-card border rounded-lg p-5 space-y-4">
+        <div className="bg-white border rounded-lg p-5 space-y-4">
           <h2 className="font-semibold text-white">2단계: 공사 및 직종 정보</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
@@ -810,7 +810,7 @@ function NewContractPage() {
       )}
 
       {/* Step 3: 계약서 기본 정보 */}
-      <div className="bg-card border rounded-lg p-5 space-y-4">
+      <div className="bg-white border rounded-lg p-5 space-y-4">
         <h2 className="font-semibold text-white">3단계: 기본 정보</h2>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
@@ -932,7 +932,7 @@ function NewContractPage() {
 
       {/* Step 4: 근무 조건 (직접고용만) */}
       {isDirectEmployment && (
-        <div className="bg-card border rounded-lg p-5 space-y-4">
+        <div className="bg-white border rounded-lg p-5 space-y-4">
           <h2 className="font-semibold text-white">4단계: 근무 조건</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -1013,7 +1013,7 @@ function NewContractPage() {
       )}
 
       {/* Step 5: 금액 및 지급 조건 */}
-      <div className="bg-card border rounded-lg p-5 space-y-4">
+      <div className="bg-white border rounded-lg p-5 space-y-4">
         <h2 className="font-semibold text-white">5단계: 금액 및 지급 조건</h2>
         <div className="grid grid-cols-3 gap-4">
           {isDirectEmployment && isEmployment && (
@@ -1082,7 +1082,7 @@ function NewContractPage() {
       </div>
 
       {/* Step 6: 4대보험 */}
-      <div className="bg-card border rounded-lg p-5 space-y-3">
+      <div className="bg-white border rounded-lg p-5 space-y-3">
         <h2 className="font-semibold text-white">6단계: 4대보험 적용</h2>
         <div className="bg-blue-50 border border-blue-200 rounded p-3 text-blue-800 text-xs">
           <strong>중요:</strong> 법정 가입요건에 해당하면 체크 여부와 무관하게 법령에 따라 처리됩니다.
@@ -1108,7 +1108,7 @@ function NewContractPage() {
 
       {/* Step 6.5: 상용직 전용 — 시용기간 및 연차 */}
       {isDirectEmployment && isRegularType && (
-        <div className="bg-card border rounded-lg p-5 space-y-4">
+        <div className="bg-white border rounded-lg p-5 space-y-4">
           <h2 className="font-semibold text-white">상용직 추가 조건</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
@@ -1142,7 +1142,7 @@ function NewContractPage() {
       )}
 
       {/* Step 7: 안전보건 조항 */}
-      <div className="bg-card border rounded-lg p-5 space-y-3">
+      <div className="bg-white border rounded-lg p-5 space-y-3">
         <h2 className="font-semibold text-white">7단계: 안전보건 조항</h2>
         <label className="flex items-center gap-3 cursor-pointer">
           <input type="checkbox" checked={form.safetyClauseYn}
@@ -1158,7 +1158,7 @@ function NewContractPage() {
       </div>
 
       {/* Step 8: 특약사항 */}
-      <div className="bg-card border rounded-lg p-5 space-y-3">
+      <div className="bg-white border rounded-lg p-5 space-y-3">
         <h2 className="font-semibold text-white">8단계: 특약사항 및 메모</h2>
         <div>
           <label className="text-xs font-medium text-[#CBD5E0] block mb-1">특약사항</label>

@@ -250,7 +250,7 @@ function SiteSelect({
         </svg>
       </button>
       {open && (
-        <div className="absolute left-0 top-full mt-1 w-[240px] bg-white border border-[#E5E7EB] rounded-[10px] shadow-xl z-50 overflow-hidden">
+        <div className="absolute left-0 top-full mt-1 w-[240px] bg-white border border-[#E5E7EB] rounded-[12px] shadow-xl z-50 overflow-hidden">
           <div className="p-2 border-b border-[#F3F4F6]">
             <input
               autoFocus
@@ -258,7 +258,7 @@ function SiteSelect({
               placeholder="현장 검색..."
               value={query}
               onChange={e => setQuery(e.target.value)}
-              className="w-full h-8 px-3 text-[13px] rounded-[6px] border border-[#E5E7EB] outline-none focus:border-[#F97316]"
+              className="w-full h-9 px-3 text-[13px] rounded-[6px] border border-[#E5E7EB] outline-none focus:border-[#F97316]"
             />
           </div>
           <ul className="max-h-[220px] overflow-y-auto py-1">
@@ -721,7 +721,7 @@ function AttendancePageInner() {
 
       {/* ── 현장 보조 정보 (현장 선택 시) ── */}
       {siteId && selectedSite && summary && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[10px] px-5 py-3 flex items-center gap-6 flex-wrap">
+        <div className="bg-white border border-[#E5E7EB] rounded-[12px] px-5 py-3 flex items-center gap-6 flex-wrap">
           <div>
             <span className="text-[11px] text-[#9CA3AF] block">선택 현장</span>
             <span className="text-[14px] font-bold text-[#0F172A]">{selectedSite.name}</span>
@@ -873,7 +873,7 @@ function AttendancePageInner() {
 
         {/* 상세 패널 (sticky) */}
         {hasPanelOpen && selected && (
-          <div className="w-[420px] shrink-0 sticky top-4">
+          <div className="w-[420px] shrink-0 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
             <SectionCard padding={false} className="overflow-hidden">
               {/* 오렌지 4px 라인 */}
               <div className="h-1 bg-[#F97316]" />
@@ -1149,7 +1149,7 @@ function AttendancePageInner() {
                             <input
                               ref={quickCheckoutRef}
                               type="time"
-                              className="h-8 px-2 text-[13px] border border-[#E5E7EB] rounded-[6px] outline-none focus:border-[#DC2626] bg-white w-[110px]"
+                              className="h-9 px-2 text-[13px] border border-[#E5E7EB] rounded-[6px] outline-none focus:border-[#DC2626] bg-white w-[110px]"
                               defaultValue="17:00"
                             />
                             <button

@@ -78,7 +78,7 @@ export default function SiteImportsPage() {
         </p>
 
         {/* 업로드 카드 */}
-        <div className="bg-card rounded-[12px] p-6 mb-7 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+        <div className="bg-white rounded-[12px] p-5 mb-7 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           <div className="font-bold text-[15px] mb-2">새 파일 업로드</div>
           <div className="text-[13px] text-muted-brand mb-4">
             필수 컬럼: <strong>현장명</strong>, <strong>주소</strong> / 선택: 허용반경(m), 현장코드
@@ -114,7 +114,7 @@ export default function SiteImportsPage() {
         {/* 작업 목록 */}
         <div className="font-bold text-[15px] mb-3">업로드 이력</div>
         {loading ? <p className="text-muted-brand">로딩 중...</p> : (
-          <div className="bg-card rounded-[10px] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="bg-white rounded-[12px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <table className="w-full border-collapse">
               <thead>
                 <tr>

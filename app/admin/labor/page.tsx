@@ -134,7 +134,7 @@ export default function LaborPage() {
           <Link
             key={item.href}
             href={item.href}
-            className="bg-card rounded-[10px] px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.35)] no-underline hover:shadow-[0_4px_12px_rgba(0,0,0,0.45)] transition-shadow"
+            className="bg-white rounded-[12px] px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.08)] no-underline hover:shadow-[0_4px_12px_rgba(0,0,0,0.45)] transition-shadow"
           >
             <div className="text-[13px] font-bold text-secondary-brand">{item.label}</div>
             <div className="text-[11px] text-muted-brand mt-0.5">{item.desc}</div>
@@ -172,7 +172,7 @@ export default function LaborPage() {
             { label: '검토 필요(미퇴근)', value: meta.needsReviewCount, color: '#b71c1c' },
             { label: '자동처리 포함', value: meta.autoCount, color: '#6a1b9a' },
           ].map((item) => (
-            <div key={item.label} className="bg-card rounded-[10px] px-5 py-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)] min-w-[140px]" style={{ borderTop: `3px solid ${item.color}` }}>
+            <div key={item.label} className="bg-white rounded-[12px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)] min-w-[140px]" style={{ borderTop: `3px solid ${item.color}` }}>
               <div className="text-[28px] font-bold mb-1" style={{ color: item.color }}>{item.value}</div>
               <div className="text-xs text-muted-brand">{item.label}</div>
             </div>
@@ -197,7 +197,7 @@ export default function LaborPage() {
         <>
           {/* ── 탭1: 투입현황 상세 ──────────────────────────── */}
           {tab === 'detail' && (
-            <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-5 overflow-x-auto">
+            <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
@@ -270,7 +270,7 @@ export default function LaborPage() {
 
           {/* ── 탭2: 노임집계 합계 ──────────────────────────── */}
           {tab === 'summary' && (
-            <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-5 overflow-x-auto">
+            <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 overflow-x-auto">
               <div className="text-xs text-muted-brand mb-3">
                 * COMPLETED + ADJUSTED 기준 합산. MISSING_CHECKOUT은 검토필요 건수만 표시됩니다.
               </div>
@@ -316,7 +316,7 @@ export default function LaborPage() {
       )}
 
       {/* 집계 기준 안내 */}
-      <div className="bg-card rounded-[10px] px-6 py-5 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+      <div className="bg-white rounded-[12px] px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
         <div className="text-xs text-muted-brand font-semibold mb-2.5 uppercase">집계 기준</div>
         <div className="flex items-center gap-2.5 mb-1.5">
           <span className="text-[11px] px-2 py-0.5 rounded-[10px] font-semibold text-[#4A93C8] bg-secondary-brand/10">완료</span>

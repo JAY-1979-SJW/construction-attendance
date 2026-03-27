@@ -119,7 +119,7 @@ export default function PoliciesPage() {
 
         {/* 새 버전 등록 폼 */}
         {showForm && isSuperAdmin && (
-          <div className="bg-card rounded-[10px] p-6 mb-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="bg-white rounded-[12px] p-5 mb-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <h3 className="mt-0 mb-4 text-[16px]">새 정책 문서 버전 등록</h3>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
@@ -166,7 +166,7 @@ export default function PoliciesPage() {
         {loading ? <p>로딩 중...</p> : (
           <div className="flex flex-col gap-6">
             {grouped.map(group => (
-              <div key={group.type} className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+              <div key={group.type} className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
                 <h2 className="text-[16px] font-bold mt-0 mb-4 border-b-2 border-[#f0f0f0] pb-2">{group.label}</h2>
                 {group.docs.length === 0 ? (
                   <p className="text-[#718096] text-[14px]">등록된 문서가 없습니다.</p>

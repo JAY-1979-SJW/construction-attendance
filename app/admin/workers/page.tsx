@@ -415,77 +415,82 @@ export default function WorkersPage() {
   const hasPanelOpen = selectedId !== null
 
   return (
-    <PageShell className="flex flex-col gap-4">
-
-      <PageHeader
-        title="근로자관리"
-        description="등록된 근로자 목록을 관리합니다"
-        badge={<PageBadge>{sorted.length}명</PageBadge>}
-      />
-
-      {/* ── 저장 토스트 ── */}
-      {toast && (
-        <FloatingToast message={toast.msg} ok={toast.ok} onDone={() => setToast(null)} />
-      )}
-
-      {/* ── 필터 바 ── */}
-      <SectionCard padding={false}>
-        <div className="px-5 pt-4 pb-3 flex items-center gap-3 flex-wrap border-b border-[#F3F4F6]">
-          <FilterInput
-            type="text"
-            placeholder="이름/연락처 검색"
-            value={nameSearch}
-            onChange={e => setNameSearch(e.target.value)}
-            className="w-[140px]"
+    <PageShell
+      className="flex flex-col gap-4"
+      header={
+        <div className="flex flex-col gap-4">
+          <PageHeader
+            title="근로자관리"
+            description="등록된 근로자 목록을 관리합니다"
+            badge={<PageBadge>{sorted.length}명</PageBadge>}
           />
-          {/* 현장 필터 */}
-          <FilterSelect value={siteFilter} onChange={e => setSiteFilter(e.target.value)}>
-            <option value="">전체 현장</option>
-            <option value="__unassigned__">미배치</option>
-            {siteOptions.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </FilterSelect>
-          <FilterSelect value={sortKey} onChange={e => setSortKey(e.target.value)}>
-            <option value="needsAction">확인필요 우선</option>
-            <option value="ineligible">투입불가 우선</option>
-            <option value="name">이름순</option>
-            <option value="createdAt">최근 등록순</option>
-            <option value="monthWage">월 누계 노임 큰 순</option>
-            <option value="totalWage">총 누계 노임 큰 순</option>
-          </FilterSelect>
-          <div className="flex-1" />
-          <Btn variant="ghost" size="sm" onClick={load}>새로고침</Btn>
-          {canMutate && (
-            <Btn variant="orange" size="sm" onClick={() => router.push('/admin/workers/new')}>+ 근로자 등록</Btn>
+
+          {/* ── 저장 토스트 ── */}
+          {toast && (
+            <FloatingToast message={toast.msg} ok={toast.ok} onDone={() => setToast(null)} />
           )}
+
+          {/* ── 필터 바 ── */}
+          <SectionCard padding={false}>
+            <div className="px-5 pt-4 pb-3 flex items-center gap-3 flex-wrap border-b border-[#F3F4F6]">
+              <FilterInput
+                type="text"
+                placeholder="이름/연락처 검색"
+                value={nameSearch}
+                onChange={e => setNameSearch(e.target.value)}
+                className="w-[140px]"
+              />
+              {/* 현장 필터 */}
+              <FilterSelect value={siteFilter} onChange={e => setSiteFilter(e.target.value)}>
+                <option value="">전체 현장</option>
+                <option value="__unassigned__">미배치</option>
+                {siteOptions.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </FilterSelect>
+              <FilterSelect value={sortKey} onChange={e => setSortKey(e.target.value)}>
+                <option value="needsAction">확인필요 우선</option>
+                <option value="ineligible">투입불가 우선</option>
+                <option value="name">이름순</option>
+                <option value="createdAt">최근 등록순</option>
+                <option value="monthWage">월 누계 노임 큰 순</option>
+                <option value="totalWage">총 누계 노임 큰 순</option>
+              </FilterSelect>
+              <div className="flex-1" />
+              <Btn variant="ghost" size="sm" onClick={load}>새로고침</Btn>
+              {canMutate && (
+                <Btn variant="orange" size="sm" onClick={() => router.push('/admin/workers/new')}>+ 근로자 등록</Btn>
+              )}
+            </div>
+            {/* 상태 필터 pills */}
+            <div className="px-5 py-2.5 flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-semibold text-[#9CA3AF] mr-1">상태</span>
+              {[
+                { v: '',         l: '전체' },
+                { v: 'active',   l: '재직중' },
+                { v: 'inactive', l: '비활성' },
+              ].map(opt => (
+                <FilterPill key={opt.v} active={statusFilter === opt.v} onClick={() => setStatusFilter(opt.v)}>
+                  {opt.l}
+                </FilterPill>
+              ))}
+              <span className="mx-2 text-[#E5E7EB]">|</span>
+              <span className="text-[11px] font-semibold text-[#9CA3AF] mr-1">투입</span>
+              {[
+                { v: '',            l: '전체' },
+                { v: 'ok',          l: '투입가능' },
+                { v: 'blocked',     l: '투입불가' },
+                { v: 'docs_missing',l: '서류미비' },
+                { v: 'edu_missing', l: '교육미이수' },
+              ].map(opt => (
+                <FilterPill key={opt.v} active={eligFilter === opt.v} onClick={() => setEligFilter(opt.v)}>
+                  {opt.l}
+                </FilterPill>
+              ))}
+              <span className="text-[12px] text-[#6B7280] ml-1">총 {sorted.length}명</span>
+            </div>
+          </SectionCard>
         </div>
-        {/* 상태 필터 pills */}
-        <div className="px-5 py-2.5 flex items-center gap-2 flex-wrap">
-          <span className="text-[11px] font-semibold text-[#9CA3AF] mr-1">상태</span>
-          {[
-            { v: '',         l: '전체' },
-            { v: 'active',   l: '재직중' },
-            { v: 'inactive', l: '비활성' },
-          ].map(opt => (
-            <FilterPill key={opt.v} active={statusFilter === opt.v} onClick={() => setStatusFilter(opt.v)}>
-              {opt.l}
-            </FilterPill>
-          ))}
-          <span className="mx-2 text-[#E5E7EB]">|</span>
-          <span className="text-[11px] font-semibold text-[#9CA3AF] mr-1">투입</span>
-          {[
-            { v: '',            l: '전체' },
-            { v: 'ok',          l: '투입가능' },
-            { v: 'blocked',     l: '투입불가' },
-            { v: 'docs_missing',l: '서류미비' },
-            { v: 'edu_missing', l: '교육미이수' },
-          ].map(opt => (
-            <FilterPill key={opt.v} active={eligFilter === opt.v} onClick={() => setEligFilter(opt.v)}>
-              {opt.l}
-            </FilterPill>
-          ))}
-          <span className="text-[12px] text-[#6B7280] ml-1">총 {sorted.length}명</span>
-        </div>
-      </SectionCard>
+      }
+    >
 
       {/* ── 요약 KPI 7개 ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
@@ -603,7 +608,7 @@ export default function WorkersPage() {
 
         {/* 상세 패널 (sticky) */}
         {hasPanelOpen && selected && (
-          <div className="w-[420px] shrink-0 sticky top-4">
+          <div className="w-[420px] shrink-0 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
             <SectionCard padding={false} className="overflow-hidden">
               <div className="h-1 bg-[#F97316]" />
 

@@ -108,7 +108,7 @@ export default function PrintCenterPage() {
       </PrintCard>
 
       {/* 5. 종료 증빙 패키지 안내 */}
-      <div className="bg-brand border border-white/[0.12] rounded-[10px] px-5 py-[18px] mt-4">
+      <div className="bg-white border border-[#E5E7EB] rounded-[12px] px-5 py-[18px] mt-4">
         <div className="text-[14px] text-muted-brand">
           💼 <strong>종료 증빙 패키지</strong>는 개별 근로자 종료 처리 화면에서 출력할 수 있습니다.
           <br />
@@ -126,7 +126,7 @@ function PrintCard({ title, description, icon, children }: {
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-white border border-white/[0.12] rounded-[10px] p-5 mb-4">
+    <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5 mb-4">
       <div className="flex items-start gap-[14px]">
         <div className="text-[28px] flex-shrink-0">{icon}</div>
         <div className="flex-1">

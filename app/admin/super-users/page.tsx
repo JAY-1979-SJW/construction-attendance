@@ -136,7 +136,7 @@ export default function SuperUsersPage() {
       </div>
 
       {showForm && (
-        <div className="bg-brand border border-[rgba(91,164,217,0.3)] rounded-xl p-6 mb-6">
+        <div className="bg-brand border border-[rgba(91,164,217,0.3)] rounded-[12px] p-5 mb-6">
           <h3 className="mt-0 mb-4 text-[15px]">관리자 계정 생성</h3>
           <div className="grid gap-[10px_12px] items-center mb-4 [grid-template-columns:100px_1fr]">
             <label className="text-[13px] font-semibold text-muted-brand">이름 *</label>

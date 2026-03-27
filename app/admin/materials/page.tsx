@@ -163,7 +163,7 @@ export default function MaterialsPage() {
             { href: '/admin/materials/purchase-orders', label: '발주관리', desc: '발주서 생성 · 발행',   color: '#F47920' },
             { href: '/admin/materials/inventory',       label: '재고현황', desc: '청구·발주·입고 집계', color: '#66bb6a' },
           ].map(c => (
-            <a key={c.href} href={c.href} className="no-underline bg-card border border-[rgba(91,164,217,0.15)] rounded-[10px] p-4 flex items-center gap-3 hover:border-[rgba(91,164,217,0.35)] transition-colors">
+            <a key={c.href} href={c.href} className="no-underline bg-white border border-[rgba(91,164,217,0.15)] rounded-[12px] p-5 flex items-center gap-3 hover:border-[rgba(91,164,217,0.35)] transition-colors">
               <div className="w-2 h-2 rounded-full shrink-0" style={{ background: c.color }} />
               <div>
                 <div className="text-[14px] font-semibold text-white">{c.label}</div>
@@ -228,7 +228,7 @@ export default function MaterialsPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-card rounded-[10px] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {loading ? (
             <div className="py-10 text-center text-muted-brand">로딩 중...</div>
           ) : (

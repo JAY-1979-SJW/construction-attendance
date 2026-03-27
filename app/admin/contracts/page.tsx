@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { PageShell } from '@/components/admin/ui/PageShell'
 
 const CONTRACT_KIND_LABEL: Record<string, string> = {
   EMPLOYMENT: '근로계약', SERVICE: '용역계약', OUTSOURCING: '업무위탁',
@@ -106,9 +107,9 @@ export default function ContractsPage() {
       )
     : contracts
 
-  return (
-    <div className="p-6 max-w-7xl mx-auto space-y-5">
-      <div className="flex items-center justify-between">
+  const filterHeader = (
+    <>
+      <div className="flex items-center justify-between mb-3">
         <div>
           <h1 className="text-2xl font-bold">계약 관리</h1>
           <p className="text-sm text-[#718096] mt-1">근로계약 · 용역계약 · 업무위탁 계약 전체 관리</p>
@@ -118,9 +119,7 @@ export default function ContractsPage() {
           + 신규 계약
         </Link>
       </div>
-
-      {/* 필터 */}
-      <div className="flex gap-3 flex-wrap bg-card border rounded-lg p-4">
+      <div className="flex gap-3 flex-wrap bg-white border rounded-[12px] p-5">
         <input
           type="text" placeholder="근로자명 · 연락처 · 현장 검색"
           value={search} onChange={e => setSearch(e.target.value)}
@@ -145,7 +144,11 @@ export default function ContractsPage() {
         </select>
         <span className="text-sm text-[#718096] self-center ml-auto">총 {total}건</span>
       </div>
+    </>
+  )
 
+  return (
+    <PageShell header={filterHeader}>
       {/* 목록 */}
       {loading ? (
         <div className="text-center py-16 text-[#718096]">로딩 중...</div>
@@ -157,7 +160,7 @@ export default function ContractsPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-card border rounded-lg overflow-x-auto">
+        <div className="bg-white border rounded-[12px] overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-[rgba(255,255,255,0.04)] text-xs text-[#CBD5E0] border-b">
               <tr>
@@ -231,6 +234,6 @@ export default function ContractsPage() {
             className="px-3 py-1.5 border rounded disabled:opacity-40">다음</button>
         </div>
       )}
-    </div>
+    </PageShell>
   )
 }

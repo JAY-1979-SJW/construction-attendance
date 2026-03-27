@@ -242,7 +242,7 @@ export default function DisputePanelPage() {
       </div>
 
       {/* 헤더 */}
-      <div className="bg-white border border-white/[0.12] rounded-xl p-5 mb-4">
+      <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5 mb-4">
         <div className="flex justify-between items-start flex-wrap gap-4">
           <div>
             <div className="flex items-center gap-2.5 mb-1.5">
@@ -334,7 +334,7 @@ export default function DisputePanelPage() {
             }
             const hdr = LEVEL_CFG[section.worstLevel]
             return (
-              <div key={section.id} className="bg-white rounded-xl overflow-hidden"
+              <div key={section.id} className="bg-white rounded-[12px] overflow-hidden"
                 style={{ border: `1px solid ${section.worstLevel !== 'OK' ? hdr.border : '#e0e0e0'}` }}>
                 <div className="px-4 py-3.5 border-b border-[#f0f0f0] flex justify-between items-center"
                   style={{ background: section.worstLevel !== 'OK' ? hdr.bg : '#fafafa' }}>
@@ -374,7 +374,7 @@ export default function DisputePanelPage() {
 
       {/* 문서 교부 */}
       {activeSection === 'documents' && (
-        <div className="bg-white border border-white/[0.12] rounded-xl overflow-hidden">
+        <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
           <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">
             문서 교부 이력 ({deliveryLogs.length}건)
           </div>
@@ -414,7 +414,7 @@ export default function DisputePanelPage() {
 
       {/* 출퇴근 이력 */}
       {activeSection === 'attendance' && (
-        <div className="bg-white border border-white/[0.12] rounded-xl overflow-hidden">
+        <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
           <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">
             출퇴근 이력 (최근 90일, {recentAttendance.length}건)
           </div>
@@ -446,7 +446,7 @@ export default function DisputePanelPage() {
 
       {/* 수정 이력 */}
       {activeSection === 'adjustments' && (
-        <div className="bg-white border border-white/[0.12] rounded-xl overflow-hidden">
+        <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
           <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">
             출퇴근 수정 이력 ({adjustmentLogs.length}건)
           </div>
@@ -477,7 +477,7 @@ export default function DisputePanelPage() {
 
       {/* 분쟁 케이스 */}
       {activeSection === 'disputes' && (
-        <div className="bg-white border border-white/[0.12] rounded-xl overflow-hidden">
+        <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
           <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">
             분쟁 케이스 ({disputeCases.length}건)
           </div>
@@ -563,7 +563,7 @@ export default function DisputePanelPage() {
 
 function StatCard({ label, value, sub, accent }: { label: string; value: string; sub: string; accent?: boolean }) {
   return (
-    <div className="bg-white rounded-xl px-5 py-4" style={{ border: `1px solid ${accent ? '#ffcdd2' : '#e0e0e0'}` }}>
+    <div className="bg-white rounded-[12px] p-5" style={{ border: `1px solid ${accent ? '#ffcdd2' : '#e0e0e0'}` }}>
       <div className="text-[12px] text-[#718096] mb-1.5">{label}</div>
       <div className="text-[22px] font-black" style={{ color: accent ? '#c62828' : '#1a1a2e' }}>{value}</div>
       <div className="text-[12px] text-[#718096] mt-1">{sub}</div>

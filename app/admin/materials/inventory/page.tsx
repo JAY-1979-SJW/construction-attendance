@@ -85,7 +85,7 @@ export default function InventoryPage() {
             { label: '미입고 잔량', value: total.pendingReceiveQty, color: '#f9a825' },
             { label: '미발주 잔량', value: total.pendingOrderQty,   color: '#ef5350' },
           ].map(c => (
-            <div key={c.label} className="bg-card rounded-[10px] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+            <div key={c.label} className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
               <div className="text-[11px] text-muted-brand mb-1">{c.label}</div>
               <div className="text-[22px] font-bold" style={{ color: c.color }}>
                 {c.value % 1 === 0 ? c.value.toLocaleString() : c.value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
@@ -95,7 +95,7 @@ export default function InventoryPage() {
         </div>
 
         {/* 테이블 */}
-        <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+        <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {loading ? (
             <div className="text-center py-12 text-muted-brand text-sm">로딩 중...</div>
           ) : rows.length === 0 ? (

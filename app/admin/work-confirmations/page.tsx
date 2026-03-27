@@ -157,7 +157,7 @@ export default function WorkConfirmationsPage() {
               { label: '제외',  value: summary.excluded,  color: '#A0AEC0' },
               { label: '확정 노임 합계', value: fmt(summary.totalAmount), color: '#4A93C8' },
             ].map((c) => (
-              <div key={c.label} className="bg-card rounded-[10px] px-5 py-4 min-w-[120px] shadow-[0_2px_8px_rgba(0,0,0,0.35)]" style={{ borderTop: `4px solid ${c.color}` }}>
+              <div key={c.label} className="bg-white rounded-[12px] px-5 py-4 min-w-[120px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]" style={{ borderTop: `4px solid ${c.color}` }}>
                 <div className="text-[20px] font-bold" style={{ color: c.color }}>{c.value}</div>
                 <div className="text-[12px] text-muted-brand">{c.label}</div>
               </div>
@@ -166,7 +166,7 @@ export default function WorkConfirmationsPage() {
         )}
 
         {/* 테이블 */}
-        <div className="bg-card rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+        <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
           {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">

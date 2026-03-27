@@ -165,7 +165,7 @@ export default function DocumentCenterPage() {
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">서식 출력 센터</h1>
 
-      <div className="bg-card rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-5">
+      <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5">
         {/* 귀속연월 + 현장 */}
         <div className="grid grid-cols-2 gap-4 mb-5">
           <div>
@@ -215,7 +215,7 @@ export default function DocumentCenterPage() {
                 className={`text-left px-3.5 py-3 rounded-lg border cursor-pointer transition-all ${
                   docType === d.value
                     ? 'bg-[rgba(91,164,217,0.1)] border-[#1976d2] text-[#4A93C8]'
-                    : 'bg-card border-white/10'
+                    : 'bg-white border-[#E5E7EB]'
                 }`}
               >
                 <div className="font-semibold text-sm flex items-center gap-1.5">
@@ -260,7 +260,7 @@ export default function DocumentCenterPage() {
 
         {/* 사전검사 결과 패널 */}
         {preflight ? (
-          <div className="mb-4 border border-white/10 rounded-lg overflow-hidden">
+          <div className="mb-4 border border-[#E5E7EB] rounded-[12px] overflow-hidden">
             {/* 헤더 - 결과 요약 */}
             <div className={`px-4 py-3.5 flex items-center justify-between border-b border-[#e0e0e0] ${
               preflight.summary.errorCount > 0
@@ -355,7 +355,7 @@ export default function DocumentCenterPage() {
             </div>
           </div>
         ) : (
-          <div className="mb-4 border border-white/10 rounded-lg px-4 py-4 bg-[#fafafa] text-[13px] text-[#aaa] text-center">
+          <div className="mb-4 border border-[#E5E7EB] rounded-[12px] px-4 py-4 bg-[#fafafa] text-[13px] text-[#aaa] text-center">
             사전검사를 실행하면 결과가 여기에 표시됩니다.
           </div>
         )}
@@ -404,7 +404,7 @@ export default function DocumentCenterPage() {
       </div>
 
       {/* 서식 안내 테이블 */}
-      <div className="bg-card rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.35)] mb-5">
+      <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5">
         <h2 className="text-base font-bold mb-4">서식별 포함 내용</h2>
         <table className="w-full border-collapse">
           <thead>
