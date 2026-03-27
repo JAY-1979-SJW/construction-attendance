@@ -23,6 +23,18 @@ export async function recalcWorkerDocumentPackage(
 
   const docs = pkg.onboardingDocs.filter((d) => d.status !== 'NOT_REQUIRED')
   const requiredCount = docs.length
+  const now = new Date()
+
+  // ── 만료 자동 감지: APPROVED 문서 중 expiresAt이 과거인 것 → EXPIRED 전환
+  for (const doc of docs) {
+    if (doc.status === 'APPROVED' && doc.expiresAt && doc.expiresAt < now) {
+      await prisma.onboardingDocument.update({
+        where: { id: doc.id },
+        data: { status: 'EXPIRED' },
+      })
+      ;(doc as any).status = 'EXPIRED' // 메모리 상태도 반영
+    }
+  }
 
   let approved = 0
   let rejected = 0
@@ -66,8 +78,6 @@ export async function recalcWorkerDocumentPackage(
   } else {
     overallStatus = 'NOT_READY'
   }
-
-  const now = new Date()
 
   await prisma.workerDocumentPackage.update({
     where: { id: pkg.id },

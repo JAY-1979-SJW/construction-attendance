@@ -26,21 +26,22 @@ interface PackageInfo {
   rejectedDocCount: number
   pendingDocCount: number
   missingDocCount: number
+  expiredDocCount: number
   site: { id: string; name: string } | null
 }
 
 const OVERALL_STATUS: Record<string, { text: string; bg: string; color: string }> = {
-  NOT_READY: { text: '준비중', bg: 'bg-gray-100', color: 'text-gray-700' },
-  UNDER_REVIEW: { text: '검토중', bg: 'bg-amber-50', color: 'text-amber-700' },
+  NOT_READY: { text: '준비 필요', bg: 'bg-gray-100', color: 'text-gray-700' },
+  UNDER_REVIEW: { text: '검토 중', bg: 'bg-amber-50', color: 'text-amber-700' },
   READY: { text: '투입 가능', bg: 'bg-green-50', color: 'text-green-700' },
   REJECTED: { text: '보완 필요', bg: 'bg-red-50', color: 'text-red-700' },
-  EXPIRED: { text: '만료 문서 있음', bg: 'bg-orange-50', color: 'text-orange-700' },
+  EXPIRED: { text: '만료 재제출 필요', bg: 'bg-orange-50', color: 'text-orange-700' },
 }
 
 const DOC_STATUS: Record<string, { text: string; bg: string; color: string }> = {
   NOT_SUBMITTED: { text: '미제출', bg: 'bg-gray-100', color: 'text-gray-600' },
-  SUBMITTED: { text: '검토중', bg: 'bg-amber-50', color: 'text-amber-700' },
-  APPROVED: { text: '승인', bg: 'bg-green-50', color: 'text-green-700' },
+  SUBMITTED: { text: '검토 대기', bg: 'bg-amber-50', color: 'text-amber-700' },
+  APPROVED: { text: '승인 완료', bg: 'bg-green-50', color: 'text-green-700' },
   REJECTED: { text: '반려', bg: 'bg-red-50', color: 'text-red-700' },
   EXPIRED: { text: '만료', bg: 'bg-orange-50', color: 'text-orange-700' },
   NOT_REQUIRED: { text: '불필요', bg: 'bg-gray-50', color: 'text-gray-400' },
@@ -50,14 +51,17 @@ const DOC_ACTIONS: Record<string, Record<string, { label: string; style: string 
   CONTRACT: {
     NOT_SUBMITTED: { label: '계약서 확인', style: 'bg-blue-500 text-white' },
     REJECTED: { label: '재서명', style: 'bg-red-500 text-white' },
+    EXPIRED: { label: '재서명', style: 'bg-orange-500 text-white' },
   },
   PRIVACY_CONSENT: {
     NOT_SUBMITTED: { label: '동의하기', style: 'bg-blue-500 text-white' },
     REJECTED: { label: '다시 제출', style: 'bg-red-500 text-white' },
+    EXPIRED: { label: '다시 제출', style: 'bg-orange-500 text-white' },
   },
   HEALTH_DECLARATION: {
     NOT_SUBMITTED: { label: '서명하기', style: 'bg-blue-500 text-white' },
     REJECTED: { label: '다시 제출', style: 'bg-red-500 text-white' },
+    EXPIRED: { label: '다시 제출', style: 'bg-orange-500 text-white' },
   },
   HEALTH_CERTIFICATE: {
     NOT_SUBMITTED: { label: '업로드', style: 'bg-blue-500 text-white' },
@@ -67,6 +71,7 @@ const DOC_ACTIONS: Record<string, Record<string, { label: string; style: string 
   SAFETY_ACK: {
     NOT_SUBMITTED: { label: '서명하기', style: 'bg-blue-500 text-white' },
     REJECTED: { label: '다시 제출', style: 'bg-red-500 text-white' },
+    EXPIRED: { label: '다시 제출', style: 'bg-orange-500 text-white' },
   },
 }
 
@@ -182,6 +187,12 @@ export default function MyOnboardingPage() {
                   <div className="flex-1 bg-white/70 rounded-xl p-3 text-center">
                     <div className="text-2xl font-bold text-red-600">{pkg?.rejectedDocCount}</div>
                     <div className="text-[11px] text-gray-500 mt-0.5">반려</div>
+                  </div>
+                )}
+                {(pkg?.expiredDocCount ?? 0) > 0 && (
+                  <div className="flex-1 bg-white/70 rounded-xl p-3 text-center">
+                    <div className="text-2xl font-bold text-orange-600">{pkg?.expiredDocCount}</div>
+                    <div className="text-[11px] text-gray-500 mt-0.5">만료</div>
                   </div>
                 )}
               </div>

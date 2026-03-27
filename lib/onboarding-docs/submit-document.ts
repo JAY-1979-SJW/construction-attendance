@@ -40,7 +40,7 @@ export async function submitWorkerDocument(input: SubmitDocumentInput) {
   }
 
   const now = new Date()
-  const nextVersion = doc.versionNo + (doc.status === 'REJECTED' ? 1 : 0)
+  const nextVersion = doc.versionNo + (doc.status === 'REJECTED' || doc.status === 'EXPIRED' ? 1 : 0)
 
   // 제출 이력의 다음 번호
   const lastSubmission = await prisma.onboardingDocSubmission.findFirst({

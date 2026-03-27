@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
     const rows = logs.map(l => `
       <tr>
         <td>${esc(l.worker.name)}</td>
-        <td>${esc(l.worker.phone)}</td>
+        <td>${esc(l.worker.phone ?? '')}</td>
         <td>${esc(l.companyNameSnapshot ?? '')}</td>
         <td>${esc(l.checkInSite.name)}</td>
         <td>${fmtTime(l.checkInAt?.toISOString() ?? null)}</td>

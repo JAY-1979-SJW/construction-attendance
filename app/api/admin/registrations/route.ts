@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
             select: {
               companyId: true,
               employmentType: true,
-              company: { select: { name: true } },
+              company: { select: { companyName: true } },
             },
             take: 1,
             orderBy: { createdAt: 'desc' },
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
             select: { documentType: true, status: true, createdAt: true },
           },
           contracts: {
-            select: { id: true, status: true, createdAt: true },
+            select: { id: true, contractStatus: true, createdAt: true },
             take: 1,
             orderBy: { createdAt: 'desc' },
           },

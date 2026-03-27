@@ -9,6 +9,7 @@ interface BtnProps {
   disabled?: boolean
   className?: string
   type?: 'button' | 'submit' | 'reset'
+  title?: string
 }
 
 export function Btn({
@@ -19,6 +20,7 @@ export function Btn({
   disabled,
   className,
   type = 'button',
+  title,
 }: BtnProps) {
   const base =
     'inline-flex items-center justify-center gap-1.5 font-semibold cursor-pointer border-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
@@ -44,6 +46,7 @@ export function Btn({
       type={type}
       onClick={onClick}
       disabled={disabled}
+      title={title}
       className={`${base} ${sizes[size]} ${variants[variant]} ${className ?? ''}`}
     >
       {children}

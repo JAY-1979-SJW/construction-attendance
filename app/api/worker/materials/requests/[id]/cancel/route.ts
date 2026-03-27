@@ -39,7 +39,7 @@ export async function POST(
       where: { id: request.id },
       data:  { status: 'CANCELLED' },
     }),
-    prisma.materialRequestHistory.create({
+    prisma.materialRequestStatusHistory.create({
       data: {
         requestId:  request.id,
         fromStatus: request.status as never,

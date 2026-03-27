@@ -9,7 +9,7 @@ const blacklist = new Map<string, number>() // token → expiry timestamp (ms)
 // 만료된 항목 주기적 정리 (10분마다)
 setInterval(() => {
   const now = Date.now()
-  for (const [token, expiry] of blacklist) {
+  for (const [token, expiry] of Array.from(blacklist)) {
     if (now > expiry) {
       blacklist.delete(token)
     }

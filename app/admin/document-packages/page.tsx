@@ -4,13 +4,13 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 const STATUS_LABELS: Record<string, string> = {
-  NOT_READY: '준비중', UNDER_REVIEW: '검토중', READY: '투입가능', REJECTED: '반려', EXPIRED: '만료',
+  NOT_READY: '준비 필요', UNDER_REVIEW: '검토 중', READY: '투입 가능', REJECTED: '보완 필요', EXPIRED: '만료 재제출 필요',
 }
 const STATUS_COLORS: Record<string, string> = {
   NOT_READY: '#9e9e9e', UNDER_REVIEW: '#f57c00', READY: '#2e7d32', REJECTED: '#c62828', EXPIRED: '#6d4c41',
 }
 const DOC_STATUS_LABELS: Record<string, string> = {
-  NOT_SUBMITTED: '미제출', SUBMITTED: '검토대기', APPROVED: '승인', REJECTED: '반려', EXPIRED: '만료',
+  NOT_SUBMITTED: '미제출', SUBMITTED: '검토 대기', APPROVED: '승인 완료', REJECTED: '반려', EXPIRED: '만료',
 }
 const DOC_STATUS_COLORS: Record<string, string> = {
   NOT_SUBMITTED: '#9e9e9e', SUBMITTED: '#f57c00', APPROVED: '#2e7d32', REJECTED: '#c62828', EXPIRED: '#6d4c41',

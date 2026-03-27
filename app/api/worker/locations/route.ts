@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     })
 
     // 동 → 층 → 상세 구조화
-    const buildings = [...new Set(items.map((i) => i.buildingName))].sort()
+    const buildings = Array.from(new Set(items.map((i) => i.buildingName))).sort()
     const floorsByBuilding: Record<string, string[]> = {}
     const detailsByBuildingFloor: Record<string, string[]> = {}
 

@@ -84,8 +84,8 @@ export async function GET(
     // ── 투입 가능 여부 계산 (APPROVED 기준 + 만료 체크) ──────────
     type DocStatus = 'NOT_SUBMITTED' | 'SUBMITTED' | 'REVIEW_REQUESTED' | 'APPROVED' | 'REJECTED' | 'EXPIRED'
     const now = new Date()
-    function safetyDocStatus(types: string[]): DocStatus {
-      const docs = worker.safetyDocuments.filter(d => types.includes(d.documentType))
+    const safetyDocStatus = (types: string[]): DocStatus => {
+      const docs = worker!.safetyDocuments.filter(d => types.includes(d.documentType))
       if (docs.length === 0) return 'NOT_SUBMITTED'
       // APPROVED이면서 만료된 문서는 EXPIRED 처리
       const approvedDocs = docs.filter(d => d.status === 'APPROVED')
@@ -103,15 +103,15 @@ export async function GET(
     // 근로계약서: ContractStatus → 서류 승인 상태 매핑
     // ACTIVE/ENDED = APPROVED, REVIEW_REQUESTED/SIGNED = REVIEW_REQUESTED,
     // REJECTED = REJECTED, DRAFT = SUBMITTED, 없음 = NOT_SUBMITTED
-    function contractDocStatus(): DocStatus {
-      const cts = worker.contracts
+    const contractDocStatus = (): DocStatus => {
+      const cts = worker!.contracts
       if (cts.some(c => c.contractStatus === 'ACTIVE' || c.contractStatus === 'ENDED')) return 'APPROVED'
       if (cts.some(c => c.contractStatus === 'REJECTED')) return 'REJECTED'
       if (cts.some(c => c.contractStatus === 'REVIEW_REQUESTED' || c.contractStatus === 'SIGNED')) return 'REVIEW_REQUESTED'
       if (cts.some(c => c.contractStatus === 'DRAFT')) return 'SUBMITTED'
       // workerDocuments 또는 safetyDocuments에 계약 관련 문서 존재 확인
-      if (worker.workerDocuments.some(d => d.documentType === 'CONTRACT' && d.status === 'APPROVED')) return 'APPROVED'
-      if (worker.workerDocuments.some(d => d.documentType === 'CONTRACT')) return 'SUBMITTED'
+      if (worker!.workerDocuments.some(d => d.documentType === 'CONTRACT' && d.status === 'APPROVED')) return 'APPROVED'
+      if (worker!.workerDocuments.some(d => d.documentType === 'CONTRACT')) return 'SUBMITTED'
       const wcrStatus = safetyDocStatus(['WORK_CONDITIONS_RECEIPT'])
       if (wcrStatus !== 'NOT_SUBMITTED') return wcrStatus
       return 'NOT_SUBMITTED'
@@ -137,8 +137,8 @@ export async function GET(
     ]
 
     // docType별 가장 최근 만료일 조회 헬퍼
-    function getLatestExpiresAt(types: string[]): string | null {
-      const docs = worker.safetyDocuments.filter(d => types.includes(d.documentType) && d.status === 'APPROVED' && d.expiresAt)
+    const getLatestExpiresAt = (types: string[]): string | null => {
+      const docs = worker!.safetyDocuments.filter(d => types.includes(d.documentType) && d.status === 'APPROVED' && d.expiresAt)
       if (docs.length === 0) return null
       return docs.sort((a, b) => new Date(b.expiresAt!).getTime() - new Date(a.expiresAt!).getTime())[0].expiresAt!.toISOString()
     }
@@ -180,7 +180,7 @@ export async function GET(
       }
     }
 
-    const isApproved = worker.accountStatus === 'APPROVED' || worker.accountStatus === 'ACTIVE'
+    const isApproved = worker.accountStatus === 'APPROVED'
     let assignmentEligibility: string
     let nextAction: string
     if (!isApproved) {

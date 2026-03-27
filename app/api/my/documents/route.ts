@@ -5,7 +5,7 @@
 import { prisma } from '@/lib/db/prisma'
 import { getWorkerSession } from '@/lib/auth/guards'
 import { ok, unauthorized } from '@/lib/utils/response'
-import { ensurePackageExists, DOC_TYPE_LABELS } from '@/lib/onboarding-docs'
+import { ensurePackageExists, DOC_TYPE_LABELS, recalcWorkerDocumentPackage } from '@/lib/onboarding-docs'
 
 export async function GET() {
   const session = await getWorkerSession()
@@ -22,30 +22,38 @@ export async function GET() {
 
   const siteId = activeContract?.siteId ?? null
 
-  // 패키지 보장
+  // 패키지 보장 + 만료 자동 감지를 위한 recalc
   await ensurePackageExists(workerId, siteId)
+  await recalcWorkerDocumentPackage(workerId, siteId)
 
-  const pkg = await prisma.workerDocumentPackage.findUnique({
-    where: { workerId_siteId: { workerId, siteId: siteId ?? '' } },
-    include: {
-      site: { select: { id: true, name: true } },
-      onboardingDocs: {
-        orderBy: { docType: 'asc' },
-        select: {
-          id: true,
-          docType: true,
-          status: true,
-          title: true,
-          rejectionReason: true,
-          submittedAt: true,
-          approvedAt: true,
-          rejectedAt: true,
-          expiresAt: true,
-          versionNo: true,
-        },
+  // siteId가 null인 경우 findFirst 사용 (Prisma unique 쿼리는 nullable 필드에 null 직접 전달 불가)
+  const pkgInclude = {
+    site: { select: { id: true, name: true } },
+    onboardingDocs: {
+      orderBy: { docType: 'asc' as const },
+      select: {
+        id: true,
+        docType: true,
+        status: true,
+        title: true,
+        rejectionReason: true,
+        submittedAt: true,
+        approvedAt: true,
+        rejectedAt: true,
+        expiresAt: true,
+        versionNo: true,
       },
     },
-  })
+  }
+  const pkg = siteId
+    ? await prisma.workerDocumentPackage.findUnique({
+        where: { workerId_siteId: { workerId, siteId } },
+        include: pkgInclude,
+      })
+    : await prisma.workerDocumentPackage.findFirst({
+        where: { workerId, siteId: null },
+        include: pkgInclude,
+      })
 
   if (!pkg) return ok({ package: null, documents: [] })
 
@@ -64,6 +72,7 @@ export async function GET() {
       rejectedDocCount: pkg.rejectedDocCount,
       pendingDocCount: pkg.pendingDocCount,
       missingDocCount: pkg.missingDocCount,
+      expiredDocCount: pkg.expiredDocCount,
       site: pkg.site,
     },
     documents,

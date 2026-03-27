@@ -16,7 +16,7 @@ export interface LaborAllocationRow {
   workDate: string            // "YYYY-MM-DD"
   workerId: string
   workerName: string
-  workerPhone: string
+  workerPhone: string | null
   company: string
   jobTitle: string
 

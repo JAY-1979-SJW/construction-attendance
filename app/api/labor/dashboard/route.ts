@@ -62,14 +62,14 @@ export async function GET(req: NextRequest) {
         by: ['workerId'],
         where: {
           siteId: { in: siteIds },
-          workDate: { gte: monthStart, lt: monthEnd },
+          workDate: { gte: monthStart.toISOString().slice(0, 10), lt: monthEnd.toISOString().slice(0, 10) },
         },
       }).then((g) => g.length),
       // 4대보험 대상자 수
       prisma.insuranceEligibilitySnapshot.count({
         where: {
           monthKey: month,
-          worker: { workerSiteAssignments: { some: { siteId: { in: siteIds } } } },
+          worker: { siteAssignments: { some: { siteId: { in: siteIds } } } },
           OR: [
             { nationalPensionEligible: true },
             { healthInsuranceEligible: true },

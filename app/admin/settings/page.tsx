@@ -483,7 +483,7 @@ export default function SettingsPage() {
   const isDirty = useMemo(() => {
     if (!settings || !form) return false
     return CATEGORY_FIELDS[activeCategory].some(
-      (k) => (form as Record<string, unknown>)[k] !== (settings as Record<string, unknown>)[k]
+      (k) => (form as unknown as Record<string, unknown>)[k] !== (settings as unknown as Record<string, unknown>)[k]
     )
   }, [settings, form, activeCategory])
 
@@ -493,7 +493,7 @@ export default function SettingsPage() {
     const result = {} as Record<CategoryKey, boolean>
     for (const cat of CATEGORIES) {
       result[cat.key] = CATEGORY_FIELDS[cat.key].some(
-        (k) => (form as Record<string, unknown>)[k] !== (settings as Record<string, unknown>)[k]
+        (k) => (form as unknown as Record<string, unknown>)[k] !== (settings as unknown as Record<string, unknown>)[k]
       )
     }
     return result

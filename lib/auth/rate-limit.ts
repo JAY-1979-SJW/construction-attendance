@@ -14,7 +14,7 @@ const store = new Map<string, Entry>()
 const CLEANUP_INTERVAL = 5 * 60 * 1000
 setInterval(() => {
   const now = Date.now()
-  for (const [key, entry] of store) {
+  for (const [key, entry] of Array.from(store)) {
     if (now - entry.firstAttempt > CLEANUP_INTERVAL) {
       store.delete(key)
     }

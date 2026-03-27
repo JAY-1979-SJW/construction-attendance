@@ -55,7 +55,7 @@ export async function POST(
   }
 
   const now = new Date()
-  const contractLabel = CONTRACT_KIND_LABELS[contract.contractKind] ?? '계약서'
+  const contractLabel = (contract.contractKind ? CONTRACT_KIND_LABELS[contract.contractKind] : null) ?? '계약서'
 
   if (action === 'APPROVE') {
     await prisma.workerContract.update({

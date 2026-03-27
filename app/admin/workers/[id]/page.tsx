@@ -2225,13 +2225,13 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
 
 // ─── 투입 전 필수 문서 탭 ─────────────────────────────────────────────────────
 const ONBOARDING_STATUS_LABELS: Record<string, string> = {
-  NOT_SUBMITTED: '미제출', SUBMITTED: '검토대기', APPROVED: '승인', REJECTED: '반려', EXPIRED: '만료', NOT_REQUIRED: '불필요',
+  NOT_SUBMITTED: '미제출', SUBMITTED: '검토 대기', APPROVED: '승인 완료', REJECTED: '반려', EXPIRED: '만료', NOT_REQUIRED: '불필요',
 }
 const ONBOARDING_STATUS_COLORS: Record<string, string> = {
   NOT_SUBMITTED: '#9e9e9e', SUBMITTED: '#f57c00', APPROVED: '#2e7d32', REJECTED: '#c62828', EXPIRED: '#6d4c41', NOT_REQUIRED: '#78909c',
 }
 const PACKAGE_STATUS_LABELS: Record<string, string> = {
-  NOT_READY: '준비중', UNDER_REVIEW: '검토중', READY: '투입가능', REJECTED: '반려', EXPIRED: '만료',
+  NOT_READY: '준비 필요', UNDER_REVIEW: '검토 중', READY: '투입 가능', REJECTED: '보완 필요', EXPIRED: '만료 재제출 필요',
 }
 const PACKAGE_STATUS_COLORS: Record<string, string> = {
   NOT_READY: '#9e9e9e', UNDER_REVIEW: '#f57c00', READY: '#2e7d32', REJECTED: '#c62828', EXPIRED: '#6d4c41',
@@ -2294,9 +2294,10 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
             </span>
             {pkg.site && <span className="text-xs text-[#718096]">현장: {pkg.site.name}</span>}
             <span className="text-xs text-[#718096]">승인 {pkg.approvedDocCount}/{pkg.requiredDocCount}</span>
-            {pkg.pendingDocCount > 0 && <span className="text-xs text-[#f57c00]">검토대기 {pkg.pendingDocCount}건</span>}
+            {pkg.pendingDocCount > 0 && <span className="text-xs text-[#f57c00]">검토 대기 {pkg.pendingDocCount}건</span>}
             {pkg.rejectedDocCount > 0 && <span className="text-xs text-[#c62828]">반려 {pkg.rejectedDocCount}건</span>}
             {pkg.missingDocCount > 0 && <span className="text-xs text-[#9e9e9e]">누락 {pkg.missingDocCount}건</span>}
+            {pkg.expiredDocCount > 0 && <span className="text-xs text-[#6d4c41]">만료 {pkg.expiredDocCount}건</span>}
           </div>
 
           {/* 문서 목록 */}

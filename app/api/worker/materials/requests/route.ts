@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
       where: {
         workerId: session.sub,
         siteId,
-        status: { in: ['ACTIVE', 'PENDING'] },
+        isActive: true,
       },
     })
     if (!contract) {
@@ -118,6 +118,7 @@ export async function POST(req: NextRequest) {
       status:            'SUBMITTED',        // 직행: 관리자 검토 대기
       items: {
         create: items.map(item => ({
+          itemCode:     '', // Worker 청구 시 코드 미지정
           itemName:     item.itemName.trim(),
           spec:         item.spec?.trim() ?? null,
           unit:         item.unit?.trim() ?? null,
@@ -134,7 +135,7 @@ export async function POST(req: NextRequest) {
   })
 
   // 상태 이력 기록
-  await prisma.materialRequestHistory.create({
+  await prisma.materialRequestStatusHistory.create({
     data: {
       requestId:  created.id,
       fromStatus: 'DRAFT',

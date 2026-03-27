@@ -70,12 +70,10 @@ export async function GET(req: NextRequest) {
       where: {
         siteId: { in: siteIds },
         workDate: {
-          gte: new Date(`${month}-01`),
-          lt:  new Date(
-            month.slice(0, 4) + '-' +
+          gte: `${month}-01`,
+          lt:  month.slice(0, 4) + '-' +
             String(Number(month.slice(5, 7)) + 1).padStart(2, '0') +
-            '-01'
-          ),
+            '-01',
         },
       },
       select: { workerId: true, siteId: true, workDate: true },
@@ -86,14 +84,14 @@ export async function GET(req: NextRequest) {
     for (const ad of attendanceDays) {
       const key = `${ad.workerId}::${ad.siteId}`
       if (!attendanceMap.has(key)) attendanceMap.set(key, new Set())
-      attendanceMap.get(key)!.add(ad.workDate.toISOString().slice(0, 10))
+      attendanceMap.get(key)!.add(ad.workDate)
     }
 
     // 4대보험 스냅샷 (해당 월)
     const insuranceSnapshots = await prisma.insuranceEligibilitySnapshot.findMany({
       where: {
         monthKey: month,
-        workerId: { in: [...new Set(confirmations.map((c) => c.workerId))] },
+        workerId: { in: Array.from(new Set(confirmations.map((c) => c.workerId))) },
       },
       select: {
         workerId: true,
@@ -113,7 +111,7 @@ export async function GET(req: NextRequest) {
       // 근로자가 출근한 날 중 작업일보가 작성된 날 수
       const attDates = attendanceMap.get(attKey) ?? new Set<string>()
       const workLogDays = siteLogs
-        ? [...attDates].filter((d) => siteLogs.has(d)).length
+        ? Array.from(attDates).filter((d) => siteLogs.has(d)).length
         : 0
       const ins = insuranceMap.get(c.workerId)
       const insuranceEligible = ins
@@ -167,7 +165,7 @@ export async function GET(req: NextRequest) {
           existing._count++
         }
       }
-      return ok([...siteMap.values()])
+      return ok(Array.from(siteMap.values()))
     }
 
     return ok(rows)

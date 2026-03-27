@@ -5,6 +5,7 @@
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { ok, unauthorized, notFound } from '@/lib/utils/response'
+import { recalcWorkerDocumentPackage } from '@/lib/onboarding-docs'
 
 export async function GET(
   _req: Request,
@@ -19,6 +20,15 @@ export async function GET(
     select: { id: true, name: true },
   })
   if (!worker) return notFound('근로자를 찾을 수 없습니다.')
+
+  // 조회 시 만료 자동 감지를 위한 recalc 실행
+  const existingPkgs = await prisma.workerDocumentPackage.findMany({
+    where: { workerId },
+    select: { workerId: true, siteId: true },
+  })
+  for (const p of existingPkgs) {
+    await recalcWorkerDocumentPackage(p.workerId, p.siteId)
+  }
 
   const packages = await prisma.workerDocumentPackage.findMany({
     where: { workerId },

@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     // 현장별 출근 근로자 수
     const workedAgg = await prisma.attendanceDay.groupBy({
       by: ['siteId', 'workerId'],
-      where: { siteId: { in: siteIds }, workDate: { gte: monthStart, lt: monthEnd } },
+      where: { siteId: { in: siteIds }, workDate: { gte: monthStart.toISOString().slice(0, 10), lt: monthEnd.toISOString().slice(0, 10) } },
     })
     const workedBySite = new Map<string, Set<string>>()
     for (const row of workedAgg) {
@@ -117,13 +117,13 @@ export async function GET(req: NextRequest) {
     }
 
     // 보험 대상자 수: 현장 배정 근로자 중 eligWorkerSet 교집합
-    for (const [siteId, workerSet] of workedBySite) {
+    for (const [siteId, workerSet] of Array.from(workedBySite)) {
       const s = siteMap.get(siteId)
       if (!s) continue
-      s.insuranceTargets = [...workerSet].filter((w) => eligWorkerSet.has(w)).length
+      s.insuranceTargets = Array.from(workerSet).filter((w) => eligWorkerSet.has(w)).length
     }
 
-    return ok([...siteMap.values()])
+    return ok(Array.from(siteMap.values()))
   } catch (err) {
     console.error('[labor/sites GET]', err)
     return internalError()

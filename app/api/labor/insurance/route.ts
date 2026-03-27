@@ -51,11 +51,11 @@ export async function GET(req: NextRequest) {
       by: ['workerId'],
       where: {
         siteId: { in: siteIds },
-        workDate: { gte: monthStart, lt: monthEnd },
+        workDate: { gte: monthStart.toISOString().slice(0, 10), lt: monthEnd.toISOString().slice(0, 10) },
       },
-      _count: { workerId: true },
+      _count: true,
     })
-    const workDayMap = new Map(workDayRows.map((r) => [r.workerId, r._count.workerId]))
+    const workDayMap = new Map(workDayRows.map((r) => [r.workerId, r._count]))
 
     // insuranceEligibilitySnapshot으로 4대보험 가입 여부 확인
     const eligibilitySnapshots = await prisma.insuranceEligibilitySnapshot.findMany({

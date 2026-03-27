@@ -27,6 +27,7 @@ export async function ensurePackageExists(
       data: {
         workerId,
         siteId: siteId || null,
+        scope: siteId ? 'SITE' : 'GLOBAL',
       },
     })
 

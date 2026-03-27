@@ -11,7 +11,7 @@ const revocationMap = new Map<string, number>()
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
 setInterval(() => {
   const cutoff = Date.now() - MAX_AGE_MS
-  for (const [userId, revokedAtSec] of revocationMap) {
+  for (const [userId, revokedAtSec] of Array.from(revocationMap)) {
     if (revokedAtSec * 1000 < cutoff) {
       revocationMap.delete(userId)
     }

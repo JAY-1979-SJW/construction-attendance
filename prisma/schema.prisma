@@ -276,6 +276,11 @@ enum DocPackageOverallStatus {
   EXPIRED        // 만료 문서 존재
 }
 
+enum PackageScope {
+  GLOBAL  // 현장 배정 전 공통 사전 준비 (siteId = null)
+  SITE    // 특정 현장 배정용 (siteId = 현장 ID)
+}
+
 enum OnboardingDocType {
   CONTRACT             // 근로계약서
   PRIVACY_CONSENT      // 개인정보 제공 동의서
@@ -3993,6 +3998,7 @@ model WorkerDocumentPackage {
   id                 String                  @id @default(cuid())
   workerId           String
   siteId             String?
+  scope              PackageScope            @default(GLOBAL)
   overallStatus      DocPackageOverallStatus @default(NOT_READY)
   requiredDocCount   Int                     @default(5)
   approvedDocCount   Int                     @default(0)
