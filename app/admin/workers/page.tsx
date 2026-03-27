@@ -10,6 +10,7 @@ import {
   StatusBadge, Btn, KpiCard,
   AdminTable, AdminTr, AdminTd, EmptyRow,
   FormInput, FormSelect, ModalFooter,
+  Modal, Toast,
 } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
@@ -166,31 +167,22 @@ function RegisterModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
   }
 
   return (
-    <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-[12px] w-full max-w-[440px] shadow-2xl overflow-hidden">
-        <div className="h-1 bg-[#F97316]" />
-        <div className="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
-          <h3 className="text-[15px] font-bold text-[#0F172A]">근로자 등록</h3>
-          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-[6px] text-[#9CA3AF] hover:bg-[#F3F4F6] transition-colors">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-          </button>
-        </div>
-        <div className="px-6 py-5 flex flex-col gap-3">
-          <FormInput label="이름" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="홍길동" className="!mb-0" />
-          <FormInput label="연락처" required helper="010으로 시작 11자리" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="01012345678" className="!mb-0" />
-          <FormInput label="직종" required value={form.jobTitle} onChange={e => setForm(f => ({ ...f, jobTitle: e.target.value }))} placeholder="철근공" className="!mb-0" />
-          <FormSelect label="고용 형태" value={form.employmentType} onChange={e => setForm(f => ({ ...f, employmentType: e.target.value }))}
-            options={Object.entries(EMP_LABELS).map(([v, l]) => ({ value: v, label: l }))} className="!mb-0" />
-          {error && <div className="text-[12px] text-[#DC2626] bg-[#FEF2F2] px-3 py-2 rounded-[6px]">{error}</div>}
-        </div>
-        <ModalFooter className="px-6 pb-5 mt-0 pt-0">
-          <Btn variant="orange" size="md" onClick={handleSave} disabled={saving || !form.name || !form.phone || !form.jobTitle}>
-            {saving ? '등록 중...' : '등록'}
-          </Btn>
-          <Btn variant="secondary" size="md" onClick={onClose}>취소</Btn>
-        </ModalFooter>
+    <Modal open onClose={onClose} title="근로자 등록" width={440}>
+      <div className="flex flex-col gap-3">
+        <FormInput label="이름" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="홍길동" className="!mb-0" />
+        <FormInput label="연락처" required helper="010으로 시작 11자리" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="01012345678" className="!mb-0" />
+        <FormInput label="직종" required value={form.jobTitle} onChange={e => setForm(f => ({ ...f, jobTitle: e.target.value }))} placeholder="철근공" className="!mb-0" />
+        <FormSelect label="고용 형태" value={form.employmentType} onChange={e => setForm(f => ({ ...f, employmentType: e.target.value }))}
+          options={Object.entries(EMP_LABELS).map(([v, l]) => ({ value: v, label: l }))} className="!mb-0" />
+        {error && <Toast message={error} variant="error" />}
       </div>
-    </div>
+      <ModalFooter>
+        <Btn variant="orange" size="md" onClick={handleSave} disabled={saving || !form.name || !form.phone || !form.jobTitle}>
+          {saving ? '등록 중...' : '등록'}
+        </Btn>
+        <Btn variant="secondary" size="md" onClick={onClose}>취소</Btn>
+      </ModalFooter>
+    </Modal>
   )
 }
 
@@ -431,9 +423,9 @@ export default function WorkersPage() {
         badge={<PageBadge>{sorted.length}명</PageBadge>}
       />
 
-      {/* ── 저장 토스트 ── */}
+      {/* ── 저장 토스트 (fixed position) ── */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 z-[100] px-5 py-3 rounded-[10px] shadow-xl text-[13px] font-semibold text-white transition-all ${toast.ok ? 'bg-[#16A34A]' : 'bg-[#DC2626]'}`}>
+        <div className={`fixed bottom-6 right-6 z-[100] px-5 py-3 rounded-[8px] shadow-xl text-[13px] font-semibold text-white transition-all ${toast.ok ? 'bg-[#059669]' : 'bg-[#B91C1C]'}`}>
           {toast.msg}
         </div>
       )}

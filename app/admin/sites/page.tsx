@@ -11,6 +11,7 @@ import {
   FilterInput, FilterSelect, FilterPill, FilterSpacer,
   KpiCard,
   FormInput, FormSelect, FormGrid, ModalFooter,
+  Modal, Toast,
 } from '@/components/admin/ui'
 
 // ── 전역 타입 ──────────────────────────────────────────────────────────────
@@ -946,44 +947,37 @@ export default function SitesPage() {
       </div>
 
       {/* ── 등록 모달 ──────────────────────────────────────────── */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] overflow-y-auto py-6 px-6">
-          <div className="bg-white rounded-xl p-8 w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
-            <h3 className="text-[18px] font-bold mb-5">현장 등록</h3>
-            {renderFormFields(form, 'form', (k, v) => setForm(f => ({ ...f, [k]: v })), formGeoStatus)}
-            {formError && <p className="text-[#e53935] text-[13px] mb-3">{formError}</p>}
-            <ModalFooter>
-              <Btn variant="secondary" onClick={() => { setShowForm(false); setFormError('') }}>취소</Btn>
-              <Btn variant="orange" onClick={handleSave} disabled={saving}>{saving ? '저장 중...' : '등록'}</Btn>
-            </ModalFooter>
-          </div>
-        </div>
-      )}
+      <Modal open={showForm} onClose={() => { setShowForm(false); setFormError('') }} title="현장 등록" width={600}>
+        {renderFormFields(form, 'form', (k, v) => setForm(f => ({ ...f, [k]: v })), formGeoStatus)}
+        {formError && <Toast message={formError} variant="error" />}
+        <ModalFooter>
+          <Btn variant="secondary" onClick={() => { setShowForm(false); setFormError('') }}>취소</Btn>
+          <Btn variant="orange" onClick={handleSave} disabled={saving}>{saving ? '저장 중...' : '등록'}</Btn>
+        </ModalFooter>
+      </Modal>
 
       {/* ── 수정 모달 ──────────────────────────────────────────── */}
-      {editTarget && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] overflow-y-auto py-6 px-6">
-          <div className="bg-white rounded-xl p-8 w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
-            <h3 className="text-[18px] font-bold mb-5">현장 수정 — {editTarget.name}</h3>
+      <Modal open={!!editTarget} onClose={() => setEditTarget(null)} title={`현장 수정 — ${editTarget?.name ?? ''}`} width={600}>
+        {editTarget && (
+          <>
             {renderFormFields(editForm, 'edit', (k, v) => setEditForm(f => ({ ...f, [k]: v })), editGeoStatus)}
             <div className="flex items-center gap-2 mb-4">
               <input type="checkbox" id="editActive" checked={editActive} onChange={e => setEditActive(e.target.checked)} />
               <label htmlFor="editActive" className="text-sm text-[#374151]">현장 활성 상태</label>
             </div>
-            {editError && <p className="text-[#e53935] text-[13px] mb-3">{editError}</p>}
+            {editError && <Toast message={editError} variant="error" />}
             <ModalFooter>
               <Btn variant="secondary" onClick={() => setEditTarget(null)}>취소</Btn>
               <Btn variant="orange" onClick={handleEdit} disabled={editSaving}>{editSaving ? '저장 중...' : '저장'}</Btn>
             </ModalFooter>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
 
       {/* ── 회사 배정 모달 ─────────────────────────────────────── */}
-      {assignSite && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] overflow-y-auto py-6 px-6">
-          <div className="bg-white rounded-xl p-8 w-[480px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
-            <h3 className="text-[18px] font-bold mb-5">업체 배정 — {assignSite.name}</h3>
+      <Modal open={!!assignSite} onClose={() => setAssignSite(null)} title={`업체 배정 — ${assignSite?.name ?? ''}`}>
+        {assignSite && (
+          <>
             <FormSelect
               label="회사" required
               value={assignForm.companyId}
@@ -1009,35 +1003,32 @@ export default function SitesPage() {
             <FormInput label="담당자명" value={assignForm.managerName} onChange={e => setAssignForm(f => ({ ...f, managerName: e.target.value }))} placeholder="홍길동" />
             <FormInput label="담당자 연락처" value={assignForm.managerPhone} onChange={e => setAssignForm(f => ({ ...f, managerPhone: e.target.value }))} placeholder="01012345678" />
             <FormInput label="메모" value={assignForm.notes} onChange={e => setAssignForm(f => ({ ...f, notes: e.target.value }))} />
-            {assignError && <p className="text-[#e53935] text-[13px] mb-3">{assignError}</p>}
+            {assignError && <Toast message={assignError} variant="error" />}
             <ModalFooter>
               <Btn variant="secondary" onClick={() => setAssignSite(null)}>취소</Btn>
               <Btn variant="orange" onClick={handleAssign} disabled={assignSaving || !assignForm.companyId || !assignForm.startDate}>
                 {assignSaving ? '저장 중...' : '저장'}
               </Btn>
             </ModalFooter>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
 
       {/* ── 근무시간 정책 모달 ──────────────────────────────────── */}
-      {policySite && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] overflow-y-auto py-6 px-6">
-          <div className="bg-white rounded-xl p-8 w-[480px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
-            <h3 className="text-[18px] font-bold mb-5">근무시간 정책 — {policySite.name}</h3>
-            <p className="text-xs text-[#6B7280] mb-4 leading-relaxed">
+      <Modal open={!!policySite} onClose={() => setPolicySite(null)} title={`근무시간 정책 — ${policySite?.name ?? ''}`}>
+        {policySite && (
+          <>
+            <p className="text-[12px] text-[#6B7280] mb-4 leading-relaxed">
               빈칸 = 회사 기본값 (출근 07:00 / 퇴근 17:00 / 휴게 60분).<br />
               <strong>휴게시간 차감(분)</strong>이 공수 계산에 직접 영향을 줍니다.
             </p>
-            {policyLoading ? <p className="text-[#718096] text-center">로딩 중...</p> : (
+            {policyLoading ? <p className="text-[#9CA3AF] text-center text-[13px]">로딩 중...</p> : (
               <>
                 {policyEffective && (
-                  <div className="bg-[#e8f5e9] rounded-md px-3 py-2 text-xs text-[#2e7d32] mb-4 flex items-center gap-2 flex-wrap">
-                    실효값: 출근 {policyEffective.workStartTime} / 퇴근 {policyEffective.workEndTime} / 휴게 {policyEffective.breakMinutes}분
-                    {!policyEffective.isCustom && (
-                      <span className="text-[10px] bg-[#c8e6c9] text-[#1b5e20] px-[6px] py-[1px] rounded-lg font-bold">회사 기본값</span>
-                    )}
-                  </div>
+                  <Toast
+                    message={`실효값: 출근 ${policyEffective.workStartTime} / 퇴근 ${policyEffective.workEndTime} / 휴게 ${policyEffective.breakMinutes}분${!policyEffective.isCustom ? ' (회사 기본값)' : ''}`}
+                    variant="success"
+                  />
                 )}
                 <FormGrid cols={2}>
                   <FormInput label="출근 기준" type="time" value={policyForm.workStartTime}
@@ -1053,16 +1044,16 @@ export default function SitesPage() {
                 </FormGrid>
                 <FormInput label="휴게시간 차감 (분)" type="number" value={policyForm.breakMinutes} placeholder="60"
                   onChange={e => setPolicyForm(f => ({ ...f, breakMinutes: e.target.value }))} />
-                {policyError && <p className="text-[#e53935] text-[13px] mb-3">{policyError}</p>}
+                {policyError && <Toast message={policyError} variant="error" />}
                 <ModalFooter>
                   <Btn variant="secondary" onClick={() => setPolicySite(null)}>취소</Btn>
                   <Btn variant="orange" onClick={handleSavePolicy} disabled={policySaving}>{policySaving ? '저장 중...' : '저장'}</Btn>
                 </ModalFooter>
               </>
             )}
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
 
       </div>
     </PageShell>
