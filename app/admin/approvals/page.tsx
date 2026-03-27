@@ -8,7 +8,7 @@ import {
   AdminTable, AdminTr, AdminTd, EmptyRow,
   StatusBadge, Btn,
   FormTextarea, ModalFooter,
-  Modal, Toast,
+  Modal, Toast, Tabs,
 } from '@/components/admin/ui'
 
 // ─── 탭 정의 ──────────────────────────────────────────────────────────────────
@@ -122,22 +122,11 @@ function ApprovalsContent() {
 
   return (
     <PageShell>
-      {/* 탭 바 — 기준 규격: text-13px, py-10px, border-b-2 */}
-      <div className="flex border-b border-[#E5E7EB] mb-0 flex-wrap gap-[2px] bg-white rounded-t-[12px] px-2 pt-1">
-        {TABS.map(t => (
-          <button
-            key={t.key}
-            className={`px-4 py-[10px] border-none border-b-2 bg-transparent cursor-pointer text-[13px] -mb-px transition-colors ${
-              activeTab === t.key
-                ? 'text-[#F97316] border-b-[#F97316] font-semibold border-solid'
-                : 'text-[#6B7280] border-transparent hover:text-[#374151]'
-            }`}
-            onClick={() => switchTab(t.key)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        tabs={TABS.map(t => ({ key: t.key, label: t.label }))}
+        active={activeTab}
+        onChange={switchTab}
+      />
 
       <ApprovalTab key={activeTab} tab={activeTab} />
     </PageShell>

@@ -8,6 +8,7 @@ import {
   AdminTable, AdminTr, AdminTd, EmptyRow,
   StatusBadge, Btn,
   FormInput, FormTextarea, ModalFooter,
+  FloatingToast,
 } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
@@ -605,9 +606,7 @@ function AttendancePageInner() {
 
       {/* ── 저장 토스트 ── */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 z-[100] px-5 py-3 rounded-[10px] shadow-xl text-[13px] font-semibold text-white transition-all ${toast.ok ? 'bg-[#16A34A]' : 'bg-[#DC2626]'}`}>
-          {toast.msg}
-        </div>
+        <FloatingToast message={toast.msg} ok={toast.ok} onDone={() => setToast(null)} />
       )}
 
       <PageHeader

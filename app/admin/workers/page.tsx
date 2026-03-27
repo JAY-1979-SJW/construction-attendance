@@ -10,7 +10,7 @@ import {
   StatusBadge, Btn, KpiCard,
   AdminTable, AdminTr, AdminTd, EmptyRow,
   FormInput, FormSelect, ModalFooter,
-  Modal, Toast,
+  Modal, Toast, FloatingToast,
 } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
@@ -423,11 +423,9 @@ export default function WorkersPage() {
         badge={<PageBadge>{sorted.length}명</PageBadge>}
       />
 
-      {/* ── 저장 토스트 (fixed position) ── */}
+      {/* ── 저장 토스트 ── */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 z-[100] px-5 py-3 rounded-[8px] shadow-xl text-[13px] font-semibold text-white transition-all ${toast.ok ? 'bg-[#059669]' : 'bg-[#B91C1C]'}`}>
-          {toast.msg}
-        </div>
+        <FloatingToast message={toast.msg} ok={toast.ok} onDone={() => setToast(null)} />
       )}
 
       {/* ── 필터 바 ── */}
