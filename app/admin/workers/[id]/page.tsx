@@ -2261,7 +2261,7 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
     if (!reviewModal) return
     setSaving(true)
     try {
-      const res = await fetch(`/api/admin/workers/${workerId}/documents/${reviewModal.docType}/review`, {
+      const res = await fetch(`/api/admin/workers/${workerId}/onboarding-docs/${reviewModal.docType}/review`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: reviewModal.action, reason: reason.trim() || undefined }),
