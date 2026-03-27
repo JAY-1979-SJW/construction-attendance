@@ -1,6 +1,6 @@
 /**
  * POST /api/admin/contracts/[id]/sign
- * 계약서 서명 처리: signedAt, signedBy 기록 + 상태 SIGNED로 변경 + 버전 스냅샷 생성
+ * 계약서 서명 처리: signedAt, signedBy 기록 + 상태 REVIEW_REQUESTED로 변경 (검토 대기)
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
@@ -20,8 +20,10 @@ export async function POST(
   })
   if (!contract) return NextResponse.json({ error: '계약 없음' }, { status: 404 })
   if (contract.siteId && !await canAccessSite(session, contract.siteId)) return siteAccessDenied()
-  if (contract.signedAt) {
-    return NextResponse.json({ error: '이미 서명된 계약서입니다' }, { status: 409 })
+
+  // DRAFT 또는 REJECTED 상태에서만 서명 가능
+  if (contract.contractStatus !== 'DRAFT' && contract.contractStatus !== 'REJECTED') {
+    return NextResponse.json({ error: '서명 가능한 상태가 아닙니다 (DRAFT 또는 REJECTED만 가능)' }, { status: 409 })
   }
 
   const body = await req.json().catch(() => ({}))
@@ -29,26 +31,22 @@ export async function POST(
 
   const now = new Date()
 
-  const updated = await prisma.$transaction(async (tx) => {
-    const result = await tx.workerContract.update({
+  await prisma.$transaction(async (tx) => {
+    await tx.workerContract.update({
       where: { id: params.id },
       data: {
         signedAt: now,
         signedBy: signedBy || contract.worker.name,
-        contractStatus: 'ACTIVE',
-        isActive: true,
+        contractStatus: 'REVIEW_REQUESTED',
       },
     })
 
-    // 버전 스냅샷 업데이트 (현재 버전에 signedDocId 기록)
     if (signedDocId) {
       await tx.contractVersion.updateMany({
         where: { contractId: params.id, versionNo: contract.currentVersion },
         data: { signedDocId },
       })
     }
-
-    return result
   })
 
   await writeAdminAuditLog({
@@ -56,8 +54,8 @@ export async function POST(
     actionType: 'CONTRACT_SIGN',
     targetType: 'WorkerContract',
     targetId: params.id,
-    description: `계약서 서명 완료: ${contract.worker.name}`,
+    description: `계약서 서명 → 검토 대기: ${contract.worker.name}`,
   })
 
-  return NextResponse.json({ success: true, data: { signedAt: now } })
+  return NextResponse.json({ success: true, data: { signedAt: now, contractStatus: 'REVIEW_REQUESTED' } })
 }

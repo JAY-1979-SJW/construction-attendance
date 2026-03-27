@@ -2600,10 +2600,12 @@ enum ContractTemplateType {
 }
 
 enum ContractStatus {
-  DRAFT   // 초안
-  SIGNED  // 서명 완료
-  ACTIVE  // 활성 (이행 중)
-  ENDED   // 종료
+  DRAFT              // 초안
+  SIGNED             // 서명 완료 (레거시 — 신규: REVIEW_REQUESTED 사용)
+  REVIEW_REQUESTED   // 서명 완료 → 검토 대기
+  ACTIVE             // 승인 (이행 중)
+  REJECTED           // 반려
+  ENDED              // 종료
 }
 
 enum GeneratedDocumentType {

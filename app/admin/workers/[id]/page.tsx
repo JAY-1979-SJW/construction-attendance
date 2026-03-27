@@ -1353,7 +1353,7 @@ function ContractsTab({ workerId, onDocChange }: { workerId: string; onDocChange
   }, [workerId])
 
   const CONTRACT_STATUS_LABEL: Record<string, string> = {
-    DRAFT: '작성됨 (승인대기)', SIGNED: '서명완료 (검토대기)', ACTIVE: '승인 (이행중)', ENDED: '종료', CANCELLED: '취소',
+    DRAFT: '초안', SIGNED: '검토 대기', REVIEW_REQUESTED: '검토 대기', ACTIVE: '승인 (이행중)', REJECTED: '반려', ENDED: '종료', CANCELLED: '취소',
   }
   const CONTRACT_TYPE_LABEL: Record<string, string> = {
     DAILY: '일용직', REGULAR: '상용직', FIXED_TERM: '기간제', SUBCONTRACT: '외주',
@@ -1405,7 +1405,9 @@ function ContractsTab({ workerId, onDocChange }: { workerId: string; onDocChange
                 <td className="px-3 py-2 text-center">
                   <span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${
                     c.contractStatus === 'ACTIVE' ? 'bg-[#dcfce7] text-[#166534]'
-                    : c.contractStatus === 'DRAFT' ? 'bg-[#fef9c3] text-[#854d0e]'
+                    : c.contractStatus === 'REJECTED' ? 'bg-[#fef2f2] text-[#dc2626]'
+                    : c.contractStatus === 'REVIEW_REQUESTED' || c.contractStatus === 'SIGNED' ? 'bg-[#fef9c3] text-[#854d0e]'
+                    : c.contractStatus === 'DRAFT' ? 'bg-[#f3f4f6] text-[#6b7280]'
                     : 'bg-[#f3f4f6] text-[#6b7280]'
                   }`}>
                     {CONTRACT_STATUS_LABEL[c.contractStatus] || c.contractStatus}

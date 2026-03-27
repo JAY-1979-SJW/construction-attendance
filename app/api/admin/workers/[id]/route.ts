@@ -101,11 +101,13 @@ export async function GET(
     }
 
     // 근로계약서: ContractStatus → 서류 승인 상태 매핑
-    // ACTIVE/ENDED = APPROVED, SIGNED = REVIEW_REQUESTED, DRAFT = SUBMITTED, 없음 = NOT_SUBMITTED
+    // ACTIVE/ENDED = APPROVED, REVIEW_REQUESTED/SIGNED = REVIEW_REQUESTED,
+    // REJECTED = REJECTED, DRAFT = SUBMITTED, 없음 = NOT_SUBMITTED
     function contractDocStatus(): DocStatus {
       const cts = worker.contracts
       if (cts.some(c => c.contractStatus === 'ACTIVE' || c.contractStatus === 'ENDED')) return 'APPROVED'
-      if (cts.some(c => c.contractStatus === 'SIGNED')) return 'REVIEW_REQUESTED'
+      if (cts.some(c => c.contractStatus === 'REJECTED')) return 'REJECTED'
+      if (cts.some(c => c.contractStatus === 'REVIEW_REQUESTED' || c.contractStatus === 'SIGNED')) return 'REVIEW_REQUESTED'
       if (cts.some(c => c.contractStatus === 'DRAFT')) return 'SUBMITTED'
       // workerDocuments 또는 safetyDocuments에 계약 관련 문서 존재 확인
       if (worker.workerDocuments.some(d => d.documentType === 'CONTRACT' && d.status === 'APPROVED')) return 'APPROVED'

@@ -84,13 +84,15 @@ const TEMPLATE_LABEL: Record<string, string> = {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  DRAFT: '초안', SIGNED: '서명완료', ACTIVE: '활성', ENDED: '종료',
+  DRAFT: '초안', SIGNED: '검토 대기', REVIEW_REQUESTED: '검토 대기', ACTIVE: '승인 (이행중)', REJECTED: '반려', ENDED: '종료',
 }
 const STATUS_COLOR: Record<string, string> = {
   DRAFT:  'bg-[rgba(255,255,255,0.04)] text-[#CBD5E0]',
-  SIGNED: 'bg-blue-100 text-blue-700',
+  SIGNED: 'bg-yellow-100 text-yellow-700',
+  REVIEW_REQUESTED: 'bg-yellow-100 text-yellow-700',
   ACTIVE: 'bg-green-100 text-green-700',
-  ENDED:  'bg-red-100 text-red-600',
+  REJECTED: 'bg-red-100 text-red-600',
+  ENDED:  'bg-[rgba(255,255,255,0.04)] text-[#718096]',
 }
 const DOC_STATUS_COLOR: Record<string, string> = {
   DRAFT:  'bg-[rgba(255,255,255,0.04)] text-[#718096]',
@@ -117,6 +119,10 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
   const [deliverMethod, setDeliverMethod] = useState<'EMAIL' | 'KAKAO' | 'PAPER' | 'APP'>('APP')
   const [processing, setProcessing] = useState(false)
   const [dangerWarnings, setDangerWarnings] = useState<string[]>([])
+  // 승인/반려 모달
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [reviewAction, setReviewAction] = useState<'APPROVE' | 'REJECT'>('APPROVE')
+  const [rejectReason, setRejectReason] = useState('')
 
   async function load() {
     const [res1, res2] = await Promise.all([
@@ -183,6 +189,20 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
     else setError(json.error || '서명 처리 실패')
   }
 
+  async function handleReview() {
+    if (reviewAction === 'REJECT' && !rejectReason.trim()) { alert('반려 사유를 입력하세요'); return }
+    setProcessing(true)
+    const res = await fetch(`/api/admin/contracts/${params.id}/review`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: reviewAction, rejectReason: reviewAction === 'REJECT' ? rejectReason : undefined }),
+    })
+    const json = await res.json()
+    setProcessing(false)
+    if (json.success) { setShowReviewModal(false); setRejectReason(''); load() }
+    else setError(json.message || '검토 처리 실패')
+  }
+
   async function handleDeliver() {
     setProcessing(true)
     const res  = await fetch(`/api/admin/contracts/${params.id}/deliver`, {
@@ -241,12 +261,29 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             계약서 생성
           </button>
 
-          {!contract.signedAt && (
+          {/* 서명 처리: DRAFT 또는 REJECTED 상태에서만 */}
+          {(contract.contractStatus === 'DRAFT' || contract.contractStatus === 'REJECTED') && (
             <button onClick={() => { setSignerName(contract.worker.name); setShowSignModal(true) }}
               className="px-3 py-1.5 text-xs bg-violet-100 text-violet-700 rounded hover:bg-violet-200">
-              서명처리
+              서명 → 검토요청
             </button>
           )}
+
+          {/* 승인/반려: REVIEW_REQUESTED 또는 레거시 SIGNED 상태에서 */}
+          {(contract.contractStatus === 'REVIEW_REQUESTED' || contract.contractStatus === 'SIGNED') && (
+            <>
+              <button onClick={() => { setReviewAction('APPROVE'); setShowReviewModal(true) }}
+                className="px-3 py-1.5 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200">
+                승인
+              </button>
+              <button onClick={() => { setReviewAction('REJECT'); setShowReviewModal(true) }}
+                className="px-3 py-1.5 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">
+                반려
+              </button>
+            </>
+          )}
+
+          {/* 교부: 서명 후 + 아직 교부 안 됨 */}
           {contract.signedAt && !contract.deliveredAt && (
             <button onClick={() => setShowDeliverModal(true)}
               className="px-3 py-1.5 text-xs bg-amber-100 text-amber-700 rounded hover:bg-amber-200">
@@ -260,12 +297,6 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             <span className="text-xs text-blue-600">✓ 교부 {new Date(contract.deliveredAt).toLocaleDateString('ko-KR')} ({contract.deliveredMethod})</span>
           )}
 
-          {(contract.contractStatus === 'DRAFT' || contract.contractStatus === 'SIGNED') && (
-            <button onClick={activateContract}
-              className="px-3 py-1.5 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200">
-              활성화
-            </button>
-          )}
           {contract.contractStatus === 'ACTIVE' && (
             <button onClick={endContract}
               className="px-3 py-1.5 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">
@@ -605,7 +636,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       {/* 서명 모달 */}
       <Modal open={showSignModal} onClose={() => setShowSignModal(false)} title="계약서 서명 처리">
             <p className="text-sm text-[#718096] mb-4">
-              서명 처리 시 계약 상태가 ACTIVE로 변경됩니다.
+              서명 처리 시 계약 상태가 검토 대기(REVIEW_REQUESTED)로 변경됩니다.
             </p>
             <FormInput
               label="서명자 이름"
@@ -639,6 +670,34 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
               <Btn variant="ghost" onClick={() => setShowDeliverModal(false)}>취소</Btn>
               <Btn variant="orange" onClick={handleDeliver} disabled={processing}>
                 {processing ? '처리 중...' : '교부 완료'}
+              </Btn>
+            </ModalFooter>
+      </Modal>
+
+      {/* 승인/반려 모달 */}
+      <Modal open={showReviewModal} onClose={() => setShowReviewModal(false)} title={reviewAction === 'APPROVE' ? '계약서 승인' : '계약서 반려'}>
+            <p className="text-sm text-[#718096] mb-4">
+              {reviewAction === 'APPROVE'
+                ? '승인 시 계약 상태가 ACTIVE(이행중)로 변경됩니다.'
+                : '반려 시 근로자에게 알림이 발송됩니다.'}
+            </p>
+            {reviewAction === 'REJECT' && (
+              <FormInput
+                label="반려 사유 *"
+                type="text"
+                value={rejectReason}
+                onChange={e => setRejectReason(e.target.value)}
+                placeholder="반려 사유를 입력하세요"
+              />
+            )}
+            <ModalFooter>
+              <Btn variant="ghost" onClick={() => { setShowReviewModal(false); setRejectReason('') }}>취소</Btn>
+              <Btn
+                variant={reviewAction === 'APPROVE' ? 'success' : 'danger'}
+                onClick={handleReview}
+                disabled={processing || (reviewAction === 'REJECT' && !rejectReason.trim())}
+              >
+                {processing ? '처리 중...' : reviewAction === 'APPROVE' ? '승인' : '반려'}
               </Btn>
             </ModalFooter>
       </Modal>

@@ -58,7 +58,7 @@ const STATUS_LABELS: Record<string, { text: string; color: string }> = {
   REVIEW_REQUESTED: { text: '검토중', color: 'bg-yellow-100 text-yellow-700' },
   APPROVED: { text: '승인', color: 'bg-green-100 text-green-700' },
   REJECTED: { text: '보완 필요', color: 'bg-red-100 text-red-700' },
-  ACTIVE: { text: '진행중', color: 'bg-blue-100 text-blue-700' },
+  ACTIVE: { text: '승인 (이행중)', color: 'bg-green-100 text-green-700' },
   ENDED: { text: '종료', color: 'bg-gray-100 text-gray-700' },
 }
 
