@@ -257,6 +257,9 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: 1px solid #E5E7EB;
   white-space: nowrap;
   background: #F3F4F6;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 /* 관리자 테이블 td 공통 */

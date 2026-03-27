@@ -15,7 +15,7 @@ export default function WorkerTopBar() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 safe-top">
       {/* 상단 3px 오렌지 라인 */}
-      <div className="h-[3px] w-full bg-[#F47920]" />
+      <div className="h-[3px] w-full bg-[#F97316]" />
       {/* 로고 바 */}
       <div className="h-[53px] bg-white border-b border-[#E5E7EB] flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
         <Image

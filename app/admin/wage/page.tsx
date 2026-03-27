@@ -231,7 +231,7 @@ export default function WagePage() {
           ].map((c) => (
             <div
               key={c.label}
-              className="bg-card rounded-[10px] px-5 py-4 min-w-[140px] shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
+              className="bg-card rounded-[12px] p-5 min-w-[140px] shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
               style={{ borderTop: `4px solid ${c.color}` }}
             >
               <div className="text-[22px] font-bold" style={{ color: c.color }}>{c.value}</div>

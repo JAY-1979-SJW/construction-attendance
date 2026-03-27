@@ -10,14 +10,14 @@ export function AdminTable({
 }) {
   return (
     <div className={`bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden ${className ?? ''}`}>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[calc(100vh-220px)] overflow-y-auto">
         <table className="w-full border-collapse">
-          <thead>
+          <thead className="sticky top-0 z-10">
             <tr className="bg-[#F3F4F6]">
               {headers.map((h, i) => (
                 <th
                   key={i}
-                  className="text-left px-3 py-[10px] text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB] whitespace-nowrap"
+                  className="text-left px-3 py-[10px] text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB] whitespace-nowrap bg-[#F3F4F6]"
                 >
                   {h}
                 </th>
