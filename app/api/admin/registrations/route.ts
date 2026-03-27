@@ -47,6 +47,13 @@ export async function GET(request: NextRequest) {
           siteJoinRequests: {
             select: { siteId: true, status: true },
           },
+          _count: {
+            select: {
+              safetyDocuments: true,
+              contracts: true,
+              consents: true,
+            },
+          },
         },
       }),
       prisma.worker.count({

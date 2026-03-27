@@ -1,6 +1,25 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { PageShell, PageHeader, SectionCard, FilterBar, FilterInput, AdminTable, AdminTr, AdminTd, StatusBadge, Btn, FormTextarea, ModalFooter } from '@/components/admin/ui'
+
+/** 서류 항목 정의 */
+const DOCUMENTS = [
+  { key: 'privacyConsent', name: '개인정보 동의서', auto: true },
+  { key: 'laborContract', name: '근로계약서', auto: false },
+  { key: 'safetyTraining', name: '안전교육 확인서', auto: false },
+  { key: 'healthPledge', name: '건강 각서', auto: false },
+  { key: 'healthCert', name: '건강 증명서', auto: false },
+] as const
+
+/** 서류 제출 현황 계산 (API _count 기반) */
+function getDocStatus(r: Registration) {
+  let done = 0
+  if (r._count.consents > 0) done++       // 개인정보 동의
+  if (r._count.contracts > 0) done++       // 근로계약서
+  if (r._count.safetyDocuments > 0) done++ // 안전서류 (건강 포함)
+  return { done, total: DOCUMENTS.length }
+}
 
 interface Registration {
   id: string
@@ -16,6 +35,7 @@ interface Registration {
   createdAt: string
   devices: { deviceName: string; approvedAt: string | null }[]
   siteJoinRequests: { siteId: string; status: string }[]
+  _count: { safetyDocuments: number; contracts: number; consents: number }
 }
 
 interface Counts { PENDING: number; APPROVED: number; REJECTED: number; SUSPENDED: number }
@@ -98,8 +118,8 @@ export default function RegistrationsPage() {
   const fmtDate = (iso: string) => new Date(iso).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
 
   return (
-    <div className="p-8">
-      <h1 className="text-[20px] font-bold mb-5">회원가입 관리</h1>
+    <PageShell>
+      <PageHeader title="회원가입 승인" description="신규 가입 요청을 확인하고 승인합니다" />
 
       {/* ── 요약 카드 ── */}
       <div className="grid grid-cols-4 gap-3 mb-5">
@@ -115,13 +135,14 @@ export default function RegistrationsPage() {
       </div>
 
       {/* ── 검색 ── */}
-      <div className="mb-4">
-        <input
-          className="w-full max-w-[360px] px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-card text-white outline-none placeholder:text-muted-brand"
+      <FilterBar>
+        <FilterInput
           placeholder="이름, 이메일, 전화번호 검색"
-          value={search} onChange={e => setSearch(e.target.value)}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full max-w-[360px]"
         />
-      </div>
+      </FilterBar>
 
       {msg && (
         <div className="bg-[rgba(22,163,74,0.1)] border border-[rgba(22,163,74,0.3)] rounded-lg px-4 py-[10px] mb-4 text-[#16a34a] text-[13px]">
@@ -134,17 +155,16 @@ export default function RegistrationsPage() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
           <div className="bg-card rounded-xl p-7 w-[360px] shadow-[0_8px_32px_rgba(0,0,0,0.15)]">
             <h3 className="m-0 mb-4 text-base font-bold">반려 사유</h3>
-            <textarea
-              className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-sm mb-4 box-border resize-y bg-card text-white"
+            <FormTextarea
               value={rejectReason} onChange={e => setRejectReason(e.target.value)}
               placeholder="반려 사유를 입력하세요." rows={3}
             />
-            <div className="flex gap-2 justify-end">
-              <button className="px-4 py-2 bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-lg text-sm cursor-pointer" onClick={() => { setRejectId(null); setRejectReason('') }}>취소</button>
-              <button className="px-4 py-2 bg-[#dc2626] text-white border-none rounded-lg text-sm cursor-pointer font-bold disabled:opacity-50" onClick={() => reject(rejectId)} disabled={processing === rejectId}>
+            <ModalFooter>
+              <Btn variant="ghost" onClick={() => { setRejectId(null); setRejectReason('') }}>취소</Btn>
+              <Btn variant="danger" onClick={() => reject(rejectId)} disabled={processing === rejectId}>
                 {processing === rejectId ? '처리 중...' : '반려'}
-              </button>
-            </div>
+              </Btn>
+            </ModalFooter>
           </div>
         </div>
       )}
@@ -153,87 +173,101 @@ export default function RegistrationsPage() {
         {/* ── 목록 ── */}
         <div className="flex-1 min-w-0">
           {loading ? (
-            <div className="text-center py-16 text-muted-brand">로딩 중...</div>
+            <div className="text-center py-16 text-[#9CA3AF]">로딩 중...</div>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-16 text-muted-brand">{search ? '검색 결과가 없습니다.' : `${STATUS_LABEL[filter]} 상태의 신청이 없습니다.`}</div>
+            <div className="text-center py-16 text-[#9CA3AF]">{search ? '검색 결과가 없습니다.' : `${STATUS_LABEL[filter]} 상태의 신청이 없습니다.`}</div>
           ) : (
-            <div className="bg-card rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr>
-                    {['이름', '이메일', '직종', '가입일시', '상태', ''].map(h => (
-                      <th key={h} className="px-[14px] py-[10px] text-left text-[12px] font-bold text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map(r => (
-                    <tr key={r.id} onClick={() => setSelected(r)} className={`cursor-pointer transition-colors ${selected?.id === r.id ? 'bg-[rgba(249,115,22,0.06)]' : 'hover:bg-[rgba(91,164,217,0.04)]'}`}>
-                      <td className="px-[14px] py-3">
-                        <div className="font-semibold text-[13px]">{r.name}</div>
-                        {r.phone && <div className="text-[11px] text-muted-brand">{r.phone}</div>}
-                      </td>
-                      <td className="px-[14px] py-3 text-[13px]">{r.email ?? <span className="text-muted-brand">-</span>}</td>
-                      <td className="px-[14px] py-3 text-[13px]">{r.jobTitle}</td>
-                      <td className="px-[14px] py-3 text-[12px] text-muted-brand whitespace-nowrap">{fmtDate(r.createdAt)}</td>
-                      <td className="px-[14px] py-3">
-                        <span className="inline-block text-white text-[11px] font-bold px-[8px] py-[2px] rounded-xl" style={{ background: STATUS_COLOR[r.accountStatus] }}>
-                          {STATUS_LABEL[r.accountStatus]}
-                        </span>
-                      </td>
-                      <td className="px-[14px] py-3" onClick={e => e.stopPropagation()}>
-                        {r.accountStatus === 'PENDING' && (
-                          <div className="flex gap-[6px]">
-                            <button className="px-3 py-[5px] bg-[#16a34a] text-white border-none rounded-md text-[11px] cursor-pointer font-semibold disabled:opacity-50" onClick={() => approve(r.id)} disabled={processing === r.id}>승인</button>
-                            <button className="px-3 py-[5px] bg-[#dc2626] text-white border-none rounded-md text-[11px] cursor-pointer font-semibold" onClick={() => { setRejectId(r.id); setRejectReason('') }}>반려</button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <AdminTable headers={['이름', '이메일', '직종', '서류', '가입일시', '상태', '']}>
+              {filtered.map(r => {
+                const doc = getDocStatus(r)
+                return (
+                <AdminTr key={r.id} onClick={() => setSelected(r)} highlighted={selected?.id === r.id}>
+                  <AdminTd>
+                    <div className="font-semibold text-[13px] text-[#111827]">{r.name}</div>
+                    {r.phone && <div className="text-[11px] text-[#9CA3AF]">{r.phone}</div>}
+                  </AdminTd>
+                  <AdminTd>{r.email ?? <span className="text-[#9CA3AF]">-</span>}</AdminTd>
+                  <AdminTd>{r.jobTitle}</AdminTd>
+                  <AdminTd>
+                    <div className="flex items-center gap-1 text-[12px]">
+                      <span style={{ color: doc.done === doc.total ? '#16a34a' : '#F97316' }}>
+                        {doc.done === doc.total ? '●' : '○'}
+                      </span>
+                      <span className="text-[#6B7280]">{doc.done}/{doc.total}</span>
+                    </div>
+                  </AdminTd>
+                  <AdminTd className="text-[12px] text-[#9CA3AF]">{fmtDate(r.createdAt)}</AdminTd>
+                  <AdminTd>
+                    <StatusBadge status={r.accountStatus} label={STATUS_LABEL[r.accountStatus]} />
+                  </AdminTd>
+                  <AdminTd>
+                    {r.accountStatus === 'PENDING' && (
+                      <div className="flex gap-[6px]" onClick={e => e.stopPropagation()}>
+                        <Btn variant="success" size="xs" onClick={() => approve(r.id)} disabled={processing === r.id}>승인</Btn>
+                        <Btn variant="danger" size="xs" onClick={() => { setRejectId(r.id); setRejectReason('') }}>반려</Btn>
+                      </div>
+                    )}
+                  </AdminTd>
+                </AdminTr>
+                )
+              })}
+            </AdminTable>
           )}
         </div>
 
         {/* ── 상세 패널 ── */}
         {selected && (
           <div className="w-[280px] shrink-0">
-            <div className="bg-card rounded-xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.3)] sticky top-[80px]">
+            <SectionCard className="sticky top-[80px]">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-[15px] font-bold m-0">{selected.name}</h3>
-                <button onClick={() => setSelected(null)} className="bg-transparent border-0 text-muted-brand text-[18px] cursor-pointer leading-none">×</button>
+                <h3 className="text-[15px] font-bold text-[#111827] m-0">{selected.name}</h3>
+                <button onClick={() => setSelected(null)} className="bg-transparent border-0 text-[#9CA3AF] text-[18px] cursor-pointer leading-none hover:text-[#6B7280]">×</button>
               </div>
               <div className="space-y-3 text-[13px]">
-                <div><span className="text-muted-brand">이메일</span><div className="mt-[2px]">{selected.email ?? '-'}</div></div>
-                <div><span className="text-muted-brand">전화번호</span><div className="mt-[2px]">{selected.phone ?? '-'}</div></div>
-                <div><span className="text-muted-brand">직종</span><div className="mt-[2px]">{selected.jobTitle}</div></div>
-                <div><span className="text-muted-brand">가입일시</span><div className="mt-[2px]">{new Date(selected.createdAt).toLocaleString('ko-KR')}</div></div>
-                <div><span className="text-muted-brand">상태</span><div className="mt-[2px]"><span className="text-white text-[11px] font-bold px-[8px] py-[2px] rounded-xl inline-block" style={{ background: STATUS_COLOR[selected.accountStatus] }}>{STATUS_LABEL[selected.accountStatus]}</span></div></div>
+                <div><span className="text-[#9CA3AF]">이메일</span><div className="mt-[2px] text-[#374151]">{selected.email ?? '-'}</div></div>
+                <div><span className="text-[#9CA3AF]">전화번호</span><div className="mt-[2px] text-[#374151]">{selected.phone ?? '-'}</div></div>
+                <div><span className="text-[#9CA3AF]">직종</span><div className="mt-[2px] text-[#374151]">{selected.jobTitle}</div></div>
+                <div><span className="text-[#9CA3AF]">가입일시</span><div className="mt-[2px] text-[#374151]">{new Date(selected.createdAt).toLocaleString('ko-KR')}</div></div>
+                <div><span className="text-[#9CA3AF]">상태</span><div className="mt-[2px]"><StatusBadge status={selected.accountStatus} label={STATUS_LABEL[selected.accountStatus]} /></div></div>
                 {selected.reviewedAt && (
-                  <div><span className="text-muted-brand">검토일시</span><div className="mt-[2px]">{new Date(selected.reviewedAt).toLocaleString('ko-KR')}</div></div>
+                  <div><span className="text-[#9CA3AF]">검토일시</span><div className="mt-[2px] text-[#374151]">{new Date(selected.reviewedAt).toLocaleString('ko-KR')}</div></div>
                 )}
                 {selected.rejectReason && (
-                  <div><span className="text-muted-brand">반려 사유</span><div className="mt-[2px] text-[#dc2626]">{selected.rejectReason}</div></div>
+                  <div><span className="text-[#9CA3AF]">반려 사유</span><div className="mt-[2px] text-[#dc2626]">{selected.rejectReason}</div></div>
                 )}
                 {selected.devices.length > 0 && (
-                  <div><span className="text-muted-brand">기기</span><div className="mt-[2px]">{selected.devices[0].deviceName}</div></div>
+                  <div><span className="text-[#9CA3AF]">기기</span><div className="mt-[2px] text-[#374151]">{selected.devices[0].deviceName}</div></div>
                 )}
                 {selected.siteJoinRequests.length > 0 && (
-                  <div><span className="text-muted-brand">현장 참여</span><div className="mt-[2px]">{selected.siteJoinRequests.length}건</div></div>
+                  <div><span className="text-[#9CA3AF]">현장 참여</span><div className="mt-[2px] text-[#374151]">{selected.siteJoinRequests.length}건</div></div>
                 )}
+                {/* 서류 제출 현황 */}
+                <div>
+                  <span className="text-[#9CA3AF]">서류 현황</span>
+                  <div className="mt-2 space-y-[6px]">
+                    {DOCUMENTS.map((doc) => {
+                      const isDone = doc.key === 'privacyConsent' // 가입 시 동의 완료
+                      const isLater = doc.key === 'laborContract' || doc.key === 'safetyTraining'
+                      return (
+                        <div key={doc.key} className="flex items-center gap-2 text-[12px]">
+                          <span>{isDone ? '✅' : isLater ? '⏳' : '⬜'}</span>
+                          <span className={isDone ? 'text-[#16a34a]' : isLater ? 'text-[#9CA3AF]' : 'text-[#374151]'}>{doc.name}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
               {selected.accountStatus === 'PENDING' && (
                 <div className="flex gap-2 mt-5">
-                  <button className="flex-1 py-[7px] bg-[#16a34a] text-white border-none rounded-lg text-[13px] font-bold cursor-pointer disabled:opacity-50" onClick={() => approve(selected.id)} disabled={processing === selected.id}>승인</button>
-                  <button className="flex-1 py-[7px] bg-[#dc2626] text-white border-none rounded-lg text-[13px] font-bold cursor-pointer" onClick={() => { setRejectId(selected.id); setRejectReason('') }}>반려</button>
+                  <Btn variant="success" size="sm" className="flex-1" onClick={() => approve(selected.id)} disabled={processing === selected.id}>승인</Btn>
+                  <Btn variant="danger" size="sm" className="flex-1" onClick={() => { setRejectId(selected.id); setRejectReason('') }}>반려</Btn>
                 </div>
               )}
-            </div>
+            </SectionCard>
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   )
 }
