@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
 import {
-  PageShell, SectionCard,
+  PageShell, SectionCard, PageHeader, PageBadge,
   FilterInput, FilterSelect, FilterPill,
-  StatusBadge, Btn,
+  StatusBadge, Btn, KpiCard,
+  AdminTable, AdminTr, AdminTd, EmptyRow,
+  FormInput, FormSelect, ModalFooter,
 } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
@@ -163,9 +165,6 @@ function RegisterModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
     onSaved()
   }
 
-  const inp = 'h-9 w-full px-3 text-[13px] border border-[#E5E7EB] rounded-[8px] outline-none focus:border-[#F97316] bg-white'
-  const lbl = 'text-[12px] font-semibold text-[#6B7280] mb-1 block'
-
   return (
     <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-[12px] w-full max-w-[440px] shadow-2xl overflow-hidden">
@@ -177,29 +176,19 @@ function RegisterModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
           </button>
         </div>
         <div className="px-6 py-5 flex flex-col gap-3">
-          <div><label className={lbl}>이름 *</label>
-            <input className={inp} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="홍길동" />
-          </div>
-          <div><label className={lbl}>연락처 * (010으로 시작 11자리)</label>
-            <input className={inp} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="01012345678" />
-          </div>
-          <div><label className={lbl}>직종 *</label>
-            <input className={inp} value={form.jobTitle} onChange={e => setForm(f => ({ ...f, jobTitle: e.target.value }))} placeholder="철근공" />
-          </div>
-          <div><label className={lbl}>고용 형태</label>
-            <select className={inp} value={form.employmentType} onChange={e => setForm(f => ({ ...f, employmentType: e.target.value }))}>
-              {Object.entries(EMP_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
-          </div>
+          <FormInput label="이름" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="홍길동" className="!mb-0" />
+          <FormInput label="연락처" required helper="010으로 시작 11자리" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="01012345678" className="!mb-0" />
+          <FormInput label="직종" required value={form.jobTitle} onChange={e => setForm(f => ({ ...f, jobTitle: e.target.value }))} placeholder="철근공" className="!mb-0" />
+          <FormSelect label="고용 형태" value={form.employmentType} onChange={e => setForm(f => ({ ...f, employmentType: e.target.value }))}
+            options={Object.entries(EMP_LABELS).map(([v, l]) => ({ value: v, label: l }))} className="!mb-0" />
           {error && <div className="text-[12px] text-[#DC2626] bg-[#FEF2F2] px-3 py-2 rounded-[6px]">{error}</div>}
         </div>
-        <div className="px-6 pb-5 flex gap-2">
-          <button onClick={handleSave} disabled={saving || !form.name || !form.phone || !form.jobTitle}
-            className="flex-1 py-2.5 bg-[#F97316] hover:bg-[#EA580C] disabled:opacity-50 text-white text-[13px] font-semibold rounded-[8px] border-none cursor-pointer transition-colors">
+        <ModalFooter className="px-6 pb-5 mt-0 pt-0">
+          <Btn variant="orange" size="md" onClick={handleSave} disabled={saving || !form.name || !form.phone || !form.jobTitle}>
             {saving ? '등록 중...' : '등록'}
-          </button>
-          <button onClick={onClose} className="px-5 py-2.5 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#6B7280] hover:bg-[#F9FAFB] cursor-pointer bg-white transition-colors">취소</button>
-        </div>
+          </Btn>
+          <Btn variant="secondary" size="md" onClick={onClose}>취소</Btn>
+        </ModalFooter>
       </div>
     </div>
   )
@@ -436,6 +425,12 @@ export default function WorkersPage() {
   return (
     <PageShell className="flex flex-col gap-4">
 
+      <PageHeader
+        title="근로자관리"
+        description="등록된 근로자 목록을 관리합니다"
+        badge={<PageBadge>{sorted.length}명</PageBadge>}
+      />
+
       {/* ── 저장 토스트 ── */}
       {toast && (
         <div className={`fixed bottom-6 right-6 z-[100] px-5 py-3 rounded-[10px] shadow-xl text-[13px] font-semibold text-white transition-all ${toast.ok ? 'bg-[#16A34A]' : 'bg-[#DC2626]'}`}>
@@ -446,7 +441,6 @@ export default function WorkersPage() {
       {/* ── 필터 바 ── */}
       <SectionCard padding={false}>
         <div className="px-5 pt-4 pb-3 flex items-center gap-3 flex-wrap border-b border-[#F3F4F6]">
-          <h1 className="text-[16px] font-bold text-[#0F172A] mr-1 shrink-0">근로자관리</h1>
           <FilterInput
             type="text"
             placeholder="이름/연락처 검색"
@@ -455,15 +449,11 @@ export default function WorkersPage() {
             className="w-[140px]"
           />
           {/* 현장 필터 */}
-          <select
-            value={siteFilter}
-            onChange={e => setSiteFilter(e.target.value)}
-            className="h-9 px-3 text-[13px] rounded-[8px] border border-[#E5E7EB] bg-white text-[#374151] outline-none focus:border-[#F97316]"
-          >
+          <FilterSelect value={siteFilter} onChange={e => setSiteFilter(e.target.value)}>
             <option value="">전체 현장</option>
             <option value="__unassigned__">미배치</option>
             {siteOptions.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
+          </FilterSelect>
           <FilterSelect value={sortKey} onChange={e => setSortKey(e.target.value)}>
             <option value="needsAction">확인필요 우선</option>
             <option value="ineligible">투입불가 우선</option>
@@ -508,21 +498,14 @@ export default function WorkersPage() {
       </SectionCard>
 
       {/* ── 요약 KPI 7개 ── */}
-      <div className="grid grid-cols-7 gap-3">
-        {[
-          { label: '전체',          value: statsAll.length,         color: '#0F172A' },
-          { label: '재직중',         value: statsActive.length,      color: '#16A34A' },
-          { label: '투입가능',       value: statsEligible.length,    color: '#2563EB' },
-          { label: '투입불가',       value: statsIneligible.length,  color: statsIneligible.length > 0 ? '#DC2626' : '#6B7280' },
-          { label: '계약서 미교부',  value: statsNoContract.length,  color: statsNoContract.length > 0 ? '#D97706' : '#6B7280' },
-          { label: '교육 미이수',    value: statsNoEdu.length,       color: statsNoEdu.length > 0 ? '#D97706' : '#6B7280' },
-          { label: '교육증 미등록',  value: statsNoCert.length,      color: statsNoCert.length > 0 ? '#D97706' : '#6B7280' },
-        ].map(kpi => (
-          <div key={kpi.label} className="bg-white border border-[#E5E7EB] rounded-[10px] px-4 py-3">
-            <div className="text-[11px] font-semibold text-[#6B7280] mb-1">{kpi.label}</div>
-            <div className="text-[22px] font-bold tabular-nums leading-none" style={{ color: kpi.color }}>{kpi.value}</div>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <KpiCard label="전체"          value={statsAll.length}         unit="명" accentColor="#0F172A" />
+        <KpiCard label="재직중"         value={statsActive.length}      unit="명" accentColor="#16A34A" />
+        <KpiCard label="투입가능"       value={statsEligible.length}    unit="명" accentColor="#2563EB" />
+        <KpiCard label="투입불가"       value={statsIneligible.length}  unit="명" accentColor={statsIneligible.length > 0 ? '#DC2626' : '#6B7280'} />
+        <KpiCard label="계약서 미교부"  value={statsNoContract.length}  unit="명" accentColor={statsNoContract.length > 0 ? '#D97706' : '#6B7280'} />
+        <KpiCard label="교육 미이수"    value={statsNoEdu.length}       unit="명" accentColor={statsNoEdu.length > 0 ? '#D97706' : '#6B7280'} />
+        <KpiCard label="교육증 미등록"  value={statsNoCert.length}      unit="명" accentColor={statsNoCert.length > 0 ? '#D97706' : '#6B7280'} />
       </div>
 
       {/* ── 2-column 본문 ── */}
@@ -530,115 +513,102 @@ export default function WorkersPage() {
 
         {/* 근로자 목록 */}
         <div className={`flex-1 min-w-0 transition-all ${hasPanelOpen ? 'max-w-[calc(100%-444px)]' : ''}`}>
-          <SectionCard padding={false}>
+          <AdminTable headers={['이름', '직종', '주배정현장', '오늘출근', '상태', '투입가능', '근로계약서', '안전교육', '안전교육증', '일당', '월 누계', '확인상태']}>
             {loading ? (
-              <div className="py-12 text-center text-[13px] text-[#9CA3AF]">로딩 중...</div>
+              <EmptyRow colSpan={12} message="로딩 중..." />
             ) : sorted.length === 0 ? (
-              <div className="py-12 text-center text-[13px] text-[#9CA3AF]">조회된 근로자가 없습니다</div>
+              <EmptyRow colSpan={12} message="조회된 근로자가 없습니다" />
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-[13px]" style={{ minWidth: 840 }}>
-                  <thead>
-                    <tr className="border-b border-[#F3F4F6] bg-[#FAFAFA]">
-                      {['이름', '직종', '주배정현장', '오늘출근', '상태', '투입가능', '근로계약서', '안전교육', '안전교육증', '일당', '월 누계', '확인상태'].map(h => (
-                        <th key={h} className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sorted.map(w => {
-                      const elig = getEligibility(w)
-                      const cs = getConfirmStatus(w)
-                      const isSelected = w.id === selectedId
-                      const rowBg =
-                        isSelected ? 'bg-[#FFF7ED]' :
-                        elig === 'blocked' ? 'bg-[#FEF2F2] hover:bg-[#FEE2E2]' :
-                        (elig === 'docs_missing' || elig === 'edu_missing') ? 'bg-[#FFFBEB] hover:bg-[#FEF3C7]' :
-                        'hover:bg-[#F9FAFB]'
-                      return (
-                        <tr
-                          key={w.id}
-                          onClick={() => openDetail(w.id)}
-                          className={`border-b border-[#F9FAFB] cursor-pointer transition-colors ${rowBg}`}
-                          style={isSelected ? { borderLeft: '3px solid #F97316' } : {}}
-                        >
-                          {/* 이름 */}
-                          <td className="px-3 py-2.5">
-                            <div className="font-semibold text-[#111827] whitespace-nowrap">{w.name}</div>
-                            {w.foreignerYn && <div className="text-[10px] text-[#6B7280]">외국인</div>}
-                          </td>
-                          {/* 직종 */}
-                          <td className="px-3 py-2.5 text-[12px] text-[#6B7280] whitespace-nowrap">{w.jobTitle}</td>
-                          {/* 주배정 현장 */}
-                          <td className="px-3 py-2.5 max-w-[110px]">
-                            {(() => {
-                              const primary = w.activeSites.find(s => s.isPrimary)
-                              if (primary) return <div className="text-[12px] text-[#374151] truncate">{primary.name}{w.activeSites.length > 1 && <span className="text-[10px] text-[#9CA3AF] ml-1">+{w.activeSites.length - 1}</span>}</div>
-                              if (w.activeSites.length > 0) return <div className="text-[12px] text-[#374151] truncate">{w.activeSites[0].name}{w.activeSites.length > 1 && <span className="text-[10px] text-[#9CA3AF] ml-1">+{w.activeSites.length - 1}</span>}</div>
-                              return <span className="text-[11px] font-semibold text-[#D97706] bg-[#FEF3C7] px-[6px] py-[1px] rounded">미배정</span>
-                            })()}
-                          </td>
-                          {/* 오늘 출근 */}
-                          <td className="px-3 py-2.5">
-                            {w.todayAttendance ? (
-                              <div>
-                                <span className="text-[11px] font-semibold text-[#16A34A] bg-[#DCFCE7] px-[6px] py-[1px] rounded">출근</span>
-                                <div className="text-[10px] text-[#6B7280] mt-[2px] truncate max-w-[80px]">{w.todayAttendance.siteName}</div>
-                              </div>
-                            ) : w.activeSites.length === 0 ? (
-                              <span className="text-[11px] text-[#D1D5DB]">-</span>
-                            ) : (
-                              <span className="text-[11px] font-semibold text-[#9CA3AF] bg-[#F3F4F6] px-[6px] py-[1px] rounded">미출근</span>
-                            )}
-                          </td>
-                          {/* 상태 */}
-                          <td className="px-3 py-2.5">
-                            <StatusBadge status={w.isActive ? 'ACTIVE' : 'INACTIVE'} label={w.isActive ? '재직중' : '비활성'} />
-                          </td>
-                          {/* 투입가능 */}
-                          <td className="px-3 py-2.5">
-                            <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
-                              style={{ color: ELIGIBILITY_LABEL[elig].color, backgroundColor: ELIGIBILITY_LABEL[elig].bg }}>
-                              {ELIGIBILITY_LABEL[elig].label}
-                            </span>
-                          </td>
-                          {/* 근로계약서 */}
-                          <td className="px-3 py-2.5">
-                            <DocBadge has={w.hasContract} yesLabel="교부" noLabel="미교부" />
-                          </td>
-                          {/* 안전교육 */}
-                          <td className="px-3 py-2.5">
-                            <DocBadge has={w.hasSafetyEducation} yesLabel="이수" noLabel="미이수" />
-                          </td>
-                          {/* 안전교육증 */}
-                          <td className="px-3 py-2.5">
-                            <DocBadge has={w.hasSafetyCert} yesLabel="등록" noLabel="미등록" />
-                          </td>
-                          {/* 일당 */}
-                          <td className="px-3 py-2.5 text-right tabular-nums text-[12px] text-[#6B7280]">
-                            {w.dailyWage > 0 ? fmtWage(w.dailyWage) : '-'}
-                          </td>
-                          {/* 월 누계 */}
-                          <td className="px-3 py-2.5 text-right tabular-nums">
-                            {w.monthWage > 0
-                              ? <span className="font-semibold text-[#374151]">{fmtWage(w.monthWage)}</span>
-                              : <span className="text-[#D1D5DB]">-</span>}
-                          </td>
-                          {/* 확인상태 */}
-                          <td className="px-3 py-2.5">
-                            <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
-                              style={{ color: cs.color, backgroundColor: cs.bg }}>
-                              {cs.label}
-                            </span>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              sorted.map(w => {
+                const elig = getEligibility(w)
+                const cs = getConfirmStatus(w)
+                const isSelected = w.id === selectedId
+                const rowBg =
+                  isSelected ? 'bg-[#FFF7ED]' :
+                  elig === 'blocked' ? 'bg-[#FEF2F2] hover:bg-[#FEE2E2]' :
+                  (elig === 'docs_missing' || elig === 'edu_missing') ? 'bg-[#FFFBEB] hover:bg-[#FEF3C7]' :
+                  ''
+                return (
+                  <AdminTr
+                    key={w.id}
+                    onClick={() => openDetail(w.id)}
+                    highlighted={isSelected}
+                    className={rowBg}
+                  >
+                    {/* 이름 */}
+                    <AdminTd>
+                      <div className="font-semibold text-[#111827] whitespace-nowrap">{w.name}</div>
+                      {w.foreignerYn && <div className="text-[10px] text-[#6B7280]">외국인</div>}
+                    </AdminTd>
+                    {/* 직종 */}
+                    <AdminTd className="text-[12px] text-[#6B7280]">{w.jobTitle}</AdminTd>
+                    {/* 주배정 현장 */}
+                    <AdminTd className="max-w-[110px]">
+                      {(() => {
+                        const primary = w.activeSites.find(s => s.isPrimary)
+                        if (primary) return <div className="text-[12px] text-[#374151] truncate">{primary.name}{w.activeSites.length > 1 && <span className="text-[10px] text-[#9CA3AF] ml-1">+{w.activeSites.length - 1}</span>}</div>
+                        if (w.activeSites.length > 0) return <div className="text-[12px] text-[#374151] truncate">{w.activeSites[0].name}{w.activeSites.length > 1 && <span className="text-[10px] text-[#9CA3AF] ml-1">+{w.activeSites.length - 1}</span>}</div>
+                        return <StatusBadge status="PENDING" label="미배정" />
+                      })()}
+                    </AdminTd>
+                    {/* 오늘 출근 */}
+                    <AdminTd>
+                      {w.todayAttendance ? (
+                        <div>
+                          <StatusBadge status="WORKING" label="출근" />
+                          <div className="text-[10px] text-[#6B7280] mt-[2px] truncate max-w-[80px]">{w.todayAttendance.siteName}</div>
+                        </div>
+                      ) : w.activeSites.length === 0 ? (
+                        <span className="text-[11px] text-[#D1D5DB]">-</span>
+                      ) : (
+                        <StatusBadge status="INACTIVE" label="미출근" />
+                      )}
+                    </AdminTd>
+                    {/* 상태 */}
+                    <AdminTd>
+                      <StatusBadge status={w.isActive ? 'ACTIVE' : 'INACTIVE'} label={w.isActive ? '재직중' : '비활성'} />
+                    </AdminTd>
+                    {/* 투입가능 */}
+                    <AdminTd>
+                      <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
+                        style={{ color: ELIGIBILITY_LABEL[elig].color, backgroundColor: ELIGIBILITY_LABEL[elig].bg }}>
+                        {ELIGIBILITY_LABEL[elig].label}
+                      </span>
+                    </AdminTd>
+                    {/* 근로계약서 */}
+                    <AdminTd>
+                      <DocBadge has={w.hasContract} yesLabel="교부" noLabel="미교부" />
+                    </AdminTd>
+                    {/* 안전교육 */}
+                    <AdminTd>
+                      <DocBadge has={w.hasSafetyEducation} yesLabel="이수" noLabel="미이수" />
+                    </AdminTd>
+                    {/* 안전교육증 */}
+                    <AdminTd>
+                      <DocBadge has={w.hasSafetyCert} yesLabel="등록" noLabel="미등록" />
+                    </AdminTd>
+                    {/* 일당 */}
+                    <AdminTd className="text-right tabular-nums text-[12px] text-[#6B7280]">
+                      {w.dailyWage > 0 ? fmtWage(w.dailyWage) : '-'}
+                    </AdminTd>
+                    {/* 월 누계 */}
+                    <AdminTd className="text-right tabular-nums">
+                      {w.monthWage > 0
+                        ? <span className="font-semibold text-[#374151]">{fmtWage(w.monthWage)}</span>
+                        : <span className="text-[#D1D5DB]">-</span>}
+                    </AdminTd>
+                    {/* 확인상태 */}
+                    <AdminTd>
+                      <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
+                        style={{ color: cs.color, backgroundColor: cs.bg }}>
+                        {cs.label}
+                      </span>
+                    </AdminTd>
+                  </AdminTr>
+                )
+              })
             )}
-          </SectionCard>
+          </AdminTable>
         </div>
 
         {/* 상세 패널 (sticky) */}
@@ -766,25 +736,21 @@ export default function WorkersPage() {
                   )}
                   {showAssign && (
                     <div className="mt-2 p-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg">
-                      <select
-                        className="w-full h-8 px-2 text-[13px] border border-[#E5E7EB] rounded-[6px] bg-white mb-2 outline-none focus:border-[#F97316]"
+                      <FormSelect
                         value={assignSiteId} onChange={e => setAssignSiteId(e.target.value)}
-                      >
-                        <option value="">현장 선택</option>
-                        {siteOptions
+                        placeholder="현장 선택"
+                        options={siteOptions
                           .filter(s => !selected.activeSites.some(a => a.id === s.id))
-                          .map(s => <option key={s.id} value={s.id}>{s.name}</option>)
-                        }
-                      </select>
+                          .map(s => ({ value: s.id, label: s.name }))}
+                        className="mb-2"
+                      />
                       <div className="flex gap-2">
-                        <button onClick={saveSiteAssign} disabled={!assignSiteId || assignSaving}
-                          className="flex-1 py-[5px] bg-[#F97316] text-white border-none rounded-[6px] text-[12px] font-semibold cursor-pointer disabled:opacity-50">
+                        <Btn variant="orange" size="sm" onClick={saveSiteAssign} disabled={!assignSiteId || assignSaving} className="flex-1">
                           {assignSaving ? '처리중...' : '배정'}
-                        </button>
-                        <button onClick={() => { setShowAssign(false); setAssignSiteId('') }}
-                          className="px-3 py-[5px] bg-white border border-[#E5E7EB] rounded-[6px] text-[12px] text-[#6B7280] cursor-pointer">
+                        </Btn>
+                        <Btn variant="secondary" size="sm" onClick={() => { setShowAssign(false); setAssignSiteId('') }}>
                           취소
-                        </button>
+                        </Btn>
                       </div>
                     </div>
                   )}
@@ -797,17 +763,9 @@ export default function WorkersPage() {
                   {editing ? (
                     <div className="rounded-[10px] bg-[#F5F3FF] border border-[#DDD6FE] px-4 py-4 mb-3">
                       <div className="text-[11px] font-bold text-[#7C3AED] mb-3">기본정보 수정</div>
-                      {[
-                        { label: '이름', key: 'name' as const },
-                        { label: '연락처', key: 'phone' as const },
-                        { label: '직종', key: 'jobTitle' as const },
-                      ].map(f => (
-                        <div key={f.key} className="flex items-center gap-2 mb-2">
-                          <span className="text-[12px] text-[#6B7280] w-[48px] shrink-0">{f.label}</span>
-                          <input type="text" value={editForm[f.key]} onChange={e => setEditForm(ef => ({ ...ef, [f.key]: e.target.value }))}
-                            className="h-8 px-2 flex-1 text-[13px] border border-[#E5E7EB] rounded-[6px] outline-none focus:border-[#7C3AED] bg-white" />
-                        </div>
-                      ))}
+                      <FormInput label="이름" value={editForm.name} onChange={e => setEditForm(ef => ({ ...ef, name: e.target.value }))} className="mb-2" />
+                      <FormInput label="연락처" value={editForm.phone} onChange={e => setEditForm(ef => ({ ...ef, phone: e.target.value }))} className="mb-2" />
+                      <FormInput label="직종" value={editForm.jobTitle} onChange={e => setEditForm(ef => ({ ...ef, jobTitle: e.target.value }))} className="mb-2" />
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-[12px] text-[#6B7280] w-[48px] shrink-0">상태</span>
                         <label className="flex items-center gap-1.5 cursor-pointer">
@@ -817,14 +775,12 @@ export default function WorkersPage() {
                       </div>
                       {editError && <div className="text-[12px] text-[#DC2626] mb-2">{editError}</div>}
                       <div className="flex gap-2">
-                        <button onClick={saveEdit} disabled={editSaving}
-                          className="flex-1 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-[13px] font-semibold rounded-[8px] border-none cursor-pointer transition-colors disabled:opacity-50">
+                        <Btn variant="primary" size="sm" onClick={saveEdit} disabled={editSaving} className="flex-1">
                           {editSaving ? '저장 중...' : '저장'}
-                        </button>
-                        <button onClick={() => setEditing(false)}
-                          className="px-4 py-2 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#6B7280] hover:bg-[#F9FAFB] cursor-pointer bg-white transition-colors">
+                        </Btn>
+                        <Btn variant="secondary" size="sm" onClick={() => setEditing(false)}>
                           취소
-                        </button>
+                        </Btn>
                       </div>
                     </div>
                   ) : (
@@ -842,20 +798,14 @@ export default function WorkersPage() {
                         {processingDoc === 'safetyEdu' && '안전교육 이수 처리'}
                         {processingDoc === 'safetyCert' && '안전교육증 등록 처리'}
                       </div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="text-[12px] text-[#6B7280] w-[40px] shrink-0">날짜</span>
-                        <input type="date" value={docDate} onChange={e => setDocDate(e.target.value)}
-                          className="h-8 px-2 flex-1 text-[13px] border border-[#E5E7EB] rounded-[6px] outline-none focus:border-[#F97316] bg-white" />
-                      </div>
+                      <FormInput label="날짜" type="date" value={docDate} onChange={e => setDocDate(e.target.value)} className="mb-3" />
                       <div className="flex gap-2">
-                        <button onClick={saveDocProcess} disabled={!docDate || docSaving}
-                          className="flex-1 py-2 bg-[#F97316] hover:bg-[#EA580C] text-white text-[13px] font-semibold rounded-[8px] border-none cursor-pointer transition-colors disabled:opacity-50">
+                        <Btn variant="orange" size="sm" onClick={saveDocProcess} disabled={!docDate || docSaving} className="flex-1">
                           {docSaving ? '처리 중...' : '처리 저장'}
-                        </button>
-                        <button onClick={() => { setProcessingDoc(null); setDocDate('') }}
-                          className="px-4 py-2 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#6B7280] hover:bg-[#F9FAFB] cursor-pointer bg-white transition-colors">
+                        </Btn>
+                        <Btn variant="secondary" size="sm" onClick={() => { setProcessingDoc(null); setDocDate('') }}>
                           취소
-                        </button>
+                        </Btn>
                       </div>
                     </div>
                   ) : (

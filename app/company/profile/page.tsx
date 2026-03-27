@@ -102,7 +102,7 @@ export default function CompanyProfilePage() {
         {!editing && (
           <button
             onClick={startEdit}
-            className="px-4 py-2 bg-card border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px] text-[#374151]"
+            className="px-4 py-2 bg-card border border-[#E5E7EB] rounded-md cursor-pointer text-[13px] text-[#374151]"
           >
             수정
           </button>
@@ -155,7 +155,7 @@ export default function CompanyProfilePage() {
                 <div key={key}>
                   <label className="block text-[12px] text-[#6b7280] mb-1">{label}</label>
                   <input
-                    className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
+                    className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
                     value={(form as Record<string, string>)[key]}
                     onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
                   />
@@ -165,7 +165,7 @@ export default function CompanyProfilePage() {
                 <label className="block text-[12px] text-[#6b7280] mb-1">메모</label>
                 <textarea
                   rows={3}
-                  className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
+                  className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
                   value={form.notes}
                   onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
                 />
@@ -181,7 +181,7 @@ export default function CompanyProfilePage() {
               </button>
               <button
                 onClick={() => setEditing(false)}
-                className="px-4 py-2 bg-card border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px] text-[#374151]"
+                className="px-4 py-2 bg-card border border-[#E5E7EB] rounded-md cursor-pointer text-[13px] text-[#374151]"
               >
                 취소
               </button>

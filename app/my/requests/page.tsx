@@ -62,20 +62,20 @@ export default function MyRequestsPage() {
   return (
     <>
       <WorkerTopBar />
-      <div className="min-h-screen bg-brand pb-20 pt-14">
+      <div className="mobile-content bg-[#F5F7FA]">
       <WorkerDisclaimerBanner />
 
       {/* 헤더 */}
-      <div className="bg-card border-b border-[rgba(91,164,217,0.15)] px-5 py-4 flex items-center gap-[10px]">
+      <div className="bg-white border-b border-[#E5E7EB] rounded-xl px-5 py-4 flex items-center gap-[10px] mb-3">
         <span className="text-xl">📝</span>
         <div>
-          <div className="text-base font-bold text-white">요청 접수</div>
-          <div className="text-xs text-muted-brand">업무 관련 요청만 처리합니다</div>
+          <div className="text-base font-bold text-[#0F172A]">요청 접수</div>
+          <div className="text-xs text-[#6B7280]">업무 관련 요청만 처리합니다</div>
         </div>
       </div>
 
       {/* 탭 */}
-      <div className="flex bg-brand border-b border-[rgba(91,164,217,0.2)]">
+      <div className="flex bg-white border-b border-[#E5E7EB] rounded-xl overflow-hidden">
         {(['new', 'history'] as const).map((t) => (
           <button
             key={t}
@@ -96,7 +96,7 @@ export default function MyRequestsPage() {
       {tab === 'new' ? (
         <WorkerRequestForm />
       ) : (
-        <div className="px-4 py-4 max-w-[480px] mx-auto">
+        <div className="py-4">
           {loading ? (
             <div className="text-center py-10 text-[#999]">불러오는 중...</div>
           ) : requests.length === 0 ? (
@@ -108,10 +108,10 @@ export default function MyRequestsPage() {
               {requests.map((req) => (
                 <div
                   key={req.id}
-                  className="bg-card border border-[rgba(91,164,217,0.15)] rounded-[10px] p-[14px]"
+                  className="bg-white border border-[#E5E7EB] rounded-[10px] p-[14px]"
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-[13px] font-bold text-[#CBD5E0]">
+                    <span className="text-[13px] font-bold text-[#374151]">
                       {CATEGORY_LABEL[req.category] ?? req.category}
                     </span>
                     <span
@@ -128,11 +128,11 @@ export default function MyRequestsPage() {
                     {req.content}
                   </p>
                   {req.adminMemo && (
-                    <div className="bg-[rgba(91,164,217,0.08)] rounded-md px-[10px] py-2 text-xs text-muted-brand mb-[6px]">
+                    <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-md px-[10px] py-2 text-xs text-[#6B7280] mb-[6px]">
                       <strong>관리자 답변:</strong> {req.adminMemo}
                     </div>
                   )}
-                  <div className="text-[11px] text-[#bbb]">
+                  <div className="text-[11px] text-[#9CA3AF]">
                     {new Date(req.createdAt).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })} 접수
                     {req.reviewedAt && ` · ${new Date(req.reviewedAt).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })} 검토`}
                   </div>

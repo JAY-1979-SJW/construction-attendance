@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
-  PageShell, SectionCard,
+  PageShell, SectionCard, PageHeader,
   FilterInput, FilterSelect, FilterPill,
+  AdminTable, AdminTr, AdminTd, EmptyRow,
   StatusBadge, Btn,
 } from '@/components/admin/ui'
 
@@ -169,9 +170,11 @@ function ReportsPageInner() {
   return (
     <PageShell>
 
-      <div className="flex justify-end mb-3">
-        <Btn variant="ghost" size="sm" onClick={fetchData}>새로고침</Btn>
-      </div>
+      <PageHeader
+        title="작업일보 관리"
+        description="근로자 작업일보를 확인하고 관리합니다"
+        actions={<Btn variant="ghost" size="sm" onClick={fetchData}>새로고침</Btn>}
+      />
 
       {/* ── KPI ────────────────────────────────────────── */}
       {summary && (
@@ -219,30 +222,17 @@ function ReportsPageInner() {
           {missing.length === 0 ? (
             <div className="text-[13px] text-[#9CA3AF] py-4 text-center">미작성 인원이 없습니다.</div>
           ) : (
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="text-left text-[11px] text-[#9CA3AF] border-b border-[#F3F4F6]">
-                  <th className="py-2 font-normal">근로자</th>
-                  <th className="py-2 font-normal">현장</th>
-                  <th className="py-2 font-normal">직종</th>
-                  <th className="py-2 font-normal">출근시각</th>
-                  <th className="py-2 font-normal">상태</th>
-                </tr>
-              </thead>
-              <tbody>
-                {missing.map((m) => (
-                  <tr key={m.workerId} className="border-b border-[#F9FAFB] bg-[#FEF2F2]/40 hover:bg-[#FEE2E2]/30">
-                    <td className="py-2.5 text-[#0F172A] font-medium">{m.workerName}</td>
-                    <td className="py-2.5 text-[#6B7280]">{m.siteName}</td>
-                    <td className="py-2.5 text-[#6B7280]">{m.jobTitle}</td>
-                    <td className="py-2.5 text-[#6B7280]">{toKST(m.checkInAt)}</td>
-                    <td className="py-2.5">
-                      <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-[#FEE2E2] text-[#B91C1C] border-[#F87171]">미작성</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <AdminTable headers={['근로자', '현장', '직종', '출근시각', '상태']}>
+              {missing.map((m) => (
+                <AdminTr key={m.workerId} highlighted>
+                  <AdminTd className="font-medium text-[#0F172A]">{m.workerName}</AdminTd>
+                  <AdminTd>{m.siteName}</AdminTd>
+                  <AdminTd>{m.jobTitle}</AdminTd>
+                  <AdminTd>{toKST(m.checkInAt)}</AdminTd>
+                  <AdminTd><StatusBadge status="REJECTED" label="미작성" /></AdminTd>
+                </AdminTr>
+              ))}
+            </AdminTable>
           )}
         </SectionCard>
       )}
@@ -253,62 +243,48 @@ function ReportsPageInner() {
           {loading ? (
             <div className="text-[13px] text-[#9CA3AF] py-8 text-center">로딩 중...</div>
           ) : items.length === 0 ? (
-            <div className="text-[13px] text-[#9CA3AF] py-8 text-center">작업일보가 없습니다.</div>
+            <AdminTable headers={['작업일자', '근로자', '직종', '현장', '근무시간', '공종/작업사항', '사진', '상태']}>
+              <EmptyRow colSpan={8} message="작업일보가 없습니다." />
+            </AdminTable>
           ) : (
             <>
-              <div className="overflow-x-auto">
-                <table className="w-full text-[13px]">
-                  <thead className="sticky top-0 z-10 bg-white">
-                    <tr className="text-left text-[11px] text-[#9CA3AF] border-b border-[#F3F4F6]">
-                      <th className="py-2 font-normal">작업일자</th>
-                      <th className="py-2 font-normal">근로자</th>
-                      <th className="py-2 font-normal">직종</th>
-                      <th className="py-2 font-normal">현장</th>
-                      <th className="py-2 font-normal">근무시간</th>
-                      <th className="py-2 font-normal">공종/작업사항</th>
-                      <th className="py-2 font-normal text-center">사진</th>
-                      <th className="py-2 font-normal text-center">상태</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item) => (
-                      <tr key={item.id} onClick={() => openDetail(item)}
-                        className={`border-b border-[#F9FAFB] cursor-pointer transition-colors ${
-                          detailOpen && selected?.id === item.id
-                            ? 'bg-[#FFF7ED]'
-                            : item.status === 'CONFIRMED'
-                              ? 'bg-[#FAFFFE] hover:bg-[#F0FDF4]'
-                              : 'hover:bg-[#FAFAFA]'
-                        }`}>
-                        <td className="py-2.5 text-[#6B7280] text-[12px] whitespace-nowrap">{item.reportDate?.slice(5, 10)}</td>
-                        <td className="py-2.5 text-[#0F172A] font-medium">{item.worker.name}</td>
-                        <td className="py-2.5 text-[#6B7280] text-[12px]">{item.jobTitle || '-'}</td>
-                        <td className="py-2.5 text-[#6B7280] text-[12px] max-w-[120px] truncate" title={item.site.name}>{item.site.name}</td>
-                        <td className="py-2.5 text-[#6B7280] text-[12px] whitespace-nowrap">
-                          {item.workStartTime && item.workEndTime
-                            ? `${item.workStartTime}~${item.workEndTime}`
-                            : item.workStartTime || item.workEndTime || '-'}
-                        </td>
-                        <td className="py-2.5 text-[#374151] max-w-[200px]">
-                          <div className="line-clamp-1 text-[12px]">
-                            {[item.tradeFamilyLabel, item.tradeLabel, item.taskLabel].filter(Boolean).join(' > ') || '-'}
-                          </div>
-                        </td>
-                        <td className="py-2.5 text-center">
-                          {item.photos && item.photos.length > 0 ? (
-                            <span className="text-[11px] text-[#3B82F6]">{item.photos.length}장</span>
-                          ) : (
-                            <span className="text-[11px] text-[#D1D5DB]">-</span>
-                          )}
-                        </td>
-                        <td className="py-2.5 text-center">
-                          <StatusBadge status={item.status} />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <AdminTable headers={['작업일자', '근로자', '직종', '현장', '근무시간', '공종/작업사항', '사진', '상태']}>
+                {items.map((item) => (
+                  <AdminTr key={item.id} onClick={() => openDetail(item)}
+                    className={
+                      detailOpen && selected?.id === item.id
+                        ? 'bg-[#FFF7ED] hover:bg-[#FFF7ED]'
+                        : item.status === 'CONFIRMED'
+                          ? 'bg-[#FAFFFE] hover:bg-[#F0FDF4]'
+                          : ''
+                    }>
+                    <AdminTd className="text-[#6B7280] text-[12px]">{item.reportDate?.slice(5, 10)}</AdminTd>
+                    <AdminTd className="text-[#0F172A] font-medium">{item.worker.name}</AdminTd>
+                    <AdminTd className="text-[#6B7280] text-[12px]">{item.jobTitle || '-'}</AdminTd>
+                    <AdminTd className="text-[#6B7280] text-[12px] max-w-[120px] truncate">{item.site.name}</AdminTd>
+                    <AdminTd className="text-[#6B7280] text-[12px]">
+                      {item.workStartTime && item.workEndTime
+                        ? `${item.workStartTime}~${item.workEndTime}`
+                        : item.workStartTime || item.workEndTime || '-'}
+                    </AdminTd>
+                    <AdminTd className="max-w-[200px]">
+                      <div className="line-clamp-1 text-[12px]">
+                        {[item.tradeFamilyLabel, item.tradeLabel, item.taskLabel].filter(Boolean).join(' > ') || '-'}
+                      </div>
+                    </AdminTd>
+                    <AdminTd className="text-center">
+                      {item.photos && item.photos.length > 0 ? (
+                        <span className="text-[11px] text-[#3B82F6]">{item.photos.length}장</span>
+                      ) : (
+                        <span className="text-[11px] text-[#D1D5DB]">-</span>
+                      )}
+                    </AdminTd>
+                    <AdminTd className="text-center">
+                      <StatusBadge status={item.status} />
+                    </AdminTd>
+                  </AdminTr>
+                ))}
+              </AdminTable>
 
               {total > 30 && (
                 <div className="flex justify-center gap-2 mt-4">

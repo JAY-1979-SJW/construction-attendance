@@ -47,7 +47,9 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
       : '내부 운영'
 
   return (
-    <div className="h-screen flex flex-col font-sans bg-[#f5f6f8] overflow-hidden">
+    <div className="h-screen flex flex-col font-sans bg-[#F5F7FA] overflow-hidden">
+      {/* 상단 4px 오렌지 악센트 라인 */}
+      <div className="shrink-0 h-1 bg-[#F97316]" />
       <OpsTopNav
         userName={session.name}
         roleLabel={roleLabel}

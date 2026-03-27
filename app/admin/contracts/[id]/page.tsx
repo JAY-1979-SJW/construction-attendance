@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { DOC_PACKAGES, getDocPackageForTemplate } from '@/lib/contracts/index'
 import { DANGER_PHRASE_UI } from '@/lib/policies/contract-policy'
+import { FormInput, FormSelect, ModalFooter, Btn } from '@/components/admin/ui'
 
 // ─── 타입 ─────────────────────────────────────────────────────
 
@@ -590,22 +591,20 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
                 {previewDoc.content}
               </pre>
             </div>
-            <div className="p-4 border-t flex justify-end gap-2">
-              <button
+            <ModalFooter>
+              <Btn
+                variant="secondary"
                 onClick={() => {
                   const blob = new Blob([previewDoc.content], { type: 'text/plain; charset=utf-8' })
                   const url  = URL.createObjectURL(blob)
                   const a    = document.createElement('a')
                   a.href = url; a.download = previewDoc.title; a.click()
                   URL.revokeObjectURL(url)
-                }}
-                className="px-4 py-2 bg-gray-800 text-white rounded text-sm hover:bg-gray-700">
+                }}>
                 다운로드 (.txt)
-              </button>
-              <button onClick={() => setPreviewDoc(null)} className="px-4 py-2 border rounded text-sm hover:bg-[rgba(255,255,255,0.04)]">
-                닫기
-              </button>
-            </div>
+              </Btn>
+              <Btn variant="ghost" onClick={() => setPreviewDoc(null)}>닫기</Btn>
+            </ModalFooter>
           </div>
         </div>
       )}
@@ -618,24 +617,19 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             <p className="text-sm text-[#718096] mb-4">
               서명 처리 시 계약 상태가 ACTIVE로 변경됩니다.
             </p>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-[#CBD5E0] mb-1">서명자 이름</label>
-              <input
-                type="text"
-                value={signerName}
-                onChange={e => setSignerName(e.target.value)}
-                placeholder={contract.worker.name}
-                className="w-full border rounded px-3 py-2 text-sm"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => setShowSignModal(false)}
-                className="flex-1 px-4 py-2 border rounded text-sm hover:bg-[rgba(255,255,255,0.04)]">취소</button>
-              <button onClick={handleSign} disabled={processing}
-                className="flex-1 px-4 py-2 bg-violet-600 text-white rounded text-sm hover:bg-violet-700 disabled:opacity-50">
+            <FormInput
+              label="서명자 이름"
+              type="text"
+              value={signerName}
+              onChange={e => setSignerName(e.target.value)}
+              placeholder={contract.worker.name}
+            />
+            <ModalFooter>
+              <Btn variant="ghost" onClick={() => setShowSignModal(false)}>취소</Btn>
+              <Btn variant="primary" onClick={handleSign} disabled={processing}>
                 {processing ? '처리 중...' : '서명 완료'}
-              </button>
-            </div>
+              </Btn>
+            </ModalFooter>
           </div>
         </div>
       )}
@@ -645,24 +639,23 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-card rounded-xl shadow-2xl w-full max-w-sm p-6">
             <h3 className="font-semibold text-white mb-4">계약서 교부 처리</h3>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-[#CBD5E0] mb-1">교부 방법</label>
-              <select value={deliverMethod} onChange={e => setDeliverMethod(e.target.value as 'EMAIL' | 'KAKAO' | 'PAPER' | 'APP')}
-                className="w-full border rounded px-3 py-2 text-sm">
-                <option value="APP">앱 내 전달</option>
-                <option value="KAKAO">카카오톡</option>
-                <option value="EMAIL">이메일</option>
-                <option value="PAPER">서면 교부</option>
-              </select>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => setShowDeliverModal(false)}
-                className="flex-1 px-4 py-2 border rounded text-sm hover:bg-[rgba(255,255,255,0.04)]">취소</button>
-              <button onClick={handleDeliver} disabled={processing}
-                className="flex-1 px-4 py-2 bg-amber-600 text-white rounded text-sm hover:bg-amber-700 disabled:opacity-50">
+            <FormSelect
+              label="교부 방법"
+              value={deliverMethod}
+              onChange={e => setDeliverMethod(e.target.value as 'EMAIL' | 'KAKAO' | 'PAPER' | 'APP')}
+              options={[
+                { value: 'APP', label: '앱 내 전달' },
+                { value: 'KAKAO', label: '카카오톡' },
+                { value: 'EMAIL', label: '이메일' },
+                { value: 'PAPER', label: '서면 교부' },
+              ]}
+            />
+            <ModalFooter>
+              <Btn variant="ghost" onClick={() => setShowDeliverModal(false)}>취소</Btn>
+              <Btn variant="orange" onClick={handleDeliver} disabled={processing}>
                 {processing ? '처리 중...' : '교부 완료'}
-              </button>
-            </div>
+              </Btn>
+            </ModalFooter>
           </div>
         </div>
       )}

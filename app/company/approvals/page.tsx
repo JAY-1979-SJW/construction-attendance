@@ -213,14 +213,14 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
             <h3 className="m-0 mb-3 text-[15px] font-semibold">반려 사유</h3>
             <textarea
               rows={4}
-              className="w-full border border-[rgba(91,164,217,0.3)] rounded-md p-2 text-[13px] box-border"
+              className="w-full border border-[#E5E7EB] rounded-md p-2 text-[13px] box-border"
               placeholder="반려 사유를 입력하세요"
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
             />
             <div className="flex gap-2 mt-3">
               <button onClick={rejectSubmit} className="px-3 py-[5px] bg-[#dc2626] text-white border-0 rounded-[5px] cursor-pointer text-[12px]">반려 확정</button>
-              <button onClick={() => setRejectTarget(null)} className="px-3 py-[5px] bg-card text-[#374151] border border-[rgba(91,164,217,0.3)] rounded-[5px] cursor-pointer text-[12px]">취소</button>
+              <button onClick={() => setRejectTarget(null)} className="px-3 py-[5px] bg-card text-[#374151] border border-[#E5E7EB] rounded-[5px] cursor-pointer text-[12px]">취소</button>
             </div>
           </div>
         </div>

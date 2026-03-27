@@ -13,7 +13,7 @@ import Image from 'next/image'
  */
 export default function WorkerTopBar() {
   return (
-    <div className="fixed top-0 left-0 right-0 z-50">
+    <div className="fixed top-0 left-0 right-0 z-50 safe-top">
       {/* 상단 3px 오렌지 라인 */}
       <div className="h-[3px] w-full bg-[#F47920]" />
       {/* 로고 바 */}

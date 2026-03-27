@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { PageShell, StatusBadge, Btn } from '@/components/admin/ui'
+import { PageShell, PageHeader, StatusBadge, Btn, FilterInput, FilterSelect, AdminTable, AdminTr, AdminTd, EmptyRow } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────
 interface Summary {
@@ -324,36 +324,37 @@ export default function AdminDashboard() {
   return (
     <PageShell>
 
-      <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-        <p className="text-[12px] text-[#9CA3AF] m-0">인원·노임·현장 운영 현황 통합 확인</p>
-        <div className="flex items-center gap-2 flex-wrap">
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value)}
-            className="h-9 px-3 border border-[#E5E7EB] rounded-[8px] text-[13px] bg-white text-[#374151] focus:outline-none focus:border-[#F97316]"
-          />
-          <SiteSelect options={siteOptions} value={selectedSiteId} onChange={setSelectedSiteId} />
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className="h-9 px-3 border border-[#E5E7EB] rounded-[8px] text-[13px] bg-white text-[#374151] focus:outline-none focus:border-[#F97316]"
-          >
-            <option value="ALL">전체 상태</option>
-            <option value="WORKING">근무중</option>
-            <option value="COMPLETED">퇴근완료</option>
-            <option value="MISSING_CHECKOUT">미퇴근</option>
-            <option value="EXCEPTION">예외</option>
-          </select>
-          <Btn variant="ghost" size="sm" onClick={load}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            새로고침
-          </Btn>
-        </div>
-      </div>
+      <PageHeader
+        title="운영 대시보드"
+        description="인원·노임·현장 운영 현황 통합 확인"
+        actions={
+          <>
+            <FilterInput
+              type="date"
+              value={selectedDate}
+              onChange={e => setSelectedDate(e.target.value)}
+            />
+            <SiteSelect options={siteOptions} value={selectedSiteId} onChange={setSelectedSiteId} />
+            <FilterSelect
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+            >
+              <option value="ALL">전체 상태</option>
+              <option value="WORKING">근무중</option>
+              <option value="COMPLETED">퇴근완료</option>
+              <option value="MISSING_CHECKOUT">미퇴근</option>
+              <option value="EXCEPTION">예외</option>
+            </FilterSelect>
+            <Btn variant="ghost" size="sm" onClick={load}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              새로고침
+            </Btn>
+          </>
+        }
+      />
 
       {/* ── 계약기간 보조 정보 바 (특정 현장 선택 시) ────────────────────── */}
       {selectedSiteInfo && (
@@ -464,64 +465,43 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-4 items-start">
 
             {/* 좌: 근로자 현황 테이블 */}
-            <div className="bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-3 border-b border-[#F3F4F6]">
+            <div>
+              <div className="flex items-center justify-between px-5 py-3">
                 <div className="flex items-center gap-2">
                   <span className="text-[14px] font-semibold text-[#111827]">오늘 근로자 현황</span>
                   <span className="text-[11px] text-[#9CA3AF]">문제 인원 우선</span>
                 </div>
                 <span className="text-[12px] text-[#9CA3AF] tabular-nums">{filteredRecords.length}명</span>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="bg-[#F3F4F6]">
-                      {['이름', '소속 현장', '출근', '퇴근', '상태', '일 노임', '월 누계', '총 누계'].map(h => (
-                        <th key={h} className="text-left px-3 py-[10px] text-[11px] font-bold text-[#4B5563] uppercase tracking-wider whitespace-nowrap border-b border-[#E5E7EB]">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredRecords.length === 0 ? (
-                      <tr>
-                        <td colSpan={8} className="py-14 text-center text-[13px] text-[#9CA3AF]">
-                          {statusFilter !== 'ALL' ? '해당 상태의 기록이 없습니다' : '오늘 출근 기록이 없습니다'}
-                        </td>
-                      </tr>
-                    ) : filteredRecords.slice(0, 30).map(r => {
-                      const isIssue = r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION'
-                      return (
-                        <tr
-                          key={r.id}
-                          onClick={() => router.push(`/admin/attendance?date=${selectedDate}&name=${encodeURIComponent(r.workerName)}`)}
-                          className={`border-b border-[#F9FAFB] last:border-b-0 transition-colors cursor-pointer ${
-                            isIssue ? 'bg-[#FFF1F2] hover:bg-[#FFE4E6]' : 'hover:bg-[#FAFAFA]'
-                          }`}
-                        >
-                          <td className="px-3 py-[10px] text-[13px] font-medium text-[#111827] whitespace-nowrap">{r.workerName}</td>
-                          <td className="px-3 py-[10px] text-[13px] text-[#6B7280] whitespace-nowrap max-w-[120px] truncate">{r.siteName}</td>
-                          <td className="px-3 py-[10px] text-[13px] text-[#374151] whitespace-nowrap tabular-nums">{fmtTime(r.checkInAt)}</td>
-                          <td className="px-3 py-[10px] text-[13px] text-[#374151] whitespace-nowrap tabular-nums">{fmtTime(r.checkOutAt)}</td>
-                          <td className="px-3 py-[10px] whitespace-nowrap">
-                            <StatusBadge status={r.status} label={STATUS_LABEL[r.status]} />
-                          </td>
-                          <td className="px-3 py-[10px] text-[12px] text-[#374151] whitespace-nowrap tabular-nums text-right">
-                            {r.dayWage > 0 ? r.dayWage.toLocaleString('ko-KR') : '-'}
-                          </td>
-                          <td className="px-3 py-[10px] text-[12px] text-[#6B7280] whitespace-nowrap tabular-nums text-right">
-                            {r.monthWage > 0 ? r.monthWage.toLocaleString('ko-KR') : '-'}
-                          </td>
-                          <td className="px-3 py-[10px] text-[12px] font-medium text-[#374151] whitespace-nowrap tabular-nums text-right">
-                            {r.totalWage > 0 ? r.totalWage.toLocaleString('ko-KR') : '-'}
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <AdminTable headers={['이름', '소속 현장', '출근', '퇴근', '상태', '일 노임', '월 누계', '총 누계']}>
+                {filteredRecords.length === 0 ? (
+                  <EmptyRow colSpan={8} message={statusFilter !== 'ALL' ? '해당 상태의 기록이 없습니다' : '오늘 출근 기록이 없습니다'} />
+                ) : filteredRecords.slice(0, 30).map(r => {
+                  const isIssue = r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION'
+                  return (
+                    <AdminTr
+                      key={r.id}
+                      onClick={() => router.push(`/admin/attendance?date=${selectedDate}&name=${encodeURIComponent(r.workerName)}`)}
+                      highlighted={isIssue}
+                    >
+                      <AdminTd className="font-medium text-[#111827]">{r.workerName}</AdminTd>
+                      <AdminTd className="text-[#6B7280] max-w-[120px] truncate">{r.siteName}</AdminTd>
+                      <AdminTd className="tabular-nums">{fmtTime(r.checkInAt)}</AdminTd>
+                      <AdminTd className="tabular-nums">{fmtTime(r.checkOutAt)}</AdminTd>
+                      <AdminTd><StatusBadge status={r.status} label={STATUS_LABEL[r.status]} /></AdminTd>
+                      <AdminTd className="text-[12px] tabular-nums text-right">
+                        {r.dayWage > 0 ? r.dayWage.toLocaleString('ko-KR') : '-'}
+                      </AdminTd>
+                      <AdminTd className="text-[12px] text-[#6B7280] tabular-nums text-right">
+                        {r.monthWage > 0 ? r.monthWage.toLocaleString('ko-KR') : '-'}
+                      </AdminTd>
+                      <AdminTd className="text-[12px] font-medium tabular-nums text-right">
+                        {r.totalWage > 0 ? r.totalWage.toLocaleString('ko-KR') : '-'}
+                      </AdminTd>
+                    </AdminTr>
+                  )
+                })}
+              </AdminTable>
               {filteredRecords.length > 30 && (
                 <div className="px-5 py-2.5 border-t border-[#F3F4F6] text-[12px] text-[#9CA3AF]">
                   {filteredRecords.length - 30}명 더 있음 — 출퇴근관리에서 전체 확인

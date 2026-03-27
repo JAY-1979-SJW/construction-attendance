@@ -117,7 +117,7 @@ export default function CompanyNoticesPage() {
 
       <div className="flex gap-2 items-center mb-5">
         <select
-          className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] min-w-[180px]"
+          className="px-3 py-2 border border-[#E5E7EB] rounded-md text-[13px] min-w-[180px]"
           value={siteId}
           onChange={(e) => { setSiteId(e.target.value); setShowForm(false) }}
         >
@@ -148,7 +148,7 @@ export default function CompanyNoticesPage() {
             <div className="col-span-2">
               <label className="block text-[12px] text-[#6b7280] mb-1">제목 *</label>
               <input
-                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
+                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
                 placeholder="공지 제목"
                 value={form.title}
                 onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))}
@@ -157,7 +157,7 @@ export default function CompanyNoticesPage() {
             <div>
               <label className="block text-[12px] text-[#6b7280] mb-1">공지 유형</label>
               <select
-                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
+                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
                 value={form.noticeType}
                 onChange={(e) => setForm(f => ({ ...f, noticeType: e.target.value }))}
               >
@@ -169,7 +169,7 @@ export default function CompanyNoticesPage() {
             <div>
               <label className="block text-[12px] text-[#6b7280] mb-1">노출 대상</label>
               <select
-                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
+                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
                 value={form.visibilityScope}
                 onChange={(e) => setForm(f => ({ ...f, visibilityScope: e.target.value }))}
               >
@@ -182,7 +182,7 @@ export default function CompanyNoticesPage() {
               <label className="block text-[12px] text-[#6b7280] mb-1">시작일</label>
               <input
                 type="date"
-                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
+                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
                 value={form.startDate}
                 onChange={(e) => setForm(f => ({ ...f, startDate: e.target.value }))}
               />
@@ -191,7 +191,7 @@ export default function CompanyNoticesPage() {
               <label className="block text-[12px] text-[#6b7280] mb-1">종료일</label>
               <input
                 type="date"
-                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
+                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
                 value={form.endDate}
                 onChange={(e) => setForm(f => ({ ...f, endDate: e.target.value }))}
               />
@@ -200,7 +200,7 @@ export default function CompanyNoticesPage() {
               <label className="block text-[12px] text-[#6b7280] mb-1">내용</label>
               <textarea
                 rows={4}
-                className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
+                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
                 value={form.content}
                 onChange={(e) => setForm(f => ({ ...f, content: e.target.value }))}
               />
@@ -219,7 +219,7 @@ export default function CompanyNoticesPage() {
             <button onClick={handleSubmit} disabled={saving} className="px-5 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]">
               {saving ? '등록 중...' : '등록'}
             </button>
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-card text-[#374151] border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px]">취소</button>
+            <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-card text-[#374151] border border-[#E5E7EB] rounded-md cursor-pointer text-[13px]">취소</button>
           </div>
         </div>
       )}

@@ -28,7 +28,7 @@ export default function CompanyDashboardPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-[22px] font-bold m-0 mb-6 text-white">대시보드</h1>
+      <h1 className="text-[22px] font-bold m-0 mb-6 text-slate-900">대시보드</h1>
       {loading ? (
         <p className="text-muted-brand text-[15px]">불러오는 중...</p>
       ) : data ? (

@@ -39,7 +39,10 @@
 /* ===== 기본 스타일 ===== */
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
 
 body {
   background-color: var(--background);
@@ -49,6 +52,29 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
+  overflow-x: hidden;
+}
+
+/* ===== 모바일 safe-area (노치/하단 바) ===== */
+@supports (padding: env(safe-area-inset-top)) {
+  .safe-top    { padding-top:    env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* 모바일 콘텐츠 래퍼 — 고정 헤더(56px) + 하단 네비(64px) 보정 */
+.mobile-content {
+  width: 100%;
+  max-width: 32rem; /* 512px */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 64px 16px 80px;
+  min-height: 100svh;
+}
+@supports (min-height: 100svh) {
+  .mobile-content { min-height: 100svh; }
+}
+@supports (padding: env(safe-area-inset-bottom)) {
+  .mobile-content { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
 }
 
 h1, h2, h3, h4, h5, h6 {

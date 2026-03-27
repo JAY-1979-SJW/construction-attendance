@@ -21,6 +21,25 @@ const BADGE_MAP: Record<string, { label: string; cls: string }> = {
   // 소속 구분
   SUBCONTRACTOR:        { label: '협력사',    cls: 'bg-[#FFF7ED] text-[#EA580C] border-[#FDBA74]' },
   DIRECT:               { label: '직영',      cls: 'bg-[#F3F4F6] text-[#374151] border-[#D1D5DB]' },
+  // 자격/보험 상태
+  ELIGIBLE:             { label: '적격',      cls: 'bg-[#ECFDF5] text-[#16A34A] border-[#A7F3D0]' },
+  INELIGIBLE:           { label: '부적격',    cls: 'bg-[#FEE2E2] text-[#B91C1C] border-[#F87171]' },
+  NOT_STARTED:          { label: '미시작',    cls: 'bg-[#F3F4F6] text-[#6B7280] border-[#D1D5DB]' },
+  IN_PROGRESS:          { label: '진행중',    cls: 'bg-[#FEF3C7] text-[#92400E] border-[#FDE68A]' },
+  READY:                { label: '준비완료',  cls: 'bg-[#EFF6FF] text-[#2563EB] border-[#93C5FD]' },
+  EXEMPT:               { label: '해당없음',  cls: 'bg-[#F3F4F6] text-[#9CA3AF] border-[#E5E7EB]' },
+  // 서류 상태
+  ISSUED:               { label: '발행',      cls: 'bg-[#EFF6FF] text-[#2563EB] border-[#93C5FD]' },
+  SIGNED:               { label: '서명완료',  cls: 'bg-[#ECFDF5] text-[#16A34A] border-[#A7F3D0]' },
+  ENDED:                { label: '종료',      cls: 'bg-[#F3F4F6] text-[#6B7280] border-[#D1D5DB]' },
+  // 출근/미출근
+  CHECKED_IN:           { label: '출근',      cls: 'bg-[#ECFDF5] text-[#16A34A] border-[#A7F3D0]' },
+  NOT_CHECKED_IN:       { label: '미출근',    cls: 'bg-[#FEE2E2] text-[#B91C1C] border-[#F87171]' },
+  NOT_ASSIGNED:         { label: '미배정',    cls: 'bg-[#FEF3C7] text-[#92400E] border-[#FDE68A]' },
+  // 기기 상태
+  DEVICE_APPROVED:      { label: '기기승인',  cls: 'bg-[#D1FAE5] text-[#065F46] border-[#6EE7B7]' },
+  DEVICE_PENDING:       { label: '기기대기',  cls: 'bg-[#FEF3C7] text-[#92400E] border-[#FDE68A]' },
+  NO_DEVICE:            { label: '미등록',    cls: 'bg-[#F3F4F6] text-[#9CA3AF] border-[#E5E7EB]' },
 }
 
 export function StatusBadge({ status, label }: { status: string; label?: string }) {

@@ -19,7 +19,7 @@ export default function LandingPage() {
                   <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <span className="text-[15px] font-bold text-[#0F172A]">해한AI 출퇴근</span>
+              <span className="text-[15px] font-bold text-[#0F172A]">해한<span className="text-[#F97316]">AI</span> 출퇴근</span>
             </Link>
 
             {/* 네비게이션 */}
@@ -61,11 +61,11 @@ export default function LandingPage() {
             </p>
             <div className="flex gap-3 flex-wrap">
               <Link href="/login"
-                className="inline-block py-3 px-7 bg-[#F97316] hover:bg-[#EA580C] text-white rounded-[10px] no-underline text-[15px] font-semibold shadow-[0_2px_10px_rgba(249,115,22,0.28)] transition-colors">
+                className="inline-block py-3 px-7 bg-[#F97316] hover:bg-[#EA580C] text-white rounded-[12px] no-underline text-[15px] font-semibold shadow-[0_2px_10px_rgba(249,115,22,0.25)] transition-colors">
                 근로자 시작하기
               </Link>
               <Link href="/admin/login"
-                className="inline-block py-3 px-7 border border-[#E5E7EB] text-[#374151] hover:border-[#D1D5DB] bg-white rounded-[10px] no-underline text-[15px] font-medium transition-colors">
+                className="inline-block py-3 px-7 border border-[#E5E7EB] text-[#374151] hover:border-[#D1D5DB] bg-white rounded-[12px] no-underline text-[15px] font-medium transition-colors">
                 관리자 로그인
               </Link>
             </div>
@@ -245,7 +245,7 @@ export default function LandingPage() {
               근로자 시작하기
             </Link>
             <Link href="/admin/login"
-              className="inline-block py-3 px-7 border border-[#E5E7EB] bg-white text-[#374151] hover:border-[#D1D5DB] rounded-[10px] no-underline text-[15px] font-medium transition-colors">
+              className="inline-block py-3 px-7 border border-[#E5E7EB] bg-white text-[#374151] hover:border-[#D1D5DB] rounded-[12px] no-underline text-[15px] font-medium transition-colors">
               관리자 로그인
             </Link>
           </div>
@@ -262,7 +262,7 @@ export default function LandingPage() {
                 <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span className="text-[14px] font-semibold text-[#0F172A]">해한AI 출퇴근</span>
+            <span className="text-[14px] font-semibold text-[#0F172A]">해한<span className="text-[#F97316]">AI</span> 출퇴근</span>
           </div>
           <div className="flex items-center gap-5 text-[13px] text-[#9CA3AF] flex-wrap justify-center">
             <a href="#features" className="no-underline hover:text-[#6B7280] transition-colors">기능 소개</a>

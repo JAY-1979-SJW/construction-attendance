@@ -104,7 +104,7 @@ export default function CompanyDocumentsPage() {
       )}
 
       {blocked ? (
-        <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden px-12 py-12 text-center text-[#999]">
+        <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden px-12 py-12 text-center text-[#9CA3AF]">
           <div className="text-[32px] mb-[10px]">🔒</div>
           <div className="font-semibold">노임서류 기능이 비활성화되어 있습니다.</div>
         </div>
@@ -146,11 +146,11 @@ export default function CompanyDocumentsPage() {
           <div className="mb-6">
             <h2 className="text-[16px] font-bold m-0 mb-[10px]">근무 확정 요약</h2>
             {data.confirmationSummary.length === 0 ? (
-              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden px-6 py-6 text-center text-[#aaa] text-[14px]">
+              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden px-6 py-6 text-center text-[#9CA3AF] text-[14px]">
                 확정된 근무 기록이 없습니다.
               </div>
             ) : (
-              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
                 <table className="w-full border-collapse text-[13px]">
                   <thead>
                     <tr>
@@ -178,12 +178,12 @@ export default function CompanyDocumentsPage() {
           <div>
             <h2 className="text-[16px] font-bold m-0 mb-[10px]">노임비 집계표</h2>
             {data.laborSummaries.length === 0 ? (
-              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden px-6 py-6 text-center text-[#aaa] text-[14px]">
+              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden px-6 py-6 text-center text-[#9CA3AF] text-[14px]">
                 노임비 집계 데이터가 없습니다.
                 <div className="text-[12px] mt-1">슈퍼관리자 메뉴 → 노무비 집계 실행 후 조회 가능합니다.</div>
               </div>
             ) : (
-              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.35)] overflow-hidden">
+              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse text-[13px]">
                     <thead>

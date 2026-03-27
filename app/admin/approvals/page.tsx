@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { PageShell, PageHeader, AdminTable, AdminTr, AdminTd, EmptyRow, StatusBadge, Btn } from '@/components/admin/ui'
+import { PageShell, PageHeader, AdminTable, AdminTr, AdminTd, EmptyRow, StatusBadge, Btn, FormTextarea, ModalFooter } from '@/components/admin/ui'
 
 // ─── 탭 정의 ──────────────────────────────────────────────────────────────────
 type TabKey = 'workers' | 'companies' | 'ext-companies' | 'managers' | 'site-joins' | 'devices'
@@ -209,7 +209,7 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
   const handleBulkApprove = async () => {
     if (!selectedIds.size) return
     setBulkProcessing(true)
-    await Promise.all([...selectedIds].map(id =>
+    await Promise.all(Array.from(selectedIds).map(id =>
       fetch(approveApi(tab, id), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
     ))
     setBulkProcessing(false)
@@ -222,7 +222,7 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
     const reason = prompt('일괄 반려 사유를 입력하세요.')
     if (!reason?.trim()) return
     setBulkProcessing(true)
-    await Promise.all([...selectedIds].map(id =>
+    await Promise.all(Array.from(selectedIds).map(id =>
       fetch(rejectApi(tab, id), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rejectReason: reason }) })
     ))
     setBulkProcessing(false)
@@ -390,19 +390,18 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]">
           <div className="bg-white rounded-[10px] p-7 w-[400px] max-w-[90vw]">
             <h3 className="text-base font-bold text-[#111827] mb-4 mt-0">반려 사유 입력</h3>
-            <textarea
-              className="w-full p-[10px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm resize-y box-border"
+            <FormTextarea
               rows={4}
               placeholder="반려 사유를 입력하세요. (필수)"
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
             />
-            <div className="flex gap-2 justify-end mt-4">
+            <ModalFooter>
               <Btn variant="secondary" onClick={() => setRejectTarget(null)}>취소</Btn>
               <Btn size="xs" variant="danger" disabled={!rejectReason.trim() || processing === rejectTarget} onClick={handleReject}>
                 {processing === rejectTarget ? '처리 중...' : '반려 확인'}
               </Btn>
-            </div>
+            </ModalFooter>
           </div>
         </div>
       )}

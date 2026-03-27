@@ -120,8 +120,7 @@ export async function POST(
       data: {
         companyId: company.id,
         adminUserId: adminUser.id,
-        temporaryPassword: rawPassword,   // 신청자 이메일 없는 경우 수동 전달 필요
-        emailSent: !!req.email,
+        passwordDelivered: !!req.email,
       },
     })
   } catch (err) {

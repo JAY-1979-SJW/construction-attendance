@@ -69,7 +69,7 @@ export default function CompanyDevicesPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-[22px] font-bold m-0 mb-4 text-white">기기 승인 ({total}건)</h1>
+      <h1 className="text-[22px] font-bold m-0 mb-4 text-[#111827]">기기 승인 ({total}건)</h1>
 
       {msg && (
         <p
@@ -113,13 +113,13 @@ export default function CompanyDevicesPage() {
             </thead>
             <tbody>
               {items.length === 0 ? (
-                <tr><td colSpan={5} className="p-8 text-center text-[#aaa] text-[14px]">기기 요청이 없습니다.</td></tr>
+                <tr><td colSpan={5} className="p-8 text-center text-[#9CA3AF] text-[14px]">기기 요청이 없습니다.</td></tr>
               ) : items.map((item) => (
                 <tr key={item.id} className="border-b border-[#f0f0f0]">
-                  <td className="px-4 py-3 text-[14px] text-[#CBD5E0] whitespace-nowrap">{item.workerName}</td>
-                  <td className="px-4 py-3 text-[14px] text-[#CBD5E0] whitespace-nowrap">{item.deviceName}</td>
-                  <td className="px-4 py-3 text-[14px] text-[#CBD5E0] whitespace-nowrap">{formatDt(item.createdAt)}</td>
-                  <td className="px-4 py-3 text-[14px] text-[#CBD5E0] whitespace-nowrap">
+                  <td className="px-4 py-3 text-[14px] text-[#374151] whitespace-nowrap">{item.workerName}</td>
+                  <td className="px-4 py-3 text-[14px] text-[#374151] whitespace-nowrap">{item.deviceName}</td>
+                  <td className="px-4 py-3 text-[14px] text-[#374151] whitespace-nowrap">{formatDt(item.createdAt)}</td>
+                  <td className="px-4 py-3 text-[14px] text-[#374151] whitespace-nowrap">
                     <span
                       className="px-2 py-[3px] rounded text-[12px] font-semibold"
                       style={{
@@ -130,7 +130,7 @@ export default function CompanyDevicesPage() {
                       {STATUS_LABEL[item.status] ?? item.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-[14px] text-[#CBD5E0] whitespace-nowrap">
+                  <td className="px-4 py-3 text-[14px] text-[#374151] whitespace-nowrap">
                     {item.status === 'PENDING' && (
                       <div className="flex gap-[6px]">
                         <button

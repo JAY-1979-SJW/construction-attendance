@@ -443,13 +443,13 @@ export default function AttendancePage() {
   return (
     <>
       <WorkerTopBar />
-      <div className="max-w-[480px] mx-auto px-5 min-h-screen pb-20 pt-[76px]">
+      <div className="mobile-content">
       {/* 법적 고지 배너 */}
       {!isPreview && <WorkerDisclaimerBanner />}
 
       {/* 미리보기 배너 */}
       {isPreview && (
-        <div className="flex items-center justify-between bg-[rgba(244,121,32,0.1)] border border-[rgba(244,121,32,0.35)] rounded-[10px] px-[14px] py-[10px] mb-3 text-[13px] text-[#FFB74D] gap-2">
+        <div className="flex items-center justify-between bg-[rgba(244,121,32,0.1)] border border-[rgba(244,121,32,0.35)] rounded-[10px] px-[14px] py-[10px] mb-3 text-[13px] text-[#ea580c] gap-2">
           <span>👀 미리보기 모드 — 실제 사용하려면</span>
           <button onClick={() => router.push('/login')} className="px-[14px] py-[6px] bg-accent text-white border-none rounded-md cursor-pointer text-xs font-bold shrink-0">로그인하기</button>
         </div>
@@ -458,12 +458,12 @@ export default function AttendancePage() {
       {/* 헤더 */}
       <div className="flex justify-between items-center mb-6 pt-2">
         <div>
-          <div className="text-lg font-bold text-white">{worker?.name}</div>
+          <div className="text-lg font-bold text-[#0F172A]">{worker?.name}</div>
           <div className="text-[13px] text-muted-brand mt-0.5">{worker?.company} · {worker?.jobTitle}</div>
         </div>
         <button
           onClick={() => isPreview ? router.push('/login') : fetch('/api/auth/logout', { method: 'POST' }).then(() => router.push('/login'))}
-          className="bg-transparent border border-[rgba(91,164,217,0.2)] rounded-lg px-3 py-[6px] text-[13px] cursor-pointer text-muted-brand"
+          className="bg-transparent border border-[#E5E7EB] rounded-lg px-3 py-[6px] text-[13px] cursor-pointer text-[#6B7280]"
         >
           {isPreview ? '로그인' : '로그아웃'}
         </button>
@@ -484,8 +484,8 @@ export default function AttendancePage() {
       {/* 출퇴근 메시지 — background/color depend on runtime string value, keep dynamic */}
       {attendanceMsg && (
         <div style={{
-          background: attendanceMsg.includes('완료') ? 'rgba(46,125,50,0.15)' : 'rgba(244,121,32,0.12)',
-          color: attendanceMsg.includes('완료') ? '#81c784' : '#FFB74D',
+          background: attendanceMsg.includes('완료') ? 'rgba(22,163,74,0.08)' : 'rgba(234,88,12,0.08)',
+          color: attendanceMsg.includes('완료') ? '#16a34a' : '#ea580c',
         }} className="rounded-[10px] px-4 py-3 mb-3 text-[14px] font-semibold">
           {attendanceMsg}
         </div>
@@ -494,11 +494,11 @@ export default function AttendancePage() {
       {/* ── 첫 진입 안내 (현장 미배정 / 기기 미등록) ── */}
       {!isPreview && !today && availableSites.length === 0 && (
         <div className="bg-card rounded-2xl p-5 mb-4 border border-[rgba(249,115,22,0.3)]">
-          <div className="text-[15px] font-bold text-white mb-3">시작하기</div>
+          <div className="text-[15px] font-bold text-[#0F172A] mb-3">시작하기</div>
           <div className="space-y-[10px]">
             <div className="flex items-center gap-3">
               <span className="w-6 h-6 rounded-full bg-[rgba(22,163,74,0.15)] text-[#16a34a] text-[12px] font-bold flex items-center justify-center shrink-0">✓</span>
-              <span className="text-[13px] text-[#A0AEC0]">계정 승인 완료</span>
+              <span className="text-[13px] text-[#6B7280]">계정 승인 완료</span>
             </div>
             {(!worker?.devices || worker.devices.length === 0) && (
               <div className="flex items-center gap-3">
@@ -524,26 +524,26 @@ export default function AttendancePage() {
             <div className="inline-block text-white text-[13px] font-bold py-1 px-3 rounded-[20px] mb-3" style={{ background: STATUS_COLOR[today.status] }}>
               {STATUS_LABEL[today.status]}
             </div>
-            <div className="text-lg font-bold text-white mb-1">
+            <div className="text-lg font-bold text-[#0F172A] mb-1">
               {today.moveEvents?.length > 0 ? today.currentSiteName : today.siteName}
             </div>
             {today.moveEvents?.length > 0 && (
-              <div className="text-xs text-[#A0AEC0] mb-1">
+              <div className="text-xs text-[#6B7280] mb-1">
                 출근: {today.siteName} → 현재: {today.currentSiteName}
               </div>
             )}
-            <div className="text-[13px] text-muted-brand mb-5">{today.siteAddress}</div>
+            <div className="text-[13px] text-[#6B7280] mb-5">{today.siteAddress}</div>
             <div className="flex items-center gap-3">
               <div className="flex-1 text-center">
-                <div className="text-xs text-[#718096] mb-1">출근</div>
-                <div className="text-2xl font-bold text-white">{formatTime(today.checkInAt)}</div>
-                {today.checkInDistance != null && <div className="text-[11px] text-[#aaa] mt-1">{Math.round(today.checkInDistance)}m</div>}
+                <div className="text-xs text-[#6B7280] mb-1">출근</div>
+                <div className="text-2xl font-bold text-[#0F172A]">{formatTime(today.checkInAt)}</div>
+                {today.checkInDistance != null && <div className="text-[11px] text-[#9CA3AF] mt-1">{Math.round(today.checkInDistance)}m</div>}
               </div>
-              <div className="text-xl text-[#ccc]">→</div>
+              <div className="text-xl text-[#D1D5DB]">→</div>
               <div className="flex-1 text-center">
-                <div className="text-xs text-[#718096] mb-1">퇴근</div>
-                <div className="text-2xl font-bold text-white">{formatTime(today.checkOutAt)}</div>
-                {today.checkOutDistance != null && <div className="text-[11px] text-[#aaa] mt-1">{Math.round(today.checkOutDistance)}m</div>}
+                <div className="text-xs text-[#6B7280] mb-1">퇴근</div>
+                <div className="text-2xl font-bold text-[#0F172A]">{formatTime(today.checkOutAt)}</div>
+                {today.checkOutDistance != null && <div className="text-[11px] text-[#9CA3AF] mt-1">{Math.round(today.checkOutDistance)}m</div>}
               </div>
             </div>
 
@@ -563,14 +563,14 @@ export default function AttendancePage() {
                           key={site.siteId}
                           className="rounded-[10px] p-3 mb-2"
                           style={{
-                            border: `2px solid ${site.withinRadius ? '#1565c0' : 'rgba(91,164,217,0.2)'}`,
-                            background: site.withinRadius ? 'rgba(21,101,192,0.15)' : '#2a3f5a',
+                            border: `2px solid ${site.withinRadius ? '#1565c0' : '#E5E7EB'}`,
+                            background: site.withinRadius ? 'rgba(21,101,192,0.08)' : '#FFFFFF',
                           }}
                         >
                           <div className="flex justify-between items-center">
                             <div>
-                              <div className="text-sm font-bold">{site.siteName}</div>
-                              <div className="text-[11px] text-[#A0AEC0]">{site.companyName}</div>
+                              <div className="text-sm font-bold text-[#0F172A]">{site.siteName}</div>
+                              <div className="text-[11px] text-[#6B7280]">{site.companyName}</div>
                             </div>
                             {site.distanceMeters !== null && (
                               <div
@@ -596,11 +596,11 @@ export default function AttendancePage() {
                         </div>
                       ))}
                     {availableSites.filter(s => s.siteId !== today.currentSiteId).length === 0 && (
-                      <div className="text-[13px] text-[#A0AEC0] py-[10px]">
+                      <div className="text-[13px] text-[#6B7280] py-[10px]">
                         이동 가능한 다른 배정 현장이 없습니다.
                       </div>
                     )}
-                    <button onClick={() => setShowMovePanel(false)} className="w-full py-[10px] text-sm bg-transparent border border-[rgba(91,164,217,0.2)] rounded-lg cursor-pointer text-muted-brand mt-[6px]">취소</button>
+                    <button onClick={() => setShowMovePanel(false)} className="w-full py-[10px] text-sm bg-transparent border border-[#E5E7EB] rounded-lg cursor-pointer text-muted-brand mt-[6px]">취소</button>
                   </div>
                 ) : needsException ? (
                   <>
@@ -609,7 +609,7 @@ export default function AttendancePage() {
                       value={exceptionReason}
                       onChange={e => setExceptionReason(e.target.value)}
                       rows={3}
-                      className="w-full px-[10px] py-[10px] rounded-lg border border-[rgba(91,164,217,0.2)] text-[14px] resize-none box-border"
+                      className="w-full px-[10px] py-[10px] rounded-lg border border-[#E5E7EB] text-[14px] resize-none box-border"
                     />
                     <button
                       onClick={() => handleDirectCheckOut(exceptionReason)}
@@ -619,7 +619,7 @@ export default function AttendancePage() {
                     >
                       {checkOutLoading ? '퇴근 처리 중...' : '사유 입력 후 퇴근'}
                     </button>
-                    <button onClick={() => setNeedsException(false)} className="w-full py-[10px] text-sm bg-transparent border border-[rgba(91,164,217,0.2)] rounded-lg cursor-pointer text-muted-brand mt-[6px]">취소</button>
+                    <button onClick={() => setNeedsException(false)} className="w-full py-[10px] text-sm bg-transparent border border-[#E5E7EB] rounded-lg cursor-pointer text-muted-brand mt-[6px]">취소</button>
                   </>
                 ) : (
                   <div className="flex gap-2">
@@ -660,7 +660,7 @@ export default function AttendancePage() {
                 <button
                   onClick={loadAvailableSites}
                   disabled={gpsStatus === 'loading' || checkInLoading}
-                  className="text-xs px-[10px] py-1 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-muted-brand"
+                  className="text-xs px-[10px] py-1 bg-brand border border-[#E5E7EB] rounded-md cursor-pointer text-muted-brand"
                 >
                   새로고침
                 </button>
@@ -670,9 +670,9 @@ export default function AttendancePage() {
               <div>
                 {/* 현장 1개: 즉시 출근 강조 */}
                 {availableSites.length === 1 ? (
-                  <div className="rounded-xl p-5" style={{ border: '2px solid #2e7d32', background: 'rgba(46,125,50,0.10)' }}>
-                    <div className="text-[16px] font-bold text-white mb-1">{availableSites[0].siteName}</div>
-                    <div className="text-[12px] text-[#A0AEC0] mb-4">{availableSites[0].companyName}
+                  <div className="rounded-xl p-5" style={{ border: '2px solid #2e7d32', background: 'rgba(22,163,74,0.06)' }}>
+                    <div className="text-[16px] font-bold text-[#0F172A] mb-1">{availableSites[0].siteName}</div>
+                    <div className="text-[12px] text-[#6B7280] mb-4">{availableSites[0].companyName}
                       {availableSites[0].distanceMeters !== null && (
                         <span className="ml-2" style={{ color: availableSites[0].withinRadius ? '#4caf50' : '#999' }}>
                           {availableSites[0].distanceMeters}m {availableSites[0].withinRadius ? '(반경 내)' : `(허용 ${availableSites[0].allowedRadiusMeters}m)`}
@@ -691,14 +691,14 @@ export default function AttendancePage() {
                 ) : (
                   /* 현장 여러 개: 선택 목록 */
                   <>
-                    <p className="text-[13px] text-[#A0AEC0] mb-3">출근할 현장을 선택하세요</p>
+                    <p className="text-[13px] text-[#6B7280] mb-3">출근할 현장을 선택하세요</p>
                     {availableSites.map(site => (
                       <div key={site.siteId} className="rounded-xl p-[14px] mb-[10px]"
-                        style={{ border: `2px solid ${site.withinRadius ? '#2e7d32' : 'rgba(91,164,217,0.2)'}`, background: site.withinRadius ? 'rgba(46,125,50,0.10)' : '#2a3f5a' }}>
+                        style={{ border: `2px solid ${site.withinRadius ? '#2e7d32' : '#E5E7EB'}`, background: site.withinRadius ? 'rgba(22,163,74,0.06)' : '#FFFFFF' }}>
                         <div className="flex justify-between items-center mb-2">
                           <div>
-                            <div className="text-[15px] font-bold text-white">{site.siteName}</div>
-                            <div className="text-[11px] text-[#A0AEC0]">{site.companyName}</div>
+                            <div className="text-[15px] font-bold text-[#0F172A]">{site.siteName}</div>
+                            <div className="text-[11px] text-[#6B7280]">{site.companyName}</div>
                           </div>
                           {site.distanceMeters !== null && (
                             <div className="text-right shrink-0 ml-2">
@@ -753,13 +753,13 @@ export default function AttendancePage() {
                 <div
                   key={item.workDate + item.siteName}
                   className="flex items-center justify-between"
-                  style={{ borderBottom: '1px solid rgba(91,164,217,0.1)', paddingBottom: 8 }}
+                  style={{ borderBottom: '1px solid #F3F4F6', paddingBottom: 8 }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="text-[13px] text-[#A0AEC0] w-[80px] shrink-0">{dateLabel}</div>
+                    <div className="text-[13px] text-[#6B7280] w-[80px] shrink-0">{dateLabel}</div>
                     <div>
-                      <div className="text-[14px] font-semibold text-white leading-tight">{item.siteName}</div>
-                      <div className="text-[12px] text-[#A0AEC0] mt-[2px]">{inTime} ~ {outTime}</div>
+                      <div className="text-[14px] font-semibold text-[#0F172A] leading-tight">{item.siteName}</div>
+                      <div className="text-[12px] text-[#6B7280] mt-[2px]">{inTime} ~ {outTime}</div>
                     </div>
                   </div>
                   <div className="text-[12px] font-bold shrink-0" style={{ color: statusColor }}>{statusLabel}</div>
@@ -794,7 +794,7 @@ function PresenceCard({
         <div className="text-[40px] text-center mb-3">✅</div>
         <div className="text-lg font-bold mb-[6px] text-[#2e7d32]">현장 체류 확인 완료</div>
         <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">현장 기준 {Math.round(result.distanceMeters)}m · 허용 {result.allowedRadiusMeters}m</div>
-        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[#F3F4F6] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
@@ -808,7 +808,7 @@ function PresenceCard({
           현장 기준 {Math.round(result.distanceMeters)}m · 허용 {result.allowedRadiusMeters}m<br />
           GPS 정확도 또는 위치가 경계에 있어 관리자가 확인 중입니다.
         </div>
-        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[#F3F4F6] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
@@ -820,7 +820,7 @@ function PresenceCard({
         <div className="text-lg font-bold mb-[6px] text-[#c62828]">현장 반경 밖</div>
         <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">현장 기준 {Math.round(result.distanceMeters)}m · 허용 {result.allowedRadiusMeters}m</div>
         <div className="text-xs text-muted-brand mb-4 leading-[1.6]">현장에 있는 경우 관리자에게 문의하세요.</div>
-        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[#F3F4F6] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
@@ -829,9 +829,9 @@ function PresenceCard({
     return (
       <div className="bg-card border-2 border-[#bbb] rounded-2xl p-6 mb-4">
         <div className="text-[40px] text-center mb-3">⏱️</div>
-        <div className="text-lg font-bold text-[#A0AEC0] mb-[6px]">응답 시간 종료</div>
+        <div className="text-lg font-bold text-[#6B7280] mb-[6px]">응답 시간 종료</div>
         <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">체류 확인 응답 가능 시간이 지났습니다.</div>
-        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[#F3F4F6] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
@@ -844,7 +844,7 @@ function PresenceCard({
         <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">
           브라우저 주소창 옆 자물쇠 아이콘을 눌러 위치 권한을 허용한 후 다시 시도해 주세요.
         </div>
-        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[#F3F4F6] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
@@ -856,7 +856,7 @@ function PresenceCard({
         <div className="text-lg font-bold mb-[6px] text-[#e65100]">현재 위치를 가져올 수 없음</div>
         <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">GPS 신호가 약합니다. 실외로 이동 후 다시 시도해 주세요.</div>
         <button onClick={onRespond} className="w-full py-4 text-[17px] font-bold bg-accent text-white border-none rounded-xl cursor-pointer">다시 시도</button>
-        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[#F3F4F6] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
@@ -868,7 +868,7 @@ function PresenceCard({
         <div className="text-lg font-bold mb-[6px] text-[#e65100]">위치 조회 시간 초과</div>
         <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">GPS 응답이 너무 늦었습니다. 잠시 후 다시 시도해 주세요.</div>
         <button onClick={onRespond} className="w-full py-4 text-[17px] font-bold bg-accent text-white border-none rounded-xl cursor-pointer">다시 시도</button>
-        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[#F3F4F6] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
@@ -880,7 +880,7 @@ function PresenceCard({
         <div className="text-lg font-bold mb-[6px] text-[#c62828]">네트워크 오류</div>
         <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">인터넷 연결을 확인하고 다시 시도해 주세요.</div>
         <button onClick={onRespond} className="w-full py-4 text-[17px] font-bold bg-accent text-white border-none rounded-xl cursor-pointer">다시 시도</button>
-        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[#F3F4F6] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
@@ -895,8 +895,8 @@ function PresenceCard({
           실내·지하 등 GPS 수신이 어려운 환경이면 실외로 이동 후 재시도하세요.
         </div>
         <button onClick={() => onForceSubmit(result.coords)} className="w-full py-4 text-[17px] font-bold bg-accent text-white border-none rounded-xl cursor-pointer">그래도 응답하기</button>
-        <button onClick={onRespond} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">다시 측정하기</button>
-        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
+        <button onClick={onRespond} className="w-full py-3 text-sm bg-[#F3F4F6] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">다시 측정하기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[#F3F4F6] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
@@ -907,7 +907,7 @@ function PresenceCard({
         <div className="text-[40px] text-center mb-3">⚠️</div>
         <div className="text-lg font-bold mb-[6px] text-[#c62828]">오류 발생</div>
         <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">{result.message}</div>
-        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[rgba(91,164,217,0.1)] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
+        <button onClick={onDismiss} className="w-full py-3 text-sm bg-[#F3F4F6] text-muted-brand border-none rounded-[10px] cursor-pointer mt-2">닫기</button>
       </div>
     )
   }
@@ -919,7 +919,7 @@ function PresenceCard({
   return (
     <div className="bg-card border-2 border-[#1976d2] rounded-2xl p-6 mb-4">
       <div className="inline-block bg-[rgba(244,121,32,0.12)] text-accent text-[11px] font-bold px-[10px] py-[3px] rounded-xl mb-[10px]">{pending.timeBucket === 'AM' ? '오전 체류 확인' : '오후 체류 확인'}</div>
-      <div className="text-lg font-bold text-white mb-[6px]">현장 체류 확인 요청</div>
+      <div className="text-lg font-bold text-[#0F172A] mb-[6px]">현장 체류 확인 요청</div>
       <div className="text-sm font-semibold text-secondary-brand mb-[10px]">{pending.siteName}</div>
       <div className="text-[13px] text-muted-brand leading-[1.7] mb-4">관리자가 현재 현장 체류 확인을 요청했습니다.<br />아래 버튼을 눌러 현재 위치로 응답해 주세요.</div>
       {/* countdown value is runtime — keep color dynamic */}

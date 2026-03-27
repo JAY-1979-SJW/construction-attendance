@@ -3,9 +3,11 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
-  PageShell, SectionCard,
+  PageShell, SectionCard, PageHeader,
   FilterInput, FilterSelect, FilterPill,
+  AdminTable, AdminTr, AdminTd, EmptyRow,
   StatusBadge, Btn,
+  FormInput, FormTextarea, ModalFooter,
 } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
@@ -608,11 +610,15 @@ function AttendancePageInner() {
         </div>
       )}
 
-      {/* ── 제목 + 필터 바 ── */}
+      <PageHeader
+        title="출퇴근관리"
+        description="날짜별 출퇴근 현황을 관리합니다"
+      />
+
+      {/* ── 필터 바 ── */}
       <SectionCard padding={false}>
-        {/* 1행: 제목 + 조회 컨트롤 */}
+        {/* 1행: 조회 컨트롤 */}
         <div className="px-5 pt-4 pb-3 flex items-center gap-3 flex-wrap border-b border-[#F3F4F6]">
-          <h1 className="text-[16px] font-bold text-[#0F172A] mr-1 shrink-0">출퇴근관리</h1>
           <FilterInput
             type="date"
             value={date}
@@ -757,57 +763,41 @@ function AttendancePageInner() {
             {loading ? (
               <div className="py-12 text-center text-[13px] text-[#9CA3AF]">로딩 중...</div>
             ) : sorted.length === 0 ? (
-              <div className="py-12 text-center text-[13px] text-[#9CA3AF]">조회된 기록이 없습니다</div>
+              <AdminTable headers={['이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
+                <EmptyRow colSpan={8} message="조회된 기록이 없습니다" />
+              </AdminTable>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-[13px]" style={{ minWidth: 780 }}>
-                  <thead>
-                    <tr className="border-b border-[#F3F4F6] bg-[#FAFAFA]">
-                      {['이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인'].map(h => (
-                        <th
-                          key={h}
-                          className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap"
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
+              <AdminTable headers={['이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
+
                     {sorted.map(item => {
                       const md = calcManDay(item.workedMinutesFinal ?? item.workedMinutesRaw)
                       const cs = getConfirmStatus(item, allWorkers)
                       const isSelected = item.id === selectedId
                       const rowBg =
-                        isSelected        ? 'bg-[#FFF7ED]' :
+                        isSelected        ? 'bg-[#FFF7ED] hover:bg-[#FFF7ED]' :
                         isNeedsReview(item) ? 'bg-[#FEF2F2] hover:bg-[#FEE2E2]' :
                         (item.manualAdjustedYn || item.status === 'ADJUSTED') ? 'bg-[#FAF5FF] hover:bg-[#F3E8FF]' :
-                        'hover:bg-[#F9FAFB]'
+                        ''
                       return (
-                        <tr
+                        <AdminTr
                           key={item.id}
                           onClick={() => openDetail(item.id)}
-                          className={`border-b border-[#F9FAFB] cursor-pointer transition-colors ${rowBg}`}
-                          style={isSelected ? { borderLeft: '3px solid #F97316' } : {}}
+                          className={rowBg}
                         >
-                          {/* 이름 */}
-                          <td className="px-3 py-2.5">
-                            <div className="font-semibold text-[#111827] whitespace-nowrap">{item.workerName}</div>
-                          </td>
-                          {/* 직종 */}
-                          <td className="px-3 py-2.5 text-[12px] text-[#6B7280] whitespace-nowrap">{item.jobTitle}</td>
-                          {/* 주배정 현장 */}
-                          <td className="px-3 py-2.5 max-w-[100px]">
+                          <AdminTd>
+                            <div className="font-semibold text-[#111827]">{item.workerName}</div>
+                          </AdminTd>
+                          <AdminTd className="text-[12px] text-[#6B7280]">{item.jobTitle}</AdminTd>
+                          <AdminTd className="max-w-[100px]">
                             {(() => {
                               const w = allWorkers.find(w2 => w2.id === item.workerId)
                               const primary = w?.activeSites.find(s => s.isPrimary)
                               if (primary) return <div className="text-[12px] text-[#374151] truncate">{primary.name}</div>
                               if (w && w.activeSites.length > 0) return <div className="text-[12px] text-[#374151] truncate">{w.activeSites[0].name}</div>
-                              return <span className="text-[11px] font-semibold text-[#D97706] bg-[#FEF3C7] px-[6px] py-[1px] rounded">미배정</span>
+                              return <StatusBadge status="PENDING" label="미배정" />
                             })()}
-                          </td>
-                          {/* 실제 출근 현장 */}
-                          <td className="px-3 py-2.5 max-w-[100px]">
+                          </AdminTd>
+                          <AdminTd className="max-w-[100px]">
                             <div className="text-[12px] text-[#374151] truncate">{item.siteName}</div>
                             {(() => {
                               const w = allWorkers.find(w2 => w2.id === item.workerId)
@@ -817,27 +807,23 @@ function AttendancePageInner() {
                               }
                               return null
                             })()}
-                          </td>
-                          {/* 출근 */}
-                          <td className="px-3 py-2.5 tabular-nums whitespace-nowrap">
+                          </AdminTd>
+                          <AdminTd className="tabular-nums">
                             <span className={item.checkInWithinRadius === false ? 'text-[#DC2626]' : 'text-[#374151]'}>
                               {fmtTime(item.checkInAt)}
                             </span>
-                          </td>
-                          {/* 퇴근 */}
-                          <td className="px-3 py-2.5 tabular-nums whitespace-nowrap">
+                          </AdminTd>
+                          <AdminTd className="tabular-nums">
                             {item.checkOutAt ? (
                               <span className="text-[#374151]">{fmtTime(item.checkOutAt)}</span>
                             ) : (
                               <span className="text-[#D1D5DB]">-</span>
                             )}
-                          </td>
-                          {/* 상태 */}
-                          <td className="px-3 py-2.5">
+                          </AdminTd>
+                          <AdminTd>
                             <StatusBadge status={item.status} label={STATUS_LABEL[item.status] ?? item.status} />
-                          </td>
-                          {/* 확인상태 */}
-                          <td className="px-3 py-2.5">
+                          </AdminTd>
+                          <AdminTd>
                             <span
                               className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
                               style={{ color: cs.color, backgroundColor: cs.bg }}
@@ -847,8 +833,8 @@ function AttendancePageInner() {
                             {item.adminNote && (
                               <div className="text-[10px] text-[#6B7280] mt-[2px] max-w-[120px] truncate" title={item.adminNote}>📝 {item.adminNote}</div>
                             )}
-                          </td>
-                        </tr>
+                          </AdminTd>
+                        </AdminTr>
                       )
                     })}
                     {/* 미출근 행 (NOT_CHECKED_IN 필터 또는 전체) */}
@@ -856,34 +842,32 @@ function AttendancePageInner() {
                       if (statusFilter === '' && items.length > 0) return null // 전체 모드에서는 출근자만 표시
                       const primary = w.activeSites.find(s => s.isPrimary) ?? w.activeSites[0]
                       return (
-                        <tr key={`nc-${w.id}`} className="border-b border-[#F9FAFB] bg-[#FFFBEB] hover:bg-[#FEF3C7] cursor-pointer" onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)}>
-                          <td className="px-3 py-2.5 font-semibold text-[#111827]">{w.name}</td>
-                          <td className="px-3 py-2.5 text-[12px] text-[#6B7280]">{w.jobTitle}</td>
-                          <td className="px-3 py-2.5 text-[12px] text-[#374151]">{primary?.name ?? '-'}</td>
-                          <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
-                          <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
-                          <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
-                          <td className="px-3 py-2.5"><span className="text-[11px] font-semibold text-[#D97706] bg-[#FEF3C7] px-[6px] py-[1px] rounded">미출근</span></td>
-                          <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
-                        </tr>
+                        <AdminTr key={`nc-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} className="bg-[#FFFBEB] hover:bg-[#FEF3C7]">
+                          <AdminTd className="font-semibold text-[#111827]">{w.name}</AdminTd>
+                          <AdminTd className="text-[12px] text-[#6B7280]">{w.jobTitle}</AdminTd>
+                          <AdminTd className="text-[12px] text-[#374151]">{primary?.name ?? '-'}</AdminTd>
+                          <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                          <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                          <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                          <AdminTd><StatusBadge status="PENDING" label="미출근" /></AdminTd>
+                          <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                        </AdminTr>
                       )
                     })}
                     {/* 미배정 행 */}
                     {statusFilter === 'UNASSIGNED' && unassignedWorkers.map(w => (
-                      <tr key={`ua-${w.id}`} className="border-b border-[#F9FAFB] bg-[#FEF2F2] hover:bg-[#FEE2E2] cursor-pointer" onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)}>
-                        <td className="px-3 py-2.5 font-semibold text-[#111827]">{w.name}</td>
-                        <td className="px-3 py-2.5 text-[12px] text-[#6B7280]">{w.jobTitle}</td>
-                        <td className="px-3 py-2.5"><span className="text-[11px] font-semibold text-[#D97706] bg-[#FEF3C7] px-[6px] py-[1px] rounded">미배정</span></td>
-                        <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
-                        <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
-                        <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
-                        <td className="px-3 py-2.5"><span className="text-[11px] font-semibold text-[#D97706] bg-[#FEF3C7] px-[6px] py-[1px] rounded">미배정</span></td>
-                        <td className="px-3 py-2.5"><span className="text-[#D1D5DB]">-</span></td>
-                      </tr>
+                      <AdminTr key={`ua-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} highlighted className="bg-[#FEF2F2] hover:bg-[#FEE2E2]">
+                        <AdminTd className="font-semibold text-[#111827]">{w.name}</AdminTd>
+                        <AdminTd className="text-[12px] text-[#6B7280]">{w.jobTitle}</AdminTd>
+                        <AdminTd><StatusBadge status="PENDING" label="미배정" /></AdminTd>
+                        <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                        <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                        <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                        <AdminTd><StatusBadge status="PENDING" label="미배정" /></AdminTd>
+                        <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                      </AdminTr>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+              </AdminTable>
             )}
           </SectionCard>
         </div>
@@ -953,8 +937,7 @@ function AttendancePageInner() {
                       <div className="text-[12px] text-[#374151]">{selected.adminNote}</div>
                     </div>
                   )}
-                  <textarea
-                    className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-[12px] bg-white resize-none outline-none focus:border-[#F97316] placeholder:text-[#9CA3AF]"
+                  <FormTextarea
                     rows={2}
                     value={memoText}
                     onChange={e => setMemoText(e.target.value)}
@@ -1195,69 +1178,49 @@ function AttendancePageInner() {
                     <div className="rounded-[10px] bg-[#F5F3FF] border border-[#DDD6FE] px-4 py-4">
                       <div className="text-[11px] font-bold text-[#7C3AED] mb-3">수동 보정</div>
 
-                      <div className="flex items-center gap-2 mb-2.5">
-                        <span className="text-[12px] text-[#6B7280] w-[60px] shrink-0">출근</span>
-                        <input
-                          type="time"
-                          value={correctCheckIn}
-                          onChange={e => setCorrectCheckIn(e.target.value)}
-                          className="h-8 px-2 text-[13px] border border-[#E5E7EB] rounded-[6px] outline-none focus:border-[#7C3AED] bg-white w-[120px]"
-                        />
-                        <span className="text-[11px] text-[#9CA3AF]">현재 {fmtTime(selected.checkInAt)}</span>
-                      </div>
+                      <FormInput
+                        label="출근"
+                        type="time"
+                        value={correctCheckIn}
+                        onChange={e => setCorrectCheckIn(e.target.value)}
+                        helper={`현재 ${fmtTime(selected.checkInAt)}`}
+                      />
 
-                      <div className="flex items-center gap-2 mb-2.5">
-                        <span className="text-[12px] text-[#6B7280] w-[60px] shrink-0">퇴근</span>
-                        <input
-                          type="time"
-                          value={correctCheckOut}
-                          onChange={e => setCorrectCheckOut(e.target.value)}
-                          className="h-8 px-2 text-[13px] border border-[#E5E7EB] rounded-[6px] outline-none focus:border-[#7C3AED] bg-white w-[120px]"
-                        />
-                        <span className="text-[11px] text-[#9CA3AF]">현재 {fmtTime(selected.checkOutAt)}</span>
-                      </div>
+                      <FormInput
+                        label="퇴근"
+                        type="time"
+                        value={correctCheckOut}
+                        onChange={e => setCorrectCheckOut(e.target.value)}
+                        helper={`현재 ${fmtTime(selected.checkOutAt)}`}
+                      />
 
-                      <div className="flex items-center gap-2 mb-2.5">
-                        <span className="text-[12px] text-[#6B7280] w-[60px] shrink-0">공수(분)</span>
-                        <input
-                          type="number"
-                          min="0"
-                          max="1440"
-                          value={workedMinutesInput}
-                          onChange={e => setWorkedMinutesInput(e.target.value)}
-                          className="h-8 px-2 text-[13px] border border-[#E5E7EB] rounded-[6px] outline-none focus:border-[#7C3AED] bg-white w-[80px]"
-                          placeholder="분"
-                        />
-                        {workedMinutesInput && (
-                          <span className="text-[11px] text-[#7C3AED] font-semibold">
-                            → {calcManDay(parseInt(workedMinutesInput)).label} 공수
-                          </span>
-                        )}
-                      </div>
+                      <FormInput
+                        label="공수(분)"
+                        type="number"
+                        min={0}
+                        max={1440}
+                        value={workedMinutesInput}
+                        onChange={e => setWorkedMinutesInput(e.target.value)}
+                        placeholder="분"
+                        helper={workedMinutesInput ? `→ ${calcManDay(parseInt(workedMinutesInput)).label} 공수` : undefined}
+                      />
 
-                      <div className="flex items-center gap-2 mb-2.5">
-                        <span className="text-[12px] text-[#6B7280] w-[60px] shrink-0">
-                          사유 <span className="text-[#DC2626]">*</span>
-                        </span>
-                        <input
-                          type="text"
-                          value={manualReason}
-                          onChange={e => setManualReason(e.target.value)}
-                          className="h-8 px-2 text-[13px] border border-[#E5E7EB] rounded-[6px] outline-none focus:border-[#7C3AED] bg-white flex-1"
-                          placeholder="수정 사유 (필수)"
-                        />
-                      </div>
+                      <FormInput
+                        label="사유"
+                        required
+                        type="text"
+                        value={manualReason}
+                        onChange={e => setManualReason(e.target.value)}
+                        placeholder="수정 사유 (필수)"
+                      />
 
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="text-[12px] text-[#6B7280] w-[60px] shrink-0">메모</span>
-                        <input
-                          type="text"
-                          value={correctNote}
-                          onChange={e => setCorrectNote(e.target.value)}
-                          className="h-8 px-2 text-[13px] border border-[#E5E7EB] rounded-[6px] outline-none focus:border-[#7C3AED] bg-white flex-1"
-                          placeholder="관리자 메모 (선택)"
-                        />
-                      </div>
+                      <FormInput
+                        label="메모"
+                        type="text"
+                        value={correctNote}
+                        onChange={e => setCorrectNote(e.target.value)}
+                        placeholder="관리자 메모 (선택)"
+                      />
 
                       <div className="text-[11px] text-[#9CA3AF] mb-3 flex items-center justify-between">
                         <span>보정 이력은 감사 로그에 기록됩니다.</span>
@@ -1277,25 +1240,27 @@ function AttendancePageInner() {
                         </div>
                       )}
 
-                      <div className="flex gap-2">
-                        <button
+                      <ModalFooter>
+                        <Btn
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setCorrecting(false)}
+                        >
+                          취소
+                        </Btn>
+                        <Btn
+                          variant="orange"
+                          size="sm"
                           onClick={saveCorrection}
                           disabled={
                             (!correctCheckOut && !correctCheckIn && workedMinutesInput === '') ||
                             !manualReason ||
                             correctSaving
                           }
-                          className="flex-1 py-2 bg-[#F97316] hover:bg-[#EA580C] disabled:opacity-50 disabled:cursor-not-allowed text-white text-[13px] font-semibold rounded-[8px] border-none cursor-pointer transition-colors"
                         >
                           {correctSaving ? '저장 중...' : '보정 저장'}
-                        </button>
-                        <button
-                          onClick={() => setCorrecting(false)}
-                          className="px-4 py-2 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#6B7280] hover:bg-[#F9FAFB] cursor-pointer bg-white transition-colors"
-                        >
-                          취소
-                        </button>
-                      </div>
+                        </Btn>
+                      </ModalFooter>
                     </div>
                   )}
                 </PanelSection>

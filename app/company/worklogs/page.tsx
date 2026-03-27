@@ -75,7 +75,7 @@ export default function CompanyWorklogsPage() {
 
       <div className="flex gap-2 items-center mb-5 flex-wrap">
         <select
-          className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] min-w-[160px]"
+          className="px-3 py-2 border border-[#E5E7EB] rounded-md text-[13px] min-w-[160px]"
           value={siteId}
           onChange={(e) => setSiteId(e.target.value)}
         >
@@ -84,9 +84,9 @@ export default function CompanyWorklogsPage() {
             <option key={s.id} value={s.id}>{s.name}</option>
           ))}
         </select>
-        <input type="date" className="px-[10px] py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+        <input type="date" className="px-[10px] py-2 border border-[#E5E7EB] rounded-md text-[13px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
         <span className="text-[#9ca3af] text-[13px]">~</span>
-        <input type="date" className="px-[10px] py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+        <input type="date" className="px-[10px] py-2 border border-[#E5E7EB] rounded-md text-[13px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
         <button onClick={load} className="px-4 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]">조회</button>
       </div>
 

@@ -152,7 +152,7 @@ export default function CompanyManagersPage() {
                     <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
                       {m.isActive && (
                         <button
-                          className="px-[10px] py-1 bg-white border border-[rgba(91,164,217,0.3)] rounded-[5px] cursor-pointer text-[12px] text-[#6b7280]"
+                          className="px-[10px] py-1 bg-white border border-[#E5E7EB] rounded-[5px] cursor-pointer text-[12px] text-[#6b7280]"
                           onClick={() => handleDeactivate(m.id, m.name)}
                         >
                           비활성화
@@ -175,7 +175,7 @@ export default function CompanyManagersPage() {
             <div className="mb-4">
               <label className="block text-[13px] font-medium text-[#374151] mb-[6px]">이름 *</label>
               <input
-                className="w-full px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-[14px] box-border"
+                className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-md text-[14px] box-border"
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="담당자명"
@@ -184,7 +184,7 @@ export default function CompanyManagersPage() {
             <div className="mb-4">
               <label className="block text-[13px] font-medium text-[#374151] mb-[6px]">이메일 *</label>
               <input
-                className="w-full px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-[14px] box-border"
+                className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-md text-[14px] box-border"
                 type="email"
                 value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
@@ -194,7 +194,7 @@ export default function CompanyManagersPage() {
             <div className="mb-4">
               <label className="block text-[13px] font-medium text-[#374151] mb-[6px]">관리 범위</label>
               <select
-                className="w-full px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-[14px] box-border"
+                className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-md text-[14px] box-border"
                 value={form.role}
                 onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
               >
@@ -205,7 +205,7 @@ export default function CompanyManagersPage() {
             </div>
             <div className="flex gap-2 justify-end mt-5">
               <button
-                className="px-4 py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md bg-white cursor-pointer text-[14px]"
+                className="px-4 py-[7px] border border-[#E5E7EB] rounded-md bg-white cursor-pointer text-[14px]"
                 onClick={() => setShowInvite(false)}
               >
                 취소

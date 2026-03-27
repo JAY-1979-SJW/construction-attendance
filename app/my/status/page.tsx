@@ -128,10 +128,10 @@ export default function MyStatusPage() {
   return (
     <>
       <WorkerTopBar />
-      <div className="min-h-screen bg-brand px-4 pt-20 pb-[88px]">
+      <div className="mobile-content bg-[#F5F7FA]">
       <WorkerDisclaimerBanner />
-      <div className="max-w-[520px] mx-auto">
-        <h1 className="text-2xl font-bold mb-4 text-white">내 상태</h1>
+      <div>
+        <h1 className="text-2xl font-bold mb-4 text-[#0F172A]">내 상태</h1>
 
         {/* ── 출퇴근 가능 여부 요약 (최상단) ── */}
         <div
@@ -165,7 +165,7 @@ export default function MyStatusPage() {
         </div>
 
         {/* 계정 상태 */}
-        <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+        <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">계정 상태</h2>
           <div className="flex items-center gap-[10px] mb-[10px] flex-wrap">
             <span
@@ -177,7 +177,7 @@ export default function MyStatusPage() {
             <span className="text-sm text-muted-brand">{accountStatus.message}</span>
           </div>
           {accountStatus.rejectReason && (
-            <div className="bg-[rgba(198,40,40,0.12)] border border-[rgba(198,40,40,0.35)] rounded-md px-3 py-[10px] text-[13px] text-[#ef9a9a] mt-2">
+            <div className="bg-[rgba(220,38,38,0.06)] border border-[rgba(220,38,38,0.2)] rounded-md px-3 py-[10px] text-[13px] text-[#dc2626] mt-2">
               반려 사유: {accountStatus.rejectReason}
             </div>
           )}
@@ -190,7 +190,7 @@ export default function MyStatusPage() {
         </div>
 
         {/* 기기 상태 */}
-        <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+        <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">기기 승인 상태</h2>
           <div className="flex items-center gap-[10px] mb-[10px] flex-wrap">
             <span
@@ -214,12 +214,12 @@ export default function MyStatusPage() {
 
         {/* 현장 참여 현황 */}
         {(joinRequests.length > 0 || assignedSites.length > 0) && (
-          <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
             <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">현장 참여 현황</h2>
 
             {assignedSites.map(a => (
-              <div key={a.siteId} className="border border-[rgba(91,164,217,0.2)] rounded-[10px] px-4 py-[14px] mb-[10px]">
-                <div className="text-[15px] font-bold text-white">{a.siteName}</div>
+              <div key={a.siteId} className="border border-[#E5E7EB] rounded-[10px] px-4 py-[14px] mb-[10px] bg-white">
+                <div className="text-[15px] font-bold text-[#0F172A]">{a.siteName}</div>
                 <div className="text-[13px] text-muted-brand mt-1">{a.address}</div>
                 <div className="flex gap-2 mt-2 items-center flex-wrap">
                   <span
@@ -234,8 +234,8 @@ export default function MyStatusPage() {
             ))}
 
             {joinRequests.map(j => (
-              <div key={j.requestId} className="border border-[rgba(91,164,217,0.2)] rounded-[10px] px-4 py-[14px] mb-[10px]">
-                <div className="text-[15px] font-bold text-white">{j.siteName}</div>
+              <div key={j.requestId} className="border border-[#E5E7EB] rounded-[10px] px-4 py-[14px] mb-[10px] bg-white">
+                <div className="text-[15px] font-bold text-[#0F172A]">{j.siteName}</div>
                 <div className="text-[13px] text-muted-brand mt-1">{j.address}</div>
                 <div className="flex gap-2 mt-2 flex-wrap">
                   <span
@@ -250,7 +250,7 @@ export default function MyStatusPage() {
                   <p className="text-[13px] text-muted-brand mt-2">관리자 승인 후 이 현장에서 출퇴근할 수 있습니다.</p>
                 )}
                 {j.rejectReason && (
-                  <div className="bg-[rgba(198,40,40,0.12)] border border-[rgba(198,40,40,0.35)] rounded-md px-3 py-[10px] text-[13px] text-[#ef9a9a] mt-2">
+                  <div className="bg-[rgba(220,38,38,0.06)] border border-[rgba(220,38,38,0.2)] rounded-md px-3 py-[10px] text-[13px] text-[#dc2626] mt-2">
                     <strong>반려 사유:</strong> {j.rejectReason}
                   </div>
                 )}
@@ -270,7 +270,7 @@ export default function MyStatusPage() {
 
         {/* 현장 참여 신청 — 계정 승인된 경우만 */}
         {accountStatus.status === 'APPROVED' && (
-          <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
             <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">현장 참여 신청</h2>
             {joinMsg && (
               <div className="bg-[rgba(46,125,50,0.15)] rounded-lg px-[14px] py-[10px] text-[13px] text-[#81c784] mb-3">
@@ -281,8 +281,8 @@ export default function MyStatusPage() {
               <p className="text-[13px] text-muted-brand mt-2">참여 신청 가능한 현장이 없습니다.<br />이미 신청한 현장이 있거나 등록된 현장이 없습니다.</p>
             ) : (
               sites.filter(site => site.canJoin).map(site => (
-                <div key={site.siteId} className="border border-[rgba(91,164,217,0.2)] rounded-[10px] px-4 py-[14px] mb-[10px]">
-                  <div className="text-[15px] font-bold text-white">{site.siteName}</div>
+                <div key={site.siteId} className="border border-[#E5E7EB] rounded-[10px] px-4 py-[14px] mb-[10px] bg-white">
+                  <div className="text-[15px] font-bold text-[#0F172A]">{site.siteName}</div>
                   <div className="text-[13px] text-muted-brand mt-1">{site.address}</div>
                   <button
                     className="mt-[10px] px-5 py-2 bg-accent text-white border-none rounded-lg text-[13px] font-semibold cursor-pointer"
@@ -300,7 +300,7 @@ export default function MyStatusPage() {
 
         {/* 노무/보험 상태 */}
         {complianceStatus && (
-          <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
             <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">노무·보험 처리 현황</h2>
             <p className="text-xs text-[#718096] mb-3">
               출퇴근 가능 여부와 별도입니다. 출퇴근이 가능해도 보험 미처리 상태일 수 있습니다.

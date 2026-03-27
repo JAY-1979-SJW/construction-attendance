@@ -591,9 +591,9 @@ export default function DailyReportPage() {
   )
 
   if (!attendance) return (
-    <div className="min-h-screen bg-[#F5F5F5]">
+    <div className="min-h-screen bg-[#F5F7FA]">
       <WorkerTopBar />
-      <div className="pt-14 pb-20 px-4">
+      <div className="mobile-content">
         <div className="bg-white rounded-xl p-6 mt-4 text-center">
           <div className="text-[#374151] font-semibold text-[15px] mb-1">작업일보</div>
           <div className="text-[#9CA3AF] text-[13px]">
@@ -606,9 +606,9 @@ export default function DailyReportPage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
+    <div className="min-h-screen bg-[#F5F7FA]">
       <WorkerTopBar />
-      <div className="pt-14 pb-24 px-4">
+      <div className="mobile-content">
 
         {/* ── 현장 + 작업일자 ─────────────────────────────── */}
         <div className="bg-white rounded-xl p-4 mt-3">

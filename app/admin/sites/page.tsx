@@ -6,9 +6,11 @@ import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
 import KakaoMap from '@/components/map/KakaoMap'
 import {
+  PageShell, PageHeader, PageBadge,
   SectionCard, Btn,
   FilterInput, FilterSelect, FilterPill, FilterSpacer,
   KpiCard,
+  FormInput, FormSelect, FormGrid, ModalFooter,
 } from '@/components/admin/ui'
 
 // ── 전역 타입 ──────────────────────────────────────────────────────────────
@@ -511,10 +513,7 @@ export default function SitesPage() {
   }
 
   // ── CSS 상수 ──────────────────────────────────────────────────────────────
-  const inputCls     = 'admin-input w-full box-border'
   const labelCls     = 'block text-[13px] font-semibold text-[#6B7280] mb-1'
-  const saveBtnCls   = 'flex-1 py-3 bg-[#F5F7FA] text-[#374151] border border-[#E5E7EB] rounded-[8px] cursor-pointer font-bold hover:bg-[#E5E7EB] transition-colors'
-  const cancelBtnCls = 'flex-1 py-3 bg-white text-[#6B7280] border border-[#E5E7EB] rounded-[8px] cursor-pointer hover:bg-[#F9FAFB] transition-colors'
 
   // ── 폼 필드 공통 렌더 ────────────────────────────────────────────────────
   const renderFormFields = (
@@ -524,61 +523,40 @@ export default function SitesPage() {
     geoStatus: 'idle' | 'loading' | 'done' | 'error',
   ) => (
     <>
-      <div className="mb-[14px]">
-        <label className={labelCls}>현장명 *</label>
-        <input className={inputCls} value={f.name} placeholder="해한 1호 현장" onChange={e => onChange('name', e.target.value)} />
-      </div>
-      <div className="mb-[14px]">
-        <label className={labelCls}>현장 코드</label>
-        <input className={inputCls} value={f.siteCode} placeholder="SITE-001 (선택)" onChange={e => onChange('siteCode', e.target.value)} />
-      </div>
-      <div className="mb-[14px]">
+      <FormInput label="현장명" required value={f.name} placeholder="해한 1호 현장" onChange={e => onChange('name', e.target.value)} />
+      <FormInput label="현장 코드" value={f.siteCode} placeholder="SITE-001 (선택)" onChange={e => onChange('siteCode', e.target.value)} />
+      <div className="mb-4">
         <div className="flex justify-between items-center mb-1">
           <label className={labelCls}>주소 *</label>
           <div className="flex gap-[6px]">
             <button type="button"
               className="px-3 py-[6px] bg-[rgba(244,121,32,0.12)] text-accent border border-[#90caf9] rounded-md cursor-pointer text-[13px] font-semibold whitespace-nowrap"
-              onClick={() => openAddressSearch(target)}>🔍 주소 검색</button>
+              onClick={() => openAddressSearch(target)}>주소 검색</button>
             <button type="button"
               className="px-3 py-[6px] bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7] rounded-md cursor-pointer text-[13px] font-semibold whitespace-nowrap disabled:opacity-50"
               disabled={gpsLoading} onClick={() => fillCurrentLocation(target)}>
-              {gpsLoading ? '확인 중...' : '📍 현재 위치'}
+              {gpsLoading ? '확인 중...' : '현재 위치'}
             </button>
           </div>
         </div>
-        <input className={inputCls} value={f.address} placeholder="주소 검색 또는 직접 입력" onChange={e => onChange('address', e.target.value)} />
+        <FormInput value={f.address} placeholder="주소 검색 또는 직접 입력" onChange={e => onChange('address', e.target.value)} />
       </div>
-      <div className="mb-[14px]">
+      <div className="mb-4">
         <label className={labelCls}>지도 미리보기</label>
         {geoStatus === 'loading' && <div className="text-xs text-[#F59E0B] mb-1">좌표 확인 중...</div>}
         {geoStatus === 'error'   && <div className="text-xs text-[#e53935] mb-1">좌표를 찾지 못했습니다</div>}
         <KakaoMap lat={f.latitude} lng={f.longitude} height="240px" />
       </div>
-      <div className="mb-[14px]">
-        <label className={labelCls}>GPS 좌표 (주소 검색 시 자동입력)</label>
-        <div className="flex gap-2">
-          <input className={`${inputCls} flex-1`} placeholder="위도" value={f.latitude} onChange={e => onChange('latitude', e.target.value)} />
-          <input className={`${inputCls} flex-1`} placeholder="경도" value={f.longitude} onChange={e => onChange('longitude', e.target.value)} />
-        </div>
-      </div>
-      <div className="mb-[14px]">
-        <label className={labelCls}>GPS 허용 반경 (m)</label>
-        <input className={inputCls} value={f.allowedRadius} placeholder="100" onChange={e => onChange('allowedRadius', e.target.value)} />
-      </div>
-      <div className="flex gap-3">
-        <div className="mb-[14px] flex-1">
-          <label className={labelCls}>착공일</label>
-          <input type="date" className={inputCls} value={f.openedAt} onChange={e => onChange('openedAt', e.target.value)} />
-        </div>
-        <div className="mb-[14px] flex-1">
-          <label className={labelCls}>준공일</label>
-          <input type="date" className={inputCls} value={f.closedAt} onChange={e => onChange('closedAt', e.target.value)} />
-        </div>
-      </div>
-      <div className="mb-[14px]">
-        <label className={labelCls}>메모</label>
-        <input className={inputCls} value={f.notes} placeholder="현장 특이사항" onChange={e => onChange('notes', e.target.value)} />
-      </div>
+      <FormGrid cols={2}>
+        <FormInput label="위도" placeholder="위도" value={f.latitude} onChange={e => onChange('latitude', e.target.value)} helper="주소 검색 시 자동입력" />
+        <FormInput label="경도" placeholder="경도" value={f.longitude} onChange={e => onChange('longitude', e.target.value)} />
+      </FormGrid>
+      <FormInput label="GPS 허용 반경 (m)" value={f.allowedRadius} placeholder="100" onChange={e => onChange('allowedRadius', e.target.value)} />
+      <FormGrid cols={2}>
+        <FormInput label="착공일" type="date" value={f.openedAt} onChange={e => onChange('openedAt', e.target.value)} />
+        <FormInput label="준공일" type="date" value={f.closedAt} onChange={e => onChange('closedAt', e.target.value)} />
+      </FormGrid>
+      <FormInput label="메모" value={f.notes} placeholder="현장 특이사항" onChange={e => onChange('notes', e.target.value)} />
     </>
   )
 
@@ -803,9 +781,14 @@ export default function SitesPage() {
 
   // ── 렌더 ──────────────────────────────────────────────────────────────────
   return (
-    <div className="bg-[#F5F7FA]">
+    <PageShell>
       {/* ── KPI + 필터 고정 영역 ─────────────────────────────── */}
       <div className="sticky top-0 z-10 bg-[#F5F7FA] px-5 md:px-6 pt-4 pb-3 flex flex-col gap-3">
+        <PageHeader
+          title="현장관리"
+          description="등록된 현장을 관리합니다"
+          badge={<PageBadge>{loading ? '...' : `${filtered.length}개`}</PageBadge>}
+        />
         {/* KPI 7개 */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
           <KpiCard label="전체 현장"      value={summary.total}      unit="개" accentColor="#E5E7EB" />
@@ -819,7 +802,6 @@ export default function SitesPage() {
         {/* 필터바 */}
         <SectionCard padding={false}>
           <div className="px-4 py-3 flex flex-wrap items-center gap-2">
-            <span className="text-[14px] font-bold text-[#0F172A] mr-1">현장관리</span>
             <FilterInput
               type="text"
               placeholder="현장명 검색"
@@ -852,11 +834,7 @@ export default function SitesPage() {
               <option value="NAME_ASC">이름순</option>
             </FilterSelect>
             <FilterSpacer />
-            <span className="text-[12px] text-[#9CA3AF]">{loading ? '—' : `${filtered.length}개`}</span>
-            <button
-              onClick={load}
-              className="h-9 px-3 border border-[#E5E7EB] rounded-[8px] text-[12px] text-[#6B7280] bg-white hover:bg-[#F9FAFB] cursor-pointer"
-            >새로고침</button>
+            <Btn variant="ghost" size="sm" onClick={load}>새로고침</Btn>
             {canMutate && (
               <Btn variant="orange" onClick={() => { setShowForm(true); setFormGeoStatus('idle'); setForm(emptyForm) }}>
                 + 현장 등록
@@ -974,10 +952,10 @@ export default function SitesPage() {
             <h3 className="text-[18px] font-bold mb-5">현장 등록</h3>
             {renderFormFields(form, 'form', (k, v) => setForm(f => ({ ...f, [k]: v })), formGeoStatus)}
             {formError && <p className="text-[#e53935] text-[13px] mb-3">{formError}</p>}
-            <div className="flex gap-2 mt-4">
-              <button onClick={handleSave} disabled={saving} className={saveBtnCls}>{saving ? '저장 중...' : '등록'}</button>
-              <button onClick={() => { setShowForm(false); setFormError('') }} className={cancelBtnCls}>취소</button>
-            </div>
+            <ModalFooter>
+              <Btn variant="secondary" onClick={() => { setShowForm(false); setFormError('') }}>취소</Btn>
+              <Btn variant="orange" onClick={handleSave} disabled={saving}>{saving ? '저장 중...' : '등록'}</Btn>
+            </ModalFooter>
           </div>
         </div>
       )}
@@ -993,10 +971,10 @@ export default function SitesPage() {
               <label htmlFor="editActive" className="text-sm text-[#374151]">현장 활성 상태</label>
             </div>
             {editError && <p className="text-[#e53935] text-[13px] mb-3">{editError}</p>}
-            <div className="flex gap-2 mt-4">
-              <button onClick={handleEdit} disabled={editSaving} className={saveBtnCls}>{editSaving ? '저장 중...' : '저장'}</button>
-              <button onClick={() => setEditTarget(null)} className={cancelBtnCls}>취소</button>
-            </div>
+            <ModalFooter>
+              <Btn variant="secondary" onClick={() => setEditTarget(null)}>취소</Btn>
+              <Btn variant="orange" onClick={handleEdit} disabled={editSaving}>{editSaving ? '저장 중...' : '저장'}</Btn>
+            </ModalFooter>
           </div>
         </div>
       )}
@@ -1006,51 +984,38 @@ export default function SitesPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] overflow-y-auto py-6 px-6">
           <div className="bg-white rounded-xl p-8 w-[480px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#E5E7EB]">
             <h3 className="text-[18px] font-bold mb-5">업체 배정 — {assignSite.name}</h3>
-            <div className="mb-[14px]">
-              <label className={labelCls}>회사 *</label>
-              <select value={assignForm.companyId} onChange={e => setAssignForm(f => ({ ...f, companyId: e.target.value }))} className={inputCls}>
-                <option value="">선택하세요</option>
-                {companies.map(c => <option key={c.id} value={c.id}>{c.companyName}</option>)}
-              </select>
-            </div>
-            <div className="mb-[14px]">
-              <label className={labelCls}>계약 유형</label>
-              <select value={assignForm.contractType} onChange={e => setAssignForm(f => ({ ...f, contractType: e.target.value }))} className={inputCls}>
-                <option value="PRIME">원청</option>
-                <option value="SUBCONTRACT">하도급</option>
-                <option value="JOINT_VENTURE">공동도급</option>
-                <option value="SPECIALTY">전문건설</option>
-              </select>
-            </div>
-            <div className="flex gap-2">
-              <div className="mb-[14px] flex-1">
-                <label className={labelCls}>시작일 *</label>
-                <input type="date" className={inputCls} value={assignForm.startDate} onChange={e => setAssignForm(f => ({ ...f, startDate: e.target.value }))} />
-              </div>
-              <div className="mb-[14px] flex-1">
-                <label className={labelCls}>종료일</label>
-                <input type="date" className={inputCls} value={assignForm.endDate} onChange={e => setAssignForm(f => ({ ...f, endDate: e.target.value }))} />
-              </div>
-            </div>
-            <div className="mb-[14px]">
-              <label className={labelCls}>담당자명</label>
-              <input className={inputCls} value={assignForm.managerName} onChange={e => setAssignForm(f => ({ ...f, managerName: e.target.value }))} placeholder="홍길동" />
-            </div>
-            <div className="mb-[14px]">
-              <label className={labelCls}>담당자 연락처</label>
-              <input className={inputCls} value={assignForm.managerPhone} onChange={e => setAssignForm(f => ({ ...f, managerPhone: e.target.value }))} placeholder="01012345678" />
-            </div>
-            <div className="mb-[14px]">
-              <label className={labelCls}>메모</label>
-              <input className={inputCls} value={assignForm.notes} onChange={e => setAssignForm(f => ({ ...f, notes: e.target.value }))} />
-            </div>
+            <FormSelect
+              label="회사" required
+              value={assignForm.companyId}
+              onChange={e => setAssignForm(f => ({ ...f, companyId: e.target.value }))}
+              placeholder="선택하세요"
+              options={companies.map(c => ({ value: c.id, label: c.companyName }))}
+            />
+            <FormSelect
+              label="계약 유형"
+              value={assignForm.contractType}
+              onChange={e => setAssignForm(f => ({ ...f, contractType: e.target.value }))}
+              options={[
+                { value: 'PRIME', label: '원청' },
+                { value: 'SUBCONTRACT', label: '하도급' },
+                { value: 'JOINT_VENTURE', label: '공동도급' },
+                { value: 'SPECIALTY', label: '전문건설' },
+              ]}
+            />
+            <FormGrid cols={2}>
+              <FormInput label="시작일" required type="date" value={assignForm.startDate} onChange={e => setAssignForm(f => ({ ...f, startDate: e.target.value }))} />
+              <FormInput label="종료일" type="date" value={assignForm.endDate} onChange={e => setAssignForm(f => ({ ...f, endDate: e.target.value }))} />
+            </FormGrid>
+            <FormInput label="담당자명" value={assignForm.managerName} onChange={e => setAssignForm(f => ({ ...f, managerName: e.target.value }))} placeholder="홍길동" />
+            <FormInput label="담당자 연락처" value={assignForm.managerPhone} onChange={e => setAssignForm(f => ({ ...f, managerPhone: e.target.value }))} placeholder="01012345678" />
+            <FormInput label="메모" value={assignForm.notes} onChange={e => setAssignForm(f => ({ ...f, notes: e.target.value }))} />
             {assignError && <p className="text-[#e53935] text-[13px] mb-3">{assignError}</p>}
-            <div className="flex gap-2 mt-4">
-              <button onClick={handleAssign} disabled={assignSaving || !assignForm.companyId || !assignForm.startDate} className={saveBtnCls}>
+            <ModalFooter>
+              <Btn variant="secondary" onClick={() => setAssignSite(null)}>취소</Btn>
+              <Btn variant="orange" onClick={handleAssign} disabled={assignSaving || !assignForm.companyId || !assignForm.startDate}>
                 {assignSaving ? '저장 중...' : '저장'}
-              </button>
-              <button onClick={() => setAssignSite(null)} className={cancelBtnCls}>취소</button>
-            </div>
+              </Btn>
+            </ModalFooter>
           </div>
         </div>
       )}
@@ -1074,40 +1039,25 @@ export default function SitesPage() {
                     )}
                   </div>
                 )}
-                <div className="flex gap-2 mb-[14px]">
-                  <div className="flex-1">
-                    <label className={labelCls}>출근 기준</label>
-                    <input type="time" className={inputCls} value={policyForm.workStartTime}
-                      onChange={e => setPolicyForm(f => ({ ...f, workStartTime: e.target.value }))} />
-                  </div>
-                  <div className="flex-1">
-                    <label className={labelCls}>퇴근 기준</label>
-                    <input type="time" className={inputCls} value={policyForm.workEndTime}
-                      onChange={e => setPolicyForm(f => ({ ...f, workEndTime: e.target.value }))} />
-                  </div>
-                </div>
-                <div className="flex gap-2 mb-[14px]">
-                  <div className="flex-1">
-                    <label className={labelCls}>휴게 시작</label>
-                    <input type="time" className={inputCls} value={policyForm.breakStartTime}
-                      onChange={e => setPolicyForm(f => ({ ...f, breakStartTime: e.target.value }))} />
-                  </div>
-                  <div className="flex-1">
-                    <label className={labelCls}>휴게 종료</label>
-                    <input type="time" className={inputCls} value={policyForm.breakEndTime}
-                      onChange={e => setPolicyForm(f => ({ ...f, breakEndTime: e.target.value }))} />
-                  </div>
-                </div>
-                <div className="mb-[14px]">
-                  <label className={labelCls}>휴게시간 차감 (분)</label>
-                  <input type="number" className={inputCls} value={policyForm.breakMinutes} placeholder="60"
-                    onChange={e => setPolicyForm(f => ({ ...f, breakMinutes: e.target.value }))} />
-                </div>
+                <FormGrid cols={2}>
+                  <FormInput label="출근 기준" type="time" value={policyForm.workStartTime}
+                    onChange={e => setPolicyForm(f => ({ ...f, workStartTime: e.target.value }))} />
+                  <FormInput label="퇴근 기준" type="time" value={policyForm.workEndTime}
+                    onChange={e => setPolicyForm(f => ({ ...f, workEndTime: e.target.value }))} />
+                </FormGrid>
+                <FormGrid cols={2}>
+                  <FormInput label="휴게 시작" type="time" value={policyForm.breakStartTime}
+                    onChange={e => setPolicyForm(f => ({ ...f, breakStartTime: e.target.value }))} />
+                  <FormInput label="휴게 종료" type="time" value={policyForm.breakEndTime}
+                    onChange={e => setPolicyForm(f => ({ ...f, breakEndTime: e.target.value }))} />
+                </FormGrid>
+                <FormInput label="휴게시간 차감 (분)" type="number" value={policyForm.breakMinutes} placeholder="60"
+                  onChange={e => setPolicyForm(f => ({ ...f, breakMinutes: e.target.value }))} />
                 {policyError && <p className="text-[#e53935] text-[13px] mb-3">{policyError}</p>}
-                <div className="flex gap-2 mt-4">
-                  <button onClick={handleSavePolicy} disabled={policySaving} className={saveBtnCls}>{policySaving ? '저장 중...' : '저장'}</button>
-                  <button onClick={() => setPolicySite(null)} className={cancelBtnCls}>취소</button>
-                </div>
+                <ModalFooter>
+                  <Btn variant="secondary" onClick={() => setPolicySite(null)}>취소</Btn>
+                  <Btn variant="orange" onClick={handleSavePolicy} disabled={policySaving}>{policySaving ? '저장 중...' : '저장'}</Btn>
+                </ModalFooter>
               </>
             )}
           </div>
@@ -1115,6 +1065,6 @@ export default function SitesPage() {
       )}
 
       </div>
-    </div>
+    </PageShell>
   )
 }
