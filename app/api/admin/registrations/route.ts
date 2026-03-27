@@ -39,6 +39,17 @@ export async function GET(request: NextRequest) {
           reviewedAt: true,
           reviewedBy: true,
           createdAt: true,
+          birthDate: true,
+          organizationType: true,
+          companyAssignments: {
+            select: {
+              companyId: true,
+              employmentType: true,
+              company: { select: { name: true } },
+            },
+            take: 1,
+            orderBy: { createdAt: 'desc' },
+          },
           devices: {
             where: { isActive: true },
             select: { deviceName: true, approvedAt: true },
@@ -47,11 +58,26 @@ export async function GET(request: NextRequest) {
           siteJoinRequests: {
             select: { siteId: true, status: true },
           },
+          consents: {
+            select: { consentType: true, agreed: true, agreedAt: true },
+          },
+          safetyDocuments: {
+            select: { documentType: true, status: true, createdAt: true },
+          },
+          workerDocuments: {
+            select: { documentType: true, status: true, createdAt: true },
+          },
+          contracts: {
+            select: { id: true, status: true, createdAt: true },
+            take: 1,
+            orderBy: { createdAt: 'desc' },
+          },
           _count: {
             select: {
               safetyDocuments: true,
               contracts: true,
               consents: true,
+              workerDocuments: true,
             },
           },
         },

@@ -54,13 +54,23 @@ export async function POST(
       summary: `근로자 회원가입 승인 — ${worker.name} (${worker.phone})`,
     })
 
-    // 이메일 발송 (이메일이 있는 경우에만, 실패해도 API 응답에 영향 없음)
+    // 이메일 발송 — 후처리, 실패해도 상태 변경 유지
+    let emailFailed = false
     if (worker.email) {
-      const tpl = workerApprovedEmail({ name: worker.name })
-      await sendEmail({ to: worker.email, ...tpl })
+      try {
+        const tpl = workerApprovedEmail({ name: worker.name })
+        await sendEmail({ to: worker.email, ...tpl })
+      } catch (emailErr) {
+        console.error('[admin/registrations/approve] 이메일 발송 실패:', emailErr)
+        emailFailed = true
+      }
     }
 
-    return NextResponse.json({ success: true, message: '승인되었습니다.' })
+    return NextResponse.json({
+      success: true,
+      message: '승인되었습니다.',
+      ...(emailFailed && { warning: '알림 이메일 발송에 실패했습니다. 상태 변경은 정상 처리되었습니다.' }),
+    })
   } catch (err) {
     console.error('[admin/registrations/approve]', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
