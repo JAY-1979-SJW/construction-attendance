@@ -1522,6 +1522,8 @@ model WorkerContract {
   // 전자서명/교부
   electronicDeliveryConsent Boolean              @default(false)
   signedBy                 String?               // 서명자명
+  workerSignatureData      String?               // 근로자 전자서명 이미지 (base64 data URI)
+  companySignatureData     String?               // 회사측 전자서명 이미지 (base64 data URI)
   deliveredAt              DateTime?
   deliveredMethod          String?               // EMAIL | KAKAO | PAPER | APP
 

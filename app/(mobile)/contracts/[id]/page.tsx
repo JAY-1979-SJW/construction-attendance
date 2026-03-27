@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import SignatureCanvas from '@/components/common/SignatureCanvas'
 
 // ─── 타입 ──────────────────────────────────────────────────────
 interface WorkerConfirmationGuide {
@@ -28,12 +29,42 @@ interface ContractSummary {
   presignConfirmed: boolean
 }
 
+interface ContractSection {
+  title:   string
+  content: string
+}
+
+interface RenderedContract {
+  templateType:   string
+  title:          string
+  subtitle:       string
+  legalBasis:     string
+  sections:       ContractSection[]
+  signatureBlock: string
+}
+
+interface DocumentData {
+  contractId:          string
+  contractStatus:      string
+  contractTemplateType: string | null
+  signedAt:            string | null
+  hasWorkerSignature:  boolean
+  document: {
+    id:          string
+    contentJson: RenderedContract
+    contentText: string | null
+    status:      string
+    generatedAt: string
+  } | null
+}
+
 // ─── 색상 맵 ───────────────────────────────────────────────────
 const CODE_COLOR: Record<string, string> = {
   DAILY_CONSTRUCTION: '#1565C0',
   REGULAR:            '#2E7D32',
   FIXED_TERM:         '#E65100',
-  SUBCONTRACTOR:      '#6A1B9A',
+  CONTINUOUS_SITE:    '#6A1B9A',
+  SUBCONTRACTOR:      '#F57F17',
 }
 
 function accentOf(code: string | undefined) {
@@ -46,30 +77,36 @@ export default function WorkerContractConfirmPage() {
   const router   = useRouter()
 
   const [contract, setContract] = useState<ContractSummary | null>(null)
+  const [docData, setDocData]   = useState<DocumentData | null>(null)
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState('')
 
-  // step: 'view' → 열람 확인 단계 | 'presign' → 서명 전 최종 확인 | 'done' → 완료
-  const [step, setStep] = useState<'view' | 'presign' | 'done'>('view')
+  // step: 'view' → 열람 확인 | 'body' → 본문 열람 | 'sign' → 서명 | 'done' → 완료
+  const [step, setStep] = useState<'view' | 'body' | 'sign' | 'done'>('view')
 
-  // 체크박스 상태 (단계별로 구분)
-  const [viewChecks,    setViewChecks]    = useState<boolean[]>([])
+  const [viewChecks,     setViewChecks]     = useState<boolean[]>([])
   const [presignChecked, setPresignChecked] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [submitting, setSubmitting]         = useState(false)
 
+  // 계약 요약 + 본문 동시 로드
   useEffect(() => {
-    fetch(`/api/worker/contracts/${id}`)
-      .then(r => r.json())
-      .then(json => {
-        if (json.success) {
-          const c: ContractSummary = json.data
+    Promise.all([
+      fetch(`/api/worker/contracts/${id}`).then(r => r.json()),
+      fetch(`/api/worker/contracts/${id}/document`).then(r => r.json()),
+    ])
+      .then(([summaryJson, docJson]) => {
+        if (summaryJson.success) {
+          const c: ContractSummary = summaryJson.data
           setContract(c)
           setViewChecks(new Array(c.guide?.checkboxes.length ?? 0).fill(false))
-          // 이미 열람 확인한 경우 presign 단계로
-          if (c.viewConfirmed && !c.presignConfirmed) setStep('presign')
-          else if (c.viewConfirmed && c.presignConfirmed) setStep('done')
+          if (c.viewConfirmed && c.presignConfirmed) setStep('done')
+          else if (c.viewConfirmed) setStep('body')
         } else {
-          setError(json.message || '계약 정보를 불러올 수 없습니다.')
+          setError(summaryJson.message || '계약 정보를 불러올 수 없습니다.')
+        }
+        if (docJson.success) {
+          setDocData(docJson.data)
+          if (docJson.data?.hasWorkerSignature) setStep('done')
         }
       })
       .catch(() => setError('네트워크 오류가 발생했습니다.'))
@@ -86,10 +123,32 @@ export default function WorkerContractConfirmPage() {
       })
       const json = await res.json()
       if (json.success) {
-        if (stage === 'VIEW')    setStep('presign')
-        if (stage === 'PRESIGN') setStep('done')
+        if (stage === 'VIEW')    setStep('body')
+        if (stage === 'PRESIGN') setStep('sign')
       } else {
         setError(json.message || '처리 중 오류가 발생했습니다.')
+      }
+    } catch {
+      setError('네트워크 오류가 발생했습니다.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function handleSign(signatureData: string) {
+    setSubmitting(true)
+    setError('')
+    try {
+      const res = await fetch(`/api/worker/contracts/${id}/sign`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ signatureData }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        setStep('done')
+      } else {
+        setError(json.message || '서명 처리 중 오류가 발생했습니다.')
       }
     } catch {
       setError('네트워크 오류가 발생했습니다.')
@@ -107,7 +166,7 @@ export default function WorkerContractConfirmPage() {
     )
   }
 
-  if (error || !contract) {
+  if (error && !contract) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-brand gap-3 px-6">
         <p className="text-[#c62828] text-[14px] text-center">{error || '계약 정보를 찾을 수 없습니다.'}</p>
@@ -118,9 +177,19 @@ export default function WorkerContractConfirmPage() {
     )
   }
 
+  if (!contract) return null
+
   const guide   = contract.guide
   const accent  = accentOf(guide?.code)
   const allViewChecked = viewChecks.every(Boolean)
+  const renderedDoc = docData?.document?.contentJson as RenderedContract | undefined
+
+  const stepLabels: Record<string, string> = {
+    view: '1단계: 계약 내용 확인',
+    body: '2단계: 계약서 본문 열람',
+    sign: '3단계: 전자서명',
+    done: '서명 완료',
+  }
 
   // ── 완료 화면 ──────────────────────────────────────────────
   if (step === 'done') {
@@ -128,10 +197,10 @@ export default function WorkerContractConfirmPage() {
       <div className="min-h-screen bg-brand flex flex-col items-center justify-center p-6 gap-4">
         <div className="bg-card rounded-2xl py-8 px-6 max-w-[440px] w-full text-center shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
           <div className="text-[48px] mb-3">✅</div>
-          <h2 className="text-[18px] font-bold text-[#1b5e20] mb-2">확인 완료</h2>
+          <h2 className="text-[18px] font-bold text-[#1b5e20] mb-2">서명 완료</h2>
           <p className="text-[13px] text-muted-brand leading-[1.6]">
-            계약 내용 확인 절차가 완료되었습니다.<br />
-            관리자가 다음 단계를 안내해 드릴 것입니다.
+            계약서 확인 및 전자서명이 완료되었습니다.<br />
+            관리자 검토 후 계약이 확정됩니다.
           </p>
         </div>
       </div>
@@ -140,22 +209,21 @@ export default function WorkerContractConfirmPage() {
 
   return (
     <div className="min-h-screen bg-brand pb-10">
-      {/* 헤더 — background depends on dynamic accent, keep as inline */}
+      {/* 헤더 */}
       <div style={{ background: accent }} className="text-white px-5 pt-5 pb-4 sticky top-0 z-10">
         <p className="text-[11px] opacity-80 mb-1">
-          {step === 'view' ? '1단계 / 2단계' : '2단계 / 2단계'}
+          {step === 'view' ? '1 / 3단계' : step === 'body' ? '2 / 3단계' : '3 / 3단계'}
         </p>
         <h1 className="text-[17px] font-bold m-0">
-          {step === 'view' ? '계약 내용 확인' : '서명 전 최종 확인'}
+          {stepLabels[step]}
         </h1>
       </div>
 
       <div className="px-4 max-w-[540px] mx-auto flex flex-col gap-[14px] pt-4">
 
-        {/* 계약 요약 카드 */}
+        {/* 계약 요약 카드 — 모든 단계에서 표시 */}
         <div className="bg-card rounded-xl p-[18px] shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
           <div className="flex items-center gap-2 mb-3">
-            {/* color and background depend on dynamic accent */}
             <span style={{ color: accent, background: accent + '15' }} className="text-[13px] font-bold rounded-md px-[10px] py-[3px]">
               {guide?.title ?? '계약 정보'}
             </span>
@@ -180,7 +248,6 @@ export default function WorkerContractConfirmPage() {
         {/* ── 1단계: 열람 확인 ─────────────────────────────── */}
         {step === 'view' && guide && (
           <>
-            {/* 유형 설명 */}
             <div className="bg-card rounded-xl p-[18px] shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
               <h3 className="text-[14px] font-bold text-[#222] mb-2">근로유형 안내</h3>
               <p className="text-[13px] text-muted-brand leading-[1.7] mb-3">{guide.description}</p>
@@ -192,7 +259,6 @@ export default function WorkerContractConfirmPage() {
               </div>
             </div>
 
-            {/* 체크박스 동의 */}
             <div className="bg-card rounded-xl p-[18px] shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
               <h3 className="text-[14px] font-bold text-[#222] mb-3">내용 확인</h3>
               {guide.checkboxes.map((label, i) => (
@@ -213,7 +279,7 @@ export default function WorkerContractConfirmPage() {
               ))}
             </div>
 
-            {error && <div className="bg-[#ffeef0] border border-[#f5c2c7] rounded-lg px-[14px] py-[10px] text-[13px] text-[#c62828]">{error}</div>}
+            {error && <ErrorBanner message={error} />}
 
             <button
               disabled={!allViewChecked || submitting}
@@ -230,19 +296,58 @@ export default function WorkerContractConfirmPage() {
           </>
         )}
 
-        {/* ── 2단계: 서명 전 최종 확인 ──────────────────────── */}
-        {step === 'presign' && guide && (
+        {/* ── 2단계: 계약서 본문 열람 ──────────────────────── */}
+        {step === 'body' && (
           <>
-            <div className="bg-[#fff8e1] border border-[#ffe082] rounded-xl p-4">
-              <div className="text-[13px] font-bold text-[#e65100] mb-[6px]">⚠ 서명 전 최종 확인</div>
-              <p className="text-[13px] text-[#5d4037] leading-[1.6] m-0">
-                아래 내용을 확인하고 동의하셔야 계약 처리가 진행됩니다.
-                동의 후에는 내용 변경이 어려울 수 있으니 신중하게 확인하세요.
-              </p>
-            </div>
+            {renderedDoc ? (
+              <div className="bg-card rounded-xl shadow-[0_1px_6px_rgba(0,0,0,0.07)] overflow-hidden">
+                {/* 문서 제목 */}
+                <div className="px-[18px] pt-[18px] pb-2">
+                  <h2 className="text-[16px] font-bold text-[#222] mb-1">{renderedDoc.title}</h2>
+                  <p className="text-[12px] text-muted-brand">{renderedDoc.subtitle}</p>
+                  <div className="mt-2 px-3 py-[6px] bg-[#f0f4f8] rounded text-[11px] text-[#555]">
+                    법적 근거: {renderedDoc.legalBasis}
+                  </div>
+                </div>
 
+                {/* 조항 목록 */}
+                <div className="px-[18px] pb-[18px] max-h-[60vh] overflow-y-auto">
+                  {renderedDoc.sections.map((section, i) => (
+                    <div key={i} className="mt-4">
+                      <h4 className="text-[13px] font-bold text-[#333] mb-[6px]">{section.title}</h4>
+                      <div className="text-[12px] text-[#555] leading-[1.8] whitespace-pre-wrap">
+                        {section.content}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* 서명란 */}
+                  {renderedDoc.signatureBlock && (
+                    <div className="mt-6 pt-4 border-t border-[#eee]">
+                      <div className="text-[12px] text-[#555] leading-[1.8] whitespace-pre-wrap">
+                        {renderedDoc.signatureBlock}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-[#fff8e1] border border-[#ffe082] rounded-xl p-4 text-center">
+                <p className="text-[13px] text-[#5d4037]">
+                  계약서 본문이 아직 생성되지 않았습니다.<br />
+                  관리자에게 문의하세요.
+                </p>
+              </div>
+            )}
+
+            {/* 최종 확인 */}
             <div className="bg-card rounded-xl p-[18px] shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
-              <h3 className="text-[14px] font-bold text-[#222] mb-[14px]">최종 동의</h3>
+              <div className="bg-[#fff8e1] border border-[#ffe082] rounded-lg p-3 mb-3">
+                <div className="text-[13px] font-bold text-[#e65100] mb-[6px]">서명 전 최종 확인</div>
+                <p className="text-[12px] text-[#5d4037] leading-[1.6] m-0">
+                  위 계약서 내용을 모두 읽고 확인하였으며, 동의 후에는 내용 변경이 어려울 수 있습니다.
+                </p>
+              </div>
               <label className="flex items-start gap-[10px] cursor-pointer">
                 <input
                   type="checkbox"
@@ -251,11 +356,13 @@ export default function WorkerContractConfirmPage() {
                   className="w-[18px] h-[18px] mt-[2px] shrink-0"
                   style={{ accentColor: accent }}
                 />
-                <span className="text-[13px] text-[#CBD5E0] leading-[1.6]">{guide.finalCheckText}</span>
+                <span className="text-[13px] text-[#CBD5E0] leading-[1.6]">
+                  {guide?.finalCheckText ?? '위 계약서 내용을 모두 확인하였으며, 이에 동의합니다.'}
+                </span>
               </label>
             </div>
 
-            {error && <div className="bg-[#ffeef0] border border-[#f5c2c7] rounded-lg px-[14px] py-[10px] text-[13px] text-[#c62828]">{error}</div>}
+            {error && <ErrorBanner message={error} />}
 
             <button
               disabled={!presignChecked || submitting}
@@ -267,12 +374,49 @@ export default function WorkerContractConfirmPage() {
                 opacity: presignChecked ? 1 : 0.6,
               }}
             >
-              {submitting ? '처리 중...' : '최종 동의 완료'}
+              {submitting ? '처리 중...' : '동의 완료 — 전자서명으로'}
             </button>
           </>
         )}
 
+        {/* ── 3단계: 전자서명 ──────────────────────────────── */}
+        {step === 'sign' && (
+          <>
+            <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-xl p-4">
+              <div className="text-[13px] font-bold text-[#2e7d32] mb-[6px]">전자서명 안내</div>
+              <p className="text-[12px] text-[#33691e] leading-[1.6] m-0">
+                아래 서명란에 본인의 서명을 입력해 주세요.<br />
+                서명이 완료되면 관리자에게 검토 요청이 전송됩니다.
+              </p>
+            </div>
+
+            <div className="bg-card rounded-xl p-[18px] shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
+              <SignatureCanvas
+                onSave={handleSign}
+                accentColor={accent}
+                disabled={submitting}
+              />
+            </div>
+
+            {error && <ErrorBanner message={error} />}
+
+            {submitting && (
+              <div className="text-center text-[13px] text-muted-brand py-2">
+                서명을 저장하는 중...
+              </div>
+            )}
+          </>
+        )}
+
       </div>
+    </div>
+  )
+}
+
+function ErrorBanner({ message }: { message: string }) {
+  return (
+    <div className="bg-[#ffeef0] border border-[#f5c2c7] rounded-lg px-[14px] py-[10px] text-[13px] text-[#c62828]">
+      {message}
     </div>
   )
 }
