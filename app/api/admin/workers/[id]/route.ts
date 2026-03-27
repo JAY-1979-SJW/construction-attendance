@@ -92,11 +92,11 @@ export async function GET(
     )
     const hasPrivacyConsent = worker.consents.some(c => c.consentType === 'PRIVACY_POLICY')
 
-    const missingDocs: string[] = []
-    if (!hasContract) missingDocs.push('근로계약서')
-    if (!hasHealthDocs) missingDocs.push('건강 각서/진단서')
-    if (!hasSafetyEdu) missingDocs.push('안전교육 확인서')
-    if (!hasPrivacyConsent) missingDocs.push('개인정보 동의서')
+    const missingDocs: { key: string; label: string; actionType: string; docType?: string }[] = []
+    if (!hasContract) missingDocs.push({ key: 'CONTRACT', label: '근로계약서', actionType: 'CONTRACT_NEW' })
+    if (!hasPrivacyConsent) missingDocs.push({ key: 'PRIVACY', label: '개인정보 동의서', actionType: 'SAFETY_DOC', docType: 'PRIVACY_CONSENT' })
+    if (!hasHealthDocs) missingDocs.push({ key: 'HEALTH', label: '건강 각서/진단서', actionType: 'SAFETY_DOC', docType: 'HEALTH_DECLARATION' })
+    if (!hasSafetyEdu) missingDocs.push({ key: 'SAFETY_EDU', label: '안전교육 확인서', actionType: 'SAFETY_DOC', docType: 'BASIC_SAFETY_EDU_CONFIRM' })
 
     const isApproved = worker.accountStatus === 'APPROVED' || worker.accountStatus === 'ACTIVE'
     let assignmentEligibility: string
@@ -106,7 +106,7 @@ export async function GET(
       nextAction = '계정 승인이 필요합니다.'
     } else if (missingDocs.length > 0) {
       assignmentEligibility = 'NEEDS_DOCS'
-      nextAction = `부족 서류: ${missingDocs.join(', ')}`
+      nextAction = `부족 서류: ${missingDocs.map(d => d.label).join(', ')}`
     } else {
       assignmentEligibility = 'READY'
       nextAction = '현장 배정 가능'

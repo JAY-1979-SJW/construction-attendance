@@ -81,7 +81,7 @@ interface WorkerDetail {
   birthDate?: string | null
   subcontractorName?: string | null
   assignmentEligibility?: string  // READY | NEEDS_DOCS | NOT_APPROVED
-  missingDocs?: string[]
+  missingDocs?: { key: string; label: string; actionType: string; docType?: string }[]
   nextAction?: string
   createdAt: string
   updatedAt: string
@@ -125,6 +125,8 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
   const [worker, setWorker] = useState<WorkerDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  // 서류 생성 연동: 부족 서류 클릭 시 탭 전환 + 문서 타입 전달
+  const [pendingDocType, setPendingDocType] = useState<string | null>(null)
 
   // 회사 목록 (배정 폼용)
   const [companies, setCompanies] = useState<Company[]>([])
@@ -316,7 +318,14 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
 
         {/* 탭 컨텐츠 */}
         <div className="bg-white rounded-lg p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-          {tab === 'info' && <InfoTab worker={worker} onRefresh={load} />}
+          {tab === 'info' && <InfoTab worker={worker} onRefresh={load} onNavigateDoc={(doc) => {
+            if (doc.actionType === 'CONTRACT_NEW') {
+              router.push(`/admin/contracts/new?workerId=${worker.id}`)
+            } else if (doc.actionType === 'SAFETY_DOC' && doc.docType) {
+              setPendingDocType(doc.docType)
+              setTab('safety')
+            }
+          }} />}
           {tab === 'profile' && <ProfileTab workerId={worker.id} />}
           {tab === 'company' && (
             <CompanyTab
@@ -337,8 +346,8 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
             />
           )}
           {tab === 'docs' && <DocsTab workerId={worker.id} />}
-          {tab === 'contracts' && <ContractsTab workerId={worker.id} />}
-          {tab === 'safety' && <SafetyDocsTab workerId={worker.id} />}
+          {tab === 'contracts' && <ContractsTab workerId={worker.id} onDocChange={load} />}
+          {tab === 'safety' && <SafetyDocsTab workerId={worker.id} initialDocType={pendingDocType} onInitialDocTypeConsumed={() => setPendingDocType(null)} onDocChange={load} />}
           {tab === 'hrActions' && <HrActionsTab workerId={worker.id} workerName={worker.name} />}
         </div>
 
@@ -518,7 +527,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
 
 // ─── 기본정보 탭 ──────────────────────────────────────────────────────────────
 
-function InfoTab({ worker, onRefresh }: { worker: WorkerDetail; onRefresh: () => void }) {
+function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; onRefresh: () => void; onNavigateDoc?: (doc: { key: string; label: string; actionType: string; docType?: string }) => void }) {
   const [editing, setEditing] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
   const [saveError, setSaveError] = React.useState('')
@@ -668,8 +677,18 @@ function InfoTab({ worker, onRefresh }: { worker: WorkerDetail; onRefresh: () =>
             <span className="text-[13px] font-bold" style={{ color: eligStyle.color }}>{eligStyle.label}</span>
           </div>
           {worker.missingDocs && worker.missingDocs.length > 0 && (
-            <div className="text-[12px] text-[#92400E] mt-1">
-              부족 서류: {worker.missingDocs.join(', ')}
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <span className="text-[12px] text-[#92400E] mr-1 pt-0.5">부족 서류:</span>
+              {worker.missingDocs.map(doc => (
+                <button
+                  key={doc.key}
+                  onClick={() => onNavigateDoc?.(doc)}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-white border-[#F59E0B] text-[#92400E] hover:bg-[#FEF3C7] transition-colors"
+                >
+                  {doc.label}
+                  <span className="text-[10px]">&rarr;</span>
+                </button>
+              ))}
             </div>
           )}
           {worker.nextAction && (
@@ -1265,7 +1284,7 @@ interface WorkerContractRow {
   site?: { name: string }
 }
 
-function ContractsTab({ workerId }: { workerId: string }) {
+function ContractsTab({ workerId, onDocChange }: { workerId: string; onDocChange?: () => void }) {
   const [contracts, setContracts] = useState<WorkerContractRow[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -1374,6 +1393,8 @@ const SAFETY_DOC_LABELS: Record<string, string> = {
   PRIVACY_CONSENT:              '개인정보수집·이용동의',
   BASIC_SAFETY_EDU_CONFIRM:     '기초안전보건교육 확인서',
   SITE_SAFETY_RULES_CONFIRM:    '현장 안전수칙 준수 확인서',
+  HEALTH_DECLARATION:           '건강 이상 없음 각서',
+  HEALTH_CERTIFICATE:           '건강 증명서',
 }
 
 const PPE_ITEM_DEFAULTS = [
@@ -1392,7 +1413,12 @@ const PPE_ITEM_DEFAULTS = [
 
 type PpeItem = typeof PPE_ITEM_DEFAULTS[number]
 
-function SafetyDocsTab({ workerId }: { workerId: string }) {
+function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onDocChange }: {
+  workerId: string
+  initialDocType?: string | null
+  onInitialDocTypeConsumed?: () => void
+  onDocChange?: () => void
+}) {
   const [docs, setDocs] = useState<SafetyDocRow[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -1433,6 +1459,15 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
 
   useEffect(() => { load() }, [workerId])
 
+  // 부족 서류 클릭으로 탭 전환 시 자동 폼 오픈
+  useEffect(() => {
+    if (initialDocType) {
+      setForm(f => ({ ...f, documentType: initialDocType }))
+      setShowForm(true)
+      onInitialDocTypeConsumed?.()
+    }
+  }, [initialDocType]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleSubmit = async () => {
     setSubmitting(true)
     try {
@@ -1448,6 +1483,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
       if (!data.success) throw new Error(data.error)
       setShowForm(false)
       load()
+      onDocChange?.()
     } catch (e) {
       alert('오류: ' + (e as Error).message)
     } finally {
@@ -1462,7 +1498,7 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
       body: JSON.stringify({ signedBy: signerName }),
     })
     const data = await res.json()
-    if (data.success) load()
+    if (data.success) { load(); onDocChange?.() }
     else alert(data.error)
   }
 
@@ -1556,6 +1592,8 @@ function SafetyDocsTab({ workerId }: { workerId: string }) {
                 <option value="PRIVACY_CONSENT">개인정보수집·이용 동의서</option>
                 <option value="BASIC_SAFETY_EDU_CONFIRM">건설업 기초안전보건교육 확인서</option>
                 <option value="SITE_SAFETY_RULES_CONFIRM">현장 안전수칙 준수 확인서</option>
+                <option value="HEALTH_DECLARATION">건강 이상 없음 각서</option>
+                <option value="HEALTH_CERTIFICATE">건강 증명서</option>
               </select>
             </div>
 
