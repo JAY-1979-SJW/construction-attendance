@@ -101,6 +101,22 @@ export default function MyDocumentsPage() {
       <WorkerTopBar />
 
       <main className="flex-1 pb-20 pt-14">
+        {/* 반려 서류 경고 배너 */}
+        {!loading && safetyDocs.some(d => d.status === 'REJECTED') && (
+          <div className="px-4 pt-4 pb-0">
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+              <div className="text-[13px] font-bold text-red-700 mb-1">보완 필요 서류가 있습니다</div>
+              {safetyDocs.filter(d => d.status === 'REJECTED').map(d => (
+                <Link key={d.id} href={`/my/documents/${d.id}`}
+                  className="flex items-center justify-between py-1 no-underline">
+                  <span className="text-[13px] text-red-600">{DOC_TYPE_LABELS[d.documentType] ?? d.documentType}</span>
+                  <span className="text-[11px] text-red-400">재제출 &rarr;</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 서류 현황 요약 */}
         {!loading && (
           <div className="px-4 pt-4 pb-2">
@@ -120,9 +136,16 @@ export default function MyDocumentsPage() {
                     안전서류 {safetyDocs.length}건 · 계약서 {contracts.length}건 · 동의서 {consents.length}건
                   </div>
                   <div className="text-[13px] text-gray-500 mt-0.5">
-                    {safetyDocs.filter(d => d.status === 'SIGNED').length + contracts.filter(c => c.contractStatus === 'ACTIVE' || c.contractStatus === 'ENDED').length > 0
-                      ? `서명완료 ${safetyDocs.filter(d => d.status === 'SIGNED').length}건`
-                      : '아직 발급된 서류가 없습니다'}
+                    {(() => {
+                      const approved = safetyDocs.filter(d => d.status === 'APPROVED').length
+                      const rejected = safetyDocs.filter(d => d.status === 'REJECTED').length
+                      const reviewing = safetyDocs.filter(d => d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED').length
+                      const parts: string[] = []
+                      if (approved > 0) parts.push(`승인 ${approved}건`)
+                      if (reviewing > 0) parts.push(`검토중 ${reviewing}건`)
+                      if (rejected > 0) parts.push(`반려 ${rejected}건`)
+                      return parts.length > 0 ? parts.join(' · ') : '아직 발급된 서류가 없습니다'
+                    })()}
                   </div>
                 </div>
               </div>

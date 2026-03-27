@@ -679,8 +679,32 @@ model Worker {
   materialRequests           MaterialRequest[]        @relation("WorkerMaterialRequests")
   // 근로자 작업일보
   dailyReports               WorkerDailyReport[]
+  // 알림
+  notifications              WorkerNotification[]
 
   @@map("workers")
+}
+
+// ── 근로자 알림 ─────────────────────────────────────────────
+model WorkerNotification {
+  id          String    @id @default(cuid())
+  workerId    String
+  type        String    // DOC_REJECTED, DOC_APPROVED, CONTRACT_CHANGE, GENERAL
+  title       String
+  body        String
+  linkUrl     String?   // 클릭 시 이동 경로
+  referenceId String?   // 관련 문서/계약 ID
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+  pushSent    Boolean   @default(false)
+  pushSentAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@index([workerId, isRead])
+  @@index([workerId, createdAt])
+  @@map("worker_notifications")
 }
 
 model Site {
