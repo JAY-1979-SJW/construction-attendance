@@ -36,7 +36,7 @@ export async function GET(
   const doc = await prisma.generatedDocument.findFirst({
     where: {
       contractId: id,
-      documentType: { in: ['CONTRACT', 'DAILY_CONTRACT'] },
+      documentType: { in: ['DAILY_CONTRACT', 'REGULAR_CONTRACT', 'SERVICE_CONTRACT'] },
     },
     orderBy: { generatedAt: 'desc' },
     select: {
