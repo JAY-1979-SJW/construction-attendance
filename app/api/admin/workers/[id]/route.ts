@@ -69,9 +69,9 @@ export async function GET(
           select: { documentType: true, status: true },
         },
         contracts: {
-          where: { isActive: true },
-          select: { id: true },
-          take: 1,
+          select: { id: true, contractStatus: true, isActive: true },
+          orderBy: { createdAt: 'desc' },
+          take: 5,
         },
         consents: {
           where: { agreed: true, consentType: { in: ['PRIVACY_POLICY', 'TERMS_OF_SERVICE'] } },
@@ -93,14 +93,21 @@ export async function GET(
       return 'SUBMITTED' // DRAFT or ISSUED
     }
 
-    const contractStatus: DocStatus = (
-      worker.workerDocuments.some(d => d.documentType === 'CONTRACT' && d.status === 'APPROVED')
-      || worker.contracts.length > 0
-    ) ? 'APPROVED'
-      : worker.workerDocuments.some(d => d.documentType === 'CONTRACT')
-        || worker.safetyDocuments.some(d => d.documentType === 'WORK_CONDITIONS_RECEIPT')
-        ? 'SUBMITTED'
-        : 'NOT_SUBMITTED'
+    // 근로계약서: ContractStatus → 서류 승인 상태 매핑
+    // ACTIVE/ENDED = APPROVED, SIGNED = REVIEW_REQUESTED, DRAFT = SUBMITTED, 없음 = NOT_SUBMITTED
+    function contractDocStatus(): DocStatus {
+      const cts = worker.contracts
+      if (cts.some(c => c.contractStatus === 'ACTIVE' || c.contractStatus === 'ENDED')) return 'APPROVED'
+      if (cts.some(c => c.contractStatus === 'SIGNED')) return 'REVIEW_REQUESTED'
+      if (cts.some(c => c.contractStatus === 'DRAFT')) return 'SUBMITTED'
+      // workerDocuments 또는 safetyDocuments에 계약 관련 문서 존재 확인
+      if (worker.workerDocuments.some(d => d.documentType === 'CONTRACT' && d.status === 'APPROVED')) return 'APPROVED'
+      if (worker.workerDocuments.some(d => d.documentType === 'CONTRACT')) return 'SUBMITTED'
+      const wcrStatus = safetyDocStatus(['WORK_CONDITIONS_RECEIPT'])
+      if (wcrStatus !== 'NOT_SUBMITTED') return wcrStatus
+      return 'NOT_SUBMITTED'
+    }
+    const contractStatus = contractDocStatus()
 
     const privacyStatus: DocStatus = worker.consents.some(c => c.consentType === 'PRIVACY_POLICY')
       ? 'APPROVED'
