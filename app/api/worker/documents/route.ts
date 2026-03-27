@@ -24,6 +24,8 @@ export async function GET() {
           documentDate: true,
           signedAt: true,
           signedBy: true,
+          expiresAt: true,
+          reviewedAt: true,
           site: { select: { id: true, name: true } },
           createdAt: true,
         },

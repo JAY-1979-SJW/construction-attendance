@@ -81,9 +81,10 @@ interface WorkerDetail {
   birthDate?: string | null
   subcontractorName?: string | null
   assignmentEligibility?: string  // READY | NEEDS_DOCS | NEEDS_REVISION | EXPIRED_DOCS | NOT_APPROVED
-  missingDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string }[]
-  rejectedDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string }[]
-  expiredDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string }[]
+  missingDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string; expiresAt?: string | null }[]
+  rejectedDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string; expiresAt?: string | null }[]
+  expiredDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string; expiresAt?: string | null }[]
+  expiringDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string; expiresAt?: string | null }[]
   nextAction?: string
   createdAt: string
   updatedAt: string
@@ -679,6 +680,9 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
           <div className="flex items-center gap-2 mb-1">
             <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: eligStyle.color }} />
             <span className="text-[13px] font-bold" style={{ color: eligStyle.color }}>{eligStyle.label}</span>
+            {worker.nextAction && worker.assignmentEligibility !== 'READY' && (
+              <span className="text-[11px] text-gray-500 ml-1">— {worker.nextAction}</span>
+            )}
           </div>
           {worker.expiredDocs && worker.expiredDocs.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -689,10 +693,28 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
                   onClick={() => onNavigateDoc?.(doc)}
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-white border-[#EF4444] text-[#DC2626] hover:bg-[#FEF2F2] transition-colors"
                 >
-                  {doc.label} (만료)
+                  {doc.label}{doc.expiresAt ? ` (${doc.expiresAt.slice(0, 10)} 만료)` : ' (만료)'}
                   <span className="text-[10px]">&rarr;</span>
                 </button>
               ))}
+            </div>
+          )}
+          {worker.expiringDocs && worker.expiringDocs.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <span className="text-[12px] text-[#D97706] mr-1 pt-0.5">만료 예정:</span>
+              {worker.expiringDocs.map(doc => {
+                const daysLeft = doc.expiresAt ? Math.ceil((new Date(doc.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0
+                return (
+                  <button
+                    key={doc.key}
+                    onClick={() => onNavigateDoc?.(doc)}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-white border-[#F59E0B] text-[#D97706] hover:bg-[#FEF3C7] transition-colors"
+                  >
+                    {doc.label} ({doc.expiresAt?.slice(0, 10)}, {daysLeft}일 남음)
+                    <span className="text-[10px]">&rarr;</span>
+                  </button>
+                )
+              })}
             </div>
           )}
           {worker.rejectedDocs && worker.rejectedDocs.length > 0 && (

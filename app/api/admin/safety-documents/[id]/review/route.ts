@@ -22,6 +22,24 @@ const SAFETY_DOC_LABELS: Record<string, string> = {
   HEALTH_CERTIFICATE: '건강 증명서',
 }
 
+// ── docType별 기본 유효기간 (개월) ──────────────────────────────────────────
+const DOC_VALIDITY_MONTHS: Record<string, number | null> = {
+  HEALTH_CERTIFICATE: 12,          // 건강 증명서: 1년
+  HEALTH_DECLARATION: 6,           // 건강 이상 없음 각서: 6개월
+  BASIC_SAFETY_EDU_CONFIRM: 24,    // 안전교육 확인서: 2년
+  SAFETY_EDUCATION_NEW_HIRE: 24,   // 신규채용 안전교육: 2년
+  PRIVACY_CONSENT: null,           // 개인정보 동의서: 만료 없음
+  // 나머지 서류: 만료 없음
+}
+
+function calcExpiresAt(docType: string, approvedAt: Date): Date | null {
+  const months = DOC_VALIDITY_MONTHS[docType]
+  if (months == null) return null
+  const d = new Date(approvedAt)
+  d.setMonth(d.getMonth() + months)
+  return d
+}
+
 const schema = z.object({
   action: z.enum(['APPROVE', 'REJECT']),
   rejectReason: z.string().max(500).optional(),
@@ -62,6 +80,9 @@ export async function POST(
   const newStatus = action === 'APPROVE' ? 'APPROVED' : 'REJECTED'
   const docLabel = SAFETY_DOC_LABELS[doc.documentType] ?? doc.documentType
 
+  // 승인 시 expiresAt 자동 계산 (docType별 유효기간)
+  const expiresAt = action === 'APPROVE' ? calcExpiresAt(doc.documentType, now) : undefined
+
   await prisma.safetyDocument.update({
     where: { id: params.id },
     data: {
@@ -69,6 +90,7 @@ export async function POST(
       reviewedAt: now,
       reviewedBy: session.sub,
       rejectReason: action === 'REJECT' ? rejectReason!.trim() : null,
+      ...(expiresAt !== undefined && { expiresAt }),
     },
   })
 

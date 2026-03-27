@@ -7,7 +7,6 @@
       "Bash(node -e \"const z=require\\(''./node_modules/zod''\\); const e = z.string\\(\\).min\\(5\\).safeParse\\(''a''\\); console.log\\(''errors:'', e.error?.errors?.length, ''issues:'', e.error?.issues?.length\\)\")",
       "Bash(docker ps:*)",
       "Bash(curl -s http://localhost:3000/api/health)",
-      "Bash(curl -s http://localhost:3002/api/health)",
       "Bash(netstat -ano)",
       "Bash(grep -E :300[0-9])",
       "Bash(npx prisma:*)",

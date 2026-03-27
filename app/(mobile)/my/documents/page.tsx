@@ -12,6 +12,8 @@ interface SafetyDoc {
   documentDate: string | null
   signedAt: string | null
   signedBy: string | null
+  expiresAt: string | null
+  reviewedAt: string | null
   site: { id: string; name: string } | null
   createdAt: string
 }
@@ -67,6 +69,18 @@ const CONSENT_LABELS: Record<string, string> = {
   MARKETING_NOTICE: '마케팅 수신',
 }
 
+// 만료 상태 계산
+function getExpiryInfo(doc: SafetyDoc): { label: string; color: string } | null {
+  if (doc.status !== 'APPROVED') return null
+  if (!doc.expiresAt) return { label: '유효기간 없음', color: 'text-gray-400' }
+  const now = new Date()
+  const exp = new Date(doc.expiresAt)
+  if (exp <= now) return { label: `만료됨 (${doc.expiresAt.slice(0, 10)})`, color: 'text-red-600' }
+  const daysLeft = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  if (daysLeft <= 30) return { label: `만료 예정 ${doc.expiresAt.slice(0, 10)} (${daysLeft}일 남음)`, color: 'text-orange-600' }
+  return { label: `유효기간 ${doc.expiresAt.slice(0, 10)}`, color: 'text-green-600' }
+}
+
 type Tab = 'safety' | 'contract' | 'consent'
 
 export default function MyDocumentsPage() {
@@ -117,6 +131,44 @@ export default function MyDocumentsPage() {
           </div>
         )}
 
+        {/* 만료/만료 예정 서류 배너 */}
+        {!loading && (() => {
+          const now = new Date()
+          const in30 = new Date(now); in30.setDate(in30.getDate() + 30)
+          const expired = safetyDocs.filter(d => d.status === 'APPROVED' && d.expiresAt && new Date(d.expiresAt) <= now)
+          const expiring = safetyDocs.filter(d => d.status === 'APPROVED' && d.expiresAt && new Date(d.expiresAt) > now && new Date(d.expiresAt) <= in30)
+          if (expired.length === 0 && expiring.length === 0) return null
+          return (
+            <div className="px-4 pt-3 pb-0">
+              {expired.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-2">
+                  <div className="text-[13px] font-bold text-red-700 mb-1">만료된 서류가 있습니다</div>
+                  {expired.map(d => (
+                    <Link key={d.id} href={`/my/documents/${d.id}`} className="flex items-center justify-between py-1 no-underline">
+                      <span className="text-[13px] text-red-600">{DOC_TYPE_LABELS[d.documentType] ?? d.documentType}</span>
+                      <span className="text-[11px] text-red-400">{d.expiresAt!.slice(0, 10)} 만료</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {expiring.length > 0 && (
+                <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
+                  <div className="text-[13px] font-bold text-orange-700 mb-1">만료 예정 서류</div>
+                  {expiring.map(d => {
+                    const days = Math.ceil((new Date(d.expiresAt!).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+                    return (
+                      <Link key={d.id} href={`/my/documents/${d.id}`} className="flex items-center justify-between py-1 no-underline">
+                        <span className="text-[13px] text-orange-600">{DOC_TYPE_LABELS[d.documentType] ?? d.documentType}</span>
+                        <span className="text-[11px] text-orange-400">{d.expiresAt!.slice(0, 10)} ({days}일 남음)</span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        })()}
+
         {/* 서류 현황 요약 */}
         {!loading && (
           <div className="px-4 pt-4 pb-2">
@@ -137,13 +189,19 @@ export default function MyDocumentsPage() {
                   </div>
                   <div className="text-[13px] text-gray-500 mt-0.5">
                     {(() => {
+                      const now = new Date()
+                      const in30 = new Date(now); in30.setDate(in30.getDate() + 30)
                       const approved = safetyDocs.filter(d => d.status === 'APPROVED').length
                       const rejected = safetyDocs.filter(d => d.status === 'REJECTED').length
                       const reviewing = safetyDocs.filter(d => d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED').length
+                      const expired = safetyDocs.filter(d => d.status === 'APPROVED' && d.expiresAt && new Date(d.expiresAt) <= now).length
+                      const expiring = safetyDocs.filter(d => d.status === 'APPROVED' && d.expiresAt && new Date(d.expiresAt) > now && new Date(d.expiresAt) <= in30).length
                       const parts: string[] = []
                       if (approved > 0) parts.push(`승인 ${approved}건`)
                       if (reviewing > 0) parts.push(`검토중 ${reviewing}건`)
                       if (rejected > 0) parts.push(`반려 ${rejected}건`)
+                      if (expired > 0) parts.push(`만료 ${expired}건`)
+                      if (expiring > 0) parts.push(`만료예정 ${expiring}건`)
                       return parts.length > 0 ? parts.join(' · ') : '아직 발급된 서류가 없습니다'
                     })()}
                   </div>
@@ -177,25 +235,32 @@ export default function MyDocumentsPage() {
             safetyDocs.length === 0 ? (
               <EmptyState text="안전서류가 없습니다" />
             ) : (
-              safetyDocs.map(doc => (
-                <Link key={doc.id} href={`/my/documents/${doc.id}`} className="block no-underline">
-                  <div className="bg-white rounded-xl p-4 shadow-sm active:bg-gray-50 transition-colors">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-sm text-[#0F172A]">
-                        {DOC_TYPE_LABELS[doc.documentType] ?? doc.documentType}
-                      </span>
-                      <StatusBadge status={doc.status} />
+              safetyDocs.map(doc => {
+                const expiry = getExpiryInfo(doc)
+                return (
+                  <Link key={doc.id} href={`/my/documents/${doc.id}`} className="block no-underline">
+                    <div className="bg-white rounded-xl p-4 shadow-sm active:bg-gray-50 transition-colors">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium text-sm text-[#0F172A]">
+                          {DOC_TYPE_LABELS[doc.documentType] ?? doc.documentType}
+                        </span>
+                        <StatusBadge status={doc.status} />
+                      </div>
+                      {doc.site && (
+                        <p className="text-xs text-gray-500">{doc.site.name}</p>
+                      )}
+                      <p className="text-xs text-gray-400 mt-1">
+                        {doc.documentDate ?? doc.createdAt.slice(0, 10)}
+                        {doc.reviewedAt && ` · 승인: ${doc.reviewedAt.slice(0, 10)}`}
+                        {doc.signedAt && !doc.reviewedAt && ` · 서명: ${doc.signedAt.slice(0, 10)}`}
+                      </p>
+                      {expiry && (
+                        <p className={`text-xs mt-1 ${expiry.color}`}>{expiry.label}</p>
+                      )}
                     </div>
-                    {doc.site && (
-                      <p className="text-xs text-gray-500">{doc.site.name}</p>
-                    )}
-                    <p className="text-xs text-gray-400 mt-1">
-                      {doc.documentDate ?? doc.createdAt.slice(0, 10)}
-                      {doc.signedAt && ` · 서명: ${doc.signedAt.slice(0, 10)}`}
-                    </p>
-                  </div>
-                </Link>
-              ))
+                  </Link>
+                )
+              })
             )
           ) : tab === 'contract' ? (
             contracts.length === 0 ? (

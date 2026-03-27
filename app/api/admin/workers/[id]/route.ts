@@ -123,7 +123,7 @@ export async function GET(
     const healthStatus = safetyDocStatus(['HEALTH_DECLARATION', 'HEALTH_CERTIFICATE'])
     const safetyEduStatus = safetyDocStatus(['BASIC_SAFETY_EDU_CONFIRM', 'SAFETY_EDUCATION_NEW_HIRE'])
 
-    type MissingDoc = { key: string; label: string; actionType: string; docType?: string; status: DocStatus }
+    type MissingDoc = { key: string; label: string; actionType: string; docType?: string; status: DocStatus; expiresAt?: string | null }
     const missingDocs: MissingDoc[] = []
     const rejectedDocs: MissingDoc[] = []
 
@@ -134,15 +134,47 @@ export async function GET(
       { key: 'SAFETY_EDU', label: '안전교육 확인서', actionType: 'SAFETY_DOC', docType: 'BASIC_SAFETY_EDU_CONFIRM', docStatus: safetyEduStatus },
     ]
 
+    // docType별 가장 최근 만료일 조회 헬퍼
+    function getLatestExpiresAt(types: string[]): string | null {
+      const docs = worker.safetyDocuments.filter(d => types.includes(d.documentType) && d.status === 'APPROVED' && d.expiresAt)
+      if (docs.length === 0) return null
+      return docs.sort((a, b) => new Date(b.expiresAt!).getTime() - new Date(a.expiresAt!).getTime())[0].expiresAt!.toISOString()
+    }
+
     const expiredDocs: MissingDoc[] = []
     for (const check of docChecks) {
-      const entry = { key: check.key, label: check.label, actionType: check.actionType, docType: check.docType, status: check.docStatus }
+      // 만료일 조회 (HEALTH, SAFETY_EDU 등)
+      const docTypes = check.key === 'HEALTH' ? ['HEALTH_DECLARATION', 'HEALTH_CERTIFICATE']
+        : check.key === 'SAFETY_EDU' ? ['BASIC_SAFETY_EDU_CONFIRM', 'SAFETY_EDUCATION_NEW_HIRE']
+        : check.docType ? [check.docType] : []
+      const expiresAt = docTypes.length > 0 ? getLatestExpiresAt(docTypes) : null
+
+      const entry = { key: check.key, label: check.label, actionType: check.actionType, docType: check.docType, status: check.docStatus, expiresAt }
       if (check.docStatus === 'REJECTED') {
         rejectedDocs.push(entry)
       } else if (check.docStatus === 'EXPIRED') {
         expiredDocs.push(entry)
       } else if (check.docStatus !== 'APPROVED') {
         missingDocs.push(entry)
+      }
+    }
+
+    // 만료 예정 서류 (APPROVED이지만 30일 이내 만료)
+    const in30Days = new Date(now); in30Days.setDate(in30Days.getDate() + 30)
+    const expiringDocs: MissingDoc[] = []
+    for (const check of docChecks) {
+      if (check.docStatus !== 'APPROVED') continue
+      const docTypes = check.key === 'HEALTH' ? ['HEALTH_DECLARATION', 'HEALTH_CERTIFICATE']
+        : check.key === 'SAFETY_EDU' ? ['BASIC_SAFETY_EDU_CONFIRM', 'SAFETY_EDUCATION_NEW_HIRE']
+        : check.docType ? [check.docType] : []
+      const approvedDocs = worker.safetyDocuments.filter(d => docTypes.includes(d.documentType) && d.status === 'APPROVED' && d.expiresAt)
+      const soonExpiring = approvedDocs.filter(d => new Date(d.expiresAt!) > now && new Date(d.expiresAt!) <= in30Days)
+      if (soonExpiring.length > 0) {
+        const nearest = soonExpiring.sort((a, b) => new Date(a.expiresAt!).getTime() - new Date(b.expiresAt!).getTime())[0]
+        expiringDocs.push({
+          key: check.key, label: check.label, actionType: check.actionType, docType: check.docType,
+          status: 'APPROVED', expiresAt: nearest.expiresAt!.toISOString(),
+        })
       }
     }
 
@@ -163,7 +195,9 @@ export async function GET(
       nextAction = `부족 서류: ${missingDocs.map(d => d.label).join(', ')}`
     } else {
       assignmentEligibility = 'READY'
-      nextAction = '현장 배정 가능'
+      nextAction = expiringDocs.length > 0
+        ? `현장 배정 가능 (만료 예정: ${expiringDocs.map(d => d.label).join(', ')})`
+        : '현장 배정 가능'
     }
 
     // 레거시 bankName / bankAccount 는 응답에서 제거 — 신규 구조(bankAccountSecure)만 반환
@@ -175,6 +209,7 @@ export async function GET(
       missingDocs,
       rejectedDocs,
       expiredDocs,
+      expiringDocs,
       nextAction,
     })
   } catch (err) {

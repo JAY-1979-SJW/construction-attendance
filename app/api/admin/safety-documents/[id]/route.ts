@@ -65,6 +65,11 @@ export async function PATCH(
     if (field in body) updateData[field] = body[field]
   }
 
+  // expiresAt 수동 수정 허용 (null = 만료 없음, ISO 문자열 = 만료일 지정)
+  if ('expiresAt' in body) {
+    updateData.expiresAt = body.expiresAt ? new Date(body.expiresAt) : null
+  }
+
   const updated = await prisma.safetyDocument.update({
     where: { id: params.id },
     data: updateData,
