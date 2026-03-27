@@ -289,6 +289,13 @@ export async function POST(
 
   const contentText = rendered ? contractToText(rendered) : null
 
+  // 동일 documentType의 최신 REJECTED 문서 검색 → previousDocId 연결
+  const rejectedPrev = await prisma.safetyDocument.findFirst({
+    where: { workerId: params.id, documentType: documentType as never, status: 'REJECTED' },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true },
+  })
+
   const doc = await prisma.safetyDocument.create({
     data: {
       workerId:       params.id,
@@ -296,6 +303,7 @@ export async function POST(
       contractId:     contractId || null,
       documentType:   documentType as never,
       status:         'DRAFT',
+      previousDocId:  rejectedPrev?.id || null,
       documentDate:   documentDate || today,
       educationDate:  educationDate || null,
       educationHours: educationHours ? String(educationHours) as never : null,

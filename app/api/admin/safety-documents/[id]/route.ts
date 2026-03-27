@@ -23,7 +23,21 @@ export async function GET(
   })
   if (!doc) return NextResponse.json({ error: '문서 없음' }, { status: 404 })
 
-  return NextResponse.json({ success: true, data: doc })
+  // 이전 반려 문서 이력 조회 (previousDocId 체인)
+  const history: { id: string; status: string; rejectReason: string | null; createdAt: Date; reviewedAt: Date | null }[] = []
+  let prevId = doc.previousDocId
+  while (prevId) {
+    const prev = await prisma.safetyDocument.findUnique({
+      where: { id: prevId },
+      select: { id: true, status: true, rejectReason: true, createdAt: true, reviewedAt: true, previousDocId: true },
+    })
+    if (!prev) break
+    history.push({ id: prev.id, status: prev.status, rejectReason: prev.rejectReason, createdAt: prev.createdAt, reviewedAt: prev.reviewedAt })
+    prevId = prev.previousDocId
+    if (history.length > 10) break // 무한 루프 방지
+  }
+
+  return NextResponse.json({ success: true, data: { ...doc, history } })
 }
 
 export async function PATCH(

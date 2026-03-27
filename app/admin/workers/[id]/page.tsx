@@ -1467,7 +1467,7 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
   })
   const [ppeItems, setPpeItems] = useState<PpeItem[]>(PPE_ITEM_DEFAULTS.map(i => ({ ...i })))
   const [submitting, setSubmitting] = useState(false)
-  const [previewDoc, setPreviewDoc] = useState<SafetyDocRow & { contentText?: string } | null>(null)
+  const [previewDoc, setPreviewDoc] = useState<SafetyDocRow & { contentText?: string; rejectReason?: string; history?: { id: string; status: string; rejectReason: string | null; createdAt: string; reviewedAt: string | null }[] } | null>(null)
 
   const load = () => {
     fetch(`/api/admin/workers/${workerId}/safety-documents`)
@@ -1880,6 +1880,28 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
               <h3 className="m-0 text-[16px]">{SAFETY_DOC_LABELS[previewDoc.documentType] || previewDoc.documentType}</h3>
               <button onClick={() => setPreviewDoc(null)} className="border-none bg-transparent text-[20px] cursor-pointer">✕</button>
             </div>
+            {/* 현재 반려 사유 */}
+            {previewDoc.status === 'REJECTED' && previewDoc.rejectReason && (
+              <div className="bg-[#fef2f2] border border-[#fecaca] rounded-md p-3 mb-3">
+                <div className="text-[12px] font-bold text-[#991b1b] mb-1">반려 사유</div>
+                <div className="text-[13px] text-[#dc2626]">{previewDoc.rejectReason}</div>
+              </div>
+            )}
+            {/* 이전 반려 이력 */}
+            {previewDoc.history && previewDoc.history.length > 0 && (
+              <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-md p-3 mb-3">
+                <div className="text-[12px] font-bold text-[#6b7280] mb-2">이전 이력 ({previewDoc.history.length}건)</div>
+                {previewDoc.history.map((h, i) => (
+                  <div key={h.id} className="flex items-start gap-2 mb-1.5 text-[12px]">
+                    <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold ${h.status === 'REJECTED' ? 'bg-[#fee2e2] text-[#991b1b]' : 'bg-[#f3f4f6] text-[#6b7280]'}`}>
+                      {i + 1}차 {h.status === 'REJECTED' ? '반려' : h.status}
+                    </span>
+                    {h.rejectReason && <span className="text-[#9ca3af]">{h.rejectReason}</span>}
+                    <span className="text-[#d1d5db] ml-auto shrink-0">{new Date(h.createdAt).toLocaleDateString('ko-KR')}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             <pre className="whitespace-pre-wrap font-mono text-[12px] bg-brand p-4 rounded-md leading-[1.7]">
               {previewDoc.contentText || '내용 없음'}
             </pre>
