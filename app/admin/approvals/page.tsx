@@ -2,7 +2,14 @@
 
 import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { PageShell, PageHeader, AdminTable, AdminTr, AdminTd, EmptyRow, StatusBadge, Btn, FormTextarea, ModalFooter } from '@/components/admin/ui'
+import {
+  PageShell,
+  FilterBar, FilterPill, FilterSpacer,
+  AdminTable, AdminTr, AdminTd, EmptyRow,
+  StatusBadge, Btn,
+  FormTextarea, ModalFooter,
+  Modal, Toast,
+} from '@/components/admin/ui'
 
 // ─── 탭 정의 ──────────────────────────────────────────────────────────────────
 type TabKey = 'workers' | 'companies' | 'ext-companies' | 'managers' | 'site-joins' | 'devices'
@@ -32,62 +39,45 @@ function adaptItem(tab: TabKey, raw: Record<string, unknown>): ApprovalItem {
   switch (tab) {
     case 'workers':
       return {
-        id: raw.id as string,
-        displayName: raw.name as string,
-        subName: raw.phone as string,
-        detail: raw.jobTitle as string,
-        status: raw.accountStatus as string,
-        requestedAt: raw.createdAt as string,
+        id: raw.id as string, displayName: raw.name as string,
+        subName: raw.phone as string, detail: raw.jobTitle as string,
+        status: raw.accountStatus as string, requestedAt: raw.createdAt as string,
         rejectReason: raw.rejectReason as string | null,
       }
     case 'companies':
       return {
-        id: raw.id as string,
-        displayName: raw.companyName as string,
-        subName: `${raw.applicantName} · ${raw.phone}`,
-        detail: raw.businessNumber as string,
-        status: raw.status as string,
-        requestedAt: raw.requestedAt as string,
+        id: raw.id as string, displayName: raw.companyName as string,
+        subName: `${raw.applicantName} · ${raw.phone}`, detail: raw.businessNumber as string,
+        status: raw.status as string, requestedAt: raw.requestedAt as string,
         rejectReason: raw.rejectReason as string | null,
       }
     case 'managers':
       return {
-        id: raw.id as string,
-        displayName: raw.applicantName as string,
-        subName: raw.phone as string,
-        detail: raw.companyName as string,
-        status: raw.status as string,
-        requestedAt: raw.requestedAt as string,
+        id: raw.id as string, displayName: raw.applicantName as string,
+        subName: raw.phone as string, detail: raw.companyName as string,
+        status: raw.status as string, requestedAt: raw.requestedAt as string,
         rejectReason: raw.rejectReason as string | null,
       }
     case 'site-joins':
       return {
-        id: raw.id as string,
-        displayName: raw.workerName as string,
-        subName: raw.workerPhone as string,
-        detail: raw.siteName as string,
-        status: raw.status as string,
-        requestedAt: raw.requestedAt as string,
+        id: raw.id as string, displayName: raw.workerName as string,
+        subName: raw.workerPhone as string, detail: raw.siteName as string,
+        status: raw.status as string, requestedAt: raw.requestedAt as string,
         rejectReason: raw.rejectReason as string | null,
       }
     case 'ext-companies':
       return {
-        id: raw.id as string,
-        displayName: raw.companyName as string,
+        id: raw.id as string, displayName: raw.companyName as string,
         subName: `사업자번호: ${(raw.businessNumber as string) ?? '미입력'}`,
         detail: `담당자: ${(raw.representativeName as string) ?? '—'} · ${(raw.contactPhone as string) ?? '—'}`,
         status: (raw.externalVerificationStatus as string) ?? 'PENDING_VERIFICATION',
-        requestedAt: raw.updatedAt as string,
-        rejectReason: raw.verificationNotes as string | null,
+        requestedAt: raw.updatedAt as string, rejectReason: raw.verificationNotes as string | null,
       }
     case 'devices':
       return {
-        id: raw.id as string,
-        displayName: raw.workerName as string,
-        subName: raw.newDeviceName as string,
-        detail: raw.reason as string,
-        status: raw.status as string,
-        requestedAt: (raw.requestedAt ?? raw.createdAt) as string,
+        id: raw.id as string, displayName: raw.workerName as string,
+        subName: raw.newDeviceName as string, detail: raw.reason as string,
+        status: raw.status as string, requestedAt: (raw.requestedAt ?? raw.createdAt) as string,
         rejectReason: raw.rejectReason as string | null,
       }
   }
@@ -96,24 +86,24 @@ function adaptItem(tab: TabKey, raw: Record<string, unknown>): ApprovalItem {
 // ─── API 액션 경로 ────────────────────────────────────────────────────────────
 function approveApi(tab: TabKey, id: string): string {
   const base: Record<TabKey, string> = {
-    workers:         `/api/admin/registrations/${id}/approve`,
-    companies:       `/api/admin/company-admin-requests/${id}/approve`,
+    workers: `/api/admin/registrations/${id}/approve`,
+    companies: `/api/admin/company-admin-requests/${id}/approve`,
     'ext-companies': `/api/admin/companies/${id}/verify`,
-    managers:        `/api/admin/company-join-requests/${id}/approve`,
-    'site-joins':    `/api/admin/site-join-requests/${id}/approve`,
-    devices:         `/api/admin/device-requests/${id}/approve`,
+    managers: `/api/admin/company-join-requests/${id}/approve`,
+    'site-joins': `/api/admin/site-join-requests/${id}/approve`,
+    devices: `/api/admin/device-requests/${id}/approve`,
   }
   return base[tab]
 }
 
 function rejectApi(tab: TabKey, id: string): string {
   const base: Record<TabKey, string> = {
-    workers:         `/api/admin/registrations/${id}/reject`,
-    companies:       `/api/admin/company-admin-requests/${id}/reject`,
+    workers: `/api/admin/registrations/${id}/reject`,
+    companies: `/api/admin/company-admin-requests/${id}/reject`,
     'ext-companies': `/api/admin/companies/${id}/reject`,
-    managers:        `/api/admin/company-join-requests/${id}/reject`,
-    'site-joins':    `/api/admin/site-join-requests/${id}/reject`,
-    devices:         `/api/admin/device-requests/${id}/reject`,
+    managers: `/api/admin/company-join-requests/${id}/reject`,
+    'site-joins': `/api/admin/site-join-requests/${id}/reject`,
+    devices: `/api/admin/device-requests/${id}/reject`,
   }
   return base[tab]
 }
@@ -132,12 +122,12 @@ function ApprovalsContent() {
 
   return (
     <PageShell>
-
-      <div className="flex border-b border-[#E5E7EB] mb-0 flex-wrap gap-[2px] bg-white rounded-t-[10px] px-2 pt-1">
+      {/* 탭 바 — 기준 규격: text-13px, py-10px, border-b-2 */}
+      <div className="flex border-b border-[#E5E7EB] mb-0 flex-wrap gap-[2px] bg-white rounded-t-[12px] px-2 pt-1">
         {TABS.map(t => (
           <button
             key={t.key}
-            className={`px-[16px] py-[10px] border-none border-b-2 bg-transparent cursor-pointer text-[13px] -mb-px transition-colors ${
+            className={`px-4 py-[10px] border-none border-b-2 bg-transparent cursor-pointer text-[13px] -mb-px transition-colors ${
               activeTab === t.key
                 ? 'text-[#F97316] border-b-[#F97316] font-semibold border-solid'
                 : 'text-[#6B7280] border-transparent hover:text-[#374151]'
@@ -155,7 +145,7 @@ function ApprovalsContent() {
 }
 
 export default function ApprovalsPage() {
-  return <Suspense fallback={<div className="p-8">로딩 중...</div>}><ApprovalsContent /></Suspense>
+  return <Suspense fallback={<div className="p-8 text-[#9CA3AF]">로딩 중...</div>}><ApprovalsContent /></Suspense>
 }
 
 // ─── 개별 탭 컴포넌트 ─────────────────────────────────────────────────────────
@@ -174,14 +164,11 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
 
   const load = useCallback(() => {
     setLoading(true)
-    const url = tab === 'ext-companies'
-      ? tabDef.api
-      : `${tabDef.api}?status=${statusFilter}`
+    const url = tab === 'ext-companies' ? tabDef.api : `${tabDef.api}?status=${statusFilter}`
     fetch(url)
       .then(r => r.json())
       .then(d => {
-        const rawItems: Record<string, unknown>[] =
-          d.data?.items ?? d.items ?? (Array.isArray(d.data) ? d.data : [])
+        const rawItems: Record<string, unknown>[] = d.data?.items ?? d.items ?? (Array.isArray(d.data) ? d.data : [])
         setItems(rawItems.map(raw => adaptItem(tab, raw)))
       })
       .finally(() => setLoading(false))
@@ -190,20 +177,11 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
   useEffect(() => { load(); setSelectedIds(new Set()) }, [load])
 
   const toggleSelect = (id: string) => {
-    setSelectedIds(prev => {
-      const s = new Set(prev)
-      s.has(id) ? s.delete(id) : s.add(id)
-      return s
-    })
+    setSelectedIds(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
   }
-
   const toggleSelectAll = () => {
-    const pendingItems = items.filter(i => i.status === 'PENDING')
-    if (selectedIds.size === pendingItems.length) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(pendingItems.map(i => i.id)))
-    }
+    const pending = items.filter(i => i.status === 'PENDING')
+    setSelectedIds(selectedIds.size === pending.length ? new Set() : new Set(pending.map(i => i.id)))
   }
 
   const handleBulkApprove = async () => {
@@ -212,10 +190,8 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
     await Promise.all(Array.from(selectedIds).map(id =>
       fetch(approveApi(tab, id), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
     ))
-    setBulkProcessing(false)
-    setSelectedIds(new Set())
-    setMsg({ type: 'success', text: `${selectedIds.size}건 일괄 승인 처리되었습니다.` })
-    load()
+    setBulkProcessing(false); setSelectedIds(new Set())
+    setMsg({ type: 'success', text: `${selectedIds.size}건 일괄 승인 처리되었습니다.` }); load()
   }
 
   const handleBulkReject = async () => {
@@ -225,15 +201,12 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
     await Promise.all(Array.from(selectedIds).map(id =>
       fetch(rejectApi(tab, id), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rejectReason: reason }) })
     ))
-    setBulkProcessing(false)
-    setSelectedIds(new Set())
-    setMsg({ type: 'success', text: `${selectedIds.size}건 일괄 반려 처리되었습니다.` })
-    load()
+    setBulkProcessing(false); setSelectedIds(new Set())
+    setMsg({ type: 'success', text: `${selectedIds.size}건 일괄 반려 처리되었습니다.` }); load()
   }
 
   const handleApprove = async (id: string) => {
-    setProcessing(id)
-    setMsg(null)
+    setProcessing(id); setMsg(null)
     try {
       const res = await fetch(approveApi(tab, id), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
       const d = await res.json()
@@ -241,91 +214,66 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
         setMsg({ type: 'success', text: '승인 처리되었습니다.' })
         if (d.data?.temporaryPassword) setApproveResult(d.data)
         load()
-      } else {
-        setMsg({ type: 'error', text: d.message ?? '오류가 발생했습니다.' })
-      }
-    } finally {
-      setProcessing(null)
-    }
+      } else { setMsg({ type: 'error', text: d.message ?? '오류가 발생했습니다.' }) }
+    } finally { setProcessing(null) }
   }
 
   const handleReject = async () => {
     if (!rejectTarget || !rejectReason.trim()) return
-    setProcessing(rejectTarget)
-    setMsg(null)
+    setProcessing(rejectTarget); setMsg(null)
     try {
       const res = await fetch(rejectApi(tab, rejectTarget), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rejectReason }),
       })
       const d = await res.json()
       if (res.ok) {
         setMsg({ type: 'success', text: '반려 처리되었습니다.' })
-        setRejectTarget(null)
-        setRejectReason('')
-        load()
-      } else {
-        setMsg({ type: 'error', text: d.message ?? '오류가 발생했습니다.' })
-      }
-    } finally {
-      setProcessing(null)
-    }
+        setRejectTarget(null); setRejectReason(''); load()
+      } else { setMsg({ type: 'error', text: d.message ?? '오류가 발생했습니다.' }) }
+    } finally { setProcessing(null) }
   }
 
   const pendingCount = items.filter(i => i.status === 'PENDING').length
 
   return (
-    <div className="bg-white rounded-b-[10px] border border-[#E5E7EB] border-t-0 p-6">
-      {/* 상태 필터 */}
-      <div className="flex gap-2 mb-4 items-center flex-wrap">
+    <div className="bg-white rounded-b-[12px] border border-[#E5E7EB] border-t-0 p-5">
+      {/* 상태 필터 — 공용 FilterBar + FilterPill */}
+      <FilterBar>
         {tab !== 'ext-companies' && ['PENDING', 'APPROVED', 'REJECTED'].map(s => (
-          <button
-            key={s}
-            className={`px-[14px] py-[6px] border rounded-md cursor-pointer text-[13px] flex items-center gap-[6px] transition-colors ${
-              statusFilter === s
-                ? 'bg-[#FFF7ED] border-[#F97316] text-[#F97316] font-semibold'
-                : 'bg-white border-[rgba(91,164,217,0.3)] text-[#374151]'
-            }`}
-            onClick={() => setStatusFilter(s)}
-          >
+          <FilterPill key={s} active={statusFilter === s} onClick={() => setStatusFilter(s)}>
             {s === 'PENDING' ? '대기' : s === 'APPROVED' ? '승인' : '반려'}
             {s === 'PENDING' && pendingCount > 0 && (
-              <span className="bg-[#dc2626] text-white rounded-[10px] px-[6px] text-[11px] min-w-[18px] text-center">
+              <span className="bg-[#DC2626] text-white rounded-full px-[6px] text-[11px] min-w-[18px] text-center ml-1">
                 {pendingCount}
               </span>
             )}
-          </button>
+          </FilterPill>
         ))}
-        <Btn variant="secondary" onClick={load} className="ml-auto">↻ 새로고침</Btn>
-      </div>
+        <FilterSpacer />
+        <Btn variant="secondary" onClick={load}>새로고침</Btn>
+      </FilterBar>
 
-      {/* 알림 */}
-      {msg && (
-        <div className={`px-4 py-[10px] rounded-md mb-3 text-sm ${
-          msg.type === 'success' ? 'bg-[#d1fae5] text-[#065f46]' : 'bg-[#fee2e2] text-[#991b1b]'
-        }`}>
-          {msg.text}
-        </div>
-      )}
+      {/* 알림 — 공용 Toast */}
+      {msg && <Toast message={msg.text} variant={msg.type} />}
 
-      {/* 승인 결과 모달 */}
+      {/* 승인 결과 */}
       {approveResult && (
-        <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg px-5 py-4 mb-4">
-          <strong>✅ 승인 완료</strong>
+        <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-[8px] px-5 py-4 mb-4">
+          <strong>승인 완료</strong>
           {approveResult.temporaryPassword != null && (
-            <p>임시 비밀번호: <code className="bg-[#e0f2fe] px-2 py-[2px] rounded font-mono font-bold text-[#0369a1]">{String(approveResult.temporaryPassword)}</code></p>
+            <p className="mt-1 mb-0">임시 비밀번호: <code className="bg-[#E0F2FE] px-2 py-[2px] rounded font-mono font-bold text-[#0369A1]">{String(approveResult.temporaryPassword)}</code></p>
           )}
           {!(approveResult.emailSent as boolean) && (
-            <p className="text-[#b45309]">⚠️ 이메일 없음 — 수동으로 전달 필요</p>
+            <p className="text-[#B45309] mt-1 mb-0">이메일 없음 — 수동으로 전달 필요</p>
           )}
-          <Btn variant="secondary" onClick={() => setApproveResult(null)} className="mt-2">닫기</Btn>
+          <Btn variant="secondary" size="sm" onClick={() => setApproveResult(null)} className="mt-2">닫기</Btn>
         </div>
       )}
 
       {/* 일괄 처리 바 */}
       {statusFilter === 'PENDING' && selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 px-4 py-2.5 mb-3 bg-[#FFF7ED] border border-[#FDE68A] rounded-lg">
+        <div className="flex items-center gap-3 px-4 py-2.5 mb-4 bg-[#FFF7ED] border border-[#FDE68A] rounded-[8px]">
           <span className="text-[13px] font-semibold text-[#92400E]">선택 {selectedIds.size}건</span>
           <Btn size="sm" variant="success" disabled={bulkProcessing} onClick={handleBulkApprove}>
             {bulkProcessing ? '처리 중...' : '일괄 승인'}
@@ -333,19 +281,19 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
           <Btn size="sm" variant="danger" disabled={bulkProcessing} onClick={handleBulkReject}>일괄 반려</Btn>
           <button
             onClick={() => setSelectedIds(new Set())}
-            className="ml-auto text-[12px] text-[#92400E] bg-none border-none cursor-pointer underline"
+            className="ml-auto text-[12px] text-[#92400E] bg-transparent border-none cursor-pointer underline"
           >
             선택 해제
           </button>
         </div>
       )}
 
-      {/* 테이블 */}
+      {/* 테이블 — 공용 AdminTable */}
       {loading ? (
-        <p className="text-[#6b7280] text-sm">로딩 중...</p>
+        <p className="text-[#9CA3AF] text-[13px] py-8 text-center">로딩 중...</p>
       ) : items.length === 0 ? (
-        <div className="text-center py-12 text-[#6b7280]">
-          <p>{statusFilter === 'PENDING' ? '승인 대기 항목이 없습니다.' : '항목이 없습니다.'}</p>
+        <div className="text-center py-12 text-[#9CA3AF] text-[13px]">
+          {statusFilter === 'PENDING' ? '승인 대기 항목이 없습니다.' : '항목이 없습니다.'}
         </div>
       ) : (
         <AdminTable headers={[
@@ -358,23 +306,21 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
               {statusFilter === 'PENDING' && (
                 <AdminTd><input type="checkbox" className="cursor-pointer" checked={selectedIds.has(item.id)} onChange={() => toggleSelect(item.id)} /></AdminTd>
               )}
-              <AdminTd className="text-xs align-top">{new Date(item.requestedAt).toLocaleDateString('ko-KR')}</AdminTd>
+              <AdminTd className="text-[12px] align-top">{new Date(item.requestedAt).toLocaleDateString('ko-KR')}</AdminTd>
               <AdminTd className="align-top">
                 <div className="font-semibold text-[#111827]">{item.displayName}</div>
-                {item.subName && <div className="text-xs text-[#6b7280]">{item.subName}</div>}
+                {item.subName && <div className="text-[12px] text-[#6B7280]">{item.subName}</div>}
               </AdminTd>
-              <AdminTd className="text-[#6b7280] align-top">
+              <AdminTd className="text-[#6B7280] align-top max-w-[200px] truncate">
                 {item.detail}
-                {item.rejectReason && <div className="text-[#dc2626] text-xs">사유: {item.rejectReason}</div>}
+                {item.rejectReason && <div className="text-[#DC2626] text-[12px]">사유: {item.rejectReason}</div>}
               </AdminTd>
-              <AdminTd className="align-top">
-                <StatusBadge status={item.status} />
-              </AdminTd>
+              <AdminTd className="align-top"><StatusBadge status={item.status} /></AdminTd>
               {statusFilter === 'PENDING' && (
                 <AdminTd className="align-top">
-                  <div className="flex gap-[6px]">
+                  <div className="flex gap-1.5">
                     <Btn size="xs" variant="success" disabled={processing === item.id} onClick={() => handleApprove(item.id)}>
-                      {processing === item.id ? '처리 중...' : '승인'}
+                      {processing === item.id ? '...' : '승인'}
                     </Btn>
                     <Btn size="xs" variant="danger" disabled={processing === item.id} onClick={() => { setRejectTarget(item.id); setRejectReason('') }}>반려</Btn>
                   </div>
@@ -385,27 +331,21 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
         </AdminTable>
       )}
 
-      {/* 반려 사유 모달 */}
-      {rejectTarget && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]">
-          <div className="bg-white rounded-[10px] p-7 w-[400px] max-w-[90vw]">
-            <h3 className="text-base font-bold text-[#111827] mb-4 mt-0">반려 사유 입력</h3>
-            <FormTextarea
-              rows={4}
-              placeholder="반려 사유를 입력하세요. (필수)"
-              value={rejectReason}
-              onChange={e => setRejectReason(e.target.value)}
-            />
-            <ModalFooter>
-              <Btn variant="secondary" onClick={() => setRejectTarget(null)}>취소</Btn>
-              <Btn size="xs" variant="danger" disabled={!rejectReason.trim() || processing === rejectTarget} onClick={handleReject}>
-                {processing === rejectTarget ? '처리 중...' : '반려 확인'}
-              </Btn>
-            </ModalFooter>
-          </div>
-        </div>
-      )}
+      {/* 반려 사유 모달 — 공용 Modal */}
+      <Modal open={!!rejectTarget} onClose={() => setRejectTarget(null)} title="반려 사유 입력">
+        <FormTextarea
+          rows={4}
+          placeholder="반려 사유를 입력하세요. (필수)"
+          value={rejectReason}
+          onChange={e => setRejectReason(e.target.value)}
+        />
+        <ModalFooter>
+          <Btn variant="secondary" onClick={() => setRejectTarget(null)}>취소</Btn>
+          <Btn variant="danger" disabled={!rejectReason.trim() || processing === rejectTarget} onClick={handleReject}>
+            {processing === rejectTarget ? '처리 중...' : '반려 확인'}
+          </Btn>
+        </ModalFooter>
+      </Modal>
     </div>
   )
 }
-

@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
-  PageShell, SectionCard,
+  PageShell,
   FilterBar, FilterInput, FilterSelect, FilterSpacer,
   StatusBadge, Btn,
   AdminTable, AdminTr, AdminTd, EmptyRow,
   FormInput, FormSelect, FormGrid, ModalFooter,
-  DetailPanel,
+  DetailPanel, Modal, Toast, MetaRow,
 } from '@/components/admin/ui'
 
 /* ━━━ 기준 수치 (UI_SPEC) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -62,15 +62,7 @@ interface SafetyDoc {
 
 interface PickerItem { id: string; name: string }
 
-/* ─── Toast 알림 ───────────────────────────────────────────── */
-function Toast({ message, variant = 'success' }: { message: string; variant?: 'success' | 'error' }) {
-  const cls = variant === 'error'
-    ? 'bg-[#FEE2E2] text-[#B91C1C]'
-    : 'bg-[#D1FAE5] text-[#065F46]'
-  return <div className={`mb-3 p-2.5 text-[12px] rounded-[8px] ${cls}`}>{message}</div>
-}
-
-/* ─── 생성 모달 (center overlay, max-w-480px) ──────────────── */
+/* ─── 생성 모달 (공용 Modal 사용) ──────────────────────────── */
 function CreateModal({
   onClose,
   onCreated,
@@ -151,76 +143,63 @@ function CreateModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div
-        className="bg-white rounded-[12px] shadow-xl w-full max-w-[480px] max-h-[85vh] overflow-y-auto mx-4"
-        onClick={e => e.stopPropagation()}
-      >
-        {/* 모달 헤더 — h-[52px] topbar와 동일 리듬 */}
-        <div className="h-[52px] flex items-center px-5 border-b border-[#E5E7EB] shrink-0">
-          <h2 className="text-[15px] font-bold text-[#0F172A] m-0">안전서류 생성</h2>
-        </div>
+    <Modal open onClose={onClose} title="안전서류 생성">
+      {error && <Toast message={error} variant="error" />}
+      {toast && <Toast message={toast} />}
 
-        {/* 모달 본문 — p-5 카드 패딩과 동일 */}
-        <div className="p-5">
-          {error && <Toast message={error} variant="error" />}
-          {toast && <Toast message={toast} />}
-
-          <FormSelect
-            label="근로자" required
-            value={workerId} onChange={e => setWorkerId(e.target.value)}
-            options={workers.map(w => ({ value: w.id, label: w.name }))}
-            placeholder="선택하세요"
-          />
-          <FormSelect
-            label="서류 유형" required
-            value={docType} onChange={e => setDocType(e.target.value)}
-            options={Object.entries(DOC_TYPE_LABEL).map(([v, l]) => ({ value: v, label: l }))}
-            placeholder="선택하세요"
-          />
+      <FormSelect
+        label="근로자" required
+        value={workerId} onChange={e => setWorkerId(e.target.value)}
+        options={workers.map(w => ({ value: w.id, label: w.name }))}
+        placeholder="선택하세요"
+      />
+      <FormSelect
+        label="서류 유형" required
+        value={docType} onChange={e => setDocType(e.target.value)}
+        options={Object.entries(DOC_TYPE_LABEL).map(([v, l]) => ({ value: v, label: l }))}
+        placeholder="선택하세요"
+      />
+      <FormGrid>
+        <FormSelect
+          label="현장"
+          value={siteId} onChange={e => setSiteId(e.target.value)}
+          options={sites.map(s => ({ value: s.id, label: s.name }))}
+          placeholder="(선택)"
+        />
+        <FormInput
+          label="발급일" required type="date"
+          value={documentDate} onChange={e => setDocumentDate(e.target.value)}
+        />
+      </FormGrid>
+      <FormInput
+        label="담당자(교육자)" placeholder="예: 현장소장"
+        value={educatorName} onChange={e => setEducatorName(e.target.value)}
+      />
+      {needsEducationFields && (
+        <>
           <FormGrid>
-            <FormSelect
-              label="현장"
-              value={siteId} onChange={e => setSiteId(e.target.value)}
-              options={sites.map(s => ({ value: s.id, label: s.name }))}
-              placeholder="(선택)"
+            <FormInput
+              label="교육일" type="date"
+              value={educationDate} onChange={e => setEducationDate(e.target.value)}
             />
             <FormInput
-              label="발급일" required type="date"
-              value={documentDate} onChange={e => setDocumentDate(e.target.value)}
+              label="교육시간(h)" type="number" min="0.5" step="0.5" placeholder="1"
+              value={educationHours} onChange={e => setEducationHours(e.target.value)}
             />
           </FormGrid>
           <FormInput
-            label="담당자(교육자)" placeholder="예: 현장소장"
-            value={educatorName} onChange={e => setEducatorName(e.target.value)}
+            label="교육장소" placeholder="예: 현장 회의실"
+            value={educationPlace} onChange={e => setEducationPlace(e.target.value)}
           />
-          {needsEducationFields && (
-            <>
-              <FormGrid>
-                <FormInput
-                  label="교육일" type="date"
-                  value={educationDate} onChange={e => setEducationDate(e.target.value)}
-                />
-                <FormInput
-                  label="교육시간(h)" type="number" min="0.5" step="0.5" placeholder="1"
-                  value={educationHours} onChange={e => setEducationHours(e.target.value)}
-                />
-              </FormGrid>
-              <FormInput
-                label="교육장소" placeholder="예: 현장 회의실"
-                value={educationPlace} onChange={e => setEducationPlace(e.target.value)}
-              />
-            </>
-          )}
-          <ModalFooter>
-            <Btn variant="secondary" onClick={onClose} disabled={saving}>취소</Btn>
-            <Btn variant="orange" onClick={handleSave} disabled={saving}>
-              {saving ? '저장 중...' : '생성'}
-            </Btn>
-          </ModalFooter>
-        </div>
-      </div>
-    </div>
+        </>
+      )}
+      <ModalFooter>
+        <Btn variant="secondary" onClick={onClose} disabled={saving}>취소</Btn>
+        <Btn variant="orange" onClick={handleSave} disabled={saving}>
+          {saving ? '저장 중...' : '생성'}
+        </Btn>
+      </ModalFooter>
+    </Modal>
   )
 }
 
@@ -301,15 +280,6 @@ function DocDetailPanel({
         </div>
       )}
     </DetailPanel>
-  )
-}
-
-function MetaRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-start gap-3">
-      <span className="text-[#9CA3AF] w-[72px] shrink-0">{label}</span>
-      <span className="text-[#111827] min-w-0 break-words">{children}</span>
-    </div>
   )
 }
 
