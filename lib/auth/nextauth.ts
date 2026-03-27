@@ -15,7 +15,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   session: { strategy: 'jwt' },
-  pages: { signIn: '/login' },
+  pages: { signIn: '/login', error: '/login' },
   callbacks: {
     async redirect({ baseUrl }) {
       return `${baseUrl}/api/auth/complete`
