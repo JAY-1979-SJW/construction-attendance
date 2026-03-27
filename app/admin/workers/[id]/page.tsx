@@ -77,6 +77,12 @@ interface WorkerDetail {
   retirementMutualTargetYn: boolean
   fourInsurancesEligibleYn: boolean
   idVerificationStatus?: string | null
+  accountStatus?: string
+  birthDate?: string | null
+  subcontractorName?: string | null
+  assignmentEligibility?: string  // READY | NEEDS_DOCS | NOT_APPROVED
+  missingDocs?: string[]
+  nextAction?: string
   createdAt: string
   updatedAt: string
   _count: { devices: number; attendanceLogs: number }
@@ -553,11 +559,24 @@ function InfoTab({ worker, onRefresh }: { worker: WorkerDetail; onRefresh: () =>
     onRefresh()
   }
 
-  const readonlyRows: [string, string][] = [
+  const ELIG_STYLE: Record<string, { label: string; color: string }> = {
+    READY:        { label: '투입 가능', color: '#16A34A' },
+    NEEDS_DOCS:   { label: '서류 미비', color: '#D97706' },
+    NOT_APPROVED: { label: '승인 필요', color: '#DC2626' },
+  }
+  const eligStyle = ELIG_STYLE[worker.assignmentEligibility ?? ''] ?? { label: '—', color: '#9CA3AF' }
+
+  const ACCOUNT_STATUS_LABELS: Record<string, string> = {
+    PENDING: '승인 대기', APPROVED: '승인', REJECTED: '반려', SUSPENDED: '정지', ACTIVE: '활성',
+  }
+
+  const readonlyRows: [string, string | React.ReactNode][] = [
     ['근로자 코드', worker.workerCode ?? '—'],
+    ['계정 상태', ACCOUNT_STATUS_LABELS[worker.accountStatus ?? ''] ?? worker.accountStatus ?? '—'],
     ['고용형태', EMPLOYMENT_TYPE_LABELS[worker.employmentType] ?? worker.employmentType],
     ['소득구분', worker.incomeType === 'DAILY_WAGE' ? '일당' : worker.incomeType === 'MONTHLY_SALARY' ? '월급' : worker.incomeType],
-    ['직접/협력', worker.organizationType === 'DIRECT' ? '직접' : '협력사'],
+    ['직접/협력', worker.organizationType === 'DIRECT' ? '직영' : `협력사${worker.subcontractorName ? ` (${worker.subcontractorName})` : ''}`],
+    ['생년월일', worker.birthDate ? `${worker.birthDate.slice(0, 4)}.${worker.birthDate.slice(4, 6)}.${worker.birthDate.slice(6, 8)}` : '—'],
     ['숙련도', worker.skillLevel ?? '—'],
     ['외국인', worker.foreignerYn ? `예 (${worker.nationalityCode ?? '—'})` : '아니오'],
     ['계좌', worker.bankAccountSecure
@@ -637,6 +656,29 @@ function InfoTab({ worker, onRefresh }: { worker: WorkerDetail; onRefresh: () =>
         </div>
       ) : (
         /* 읽기 모드 */
+        <>
+        {/* 투입 가능 상태 카드 */}
+        <div className={`mb-5 p-4 rounded-lg border ${
+          worker.assignmentEligibility === 'READY' ? 'bg-[#F0FDF4] border-[#BBF7D0]' :
+          worker.assignmentEligibility === 'NEEDS_DOCS' ? 'bg-[#FFFBEB] border-[#FDE68A]' :
+          'bg-[#FEF2F2] border-[#FECACA]'
+        }`}>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: eligStyle.color }} />
+            <span className="text-[13px] font-bold" style={{ color: eligStyle.color }}>{eligStyle.label}</span>
+          </div>
+          {worker.missingDocs && worker.missingDocs.length > 0 && (
+            <div className="text-[12px] text-[#92400E] mt-1">
+              부족 서류: {worker.missingDocs.join(', ')}
+            </div>
+          )}
+          {worker.nextAction && (
+            <div className="text-[12px] text-[#6B7280] mt-1">
+              {worker.nextAction}
+            </div>
+          )}
+        </div>
+
         <table className="w-full border-collapse">
           <tbody>
             <tr>
@@ -660,13 +702,14 @@ function InfoTab({ worker, onRefresh }: { worker: WorkerDetail; onRefresh: () =>
               </td>
             </tr>
             {readonlyRows.map(([label, value]) => (
-              <tr key={label}>
+              <tr key={String(label)}>
                 <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px] align-top">{label}</td>
                 <td className="py-2 text-[13px] text-[#CBD5E0]">{value}</td>
               </tr>
             ))}
           </tbody>
         </table>
+        </>
       )}
     </div>
   )

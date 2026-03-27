@@ -595,6 +595,7 @@ model Worker {
   incomeType                IncomeType       @default(DAILY_WAGE)
   organizationType          OrganizationType @default(DIRECT)
   skillLevel                String?
+  subcontractorName         String?          // 협력사/외주팀명 (organizationType=SUBCONTRACTOR 시 참조)
   retirementMutualTargetYn  Boolean          @default(false)
   retirementMutualStatus    RetirementMutualStatus @default(PENDING_REVIEW)
   fourInsurancesEligibleYn  Boolean          @default(true)

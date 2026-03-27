@@ -52,14 +52,75 @@ export async function GET(
         bankAccountSecure: {
           select: { bankName: true, accountNumberMasked: true },
         },
+        // 투입 가능 판정용 서류/계약 현황
+        workerDocuments: {
+          where: { documentType: { in: ['CONTRACT', 'SAFETY_CERT'] } },
+          select: { documentType: true, status: true },
+        },
+        safetyDocuments: {
+          where: {
+            documentType: { in: [
+              'BASIC_SAFETY_EDU_CONFIRM', 'SAFETY_EDUCATION_NEW_HIRE',
+              'WORK_CONDITIONS_RECEIPT',
+              'HEALTH_DECLARATION', 'HEALTH_CERTIFICATE',
+            ] },
+          },
+          select: { documentType: true },
+        },
+        contracts: {
+          where: { isActive: true },
+          select: { id: true },
+          take: 1,
+        },
+        consents: {
+          where: { agreed: true, consentType: { in: ['PRIVACY_POLICY', 'TERMS_OF_SERVICE'] } },
+          select: { consentType: true },
+        },
       },
     })
     if (!worker) return notFound('근로자를 찾을 수 없습니다.')
 
+    // ── 투입 가능 여부 계산 ─────────────────────────────────────
+    const hasContract = worker.workerDocuments.some(d => d.documentType === 'CONTRACT')
+      || worker.safetyDocuments.some(d => d.documentType === 'WORK_CONDITIONS_RECEIPT')
+      || worker.contracts.length > 0
+    const hasHealthDocs = worker.safetyDocuments.some(d =>
+      d.documentType === 'HEALTH_DECLARATION' || d.documentType === 'HEALTH_CERTIFICATE'
+    )
+    const hasSafetyEdu = worker.safetyDocuments.some(d =>
+      d.documentType === 'BASIC_SAFETY_EDU_CONFIRM' || d.documentType === 'SAFETY_EDUCATION_NEW_HIRE'
+    )
+    const hasPrivacyConsent = worker.consents.some(c => c.consentType === 'PRIVACY_POLICY')
+
+    const missingDocs: string[] = []
+    if (!hasContract) missingDocs.push('근로계약서')
+    if (!hasHealthDocs) missingDocs.push('건강 각서/진단서')
+    if (!hasSafetyEdu) missingDocs.push('안전교육 확인서')
+    if (!hasPrivacyConsent) missingDocs.push('개인정보 동의서')
+
+    const isApproved = worker.accountStatus === 'APPROVED' || worker.accountStatus === 'ACTIVE'
+    let assignmentEligibility: string
+    let nextAction: string
+    if (!isApproved) {
+      assignmentEligibility = 'NOT_APPROVED'
+      nextAction = '계정 승인이 필요합니다.'
+    } else if (missingDocs.length > 0) {
+      assignmentEligibility = 'NEEDS_DOCS'
+      nextAction = `부족 서류: ${missingDocs.join(', ')}`
+    } else {
+      assignmentEligibility = 'READY'
+      nextAction = '현장 배정 가능'
+    }
+
     // 레거시 bankName / bankAccount 는 응답에서 제거 — 신규 구조(bankAccountSecure)만 반환
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { bankName: _legacyBankName, bankAccount: _legacyBankAccount, ...workerSafe } = worker as typeof worker & { bankName?: string; bankAccount?: string }
-    return ok(workerSafe)
+    const { bankName: _legacyBankName, bankAccount: _legacyBankAccount, workerDocuments: _wd, safetyDocuments: _sd, contracts: _ct, consents: _cs, ...workerSafe } = worker as typeof worker & { bankName?: string; bankAccount?: string }
+    return ok({
+      ...workerSafe,
+      assignmentEligibility,
+      missingDocs,
+      nextAction,
+    })
   } catch (err) {
     console.error('[admin/workers/[id] GET]', err)
     return internalError()

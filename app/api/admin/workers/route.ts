@@ -5,15 +5,37 @@ import { prisma } from '@/lib/db/prisma'
 import { ok, created, badRequest, unauthorized, internalError } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
+// ── birthDate 유효성 검증 ──────────────────────────────────────────────────
+function isValidBirthDate(s: string): string | null {
+  if (!/^\d{8}$/.test(s)) return 'YYYYMMDD 8자리 숫자를 입력하세요.'
+  const y = parseInt(s.slice(0, 4), 10)
+  const m = parseInt(s.slice(4, 6), 10)
+  const d = parseInt(s.slice(6, 8), 10)
+  const now = new Date()
+  if (y < 1930 || y > now.getFullYear()) return `연도 범위 오류 (1930~${now.getFullYear()})`
+  if (m < 1 || m > 12) return '월 범위 오류 (01~12)'
+  const date = new Date(y, m - 1, d)
+  if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return '존재하지 않는 날짜입니다.'
+  if (date > now) return '미래 날짜는 입력할 수 없습니다.'
+  return null
+}
+
+// ── 전화번호 정규화 (숫자만 추출) ─────────────────────────────────────────
+function normalizePhone(raw: string): string {
+  return raw.replace(/\D/g, '')
+}
+
 const createSchema = z.object({
   name: z.string().min(1, '이름은 필수입니다.'),
-  phone: z.string().regex(/^010\d{8}$/, '010으로 시작하는 11자리 번호'),
+  phone: z.string().min(1, '연락처는 필수입니다.'),
   jobTitle: z.string().min(1, '직종은 필수입니다.'),
-  employmentType: z.enum(['REGULAR', 'DAILY_CONSTRUCTION', 'BUSINESS_33', 'OTHER']).optional(),
+  employmentType: z.enum(['REGULAR', 'DAILY_CONSTRUCTION', 'BUSINESS_33', 'FIXED_TERM', 'CONTINUOUS_SITE', 'OTHER']).optional(),
   organizationType: z.enum(['DIRECT', 'SUBCONTRACTOR']).optional(),
   foreignerYn: z.boolean().optional(),
   nationalityCode: z.string().optional(),
   skillLevel: z.string().optional(),
+  birthDate: z.string().optional(),
+  subcontractorName: z.string().max(100).optional(),
 })
 
 export async function GET(request: NextRequest) {
@@ -188,21 +210,46 @@ export async function POST(request: NextRequest) {
     const parsed = createSchema.safeParse(body)
     if (!parsed.success) return badRequest(parsed.error.errors[0].message)
 
-    const { name, phone, jobTitle, employmentType, organizationType, foreignerYn, nationalityCode, skillLevel } = parsed.data
+    const { name, jobTitle, employmentType, organizationType, foreignerYn, nationalityCode, skillLevel, birthDate, subcontractorName } = parsed.data
 
+    // ── 전화번호 정규화 및 검증 ─────────────────────────────────
+    const phone = normalizePhone(parsed.data.phone)
+    if (!/^010\d{8}$/.test(phone)) return badRequest('010으로 시작하는 11자리 번호를 입력하세요.')
+
+    // ── birthDate 유효성 검증 ───────────────────────────────────
+    if (birthDate) {
+      const birthErr = isValidBirthDate(birthDate)
+      if (birthErr) return badRequest(`생년월일: ${birthErr}`)
+    }
+
+    // ── 전화번호 중복 검사 ──────────────────────────────────────
     const existing = await prisma.worker.findUnique({ where: { phone } })
     if (existing) return badRequest('이미 등록된 휴대폰 번호입니다.')
 
+    // ── 이름+생년월일 유사 중복 경고 (차단하지 않고 경고 반환) ──
+    let duplicateWarning: string | null = null
+    if (birthDate) {
+      const similar = await prisma.worker.findFirst({
+        where: { name: name.trim(), birthDate },
+        select: { id: true, name: true, phone: true },
+      })
+      if (similar) {
+        duplicateWarning = `동일 이름+생년월일 근로자 존재: ${similar.name} (${similar.phone ?? '번호없음'})`
+      }
+    }
+
     const worker = await prisma.worker.create({
       data: {
-        name,
+        name: name.trim(),
         phone,
-        jobTitle,
+        jobTitle: jobTitle.trim(),
         employmentType: employmentType ?? 'DAILY_CONSTRUCTION',
         organizationType: organizationType ?? 'DIRECT',
         foreignerYn: foreignerYn ?? false,
         nationalityCode: nationalityCode ?? 'KR',
         skillLevel: skillLevel ?? null,
+        birthDate: birthDate ?? null,
+        subcontractorName: (organizationType === 'SUBCONTRACTOR' && subcontractorName) ? subcontractorName.trim() : null,
       },
     })
 
@@ -212,11 +259,11 @@ export async function POST(request: NextRequest) {
       actionType: 'REGISTER_WORKER',
       targetType: 'Worker',
       targetId: worker.id,
-      description: `근로자 등록: ${name} (${phone})`,
+      description: `근로자 등록: ${name} (${phone})${subcontractorName ? ` [협력사: ${subcontractorName}]` : ''}`,
       summary: `근로자 등록: ${name} (${phone})`,
     })
 
-    return created({ id: worker.id }, '근로자가 등록되었습니다.')
+    return created({ id: worker.id, duplicateWarning }, '근로자가 등록되었습니다.')
   } catch (err) {
     console.error('[admin/workers POST]', err)
     return internalError()
