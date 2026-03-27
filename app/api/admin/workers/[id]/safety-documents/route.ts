@@ -15,6 +15,8 @@ import {
   renderPrivacyConsent,
   renderBasicSafetyEduConfirm,
   renderSiteSafetyRulesConfirm,
+  renderHealthDeclaration,
+  renderHealthCertificate,
   type PPEItem,
 } from '@/lib/contracts/safety-docs'
 
@@ -269,9 +271,19 @@ export async function POST(
       break
 
     case 'HEALTH_DECLARATION':
+      rendered = renderHealthDeclaration({
+        ...baseData,
+        declarationDate: documentDate || today,
+        managerName: educatorName || '현장소장',
+      })
+      break
+
     case 'HEALTH_CERTIFICATE':
-      // 건강 관련 서류는 별도 렌더링 템플릿 없이 기본 정보만 저장
-      rendered = undefined
+      rendered = renderHealthCertificate({
+        ...baseData,
+        certificateDate: documentDate || today,
+        managerName: educatorName || '현장소장',
+      })
       break
   }
 

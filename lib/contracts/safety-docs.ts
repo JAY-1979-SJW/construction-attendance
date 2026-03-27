@@ -829,3 +829,97 @@ export function renderSubcontractorEducationRecord(d: SubcontractorEducationData
 `,
   }
 }
+
+// ─── 10. 건강 이상 없음 각서 ──────────────────────────────────
+
+export interface HealthDeclarationData extends ContractData {
+  declarationDate?: string
+  managerName?: string
+}
+
+export function renderHealthDeclaration(d: HealthDeclarationData): RenderedContract {
+  const date = d.declarationDate || d.contractDate
+  return {
+    templateType: 'HEALTH_DECLARATION',
+    title:        '건강 이상 없음 각서',
+    subtitle:     '(산업안전보건법 제138조 건강진단 관련)',
+    legalBasis:   '산업안전보건법 제138조, 동법 시행규칙 제198조',
+    sections: [
+      {
+        title: '근로자 정보',
+        content: `성명:       ${d.workerName}
+현장명:     ${d.siteName}
+직종:       ${d.jobTitle}
+작성일:     ${date}`,
+      },
+      {
+        title: '각서 내용',
+        content: `본인은 현재 건강상 이상이 없으며, 아래의 사항을 확인합니다.
+
+① 현재 업무 수행에 지장을 줄 수 있는 질병이나 건강상의 문제가 없습니다.
+② 과거 또는 현재 치료 중인 질환이 있는 경우 관리자에게 사전 고지하였습니다.
+③ 작업 중 건강 이상이 발생할 경우 즉시 작업을 중단하고 관리자에게 보고하겠습니다.
+④ 건강진단 결과 업무 수행에 부적합한 판정을 받을 경우 회사의 조치에 따르겠습니다.
+⑤ 본 각서의 내용이 사실과 다를 경우 이에 따른 책임은 본인에게 있음을 확인합니다.`,
+      },
+      {
+        title: '유의사항',
+        content: `- 고혈압, 당뇨, 심장질환, 간질환, 허리디스크 등 기저질환 보유 시 반드시 사전 신고
+- 복용 중인 약물이 있는 경우 반드시 사전 신고
+- 건강진단 미실시 시 산업안전보건법에 따라 취업이 제한될 수 있음`,
+      },
+    ],
+    signatureBlock: `
+근로자:     ${d.workerName}   (서명 또는 인)
+${d.managerName ? `관리자:     ${d.managerName}   (서명 또는 인)\n` : ''}
+작성일: ${date}
+`,
+  }
+}
+
+// ─── 11. 건강 증명서 (확인서) ─────────────────────────────────
+
+export interface HealthCertificateData extends ContractData {
+  certificateDate?: string
+  healthCheckDate?: string
+  healthCheckResult?: string
+  healthCheckOrg?: string
+  managerName?: string
+}
+
+export function renderHealthCertificate(d: HealthCertificateData): RenderedContract {
+  const date = d.certificateDate || d.contractDate
+  return {
+    templateType: 'HEALTH_CERTIFICATE',
+    title:        '건강 증명서 확인서',
+    subtitle:     '(산업안전보건법 제138조 건강진단 결과 확인)',
+    legalBasis:   '산업안전보건법 제138조, 동법 시행규칙 제198조~제209조',
+    sections: [
+      {
+        title: '근로자 정보',
+        content: `성명:       ${d.workerName}
+현장명:     ${d.siteName}
+직종:       ${d.jobTitle}`,
+      },
+      {
+        title: '건강진단 정보',
+        content: `검진일자:     ${d.healthCheckDate || '미입력'}
+검진기관:     ${d.healthCheckOrg || '미입력'}
+검진결과:     ${d.healthCheckResult || '이상 없음'}`,
+      },
+      {
+        title: '확인 내용',
+        content: `위 근로자는 건강진단 결과 현재 업무 수행에 적합한 건강 상태임을 확인합니다.
+
+① 건강진단 결과 특이사항이 없으며, 현장 작업에 투입 가능합니다.
+② 건강진단 결과에 따른 사후관리 조치가 필요한 경우 별도 안내합니다.
+③ 본 확인서는 건강진단 결과를 기반으로 작성되었으며, 건강 상태 변동 시 재확인이 필요합니다.`,
+      },
+    ],
+    signatureBlock: `
+근로자:     ${d.workerName}   (서명 또는 인)
+${d.managerName ? `확인자:     ${d.managerName}   (서명 또는 인)\n` : ''}
+작성일: ${date}
+`,
+  }
+}

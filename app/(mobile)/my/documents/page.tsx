@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
 import WorkerTopBar from '@/components/worker/WorkerTopBar'
 
@@ -151,21 +152,23 @@ export default function MyDocumentsPage() {
               <EmptyState text="안전서류가 없습니다" />
             ) : (
               safetyDocs.map(doc => (
-                <div key={doc.id} className="bg-white rounded-xl p-4 shadow-sm">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-sm">
-                      {DOC_TYPE_LABELS[doc.documentType] ?? doc.documentType}
-                    </span>
-                    <StatusBadge status={doc.status} />
+                <Link key={doc.id} href={`/my/documents/${doc.id}`} className="block no-underline">
+                  <div className="bg-white rounded-xl p-4 shadow-sm active:bg-gray-50 transition-colors">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-sm text-[#0F172A]">
+                        {DOC_TYPE_LABELS[doc.documentType] ?? doc.documentType}
+                      </span>
+                      <StatusBadge status={doc.status} />
+                    </div>
+                    {doc.site && (
+                      <p className="text-xs text-gray-500">{doc.site.name}</p>
+                    )}
+                    <p className="text-xs text-gray-400 mt-1">
+                      {doc.documentDate ?? doc.createdAt.slice(0, 10)}
+                      {doc.signedAt && ` · 서명: ${doc.signedAt.slice(0, 10)}`}
+                    </p>
                   </div>
-                  {doc.site && (
-                    <p className="text-xs text-gray-500">{doc.site.name}</p>
-                  )}
-                  <p className="text-xs text-gray-400 mt-1">
-                    {doc.documentDate ?? doc.createdAt.slice(0, 10)}
-                    {doc.signedAt && ` · 서명: ${doc.signedAt.slice(0, 10)}`}
-                  </p>
-                </div>
+                </Link>
               ))
             )
           ) : tab === 'contract' ? (
