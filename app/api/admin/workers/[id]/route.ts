@@ -63,6 +63,7 @@ export async function GET(
               'BASIC_SAFETY_EDU_CONFIRM', 'SAFETY_EDUCATION_NEW_HIRE',
               'WORK_CONDITIONS_RECEIPT',
               'HEALTH_DECLARATION', 'HEALTH_CERTIFICATE',
+              'PRIVACY_CONSENT',
             ] },
           },
           select: { documentType: true },
@@ -91,6 +92,7 @@ export async function GET(
       d.documentType === 'BASIC_SAFETY_EDU_CONFIRM' || d.documentType === 'SAFETY_EDUCATION_NEW_HIRE'
     )
     const hasPrivacyConsent = worker.consents.some(c => c.consentType === 'PRIVACY_POLICY')
+      || worker.safetyDocuments.some(d => d.documentType === 'PRIVACY_CONSENT')
 
     const missingDocs: { key: string; label: string; actionType: string; docType?: string }[] = []
     if (!hasContract) missingDocs.push({ key: 'CONTRACT', label: '근로계약서', actionType: 'CONTRACT_NEW' })
