@@ -94,9 +94,38 @@ export default function MyDocumentsPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <WorkerTopBar title="내 서류" />
+      <WorkerTopBar />
 
       <main className="flex-1 pb-20 pt-14">
+        {/* 서류 현황 요약 */}
+        {!loading && (
+          <div className="px-4 pt-4 pb-2">
+            <div
+              className="rounded-xl px-[18px] py-4 border"
+              style={{
+                background: safetyDocs.length + contracts.length > 0
+                  ? 'rgba(46,125,50,0.12)' : 'rgba(244,121,32,0.1)',
+                borderColor: safetyDocs.length + contracts.length > 0
+                  ? 'rgba(46,125,50,0.4)' : 'rgba(244,121,32,0.4)',
+              }}
+            >
+              <div className="flex items-center gap-[10px]">
+                <span className="text-2xl">{safetyDocs.length + contracts.length > 0 ? '📋' : '📄'}</span>
+                <div>
+                  <div className="text-[15px] font-bold text-[#0F172A]">
+                    안전서류 {safetyDocs.length}건 · 계약서 {contracts.length}건 · 동의서 {consents.length}건
+                  </div>
+                  <div className="text-[13px] text-gray-500 mt-0.5">
+                    {safetyDocs.filter(d => d.status === 'SIGNED').length + contracts.filter(c => c.contractStatus === 'ACTIVE' || c.contractStatus === 'ENDED').length > 0
+                      ? `서명완료 ${safetyDocs.filter(d => d.status === 'SIGNED').length}건`
+                      : '아직 발급된 서류가 없습니다'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 탭 */}
         <div className="flex border-b bg-white sticky top-14 z-10">
           {tabs.map(t => (

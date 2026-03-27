@@ -2506,6 +2506,8 @@ enum SafetyDocumentType {
   PRIVACY_CONSENT              // 개인정보수집이용동의서
   BASIC_SAFETY_EDU_CONFIRM     // 건설업 기초안전보건교육 확인서
   SITE_SAFETY_RULES_CONFIRM    // 현장 안전수칙 준수 확인서
+  HEALTH_DECLARATION           // 건강 이상 없음 각서
+  HEALTH_CERTIFICATE           // 건강 증명서
 }
 
 enum SafetyDocumentStatus {

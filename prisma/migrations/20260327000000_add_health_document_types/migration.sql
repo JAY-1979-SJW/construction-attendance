@@ -1,0 +1,3 @@
+-- AlterEnum
+ALTER TYPE "SafetyDocumentType" ADD VALUE 'HEALTH_DECLARATION';
+ALTER TYPE "SafetyDocumentType" ADD VALUE 'HEALTH_CERTIFICATE';

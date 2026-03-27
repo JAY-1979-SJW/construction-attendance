@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
  * WorkerBottomNav
  *
  * 근로자 화면 하단 고정 내비게이션 — 최대 5개 항목.
- * 출퇴근 | 내 문서 | 내 정보 | 공지 | 요청
+ * 출퇴근 | 작업일보 | 서류 | 내 정보 | 요청
  *
  * 권한 설계 원칙:
  *  - 이 네비게이션 외 메뉴 없음 (관리자 메모, 리스크 점수, 계약형태 검토 이력 노출 금지)
@@ -23,8 +23,8 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: '출퇴근',    icon: '🕐', href: '/attendance',       match: ['/attendance'] },
   { label: '작업일보',  icon: '📋', href: '/daily-report',     match: ['/daily-report'] },
-  { label: '내 정보',   icon: '👤', href: '/my/status',        match: ['/my/status', '/my'] },
-  { label: '공지',      icon: '📢', href: '/my/notices',       match: ['/my/notices'] },
+  { label: '서류',      icon: '📑', href: '/my/documents',     match: ['/my/documents'] },
+  { label: '내 정보',   icon: '👤', href: '/my/status',        match: ['/my/status'] },
   { label: '요청',      icon: '📝', href: '/my/requests',      match: ['/my/requests'] },
 ]
 
@@ -33,7 +33,7 @@ export default function WorkerBottomNav() {
   const router    = useRouter()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] flex h-16 z-[100] shadow-[0_-2px_8px_rgba(0,0,0,0.08)]">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] flex h-16 z-[100] shadow-[0_-2px_8px_rgba(0,0,0,0.08)] safe-bottom">
       {NAV_ITEMS.map((item) => {
         const isActive = item.match.some((m) => pathname === m || pathname.startsWith(m + '/'))
         return (

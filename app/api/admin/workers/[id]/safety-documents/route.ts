@@ -30,6 +30,8 @@ const SAFETY_DOC_TYPES = [
   'PRIVACY_CONSENT',
   'BASIC_SAFETY_EDU_CONFIRM',
   'SITE_SAFETY_RULES_CONFIRM',
+  'HEALTH_DECLARATION',
+  'HEALTH_CERTIFICATE',
 ] as const
 
 type SafetyDocType = typeof SAFETY_DOC_TYPES[number]
@@ -265,9 +267,15 @@ export async function POST(
         confirmerName: confirmerName || educator,
       })
       break
+
+    case 'HEALTH_DECLARATION':
+    case 'HEALTH_CERTIFICATE':
+      // 건강 관련 서류는 별도 렌더링 템플릿 없이 기본 정보만 저장
+      rendered = undefined
+      break
   }
 
-  const contentText = contractToText(rendered)
+  const contentText = rendered ? contractToText(rendered) : null
 
   const doc = await prisma.safetyDocument.create({
     data: {
