@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
 import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { syncContractDocumentStatus } from '@/lib/onboarding-docs'
 
 export async function POST(
   req: NextRequest,
@@ -48,6 +49,9 @@ export async function POST(
       })
     }
   })
+
+  // 문서 패키지 동기화
+  await syncContractDocumentStatus(params.id)
 
   await writeAdminAuditLog({
     adminId: session.sub,

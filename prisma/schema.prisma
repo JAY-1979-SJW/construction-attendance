@@ -266,6 +266,45 @@ enum WorkerDocumentStatus {
   EXPIRED           // 만료
 }
 
+// ─── 투입 전 필수 문서 패키지 Enums ─────────────────────────
+
+enum DocPackageOverallStatus {
+  NOT_READY      // 필수 문서 누락 있음
+  UNDER_REVIEW   // 제출 완료, 승인 대기 있음
+  READY          // 전부 승인, 투입 가능
+  REJECTED       // 반려 문서 존재
+  EXPIRED        // 만료 문서 존재
+}
+
+enum OnboardingDocType {
+  CONTRACT             // 근로계약서
+  PRIVACY_CONSENT      // 개인정보 제공 동의서
+  HEALTH_DECLARATION   // 건강 이상 없음 각서
+  HEALTH_CERTIFICATE   // 건강증명서 파일 제출
+  SAFETY_ACK           // 안전서류 확인 및 서명
+}
+
+enum OnboardingDocStatus {
+  NOT_SUBMITTED   // 미제출
+  SUBMITTED       // 제출 완료, 검토 대기
+  APPROVED        // 승인 완료
+  REJECTED        // 반려
+  EXPIRED         // 만료됨
+  NOT_REQUIRED    // 예외적 불필요
+}
+
+enum DocSubmitMethod {
+  SIGN               // 전자서명
+  UPLOAD             // 파일 업로드
+  SYSTEM_GENERATED   // 시스템 자동 생성
+}
+
+enum DocReviewAction {
+  APPROVE           // 승인
+  REJECT            // 반려
+  REQUEST_RESUBMIT  // 재제출 요청
+}
+
 enum BulkImportJobStatus {
   PENDING
   PROCESSING
@@ -504,6 +543,7 @@ model AdminUser {
   siteAccessGroupUsers    UserSiteAccessGroup[]
   processedDeviceRequests DeviceChangeRequest[] @relation("ProcessedBy")
   auditLogs               AdminAuditLog[]
+  onboardingDocReviews    OnboardingDocReview[]
 
   @@index([companyId])
   @@map("admin_users")
@@ -681,6 +721,9 @@ model Worker {
   dailyReports               WorkerDailyReport[]
   // 알림
   notifications              WorkerNotification[]
+  // 투입 전 필수 문서 패키지
+  documentPackages           WorkerDocumentPackage[]
+  onboardingDocuments        OnboardingDocument[]
 
   @@map("workers")
 }
@@ -763,6 +806,9 @@ model Site {
   // 근로자 작업일보
   workerDailyReports         WorkerDailyReport[]
   locationMasters            SiteLocationMaster[]
+  // 투입 전 필수 문서 패키지
+  documentPackages           WorkerDocumentPackage[]
+  onboardingDocuments        OnboardingDocument[]
 
   @@map("sites")
 }
@@ -992,7 +1038,8 @@ model FileRecord {
   uploadedBy       String
   uploadedAt       DateTime @default(now())
 
-  workerDocuments  WorkerDocument[]
+  workerDocuments           WorkerDocument[]
+  onboardingDocSubmissions  OnboardingDocSubmission[]
 
   @@index([uploadedAt])
   @@map("file_records")
@@ -1495,6 +1542,7 @@ model WorkerContract {
   generatedDocuments GeneratedDocument[]
   contractVersions   ContractVersion[]
   safetyDocuments    SafetyDocument[]
+  onboardingDocuments OnboardingDocument[]
 
   @@index([workerId])
   @@index([siteId])
@@ -3934,4 +3982,133 @@ model TaskMaster {
   @@index([tradeFamilyId])
   @@index([tradeId])
   @@map("task_masters")
+}
+
+// ═══════════════════════════════════════════════════════════
+//  투입 전 필수 문서 패키지 (Onboarding Document Package)
+// ═══════════════════════════════════════════════════════════
+
+// ─── 근로자별 문서 패키지 집계 ──────────────────────────────
+model WorkerDocumentPackage {
+  id                 String                  @id @default(cuid())
+  workerId           String
+  siteId             String?
+  overallStatus      DocPackageOverallStatus @default(NOT_READY)
+  requiredDocCount   Int                     @default(5)
+  approvedDocCount   Int                     @default(0)
+  rejectedDocCount   Int                     @default(0)
+  pendingDocCount    Int                     @default(0)
+  missingDocCount    Int                     @default(5)
+  expiredDocCount    Int                     @default(0)
+  lastSubmittedAt    DateTime?
+  lastReviewedAt     DateTime?
+  readyAt            DateTime?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  worker   Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site     Site?  @relation(fields: [siteId], references: [id], onDelete: SetNull)
+
+  onboardingDocs OnboardingDocument[]
+
+  @@unique([workerId, siteId])
+  @@index([overallStatus])
+  @@map("worker_document_packages")
+}
+
+// ─── 문서 개별 현재 상태 ─────────────────────────────────────
+model OnboardingDocument {
+  id                    String              @id @default(cuid())
+  workerId              String
+  siteId                String?
+  packageId             String
+  docType               OnboardingDocType
+  status                OnboardingDocStatus @default(NOT_SUBMITTED)
+  versionNo             Int                 @default(1)
+  title                 String?
+  contractId            String?             // doc_type=CONTRACT 시 계약 참조
+  submittedAt           DateTime?
+  reviewedAt            DateTime?
+  approvedAt            DateTime?
+  rejectedAt            DateTime?
+  expiresAt             DateTime?
+  reviewerId            String?
+  rejectionReason       String?
+  latestSubmissionId    String?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  worker   Worker                @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site     Site?                 @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  package  WorkerDocumentPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  contract WorkerContract?       @relation(fields: [contractId], references: [id], onDelete: SetNull)
+
+  submissions OnboardingDocSubmission[]
+  reviews     OnboardingDocReview[]
+
+  @@unique([workerId, siteId, docType])
+  @@index([packageId, docType])
+  @@index([status])
+  @@map("worker_onboarding_documents")
+}
+
+// ─── 제출 이력 (재제출/버전 관리) ─────────────────────────────
+model OnboardingDocSubmission {
+  id                 String          @id @default(cuid())
+  onboardingDocId    String
+  workerId           String
+  docType            OnboardingDocType
+  submissionNo       Int
+  statusSnapshot     OnboardingDocStatus
+  submitMethod       DocSubmitMethod
+  fileId             String?
+  signedDocumentUrl  String?
+  sourcePayload      Json?
+  submittedByWorkerId String?
+  submittedAt        DateTime        @default(now())
+  note               String?
+  createdAt          DateTime        @default(now())
+
+  onboardingDoc OnboardingDocument @relation(fields: [onboardingDocId], references: [id], onDelete: Cascade)
+  file          FileRecord?        @relation(fields: [fileId], references: [id], onDelete: SetNull)
+  reviews       OnboardingDocReview[]
+
+  @@index([onboardingDocId])
+  @@index([workerId, docType])
+  @@map("worker_doc_submissions")
+}
+
+// ─── 검토 이력 (승인/반려) ────────────────────────────────────
+model OnboardingDocReview {
+  id               String          @id @default(cuid())
+  onboardingDocId  String
+  submissionId     String?
+  action           DocReviewAction
+  reviewerId       String
+  reason           String?
+  createdAt        DateTime        @default(now())
+
+  onboardingDoc OnboardingDocument       @relation(fields: [onboardingDocId], references: [id], onDelete: Cascade)
+  submission    OnboardingDocSubmission?  @relation(fields: [submissionId], references: [id], onDelete: SetNull)
+  reviewer      AdminUser                @relation(fields: [reviewerId], references: [id], onDelete: Restrict)
+
+  @@index([onboardingDocId])
+  @@index([reviewerId])
+  @@map("worker_doc_reviews")
+}
+
+// ─── 문서 템플릿 (개인정보동의서/건강각서/안전서류) ──────────────
+model OnboardingDocTemplate {
+  id            String            @id @default(cuid())
+  docType       OnboardingDocType
+  title         String
+  contentHtml   String?
+  contentJson   Json?
+  versionNo     Int               @default(1)
+  isActive      Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([docType, isActive])
+  @@map("onboarding_doc_templates")
 }

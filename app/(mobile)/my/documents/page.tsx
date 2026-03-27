@@ -115,6 +115,17 @@ export default function MyDocumentsPage() {
       <WorkerTopBar />
 
       <main className="flex-1 pb-20 pt-14">
+        {/* 투입 필수 문서 바로가기 */}
+        <Link href="/my/onboarding" className="block mx-4 mt-2 mb-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl no-underline">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-[14px] font-bold text-blue-700">투입 필수 문서</div>
+              <div className="text-[12px] text-blue-500 mt-0.5">현장 투입 전 필수 문서 5종 확인</div>
+            </div>
+            <span className="text-blue-400 text-lg">&rarr;</span>
+          </div>
+        </Link>
+
         {/* 반려 서류 경고 배너 */}
         {!loading && safetyDocs.some(d => d.status === 'REJECTED') && (
           <div className="px-4 pt-4 pb-0">

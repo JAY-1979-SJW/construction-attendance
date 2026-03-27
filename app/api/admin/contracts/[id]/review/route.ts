@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, requireRole, MUTATE_ROLES, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
 import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { syncContractDocumentStatus } from '@/lib/onboarding-docs'
 
 const CONTRACT_KIND_LABELS: Record<string, string> = {
   EMPLOYMENT: '근로계약서',
@@ -120,6 +121,9 @@ export async function POST(
   }
 
   const newStatus = action === 'APPROVE' ? 'ACTIVE' : 'REJECTED'
+
+  // 문서 패키지 동기화
+  await syncContractDocumentStatus(params.id)
 
   await writeAdminAuditLog({
     adminId: session.sub,

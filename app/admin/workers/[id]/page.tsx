@@ -96,7 +96,7 @@ interface WorkerDetail {
 
 // ─── 탭 종류 ──────────────────────────────────────────────────────────────────
 
-type Tab = 'info' | 'profile' | 'company' | 'site' | 'insurance' | 'docs' | 'contracts' | 'safety' | 'hrActions'
+type Tab = 'info' | 'profile' | 'company' | 'site' | 'insurance' | 'docs' | 'contracts' | 'safety' | 'onboarding' | 'hrActions'
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
@@ -303,7 +303,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
 
         {/* 탭 */}
         <div className="flex gap-1 mb-4 border-b border-[#e0e0e0] pb-0">
-          {([['info', '기본정보'], ['profile', '분류정보'], ['company', '회사배정'], ['site', '현장배정'], ['insurance', '보험상태'], ['contracts', '계약서'], ['safety', '안전문서'], ['docs', '문서'], ['hrActions', '경고·소명']] as [Tab, string][]).map(([key, label]) => (
+          {([['info', '기본정보'], ['profile', '분류정보'], ['company', '회사배정'], ['site', '현장배정'], ['insurance', '보험상태'], ['contracts', '계약서'], ['safety', '안전문서'], ['onboarding', '투입문서'], ['docs', '문서'], ['hrActions', '경고·소명']] as [Tab, string][]).map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)} className={`px-[18px] py-2 bg-transparent border-none border-b-2 cursor-pointer text-[13px] font-medium flex items-center gap-1.5 -mb-px ${tab === key ? 'border-[#1976d2] text-secondary-brand font-bold' : 'border-transparent text-muted-brand'}`}>
               {label}
               {key === 'company' && worker.companyAssignments.length > 0 && (
@@ -348,6 +348,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
               onAdd={openInsuranceForm}
             />
           )}
+          {tab === 'onboarding' && <OnboardingDocsTab workerId={worker.id} />}
           {tab === 'docs' && <DocsTab workerId={worker.id} />}
           {tab === 'contracts' && <ContractsTab workerId={worker.id} onDocChange={load} />}
           {tab === 'safety' && <SafetyDocsTab workerId={worker.id} initialDocType={pendingDocType} onInitialDocTypeConsumed={() => setPendingDocType(null)} onDocChange={load} onNavigateDoc={(doc) => { if (doc.docType) { setPendingDocType(doc.docType); setTab('safety') } }} />}
@@ -2218,6 +2219,177 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
           </div>
         )}
       </section>
+    </div>
+  )
+}
+
+// ─── 투입 전 필수 문서 탭 ─────────────────────────────────────────────────────
+const ONBOARDING_STATUS_LABELS: Record<string, string> = {
+  NOT_SUBMITTED: '미제출', SUBMITTED: '검토대기', APPROVED: '승인', REJECTED: '반려', EXPIRED: '만료', NOT_REQUIRED: '불필요',
+}
+const ONBOARDING_STATUS_COLORS: Record<string, string> = {
+  NOT_SUBMITTED: '#9e9e9e', SUBMITTED: '#f57c00', APPROVED: '#2e7d32', REJECTED: '#c62828', EXPIRED: '#6d4c41', NOT_REQUIRED: '#78909c',
+}
+const PACKAGE_STATUS_LABELS: Record<string, string> = {
+  NOT_READY: '준비중', UNDER_REVIEW: '검토중', READY: '투입가능', REJECTED: '반려', EXPIRED: '만료',
+}
+const PACKAGE_STATUS_COLORS: Record<string, string> = {
+  NOT_READY: '#9e9e9e', UNDER_REVIEW: '#f57c00', READY: '#2e7d32', REJECTED: '#c62828', EXPIRED: '#6d4c41',
+}
+
+function OnboardingDocsTab({ workerId }: { workerId: string }) {
+  const [data, setData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [reviewModal, setReviewModal] = useState<{ docType: string; action: 'APPROVE' | 'REJECT' } | null>(null)
+  const [reason, setReason] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/admin/workers/${workerId}/document-package`)
+      const json = await res.json()
+      if (json.success) setData(json.data)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { load() }, [workerId])
+
+  const handleReview = async () => {
+    if (!reviewModal) return
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/admin/workers/${workerId}/documents/${reviewModal.docType}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: reviewModal.action, reason: reason.trim() || undefined }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        setReviewModal(null)
+        setReason('')
+        await load()
+      } else {
+        alert(json.message || '처리 실패')
+      }
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) return <div className="text-center py-8 text-sm text-[#718096]">불러오는 중...</div>
+  if (!data?.packages?.length) return <div className="text-center py-8 text-sm text-[#718096]">문서 패키지가 없습니다.</div>
+
+  return (
+    <div>
+      {data.packages.map((pkg: any) => (
+        <div key={pkg.id} className="mb-6">
+          {/* 상단 요약 */}
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-[#e0e0e0]">
+            <span className="px-3 py-1 rounded-full text-white text-xs font-bold"
+              style={{ background: PACKAGE_STATUS_COLORS[pkg.overallStatus] || '#9e9e9e' }}>
+              {PACKAGE_STATUS_LABELS[pkg.overallStatus] || pkg.overallStatus}
+            </span>
+            {pkg.site && <span className="text-xs text-[#718096]">현장: {pkg.site.name}</span>}
+            <span className="text-xs text-[#718096]">승인 {pkg.approvedDocCount}/{pkg.requiredDocCount}</span>
+            {pkg.pendingDocCount > 0 && <span className="text-xs text-[#f57c00]">검토대기 {pkg.pendingDocCount}건</span>}
+            {pkg.rejectedDocCount > 0 && <span className="text-xs text-[#c62828]">반려 {pkg.rejectedDocCount}건</span>}
+            {pkg.missingDocCount > 0 && <span className="text-xs text-[#9e9e9e]">누락 {pkg.missingDocCount}건</span>}
+          </div>
+
+          {/* 문서 목록 */}
+          <table className="w-full text-[13px] border-collapse">
+            <thead>
+              <tr className="text-left text-xs text-[#718096] border-b border-[#e0e0e0]">
+                <th className="py-2 px-2">문서명</th>
+                <th className="py-2 px-2">상태</th>
+                <th className="py-2 px-2">제출일</th>
+                <th className="py-2 px-2">검토일</th>
+                <th className="py-2 px-2">반려사유</th>
+                <th className="py-2 px-2">액션</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pkg.onboardingDocs.map((doc: any) => (
+                <tr key={doc.id} className="border-b border-[#f5f5f5] hover:bg-[#fafafa]">
+                  <td className="py-2.5 px-2 font-medium">{doc.title || doc.docType}</td>
+                  <td className="py-2.5 px-2">
+                    <span className="px-2 py-0.5 rounded text-white text-[11px] font-bold"
+                      style={{ background: ONBOARDING_STATUS_COLORS[doc.status] || '#9e9e9e' }}>
+                      {ONBOARDING_STATUS_LABELS[doc.status] || doc.status}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-2 text-xs text-[#718096]">
+                    {doc.submittedAt ? new Date(doc.submittedAt).toLocaleDateString('ko-KR') : '—'}
+                  </td>
+                  <td className="py-2.5 px-2 text-xs text-[#718096]">
+                    {doc.reviewedAt ? new Date(doc.reviewedAt).toLocaleDateString('ko-KR') : '—'}
+                  </td>
+                  <td className="py-2.5 px-2 text-xs text-[#c62828]">
+                    {doc.rejectionReason ? doc.rejectionReason.slice(0, 30) + (doc.rejectionReason.length > 30 ? '...' : '') : '—'}
+                  </td>
+                  <td className="py-2.5 px-2">
+                    <div className="flex gap-1">
+                      {doc.status === 'SUBMITTED' && (
+                        <>
+                          <button onClick={() => setReviewModal({ docType: doc.docType, action: 'APPROVE' })}
+                            className="px-2.5 py-1 bg-[#2e7d32] text-white border-none rounded text-[11px] font-bold cursor-pointer">
+                            승인
+                          </button>
+                          <button onClick={() => { setReviewModal({ docType: doc.docType, action: 'REJECT' }); setReason('') }}
+                            className="px-2.5 py-1 bg-[#c62828] text-white border-none rounded text-[11px] font-bold cursor-pointer">
+                            반려
+                          </button>
+                        </>
+                      )}
+                      {doc.submissions?.length > 0 && (
+                        <button className="px-2 py-1 bg-[#f5f5f5] border border-[#e0e0e0] rounded text-[11px] cursor-pointer">
+                          이력({doc.submissions.length})
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+
+      {/* 검토 모달 */}
+      {reviewModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setReviewModal(null)}>
+          <div className="bg-white rounded-xl p-6 w-[420px] max-w-[90vw]" onClick={e => e.stopPropagation()}>
+            <h3 className="text-base font-bold mb-4">
+              {reviewModal.action === 'APPROVE' ? '문서 승인' : '문서 반려'}
+            </h3>
+            {reviewModal.action === 'REJECT' && (
+              <div className="mb-4">
+                <label className="block text-xs font-medium text-[#718096] mb-1">반려 사유 *</label>
+                <textarea value={reason} onChange={e => setReason(e.target.value)}
+                  placeholder="반려 사유를 입력하세요"
+                  rows={3}
+                  className="w-full px-3 py-2 border border-[#e0e0e0] rounded-md text-[13px] resize-y box-border" />
+              </div>
+            )}
+            {reviewModal.action === 'APPROVE' && (
+              <p className="text-[13px] text-[#718096] mb-4">이 문서를 승인하시겠습니까?</p>
+            )}
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setReviewModal(null)}
+                className="px-4 py-2 border border-[#e0e0e0] rounded-md bg-white cursor-pointer text-[13px]">취소</button>
+              <button onClick={handleReview}
+                disabled={saving || (reviewModal.action === 'REJECT' && !reason.trim())}
+                className="px-4 py-2 text-white border-none rounded-md text-[13px] font-bold cursor-pointer"
+                style={{ background: saving ? '#bdbdbd' : reviewModal.action === 'APPROVE' ? '#2e7d32' : '#c62828' }}>
+                {saving ? '처리 중...' : reviewModal.action === 'APPROVE' ? '승인' : '반려'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
