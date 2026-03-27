@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { uploadIdentityDocument } from '@/lib/identity/identity-document-service'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getAdminSession()
@@ -20,6 +21,16 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       workerId: params.id, buffer, mimeType: file.type,
       uploadedBy: session.sub, actorRole: session.role ?? 'ADMIN',
     })
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorRole:   session.role,
+      actionType:  'IDENTITY_DOCUMENT_UPLOAD',
+      targetType:  'Worker',
+      targetId:    params.id,
+      summary:     `신분증 업로드: ${file.name}`,
+    })
+
     return NextResponse.json({ ok: true, ...result })
   } catch (err) {
     console.error('[identity upload]', err)

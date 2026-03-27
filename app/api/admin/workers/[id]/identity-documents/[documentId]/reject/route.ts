@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { rejectDocument } from '@/lib/identity/identity-document-service'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 export async function POST(req: NextRequest, { params }: { params: { id: string; documentId: string } }) {
   const session = await getAdminSession()
@@ -11,6 +12,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string;
   if (!['REJECTED', 'RESCAN_REQUIRED'].includes(body.reviewStatus)) return NextResponse.json({ error: '유효하지 않은 상태' }, { status: 400 })
   try {
     await rejectDocument(params.id, params.documentId, body.reviewStatus, body.reason ?? '', session.sub, session.role ?? 'ADMIN')
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorRole:   session.role,
+      actionType:  'IDENTITY_DOCUMENT_REJECT',
+      targetType:  'Worker',
+      targetId:    params.id,
+      summary:     `신분증 반려: documentId=${params.documentId}, status=${body.reviewStatus}, reason=${body.reason ?? ''}`,
+      metadataJson: { documentId: params.documentId, reviewStatus: body.reviewStatus, reason: body.reason },
+    })
+
     return NextResponse.json({ ok: true })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : '실패' }, { status: 400 })

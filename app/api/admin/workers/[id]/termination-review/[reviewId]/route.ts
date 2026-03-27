@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { unauthorized, notFound } from '@/lib/utils/response'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 /**
  * PATCH /api/admin/workers/[id]/termination-review/[reviewId]
@@ -63,6 +64,16 @@ export async function PATCH(
         ...(confirmCheckedWage      !== undefined ? { confirmCheckedWage }      : {}),
         ...(confirmCheckedDispute   !== undefined ? { confirmCheckedDispute }   : {}),
       },
+    })
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType: 'ADMIN',
+      actionType: 'TERMINATION_REVIEW_UPDATE',
+      targetType: 'WorkerTerminationReview',
+      targetId: reviewId,
+      summary: `퇴직검토 체크리스트 수정`,
+      metadataJson: { workerId, reviewId, reasonCategory, terminationDate },
     })
 
     return NextResponse.json({ review: updated })

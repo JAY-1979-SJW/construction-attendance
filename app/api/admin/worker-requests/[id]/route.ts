@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { unauthorized, notFound } from '@/lib/utils/response'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 /**
  * PATCH /api/admin/worker-requests/[id]
@@ -33,6 +34,16 @@ export async function PATCH(
         ...(status    ? { status: status as never, reviewedBy: session.sub, reviewedAt: new Date() } : {}),
         ...(adminMemo !== undefined ? { adminMemo } : {}),
       },
+    })
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorRole:   session.role,
+      actionType:  'WORKER_REQUEST_UPDATE',
+      targetType:  'WorkerRequest',
+      targetId:    id,
+      summary:     `근로자 요청 상태 변경: ${status ?? '(상태 유지)'} / 메모: ${adminMemo ?? ''}`,
+      afterJson:   { status, adminMemo },
     })
 
     return NextResponse.json({ success: true, request: updated })

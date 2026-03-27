@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { verifyDocument } from '@/lib/identity/identity-document-service'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 export async function POST(req: NextRequest, { params }: { params: { id: string; documentId: string } }) {
   const session = await getAdminSession()
@@ -9,6 +10,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string;
   if (deny) return deny
   try {
     await verifyDocument(params.id, params.documentId, session.sub, session.role ?? 'ADMIN')
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorRole:   session.role,
+      actionType:  'IDENTITY_DOCUMENT_VERIFY',
+      targetType:  'Worker',
+      targetId:    params.id,
+      summary:     `신분증 검증 승인: documentId=${params.documentId}`,
+      metadataJson: { documentId: params.documentId },
+    })
+
     return NextResponse.json({ ok: true })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : '실패' }, { status: 400 })
