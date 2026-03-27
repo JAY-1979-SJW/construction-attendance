@@ -80,8 +80,9 @@ interface WorkerDetail {
   accountStatus?: string
   birthDate?: string | null
   subcontractorName?: string | null
-  assignmentEligibility?: string  // READY | NEEDS_DOCS | NOT_APPROVED
-  missingDocs?: { key: string; label: string; actionType: string; docType?: string }[]
+  assignmentEligibility?: string  // READY | NEEDS_DOCS | NEEDS_REVISION | NOT_APPROVED
+  missingDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string }[]
+  rejectedDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string }[]
   nextAction?: string
   createdAt: string
   updatedAt: string
@@ -347,7 +348,7 @@ export default function WorkerDetailPage({ params }: { params: Promise<{ id: str
           )}
           {tab === 'docs' && <DocsTab workerId={worker.id} />}
           {tab === 'contracts' && <ContractsTab workerId={worker.id} onDocChange={load} />}
-          {tab === 'safety' && <SafetyDocsTab workerId={worker.id} initialDocType={pendingDocType} onInitialDocTypeConsumed={() => setPendingDocType(null)} onDocChange={load} />}
+          {tab === 'safety' && <SafetyDocsTab workerId={worker.id} initialDocType={pendingDocType} onInitialDocTypeConsumed={() => setPendingDocType(null)} onDocChange={load} onNavigateDoc={(doc) => { if (doc.docType) { setPendingDocType(doc.docType); setTab('safety') } }} />}
           {tab === 'hrActions' && <HrActionsTab workerId={worker.id} workerName={worker.name} />}
         </div>
 
@@ -569,9 +570,10 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
   }
 
   const ELIG_STYLE: Record<string, { label: string; color: string }> = {
-    READY:        { label: '투입 가능', color: '#16A34A' },
-    NEEDS_DOCS:   { label: '서류 미비', color: '#D97706' },
-    NOT_APPROVED: { label: '승인 필요', color: '#DC2626' },
+    READY:          { label: '투입 가능', color: '#16A34A' },
+    NEEDS_DOCS:     { label: '서류 미비', color: '#D97706' },
+    NEEDS_REVISION: { label: '보완 필요', color: '#DC2626' },
+    NOT_APPROVED:   { label: '승인 필요', color: '#DC2626' },
   }
   const eligStyle = ELIG_STYLE[worker.assignmentEligibility ?? ''] ?? { label: '—', color: '#9CA3AF' }
 
@@ -676,24 +678,40 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
             <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: eligStyle.color }} />
             <span className="text-[13px] font-bold" style={{ color: eligStyle.color }}>{eligStyle.label}</span>
           </div>
-          {worker.missingDocs && worker.missingDocs.length > 0 && (
+          {worker.rejectedDocs && worker.rejectedDocs.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
-              <span className="text-[12px] text-[#92400E] mr-1 pt-0.5">부족 서류:</span>
-              {worker.missingDocs.map(doc => (
+              <span className="text-[12px] text-[#DC2626] mr-1 pt-0.5">보완 필요:</span>
+              {worker.rejectedDocs.map(doc => (
                 <button
                   key={doc.key}
                   onClick={() => onNavigateDoc?.(doc)}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-white border-[#F59E0B] text-[#92400E] hover:bg-[#FEF3C7] transition-colors"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-white border-[#EF4444] text-[#DC2626] hover:bg-[#FEF2F2] transition-colors"
                 >
-                  {doc.label}
+                  {doc.label} (반려)
                   <span className="text-[10px]">&rarr;</span>
                 </button>
               ))}
             </div>
           )}
-          {worker.nextAction && (
-            <div className="text-[12px] text-[#6B7280] mt-1">
-              {worker.nextAction}
+          {worker.missingDocs && worker.missingDocs.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <span className="text-[12px] text-[#92400E] mr-1 pt-0.5">부족 서류:</span>
+              {worker.missingDocs.map(doc => {
+                const STATUS_HINT: Record<string, string> = {
+                  NOT_SUBMITTED: '', SUBMITTED: '작성됨', REVIEW_REQUESTED: '검토중',
+                }
+                const hint = STATUS_HINT[doc.status ?? ''] ?? ''
+                return (
+                  <button
+                    key={doc.key}
+                    onClick={() => onNavigateDoc?.(doc)}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-white border-[#F59E0B] text-[#92400E] hover:bg-[#FEF3C7] transition-colors"
+                  >
+                    {doc.label}{hint ? ` (${hint})` : ''}
+                    <span className="text-[10px]">&rarr;</span>
+                  </button>
+                )
+              })}
             </div>
           )}
         </div>
@@ -1413,11 +1431,12 @@ const PPE_ITEM_DEFAULTS = [
 
 type PpeItem = typeof PPE_ITEM_DEFAULTS[number]
 
-function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onDocChange }: {
+function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onDocChange, onNavigateDoc }: {
   workerId: string
   initialDocType?: string | null
   onInitialDocTypeConsumed?: () => void
   onDocChange?: () => void
+  onNavigateDoc?: (doc: { key: string; label: string; actionType: string; docType?: string }) => void
 }) {
   const [docs, setDocs] = useState<SafetyDocRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -1491,6 +1510,17 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
     }
   }
 
+  const handleReview = async (docId: string, action: 'APPROVE' | 'REJECT', rejectReason?: string) => {
+    const res = await fetch(`/api/admin/safety-documents/${docId}/review`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, rejectReason }),
+    })
+    const data = await res.json()
+    if (data.success) { load(); onDocChange?.() }
+    else alert(data.message || data.error || '처리 실패')
+  }
+
   const handleSign = async (docId: string, signerName: string) => {
     const res = await fetch(`/api/admin/safety-documents/${docId}/sign`, {
       method: 'POST',
@@ -1543,29 +1573,52 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
                 <td className="px-3 py-2 text-muted-brand">{d.educationDate || d.documentDate || '—'}</td>
                 <td className="px-3 py-2 text-center">
                   <span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${
-                    d.status === 'SIGNED' ? 'bg-[#dcfce7] text-[#166534]'
-                    : d.status === 'ISSUED' ? 'bg-[#dbeafe] text-[#1e40af]'
+                    d.status === 'APPROVED' ? 'bg-[#dcfce7] text-[#166534]'
+                    : d.status === 'REJECTED' ? 'bg-[#fee2e2] text-[#991b1b]'
+                    : d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED' ? 'bg-[#dbeafe] text-[#1e40af]'
+                    : d.status === 'ISSUED' ? 'bg-[#f3f4f6] text-[#6b7280]'
                     : 'bg-[#fef9c3] text-[#854d0e]'
                   }`}>
-                    {d.status === 'SIGNED' ? '서명완료' : d.status === 'ISSUED' ? '발행' : '초안'}
+                    {d.status === 'APPROVED' ? '승인' : d.status === 'REJECTED' ? '반려' : d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED' ? '검토대기' : d.status === 'ISSUED' ? '발행' : '초안'}
                   </span>
                 </td>
                 <td className="px-3 py-2 text-center text-[12px] text-muted-brand">
                   {d.signedAt ? new Date(d.signedAt).toLocaleDateString('ko-KR') : '—'}
                 </td>
-                <td className="px-3 py-2 text-center">
+                <td className="px-3 py-2 text-center flex flex-wrap gap-1 justify-center">
                   <button onClick={() => handlePreview(d.id)}
-                    className="mr-1.5 px-2 py-0.5 text-[11px] border border-secondary-brand/30 rounded cursor-pointer bg-white">
+                    className="px-2 py-0.5 text-[11px] border border-secondary-brand/30 rounded cursor-pointer bg-white">
                     미리보기
                   </button>
-                  {d.status !== 'SIGNED' && (
+                  {(d.status === 'DRAFT' || d.status === 'ISSUED') && (
                     <button onClick={() => {
                       if (confirm(`"${SAFETY_DOC_LABELS[d.documentType] || d.documentType}" 문서에 서명 처리하시겠습니까?`)) {
                         handleSign(d.id, '')
                       }
                     }}
-                      className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#16a34a] text-white">
+                      className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#2563eb] text-white">
                       서명처리
+                    </button>
+                  )}
+                  {(d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED') && (
+                    <>
+                      <button onClick={() => handleReview(d.id, 'APPROVE')}
+                        className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#16a34a] text-white">
+                        승인
+                      </button>
+                      <button onClick={() => {
+                        const reason = prompt('반려 사유:')
+                        if (reason) handleReview(d.id, 'REJECT', reason)
+                      }}
+                        className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#dc2626] text-white">
+                        반려
+                      </button>
+                    </>
+                  )}
+                  {d.status === 'REJECTED' && (
+                    <button onClick={() => onNavigateDoc?.({ key: '', label: '', actionType: 'SAFETY_DOC', docType: d.documentType })}
+                      className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#d97706] text-white">
+                      재작성
                     </button>
                   )}
                 </td>

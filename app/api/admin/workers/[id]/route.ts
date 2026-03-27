@@ -66,7 +66,7 @@ export async function GET(
               'PRIVACY_CONSENT',
             ] },
           },
-          select: { documentType: true },
+          select: { documentType: true, status: true },
         },
         contracts: {
           where: { isActive: true },
@@ -81,24 +81,53 @@ export async function GET(
     })
     if (!worker) return notFound('근로자를 찾을 수 없습니다.')
 
-    // ── 투입 가능 여부 계산 ─────────────────────────────────────
-    const hasContract = worker.workerDocuments.some(d => d.documentType === 'CONTRACT')
-      || worker.safetyDocuments.some(d => d.documentType === 'WORK_CONDITIONS_RECEIPT')
-      || worker.contracts.length > 0
-    const hasHealthDocs = worker.safetyDocuments.some(d =>
-      d.documentType === 'HEALTH_DECLARATION' || d.documentType === 'HEALTH_CERTIFICATE'
-    )
-    const hasSafetyEdu = worker.safetyDocuments.some(d =>
-      d.documentType === 'BASIC_SAFETY_EDU_CONFIRM' || d.documentType === 'SAFETY_EDUCATION_NEW_HIRE'
-    )
-    const hasPrivacyConsent = worker.consents.some(c => c.consentType === 'PRIVACY_POLICY')
-      || worker.safetyDocuments.some(d => d.documentType === 'PRIVACY_CONSENT')
+    // ── 투입 가능 여부 계산 (APPROVED 기준) ──────────────────────
+    type DocStatus = 'NOT_SUBMITTED' | 'SUBMITTED' | 'REVIEW_REQUESTED' | 'APPROVED' | 'REJECTED'
+    function safetyDocStatus(types: string[]): DocStatus {
+      const docs = worker.safetyDocuments.filter(d => types.includes(d.documentType))
+      if (docs.length === 0) return 'NOT_SUBMITTED'
+      if (docs.some(d => d.status === 'APPROVED')) return 'APPROVED'
+      if (docs.some(d => d.status === 'REJECTED')) return 'REJECTED'
+      if (docs.some(d => d.status === 'REVIEW_REQUESTED')) return 'REVIEW_REQUESTED'
+      if (docs.some(d => d.status === 'SIGNED')) return 'REVIEW_REQUESTED' // legacy SIGNED = 검토 대기
+      return 'SUBMITTED' // DRAFT or ISSUED
+    }
 
-    const missingDocs: { key: string; label: string; actionType: string; docType?: string }[] = []
-    if (!hasContract) missingDocs.push({ key: 'CONTRACT', label: '근로계약서', actionType: 'CONTRACT_NEW' })
-    if (!hasPrivacyConsent) missingDocs.push({ key: 'PRIVACY', label: '개인정보 동의서', actionType: 'SAFETY_DOC', docType: 'PRIVACY_CONSENT' })
-    if (!hasHealthDocs) missingDocs.push({ key: 'HEALTH', label: '건강 각서/진단서', actionType: 'SAFETY_DOC', docType: 'HEALTH_DECLARATION' })
-    if (!hasSafetyEdu) missingDocs.push({ key: 'SAFETY_EDU', label: '안전교육 확인서', actionType: 'SAFETY_DOC', docType: 'BASIC_SAFETY_EDU_CONFIRM' })
+    const contractStatus: DocStatus = (
+      worker.workerDocuments.some(d => d.documentType === 'CONTRACT' && d.status === 'APPROVED')
+      || worker.contracts.length > 0
+    ) ? 'APPROVED'
+      : worker.workerDocuments.some(d => d.documentType === 'CONTRACT')
+        || worker.safetyDocuments.some(d => d.documentType === 'WORK_CONDITIONS_RECEIPT')
+        ? 'SUBMITTED'
+        : 'NOT_SUBMITTED'
+
+    const privacyStatus: DocStatus = worker.consents.some(c => c.consentType === 'PRIVACY_POLICY')
+      ? 'APPROVED'
+      : safetyDocStatus(['PRIVACY_CONSENT'])
+
+    const healthStatus = safetyDocStatus(['HEALTH_DECLARATION', 'HEALTH_CERTIFICATE'])
+    const safetyEduStatus = safetyDocStatus(['BASIC_SAFETY_EDU_CONFIRM', 'SAFETY_EDUCATION_NEW_HIRE'])
+
+    type MissingDoc = { key: string; label: string; actionType: string; docType?: string; status: DocStatus }
+    const missingDocs: MissingDoc[] = []
+    const rejectedDocs: MissingDoc[] = []
+
+    const docChecks: { key: string; label: string; actionType: string; docType?: string; docStatus: DocStatus }[] = [
+      { key: 'CONTRACT', label: '근로계약서', actionType: 'CONTRACT_NEW', docStatus: contractStatus },
+      { key: 'PRIVACY', label: '개인정보 동의서', actionType: 'SAFETY_DOC', docType: 'PRIVACY_CONSENT', docStatus: privacyStatus },
+      { key: 'HEALTH', label: '건강 각서/진단서', actionType: 'SAFETY_DOC', docType: 'HEALTH_DECLARATION', docStatus: healthStatus },
+      { key: 'SAFETY_EDU', label: '안전교육 확인서', actionType: 'SAFETY_DOC', docType: 'BASIC_SAFETY_EDU_CONFIRM', docStatus: safetyEduStatus },
+    ]
+
+    for (const check of docChecks) {
+      const entry = { key: check.key, label: check.label, actionType: check.actionType, docType: check.docType, status: check.docStatus }
+      if (check.docStatus === 'REJECTED') {
+        rejectedDocs.push(entry)
+      } else if (check.docStatus !== 'APPROVED') {
+        missingDocs.push(entry)
+      }
+    }
 
     const isApproved = worker.accountStatus === 'APPROVED' || worker.accountStatus === 'ACTIVE'
     let assignmentEligibility: string
@@ -106,6 +135,9 @@ export async function GET(
     if (!isApproved) {
       assignmentEligibility = 'NOT_APPROVED'
       nextAction = '계정 승인이 필요합니다.'
+    } else if (rejectedDocs.length > 0) {
+      assignmentEligibility = 'NEEDS_REVISION'
+      nextAction = `보완 필요: ${rejectedDocs.map(d => d.label).join(', ')}`
     } else if (missingDocs.length > 0) {
       assignmentEligibility = 'NEEDS_DOCS'
       nextAction = `부족 서류: ${missingDocs.map(d => d.label).join(', ')}`
@@ -121,6 +153,7 @@ export async function GET(
       ...workerSafe,
       assignmentEligibility,
       missingDocs,
+      rejectedDocs,
       nextAction,
     })
   } catch (err) {

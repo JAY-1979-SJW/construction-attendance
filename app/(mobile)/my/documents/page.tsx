@@ -50,9 +50,12 @@ const DOC_TYPE_LABELS: Record<string, string> = {
 }
 
 const STATUS_LABELS: Record<string, { text: string; color: string }> = {
-  DRAFT: { text: '초안', color: 'bg-gray-100 text-gray-700' },
-  ISSUED: { text: '발행', color: 'bg-blue-100 text-blue-700' },
-  SIGNED: { text: '서명완료', color: 'bg-green-100 text-green-700' },
+  DRAFT: { text: '작성 필요', color: 'bg-gray-100 text-gray-700' },
+  ISSUED: { text: '확인 요청', color: 'bg-blue-100 text-blue-700' },
+  SIGNED: { text: '검토중', color: 'bg-blue-100 text-blue-700' },
+  REVIEW_REQUESTED: { text: '검토중', color: 'bg-yellow-100 text-yellow-700' },
+  APPROVED: { text: '승인', color: 'bg-green-100 text-green-700' },
+  REJECTED: { text: '보완 필요', color: 'bg-red-100 text-red-700' },
   ACTIVE: { text: '진행중', color: 'bg-blue-100 text-blue-700' },
   ENDED: { text: '종료', color: 'bg-gray-100 text-gray-700' },
 }

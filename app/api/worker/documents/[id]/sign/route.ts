@@ -1,6 +1,6 @@
 /**
  * POST /api/worker/documents/[id]/sign
- * 근로자 본인이 안전문서에 서명
+ * 근로자 본인이 안전문서에 서명 → 자동으로 검토 요청 상태로 전환
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
@@ -28,19 +28,22 @@ export async function POST(
     return NextResponse.json({ success: false, message: '본인 문서만 서명할 수 있습니다.' }, { status: 403 })
   }
 
-  if (doc.status === 'SIGNED') {
-    return NextResponse.json({ success: false, message: '이미 서명된 문서입니다.' }, { status: 409 })
+  if (doc.status === 'APPROVED') {
+    return NextResponse.json({ success: false, message: '이미 승인된 문서입니다.' }, { status: 409 })
+  }
+  if (doc.status === 'REVIEW_REQUESTED') {
+    return NextResponse.json({ success: false, message: '이미 검토 요청된 문서입니다.' }, { status: 409 })
   }
 
   const now = new Date()
   await prisma.safetyDocument.update({
     where: { id: params.id },
     data: {
-      status: 'SIGNED',
+      status: 'REVIEW_REQUESTED',
       signedAt: now,
       signedBy: doc.worker.name,
     },
   })
 
-  return NextResponse.json({ success: true, data: { signedAt: now } })
+  return NextResponse.json({ success: true, data: { signedAt: now, status: 'REVIEW_REQUESTED' } })
 }

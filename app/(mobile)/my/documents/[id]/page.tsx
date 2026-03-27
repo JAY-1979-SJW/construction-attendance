@@ -19,9 +19,12 @@ const DOC_TYPE_LABELS: Record<string, string> = {
 }
 
 const STATUS_LABELS: Record<string, { text: string; color: string }> = {
-  DRAFT: { text: '초안', color: 'bg-gray-100 text-gray-700' },
-  ISSUED: { text: '발행', color: 'bg-blue-100 text-blue-700' },
-  SIGNED: { text: '서명완료', color: 'bg-green-100 text-green-700' },
+  DRAFT: { text: '작성 필요', color: 'bg-gray-100 text-gray-700' },
+  ISSUED: { text: '확인 요청', color: 'bg-blue-100 text-blue-700' },
+  SIGNED: { text: '검토중', color: 'bg-blue-100 text-blue-700' },
+  REVIEW_REQUESTED: { text: '검토중', color: 'bg-yellow-100 text-yellow-700' },
+  APPROVED: { text: '승인 완료', color: 'bg-green-100 text-green-700' },
+  REJECTED: { text: '반려 / 보완 필요', color: 'bg-red-100 text-red-700' },
 }
 
 interface DocDetail {
@@ -35,6 +38,7 @@ interface DocDetail {
   educationHours: string | null
   signedAt: string | null
   signedBy: string | null
+  rejectReason: string | null
   contentText: string | null
   worker: { id: string; name: string }
   site: { id: string; name: string } | null
@@ -182,8 +186,16 @@ export default function DocumentDetailPage() {
               </div>
             )}
 
-            {/* 서명 버튼 (미서명 문서만) */}
-            {doc.status !== 'SIGNED' && (
+            {/* 반려 사유 표시 */}
+            {doc.status === 'REJECTED' && doc.rejectReason && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <div className="text-[13px] font-bold text-red-700 mb-1">반려 사유</div>
+                <div className="text-[13px] text-red-600">{doc.rejectReason}</div>
+              </div>
+            )}
+
+            {/* 서명 버튼 (초안/발행/반려 상태에서만) */}
+            {(doc.status === 'DRAFT' || doc.status === 'ISSUED' || doc.status === 'REJECTED') && (
               <button
                 onClick={() => setShowSignConfirm(true)}
                 className="w-full py-3.5 bg-[#16A34A] text-white text-[15px] font-bold rounded-xl border-none cursor-pointer active:bg-[#15803D] transition-colors flex items-center justify-center gap-2"
@@ -195,8 +207,14 @@ export default function DocumentDetailPage() {
               </button>
             )}
 
-            {/* 서명 완료 안내 */}
-            {doc.status === 'SIGNED' && (
+            {/* 서명/승인 완료 안내 */}
+            {(doc.status === 'REVIEW_REQUESTED' || doc.status === 'SIGNED') && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+                <div className="text-[15px] font-bold text-blue-700 mb-1">검토 중</div>
+                <div className="text-[13px] text-blue-600">관리자가 서류를 검토하고 있습니다.</div>
+              </div>
+            )}
+            {doc.status === 'APPROVED' && (
               <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
                 <div className="text-[15px] font-bold text-green-700 mb-1">서명 완료</div>
                 <div className="text-[13px] text-green-600">

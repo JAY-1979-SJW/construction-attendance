@@ -2479,6 +2479,11 @@ model SafetyDocument {
   signedBy        String?              // 서명자명
   fileId          String?              // generated_documents.id
 
+  // 검토/승인
+  reviewedAt      DateTime?
+  reviewedBy      String?              // AdminUser.id
+  rejectReason    String?              // 반려 사유
+
   createdBy       String               // AdminUser.id
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
@@ -2512,9 +2517,12 @@ enum SafetyDocumentType {
 }
 
 enum SafetyDocumentStatus {
-  DRAFT    // 초안
-  ISSUED   // 발행됨
-  SIGNED   // 서명 완료
+  DRAFT              // 초안
+  ISSUED             // 발행됨
+  SIGNED             // 서명 완료
+  REVIEW_REQUESTED   // 검토 요청됨
+  APPROVED           // 승인
+  REJECTED           // 반려
 }
 
 enum WorkerClass {
