@@ -62,13 +62,13 @@ function CreateModal({
   const [educationPlace, setEducationPlace] = useState('')
 
   useEffect(() => {
-    fetch('/api/admin/workers?limit=500').then(r => r.json()).then(d => {
-      const list = d.data ?? []
-      setWorkers(list.map((w: { id: string; name: string }) => ({ id: w.id, name: w.name })))
+    fetch('/api/admin/workers?pageSize=500').then(r => r.json()).then(d => {
+      const items = d.data?.items ?? d.data ?? []
+      setWorkers(items.map((w: { id: string; name: string }) => ({ id: w.id, name: w.name })))
     })
-    fetch('/api/admin/sites?limit=100').then(r => r.json()).then(d => {
-      const list = d.data ?? []
-      setSites(list.map((s: { id: string; name: string }) => ({ id: s.id, name: s.name })))
+    fetch('/api/admin/sites?pageSize=100').then(r => r.json()).then(d => {
+      const items = d.data?.items ?? d.data ?? []
+      setSites(items.map((s: { id: string; name: string }) => ({ id: s.id, name: s.name })))
     })
   }, [])
 
