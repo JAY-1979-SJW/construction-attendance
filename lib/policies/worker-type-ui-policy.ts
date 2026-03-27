@@ -735,10 +735,12 @@ export function getWorkerConfirmation(code: string): WorkerConfirmationGuide | n
 }
 
 export function getWorkerConfirmationByTemplate(templateType: string): WorkerConfirmationGuide | null {
-  if (['DAILY_EMPLOYMENT', 'MONTHLY_FIXED_EMPLOYMENT', 'CONTINUOUS_EMPLOYMENT'].includes(templateType))
+  if (templateType === 'DAILY_EMPLOYMENT')
     return getWorkerConfirmation('DAILY_CONSTRUCTION')
-  if (templateType === 'REGULAR_EMPLOYMENT') return getWorkerConfirmation('REGULAR')
-  if (templateType === 'FIXED_TERM_EMPLOYMENT') return getWorkerConfirmation('FIXED_TERM')
+  if (templateType === 'REGULAR_EMPLOYMENT' || templateType === 'CONTINUOUS_EMPLOYMENT')
+    return getWorkerConfirmation('REGULAR')
+  if (templateType === 'FIXED_TERM_EMPLOYMENT' || templateType === 'MONTHLY_FIXED_EMPLOYMENT')
+    return getWorkerConfirmation('FIXED_TERM')
   if (['SUBCONTRACT_WITH_BIZ', 'FREELANCER_SERVICE', 'NONBUSINESS_TEAM_REVIEW'].includes(templateType))
     return getWorkerConfirmation('SUBCONTRACTOR')
   return null
@@ -748,9 +750,9 @@ export function detectWorkerContractMismatch(
   workerEmploymentType: string,
   contractTemplateType: string,
 ): string | null {
-  const DAILY_TEMPLATES = ['DAILY_EMPLOYMENT', 'MONTHLY_FIXED_EMPLOYMENT']
-  const REGULAR_TEMPLATES = ['REGULAR_EMPLOYMENT']
-  const FIXED_TERM_TEMPLATES = ['FIXED_TERM_EMPLOYMENT']
+  const DAILY_TEMPLATES = ['DAILY_EMPLOYMENT']
+  const REGULAR_TEMPLATES = ['REGULAR_EMPLOYMENT', 'CONTINUOUS_EMPLOYMENT']
+  const FIXED_TERM_TEMPLATES = ['FIXED_TERM_EMPLOYMENT', 'MONTHLY_FIXED_EMPLOYMENT']
 
   if (workerEmploymentType === 'REGULAR' && DAILY_TEMPLATES.includes(contractTemplateType)) {
     return '등록된 근로유형(상용직)과 선택한 계약서(일용직 계열)가 다릅니다. 실제 운영 형태에 맞는지 확인하세요.'
