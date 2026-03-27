@@ -80,9 +80,10 @@ interface WorkerDetail {
   accountStatus?: string
   birthDate?: string | null
   subcontractorName?: string | null
-  assignmentEligibility?: string  // READY | NEEDS_DOCS | NEEDS_REVISION | NOT_APPROVED
+  assignmentEligibility?: string  // READY | NEEDS_DOCS | NEEDS_REVISION | EXPIRED_DOCS | NOT_APPROVED
   missingDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string }[]
   rejectedDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string }[]
+  expiredDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string }[]
   nextAction?: string
   createdAt: string
   updatedAt: string
@@ -573,6 +574,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
     READY:          { label: '투입 가능', color: '#16A34A' },
     NEEDS_DOCS:     { label: '서류 미비', color: '#D97706' },
     NEEDS_REVISION: { label: '보완 필요', color: '#DC2626' },
+    EXPIRED_DOCS:   { label: '만료 서류', color: '#DC2626' },
     NOT_APPROVED:   { label: '승인 필요', color: '#DC2626' },
   }
   const eligStyle = ELIG_STYLE[worker.assignmentEligibility ?? ''] ?? { label: '—', color: '#9CA3AF' }
@@ -678,6 +680,21 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
             <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: eligStyle.color }} />
             <span className="text-[13px] font-bold" style={{ color: eligStyle.color }}>{eligStyle.label}</span>
           </div>
+          {worker.expiredDocs && worker.expiredDocs.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <span className="text-[12px] text-[#DC2626] mr-1 pt-0.5">만료 서류:</span>
+              {worker.expiredDocs.map(doc => (
+                <button
+                  key={doc.key}
+                  onClick={() => onNavigateDoc?.(doc)}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-white border-[#EF4444] text-[#DC2626] hover:bg-[#FEF2F2] transition-colors"
+                >
+                  {doc.label} (만료)
+                  <span className="text-[10px]">&rarr;</span>
+                </button>
+              ))}
+            </div>
+          )}
           {worker.rejectedDocs && worker.rejectedDocs.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               <span className="text-[12px] text-[#DC2626] mr-1 pt-0.5">보완 필요:</span>

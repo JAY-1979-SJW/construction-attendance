@@ -2508,6 +2508,7 @@ model SafetyDocument {
   reviewedBy      String?              // AdminUser.id
   rejectReason    String?              // 반려 사유
   previousDocId   String?              // 재작성 시 이전(반려) 문서 ID
+  expiresAt       DateTime?            // 서류 유효기간 만료일
 
   createdBy       String               // AdminUser.id
   createdAt       DateTime             @default(now())

@@ -66,7 +66,7 @@ export async function GET(
               'PRIVACY_CONSENT',
             ] },
           },
-          select: { documentType: true, status: true },
+          select: { documentType: true, status: true, expiresAt: true },
         },
         contracts: {
           select: { id: true, contractStatus: true, isActive: true },
@@ -81,12 +81,19 @@ export async function GET(
     })
     if (!worker) return notFound('근로자를 찾을 수 없습니다.')
 
-    // ── 투입 가능 여부 계산 (APPROVED 기준) ──────────────────────
-    type DocStatus = 'NOT_SUBMITTED' | 'SUBMITTED' | 'REVIEW_REQUESTED' | 'APPROVED' | 'REJECTED'
+    // ── 투입 가능 여부 계산 (APPROVED 기준 + 만료 체크) ──────────
+    type DocStatus = 'NOT_SUBMITTED' | 'SUBMITTED' | 'REVIEW_REQUESTED' | 'APPROVED' | 'REJECTED' | 'EXPIRED'
+    const now = new Date()
     function safetyDocStatus(types: string[]): DocStatus {
       const docs = worker.safetyDocuments.filter(d => types.includes(d.documentType))
       if (docs.length === 0) return 'NOT_SUBMITTED'
-      if (docs.some(d => d.status === 'APPROVED')) return 'APPROVED'
+      // APPROVED이면서 만료된 문서는 EXPIRED 처리
+      const approvedDocs = docs.filter(d => d.status === 'APPROVED')
+      if (approvedDocs.length > 0) {
+        const hasValidApproved = approvedDocs.some(d => !d.expiresAt || new Date(d.expiresAt) > now)
+        if (hasValidApproved) return 'APPROVED'
+        return 'EXPIRED' // 승인됐지만 전부 만료
+      }
       if (docs.some(d => d.status === 'REJECTED')) return 'REJECTED'
       if (docs.some(d => d.status === 'REVIEW_REQUESTED')) return 'REVIEW_REQUESTED'
       if (docs.some(d => d.status === 'SIGNED')) return 'REVIEW_REQUESTED' // legacy SIGNED = 검토 대기
@@ -127,10 +134,13 @@ export async function GET(
       { key: 'SAFETY_EDU', label: '안전교육 확인서', actionType: 'SAFETY_DOC', docType: 'BASIC_SAFETY_EDU_CONFIRM', docStatus: safetyEduStatus },
     ]
 
+    const expiredDocs: MissingDoc[] = []
     for (const check of docChecks) {
       const entry = { key: check.key, label: check.label, actionType: check.actionType, docType: check.docType, status: check.docStatus }
       if (check.docStatus === 'REJECTED') {
         rejectedDocs.push(entry)
+      } else if (check.docStatus === 'EXPIRED') {
+        expiredDocs.push(entry)
       } else if (check.docStatus !== 'APPROVED') {
         missingDocs.push(entry)
       }
@@ -145,6 +155,9 @@ export async function GET(
     } else if (rejectedDocs.length > 0) {
       assignmentEligibility = 'NEEDS_REVISION'
       nextAction = `보완 필요: ${rejectedDocs.map(d => d.label).join(', ')}`
+    } else if (expiredDocs.length > 0) {
+      assignmentEligibility = 'EXPIRED_DOCS'
+      nextAction = `만료 서류: ${expiredDocs.map(d => d.label).join(', ')}`
     } else if (missingDocs.length > 0) {
       assignmentEligibility = 'NEEDS_DOCS'
       nextAction = `부족 서류: ${missingDocs.map(d => d.label).join(', ')}`
@@ -161,6 +174,7 @@ export async function GET(
       assignmentEligibility,
       missingDocs,
       rejectedDocs,
+      expiredDocs,
       nextAction,
     })
   } catch (err) {
