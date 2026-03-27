@@ -4,11 +4,36 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
   PageShell, SectionCard,
-  FilterInput, FilterSelect,
+  FilterBar, FilterInput, FilterSelect, FilterSpacer,
   StatusBadge, Btn,
   AdminTable, AdminTr, AdminTd, EmptyRow,
   FormInput, FormSelect, FormGrid, ModalFooter,
+  DetailPanel,
 } from '@/components/admin/ui'
+
+/* ━━━ 기준 수치 (UI_SPEC) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ *
+ * 이 페이지를 admin 웹 화면의 기준으로 삼는다.
+ * 아래 수치는 공용 컴포넌트(components/admin/ui)에 의해 강제됨.
+ *
+ *   topbar 높이          : 4px(라인) + 52px(바) = 56px  [AdminLayoutWrapper]
+ *   page title 높이      : pt-16 pb-12 + 18px text ≈ 47px [AdminLayoutWrapper]
+ *   sidebar 폭           : 220px                         [AdminLayoutWrapper]
+ *   card 패딩            : p-5 (20px)                    [SectionCard]
+ *   card border-radius   : 12px                          [SectionCard]
+ *   filter 입력 높이      : h-9 (36px)                   [FilterBar]
+ *   form 입력 높이        : h-10 (40px)                  [FormField]
+ *   button md 높이       : ≈34px (py-7px + text-13px)    [Btn]
+ *   table header         : py-10px, text-11px, bg-F3F4F6 [AdminTable]
+ *   table row            : py-10px, text-13px            [AdminTable]
+ *   status badge         : text-11px, px-2, py-0.5       [StatusBadge]
+ *   detail panel 폭      : 420px, 우측 슬라이드           [DetailPanel]
+ *   생성 모달 폭          : max-w-[480px], center overlay
+ *   content preview 최대  : max-h-[400px]
+ *   section 간격          : mb-5 (20px) = SectionDivider
+ *   toast/alert           : text-12px, rounded-8px, p-2.5
+ *
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 const DOC_TYPE_LABEL: Record<string, string> = {
   SAFETY_EDUCATION_NEW_HIRE:    '신규채용 안전교육',
@@ -37,7 +62,15 @@ interface SafetyDoc {
 
 interface PickerItem { id: string; name: string }
 
-/* ─── 생성 모달 ────────────────────────────────────────────── */
+/* ─── Toast 알림 ───────────────────────────────────────────── */
+function Toast({ message, variant = 'success' }: { message: string; variant?: 'success' | 'error' }) {
+  const cls = variant === 'error'
+    ? 'bg-[#FEE2E2] text-[#B91C1C]'
+    : 'bg-[#D1FAE5] text-[#065F46]'
+  return <div className={`mb-3 p-2.5 text-[12px] rounded-[8px] ${cls}`}>{message}</div>
+}
+
+/* ─── 생성 모달 (center overlay, max-w-480px) ──────────────── */
 function CreateModal({
   onClose,
   onCreated,
@@ -51,7 +84,6 @@ function CreateModal({
   const [error, setError] = useState('')
   const [toast, setToast] = useState('')
 
-  // 폼
   const [workerId, setWorkerId] = useState('')
   const [docType, setDocType] = useState('')
   const [siteId, setSiteId] = useState('')
@@ -110,10 +142,7 @@ function CreateModal({
         return
       }
       setToast('문서가 생성되었습니다')
-      setTimeout(() => {
-        onCreated()
-        onClose()
-      }, 600)
+      setTimeout(() => { onCreated(); onClose() }, 600)
     } catch {
       setError('네트워크 오류')
     } finally {
@@ -124,90 +153,65 @@ function CreateModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div
-        className="bg-white rounded-[12px] shadow-xl w-full max-w-[520px] max-h-[90vh] overflow-y-auto mx-4"
+        className="bg-white rounded-[12px] shadow-xl w-full max-w-[480px] max-h-[85vh] overflow-y-auto mx-4"
         onClick={e => e.stopPropagation()}
       >
-        <div className="px-5 pt-5 pb-3 border-b border-[#F3F4F6]">
-          <h2 className="text-[16px] font-bold text-[#0F172A] m-0">안전서류 생성</h2>
+        {/* 모달 헤더 — h-[52px] topbar와 동일 리듬 */}
+        <div className="h-[52px] flex items-center px-5 border-b border-[#E5E7EB] shrink-0">
+          <h2 className="text-[15px] font-bold text-[#0F172A] m-0">안전서류 생성</h2>
         </div>
-        <div className="px-5 py-4">
-          {error && (
-            <div className="mb-3 p-2.5 bg-[#FEE2E2] text-[#B91C1C] text-[12px] rounded-[8px]">{error}</div>
-          )}
-          {toast && (
-            <div className="mb-3 p-2.5 bg-[#D1FAE5] text-[#065F46] text-[12px] rounded-[8px]">{toast}</div>
-          )}
+
+        {/* 모달 본문 — p-5 카드 패딩과 동일 */}
+        <div className="p-5">
+          {error && <Toast message={error} variant="error" />}
+          {toast && <Toast message={toast} />}
 
           <FormSelect
-            label="근로자"
-            required
-            value={workerId}
-            onChange={e => setWorkerId(e.target.value)}
+            label="근로자" required
+            value={workerId} onChange={e => setWorkerId(e.target.value)}
             options={workers.map(w => ({ value: w.id, label: w.name }))}
             placeholder="선택하세요"
           />
-
           <FormSelect
-            label="서류 유형"
-            required
-            value={docType}
-            onChange={e => setDocType(e.target.value)}
+            label="서류 유형" required
+            value={docType} onChange={e => setDocType(e.target.value)}
             options={Object.entries(DOC_TYPE_LABEL).map(([v, l]) => ({ value: v, label: l }))}
             placeholder="선택하세요"
           />
-
           <FormGrid>
             <FormSelect
               label="현장"
-              value={siteId}
-              onChange={e => setSiteId(e.target.value)}
+              value={siteId} onChange={e => setSiteId(e.target.value)}
               options={sites.map(s => ({ value: s.id, label: s.name }))}
               placeholder="(선택)"
             />
             <FormInput
-              label="발급일"
-              required
-              type="date"
-              value={documentDate}
-              onChange={e => setDocumentDate(e.target.value)}
+              label="발급일" required type="date"
+              value={documentDate} onChange={e => setDocumentDate(e.target.value)}
             />
           </FormGrid>
-
           <FormInput
-            label="담당자(교육자)"
-            placeholder="예: 현장소장"
-            value={educatorName}
-            onChange={e => setEducatorName(e.target.value)}
+            label="담당자(교육자)" placeholder="예: 현장소장"
+            value={educatorName} onChange={e => setEducatorName(e.target.value)}
           />
-
           {needsEducationFields && (
-            <FormGrid>
+            <>
+              <FormGrid>
+                <FormInput
+                  label="교육일" type="date"
+                  value={educationDate} onChange={e => setEducationDate(e.target.value)}
+                />
+                <FormInput
+                  label="교육시간(h)" type="number" min="0.5" step="0.5" placeholder="1"
+                  value={educationHours} onChange={e => setEducationHours(e.target.value)}
+                />
+              </FormGrid>
               <FormInput
-                label="교육일"
-                type="date"
-                value={educationDate}
-                onChange={e => setEducationDate(e.target.value)}
+                label="교육장소" placeholder="예: 현장 회의실"
+                value={educationPlace} onChange={e => setEducationPlace(e.target.value)}
               />
-              <FormInput
-                label="교육시간(h)"
-                type="number"
-                min="0.5"
-                step="0.5"
-                placeholder="1"
-                value={educationHours}
-                onChange={e => setEducationHours(e.target.value)}
-              />
-            </FormGrid>
+            </>
           )}
-          {needsEducationFields && (
-            <FormInput
-              label="교육장소"
-              placeholder="예: 현장 회의실"
-              value={educationPlace}
-              onChange={e => setEducationPlace(e.target.value)}
-            />
-          )}
-
           <ModalFooter>
             <Btn variant="secondary" onClick={onClose} disabled={saving}>취소</Btn>
             <Btn variant="orange" onClick={handleSave} disabled={saving}>
@@ -220,8 +224,8 @@ function CreateModal({
   )
 }
 
-/* ─── 상세 패널 ────────────────────────────────────────────── */
-function DetailPanel({
+/* ─── 상세 패널 (공용 DetailPanel 사용, 420px 우측 슬라이드) ── */
+function DocDetailPanel({
   doc,
   onClose,
   onRefresh,
@@ -230,13 +234,14 @@ function DetailPanel({
   onClose: () => void
   onRefresh: () => void
 }) {
-  const [detail, setDetail] = useState<Record<string, unknown> | null>(null)
+  const [contentText, setContentText] = useState<string | null>(null)
   const [signing, setSigning] = useState(false)
   const [toast, setToast] = useState('')
+  const [docStatus, setDocStatus] = useState(doc.status)
 
   useEffect(() => {
     fetch(`/api/admin/safety-documents/${doc.id}`).then(r => r.json()).then(d => {
-      setDetail(d.data ?? null)
+      setContentText(d.data?.contentText ?? null)
     })
   }, [doc.id])
 
@@ -246,11 +251,9 @@ function DetailPanel({
     const res = await fetch(`/api/admin/safety-documents/${doc.id}/sign`, { method: 'POST' })
     const json = await res.json()
     if (json.success) {
+      setDocStatus('SIGNED')
       setToast('서명 처리되었습니다')
-      setTimeout(() => {
-        onRefresh()
-        onClose()
-      }, 600)
+      setTimeout(() => onRefresh(), 600)
     }
     setSigning(false)
   }
@@ -260,58 +263,52 @@ function DetailPanel({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div
-        className="bg-white rounded-[12px] shadow-xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto mx-4"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="px-5 pt-5 pb-3 border-b border-[#F3F4F6] flex items-center justify-between">
-          <h2 className="text-[16px] font-bold text-[#0F172A] m-0">
-            {DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
-          </h2>
-          <StatusBadge status={doc.status} />
-        </div>
-        <div className="px-5 py-4">
-          {toast && (
-            <div className="mb-3 p-2.5 bg-[#D1FAE5] text-[#065F46] text-[12px] rounded-[8px]">{toast}</div>
+    <DetailPanel
+      open
+      onClose={onClose}
+      title={DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
+      subtitle={doc.worker.name}
+      actions={
+        <>
+          <Btn variant="secondary" size="sm" onClick={handleDownload}>다운로드</Btn>
+          {docStatus !== 'SIGNED' && (
+            <Btn variant="orange" size="sm" onClick={handleSign} disabled={signing}>
+              {signing ? '처리 중...' : '서명 처리'}
+            </Btn>
           )}
+        </>
+      }
+    >
+      {toast && <Toast message={toast} />}
 
-          <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-[13px] mb-4">
-            <div className="text-[#9CA3AF]">근로자</div>
-            <div className="text-[#111827] font-medium">{doc.worker.name}</div>
-            <div className="text-[#9CA3AF]">현장</div>
-            <div className="text-[#111827]">{doc.site?.name ?? '-'}</div>
-            <div className="text-[#9CA3AF]">작성일</div>
-            <div className="text-[#111827]">{doc.documentDate ?? '-'}</div>
-            <div className="text-[#9CA3AF]">교육일</div>
-            <div className="text-[#111827]">{doc.educationDate ?? '-'}</div>
-            {doc.signedAt && (
-              <>
-                <div className="text-[#9CA3AF]">서명일시</div>
-                <div className="text-[#111827]">{new Date(doc.signedAt).toLocaleString('ko-KR')}</div>
-              </>
-            )}
-          </div>
-
-          {detail && (detail as Record<string, unknown>).contentText && (
-            <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-[8px] p-4 mb-4 max-h-[300px] overflow-y-auto">
-              <pre className="text-[12px] text-[#374151] whitespace-pre-wrap m-0 font-[inherit]">
-                {String((detail as Record<string, unknown>).contentText)}
-              </pre>
-            </div>
-          )}
-
-          <ModalFooter>
-            <Btn variant="secondary" onClick={handleDownload}>다운로드</Btn>
-            {doc.status !== 'SIGNED' && (
-              <Btn variant="orange" onClick={handleSign} disabled={signing}>
-                {signing ? '처리 중...' : '서명 처리'}
-              </Btn>
-            )}
-            <Btn variant="ghost" onClick={onClose}>닫기</Btn>
-          </ModalFooter>
-        </div>
+      {/* 메타 정보 — grid 2열, label 고정폭 */}
+      <div className="space-y-2 text-[13px] mb-5">
+        <MetaRow label="상태"><StatusBadge status={docStatus} /></MetaRow>
+        <MetaRow label="현장">{doc.site?.name ?? '-'}</MetaRow>
+        <MetaRow label="작성일">{doc.documentDate ?? '-'}</MetaRow>
+        <MetaRow label="교육일">{doc.educationDate ?? '-'}</MetaRow>
+        {doc.signedAt && (
+          <MetaRow label="서명일시">{new Date(doc.signedAt).toLocaleString('ko-KR')}</MetaRow>
+        )}
       </div>
+
+      {/* 문서 내용 — max-h-[400px] */}
+      {contentText && (
+        <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-[8px] p-4 max-h-[400px] overflow-y-auto">
+          <pre className="text-[12px] text-[#374151] whitespace-pre-wrap m-0 font-[inherit] leading-relaxed break-words">
+            {contentText}
+          </pre>
+        </div>
+      )}
+    </DetailPanel>
+  )
+}
+
+function MetaRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="text-[#9CA3AF] w-[72px] shrink-0">{label}</span>
+      <span className="text-[#111827] min-w-0 break-words">{children}</span>
     </div>
   )
 }
@@ -346,56 +343,56 @@ function SafetyDocsContent() {
 
   return (
     <PageShell>
-      <SectionCard>
-        <div className="flex flex-wrap gap-2 mb-4 items-center">
-          <FilterInput
-            placeholder="근로자 이름 검색"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <FilterSelect
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-          >
-            <option value="">전체 유형</option>
-            {Object.entries(DOC_TYPE_LABEL).map(([v, l]) => (
-              <option key={v} value={v}>{l}</option>
-            ))}
-          </FilterSelect>
-          <FilterSelect
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="">전체 상태</option>
-            <option value="DRAFT">초안</option>
-            <option value="ISSUED">발행</option>
-            <option value="SIGNED">서명완료</option>
-          </FilterSelect>
-          <div className="flex-1" />
-          <Btn variant="orange" onClick={() => setShowCreate(true)}>+ 서류 생성</Btn>
-        </div>
+      {/* 필터 바 — 공용 FilterBar 사용 */}
+      <FilterBar>
+        <FilterInput
+          placeholder="근로자 이름 검색"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <FilterSelect
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+        >
+          <option value="">전체 유형</option>
+          {Object.entries(DOC_TYPE_LABEL).map(([v, l]) => (
+            <option key={v} value={v}>{l}</option>
+          ))}
+        </FilterSelect>
+        <FilterSelect
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+        >
+          <option value="">전체 상태</option>
+          <option value="DRAFT">초안</option>
+          <option value="ISSUED">발행</option>
+          <option value="SIGNED">서명완료</option>
+        </FilterSelect>
+        <FilterSpacer />
+        <Btn variant="orange" onClick={() => setShowCreate(true)}>+ 서류 생성</Btn>
+      </FilterBar>
 
-        <AdminTable headers={columns}>
-          {loading ? (
-            <EmptyRow colSpan={columns.length} message="불러오는 중..." />
-          ) : docs.length === 0 ? (
-            <EmptyRow colSpan={columns.length} message="안전서류가 없습니다" />
-          ) : (
-            docs.map(doc => (
-              <AdminTr key={doc.id} onClick={() => setSelectedDoc(doc)}>
-                <AdminTd>{doc.worker.name}</AdminTd>
-                <AdminTd>{doc.site?.name ?? '-'}</AdminTd>
-                <AdminTd>{DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}</AdminTd>
-                <AdminTd>
-                  <StatusBadge status={doc.status} />
-                </AdminTd>
-                <AdminTd>{doc.documentDate ?? '-'}</AdminTd>
-                <AdminTd>{doc.educationDate ?? '-'}</AdminTd>
-              </AdminTr>
-            ))
-          )}
-        </AdminTable>
-      </SectionCard>
+      {/* 테이블 — AdminTable 자체가 카드 스타일이므로 SectionCard 래핑 불필요 */}
+      <AdminTable headers={columns}>
+        {loading ? (
+          <EmptyRow colSpan={columns.length} message="불러오는 중..." />
+        ) : docs.length === 0 ? (
+          <EmptyRow colSpan={columns.length} message="안전서류가 없습니다" />
+        ) : (
+          docs.map(doc => (
+            <AdminTr key={doc.id} onClick={() => setSelectedDoc(doc)}>
+              <AdminTd>{doc.worker.name}</AdminTd>
+              <AdminTd className="max-w-[160px] truncate">{doc.site?.name ?? '-'}</AdminTd>
+              <AdminTd className="max-w-[200px] truncate">{DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}</AdminTd>
+              <AdminTd>
+                <StatusBadge status={doc.status} />
+              </AdminTd>
+              <AdminTd>{doc.documentDate ?? '-'}</AdminTd>
+              <AdminTd>{doc.educationDate ?? '-'}</AdminTd>
+            </AdminTr>
+          ))
+        )}
+      </AdminTable>
 
       {showCreate && (
         <CreateModal
@@ -405,7 +402,7 @@ function SafetyDocsContent() {
       )}
 
       {selectedDoc && (
-        <DetailPanel
+        <DocDetailPanel
           doc={selectedDoc}
           onClose={() => setSelectedDoc(null)}
           onRefresh={fetchDocs}
