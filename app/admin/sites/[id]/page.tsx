@@ -46,6 +46,7 @@ interface SiteInfo {
   allowedRadius: number
   isActive: boolean
   siteCode: string | null
+  qrToken: string
   openedAt: string | null
   closedAt: string | null
   notes: string | null
@@ -792,6 +793,42 @@ export default function SiteDetailPage() {
                   <div>
                     <span className="text-xs text-[#718096] block">인증 반경</span>
                     <span className="text-[#374151]">{siteInfo.allowedRadius}m</span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-xs text-[#718096] block">QR 출근 URL</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <code className="text-[13px] text-[#374151] bg-[#F3F4F6] px-2 py-1 rounded break-all">
+                        {typeof window !== 'undefined' ? `${window.location.origin}/qr/${siteInfo.qrToken}` : `/qr/${siteInfo.qrToken}`}
+                      </code>
+                      <button
+                        onClick={() => {
+                          const url = `${window.location.origin}/qr/${siteInfo.qrToken}`
+                          navigator.clipboard.writeText(url)
+                        }}
+                        className="shrink-0 text-xs px-2 py-1 bg-accent text-white rounded cursor-pointer border-none"
+                      >
+                        복사
+                      </button>
+                      <a
+                        href={`/api/admin/sites/${siteInfo.id}/qr-image?origin=${encodeURIComponent(window.location.origin)}`}
+                        download={`${siteInfo.name}-qr.png`}
+                        className="shrink-0 text-xs px-2 py-1 bg-[#374151] text-white rounded cursor-pointer border-none no-underline"
+                      >
+                        QR 다운로드
+                      </a>
+                      <button
+                        onClick={() => {
+                          const url = `/api/admin/sites/${siteInfo.id}/qr-image?format=svg&origin=${encodeURIComponent(window.location.origin)}`
+                          const w = window.open('', '_blank', 'width=500,height=600')
+                          if (w) {
+                            w.document.write(`<html><head><title>${siteInfo.name} QR</title></head><body style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif"><h2 style="margin-bottom:8px">${siteInfo.name}</h2><p style="color:#6B7280;margin-bottom:16px">QR 출근 코드</p><img src="${url}" width="400" height="400" /><button onclick="window.print()" style="margin-top:20px;padding:10px 32px;font-size:15px;cursor:pointer">인쇄</button></body></html>`)
+                          }
+                        }}
+                        className="shrink-0 text-xs px-2 py-1 bg-[#1e40af] text-white rounded cursor-pointer border-none"
+                      >
+                        인쇄
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <span className="text-xs text-[#718096] block">착공일</span>

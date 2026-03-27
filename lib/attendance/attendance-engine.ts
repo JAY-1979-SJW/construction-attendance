@@ -31,6 +31,7 @@ export interface AttendanceEngineInput {
   latitude: number
   longitude: number
   isDirectCheckIn?: boolean
+  qrToken?: string            // QR 출근 시 현장 qrToken
   exceptionReason?: string
   checkInPhotoId?: string   // 출근 증빙 사진 ID (필수 — 없으면 PHOTO_REQUIRED)
 }
@@ -143,7 +144,7 @@ export async function processAttendanceCheckIn(
   input: AttendanceEngineInput,
   schedulePresence: (attendanceId: string) => Promise<void>
 ): Promise<AttendanceCheckInResult> {
-  const { workerId, deviceToken, siteId, latitude, longitude, isDirectCheckIn, exceptionReason, checkInPhotoId } = input
+  const { workerId, deviceToken, siteId, latitude, longitude, isDirectCheckIn, qrToken, exceptionReason, checkInPhotoId } = input
 
   // 0. 계정 승인 상태 검증
   const worker = await prisma.worker.findUnique({
@@ -244,7 +245,8 @@ export async function processAttendanceCheckIn(
     checkInLng: longitude,
     checkInDistance: distance,
     checkInWithinRadius: within,
-    isDirectCheckIn: true,
+    isDirectCheckIn: isDirectCheckIn ?? false,
+    qrToken: qrToken ?? null,
     status: 'WORKING' as const,
     checkOutAt: null,
     checkOutLat: null,

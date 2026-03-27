@@ -39,6 +39,7 @@ export async function GET(
         openedAt: true,
         closedAt: true,
         notes: true,
+        qrToken: true,
         createdAt: true,
         updatedAt: true,
       },
