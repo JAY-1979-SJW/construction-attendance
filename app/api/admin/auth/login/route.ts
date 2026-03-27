@@ -28,6 +28,13 @@ export async function POST(request: NextRequest) {
     if (!ipCheck.allowed || !emailCheck.allowed) {
       const retryMs = Math.max(ipCheck.retryAfterMs, emailCheck.retryAfterMs)
       const retrySec = Math.ceil(retryMs / 1000)
+      writeAuditLog({
+        actionType: 'ADMIN_LOGIN_RATE_LIMITED',
+        actorType: 'SYSTEM',
+        summary: `Rate limit 초과: ${email} (IP: ${ip})`,
+        metadataJson: { email, ip },
+        ipAddress: ip,
+      })
       return NextResponse.json(
         { success: false, message: `로그인 시도가 너무 많습니다. ${retrySec}초 후 다시 시도해주세요.` },
         { status: 429 }
@@ -35,10 +42,29 @@ export async function POST(request: NextRequest) {
     }
 
     const admin = await prisma.adminUser.findUnique({ where: { email }, select: { id: true, name: true, email: true, passwordHash: true, role: true, isActive: true, companyId: true } })
-    if (!admin || !admin.isActive) return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
+    if (!admin || !admin.isActive) {
+      writeAuditLog({
+        actionType: 'ADMIN_LOGIN_FAILED',
+        actorType: 'SYSTEM',
+        summary: `로그인 실패 (계정 미존재/비활성): ${email}`,
+        metadataJson: { email, reason: !admin ? 'NOT_FOUND' : 'INACTIVE' },
+        ipAddress: ip,
+      })
+      return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
+    }
 
     const valid = await bcrypt.compare(password, admin.passwordHash)
-    if (!valid) return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
+    if (!valid) {
+      writeAuditLog({
+        actionType: 'ADMIN_LOGIN_FAILED',
+        actorType: 'ADMIN',
+        actorUserId: admin.id,
+        summary: `로그인 실패 (비밀번호 불일치): ${admin.name} (${email})`,
+        metadataJson: { email },
+        ipAddress: ip,
+      })
+      return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
+    }
 
     // 로그인 성공 → rate limit 초기화
     resetRateLimit(`login:ip:${ip}`)
@@ -56,7 +82,10 @@ export async function POST(request: NextRequest) {
       actionType: 'ADMIN_LOGIN',
       targetType: 'AdminUser',
       targetId: admin.id,
+      actorRole: admin.role,
       description: `관리자 로그인: ${admin.name} (${admin.email})`,
+      ipAddress: ip,
+      userAgent: request.headers.get('user-agent') ?? undefined,
     })
 
     // 역할에 따라 리다이렉트 경로 결정

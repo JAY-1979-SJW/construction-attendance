@@ -81,7 +81,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     targetType: 'Company',
     targetId: updated.id,
     summary: `회사 수정: ${updated.companyName}`,
-    metadataJson: { changes: body },
+    metadataJson: { changedFields: Object.keys(body).filter(k => body[k] !== undefined) },
   })
 
   return NextResponse.json({ success: true, data: updated })
