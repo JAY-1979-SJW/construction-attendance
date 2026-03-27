@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import MaterialPickerModal from '@/components/admin/MaterialPickerModal'
 import { Modal } from '@/components/admin/ui'
@@ -109,8 +109,8 @@ function fmtDateOnly(d: string) {
   return new Date(d).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
 }
 
-export default function MaterialRequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function MaterialRequestDetailPage() {
+  const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const [req, setReq] = useState<RequestDetail | null>(null)
   const [loading, setLoading] = useState(true)

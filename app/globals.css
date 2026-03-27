@@ -262,6 +262,18 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 5;
 }
 
+/* 관리자 영역 인라인 테이블 thead 일괄 sticky */
+[class*="overflow"] > table > thead,
+[class*="overflow"] > div > table > thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+[class*="overflow"] > table > thead > tr > th,
+[class*="overflow"] > div > table > thead > tr > th {
+  background: inherit;
+}
+
 /* 관리자 테이블 td 공통 */
 .admin-td {
   padding: 10px 12px;

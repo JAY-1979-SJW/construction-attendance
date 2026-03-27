@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface ImportRow {
@@ -46,8 +46,8 @@ const STATUS_BG: Record<string, string> = {
 
 type FilterStatus = 'ALL' | 'READY' | 'NEEDS_REVIEW' | 'FAILED' | 'APPROVED' | 'IMPORTED'
 
-export default function SiteImportReviewPage({ params }: { params: Promise<{ jobId: string }> }) {
-  const { jobId } = use(params)
+export default function SiteImportReviewPage() {
+  const { jobId } = useParams<{ jobId: string }>()
   const router = useRouter()
   const [job, setJob]           = useState<ImportJob | null>(null)
   const [loading, setLoading]   = useState(true)

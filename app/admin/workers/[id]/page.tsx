@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, use } from 'react'
-import { useRouter } from 'next/navigation'
+import React, { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
@@ -121,8 +121,8 @@ const INSURANCE_STATUS_LABELS: Record<string, string> = {
 
 // ─── 컴포넌트 ──────────────────────────────────────────────────────────────────
 
-export default function WorkerDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function WorkerDetailPage() {
+  const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const [tab, setTab] = useState<Tab>('info')
   const [worker, setWorker] = useState<WorkerDetail | null>(null)

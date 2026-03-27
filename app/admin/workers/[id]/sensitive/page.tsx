@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { use } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
 
@@ -49,8 +48,8 @@ const STATUS_COLOR: Record<string, string> = {
   NOT_STARTED: '#9e9e9e', IN_PROGRESS: '#e65100', READY: '#1565c0', COMPLETED: '#2e7d32', EXEMPT: '#bdbdbd',
 }
 
-export default function WorkerSensitivePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id: workerId } = use(params)
+export default function WorkerSensitivePage() {
+  const { id: workerId } = useParams<{ id: string }>()
   const router = useRouter()
   const role = useAdminRole()
   const canMutate = role !== null && role !== 'VIEWER'

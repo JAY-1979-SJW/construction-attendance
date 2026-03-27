@@ -1,7 +1,7 @@
 'use client'
 
-import { use, useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, useCallback } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 
 /**
@@ -79,8 +79,8 @@ const CONFIRM_CHECKS: { field: keyof Review; label: string }[] = [
   { field: 'confirmCheckedDispute',   label: '종료 후 분쟁 가능성을 검토했습니다.' },
 ]
 
-export default function TerminationPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id: workerId } = use(params)
+export default function TerminationPage() {
+  const { id: workerId } = useParams<{ id: string }>()
   const router = useRouter()
 
   const [step,     setStep]     = useState<Step>(1)

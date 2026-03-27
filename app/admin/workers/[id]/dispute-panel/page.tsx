@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, use } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Modal } from '@/components/admin/ui'
 
@@ -176,8 +177,8 @@ function ScoreGauge({ score }: { score: number }) {
   )
 }
 
-export default function DisputePanelPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id: workerId } = use(params)
+export default function DisputePanelPage() {
+  const { id: workerId } = useParams<{ id: string }>()
 
   const [data,          setData]          = useState<PanelData | null>(null)
   const [loading,       setLoading]       = useState(true)
