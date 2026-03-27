@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, requireRole, SUPER_ADMIN_ONLY } from '@/lib/auth/guards'
 import { unauthorized, badRequest, internalError } from '@/lib/utils/response'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 const createSchema = z.object({
   documentType: z.enum(['TERMS_OF_SERVICE', 'PRIVACY_POLICY', 'LOCATION_POLICY', 'MARKETING_NOTICE']),
@@ -80,6 +81,16 @@ export async function POST(request: NextRequest) {
       return tx.policyDocument.create({
         data: { documentType, title, version, effectiveFrom: effectiveDate, contentMd, isRequired, isActive: true },
       })
+    })
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType: 'ADMIN',
+      actorRole: session.role,
+      actionType: 'POLICY_VERSION_CREATE',
+      targetType: 'PolicyDocument',
+      targetId: newDoc.id,
+      summary: `정책 문서 새 버전 등록: ${documentType} v${version}`,
     })
 
     return NextResponse.json({ success: true, data: newDoc }, { status: 201 })

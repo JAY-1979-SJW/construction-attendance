@@ -83,6 +83,7 @@ export async function POST(
     await writeAuditLog({
       actorUserId: session.sub,
       actorType: 'ADMIN',
+      actorRole: session.role,
       actionType: 'SITE_IMPORT_EXECUTE',
       targetType: 'BulkSiteImportJob',
       targetId: jobId,

@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, badRequest, unauthorized, notFound, internalError } from '@/lib/utils/response'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 const patchSchema = z.object({
   siteName:           z.string().min(1).optional(),
@@ -75,6 +76,17 @@ export async function PATCH(
         approvedRows: cm['APPROVED'] ?? 0,
         importedRows: cm['IMPORTED'] ?? 0,
       },
+    })
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType: 'ADMIN',
+      actorRole: session.role,
+      actionType: 'SITE_IMPORT_ROW_UPDATE',
+      targetType: 'BulkSiteImportRow',
+      targetId: rowId,
+      summary: `현장 업로드 행 수정: row ${row.rowNumber} (${row.siteName})`,
+      metadataJson: { jobId, rowId, changes: parsed.data },
     })
 
     return ok(updated)

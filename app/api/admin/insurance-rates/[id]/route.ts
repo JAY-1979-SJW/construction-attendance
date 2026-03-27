@@ -114,11 +114,24 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       await writeAuditLog({
         actorUserId: session.sub,
         actorType: 'ADMIN',
+        actorRole: session.role,
         actionType: 'INSURANCE_RATE_STATUS_CHANGED',
         targetType: 'InsuranceRateVersion',
         targetId: params.id,
         summary: `보험요율 상태 전환: ${version.rateType} ${version.effectiveYear}년 — ${version.status} → ${updated.status}`,
         metadataJson: { action, reviewNote },
+      })
+    }
+
+    if (!action && hasFieldUpdates) {
+      await writeAuditLog({
+        actorUserId: session.sub,
+        actorType: 'ADMIN',
+        actorRole: session.role,
+        actionType: 'INSURANCE_RATE_UPDATE',
+        targetType: 'InsuranceRateVersion',
+        targetId: params.id,
+        summary: `보험요율 내용 수정: ${version.rateType} ${version.effectiveYear}년`,
       })
     }
 
@@ -141,6 +154,16 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     if (version.status !== 'DRAFT') return forbidden('DRAFT 상태의 버전만 삭제할 수 있습니다.')
 
     await prisma.insuranceRateVersion.delete({ where: { id: params.id } })
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType: 'ADMIN',
+      actorRole: session.role,
+      actionType: 'INSURANCE_RATE_DELETE',
+      targetType: 'InsuranceRateVersion',
+      targetId: params.id,
+      summary: `보험요율 버전 삭제: ${version.rateType} ${version.effectiveYear}년`,
+    })
 
     return NextResponse.json({ success: true, message: '요율 버전이 삭제되었습니다.' })
   } catch (err) {

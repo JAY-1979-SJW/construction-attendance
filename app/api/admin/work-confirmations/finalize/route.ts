@@ -5,6 +5,7 @@ import { finalizeMonth } from '@/lib/labor/work-confirmations'
 import { runInsuranceEligibility } from '@/lib/labor/insurance'
 import { runTaxCalculation } from '@/lib/labor/tax'
 import { isMonthLocked } from '@/lib/labor/month-closing'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 // POST /api/admin/work-confirmations/finalize
 // { monthKey, siteId? } — 해당 월 DRAFT 일괄 확정 + 보험판정 + 세금계산 자동 실행
@@ -28,6 +29,17 @@ export async function POST(req: NextRequest) {
       runInsuranceEligibility({ monthKey }),
       runTaxCalculation({ monthKey }),
     ])
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType: 'ADMIN',
+      actorRole: session.role,
+      actionType: 'WORK_CONFIRMATION_FINALIZE',
+      targetType: 'MonthlyWorkConfirmation',
+      targetId: monthKey,
+      summary: `근무확정 일괄 확정: ${monthKey} (${confirmResult.confirmed}건)`,
+      metadataJson: { monthKey, siteId, confirmed: confirmResult.confirmed },
+    })
 
     return ok({
       monthKey,

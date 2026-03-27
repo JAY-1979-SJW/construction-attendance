@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import { getAdminSession, requireRole, SUPER_ADMIN_ONLY } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, badRequest, unauthorized, notFound, internalError } from '@/lib/utils/response'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 const patchSchema = z.object({
   name: z.string().min(1).max(50).optional(),
@@ -38,6 +39,16 @@ export async function PATCH(
     if (parsed.data.isActive !== undefined) data.isActive = parsed.data.isActive
 
     const updated = await prisma.adminUser.update({ where: { id: params.id }, data })
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType: 'ADMIN',
+      actorRole: session.role,
+      actionType: 'COMPANY_ADMIN_UPDATE',
+      targetType: 'AdminUser',
+      targetId: params.id,
+      summary: `업체 관리자 수정: ${updated.name} (${updated.email})`,
+    })
 
     return ok({ id: updated.id, name: updated.name, email: updated.email, isActive: updated.isActive })
   } catch (err) {

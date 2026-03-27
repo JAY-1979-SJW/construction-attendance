@@ -205,6 +205,7 @@ export async function POST(request: NextRequest) {
     await writeAuditLog({
       actorUserId: session.sub,
       actorType: 'ADMIN',
+      actorRole: session.role,
       actionType: 'SITE_IMPORT_UPLOAD',
       targetType: 'BulkSiteImportJob',
       targetId: job.id,

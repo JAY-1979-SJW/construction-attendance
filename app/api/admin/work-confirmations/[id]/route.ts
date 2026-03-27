@@ -4,6 +4,7 @@ import { getAdminSession } from '@/lib/auth/guards'
 import { ok, unauthorized, notFound, conflict, internalError } from '@/lib/utils/response'
 import { confirmWorkDay } from '@/lib/labor/work-confirmations'
 import { Decimal } from '@prisma/client/runtime/library'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 // PATCH /api/admin/work-confirmations/:id
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
@@ -27,6 +28,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         allowanceAmount,
         notes,
       })
+      await writeAuditLog({
+        actorUserId: session.sub,
+        actorType: 'ADMIN',
+        actorRole: session.role,
+        actionType: 'WORK_CONFIRMATION_UPDATE',
+        targetType: 'MonthlyWorkConfirmation',
+        targetId: mc.id,
+        summary: `근무확정 confirm: ${mc.id}`,
+        metadataJson: { action: 'confirm', workType, workUnits },
+      })
       return ok(updated)
     }
 
@@ -45,6 +56,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           notes: notes ?? mc.notes,
         },
       })
+      await writeAuditLog({
+        actorUserId: session.sub,
+        actorType: 'ADMIN',
+        actorRole: session.role,
+        actionType: 'WORK_CONFIRMATION_UPDATE',
+        targetType: 'MonthlyWorkConfirmation',
+        targetId: mc.id,
+        summary: `근무확정 exclude: ${mc.id}`,
+        metadataJson: { action: 'exclude' },
+      })
       return ok(updated)
     }
 
@@ -53,6 +74,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       const updated = await prisma.monthlyWorkConfirmation.update({
         where: { id: mc.id },
         data: { confirmationStatus: 'DRAFT', confirmedBy: null, confirmedAt: null, notes: notes ?? mc.notes },
+      })
+      await writeAuditLog({
+        actorUserId: session.sub,
+        actorType: 'ADMIN',
+        actorRole: session.role,
+        actionType: 'WORK_CONFIRMATION_UPDATE',
+        targetType: 'MonthlyWorkConfirmation',
+        targetId: mc.id,
+        summary: `근무확정 reset: ${mc.id}`,
+        metadataJson: { action: 'reset' },
       })
       return ok(updated)
     }
@@ -67,6 +98,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         ...(allowanceAmount != null ? { confirmedAllowanceAmount: allowanceAmount, confirmedTotalAmount: ((baseAmount ?? mc.confirmedBaseAmount) + allowanceAmount) } : {}),
         ...(notes           != null ? { notes }                                             : {}),
       },
+    })
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType: 'ADMIN',
+      actorRole: session.role,
+      actionType: 'WORK_CONFIRMATION_UPDATE',
+      targetType: 'MonthlyWorkConfirmation',
+      targetId: mc.id,
+      summary: `근무확정 필드 업데이트: ${mc.id}`,
+      metadataJson: { action: 'field_update', workType, workUnits, baseAmount, allowanceAmount },
     })
     return ok(updated)
   } catch (err: unknown) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { runCompanySettlement } from '@/lib/labor/subcontractor-settlement'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 export async function POST(req: NextRequest) {
   const session = await getAdminSession()
@@ -13,6 +14,18 @@ export async function POST(req: NextRequest) {
 
   try {
     const count = await runCompanySettlement({ monthKey, siteId, companyId })
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType: 'ADMIN',
+      actorRole: session.role,
+      actionType: 'SUBCONTRACTOR_SETTLEMENT_RUN',
+      targetType: 'CompanySettlement',
+      targetId: monthKey,
+      summary: `하도급 정산 실행: ${monthKey} (${count}건)`,
+      metadataJson: { monthKey, siteId, companyId, count },
+    })
+
     return NextResponse.json({ success: true, count })
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : '정산 실패'

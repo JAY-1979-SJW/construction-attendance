@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { ok, unauthorized, badRequest, internalError } from '@/lib/utils/response'
 import { generateDraftConfirmations } from '@/lib/labor/work-confirmations'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 // POST /api/admin/work-confirmations/generate
 // { monthKey, siteId?, workerId? }
@@ -30,6 +31,17 @@ export async function POST(req: NextRequest) {
 
     // 2. DRAFT 근무확정 생성
     const result = await generateDraftConfirmations({ monthKey, siteId, workerId })
+
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType: 'ADMIN',
+      actorRole: session.role,
+      actionType: 'WORK_CONFIRMATION_GENERATE',
+      targetType: 'MonthlyWorkConfirmation',
+      targetId: monthKey,
+      summary: `근무확정 DRAFT 생성: ${monthKey} (집계 ${aggTotal}건, 생성 ${result.created ?? 0}건)`,
+      metadataJson: { monthKey, siteId, workerId, aggregated: aggTotal, ...result },
+    })
 
     return ok({ aggregated: aggTotal, ...result, monthKey })
   } catch (err) {
