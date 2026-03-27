@@ -1560,8 +1560,9 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
                   </button>
                   {d.status !== 'SIGNED' && (
                     <button onClick={() => {
-                      const name = prompt('서명자 이름:')
-                      if (name) handleSign(d.id, name)
+                      if (confirm(`"${SAFETY_DOC_LABELS[d.documentType] || d.documentType}" 문서에 서명 처리하시겠습니까?`)) {
+                        handleSign(d.id, '')
+                      }
                     }}
                       className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#16a34a] text-white">
                       서명처리

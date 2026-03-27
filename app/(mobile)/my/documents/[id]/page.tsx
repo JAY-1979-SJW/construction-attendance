@@ -47,8 +47,10 @@ export default function DocumentDetailPage() {
   const [doc, setDoc] = useState<DocDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [signing, setSigning] = useState(false)
+  const [showSignConfirm, setShowSignConfirm] = useState(false)
 
-  useEffect(() => {
+  const loadDoc = () => {
     fetch(`/api/worker/documents/${id}`)
       .then(r => r.json())
       .then(res => {
@@ -57,7 +59,27 @@ export default function DocumentDetailPage() {
       })
       .catch(() => setError('네트워크 오류'))
       .finally(() => setLoading(false))
-  }, [id])
+  }
+
+  useEffect(() => { loadDoc() }, [id]) // eslint-disable-line
+
+  const handleSign = async () => {
+    setSigning(true)
+    try {
+      const res = await fetch(`/api/worker/documents/${id}/sign`, { method: 'POST' })
+      const data = await res.json()
+      if (data.success) {
+        setShowSignConfirm(false)
+        loadDoc()
+      } else {
+        alert(data.message || '서명 실패')
+      }
+    } catch (e) {
+      alert('네트워크 오류')
+    } finally {
+      setSigning(false)
+    }
+  }
 
   const handleDownload = () => {
     window.open(`/api/worker/documents/${id}/download`, '_blank')
@@ -95,7 +117,7 @@ export default function DocumentDetailPage() {
               목록으로 돌아가기
             </button>
           </div>
-        ) : doc ? (
+        ) : doc ? (<>
           <div className="px-4 space-y-4">
             {/* 헤더 */}
             <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -160,6 +182,29 @@ export default function DocumentDetailPage() {
               </div>
             )}
 
+            {/* 서명 버튼 (미서명 문서만) */}
+            {doc.status !== 'SIGNED' && (
+              <button
+                onClick={() => setShowSignConfirm(true)}
+                className="w-full py-3.5 bg-[#16A34A] text-white text-[15px] font-bold rounded-xl border-none cursor-pointer active:bg-[#15803D] transition-colors flex items-center justify-center gap-2"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                내용 확인 후 서명하기
+              </button>
+            )}
+
+            {/* 서명 완료 안내 */}
+            {doc.status === 'SIGNED' && (
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+                <div className="text-[15px] font-bold text-green-700 mb-1">서명 완료</div>
+                <div className="text-[13px] text-green-600">
+                  {doc.signedAt ? new Date(doc.signedAt).toLocaleString('ko-KR') : ''} {doc.signedBy ? `(${doc.signedBy})` : ''}
+                </div>
+              </div>
+            )}
+
             {/* 다운로드 버튼 */}
             <button
               onClick={handleDownload}
@@ -171,6 +216,37 @@ export default function DocumentDetailPage() {
               문서 다운로드
             </button>
           </div>
+
+          {/* 서명 확인 모달 */}
+          {showSignConfirm && (
+            <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50">
+              <div className="bg-white w-full max-w-md rounded-t-2xl p-6 pb-8">
+                <h3 className="text-[16px] font-bold text-[#0F172A] m-0 mb-3">서명 확인</h3>
+                <p className="text-[13px] text-gray-600 mb-1">
+                  <strong>{DOC_TYPE_LABELS[doc.documentType] ?? doc.documentType}</strong> 문서의 내용을 확인했으며, 이에 동의하여 서명합니다.
+                </p>
+                <p className="text-[12px] text-gray-400 mb-5">
+                  서명 후에는 취소할 수 없습니다.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowSignConfirm(false)}
+                    className="flex-1 py-3 bg-gray-100 text-gray-700 text-[14px] font-semibold rounded-xl border-none cursor-pointer"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={handleSign}
+                    disabled={signing}
+                    className="flex-1 py-3 bg-[#16A34A] text-white text-[14px] font-bold rounded-xl border-none cursor-pointer disabled:opacity-50"
+                  >
+                    {signing ? '서명 중...' : '서명하기'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
         ) : null}
       </main>
 
