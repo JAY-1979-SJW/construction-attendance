@@ -90,6 +90,7 @@ export default function AdminLoginPage() {
         </AuthPrimaryBtn>
 
         <AuthFooter links={[
+          { label: '업체관리자 가입 신청', href: '/register/company-admin' },
           { label: '근로자 로그인으로 이동', href: '/login' },
           { label: '메인으로 돌아가기', href: '/' },
         ]} />

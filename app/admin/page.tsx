@@ -405,6 +405,48 @@ export default function AdminDashboard() {
         <div className="text-[#9CA3AF] text-[13px] py-20 text-center">로딩 중...</div>
       ) : (
         <>
+          {/* ── 초기 설정 안내 (현장 또는 근로자 0건) ──────────────────── */}
+          {summary && (summary.activeSites === 0 || summary.totalWorkers === 0) && (
+            <div className="mb-4 p-5 rounded-xl border-2 border-dashed border-[#F97316] bg-[#FFF7ED]">
+              <div className="text-[15px] font-bold text-[#F97316] mb-3">초기 설정이 필요합니다</div>
+              <div className="space-y-2">
+                {summary.activeSites === 0 ? (
+                  <div className="flex items-start gap-2">
+                    <span className="text-[14px] text-[#dc2626] mt-0.5">1</span>
+                    <div>
+                      <a href="/admin/sites" className="text-[13px] font-semibold text-[#F97316] underline">현장을 개설하세요</a>
+                      <div className="text-[11px] text-[#6B7280] mt-0.5">현장명, 주소, GPS 반경을 입력하면 QR코드가 자동 생성됩니다.</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-[13px] text-[#16a34a]">
+                    <span>✓</span> 현장 {summary.activeSites}개 운영 중
+                  </div>
+                )}
+                {summary.totalWorkers === 0 ? (
+                  <div className="flex items-start gap-2">
+                    <span className="text-[14px] text-[#dc2626] mt-0.5">{summary.activeSites === 0 ? '2' : '1'}</span>
+                    <div>
+                      <a href="/admin/workers" className="text-[13px] font-semibold text-[#F97316] underline">근로자를 등록하거나 가입 승인하세요</a>
+                      <div className="text-[11px] text-[#6B7280] mt-0.5">근로자 직접 등록 또는 근로자 앱에서 회원가입 후 승인 처리합니다.</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-[13px] text-[#16a34a]">
+                    <span>✓</span> 근로자 {summary.totalWorkers}명 등록됨
+                  </div>
+                )}
+                <div className="flex items-start gap-2">
+                  <span className="text-[14px] text-[#9CA3AF] mt-0.5">3</span>
+                  <div>
+                    <a href="/admin/settings" className="text-[13px] font-semibold text-[#6B7280] underline">운영 설정 확인</a>
+                    <div className="text-[11px] text-[#9CA3AF] mt-0.5">근무시간, 기기 승인 정책, 공수 기준 등을 설정합니다.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ── KPI 카드 ────────────────────────────────────────────────── */}
           {/* 인원 4개 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
