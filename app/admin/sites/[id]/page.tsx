@@ -6,10 +6,11 @@ import Link from 'next/link'
 import { WorklogTab } from '@/components/admin/site-ops/WorklogTab'
 import { TbmTab } from '@/components/admin/site-ops/TbmTab'
 import { DailyOpsCard } from '@/components/admin/site-ops/DailyOpsCard'
+import { DocumentPolicyTab } from '@/components/admin/site-ops/DocumentPolicyTab'
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
-type Tab = 'info' | 'companies' | 'assigned-workers' | 'notices' | 'schedules' | 'worklogs' | 'tbm' | 'workers'
+type Tab = 'info' | 'companies' | 'assigned-workers' | 'doc-policy' | 'notices' | 'schedules' | 'worklogs' | 'tbm' | 'workers'
 
 interface SiteNotice {
   id: string
@@ -647,6 +648,7 @@ export default function SiteDetailPage() {
         <button className={tabClass('info')}             onClick={() => setTab('info')}>            기본정보</button>
         <button className={tabClass('companies')}        onClick={() => setTab('companies')}>       참여회사</button>
         <button className={tabClass('assigned-workers')} onClick={() => setTab('assigned-workers')}> 작업자 배치</button>
+        <button className={tabClass('doc-policy')}      onClick={() => setTab('doc-policy')}>      문서정책</button>
         <div className="h-8 w-px bg-[#E5E7EB] self-center mx-1" />
         <button className={tabClass('notices')}          onClick={() => setTab('notices')}>          공지</button>
         <button className={tabClass('schedules')}        onClick={() => setTab('schedules')}>        당일 일정</button>
@@ -1306,6 +1308,11 @@ export default function SiteDetailPage() {
               </div>
             )}
           </div>
+        )}
+
+        {/* ── 문서정책 탭 ── */}
+        {tab === 'doc-policy' && (
+          <DocumentPolicyTab siteId={siteId} />
         )}
 
         {/* ── 탭 1: 공지 ── */}

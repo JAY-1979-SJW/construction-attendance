@@ -814,6 +814,8 @@ model Site {
   // 투입 전 필수 문서 패키지
   documentPackages           WorkerDocumentPackage[]
   onboardingDocuments        OnboardingDocument[]
+  // 현장별 문서 정책
+  documentPolicies           SiteDocumentPolicy[]
 
   @@map("sites")
 }
@@ -840,6 +842,26 @@ model SiteAttendancePolicy {
   site           Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@map("site_attendance_policies")
+}
+
+// ─── 현장별 문서 정책 (어떤 문서가 필수/선택인지) ────────────
+// 현장마다 요구 서류가 다를 수 있으므로 현장 단위로 관리
+// 레코드가 없으면 REQUIRED_DOC_TYPES 전체 필수(기존 동작 유지)
+model SiteDocumentPolicy {
+  id          String          @id @default(cuid())
+  siteId      String
+  docType     OnboardingDocType
+  isRequired  Boolean         @default(true)   // true=필수, false=선택
+  isActive    Boolean         @default(true)    // false면 아예 생성 안 함
+  sortOrder   Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  site        Site            @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, docType])
+  @@index([siteId])
+  @@map("site_document_policies")
 }
 
 // ─── v2: Worker-Company 소속 이력 ─────────────────────────

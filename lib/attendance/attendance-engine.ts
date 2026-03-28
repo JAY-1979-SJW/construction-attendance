@@ -46,6 +46,7 @@ export type AttendanceErrorCode =
   | 'DEVICE_BLOCKED'
   | 'SITE_INACTIVE'
   | 'SITE_MEMBERSHIP_REQUIRED'
+  | 'DOCS_INCOMPLETE'
   | 'GEO_PERMISSION_DENIED'
   | 'GEO_OUT_OF_RANGE'
   | 'PHOTO_REQUIRED'
@@ -186,6 +187,24 @@ export async function processAttendanceCheckIn(
   const assignment = await getWorkerSiteAssignment(workerId, siteId)
   if (!assignment) {
     return { success: false, errorCode: 'SITE_MEMBERSHIP_REQUIRED', message: '현장 참여 승인이 필요합니다. 현장 참여를 신청하고 승인을 기다려 주세요.', actionRequired: '현장 참여 신청' }
+  }
+
+  // 3-1. 필수 문서 완료 검증
+  const docPackage = await prisma.workerDocumentPackage.findFirst({
+    where: { workerId, siteId, scope: 'SITE' },
+    select: { overallStatus: true, missingDocCount: true, rejectedDocCount: true },
+  })
+  if (docPackage && docPackage.overallStatus !== 'READY') {
+    const reasons: string[] = []
+    if (docPackage.missingDocCount > 0) reasons.push(`미제출 ${docPackage.missingDocCount}건`)
+    if (docPackage.rejectedDocCount > 0) reasons.push(`반려 ${docPackage.rejectedDocCount}건`)
+    const detail = reasons.length > 0 ? ` (${reasons.join(', ')})` : ''
+    return {
+      success: false,
+      errorCode: 'DOCS_INCOMPLETE',
+      message: `필수 서류가 완료되지 않았습니다${detail}. 서류를 먼저 제출해 주세요.`,
+      actionRequired: '필수 서류 제출',
+    }
   }
 
   // 4. GPS 거리 계산

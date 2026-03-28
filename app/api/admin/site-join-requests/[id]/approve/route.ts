@@ -4,6 +4,7 @@ import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { badRequest, unauthorized, forbidden } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { ensurePackageExists } from '@/lib/onboarding-docs/ensure-package'
 
 const schema = z.object({
   tradeType: z.string().max(50).optional(),
@@ -82,6 +83,13 @@ export async function POST(
         })
       }
     })
+
+    // 현장 배정 시 문서 패키지 자동 생성 (현장 문서정책 반영)
+    try {
+      await ensurePackageExists(joinReq.workerId, joinReq.siteId)
+    } catch (pkgErr) {
+      console.error('[site-join-approve] 문서 패키지 생성 실패 (배정은 유지)', pkgErr)
+    }
 
     await writeAuditLog({
       actorUserId: session.sub,
