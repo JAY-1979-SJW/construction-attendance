@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
@@ -11,6 +11,13 @@ interface RequestItem {
   requestedQty: string
   notes: string
   fromCatalog: boolean
+  isUrgent: boolean
+  allowSubstitute: boolean
+}
+
+interface AvailableSite {
+  siteId: string
+  siteName: string
 }
 
 interface CatalogItem {
@@ -43,13 +50,16 @@ const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> =
   CANCELLED: { label: '취소', color: 'text-gray-500', bg: 'bg-gray-50' },
 }
 
-const EMPTY_ITEM: RequestItem = { itemName: '', spec: '', unit: '', requestedQty: '', notes: '', fromCatalog: false }
+const EMPTY_ITEM: RequestItem = { itemName: '', spec: '', unit: '', requestedQty: '', notes: '', fromCatalog: false, isUrgent: false, allowSubstitute: true }
 
 export default function MaterialRequestsPage() {
   const [tab, setTab] = useState<'list' | 'new'>('list')
   const [requests, setRequests] = useState<MyRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [title, setTitle] = useState('')
+  const [siteId, setSiteId] = useState('')
+  const [deliveryDate, setDeliveryDate] = useState('')
+  const [mySites, setMySites] = useState<AvailableSite[]>([])
   const [items, setItems] = useState<RequestItem[]>([{ ...EMPTY_ITEM }])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -74,6 +84,14 @@ export default function MaterialRequestsPage() {
   }
 
   useEffect(() => { loadRequests() }, [])
+
+  // 배정 현장 로드
+  useEffect(() => {
+    fetch('/api/attendance/available-sites')
+      .then(r => r.json())
+      .then(d => { if (d.success) setMySites((d.sites || []).map((s: any) => ({ siteId: s.siteId, siteName: s.siteName }))) })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (searchIdx !== null && disciplines.length === 0) {
@@ -104,11 +122,12 @@ export default function MaterialRequestsPage() {
     setItems(prev => prev.map((it, i) => i === searchIdx ? {
       itemName: ci.standardItemName, spec: ci.standardSpec || '', unit: ci.standardUnit || '',
       requestedQty: it.requestedQty, notes: it.notes, fromCatalog: true,
+      isUrgent: it.isUrgent, allowSubstitute: it.allowSubstitute,
     } : it))
     setSearchIdx(null); setCatalogItems([]); setSearchQuery(''); setSearchDisc('')
   }
 
-  const updateItem = (idx: number, field: keyof RequestItem, value: string) => {
+  const updateItem = (idx: number, field: keyof RequestItem, value: string | boolean) => {
     setItems(prev => prev.map((item, i) => i === idx ? { ...item, [field]: value } : item))
   }
   const addItem = () => setItems(prev => [...prev, { ...EMPTY_ITEM }])
@@ -123,15 +142,21 @@ export default function MaterialRequestsPage() {
     try {
       const res = await fetch('/api/worker/materials/requests', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title.trim(), items: valid.map(i => ({
-          itemName: i.itemName.trim(), spec: i.spec.trim() || undefined,
-          unit: i.unit.trim() || undefined, requestedQty: Number(i.requestedQty),
-          notes: i.notes.trim() || undefined,
-        })) }),
+        body: JSON.stringify({
+          title: title.trim(),
+          siteId: siteId || undefined,
+          deliveryRequestedAt: deliveryDate || undefined,
+          items: valid.map(i => ({
+            itemName: i.itemName.trim(), spec: i.spec.trim() || undefined,
+            unit: i.unit.trim() || undefined, requestedQty: Number(i.requestedQty),
+            notes: i.notes.trim() || undefined,
+            isUrgent: i.isUrgent, allowSubstitute: i.allowSubstitute,
+          })),
+        }),
       })
       const json = await res.json()
       if (json.success) {
-        setSuccess(`청구 접수 (${json.data.requestNo})`); setTitle(''); setItems([{ ...EMPTY_ITEM }])
+        setSuccess(`청구 접수 (${json.data.requestNo})`); setTitle(''); setSiteId(''); setDeliveryDate(''); setItems([{ ...EMPTY_ITEM }])
         setTab('list'); loadRequests()
       } else setError(json.message || '제출 실패')
     } catch { setError('네트워크 오류') }
@@ -145,7 +170,7 @@ export default function MaterialRequestsPage() {
         <div className="flex gap-2 mb-4">
           {(['list', 'new'] as const).map(t => (
             <button key={t} onClick={() => { setTab(t); setError(''); setSuccess('') }}
-              className={`flex-1 py-2.5 rounded-xl text-[13px] font-bold border-none cursor-pointer ${tab === t ? 'bg-[#F97316] text-white' : 'bg-white text-gray-600'}`}>
+              className={`flex-1 py-2.5 rounded-xl text-[13px] font-bold border-none cursor-pointer ${tab === t ? 'bg-brand-accent text-white' : 'bg-white text-gray-600'}`}>
               {t === 'list' ? '내 청구 목록' : '자재 청구하기'}
             </button>
           ))}
@@ -179,15 +204,30 @@ export default function MaterialRequestsPage() {
         {tab === 'new' && (
           <div>
             {error && <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-3 text-[12px] text-red-700">{error}</div>}
-            <div className="mb-4">
+            <div className="mb-3">
               <label className="block text-[13px] font-semibold text-gray-700 mb-1">청구 제목 *</label>
               <input className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[14px] bg-white outline-none focus:border-[#F97316] box-border"
                 value={title} onChange={e => setTitle(e.target.value)} placeholder="예: 3층 창호 자재 요청" />
             </div>
+            <div className="flex gap-2 mb-3">
+              <div className="flex-1">
+                <label className="block text-[12px] font-semibold text-gray-600 mb-1">현장</label>
+                <select className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[13px] bg-white outline-none focus:border-[#F97316] box-border"
+                  value={siteId} onChange={e => setSiteId(e.target.value)}>
+                  <option value="">전체 (미지정)</option>
+                  {mySites.map(s => <option key={s.siteId} value={s.siteId}>{s.siteName}</option>)}
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="block text-[12px] font-semibold text-gray-600 mb-1">납품 요청일</label>
+                <input type="date" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[13px] bg-white outline-none focus:border-[#F97316] box-border"
+                  value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} />
+              </div>
+            </div>
             <div className="mb-3">
               <div className="flex justify-between items-center mb-2">
                 <label className="text-[13px] font-semibold text-gray-700">자재 목록 *</label>
-                <button onClick={addItem} className="text-[12px] text-[#F97316] font-bold border-none bg-transparent cursor-pointer">+ 품목 추가</button>
+                <button onClick={addItem} className="text-[12px] text-accent font-bold border-none bg-transparent cursor-pointer">+ 품목 추가</button>
               </div>
               {items.map((item, idx) => (
                 <div key={idx} className="bg-white rounded-xl p-3 mb-2 border border-gray-100">
@@ -202,23 +242,35 @@ export default function MaterialRequestsPage() {
                       {items.length > 1 && <button onClick={() => removeItem(idx)} className="text-[11px] text-red-400 border-none bg-transparent cursor-pointer">삭제</button>}
                     </div>
                   </div>
-                  <input className="w-full px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] mb-1.5 outline-none focus:border-[#F97316] box-border"
+                  <input className="w-full px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] mb-1.5 outline-none focus:border-accent box-border"
                     value={item.itemName} onChange={e => updateItem(idx, 'itemName', e.target.value)} placeholder="품명 * (직접 입력 또는 검색)" />
                   <div className="flex gap-1.5 mb-1.5">
-                    <input className="flex-1 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-[#F97316] box-border"
+                    <input className="flex-1 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border"
                       value={item.spec} onChange={e => updateItem(idx, 'spec', e.target.value)} placeholder="규격" />
-                    <input className="w-16 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-[#F97316] box-border"
+                    <input className="w-16 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border"
                       value={item.unit} onChange={e => updateItem(idx, 'unit', e.target.value)} placeholder="단위" />
-                    <input className="w-20 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-[#F97316] box-border"
+                    <input className="w-20 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border"
                       value={item.requestedQty} onChange={e => updateItem(idx, 'requestedQty', e.target.value.replace(/\D/g, ''))} placeholder="수량 *" inputMode="numeric" />
                   </div>
-                  <input className="w-full px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-[#F97316] box-border"
+                  <input className="w-full px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-[#F97316] box-border mb-1.5"
                     value={item.notes} onChange={e => updateItem(idx, 'notes', e.target.value)} placeholder="비고 (선택)" />
+                  <div className="flex gap-3">
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input type="checkbox" checked={item.isUrgent} onChange={e => updateItem(idx, 'isUrgent', e.target.checked)}
+                        className="w-3.5 h-3.5 accent-red-500" />
+                      <span className={`text-[11px] ${item.isUrgent ? 'text-red-600 font-bold' : 'text-gray-500'}`}>긴급</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input type="checkbox" checked={item.allowSubstitute} onChange={e => updateItem(idx, 'allowSubstitute', e.target.checked)}
+                        className="w-3.5 h-3.5 accent-[#F97316]" />
+                      <span className="text-[11px] text-gray-500">대체품 허용</span>
+                    </label>
+                  </div>
                 </div>
               ))}
             </div>
             <button onClick={handleSubmit} disabled={submitting}
-              className="w-full py-3.5 rounded-xl text-[15px] font-bold bg-[#F97316] text-white border-none cursor-pointer disabled:bg-gray-300">
+              className="w-full py-3.5 rounded-xl text-[15px] font-bold bg-brand-accent text-white border-none cursor-pointer disabled:bg-gray-300">
               {submitting ? '제출 중...' : '자재 청구 제출'}
             </button>
           </div>
@@ -232,20 +284,20 @@ export default function MaterialRequestsPage() {
               <h3 className="text-[15px] font-bold text-gray-800 mb-3">자재 검색 (공종별)</h3>
               <div className="flex gap-1.5 flex-wrap mb-3">
                 <button onClick={() => { setSearchDisc(''); }}
-                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold border cursor-pointer ${!searchDisc ? 'bg-[#F97316] text-white border-[#F97316]' : 'bg-white text-gray-600 border-gray-200'}`}>전체</button>
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold border cursor-pointer ${!searchDisc ? 'bg-brand-accent text-white border-accent' : 'bg-white text-gray-600 border-gray-200'}`}>전체</button>
                 {disciplines.map(d => (
                   <button key={d.code} onClick={() => { setSearchDisc(d.code); searchCatalog(d.code) }}
-                    className={`px-2.5 py-1 rounded-full text-[11px] font-bold border cursor-pointer ${searchDisc === d.code ? 'bg-[#F97316] text-white border-[#F97316]' : 'bg-white text-gray-600 border-gray-200'}`}>
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-bold border cursor-pointer ${searchDisc === d.code ? 'bg-brand-accent text-white border-accent' : 'bg-white text-gray-600 border-gray-200'}`}>
                     {d.label} ({d.count})
                   </button>
                 ))}
               </div>
               <div className="flex gap-2 mb-3">
-                <input className="flex-1 px-3 py-2.5 border border-gray-200 rounded-xl text-[13px] outline-none focus:border-[#F97316] box-border"
+                <input className="flex-1 px-3 py-2.5 border border-gray-200 rounded-xl text-[13px] outline-none focus:border-accent box-border"
                   value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') searchCatalog() }} placeholder="품명 검색..." autoFocus />
                 <button onClick={() => searchCatalog()} disabled={searching}
-                  className="px-4 py-2.5 bg-[#F97316] text-white rounded-xl text-[13px] font-bold border-none cursor-pointer disabled:bg-gray-300">
+                  className="px-4 py-2.5 bg-brand-accent text-white rounded-xl text-[13px] font-bold border-none cursor-pointer disabled:bg-gray-300">
                   {searching ? '...' : '검색'}
                 </button>
               </div>
@@ -254,7 +306,7 @@ export default function MaterialRequestsPage() {
                   <div className="text-center py-8 text-[12px] text-gray-400">{searching ? '검색 중...' : '공종 선택 또는 품명 검색'}</div>
                 ) : catalogItems.map(ci => (
                   <button key={ci.id} onClick={() => selectCatalogItem(ci)}
-                    className="w-full text-left p-3 border border-gray-100 rounded-xl mb-1.5 hover:bg-orange-50 hover:border-[#F97316] cursor-pointer bg-white transition-colors">
+                    className="w-full text-left p-3 border border-gray-100 rounded-xl mb-1.5 hover:bg-orange-50 hover:border-accent cursor-pointer bg-white transition-colors">
                     <div className="text-[13px] font-bold text-gray-800">{ci.standardItemName}</div>
                     {ci.standardSpec && <div className="text-[11px] text-gray-500 mt-0.5">{ci.standardSpec}</div>}
                     {ci.standardUnit && <div className="text-[10px] text-gray-400 mt-0.5">단위: {ci.standardUnit}</div>}
