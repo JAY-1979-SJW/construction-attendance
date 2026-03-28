@@ -3928,6 +3928,14 @@ model WorkerDailyReport {
   confirmedById       String?
   confirmedAt         DateTime?
   adminMemo           String?              @db.Text
+  // ── TBM 확인 ─────────────────────────────────────────────
+  tbmConfirmedYn      Boolean              @default(false)
+  tbmConfirmedAt      DateTime?
+  // ── 퇴근 시 건강이상 없음 확인 ─────────────────────────────
+  healthCheckedYn     Boolean              @default(false)
+  healthCheckedAt     DateTime?
+  // ── 작업완료 사진 (일반 photos와 별도) ──────────────────────
+  workCompletionPhotos String[]            @default([])
   // ── 타임스탬프 ───────────────────────────────────────────
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
