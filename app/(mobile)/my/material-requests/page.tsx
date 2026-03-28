@@ -206,13 +206,13 @@ export default function MaterialRequestsPage() {
             {error && <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-3 text-[12px] text-red-700">{error}</div>}
             <div className="mb-3">
               <label className="block text-[13px] font-semibold text-gray-700 mb-1">청구 제목 *</label>
-              <input className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[14px] bg-white outline-none focus:border-[#F97316] box-border"
+              <input className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[14px] bg-white outline-none focus:border-accent box-border"
                 value={title} onChange={e => setTitle(e.target.value)} placeholder="예: 3층 창호 자재 요청" />
             </div>
             <div className="flex gap-2 mb-3">
               <div className="flex-1">
                 <label className="block text-[12px] font-semibold text-gray-600 mb-1">현장</label>
-                <select className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[13px] bg-white outline-none focus:border-[#F97316] box-border"
+                <select className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[13px] bg-white outline-none focus:border-accent box-border"
                   value={siteId} onChange={e => setSiteId(e.target.value)}>
                   <option value="">전체 (미지정)</option>
                   {mySites.map(s => <option key={s.siteId} value={s.siteId}>{s.siteName}</option>)}
@@ -220,7 +220,7 @@ export default function MaterialRequestsPage() {
               </div>
               <div className="flex-1">
                 <label className="block text-[12px] font-semibold text-gray-600 mb-1">납품 요청일</label>
-                <input type="date" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[13px] bg-white outline-none focus:border-[#F97316] box-border"
+                <input type="date" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[13px] bg-white outline-none focus:border-accent box-border"
                   value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} />
               </div>
             </div>
@@ -252,7 +252,7 @@ export default function MaterialRequestsPage() {
                     <input className="w-20 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border"
                       value={item.requestedQty} onChange={e => updateItem(idx, 'requestedQty', e.target.value.replace(/\D/g, ''))} placeholder="수량 *" inputMode="numeric" />
                   </div>
-                  <input className="w-full px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-[#F97316] box-border mb-1.5"
+                  <input className="w-full px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border mb-1.5"
                     value={item.notes} onChange={e => updateItem(idx, 'notes', e.target.value)} placeholder="비고 (선택)" />
                   <div className="flex gap-3">
                     <label className="flex items-center gap-1.5 cursor-pointer">
@@ -262,7 +262,7 @@ export default function MaterialRequestsPage() {
                     </label>
                     <label className="flex items-center gap-1.5 cursor-pointer">
                       <input type="checkbox" checked={item.allowSubstitute} onChange={e => updateItem(idx, 'allowSubstitute', e.target.checked)}
-                        className="w-3.5 h-3.5 accent-[#F97316]" />
+                        className="w-3.5 h-3.5 accent-[var(--accent)]" />
                       <span className="text-[11px] text-gray-500">대체품 허용</span>
                     </label>
                   </div>
