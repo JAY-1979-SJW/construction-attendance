@@ -28,10 +28,9 @@ export async function POST(
   if (!contract) return notFound()
   if (contract.workerId !== session.sub) return forbidden()
 
-  // DRAFT 또는 열람 확인 완료 상태에서만 서명 가능
-  const allowedStatuses = ['DRAFT', 'SIGNED', 'REVIEW_REQUESTED']
-  if (!allowedStatuses.includes(contract.contractStatus)) {
-    return badRequest('현재 상태에서는 서명할 수 없습니다.')
+  // DRAFT 상태에서만 근로자 서명 가능 (이미 서명/검토/활성 상태면 거부)
+  if (contract.contractStatus !== 'DRAFT') {
+    return badRequest('이미 서명이 완료되었거나 현재 상태에서는 서명할 수 없습니다.')
   }
 
   const body = await req.json().catch(() => ({}))
