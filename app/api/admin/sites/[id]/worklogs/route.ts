@@ -70,7 +70,38 @@ export async function GET(
       // 경고 집계
       const warnings = await buildWarnings(id, date, workLog.status)
 
-      return ok({ workLog, tbmRecords, warnings })
+      // ── 인원 누계 계산 ──────────────────────────────────────
+      const targetDate = new Date(date)
+      const yesterday = new Date(targetDate)
+      yesterday.setDate(yesterday.getDate() - 1)
+      const monthStart = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1)
+
+      // 전일 인원
+      const yesterdaySummary = await prisma.siteWorkLogSummary.findUnique({
+        where: { siteId_workDate: { siteId: id, workDate: yesterday } },
+        select: { totalPresentCount: true },
+      })
+
+      // 월 누계 (이번 달 1일~오늘까지 합계)
+      const monthlyAgg = await prisma.siteWorkLogSummary.aggregate({
+        where: { siteId: id, workDate: { gte: monthStart, lte: targetDate } },
+        _sum: { totalPresentCount: true },
+      })
+
+      // 총 누계 (전체 기간)
+      const totalAgg = await prisma.siteWorkLogSummary.aggregate({
+        where: { siteId: id, workDate: { lte: targetDate } },
+        _sum: { totalPresentCount: true },
+      })
+
+      const manpowerStats = {
+        yesterday: yesterdaySummary?.totalPresentCount ?? 0,
+        today: workLog.summary?.totalPresentCount ?? 0,
+        monthlyCumulative: monthlyAgg._sum.totalPresentCount ?? 0,
+        totalCumulative: totalAgg._sum.totalPresentCount ?? 0,
+      }
+
+      return ok({ workLog, tbmRecords, warnings, manpowerStats })
     }
 
     // 목록 조회 (memoInternal 제외)

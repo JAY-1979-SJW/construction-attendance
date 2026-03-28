@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 
@@ -125,11 +125,11 @@ function WarningBanner({ warnings }: { warnings: string[] }) {
 
 // ─── 요약 카드 ────────────────────────────────────────────────────────────────
 
-function SummaryCard({ log }: { log: SiteWorkLog }) {
+function SummaryCard({ log, manpowerStats }: { log: SiteWorkLog; manpowerStats?: { yesterday: number; today: number; monthlyCumulative: number; totalCumulative: number } | null }) {
   const s = log.summary
   if (!s) return null
   return (
-    <div className="bg-white border rounded-xl p-5 shadow-sm">
+    <div className="bg-card border rounded-xl p-5 shadow-sm">
       <h3 className="text-sm font-semibold text-gray-600 mb-3">당일 현황 요약</h3>
       {/* 인원 */}
       <div className="grid grid-cols-4 gap-2 mb-3">
@@ -145,8 +145,25 @@ function SummaryCard({ log }: { log: SiteWorkLog }) {
           </div>
         ))}
       </div>
+      {/* 인원 누계 */}
+      {manpowerStats && (
+        <div className="grid grid-cols-4 gap-2 mb-3">
+          {[
+            { label: '전일 인원', value: manpowerStats.yesterday },
+            { label: '오늘 인원', value: manpowerStats.today },
+            { label: '월 누계',   value: manpowerStats.monthlyCumulative },
+            { label: '총 누계',   value: manpowerStats.totalCumulative },
+          ].map(({ label, value }) => (
+            <div key={label} className="bg-amber-50 rounded-lg p-2.5 text-center border border-amber-100">
+              <div className="text-lg font-bold text-amber-800">{value.toLocaleString()}</div>
+              <div className="text-[10px] text-amber-600 mt-0.5">{label}</div>
+            </div>
+          ))}
+        </div>
+      )}
       {/* TBM */}
       <div className={`rounded-lg p-3 mb-3 flex items-center justify-between ${s.tbmConducted ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+
         <div className="flex items-center gap-2">
           <span className={`text-sm font-semibold ${s.tbmConducted ? 'text-green-700' : 'text-red-600'}`}>
             TBM {s.tbmConducted ? '실시 ✓' : '미실시 ✗'}
@@ -189,7 +206,7 @@ function WorklogListItem({
   return (
     <button
       onClick={() => onSelect(item.workDate.slice(0, 10))}
-      className="w-full text-left bg-white border rounded-xl p-4 hover:border-blue-300 hover:shadow-sm transition-all"
+      className="w-full text-left bg-card border rounded-xl p-4 hover:border-blue-300 hover:shadow-sm transition-all"
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
@@ -237,6 +254,7 @@ export function WorklogTab({ siteId, selectedDate, onDateChange, onStatusChange 
   const [workLog, setWorkLog]   = useState<SiteWorkLog | null>(null)
   const [tbmList, setTbmList]   = useState<TbmRecord[]>([])
   const [warnings, setWarnings] = useState<string[]>([])
+  const [manpower, setManpower] = useState<{ yesterday: number; today: number; monthlyCumulative: number; totalCumulative: number } | null>(null)
   const [detailLoading, setDL]  = useState(false)
 
   // 편집
@@ -266,7 +284,7 @@ export function WorklogTab({ siteId, selectedDate, onDateChange, onStatusChange 
 
   const loadDetail = useCallback(async (date: string) => {
     setDL(true)
-    setWorkLog(null); setTbmList([]); setWarnings([])
+    setWorkLog(null); setTbmList([]); setWarnings([]); setManpower(null)
     try {
       const res = await fetch(`/api/admin/sites/${siteId}/worklogs?date=${date}`)
       if (res.ok) {
@@ -275,6 +293,7 @@ export function WorklogTab({ siteId, selectedDate, onDateChange, onStatusChange 
         setWorkLog(wl)
         setTbmList(data.data?.tbmRecords ?? [])
         setWarnings(data.data?.warnings ?? [])
+        setManpower(data.data?.manpowerStats ?? null)
         onStatusChange?.(wl?.status ?? null)
       } else {
         onStatusChange?.(null)
@@ -544,7 +563,7 @@ export function WorklogTab({ siteId, selectedDate, onDateChange, onStatusChange 
             ].map(({ key, label, placeholder }) => (
               <div key={key}>
                 <label className="text-xs text-gray-600 block mb-1">{label}</label>
-                <textarea rows={3} className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+                <textarea rows={3} className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                   placeholder={placeholder}
                   value={form[key as keyof typeof form] as string}
                   onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
@@ -558,7 +577,7 @@ export function WorklogTab({ siteId, selectedDate, onDateChange, onStatusChange 
             <legend className="text-xs font-semibold text-green-700 px-1">TBM 요약</legend>
             <div>
               <label className="text-xs text-gray-600 block mb-1">TBM 결과 요약 (전달사항 포함)</label>
-              <textarea rows={3} className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+              <textarea rows={3} className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                 placeholder="예: 07:20 실시 완료 / 고소작업 구간 보호구 착용, 펌프실 출입 통제 전달"
                 value={form.tbmSummaryText}
                 onChange={(e) => setForm((f) => ({ ...f, tbmSummaryText: e.target.value }))}
@@ -576,7 +595,7 @@ export function WorklogTab({ siteId, selectedDate, onDateChange, onStatusChange 
             ].map(({ key, label, placeholder }) => (
               <div key={key}>
                 <label className="text-xs text-gray-600 block mb-1">{label}</label>
-                <textarea rows={2} className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+                <textarea rows={2} className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                   placeholder={placeholder}
                   value={form[key as keyof typeof form] as string}
                   onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
@@ -627,7 +646,7 @@ export function WorklogTab({ siteId, selectedDate, onDateChange, onStatusChange 
       {/* 반려 모달 */}
       {showRejectModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-card rounded-xl p-6 w-full max-w-md shadow-xl">
             <h3 className="font-semibold text-gray-800 mb-3">반려 사유 입력</h3>
             <textarea
               rows={3}
@@ -675,11 +694,11 @@ export function WorklogTab({ siteId, selectedDate, onDateChange, onStatusChange 
       {workLog && !editing && (
         <div className="space-y-4">
           {/* 요약 카드 */}
-          <SummaryCard log={workLog} />
+          <SummaryCard log={workLog} manpowerStats={manpower} />
 
           {/* 작업 내용 */}
           {(workLog.summaryText || workLog.majorWorkText || workLog.issueText) && (
-            <div className="bg-white border rounded-xl p-5 space-y-4">
+            <div className="bg-card border rounded-xl p-5 space-y-4">
               <h3 className="text-sm font-semibold text-gray-600">당일 작업 내용</h3>
               {workLog.summaryText && (
                 <Section title="운영 요약" text={workLog.summaryText} />
@@ -706,14 +725,14 @@ export function WorklogTab({ siteId, selectedDate, onDateChange, onStatusChange 
             </div>
 
             {workLog.tbmSummaryText && (
-              <p className="text-sm text-gray-700 whitespace-pre-line mb-3 bg-white rounded p-3">
+              <p className="text-sm text-gray-700 whitespace-pre-line mb-3 bg-card rounded p-3">
                 {workLog.tbmSummaryText}
               </p>
             )}
 
             {/* TBM 입력 폼 */}
             {showTbmForm && (
-              <div className="bg-white rounded-lg border p-4 mb-3 space-y-3">
+              <div className="bg-card rounded-lg border p-4 mb-3 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
                     <label className="text-xs text-gray-600 block mb-1">TBM 제목</label>
@@ -771,7 +790,7 @@ export function WorklogTab({ siteId, selectedDate, onDateChange, onStatusChange 
             {tbmList.length > 0 ? (
               <div className="space-y-3">
                 {tbmList.map((t) => (
-                  <div key={t.id} className="bg-white rounded-lg border p-4">
+                  <div key={t.id} className="bg-card rounded-lg border p-4">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-medium text-gray-800 text-sm">{t.title}</span>
                       {t.conductedAt && (
@@ -832,7 +851,7 @@ export function WorklogTab({ siteId, selectedDate, onDateChange, onStatusChange 
 
           {/* 관리자 메모 */}
           {workLog.memoInternal && (
-            <div className="bg-white border border-dashed rounded-xl p-4">
+            <div className="bg-card border border-dashed rounded-xl p-4">
               <h3 className="text-xs font-semibold text-gray-400 mb-2">🔒 관리자 메모 (비공개)</h3>
               <p className="text-sm text-gray-600 whitespace-pre-line">{workLog.memoInternal}</p>
             </div>
