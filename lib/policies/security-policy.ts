@@ -10,8 +10,8 @@
 /** 플랫폼 관리자 역할 목록 (업체 관리자 제외) */
 export const PLATFORM_ADMIN_ROLES = ['SUPER_ADMIN', 'ADMIN', 'VIEWER'] as const
 
-/** 데이터 변경 허용 역할 (VIEWER 제외) */
-export const MUTATE_ALLOWED_ROLES = ['SUPER_ADMIN', 'ADMIN'] as const
+/** 데이터 변경 허용 역할 (VIEWER 제외, COMPANY_ADMIN 포함) */
+export const MUTATE_ALLOWED_ROLES = ['SUPER_ADMIN', 'ADMIN', 'COMPANY_ADMIN'] as const
 
 /** SUPER_ADMIN 전용 작업 (복호화, 강제 삭제 등) */
 export const SUPER_ADMIN_ONLY_ROLES = ['SUPER_ADMIN'] as const
@@ -36,7 +36,7 @@ export const SITE_SCOPE_ROLES = ['SITE_ADMIN', 'EXTERNAL_SITE_ADMIN'] as const
  * /admin 포털 진입 허용 역할 (COMPANY_ADMIN 제외, SITE_ADMIN/EXTERNAL_SITE_ADMIN 포함)
  * middleware에서 COMPANY_ADMIN만 차단하므로 이 목록은 참조용
  */
-export const ADMIN_PORTAL_ROLES = ['SUPER_ADMIN', 'ADMIN', 'VIEWER', 'SITE_ADMIN', 'EXTERNAL_SITE_ADMIN'] as const
+export const ADMIN_PORTAL_ROLES = ['SUPER_ADMIN', 'ADMIN', 'COMPANY_ADMIN', 'VIEWER', 'SITE_ADMIN', 'EXTERNAL_SITE_ADMIN'] as const
 
 /**
  * 현장성 데이터 쓰기 허용 역할 (SITE_ADMIN은 scope 내에서만 허용)
