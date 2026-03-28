@@ -8,6 +8,7 @@ import { validateDeviceDetailed } from '@/lib/auth/device'
 import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
 import { aggregateAttendanceDays } from '@/lib/labor/attendance-days'
 import { generateDraftConfirmations } from '@/lib/labor/work-confirmations'
+import { resolveEffectiveSiteAttendancePolicy } from '@/lib/labor/resolve-site-policy'
 
 export interface SiteInfo {
   id: string
@@ -49,6 +50,7 @@ export type AttendanceErrorCode =
   | 'SITE_INACTIVE'
   | 'SITE_MEMBERSHIP_REQUIRED'
   | 'DOCS_INCOMPLETE'
+  | 'TIME_RESTRICTED'
   | 'GEO_PERMISSION_DENIED'
   | 'GEO_OUT_OF_RANGE'
   | 'PHOTO_REQUIRED'
@@ -208,6 +210,30 @@ export async function processAttendanceCheckIn(
       actionRequired: '필수 서류 제출',
     }
   }
+
+  // 3-2. 출근 가능 시간 검증 (현장별 정책 → 전역 설정 순)
+  try {
+    const policy = await resolveEffectiveSiteAttendancePolicy(siteId)
+    const now = new Date()
+    const kstHour = (now.getUTCHours() + 9) % 24
+    const kstMin = now.getUTCMinutes()
+    const currentTime = `${String(kstHour).padStart(2, '0')}:${String(kstMin).padStart(2, '0')}`
+    const startTime = policy.workStartTime  // e.g. "07:00"
+    const endTime = policy.workEndTime      // e.g. "17:00"
+    // 출근 허용: 시작 2시간 전 ~ 종료 시각
+    if (startTime && endTime) {
+      const [sh, sm] = startTime.split(':').map(Number)
+      const earlyStart = `${String(Math.max(0, sh - 2)).padStart(2, '0')}:${String(sm).padStart(2, '0')}`
+      if (currentTime < earlyStart || currentTime > endTime) {
+        return {
+          success: false,
+          errorCode: 'TIME_RESTRICTED',
+          message: `출근 가능 시간이 아닙니다. (${earlyStart}~${endTime})`,
+          actionRequired: '출근 가능 시간에 다시 시도하세요.',
+        }
+      }
+    }
+  } catch { /* 정책 조회 실패 시 시간 검증 건너뜀 */ }
 
   // 4. GPS 거리 계산
   const { within, distance } = calcDistance(latitude, longitude, site.latitude, site.longitude, site.allowedRadius)

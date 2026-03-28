@@ -110,7 +110,9 @@ enum IncomeType {
 
 enum OrganizationType {
   DIRECT         // 직영
-  SUBCONTRACTOR  // 협력사 소속
+  DAILY_WORKER   // 일용직
+  OUTSOURCED     // 외주팀
+  SUBCONTRACTOR  // 협력업체
 }
 
 enum ContractType {
@@ -1006,6 +1008,8 @@ model WorkerSiteAssignment {
   assignedFrom DateTime
   assignedTo   DateTime?
   tradeType    String?   // 공종
+  wageType     String?   // 급여형태: DAILY(일급), MONTHLY(월급), BUSINESS_INCOME(사업소득)
+  workType     String?   // 근무형태: DAILY(일용직), REGULAR(상용직), FIXED_TERM(기간제), OUTSOURCED(외주)
   isPrimary    Boolean   @default(false)
   isActive     Boolean   @default(true)
   notes        String?

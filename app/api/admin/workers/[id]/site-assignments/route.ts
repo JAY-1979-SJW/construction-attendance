@@ -25,7 +25,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json().catch(() => ({}))
-  const { siteId, companyId, assignedFrom, assignedTo, tradeType, isPrimary, notes } = body
+  const { siteId, companyId, assignedFrom, assignedTo, tradeType, wageType, workType, isPrimary, notes } = body
 
   if (!siteId || !companyId || !assignedFrom) {
     return NextResponse.json({ error: '현장ID, 회사ID, 배정일은 필수입니다.' }, { status: 400 })
@@ -59,6 +59,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       assignedFrom: new Date(assignedFrom),
       assignedTo: assignedTo ? new Date(assignedTo) : null,
       tradeType: tradeType ?? null,
+      wageType: wageType ?? null,
+      workType: workType ?? null,
       isPrimary: isPrimary ?? false,
       isActive: true,
       notes: notes ?? null,

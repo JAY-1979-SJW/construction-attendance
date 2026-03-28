@@ -9,6 +9,7 @@ import { prisma } from '@/lib/db/prisma'
 import { validateDeviceDetailed } from '@/lib/auth/device'
 import { calcDistance } from '@/lib/attendance/attendance-engine'
 import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
+import { resolveEffectiveSiteAttendancePolicy } from '@/lib/labor/resolve-site-policy'
 
 interface ConditionResult {
   key: string
@@ -110,7 +111,31 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      // 6. 중복 출근 체크
+      // 6. 출근 가능 시간 검증
+      try {
+        const policy = await resolveEffectiveSiteAttendancePolicy(siteId)
+        const now = new Date()
+        const kstHour = (now.getUTCHours() + 9) % 24
+        const kstMin = now.getUTCMinutes()
+        const currentTime = `${String(kstHour).padStart(2, '0')}:${String(kstMin).padStart(2, '0')}`
+        const startTime = policy.workStartTime
+        const endTime = policy.workEndTime
+        if (startTime && endTime) {
+          const [sh, sm] = startTime.split(':').map(Number)
+          const earlyStart = `${String(Math.max(0, sh - 2)).padStart(2, '0')}:${String(sm).padStart(2, '0')}`
+          if (currentTime >= earlyStart && currentTime <= endTime) {
+            conditions.push({ key: 'time', label: '출근 시간', passed: true, message: `허용 시간 내 (${earlyStart}~${endTime})` })
+          } else {
+            conditions.push({ key: 'time', label: '출근 시간', passed: false, message: `출근 가능 시간: ${earlyStart}~${endTime}` })
+          }
+        } else {
+          conditions.push({ key: 'time', label: '출근 시간', passed: true, message: '시간 제한 없음' })
+        }
+      } catch {
+        conditions.push({ key: 'time', label: '출근 시간', passed: true, message: '시간 정책 미설정' })
+      }
+
+      // 7. 중복 출근 체크
       const workDate = kstDateStringToDate(toKSTDateString())
       const existing = await prisma.attendanceLog.findFirst({
         where: { workerId, siteId, workDate, status: { not: 'ADJUSTED' } },

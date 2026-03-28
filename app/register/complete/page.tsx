@@ -67,6 +67,10 @@ export default function RegisterCompletePage() {
   const [category, setCategory] = useState('')
   const [jobTitle, setJobTitle] = useState('')
   const [customJob, setCustomJob] = useState('')
+  const [birthDate, setBirthDate] = useState('')
+  const [foreignerYn, setForeignerYn] = useState(false)
+  const [orgType, setOrgType] = useState<string>('DIRECT')
+  const [address, setAddress] = useState('')
 
   const effectiveJob = jobTitle === '__custom__' ? customJob.trim() : jobTitle
 
@@ -111,6 +115,10 @@ export default function RegisterCompletePage() {
           name: name.trim(),
           phone: phone || null,
           jobTitle: effectiveJob,
+          birthDate: birthDate || null,
+          foreignerYn,
+          organizationType: orgType,
+          address: address.trim() || null,
         }),
       })
       const data = await res.json()
@@ -234,6 +242,56 @@ export default function RegisterCompletePage() {
             placeholder="010-1234-5678" maxLength={13} inputMode="numeric"
           />
           <p className="text-[11px] text-[#9CA3AF] mb-5">나중에 입력해도 됩니다.</p>
+
+          {/* 생년월일 */}
+          <label className="block text-[13px] font-semibold text-[#374151] mb-[5px]">
+            생년월일 <span className="text-[#9CA3AF] font-normal text-[11px]">선택</span>
+          </label>
+          <input
+            type="date"
+            className="w-full px-3 py-[10px] border border-[#E5E7EB] rounded-[10px] text-[15px] bg-white text-[#111827] outline-none focus:border-[#F97316] mb-4 box-border"
+            value={birthDate} onChange={e => setBirthDate(e.target.value)}
+          />
+
+          {/* 외국인 여부 */}
+          <label className="flex items-center gap-2 mb-4 cursor-pointer">
+            <input type="checkbox" checked={foreignerYn} onChange={e => setForeignerYn(e.target.checked)}
+              className="w-4 h-4 accent-[#F97316]" />
+            <span className="text-[13px] text-[#374151]">외국인 근로자입니다</span>
+          </label>
+
+          {/* 소속 구분 */}
+          <label className="block text-[13px] font-semibold text-[#374151] mb-[5px]">소속 구분</label>
+          <div className="flex gap-2 flex-wrap mb-4">
+            {([
+              { value: 'DIRECT', label: '직영' },
+              { value: 'DAILY_WORKER', label: '일용직' },
+              { value: 'OUTSOURCED', label: '외주팀' },
+              { value: 'SUBCONTRACTOR', label: '협력업체' },
+            ] as const).map(opt => (
+              <button
+                key={opt.value} type="button"
+                onClick={() => setOrgType(opt.value)}
+                className={`px-3 py-[6px] rounded-full text-[13px] font-medium border transition-colors ${
+                  orgType === opt.value
+                    ? 'bg-[#F97316] text-white border-[#F97316]'
+                    : 'bg-white text-[#374151] border-[#E5E7EB] hover:border-[#F97316]'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          {/* 주소 */}
+          <label className="block text-[13px] font-semibold text-[#374151] mb-[5px]">
+            주소 <span className="text-[#9CA3AF] font-normal text-[11px]">선택</span>
+          </label>
+          <input
+            className="w-full px-3 py-[10px] border border-[#E5E7EB] rounded-[10px] text-[15px] bg-white text-[#111827] outline-none focus:border-[#F97316] mb-5 box-border"
+            value={address} onChange={e => setAddress(e.target.value)}
+            placeholder="시/군/구 까지 입력" maxLength={200}
+          />
 
           <button
             type="submit" disabled={submitting}
