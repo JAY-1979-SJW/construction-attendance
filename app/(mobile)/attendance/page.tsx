@@ -569,9 +569,10 @@ export default function AttendancePage() {
             {/* 근무중 바로가기 (TBM / 작업완료) */}
             {!isPreview && today.status === 'WORKING' && (
               <div className="mt-4 flex gap-2">
-                <a href="/tbm" className="flex-1 py-2.5 rounded-xl text-center text-[13px] font-bold border border-blue-200 bg-blue-50 text-blue-700 no-underline">TBM 확인</a>
-                <a href="/work-complete" className="flex-1 py-2.5 rounded-xl text-center text-[13px] font-bold border border-green-200 bg-green-50 text-green-700 no-underline">작업완료 보고</a>
-                <a href="/daily-report" className="flex-1 py-2.5 rounded-xl text-center text-[13px] font-bold border border-gray-200 bg-gray-50 text-gray-700 no-underline">작업일보</a>
+                <a href="/tbm" className="flex-1 py-2.5 rounded-xl text-center text-[12px] font-bold border border-blue-200 bg-blue-50 text-blue-700 no-underline">TBM</a>
+                <a href="/work-orders" className="flex-1 py-2.5 rounded-xl text-center text-[12px] font-bold border border-orange-200 bg-orange-50 text-orange-700 no-underline">작업지시</a>
+                <a href="/work-complete" className="flex-1 py-2.5 rounded-xl text-center text-[12px] font-bold border border-green-200 bg-green-50 text-green-700 no-underline">완료보고</a>
+                <a href="/daily-report" className="flex-1 py-2.5 rounded-xl text-center text-[12px] font-bold border border-gray-200 bg-gray-50 text-gray-700 no-underline">작업일보</a>
               </div>
             )}
 

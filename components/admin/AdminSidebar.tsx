@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
@@ -136,6 +136,7 @@ const MENU: MenuItem[] = [
     icon: <I><path d="M12 20V10M18 20V4M6 20v-4" {...S}/></I>,
     children: [
       { href: '/admin/reports',                          label: '작업일보' },
+      { href: '/admin/work-orders',                      label: '작업지시' },
       { href: '/admin/operations/print-center',          label: '출력 센터' },
       { href: '/admin/operations/today-tasks',           label: '오늘 업무' },
       { href: '/admin/operations/attendance-exceptions',  label: '출퇴근 이상' },
@@ -301,20 +302,20 @@ export default function AdminSidebar({
       style={{ background: '#FFFFFF', borderRight: '1px solid #E5E7EB' }}
     >
       {/* 상단 4px 오렌지 라인 */}
-      <div className="h-1 shrink-0 bg-[#F97316]" />
+      <div className="h-1 shrink-0 bg-brand-accent" />
 
       {/* 로고 */}
       <div className="h-[56px] flex items-center px-4 shrink-0" style={{ borderBottom: '1px solid #F3F4F6' }}>
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-[#FFF7ED] rounded-[8px] flex items-center justify-center shrink-0">
+          <div className="w-7 h-7 bg-accent-light rounded-[8px] flex items-center justify-center shrink-0">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
               <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <span className="text-[14px] font-bold text-[#0F172A]">
-            해한<span className="text-[#F97316]">AI</span>
-            <span className="text-[11px] font-normal text-[#9CA3AF] ml-1">출퇴근</span>
+          <span className="text-[14px] font-bold text-title-brand">
+            해한<span className="text-accent">AI</span>
+            <span className="text-[11px] font-normal text-muted2-brand ml-1">출퇴근</span>
           </span>
         </div>
       </div>
@@ -371,7 +372,7 @@ export default function AdminSidebar({
       <div className="px-3 py-3 shrink-0" style={{ borderTop: '1px solid #E5E7EB' }}>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2 text-[12px] py-2 px-3 rounded-[8px] transition-colors text-left text-[#9CA3AF] border-none bg-transparent cursor-pointer"
+          className="w-full flex items-center gap-2 text-[12px] py-2 px-3 rounded-[8px] transition-colors text-left text-muted2-brand border-none bg-transparent cursor-pointer"
           onMouseEnter={(e) => { e.currentTarget.style.background = '#FFF1F2'; e.currentTarget.style.color = '#B91C1C' }}
           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#9CA3AF' }}
         >

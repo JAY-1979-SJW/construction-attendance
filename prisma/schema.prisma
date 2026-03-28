@@ -728,6 +728,9 @@ model Worker {
   dailyReports               WorkerDailyReport[]
   // 알림
   notifications              WorkerNotification[]
+  // 작업지시문
+  workOrders                 WorkOrder[]
+  workOrderAcks              WorkOrderAck[]
   // 투입 전 필수 문서 패키지
   documentPackages           WorkerDocumentPackage[]
   onboardingDocuments        OnboardingDocument[]
@@ -818,6 +821,8 @@ model Site {
   onboardingDocuments        OnboardingDocument[]
   // 현장별 문서 정책
   documentPolicies           SiteDocumentPolicy[]
+  // 작업지시문
+  workOrders                 WorkOrder[]
 
   @@map("sites")
 }
@@ -3232,6 +3237,68 @@ model SiteDailySchedule {
   @@index([siteId, scheduleDate])
   @@index([siteId, scheduleType])
   @@map("site_daily_schedules")
+}
+
+// ─── 작업지시문 ─────────────────────────────────────────────────────────────
+// 관리자가 근로자에게 앱을 통해 작업지시를 내리고, 근로자가 확인/수신하는 문서
+model WorkOrder {
+  id              String          @id @default(cuid())
+  siteId          String
+  orderDate       DateTime        @db.Date
+  title           String
+  content         String          @db.Text
+  priority        WorkOrderPriority @default(NORMAL)
+  issuedById      String          // AdminUser.id
+  targetScope     WorkOrderScope  @default(ALL_SITE)
+  targetWorkerId  String?         // SPECIFIC_WORKER일 때
+  targetTradeType String?         // SPECIFIC_TRADE일 때
+  attachments     String[]        @default([])
+  status          WorkOrderStatus @default(ISSUED)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  site    Site    @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  worker  Worker? @relation(fields: [targetWorkerId], references: [id], onDelete: SetNull)
+  acknowledgements WorkOrderAck[]
+
+  @@index([siteId, orderDate])
+  @@index([status])
+  @@map("work_orders")
+}
+
+// 근로자 수신 확인
+model WorkOrderAck {
+  id          String   @id @default(cuid())
+  workOrderId String
+  workerId    String
+  readAt      DateTime @default(now())
+  confirmedAt DateTime?  // 작업지시 이해/수락 확인
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  worker    Worker    @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@unique([workOrderId, workerId])
+  @@map("work_order_acks")
+}
+
+enum WorkOrderPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum WorkOrderScope {
+  ALL_SITE         // 현장 전체
+  SPECIFIC_TRADE   // 특정 공종
+  SPECIFIC_WORKER  // 특정 근로자
+}
+
+enum WorkOrderStatus {
+  DRAFT
+  ISSUED      // 발행됨
+  COMPLETED   // 완료 처리
+  CANCELLED
 }
 
 // 작업일보 본체
