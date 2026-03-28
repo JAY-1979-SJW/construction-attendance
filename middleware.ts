@@ -30,13 +30,9 @@ export async function middleware(request: NextRequest) {
     try {
       const payload = await verifyToken(token)
       if (!payload || payload.type !== 'admin') throw new Error('Invalid token type')
-      // COMPANY_ADMIN이 /admin 접근 시 → ROUTE_REDIRECT.COMPANY_ADMIN_MISMATCH
-      if (payload.role === 'COMPANY_ADMIN') {
-        if (pathname.startsWith('/api/')) {
-          return NextResponse.json({ success: false, message: '업체 관리자 포털을 이용해주세요.' }, { status: 403 })
-        }
-        return NextResponse.redirect(new URL(ROUTE_REDIRECT.COMPANY_ADMIN_MISMATCH, request.url))
-      }
+      // COMPANY_ADMIN도 /admin 포털 사용 가능 (데이터 범위는 각 API에서 회사 scope로 제한)
+      // 기존에는 /company 포털로 강제 리다이렉트했으나, 현장 개설·근로자 관리·문서정책 등
+      // 핵심 운영 기능이 /admin에만 있으므로 접근을 허용한다.
       // VIEWER는 읽기 전용 — API mutation 요청 차단
       if (payload.role === 'VIEWER' && pathname.startsWith('/api/') && request.method !== 'GET') {
         return NextResponse.json({ success: false, message: 'VIEWER 역할은 읽기 전용입니다.' }, { status: 403 })

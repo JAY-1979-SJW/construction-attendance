@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
       userAgent: request.headers.get('user-agent') ?? undefined,
     })
 
-    // 역할에 따라 리다이렉트 경로 결정
-    const portal = admin.role === 'COMPANY_ADMIN' ? '/company' : '/admin'
+    // 모든 관리자 역할은 /admin 포털 사용
+    const portal = '/admin'
 
     const response = NextResponse.json({
       success: true,
