@@ -33,6 +33,15 @@ export async function POST(
     return badRequest('이미 서명이 완료되었거나 현재 상태에서는 서명할 수 없습니다.')
   }
 
+  // 단계 순서 강제: VIEW + PRESIGN 모두 완료된 경우에만 서명 가능
+  const notes = contract.notes ?? ''
+  if (!notes.includes('[WORKER_VIEW_CONFIRM:')) {
+    return badRequest('계약 내용 열람 확인(VIEW)을 먼저 완료해야 합니다.')
+  }
+  if (!notes.includes('[WORKER_PRESIGN_CONFIRM:')) {
+    return badRequest('서명 전 최종 확인(PRESIGN)을 먼저 완료해야 합니다.')
+  }
+
   const body = await req.json().catch(() => ({}))
   const { signatureData } = body as { signatureData?: string }
 

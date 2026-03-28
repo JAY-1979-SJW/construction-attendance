@@ -37,6 +37,13 @@ export async function POST(
   if (!contract) return notFound()
   if (contract.workerId !== session.sub) return forbidden()
 
+  const notes = contract.notes ?? ''
+
+  // 단계 순서 강제: PRESIGN은 VIEW 확인 후에만 가능
+  if (stage === 'PRESIGN' && !notes.includes('[WORKER_VIEW_CONFIRM:')) {
+    return badRequest('계약 내용 열람 확인(VIEW)을 먼저 완료해야 합니다.')
+  }
+
   const ts    = new Date().toISOString()
   const entry = `[WORKER_${stage}_CONFIRM:${ts}:${contract.contractTemplateType ?? 'UNKNOWN'}]`
   const newNotes = contract.notes ? `${contract.notes}\n${entry}` : entry
