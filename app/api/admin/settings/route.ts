@@ -62,6 +62,8 @@ function toDto(s: Awaited<ReturnType<typeof getOrCreate>>) {
     siteAutoReview: s.siteAutoReview,
     // 미출근 기준: N명 이상 미출근 시 확인필요 처리 (임시값, 추후 sites 화면에서 자동 연동)
     absentAlertThreshold: s.absentAlertThreshold,
+    // 기기 승인 정책
+    deviceApprovalMode: s.deviceApprovalMode,
   }
 }
 
@@ -198,6 +200,12 @@ export async function PATCH(req: NextRequest) {
       data.siteDefaultSort = body.siteDefaultSort
     }
     if (body.siteAutoReview !== undefined) data.siteAutoReview = Boolean(body.siteAutoReview)
+    // ── 기기 승인 정책 ──────────────────────────────────────────────
+    if (body.deviceApprovalMode !== undefined) {
+      if (!['MANUAL', 'AUTO_FIRST'].includes(body.deviceApprovalMode))
+        return badRequest('유효하지 않은 기기 승인 모드입니다. (MANUAL 또는 AUTO_FIRST)')
+      data.deviceApprovalMode = body.deviceApprovalMode
+    }
     if (body.absentAlertThreshold !== undefined) {
       if (typeof body.absentAlertThreshold !== 'number' || body.absentAlertThreshold < 1 || body.absentAlertThreshold > 50)
         return badRequest('미출근 확인필요 기준은 1~50명 사이여야 합니다.')

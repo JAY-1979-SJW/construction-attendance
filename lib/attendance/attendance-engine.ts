@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma'
 import { isWithinRadius } from '@/lib/gps/distance'
 import { validateDeviceDetailed } from '@/lib/auth/device'
 import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
+import { aggregateAttendanceDays } from '@/lib/labor/attendance-days'
+import { generateDraftConfirmations } from '@/lib/labor/work-confirmations'
 
 export interface SiteInfo {
   id: string
@@ -555,6 +557,16 @@ export async function processAttendanceCheckOut(
       where: { id: checkOutPhotoId },
       data: { attendanceLogId: log.id },
     }).catch(() => {})
+  }
+
+  // 퇴근 후 공수 자동 계산 (실패해도 퇴근 유지)
+  try {
+    const workDateStr = toKSTDateString()
+    await aggregateAttendanceDays({ workDate: workDateStr, siteId: site.id, workerId })
+    const monthKey = workDateStr.slice(0, 7) // 'YYYY-MM'
+    await generateDraftConfirmations({ monthKey, siteId: site.id, workerId })
+  } catch (calcErr) {
+    console.error('[checkout] 공수 자동계산 실패 (퇴근은 유지)', calcErr)
   }
 
   return {

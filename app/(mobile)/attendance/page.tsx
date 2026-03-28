@@ -86,6 +86,9 @@ export default function AttendancePage() {
   const [presenceResult, setPresenceResult] = useState<PresenceResult>({ state: 'idle' })
   const [countdown, setCountdown]     = useState<string | null>(null)
   const submittingRef                  = useRef(false)  // 중복 제출 방지 (연타·두 탭)
+  // ── 출근 조건 검사 state ──────────────────────────────────────
+  const [eligibility, setEligibility] = useState<{ key: string; label: string; passed: boolean; message: string }[]>([])
+  const [eligibilityChecked, setEligibilityChecked] = useState(false)
   // ── 직접 출근 state ───────────────────────────────────────────
   const [availableSites, setAvailableSites] = useState<AvailableSite[]>([])
   const [checkInLoading, setCheckInLoading]   = useState(false)
@@ -303,7 +306,23 @@ export default function AttendancePage() {
       }
       const res = await fetch(url)
       const data = await res.json()
-      if (data.success) setAvailableSites(data.sites ?? [])
+      if (data.success) {
+        setAvailableSites(data.sites ?? [])
+        // 첫 번째 현장 기준으로 eligibility 검사
+        const sites = data.sites ?? []
+        if (sites.length > 0) {
+          const qs = new URLSearchParams({ siteId: sites[0].siteId, deviceToken: localStorage.getItem('deviceToken') || '' })
+          if (url.includes('lat=')) {
+            const u = new URL(url, location.origin)
+            if (u.searchParams.get('lat')) qs.set('lat', u.searchParams.get('lat')!)
+            if (u.searchParams.get('lng')) qs.set('lng', u.searchParams.get('lng')!)
+          }
+          fetch(`/api/attendance/eligibility?${qs}`)
+            .then(r => r.json())
+            .then(d => { if (d.success) { setEligibility(d.conditions); setEligibilityChecked(true) } })
+            .catch(() => {})
+        }
+      }
     } catch { /* ignore */ }
   }, [isPreview])
 
@@ -664,6 +683,19 @@ export default function AttendancePage() {
                 >
                   새로고침
                 </button>
+              </div>
+            )}
+            {/* 출근 조건 미충족 배너 */}
+            {eligibilityChecked && eligibility.some(c => !c.passed && c.key !== 'gps' && c.key !== 'duplicate') && (
+              <div className="rounded-xl p-4 mb-3 bg-[#FFF3E0] border border-[#FFE0B2]">
+                <div className="text-[13px] font-bold text-[#E65100] mb-2">출근 조건 확인</div>
+                {eligibility.filter(c => !c.passed && c.key !== 'gps' && c.key !== 'duplicate').map(c => (
+                  <div key={c.key} className="flex items-center gap-2 text-[12px] text-[#BF360C] mb-1">
+                    <span className="text-[14px]">✕</span>
+                    <span className="font-medium">{c.label}:</span>
+                    <span>{c.message}</span>
+                  </div>
+                ))}
               </div>
             )}
             {!isPreview && availableSites.length > 0 ? (

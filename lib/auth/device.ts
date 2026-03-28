@@ -44,7 +44,7 @@ export async function registerDevice(
   workerId: string,
   deviceToken: string,
   deviceName: string
-): Promise<void> {
+): Promise<{ isAutoApproved: boolean }> {
   const existing = await prisma.workerDevice.findFirst({
     where: { workerId, deviceToken },
   })
@@ -54,21 +54,35 @@ export async function registerDevice(
       where: { id: existing.id },
       data: { isActive: true, lastLoginAt: new Date(), deviceName },
     })
-    return
+    return { isAutoApproved: true }
   }
+
+  // 기기 승인 정책 조회
+  const settings = await prisma.appSettings.findUnique({
+    where: { id: 'singleton' },
+    select: { deviceApprovalMode: true },
+  })
+  const mode = settings?.deviceApprovalMode ?? 'MANUAL'
 
   const hasPrimary = await prisma.workerDevice.count({
     where: { workerId, isPrimary: true, isActive: true },
   })
+
+  // AUTO_FIRST: 첫 기기는 자동 승인, 이후 기기는 MANUAL과 동일
+  const isFirstDevice = hasPrimary === 0
+  const autoApprove = mode === 'AUTO_FIRST' && isFirstDevice
 
   await prisma.workerDevice.create({
     data: {
       workerId,
       deviceToken,
       deviceName,
-      isPrimary: hasPrimary === 0,
-      isActive: true,
+      isPrimary: isFirstDevice,
+      isActive: autoApprove,
       lastLoginAt: new Date(),
+      approvedAt: autoApprove ? new Date() : null,
     },
   })
+
+  return { isAutoApproved: autoApprove }
 }

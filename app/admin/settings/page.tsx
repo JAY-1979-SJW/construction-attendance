@@ -51,9 +51,11 @@ interface Settings {
   siteAutoReview: boolean
   // 미출근 기준 (임시값 → 추후 sites 화면과 자동 연동 예정)
   absentAlertThreshold: number
+  // 기기 승인
+  deviceApprovalMode: string
 }
 
-type CategoryKey = 'attendance' | 'manday' | 'wage' | 'admin_cfg' | 'site'
+type CategoryKey = 'attendance' | 'manday' | 'wage' | 'admin_cfg' | 'site' | 'device'
 
 const CATEGORIES: { key: CategoryKey; label: string; subLabel: string }[] = [
   { key: 'attendance', label: '출퇴근 기준',    subLabel: '출퇴근 시간·판정 기준' },
@@ -61,6 +63,7 @@ const CATEGORIES: { key: CategoryKey; label: string; subLabel: string }[] = [
   { key: 'wage',       label: '노임 기준',       subLabel: '임금 계산·누계 기준' },
   { key: 'admin_cfg',  label: '관리자 설정',     subLabel: '승인·이력·기본 옵션' },
   { key: 'site',       label: '현장 운영 기본값', subLabel: '신규 현장·정렬·기준' },
+  { key: 'device',     label: '기기 승인 정책',   subLabel: '기기 등록·승인 방식' },
 ]
 
 const CATEGORY_FIELDS: Record<CategoryKey, (keyof Settings)[]> = {
@@ -76,6 +79,7 @@ const CATEGORY_FIELDS: Record<CategoryKey, (keyof Settings)[]> = {
   wage:      ['wageByManday', 'wageMonthly', 'wageTotal', 'wageManualOk'],
   admin_cfg: ['adminDisplayName', 'adminContact', 'requireReasonOnEdit', 'keepEditHistory', 'confirmBeforeSave'],
   site:      ['siteDefaultStatus', 'siteEndingWarnDays', 'siteDefaultSort', 'siteAutoReview', 'absentAlertThreshold'],
+  device:    ['deviceApprovalMode'],
 }
 
 // ── 공통 UI 컴포넌트 ─────────────────────────────────────────────────────────
@@ -448,6 +452,33 @@ function SiteForm({ form, canMutate, update }: {
   )
 }
 
+// ── 기기 승인 설정 ────────────────────────────────────────────────────────────
+function DeviceForm({ form, canMutate, update }: {
+  form: Settings; canMutate: boolean; update: (patch: Partial<Settings>) => void
+}) {
+  return (
+    <div>
+      <FSec title="기기 승인 방식">
+        <FRow label="기기 승인 모드" desc="MANUAL: 모든 기기 관리자 수동 승인 / AUTO_FIRST: 첫 기기 자동 승인">
+          <select
+            value={form.deviceApprovalMode}
+            disabled={!canMutate}
+            onChange={(e) => update({ deviceApprovalMode: e.target.value })}
+            className="px-3 py-2 border border-[#d1d5db] rounded-[6px] text-[13px] bg-white"
+          >
+            <option value="MANUAL">MANUAL — 관리자 수동 승인</option>
+            <option value="AUTO_FIRST">AUTO_FIRST — 첫 기기 자동 승인</option>
+          </select>
+        </FRow>
+        <FNote>
+          · MANUAL: 근로자가 기기를 등록하면 관리자가 승인해야 출근 가능합니다.
+          <br />· AUTO_FIRST: 근로자의 첫 기기는 자동 승인되고, 추가 기기는 관리자 승인이 필요합니다.
+        </FNote>
+      </FSec>
+    </div>
+  )
+}
+
 // ── 메인 페이지 ───────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
@@ -673,6 +704,9 @@ export default function SettingsPage() {
           )}
           {activeCategory === 'site' && (
             <SiteForm form={form} canMutate={canMutate} update={update} />
+          )}
+          {activeCategory === 'device' && (
+            <DeviceForm form={form} canMutate={canMutate} update={update} />
           )}
 
           {/* VIEWER 안내 */}
