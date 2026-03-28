@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -139,6 +139,44 @@ function ReportsPageInner() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
+  // ── 일괄 확정/반려 ─────────────────────────────────────────
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [batchLoading, setBatchLoading] = useState(false)
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+  const selectAllWritten = () => {
+    const writtenIds = items.filter(i => i.status === 'WRITTEN').map(i => i.id)
+    setSelectedIds(new Set(writtenIds))
+  }
+
+  const handleBatch = async (action: 'CONFIRM' | 'REJECT') => {
+    if (selectedIds.size === 0) return
+    if (action === 'REJECT') {
+      const reason = prompt('반려 사유를 입력하세요:')
+      if (!reason?.trim()) return
+      setBatchLoading(true)
+      await fetch('/api/admin/daily-reports/batch-confirm', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: Array.from(selectedIds), action: 'REJECT', reason }),
+      })
+    } else {
+      setBatchLoading(true)
+      await fetch('/api/admin/daily-reports/batch-confirm', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: Array.from(selectedIds), action: 'CONFIRM' }),
+      })
+    }
+    setBatchLoading(false)
+    setSelectedIds(new Set())
+    fetchData()
+  }
+
   // ── 확인완료 처리 ──────────────────────────────────────────
 
   const handleConfirm = async (id: string) => {
@@ -186,8 +224,8 @@ function ReportsPageInner() {
             { label: '미확인', value: summary.writtenCount, color: '#F97316' },
             { label: '미작성', value: summary.missingCount, color: '#EF4444' },
           ].map((kpi) => (
-            <div key={kpi.label} className="bg-white rounded-[12px] p-3 text-center border border-[#E5E7EB]">
-              <div className="text-[11px] text-[#9CA3AF] mb-1">{kpi.label}</div>
+            <div key={kpi.label} className="bg-card rounded-[12px] p-3 text-center border border-brand">
+              <div className="text-[11px] text-muted2-brand mb-1">{kpi.label}</div>
               <div className="text-[20px] font-bold" style={{ color: kpi.color }}>{kpi.value}</div>
             </div>
           ))}
@@ -211,21 +249,36 @@ function ReportsPageInner() {
               {opt.value === 'MISSING' && summary ? ` (${summary.missingCount})` : ''}
             </FilterPill>
           ))}
-          <span className="text-[12px] text-[#6B7280] ml-1">총 {total}건</span>
+          <span className="text-[12px] text-muted-brand ml-1">총 {total}건</span>
         </div>
       </SectionCard>
+
+      {/* ── 일괄 처리 바 ────────────────────────────────── */}
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 mb-3 px-4 py-3 bg-accent-light border border-accent-light rounded-lg">
+          <span className="text-[13px] font-bold text-accent">{selectedIds.size}건 선택</span>
+          <button onClick={() => handleBatch('CONFIRM')} disabled={batchLoading}
+            className="px-3 py-1.5 bg-[#16A34A] text-white text-[12px] font-bold rounded-md border-none cursor-pointer disabled:opacity-50">일괄 확정</button>
+          <button onClick={() => handleBatch('REJECT')} disabled={batchLoading}
+            className="px-3 py-1.5 bg-[#DC2626] text-white text-[12px] font-bold rounded-md border-none cursor-pointer disabled:opacity-50">일괄 반려</button>
+          <button onClick={() => setSelectedIds(new Set())}
+            className="px-3 py-1.5 bg-white text-gray-600 text-[12px] border border-gray-200 rounded-md cursor-pointer">선택 해제</button>
+          <button onClick={selectAllWritten}
+            className="px-3 py-1.5 bg-white text-gray-600 text-[12px] border border-gray-200 rounded-md cursor-pointer">미확인 전체 선택</button>
+        </div>
+      )}
 
       {/* ── 미작성 목록 ────────────────────────────────── */}
       {showMissing && (
         <SectionCard className="mt-4">
           <div className="text-[14px] font-semibold text-[#EF4444] mb-3">미작성 근로자 ({missing.length}명)</div>
           {missing.length === 0 ? (
-            <div className="text-[13px] text-[#9CA3AF] py-4 text-center">미작성 인원이 없습니다.</div>
+            <div className="text-[13px] text-muted2-brand py-4 text-center">미작성 인원이 없습니다.</div>
           ) : (
             <AdminTable headers={['근로자', '현장', '직종', '출근시각', '상태']}>
               {missing.map((m) => (
                 <AdminTr key={m.workerId} highlighted>
-                  <AdminTd className="font-medium text-[#0F172A]">{m.workerName}</AdminTd>
+                  <AdminTd className="font-medium text-title-brand">{m.workerName}</AdminTd>
                   <AdminTd>{m.siteName}</AdminTd>
                   <AdminTd>{m.jobTitle}</AdminTd>
                   <AdminTd>{toKST(m.checkInAt)}</AdminTd>
@@ -241,28 +294,36 @@ function ReportsPageInner() {
       {!showMissing && (
         <SectionCard className="mt-4">
           {loading ? (
-            <div className="text-[13px] text-[#9CA3AF] py-8 text-center">로딩 중...</div>
+            <div className="text-[13px] text-muted2-brand py-8 text-center">로딩 중...</div>
           ) : items.length === 0 ? (
             <AdminTable headers={['작업일자', '근로자', '직종', '현장', '근무시간', '공종/작업사항', '사진', '상태']}>
               <EmptyRow colSpan={8} message="작업일보가 없습니다." />
             </AdminTable>
           ) : (
             <>
-              <AdminTable headers={['작업일자', '근로자', '직종', '현장', '근무시간', '공종/작업사항', '사진', '상태']}>
+              <AdminTable headers={['', '작업일자', '근로자', '직종', '현장', '근무시간', '공종/작업사항', '사진', '상태']}>
                 {items.map((item) => (
                   <AdminTr key={item.id} onClick={() => openDetail(item)}
                     className={
                       detailOpen && selected?.id === item.id
-                        ? 'bg-[#FFF7ED] hover:bg-[#FFF7ED]'
+                        ? 'bg-accent-light hover:bg-accent-light'
                         : item.status === 'CONFIRMED'
                           ? 'bg-[#FAFFFE] hover:bg-[#F0FDF4]'
                           : ''
                     }>
-                    <AdminTd className="text-[#6B7280] text-[12px]">{item.reportDate?.slice(5, 10)}</AdminTd>
-                    <AdminTd className="text-[#0F172A] font-medium">{item.worker.name}</AdminTd>
-                    <AdminTd className="text-[#6B7280] text-[12px]">{item.jobTitle || '-'}</AdminTd>
-                    <AdminTd className="text-[#6B7280] text-[12px] max-w-[120px] truncate">{item.site.name}</AdminTd>
-                    <AdminTd className="text-[#6B7280] text-[12px]">
+                    <AdminTd className="w-8">
+                      {item.status === 'WRITTEN' && (
+                        <div onClick={(e) => { e.stopPropagation(); toggleSelect(item.id) }}>
+                          <input type="checkbox" checked={selectedIds.has(item.id)} readOnly
+                            className="w-4 h-4 accent-[#F97316] cursor-pointer" />
+                        </div>
+                      )}
+                    </AdminTd>
+                    <AdminTd className="text-muted-brand text-[12px]">{item.reportDate?.slice(5, 10)}</AdminTd>
+                    <AdminTd className="text-title-brand font-medium">{item.worker.name}</AdminTd>
+                    <AdminTd className="text-muted-brand text-[12px]">{item.jobTitle || '-'}</AdminTd>
+                    <AdminTd className="text-muted-brand text-[12px] max-w-[120px] truncate">{item.site.name}</AdminTd>
+                    <AdminTd className="text-muted-brand text-[12px]">
                       {item.workStartTime && item.workEndTime
                         ? `${item.workStartTime}~${item.workEndTime}`
                         : item.workStartTime || item.workEndTime || '-'}
@@ -289,7 +350,7 @@ function ReportsPageInner() {
               {total > 30 && (
                 <div className="flex justify-center gap-2 mt-4">
                   <Btn size="sm" variant="secondary" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>이전</Btn>
-                  <span className="text-[12px] text-[#6B7280] py-1.5 px-2">{page} / {Math.ceil(total / 30)}</span>
+                  <span className="text-[12px] text-muted-brand py-1.5 px-2">{page} / {Math.ceil(total / 30)}</span>
                   <Btn size="sm" variant="secondary" disabled={page >= Math.ceil(total / 30)} onClick={() => setPage((p) => p + 1)}>다음</Btn>
                 </div>
               )}
@@ -302,14 +363,14 @@ function ReportsPageInner() {
       {detailOpen && selected && (
         <>
           <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setDetailOpen(false)} />
-          <div className="fixed top-0 right-0 h-screen w-[460px] bg-white z-50 flex flex-col shadow-xl">
-            <div className="h-1 bg-[#F97316]" />
-            <div className="flex items-center justify-between px-5 py-3 border-b border-[#F3F4F6]">
+          <div className="fixed top-0 right-0 h-screen w-[460px] bg-card z-50 flex flex-col shadow-xl">
+            <div className="h-1 bg-brand-accent" />
+            <div className="flex items-center justify-between px-5 py-3 border-b border-brand">
               <div>
-                <div className="text-[15px] font-bold text-[#0F172A]">{selected.worker.name} 작업일보</div>
-                <div className="text-[12px] text-[#9CA3AF]">{selected.site.name} · {selected.reportDate?.slice(0, 10)}</div>
+                <div className="text-[15px] font-bold text-title-brand">{selected.worker.name} 작업일보</div>
+                <div className="text-[12px] text-muted2-brand">{selected.site.name} · {selected.reportDate?.slice(0, 10)}</div>
               </div>
-              <button onClick={() => setDetailOpen(false)} className="text-[#9CA3AF] hover:text-[#374151] text-[18px]">✕</button>
+              <button onClick={() => setDetailOpen(false)} className="text-muted2-brand hover:text-body-brand text-[18px]">✕</button>
             </div>
 
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
@@ -327,36 +388,36 @@ function ReportsPageInner() {
               )}
 
               {/* 공종/작업사항 */}
-              <div className="bg-[#F9FAFB] rounded-xl p-3 text-[13px]">
-                <div className="text-[11px] text-[#9CA3AF] mb-1">공종 / 작업사항</div>
+              <div className="bg-surface rounded-xl p-3 text-[13px]">
+                <div className="text-[11px] text-muted2-brand mb-1">공종 / 작업사항</div>
                 {(selected.tradeFamilyLabel || selected.tradeLabel || selected.taskLabel) ? (
-                  <div className="text-[#374151] whitespace-pre-wrap">
+                  <div className="text-body-brand whitespace-pre-wrap">
                     {[selected.tradeFamilyLabel, selected.tradeLabel, selected.taskLabel].filter(Boolean).join(' > ')}
                   </div>
                 ) : (
-                  <div className="text-[#9CA3AF]">-</div>
+                  <div className="text-muted2-brand">-</div>
                 )}
                 {selected.workDetail && (
-                  <div className="text-[#6B7280] mt-1.5 text-[12px] whitespace-pre-wrap">{selected.workDetail}</div>
+                  <div className="text-muted-brand mt-1.5 text-[12px] whitespace-pre-wrap">{selected.workDetail}</div>
                 )}
               </div>
 
               {/* 특이사항 */}
               {selected.notes && (
                 <div>
-                  <div className="text-[12px] font-semibold text-[#374151] mb-1">특이사항</div>
-                  <div className="text-[13px] text-[#6B7280] bg-[#F9FAFB] rounded-xl p-3 whitespace-pre-wrap">{selected.notes}</div>
+                  <div className="text-[12px] font-semibold text-body-brand mb-1">특이사항</div>
+                  <div className="text-[13px] text-muted-brand bg-surface rounded-xl p-3 whitespace-pre-wrap">{selected.notes}</div>
                 </div>
               )}
 
               {/* 첨부 사진 */}
               <div>
-                <div className="text-[12px] font-semibold text-[#374151] mb-2">첨부 사진</div>
+                <div className="text-[12px] font-semibold text-body-brand mb-2">첨부 사진</div>
                 {selected.photos && selected.photos.length > 0 ? (
                   <div className="grid grid-cols-3 gap-2">
                     {selected.photos.map((p, i) => (
                       <button key={i} onClick={() => setPreviewPhoto(p)}
-                        className="aspect-square rounded-xl overflow-hidden border border-[#E5E7EB] hover:border-[#F97316] transition-colors">
+                        className="aspect-square rounded-xl overflow-hidden border border-brand hover:border-accent transition-colors">
                         <img
                           src={`/api/admin/daily-reports/photos/file?path=${encodeURIComponent(p)}`}
                           alt={`사진 ${i + 1}`}
@@ -366,15 +427,15 @@ function ReportsPageInner() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-[13px] text-[#9CA3AF] bg-[#F9FAFB] rounded-xl p-3">첨부 사진 없음</div>
+                  <div className="text-[13px] text-muted2-brand bg-surface rounded-xl p-3">첨부 사진 없음</div>
                 )}
               </div>
 
               {/* 관리자 메모 */}
               <div>
-                <div className="text-[12px] font-semibold text-[#374151] mb-1">관리자 메모</div>
+                <div className="text-[12px] font-semibold text-body-brand mb-1">관리자 메모</div>
                 <textarea value={adminMemo} onChange={(e) => setAdminMemo(e.target.value)} rows={2}
-                  className="w-full text-[13px] border border-[#E5E7EB] rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316] resize-none"
+                  className="w-full text-[13px] border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent resize-none"
                   placeholder="메모를 입력하세요" />
               </div>
 
@@ -382,13 +443,13 @@ function ReportsPageInner() {
               <div className="flex items-center gap-2">
                 <StatusBadge status={selected.status} />
                 {selected.confirmedAt && (
-                  <span className="text-[11px] text-[#9CA3AF]">{new Date(selected.confirmedAt).toLocaleString('ko-KR')}</span>
+                  <span className="text-[11px] text-muted2-brand">{new Date(selected.confirmedAt).toLocaleString('ko-KR')}</span>
                 )}
               </div>
             </div>
 
             {/* 하단 액션 */}
-            <div className="px-5 py-3 border-t border-[#E5E7EB] flex gap-2">
+            <div className="px-5 py-3 border-t border-brand flex gap-2">
               {selected.status !== 'CONFIRMED' ? (
                 <Btn variant="orange" className="flex-1" onClick={() => handleConfirm(selected.id)}>확인완료 처리</Btn>
               ) : (
@@ -419,8 +480,8 @@ function ReportsPageInner() {
 function InfoCell({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
     <div>
-      <div className="text-[11px] text-[#9CA3AF]">{label}</div>
-      <div className={highlight ? 'text-[#F97316] font-medium' : 'text-[#374151]'}>{value}</div>
+      <div className="text-[11px] text-muted2-brand">{label}</div>
+      <div className={highlight ? 'text-accent font-medium' : 'text-body-brand'}>{value}</div>
     </div>
   )
 }
@@ -428,7 +489,7 @@ function InfoCell({ label, value, highlight }: { label: string; value: string; h
 function ManDayCard({ label, value, color, bg }: { label: string; value: number; color: string; bg: string }) {
   return (
     <div className="flex-1 rounded-lg p-3 text-center" style={{ background: bg }}>
-      <div className="text-[11px] text-[#9CA3AF]">{label}</div>
+      <div className="text-[11px] text-muted2-brand">{label}</div>
       <div className="text-[18px] font-bold" style={{ color }}>{value}</div>
     </div>
   )
@@ -437,9 +498,9 @@ function ManDayCard({ label, value, color, bg }: { label: string; value: number;
 function WorkSection({ label, text, highlight }: { label: string; text: string | null; highlight?: boolean }) {
   return (
     <div>
-      <div className="text-[12px] font-semibold text-[#374151] mb-1">{label}</div>
+      <div className="text-[12px] font-semibold text-body-brand mb-1">{label}</div>
       <div className={`text-[13px] rounded-lg p-3 min-h-[40px] whitespace-pre-wrap ${
-        highlight ? 'text-[#374151] bg-[#FFF7ED]' : 'text-[#6B7280] bg-[#F9FAFB]'
+        highlight ? 'text-body-brand bg-accent-light' : 'text-muted-brand bg-surface'
       }`}>
         {text || '-'}
       </div>
