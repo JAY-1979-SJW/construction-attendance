@@ -85,8 +85,9 @@ const MENU: MenuItem[] = [
     key: 'docs', label: '서류',
     icon: <I><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" {...S}/><path d="M14 2v6h6M9 15l2 2 4-4" {...S}/></I>,
     children: [
-      { href: '/admin/contracts',   label: '근로계약서' },
-      { href: '/admin/safety-docs', label: '안전서류' },
+      { href: '/admin/contracts',          label: '근로계약서' },
+      { href: '/admin/safety-docs',        label: '안전서류' },
+      { href: '/admin/document-packages',  label: '제출 서류 검토' },
     ],
   },
 
@@ -148,6 +149,7 @@ const MENU: MenuItem[] = [
     icon: <I><circle cx="12" cy="12" r="3" {...S}/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" {...S}/></I>,
     children: [
       { href: '/admin/settings',       label: '설정' },
+      { href: '/admin/companies',      label: '회사 정보' },
       { href: '/admin/document-center', label: '문서 센터' },
       { href: '/admin/audit-logs',      label: '감사 로그' },
       { href: '/admin/super-users',     label: '관리자 계정' },
