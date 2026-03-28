@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
-import KakaoMap from '@/components/map/KakaoMap'
 import {
   PageShell, PageHeader, PageBadge,
   SectionCard, Btn,
@@ -544,15 +543,9 @@ export default function SitesPage() {
         <FormInput value={f.address} placeholder="주소 검색 또는 직접 입력" onChange={e => onChange('address', e.target.value)} />
         <FormInput value={f.addressDetail ?? ''} placeholder="상세주소 (동/호/층)" onChange={e => onChange('addressDetail', e.target.value)} />
       </div>
-      {f.latitude && f.longitude && (
-        <div className="mb-4">
-          {geoStatus === 'loading' && <div className="text-xs text-[#F59E0B] mb-1">좌표 확인 중...</div>}
-          {geoStatus === 'error'   && <div className="text-xs text-[#e53935] mb-1">좌표를 찾지 못했습니다</div>}
-          <KakaoMap lat={f.latitude} lng={f.longitude} height="160px" />
-          <div className="text-[11px] text-[#9CA3AF] mt-1">주소 검색 시 위치가 자동 표시됩니다</div>
-        </div>
-      )}
-      {/* 위도/경도는 숨김 처리 (주소 검색 시 자동 입력) */}
+      {geoStatus === 'loading' && <div className="text-xs text-[#F59E0B] mb-1">좌표 확인 중...</div>}
+      {geoStatus === 'error'   && <div className="text-xs text-[#e53935] mb-1">좌표를 찾지 못했습니다. 주소를 다시 검색하세요.</div>}
+      {geoStatus === 'done' && f.latitude && <div className="text-xs text-[#16a34a] mb-1">좌표 확인 완료</div>}
       <input type="hidden" value={f.latitude} />
       <input type="hidden" value={f.longitude} />
       <FormInput label="GPS 허용 반경 (m)" value={f.allowedRadius} placeholder="100" onChange={e => onChange('allowedRadius', e.target.value)} />
