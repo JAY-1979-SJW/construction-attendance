@@ -275,9 +275,11 @@ export default function AdminDashboard() {
   const [sites,          setSites]          = useState<SiteSummary[]>([])
   const [siteOptions,    setSiteOptions]    = useState<SiteOption[]>([])
   const [loading,        setLoading]        = useState(true)
+  const [loadError,      setLoadError]      = useState('')
 
   const load = useCallback(() => {
     setLoading(true)
+    setLoadError('')
     const params = new URLSearchParams({ date: selectedDate })
     if (selectedSiteId) params.set('siteId', selectedSiteId)
     fetch(`/api/admin/dashboard?${params}`)
@@ -290,7 +292,7 @@ export default function AdminDashboard() {
         setSiteOptions(data.data.siteOptions)
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => { setLoadError('대시보드를 불러올 수 없습니다. 새로고침하거나 관리자에게 문의하세요.'); setLoading(false) })
   }, [selectedDate, selectedSiteId, router])
 
   useEffect(() => { load() }, [load])
@@ -403,6 +405,11 @@ export default function AdminDashboard() {
 
       {loading ? (
         <div className="text-[#9CA3AF] text-[13px] py-20 text-center">로딩 중...</div>
+      ) : loadError ? (
+        <div className="text-center py-20">
+          <div className="text-[#DC2626] text-[14px] mb-2">{loadError}</div>
+          <button onClick={load} className="px-4 py-2 bg-[#F97316] text-white rounded-lg text-[13px] border-none cursor-pointer">다시 시도</button>
+        </div>
       ) : (
         <>
           {/* ── 초기 설정 안내 (현장 또는 근로자 0건) ──────────────────── */}

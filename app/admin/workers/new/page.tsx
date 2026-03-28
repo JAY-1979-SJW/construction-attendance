@@ -23,7 +23,9 @@ const EMP_OPTIONS: { value: string; label: string; category: string }[] = [
 
 const ORG_OPTIONS = [
   { value: 'DIRECT',        label: '직영' },
-  { value: 'SUBCONTRACTOR', label: '협력사(외주)' },
+  { value: 'DAILY_WORKER',  label: '일용직' },
+  { value: 'OUTSOURCED',    label: '외주팀' },
+  { value: 'SUBCONTRACTOR', label: '협력업체' },
 ]
 
 const JOB_PRESETS = [
@@ -60,6 +62,7 @@ interface WorkerForm {
   organizationType: string
   subcontractorName: string
   foreignerYn: boolean
+  address: string
 }
 
 const EMPTY_FORM: WorkerForm = {
@@ -72,6 +75,7 @@ const EMPTY_FORM: WorkerForm = {
   organizationType: 'DIRECT',
   subcontractorName: '',
   foreignerYn: false,
+  address: '',
 }
 
 // ── 전화번호 포맷 ───────────────────────────────────────────────────────────
@@ -174,6 +178,7 @@ export default function WorkersNewPage() {
           foreignerYn: form.foreignerYn,
           birthDate: form.birthDate || undefined,
           subcontractorName: form.organizationType === 'SUBCONTRACTOR' ? form.subcontractorName.trim() : undefined,
+          address: form.address.trim() || undefined,
         }),
       })
       const data = await res.json()
@@ -258,6 +263,12 @@ export default function WorkersNewPage() {
               ]}
             />
           </FormGrid>
+          <FormInput
+            label="주소"
+            placeholder="시/군/구 까지 입력 (선택)"
+            value={form.address}
+            onChange={e => set('address', e.target.value)}
+          />
         </SectionCard>
 
         {/* ── 근무정보 ─────────────────────────────────────────── */}
