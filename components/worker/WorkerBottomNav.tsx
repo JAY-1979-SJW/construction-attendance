@@ -21,11 +21,11 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: '출퇴근',    icon: '🕐', href: '/attendance',       match: ['/attendance'] },
-  { label: '현장',      icon: '🏗', href: '/my/sites',         match: ['/my/sites'] },
-  { label: '서류',      icon: '📑', href: '/my/onboarding',    match: ['/my/onboarding', '/my/documents'] },
-  { label: '작업일보',  icon: '📋', href: '/daily-report',     match: ['/daily-report'] },
-  { label: '내 정보',   icon: '👤', href: '/my/status',        match: ['/my/status', '/my/requests'] },
+  { label: '출퇴근',    icon: '🕐', href: '/attendance',              match: ['/attendance'] },
+  { label: '현장',      icon: '🏗', href: '/my/sites',                match: ['/my/sites'] },
+  { label: '서류',      icon: '📑', href: '/my/onboarding',           match: ['/my/onboarding', '/my/documents'] },
+  { label: '자재청구',  icon: '📦', href: '/my/material-requests',    match: ['/my/material-requests'] },
+  { label: '내 정보',   icon: '👤', href: '/my/status',               match: ['/my/status', '/my/requests', '/daily-report'] },
 ]
 
 export default function WorkerBottomNav() {
@@ -33,7 +33,7 @@ export default function WorkerBottomNav() {
   const router    = useRouter()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] flex h-16 z-[100] shadow-[0_-2px_8px_rgba(0,0,0,0.08)] safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-brand flex h-16 z-[100] shadow-[0_-2px_8px_rgba(0,0,0,0.08)] safe-bottom">
       {NAV_ITEMS.map((item) => {
         const isActive = item.match.some((m) => pathname === m || pathname.startsWith(m + '/'))
         return (
@@ -42,8 +42,8 @@ export default function WorkerBottomNav() {
             onClick={() => router.push(item.href)}
             className="flex-1 flex flex-col items-center justify-center gap-[3px] border-none bg-transparent cursor-pointer py-2 transition-colors duration-[150ms]"
             style={{
-              color:      isActive ? '#F47920' : '#5a6a7e',
-              borderTop:  isActive ? '2px solid #F47920' : '2px solid transparent',
+              color:      isActive ? '#F97316' : '#5a6a7e',
+              borderTop:  isActive ? '2px solid #F97316' : '2px solid transparent',
             }}
           >
             <span className="text-[20px] leading-none">{item.icon}</span>
