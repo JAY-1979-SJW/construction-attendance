@@ -200,7 +200,7 @@ function progressPct(openedAt?: string | null, closedAt?: string | null): number
 
 // ── 폼 초기값 ─────────────────────────────────────────────────────────────
 const emptyForm = {
-  name: '', address: '', latitude: '', longitude: '',
+  name: '', address: '', addressDetail: '', latitude: '', longitude: '',
   allowedRadius: '100', siteCode: '', openedAt: '', closedAt: '', notes: '',
 }
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
@@ -402,10 +402,11 @@ export default function SitesPage() {
     if (!form.name.trim()) { setFormError('현장명을 입력하세요.'); setSaving(false); return }
     if (!form.address.trim()) { setFormError('주소를 입력하세요.'); setSaving(false); return }
     if (isNaN(lat) || isNaN(lng)) { setFormError('주소 검색 후 좌표를 확인하세요.'); setSaving(false); return }
+    const fullAddress = form.addressDetail?.trim() ? `${form.address} ${form.addressDetail.trim()}` : form.address
     const res = await fetch('/api/admin/sites', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: form.name, address: form.address, latitude: lat, longitude: lng,
+        name: form.name, address: fullAddress, latitude: lat, longitude: lng,
         allowedRadius: parseInt(form.allowedRadius, 10),
         siteCode: form.siteCode || undefined,
         openedAt: form.openedAt || undefined, closedAt: form.closedAt || undefined,
@@ -420,7 +421,7 @@ export default function SitesPage() {
   const openEdit = (s: Site) => {
     setEditTarget(s)
     setEditForm({
-      name: s.name, address: s.address,
+      name: s.name, address: s.address, addressDetail: '',
       latitude: String(s.latitude), longitude: String(s.longitude),
       allowedRadius: String(s.allowedRadius),
       siteCode: s.siteCode ?? '',
@@ -440,7 +441,7 @@ export default function SitesPage() {
     const res = await fetch(`/api/admin/sites/${editTarget.id}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: editForm.name, address: editForm.address, latitude: lat, longitude: lng,
+        name: editForm.name, address: editForm.addressDetail?.trim() ? `${editForm.address} ${editForm.addressDetail.trim()}` : editForm.address, latitude: lat, longitude: lng,
         allowedRadius: parseInt(editForm.allowedRadius, 10), isActive: editActive,
         siteCode: editForm.siteCode || null,
         openedAt: editForm.openedAt || null, closedAt: editForm.closedAt || null,
@@ -541,17 +542,19 @@ export default function SitesPage() {
           </div>
         </div>
         <FormInput value={f.address} placeholder="주소 검색 또는 직접 입력" onChange={e => onChange('address', e.target.value)} />
+        <FormInput value={f.addressDetail ?? ''} placeholder="상세주소 (동/호/층)" onChange={e => onChange('addressDetail', e.target.value)} />
       </div>
-      <div className="mb-4">
-        <label className={labelCls}>지도 미리보기</label>
-        {geoStatus === 'loading' && <div className="text-xs text-[#F59E0B] mb-1">좌표 확인 중...</div>}
-        {geoStatus === 'error'   && <div className="text-xs text-[#e53935] mb-1">좌표를 찾지 못했습니다</div>}
-        <KakaoMap lat={f.latitude} lng={f.longitude} height="240px" />
-      </div>
-      <FormGrid cols={2}>
-        <FormInput label="위도" placeholder="위도" value={f.latitude} onChange={e => onChange('latitude', e.target.value)} helper="주소 검색 시 자동입력" />
-        <FormInput label="경도" placeholder="경도" value={f.longitude} onChange={e => onChange('longitude', e.target.value)} />
-      </FormGrid>
+      {f.latitude && f.longitude && (
+        <div className="mb-4">
+          {geoStatus === 'loading' && <div className="text-xs text-[#F59E0B] mb-1">좌표 확인 중...</div>}
+          {geoStatus === 'error'   && <div className="text-xs text-[#e53935] mb-1">좌표를 찾지 못했습니다</div>}
+          <KakaoMap lat={f.latitude} lng={f.longitude} height="160px" />
+          <div className="text-[11px] text-[#9CA3AF] mt-1">주소 검색 시 위치가 자동 표시됩니다</div>
+        </div>
+      )}
+      {/* 위도/경도는 숨김 처리 (주소 검색 시 자동 입력) */}
+      <input type="hidden" value={f.latitude} />
+      <input type="hidden" value={f.longitude} />
       <FormInput label="GPS 허용 반경 (m)" value={f.allowedRadius} placeholder="100" onChange={e => onChange('allowedRadius', e.target.value)} />
       <FormGrid cols={2}>
         <FormInput label="착공일" type="date" value={f.openedAt} onChange={e => onChange('openedAt', e.target.value)} />
