@@ -685,6 +685,26 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
               <span className="text-[11px] text-gray-500 ml-1">— {worker.nextAction}</span>
             )}
           </div>
+          {/* 출근 차단 사유 종합 */}
+          {worker.assignmentEligibility !== 'READY' && (
+            <div className="mt-2 space-y-1">
+              {worker.accountStatus !== 'APPROVED' && (
+                <div className="text-[12px] text-[#DC2626] flex items-center gap-1">
+                  <span>✕</span> 계정: {worker.accountStatus === 'PENDING' ? '승인 대기' : worker.accountStatus === 'REJECTED' ? '반려됨' : worker.accountStatus === 'SUSPENDED' ? '정지됨' : worker.accountStatus}
+                </div>
+              )}
+              {!worker.isActive && worker.accountStatus === 'APPROVED' && (
+                <div className="text-[12px] text-[#DC2626] flex items-center gap-1">
+                  <span>✕</span> 계정 비활성 상태
+                </div>
+              )}
+              {worker._count.devices === 0 && (
+                <div className="text-[12px] text-[#DC2626] flex items-center gap-1">
+                  <span>✕</span> 등록된 기기 없음 — 기기 등록/승인 필요
+                </div>
+              )}
+            </div>
+          )}
           {worker.expiredDocs && worker.expiredDocs.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               <span className="text-[12px] text-[#DC2626] mr-1 pt-0.5">만료 서류:</span>

@@ -685,17 +685,39 @@ export default function AttendancePage() {
                 </button>
               </div>
             )}
-            {/* 출근 조건 미충족 배너 */}
-            {eligibilityChecked && eligibility.some(c => !c.passed && c.key !== 'gps' && c.key !== 'duplicate') && (
-              <div className="rounded-xl p-4 mb-3 bg-[#FFF3E0] border border-[#FFE0B2]">
-                <div className="text-[13px] font-bold text-[#E65100] mb-2">출근 조건 확인</div>
-                {eligibility.filter(c => !c.passed && c.key !== 'gps' && c.key !== 'duplicate').map(c => (
-                  <div key={c.key} className="flex items-center gap-2 text-[12px] text-[#BF360C] mb-1">
-                    <span className="text-[14px]">✕</span>
-                    <span className="font-medium">{c.label}:</span>
-                    <span>{c.message}</span>
-                  </div>
-                ))}
+            {/* 출근 조건 체크리스트 */}
+            {eligibilityChecked && eligibility.length > 0 && (
+              <div className={`rounded-xl p-4 mb-3 border ${eligibility.every(c => c.passed) ? 'bg-[#F0FDF4] border-[#BBF7D0]' : 'bg-white border-[#E5E7EB]'}`}>
+                <div className="text-[13px] font-bold text-[#374151] mb-3">
+                  {eligibility.every(c => c.passed) ? '출근 준비 완료' : '출근 조건 확인'}
+                </div>
+                {eligibility.map(c => {
+                  const ACTION_HINT: Record<string, string> = {
+                    account: '관리자 승인을 기다려 주세요.',
+                    device: '기기 등록 후 관리자 승인을 기다려 주세요.',
+                    site: '하단 [현장] 탭에서 현장 참여를 신청하세요.',
+                    docs: '하단 [서류] 탭에서 서류를 제출하세요.',
+                    time: '출근 가능 시간에 다시 시도하세요.',
+                    gps: '현장 근처로 이동하세요.',
+                    duplicate: '',
+                  }
+                  return (
+                    <div key={c.key} className="flex items-start gap-2 mb-2">
+                      <span className={`text-[14px] mt-[1px] shrink-0 ${c.passed ? 'text-[#16a34a]' : 'text-[#dc2626]'}`}>
+                        {c.passed ? '✓' : '✕'}
+                      </span>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-1">
+                          <span className={`text-[12px] font-medium ${c.passed ? 'text-[#374151]' : 'text-[#dc2626]'}`}>{c.label}</span>
+                          <span className={`text-[11px] ${c.passed ? 'text-[#6B7280]' : 'text-[#9CA3AF]'}`}>— {c.message}</span>
+                        </div>
+                        {!c.passed && ACTION_HINT[c.key] && (
+                          <div className="text-[11px] text-[#F59E0B] mt-0.5">{ACTION_HINT[c.key]}</div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             )}
             {!isPreview && availableSites.length > 0 ? (
@@ -713,11 +735,15 @@ export default function AttendancePage() {
                     </div>
                     <button
                       onClick={() => handleDirectCheckIn(availableSites[0].siteId)}
-                      disabled={checkInLoading}
-                      className="w-full py-[14px] text-[16px] font-bold bg-[#2e7d32] text-white border-none rounded-xl cursor-pointer shadow-[0_4px_12px_rgba(46,125,50,0.3)]"
-                      style={{ opacity: checkInLoading ? 0.6 : 1 }}
+                      disabled={checkInLoading || (eligibilityChecked && !eligibility.every(c => c.passed))}
+                      className="w-full py-[14px] text-[16px] font-bold text-white border-none rounded-xl cursor-pointer"
+                      style={{
+                        background: eligibilityChecked && !eligibility.every(c => c.passed) ? '#9CA3AF' : '#2e7d32',
+                        opacity: checkInLoading ? 0.6 : 1,
+                        boxShadow: eligibilityChecked && !eligibility.every(c => c.passed) ? 'none' : '0 4px 12px rgba(46,125,50,0.3)',
+                      }}
                     >
-                      {checkInLoading ? '출근 처리 중...' : '출근하기'}
+                      {checkInLoading ? '출근 처리 중...' : eligibilityChecked && !eligibility.every(c => c.passed) ? '조건 미충족' : '출근하기'}
                     </button>
                   </div>
                 ) : (
@@ -739,10 +765,14 @@ export default function AttendancePage() {
                             </div>
                           )}
                         </div>
-                        <button onClick={() => handleDirectCheckIn(site.siteId)} disabled={checkInLoading}
-                          className="w-full py-[11px] text-[14px] font-bold bg-[#2e7d32] text-white border-none rounded-[10px] cursor-pointer"
-                          style={{ opacity: checkInLoading ? 0.6 : 1 }}>
-                          {checkInLoading ? '처리 중...' : '출근하기'}
+                        <button onClick={() => handleDirectCheckIn(site.siteId)}
+                          disabled={checkInLoading || (eligibilityChecked && !eligibility.every(c => c.passed))}
+                          className="w-full py-[11px] text-[14px] font-bold text-white border-none rounded-[10px] cursor-pointer"
+                          style={{
+                            background: eligibilityChecked && !eligibility.every(c => c.passed) ? '#9CA3AF' : '#2e7d32',
+                            opacity: checkInLoading ? 0.6 : 1,
+                          }}>
+                          {checkInLoading ? '처리 중...' : eligibilityChecked && !eligibility.every(c => c.passed) ? '조건 미충족' : '출근하기'}
                         </button>
                       </div>
                     ))}
