@@ -16,7 +16,7 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR ?? '/app/uploads'
 const saveSchema = z.object({
   siteId:           z.string().min(1),
   attendanceLogId:  z.string().optional(),
-  reportDate:       z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  reportDate:       z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   employmentType:   z.enum(['DIRECT', 'DAILY', 'OUTSOURCE_LEAD', 'OUTSOURCE_CREW']).optional(),
   jobTitle:         z.string().optional(),
   // 공종/작업사항
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) return badRequest(parsed.error.errors[0].message)
 
     const d = parsed.data
-    const reportDate = kstDateStringToDate(d.reportDate)
+    const reportDate = kstDateStringToDate(d.reportDate || toKSTDateString())
 
     // 출근 확인
     const attendance = await prisma.attendanceLog.findFirst({

@@ -151,6 +151,19 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // COMPANY_ADMIN이 현장 생성 시 자기 회사-현장 자동 연결 (접근 권한 확보)
+    if (session.role === 'COMPANY_ADMIN' && session.companyId) {
+      await prisma.siteCompanyAssignment.create({
+        data: {
+          siteId: site.id,
+          companyId: session.companyId,
+          contractType: 'DIRECT_WORK',
+          startDate: new Date(),
+          participationStatus: 'ACTIVE',
+        },
+      }).catch(() => {}) // 중복 방지
+    }
+
     await writeAuditLog({
       adminId: session.sub,
       actionType: 'CREATE_SITE',
