@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
 import WorkerTopBar from '@/components/worker/WorkerTopBar'
+import SignatureCanvas from '@/components/common/SignatureCanvas'
 
 interface SiteInfo { siteId: string; siteName: string }
 
@@ -14,6 +15,7 @@ export default function WorkCompletePage() {
   const [sites, setSites] = useState<SiteInfo[]>([])
   const [siteId, setSiteId] = useState('')
   const [healthChecked, setHealthChecked] = useState(false)
+  const [signatureData, setSignatureData] = useState<string | null>(null)
   const [alreadyDone, setAlreadyDone] = useState(false)
   const [doneAt, setDoneAt] = useState<string | null>(null)
   const [photos, setPhotos] = useState<{ base64: string; preview: string }[]>([])
@@ -58,6 +60,7 @@ export default function WorkCompletePage() {
     setError(''); setSuccess('')
     if (!siteId) { setError('현장을 선택하세요.'); return }
     if (!healthChecked) { setError('건강이상 없음을 확인해 주세요.'); return }
+    if (!signatureData) { setError('서명을 해주세요.'); return }
 
     setSubmitting(true)
     try {
@@ -67,6 +70,7 @@ export default function WorkCompletePage() {
         body: JSON.stringify({
           siteId,
           healthCheckedYn: healthChecked,
+          healthSignature: signatureData,
           photos: photos.length > 0 ? photos.map(p => ({ base64: p.base64, mimeType: 'image/jpeg' })) : undefined,
         }),
       })
@@ -174,14 +178,34 @@ export default function WorkCompletePage() {
               </label>
             </div>
 
+            {/* 서명 */}
+            {healthChecked && (
+              <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
+                <label className="text-[13px] font-semibold text-gray-700 block mb-2">건강이상 없음 서명</label>
+                <p className="text-[11px] text-gray-500 mb-3">
+                  본인은 금일 작업 중 건강에 이상이 없었음을 아래 서명으로 확인합니다.
+                </p>
+                <SignatureCanvas
+                  onSave={(dataUri) => setSignatureData(dataUri)}
+                  width={340}
+                  height={140}
+                  accentColor="#16A34A"
+                  disabled={submitting}
+                />
+                {signatureData && (
+                  <div className="text-[11px] text-green-600 mt-2 text-center">서명 완료</div>
+                )}
+              </div>
+            )}
+
             {/* 제출 버튼 */}
             <button
               onClick={handleSubmit}
-              disabled={submitting || !healthChecked}
+              disabled={submitting || !healthChecked || !signatureData}
               className="w-full py-3.5 rounded-xl text-[15px] font-bold text-white border-none cursor-pointer disabled:bg-gray-300"
-              style={{ background: healthChecked ? '#16A34A' : '#9CA3AF' }}
+              style={{ background: healthChecked && signatureData ? '#16A34A' : '#9CA3AF' }}
             >
-              {submitting ? '제출 중...' : '작업완료 보고 제출'}
+              {submitting ? '제출 중...' : !healthChecked ? '건강확인을 체크하세요' : !signatureData ? '서명을 해주세요' : '작업완료 보고 제출'}
             </button>
           </div>
         )}

@@ -44,6 +44,7 @@ export async function GET(req: NextRequest) {
 const submitSchema = z.object({
   siteId: z.string().min(1),
   healthCheckedYn: z.boolean(),
+  healthSignature: z.string().optional(),
   photos: z.array(z.object({
     base64: z.string().min(100),
     mimeType: z.string().default('image/jpeg'),
@@ -58,7 +59,7 @@ export async function POST(req: NextRequest) {
   const parsed = submitSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 })
 
-  const { siteId, healthCheckedYn, photos } = parsed.data
+  const { siteId, healthCheckedYn, healthSignature, photos } = parsed.data
   const workDate = toKSTDateString()
   const dateAsDate = kstDateStringToDate(workDate)
 
@@ -93,11 +94,13 @@ export async function POST(req: NextRequest) {
       reportDate: dateAsDate,
       healthCheckedYn,
       healthCheckedAt: healthCheckedYn ? new Date() : null,
+      healthSignature: healthSignature ?? null,
       workCompletionPhotos: photoPaths,
     },
     update: {
       healthCheckedYn,
       healthCheckedAt: healthCheckedYn ? new Date() : null,
+      healthSignature: healthSignature ?? undefined,
       ...(photoPaths.length > 0 ? {
         workCompletionPhotos: { push: photoPaths },
       } : {}),

@@ -4001,6 +4001,7 @@ model WorkerDailyReport {
   // ── 퇴근 시 건강이상 없음 확인 ─────────────────────────────
   healthCheckedYn     Boolean              @default(false)
   healthCheckedAt     DateTime?
+  healthSignature     String?              @db.Text  // 서명 이미지 data URI
   // ── 작업완료 사진 (일반 photos와 별도) ──────────────────────
   workCompletionPhotos String[]            @default([])
   // ── 타임스탬프 ───────────────────────────────────────────
