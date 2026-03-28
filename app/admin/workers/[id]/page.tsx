@@ -2345,6 +2345,13 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
                           </button>
                         </>
                       )}
+                      {doc.docType === 'HEALTH_CERTIFICATE' && doc.status !== 'NOT_SUBMITTED' && doc.submissions?.some((s: any) => s.fileId) && (
+                        <button
+                          onClick={() => window.open(`/api/admin/workers/${workerId}/onboarding-docs/${doc.docType}/file?inline=1`, '_blank')}
+                          className="px-2 py-1 bg-[#e3f2fd] border border-[#90caf9] rounded text-[11px] text-[#1565c0] cursor-pointer">
+                          파일보기
+                        </button>
+                      )}
                       {doc.submissions?.length > 0 && (
                         <button className="px-2 py-1 bg-[#f5f5f5] border border-[#e0e0e0] rounded text-[11px] cursor-pointer">
                           이력({doc.submissions.length})

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
 import WorkerTopBar from '@/components/worker/WorkerTopBar'
+import SignatureCanvas from '@/components/common/SignatureCanvas'
 
 interface DocItem {
   id: string
@@ -82,6 +83,7 @@ export default function MyOnboardingPage() {
   const [activeDoc, setActiveDoc] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [uploadDoc, setUploadDoc] = useState<string | null>(null)
+  const [signatureData, setSignatureData] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const load = async () => {
@@ -100,7 +102,11 @@ export default function MyOnboardingPage() {
 
   useEffect(() => { load() }, [])
 
-  const handleSign = async (docType: string, isResubmit: boolean) => {
+  const handleSign = async (docType: string, isResubmit: boolean, sigData?: string) => {
+    if (!sigData) {
+      alert('서명을 먼저 해주세요.')
+      return
+    }
     setSubmitting(true)
     try {
       const endpoint = isResubmit
@@ -109,11 +115,12 @@ export default function MyOnboardingPage() {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ signatureData: 'confirmed', agreedItems: ['all'] }),
+        body: JSON.stringify({ signatureData: sigData, agreedItems: ['all'] }),
       })
       const json = await res.json()
       if (json.success) {
         setActiveDoc(null)
+        setSignatureData(null)
         await load()
       } else {
         alert(json.message || '제출 실패')
@@ -286,16 +293,16 @@ export default function MyOnboardingPage() {
       {/* 전자서명 모달 */}
       {activeDoc && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center">
-          <div className="bg-white w-full max-w-lg rounded-t-3xl p-6 pb-8 animate-[slideUp_0.3s_ease]">
+          <div className="bg-white w-full max-w-lg rounded-t-3xl p-6 pb-8 animate-[slideUp_0.3s_ease] max-h-[90vh] overflow-y-auto">
             <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
             <h3 className="text-lg font-bold text-gray-800 mb-2">
               {docs.find(d => d.docType === activeDoc)?.label}
             </h3>
-            <p className="text-[13px] text-gray-500 mb-6">
-              아래 내용을 확인하고 동의하면 제출됩니다.
+            <p className="text-[13px] text-gray-500 mb-4">
+              아래 내용을 확인하고 서명해 주세요.
             </p>
 
-            <div className="bg-gray-50 rounded-xl p-4 mb-6 text-[13px] text-gray-600 leading-relaxed max-h-[40vh] overflow-y-auto">
+            <div className="bg-gray-50 rounded-xl p-4 mb-4 text-[13px] text-gray-600 leading-relaxed max-h-[30vh] overflow-y-auto">
               {activeDoc === 'PRIVACY_CONSENT' && (
                 <div>
                   <p className="font-bold mb-2">개인정보 수집·이용 동의서</p>
@@ -303,6 +310,10 @@ export default function MyOnboardingPage() {
                   <p>2. 수집 목적: 근로계약 체결, 4대보험 신고, 급여 지급</p>
                   <p>3. 보유 기간: 고용관계 종료 후 3년</p>
                   <p>4. 동의를 거부할 권리가 있으며, 거부 시 근로계약 체결이 제한될 수 있습니다.</p>
+                  <p className="mt-2 font-bold">개인정보 제3자 제공 동의</p>
+                  <p>5. 제공 대상: 국민건강보험공단, 근로복지공단, 국민연금공단, 관할 세무서</p>
+                  <p>6. 제공 목적: 4대보험 취득·상실 신고, 원천세 신고</p>
+                  <p>7. 제공 항목: 성명, 주민등록번호, 급여 정보</p>
                 </div>
               )}
               {activeDoc === 'HEALTH_DECLARATION' && (
@@ -310,29 +321,45 @@ export default function MyOnboardingPage() {
                   <p className="font-bold mb-2">건강 이상 없음 각서</p>
                   <p>본인은 현재 건설현장 근로에 지장을 줄 수 있는 건강상의 이상이 없음을 확인합니다.</p>
                   <p className="mt-2">고혈압, 당뇨, 심장질환, 간질 등 중대한 질환이 있는 경우 사전에 고지하여야 하며, 미고지로 인한 사고 발생 시 본인에게 책임이 있음을 확인합니다.</p>
+                  <p className="mt-2">본 각서의 내용이 사실과 다를 경우 이에 따른 모든 책임은 본인에게 있음을 서약합니다.</p>
                 </div>
               )}
               {activeDoc === 'SAFETY_ACK' && (
                 <div>
                   <p className="font-bold mb-2">안전서류 확인 및 서명</p>
                   <p>1. 현장 안전수칙을 숙지하고 준수할 것을 서약합니다.</p>
-                  <p>2. 안전보호구를 착용하고 안전교육에 성실히 참여합니다.</p>
-                  <p>3. 위험 상황 발견 시 즉시 관리자에게 보고합니다.</p>
-                  <p>4. 음주 상태에서의 작업을 절대 하지 않습니다.</p>
+                  <p>2. 개인 안전보호구(안전모, 안전화, 안전벨트 등)를 반드시 착용합니다.</p>
+                  <p>3. 안전교육에 성실히 참여하고 교육 내용을 준수합니다.</p>
+                  <p>4. 위험 상황 발견 시 즉시 관리자에게 보고합니다.</p>
+                  <p>5. 음주 또는 약물 복용 상태에서 작업을 하지 않습니다.</p>
+                  <p>6. 작업 전 장비 및 도구의 안전 상태를 확인합니다.</p>
+                  <p>7. 위 사항을 위반하여 발생한 사고에 대해 본인에게 책임이 있음을 인지합니다.</p>
                 </div>
               )}
             </div>
 
+            {/* 전자서명 패드 */}
+            <div className="mb-4">
+              <SignatureCanvas
+                onSave={(dataUri) => setSignatureData(dataUri)}
+                width={340}
+                height={140}
+                accentColor="#3B82F6"
+                disabled={submitting}
+              />
+            </div>
+
             <div className="flex gap-3">
-              <button onClick={() => setActiveDoc(null)}
+              <button onClick={() => { setActiveDoc(null); setSignatureData(null) }}
                 className="flex-1 py-3.5 rounded-xl text-[14px] font-bold border border-gray-300 bg-white text-gray-600 cursor-pointer">
                 취소
               </button>
               <button onClick={() => {
-                const isResubmit = docs.find(d => d.docType === activeDoc)?.status === 'REJECTED'
-                handleSign(activeDoc, isResubmit ?? false)
+                const doc = docs.find(d => d.docType === activeDoc)
+                const isResubmit = doc?.status === 'REJECTED' || doc?.status === 'EXPIRED'
+                handleSign(activeDoc, isResubmit, signatureData ?? undefined)
               }}
-                disabled={submitting}
+                disabled={submitting || !signatureData}
                 className="flex-1 py-3.5 rounded-xl text-[14px] font-bold border-none bg-blue-500 text-white cursor-pointer disabled:bg-gray-300">
                 {submitting ? '처리 중...' : '동의 및 제출'}
               </button>
