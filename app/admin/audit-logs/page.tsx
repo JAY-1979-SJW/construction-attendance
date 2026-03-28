@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -81,9 +81,14 @@ export default function AuditLogsPage() {
     if (actorUserId.trim()) params.set('actorUserId', actorUserId.trim())
     if (targetType) params.set('targetType', targetType)
     fetch(`/api/admin/audit-logs?${params}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (r.status === 401) { router.push('/admin/login'); return null }
+        if (r.status === 403) { router.push('/admin'); return null }
+        return r.json()
+      })
       .then((data) => {
-        if (!data.success) { router.push('/admin/login'); return }
+        if (!data) return
+        if (!data.success) { router.push('/admin'); return }
         setItems(data.data.items)
         setTotal(data.data.total)
         setLoading(false)
@@ -110,7 +115,7 @@ export default function AuditLogsPage() {
         </p>
 
         {/* 필터 */}
-        <div className="bg-white rounded-[12px] p-5 mb-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-card rounded-[12px] p-5 mb-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           <div className="flex gap-3 items-end flex-wrap">
             <div className="flex flex-col gap-1">
               <label className="text-[12px] text-muted-brand">시작일</label>
@@ -147,7 +152,7 @@ export default function AuditLogsPage() {
               />
             </div>
             <button onClick={() => load(1)}
-              className="px-5 py-2 bg-[#F47920] text-white border-none rounded-md cursor-pointer text-[14px]">
+              className="px-5 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[14px]">
               조회
             </button>
           </div>
@@ -170,12 +175,12 @@ export default function AuditLogsPage() {
         </div>
 
         {loading ? <p className="text-muted-brand">로딩 중...</p> : (
-          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden overflow-x-auto">
+          <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {['시각', '행위자', '유형', '액션', '대상', '내용'].map((h) => (
-                    <th key={h} className="text-left px-[14px] py-3 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap bg-[#fafafa]">{h}</th>
+                    <th key={h} className="text-left px-[14px] py-3 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap bg-surface">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -211,7 +216,7 @@ export default function AuditLogsPage() {
                       </td>
                       <td className="px-[14px] py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                         {item.targetType && (
-                          <span className="text-[11px] text-muted-brand bg-[#f0f0f0] px-1.5 py-0.5 rounded-md">
+                          <span className="text-[11px] text-muted-brand bg-footer px-1.5 py-0.5 rounded-md">
                             {item.targetType}
                           </span>
                         )}
@@ -225,11 +230,11 @@ export default function AuditLogsPage() {
                         )}
                       </td>
                       <td className="px-[14px] py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[320px]">
-                        <span className="text-[13px] text-[#CBD5E0]">{item.summary}</span>
+                        <span className="text-[13px] text-dim-brand">{item.summary}</span>
                       </td>
                     </tr>
                     {expanded === item.id && (
-                      <tr key={`${item.id}-detail`} className="bg-[#fafafa]">
+                      <tr key={`${item.id}-detail`} className="bg-surface">
                         <td colSpan={6} className="px-4 py-3 border-b-2 border-[#e3f2fd]">
                           <div className="flex gap-6 flex-wrap">
                             <div>
@@ -322,4 +327,4 @@ function ActionTypeBadge({ actionType }: { actionType: string }) {
 
 /* ── 스타일 상수 ─────────────────────────────────────────── */
 const detailLabelCls = 'text-[10px] text-[#aaa] font-semibold uppercase mb-0.5'
-const detailValueCls = 'text-[12px] text-[#CBD5E0] font-mono'
+const detailValueCls = 'text-[12px] text-dim-brand font-mono'
