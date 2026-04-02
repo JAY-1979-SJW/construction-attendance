@@ -828,6 +828,8 @@ model Site {
   documentPolicies           SiteDocumentPolicy[]
   // 작업지시문
   workOrders                 WorkOrder[]
+  // 출퇴근 사진 증빙
+  attendancePhotoEvidences   AttendancePhotoEvidence[]
 
   @@map("sites")
 }
@@ -921,6 +923,7 @@ model SiteCompanyAssignment {
 
   @@index([siteId])
   @@index([companyId])
+  @@index([participationStatus])
   @@map("site_company_assignments")
 }
 
@@ -2019,10 +2022,11 @@ model CorrectionLog {
   afterJson   Json?
   reason      String?
   actedBy     String?
-  actedAt     DateTime             @default(now())
+  actedAt     DateTime             @default(now()) @db.Timestamptz
 
   @@index([domainType, domainId])
   @@index([actedAt])
+  @@index([actedBy])
   @@map("correction_logs")
 }
 
@@ -2354,6 +2358,7 @@ model AttendancePhotoEvidence {
   uploadedAt      DateTime            @default(now())
 
   worker Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Restrict)
 
   @@index([workerId])
   @@index([attendanceLogId])
