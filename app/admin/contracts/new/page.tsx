@@ -234,6 +234,10 @@ function NewContractPage() {
   const [siteCreating, setSiteCreating] = useState(false)
   const [siteCreateResult, setSiteCreateResult] = useState<'created' | 'failed' | ''>('')
   const [siteCreateFailReason, setSiteCreateFailReason] = useState('')
+  const [pdfFileName, setPdfFileName] = useState('')
+  const [autoMatchResult, setAutoMatchResult] = useState<'matched' | 'not_matched' | ''>('')
+  const [autoMatchSiteId, setAutoMatchSiteId] = useState('')
+  const [autoCreateAttempted, setAutoCreateAttempted] = useState(false)
 
   // 현장 검색 + 인라인 생성
   const [siteSearch, setSiteSearch] = useState('')
@@ -261,6 +265,10 @@ function NewContractPage() {
     }
 
     setPdfParsing(true)
+    setPdfFileName(file.name)
+    setAutoMatchResult('')
+    setAutoMatchSiteId('')
+    setAutoCreateAttempted(false)
     try {
       const fd = new FormData()
       fd.append('file', file)
@@ -406,12 +414,17 @@ function NewContractPage() {
         updates.siteId = matched.id
         updates.siteAddress = matched.address || siteAddr
         filled.push('siteId')
+        setAutoMatchResult('matched')
+        setAutoMatchSiteId(matched.id)
       } else if (siteAddr) {
         // 유사 현장도 없음 + 주소 있음 → 자동 현장 개설
         updates.siteAddress = siteAddr
         updates.projectName = siteName
+        setAutoMatchResult('not_matched')
+        setAutoCreateAttempted(true)
         autoCreateSite(siteName, siteAddr)
       } else {
+        setAutoMatchResult('not_matched')
         updates.siteAddress = siteAddr
         updates.projectName = siteName
       }
@@ -806,6 +819,23 @@ function NewContractPage() {
       probationYn:          form.probationYn,
       probationMonths:      parseInt(form.probationMonths) || null,
       annualLeaveRule:      form.annualLeaveRule || null,
+      // PDF 파싱 컨텍스트 (로그 전용)
+      ...(pdfParsed ? {
+        pdfParseContext: {
+          fileName:             pdfFileName || null,
+          method:               pdfMethod || null,
+          siteName:             pdfParsed.siteName ?? null,
+          siteAddress:          pdfParsed.siteAddress ?? null,
+          startDate:            pdfParsed.startDate ?? null,
+          endDate:              pdfParsed.endDate ?? null,
+          confidence:           pdfParsed.confidence ?? null,
+          autoMatchResult:      autoMatchResult || null,
+          autoMatchSiteId:      autoMatchSiteId || null,
+          autoCreateAttempted,
+          autoCreateResult:     siteCreateResult || null,
+          autoCreateFailReason: siteCreateFailReason || null,
+        },
+      } : {}),
     }
 
     const res  = await fetch('/api/admin/contracts', {

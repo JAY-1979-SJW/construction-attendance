@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, requireRole } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog, writeAdminAuditLog } from '@/lib/audit/write-audit-log'
 import { MUTATE_ALLOWED_ROLES } from '@/lib/policies/security-policy'
 
 // GET /api/admin/contracts
@@ -80,6 +80,8 @@ export async function POST(req: NextRequest) {
     companyBizNo, companyAddress, companyRepName,
     // 상용직 전용
     probationYn, probationMonths, annualLeaveRule,
+    // PDF 파싱 컨텍스트 (로그 전용, DB 저장 안 함)
+    pdfParseContext,
   } = body
 
   if (!workerId || !startDate || !contractKind || !contractTemplateType) {
@@ -194,10 +196,52 @@ export async function POST(req: NextRequest) {
     },
   })
 
+  // 레거시 로그 (기존 호환)
   await writeAdminAuditLog({
     adminId: session.sub, actionType: 'CONTRACT_CREATE',
     targetType: 'WorkerContract', targetId: contract.id,
     description: `계약 생성: ${contract.worker.name} / ${contractKind} / ${contractTemplateType}`,
+  })
+
+  // v2 감사 로그: 계약 생성 상세 (PDF 컨텍스트 + 현장 매칭 이력)
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? ''
+  writeAuditLog({
+    actorUserId: session.sub,
+    actorType: 'ADMIN',
+    actorRole: session.role ?? undefined,
+    actionType: 'CONTRACT_CREATE',
+    targetType: 'WorkerContract',
+    targetId: contract.id,
+    summary: `계약 생성: ${contract.worker.name} → ${contract.site?.name ?? '현장 미지정'} (${contractTemplateType})`,
+    metadataJson: {
+      workerId,
+      workerName: contract.worker.name,
+      siteId: siteId || null,
+      siteName: contract.site?.name ?? null,
+      startDate,
+      endDate: endDate || null,
+      contractKind,
+      contractTemplateType,
+      dailyWage: dailyWage || null,
+      monthlySalary: monthlySalary || null,
+      ...(pdfParseContext ? {
+        pdfParse: {
+          fileName: pdfParseContext.fileName ?? null,
+          method: pdfParseContext.method ?? null,
+          parsedSiteName: pdfParseContext.siteName ?? null,
+          parsedSiteAddress: pdfParseContext.siteAddress ?? null,
+          parsedStartDate: pdfParseContext.startDate ?? null,
+          parsedEndDate: pdfParseContext.endDate ?? null,
+          confidence: pdfParseContext.confidence ?? null,
+          autoMatchResult: pdfParseContext.autoMatchResult ?? null,
+          autoMatchSiteId: pdfParseContext.autoMatchSiteId ?? null,
+          autoCreateAttempted: pdfParseContext.autoCreateAttempted ?? false,
+          autoCreateResult: pdfParseContext.autoCreateResult ?? null,
+          autoCreateFailReason: pdfParseContext.autoCreateFailReason ?? null,
+        },
+      } : {}),
+    },
+    ipAddress: ip,
   })
 
   return NextResponse.json({ success: true, data: contract }, { status: 201 })
