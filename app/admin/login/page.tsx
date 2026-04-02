@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -80,9 +80,9 @@ export default function AdminLoginPage() {
             type="checkbox"
             checked={saveId}
             onChange={(e) => setSaveId(e.target.checked)}
-            className="w-4 h-4 accent-[#F97316] cursor-pointer"
+            className="w-4 h-4 accent-brand-accent cursor-pointer"
           />
-          <span className="text-[13px] text-[#6B7280]">아이디 저장</span>
+          <span className="text-[13px] text-muted-brand">아이디 저장</span>
         </label>
 
         <AuthPrimaryBtn onClick={handleLogin} disabled={loading}>

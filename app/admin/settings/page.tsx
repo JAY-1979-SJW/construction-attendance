@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
@@ -87,8 +87,8 @@ const CATEGORY_FIELDS: Record<CategoryKey, (keyof Settings)[]> = {
 function FSec({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-6">
-      <div className="text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF] mb-2">{title}</div>
-      <div className="border border-[#E5E7EB] rounded-[10px] overflow-hidden divide-y divide-[#F3F4F6]">
+      <div className="text-[11px] font-bold uppercase tracking-wider text-muted2-brand mb-2">{title}</div>
+      <div className="border border-brand rounded-[10px] overflow-hidden divide-y divide-brand">
         {children}
       </div>
     </div>
@@ -97,10 +97,10 @@ function FSec({ title, children }: { title: string; children: React.ReactNode })
 
 function FRow({ label, desc, children }: { label: string; desc?: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-4 px-4 py-3 bg-white">
+    <div className="flex items-center justify-between gap-4 px-4 py-3 bg-card">
       <div className="flex-1 min-w-0">
-        <div className="text-[13px] font-medium text-[#0F172A]">{label}</div>
-        {desc && <div className="text-[11px] text-[#9CA3AF] mt-[1px] leading-[1.5]">{desc}</div>}
+        <div className="text-[13px] font-medium text-title-brand">{label}</div>
+        {desc && <div className="text-[11px] text-muted2-brand mt-[1px] leading-[1.5]">{desc}</div>}
       </div>
       <div className="shrink-0">{children}</div>
     </div>
@@ -109,8 +109,8 @@ function FRow({ label, desc, children }: { label: string; desc?: string; childre
 
 function FNote({ children }: { children: React.ReactNode }) {
   return (
-    <div className="px-4 py-2.5 bg-[#FFFBF5] border-t border-[#F3F4F6]">
-      <div className="text-[12px] text-[#D97706] leading-[1.7]">{children}</div>
+    <div className="px-4 py-2.5 bg-accent-light border-t border-brand">
+      <div className="text-[12px] text-status-exception leading-[1.7]">{children}</div>
     </div>
   )
 }
@@ -152,7 +152,7 @@ function TimeInput({ value, disabled, onChange }: {
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
-      className="px-3 py-[5px] text-[13px] font-semibold border border-[#E5E7EB] rounded-[8px] text-[#0F172A] bg-white outline-none focus:border-[#F97316] disabled:opacity-50"
+      className="px-3 py-[5px] text-[13px] font-semibold border border-brand rounded-[8px] text-title-brand bg-card outline-none focus:border-accent disabled:opacity-50"
     />
   )
 }
@@ -169,9 +169,9 @@ function NumInput({ value, min, max, unit, disabled, onChange }: {
         min={min} max={max}
         disabled={disabled}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-[72px] px-2 py-[5px] text-[13px] font-semibold border border-[#E5E7EB] rounded-[8px] text-center text-[#0F172A] bg-white outline-none focus:border-[#F97316] disabled:opacity-50"
+        className="w-[72px] px-2 py-[5px] text-[13px] font-semibold border border-brand rounded-[8px] text-center text-title-brand bg-card outline-none focus:border-accent disabled:opacity-50"
       />
-      {unit && <span className="text-[12px] text-[#9CA3AF]">{unit}</span>}
+      {unit && <span className="text-[12px] text-muted2-brand">{unit}</span>}
     </div>
   )
 }
@@ -188,7 +188,7 @@ function TextInput({ value, placeholder, maxLength, disabled, onChange }: {
       maxLength={maxLength}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
-      className="w-[200px] px-3 py-[5px] text-[13px] border border-[#E5E7EB] rounded-[8px] text-[#0F172A] bg-white outline-none focus:border-[#F97316] disabled:opacity-50"
+      className="w-[200px] px-3 py-[5px] text-[13px] border border-brand rounded-[8px] text-title-brand bg-card outline-none focus:border-accent disabled:opacity-50"
     />
   )
 }
@@ -204,7 +204,7 @@ function SelectInput({ value, options, disabled, onChange }: {
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
-      className="px-3 py-[5px] text-[13px] border border-[#E5E7EB] rounded-[8px] text-[#0F172A] bg-white outline-none focus:border-[#F97316] disabled:opacity-50"
+      className="px-3 py-[5px] text-[13px] border border-brand rounded-[8px] text-title-brand bg-card outline-none focus:border-accent disabled:opacity-50"
     >
       {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
@@ -236,13 +236,13 @@ function AttendanceForm({ form, canMutate, update }: {
       <FSec title="판정 기준">
         <FRow label="지각 판정 기준" desc={`출근 기준시간(${form.checkInStart}) + N분 초과 시 지각`}>
           <div className="flex items-center gap-1.5">
-            <span className="text-[12px] text-[#9CA3AF]">기준시간 +</span>
+            <span className="text-[12px] text-muted2-brand">기준시간 +</span>
             <NumInput value={form.tardyMinutes} min={0} max={120} unit="분" disabled={!canMutate} onChange={(v) => update({ tardyMinutes: v })} />
           </div>
         </FRow>
         <FRow label="조기퇴근 판정 기준" desc={`퇴근 기준시간(${form.checkOutEnd}) - N분 전 퇴근 시 조기퇴근`}>
           <div className="flex items-center gap-1.5">
-            <span className="text-[12px] text-[#9CA3AF]">기준시간 -</span>
+            <span className="text-[12px] text-muted2-brand">기준시간 -</span>
             <NumInput value={form.earlyLeaveMinutes} min={0} max={120} unit="분" disabled={!canMutate} onChange={(v) => update({ earlyLeaveMinutes: v })} />
           </div>
         </FRow>
@@ -256,8 +256,8 @@ function AttendanceForm({ form, canMutate, update }: {
 
       <FSec title={`중간 체류 확인${isPro ? '' : ' (유료 전용)'}`}>
         {!isPro ? (
-          <div className="px-4 py-5 bg-[#F9FAFB] text-center">
-            <div className="text-[13px] text-[#9CA3AF]">유료 플랜에서만 사용 가능한 기능입니다.</div>
+          <div className="px-4 py-5 bg-surface text-center">
+            <div className="text-[13px] text-muted2-brand">유료 플랜에서만 사용 가능한 기능입니다.</div>
           </div>
         ) : (
           <>
@@ -273,7 +273,7 @@ function AttendanceForm({ form, canMutate, update }: {
                   <FRow label="오전 시간대" desc="오전 체류 확인 랜덤 발생 구간">
                     <div className="flex items-center gap-1.5">
                       <TimeInput value={form.presenceCheckAmStart} disabled={!canMutate} onChange={(v) => update({ presenceCheckAmStart: v })} />
-                      <span className="text-[12px] text-[#9CA3AF]">~</span>
+                      <span className="text-[12px] text-muted2-brand">~</span>
                       <TimeInput value={form.presenceCheckAmEnd} disabled={!canMutate} onChange={(v) => update({ presenceCheckAmEnd: v })} />
                     </div>
                   </FRow>
@@ -285,7 +285,7 @@ function AttendanceForm({ form, canMutate, update }: {
                   <FRow label="오후 시간대" desc="오후 체류 확인 랜덤 발생 구간">
                     <div className="flex items-center gap-1.5">
                       <TimeInput value={form.presenceCheckPmStart} disabled={!canMutate} onChange={(v) => update({ presenceCheckPmStart: v })} />
-                      <span className="text-[12px] text-[#9CA3AF]">~</span>
+                      <span className="text-[12px] text-muted2-brand">~</span>
                       <TimeInput value={form.presenceCheckPmEnd} disabled={!canMutate} onChange={(v) => update({ presenceCheckPmEnd: v })} />
                     </div>
                   </FRow>
@@ -364,7 +364,7 @@ function WageForm({ form, canMutate, update }: {
       </FSec>
 
       <div className="px-1 mt-1">
-        <div className="text-[12px] text-[#9CA3AF] leading-[1.7]">
+        <div className="text-[12px] text-muted2-brand leading-[1.7]">
           · 노임 기준 단가(일당)는 근로자별 계약 정보에서 별도 관리합니다.<br />
           · 이 화면에서는 계산 방식과 누계 표시 여부만 설정합니다.
         </div>
@@ -464,7 +464,7 @@ function DeviceForm({ form, canMutate, update }: {
             value={form.deviceApprovalMode}
             disabled={!canMutate}
             onChange={(e) => update({ deviceApprovalMode: e.target.value })}
-            className="px-3 py-2 border border-[#d1d5db] rounded-[6px] text-[13px] bg-white"
+            className="px-3 py-2 border border-[#d1d5db] rounded-[6px] text-[13px] bg-card"
           >
             <option value="MANUAL">MANUAL — 관리자 수동 승인</option>
             <option value="AUTO_FIRST">AUTO_FIRST — 첫 기기 자동 승인</option>
@@ -583,8 +583,8 @@ export default function SettingsPage() {
 
   if (loading || !form) {
     return (
-      <div className="p-6 bg-[#F5F7FA] min-h-screen">
-        <div className="text-[13px] text-[#9CA3AF]">설정을 불러오는 중...</div>
+      <div className="p-6 bg-brand min-h-screen">
+        <div className="text-[13px] text-muted2-brand">설정을 불러오는 중...</div>
       </div>
     )
   }
@@ -592,17 +592,17 @@ export default function SettingsPage() {
   const activeCat = CATEGORIES.find((c) => c.key === activeCategory)!
 
   return (
-    <div className="bg-[#F5F7FA] min-h-screen flex flex-col">
+    <div className="bg-brand min-h-screen flex flex-col">
       {/* ── 상단 헤더 ── */}
-      <div className="bg-white border-b border-[#E5E7EB] px-6 py-[14px] flex items-center justify-between gap-4 sticky top-0 z-10">
+      <div className="bg-card border-b border-brand px-6 py-[14px] flex items-center justify-between gap-4 sticky top-0 z-10">
         <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="text-[17px] font-bold text-[#0F172A]">설정</h1>
+          <h1 className="text-[17px] font-bold text-title-brand">설정</h1>
           {isDirty && (
-            <span className="px-2 py-[2px] bg-[#FFF7ED] border border-[#FED7AA] rounded-[6px] text-[11px] font-semibold text-[#EA580C]">
+            <span className="px-2 py-[2px] bg-accent-light border border-accent-light rounded-[6px] text-[11px] font-semibold text-accent-hover">
               ● 변경사항 있음
             </span>
           )}
-          <span className="text-[12px] text-[#9CA3AF]">
+          <span className="text-[12px] text-muted2-brand">
             마지막 저장: {fmtDate(settings?.updatedAt ?? null)}
           </span>
         </div>
@@ -610,7 +610,7 @@ export default function SettingsPage() {
           {isDirty && (
             <button
               onClick={handleRevert}
-              className="px-3 py-[6px] border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#6B7280] hover:bg-[#F9FAFB] cursor-pointer bg-white transition-colors"
+              className="px-3 py-[6px] border border-brand rounded-[8px] text-[13px] text-muted-brand hover:bg-surface cursor-pointer bg-card transition-colors"
             >
               되돌리기
             </button>
@@ -632,7 +632,7 @@ export default function SettingsPage() {
       {/* ── 메인 레이아웃 ── */}
       <div className="flex flex-1">
         {/* 좌측 카테고리 목록 */}
-        <div className="w-[200px] shrink-0 bg-white border-r border-[#E5E7EB] py-3">
+        <div className="w-[200px] shrink-0 bg-card border-r border-brand py-3">
           {CATEGORIES.map((cat) => {
             const active = activeCategory === cat.key
             const hasDirty = dirtyMap[cat.key] && !active
@@ -654,7 +654,7 @@ export default function SettingsPage() {
                     {cat.label}
                   </span>
                   {hasDirty && (
-                    <span className="w-[6px] h-[6px] rounded-full bg-[#F97316] shrink-0" />
+                    <span className="w-[6px] h-[6px] rounded-full bg-brand-accent shrink-0" />
                   )}
                 </div>
                 <div
@@ -675,8 +675,8 @@ export default function SettingsPage() {
             <div
               className={`mb-4 px-4 py-3 rounded-[8px] text-[13px] border ${
                 msg.type === 'success'
-                  ? 'bg-[#ECFDF5] border-[#A7F3D0] text-[#065F46]'
-                  : 'bg-[#FEF2F2] border-[#FECACA] text-[#991B1B]'
+                  ? 'bg-green-light border-[#A7F3D0] text-status-approved'
+                  : 'bg-red-light border-[#FECACA] text-status-rejected'
               }`}
             >
               {msg.text}
@@ -685,8 +685,8 @@ export default function SettingsPage() {
 
           {/* 카테고리 제목 */}
           <div className="mb-5">
-            <h2 className="text-[15px] font-bold text-[#0F172A]">{activeCat.label}</h2>
-            <div className="text-[12px] text-[#9CA3AF] mt-[2px]">{activeCat.subLabel}</div>
+            <h2 className="text-[15px] font-bold text-title-brand">{activeCat.label}</h2>
+            <div className="text-[12px] text-muted2-brand mt-[2px]">{activeCat.subLabel}</div>
           </div>
 
           {/* 카테고리별 폼 렌더링 */}
@@ -711,8 +711,8 @@ export default function SettingsPage() {
 
           {/* VIEWER 안내 */}
           {!canMutate && (
-            <div className="mt-4 px-4 py-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-[8px]">
-              <div className="text-[12px] text-[#9CA3AF]">조회 전용 계정입니다. 설정을 변경하려면 관리자 권한이 필요합니다.</div>
+            <div className="mt-4 px-4 py-3 bg-surface border border-brand rounded-[8px]">
+              <div className="text-[12px] text-muted2-brand">조회 전용 계정입니다. 설정을 변경하려면 관리자 권한이 필요합니다.</div>
             </div>
           )}
         </div>
