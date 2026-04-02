@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -365,91 +366,158 @@ export default function PresenceChecksPage() {
           </div>
           {loading ? (
             <div className="text-center py-8 text-[#718096] text-[14px]">로딩 중...</div>
-          ) : items.length === 0 ? (
-            <div className="text-center py-8 text-[#718096] text-[14px]">해당 조건에 맞는 기록이 없습니다.</div>
           ) : (
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    {['이름', '현장', '구분', '예약', '만료', '응답', '거리(m)', 'GPS(m)', '상태', '메모'].map((h) => (
-                      <th key={h} className="text-left px-[10px] py-[9px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...items].sort((a, b) => URGENCY_ORDER(a.status) - URGENCY_ORDER(b.status)).map((item) => (
-                    <tr
-                      key={item.id}
-                      onClick={() => openDetail(item.id)}
-                      style={{
-                        background:   ROW_BG[item.status] ?? undefined,
-                        cursor:       'pointer',
-                        outline:      selected?.id === item.id ? '2px solid #1976d2' : undefined,
-                        transition:   'background 0.1s',
-                      }}
-                    >
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
-                        <div className="font-semibold">{item.workerName}</div>
-                        <div className="text-[11px] text-[#999]">{item.workerCompany}</div>
-                      </td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{item.siteName}</td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
-                        <span style={{
-                          padding: '2px 7px',
-                          borderRadius: '10px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          background: item.slot === 'AM' ? '#e3f2fd' : '#fff3e0',
-                          color:      item.slot === 'AM' ? '#1565c0' : '#e65100',
-                        }}>
-                          {item.slot === 'AM' ? '오전' : '오후'}
-                        </span>
-                      </td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{fmt(item.scheduledAt)}</td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{fmt(item.expiresAt)}</td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{fmt(item.respondedAt)}</td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-right">
-                        {item.distanceMeters != null ? (
+            <MobileCardList
+              items={[...items].sort((a, b) => URGENCY_ORDER(a.status) - URGENCY_ORDER(b.status))}
+              keyExtractor={(item) => item.id}
+              emptyMessage="해당 조건에 맞는 기록이 없습니다."
+              renderCard={(item) => (
+                <MobileCard
+                  title={<>{item.workerName} <span className="text-[11px] text-[#999] font-normal">{item.workerCompany}</span></>}
+                  subtitle={`${item.siteName} · ${item.slot === 'AM' ? '오전' : '오후'}`}
+                  badge={
+                    <span style={{
+                      padding: '3px 9px',
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      background: (STATUS_COLOR[item.status] ?? '#333') + '22',
+                      color: STATUS_COLOR[item.status] ?? '#333',
+                      border: `1px solid ${STATUS_COLOR[item.status] ?? '#ccc'}`,
+                    }}>
+                      {STATUS_LABEL[item.status] ?? item.status}
+                    </span>
+                  }
+                  onClick={() => openDetail(item.id)}
+                  style={{
+                    background: ROW_BG[item.status] ?? undefined,
+                    outline: selected?.id === item.id ? '2px solid #1976d2' : undefined,
+                  }}
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="예약" value={fmt(item.scheduledAt)} />
+                    <MobileCardField label="응답" value={fmt(item.respondedAt)} />
+                    {item.distanceMeters != null && (
+                      <MobileCardField
+                        label="거리"
+                        value={
                           <span style={{ color: item.distanceMeters > 100 ? '#b71c1c' : undefined }}>
-                            {Math.round(item.distanceMeters)}
+                            {Math.round(item.distanceMeters)}m
                           </span>
-                        ) : '-'}
-                      </td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-right">
-                        {item.accuracyMeters != null ? (
+                        }
+                      />
+                    )}
+                    {item.accuracyMeters != null && (
+                      <MobileCardField
+                        label="GPS 정확도"
+                        value={
                           <span style={{ color: item.accuracyMeters >= 80 ? '#e65100' : undefined }}>
-                            {item.accuracyMeters >= 80 && '⚠ '}{Math.round(item.accuracyMeters)}
+                            {item.accuracyMeters >= 80 && '⚠ '}{Math.round(item.accuracyMeters)}m
                           </span>
-                        ) : '-'}
-                      </td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
-                        <span style={{ color: STATUS_COLOR[item.status] ?? '#333', fontWeight: 600, fontSize: '13px' }}>
-                          {STATUS_LABEL[item.status] ?? item.status}
-                        </span>
+                        }
+                      />
+                    )}
+                    {(item.reissueCount > 0 || item.adminNote || (item.needsReview && item.status === 'REVIEW_REQUIRED')) && (
+                      <div className="flex gap-1 mt-1 flex-wrap">
                         {item.reissueCount > 0 && (
-                          <span className="inline-block ml-1 bg-[#e8eaf6] text-[#3949ab] text-[11px] px-1.5 py-[1px] rounded-lg">
-                            재{item.reissueCount}
-                          </span>
+                          <span className="bg-[#e8eaf6] text-[#3949ab] text-[11px] px-1.5 py-[1px] rounded-lg">재{item.reissueCount}</span>
                         )}
-                      </td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
                         {item.adminNote && (
-                          <span className="inline-block mr-1 bg-[rgba(244,121,32,0.12)] text-accent text-[11px] px-1.5 py-[1px] rounded-lg">
-                            메모
-                          </span>
+                          <span className="bg-[rgba(244,121,32,0.12)] text-accent text-[11px] px-1.5 py-[1px] rounded-lg">메모</span>
                         )}
                         {item.needsReview && item.status === 'REVIEW_REQUIRED' && (
-                          <span className="inline-block bg-[#fce4ec] text-[#c62828] text-[11px] px-1.5 py-[1px] rounded-lg font-semibold">
-                            검토
-                          </span>
+                          <span className="bg-[#fce4ec] text-[#c62828] text-[11px] px-1.5 py-[1px] rounded-lg font-semibold">검토</span>
                         )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+                    )}
+                  </MobileCardFields>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        {['이름', '현장', '구분', '예약', '만료', '응답', '거리(m)', 'GPS(m)', '상태', '메모'].map((h) => (
+                          <th key={h} className="text-left px-[10px] py-[9px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...items].sort((a, b) => URGENCY_ORDER(a.status) - URGENCY_ORDER(b.status)).map((item) => (
+                        <tr
+                          key={item.id}
+                          onClick={() => openDetail(item.id)}
+                          style={{
+                            background:   ROW_BG[item.status] ?? undefined,
+                            cursor:       'pointer',
+                            outline:      selected?.id === item.id ? '2px solid #1976d2' : undefined,
+                            transition:   'background 0.1s',
+                          }}
+                        >
+                          <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
+                            <div className="font-semibold">{item.workerName}</div>
+                            <div className="text-[11px] text-[#999]">{item.workerCompany}</div>
+                          </td>
+                          <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{item.siteName}</td>
+                          <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
+                            <span style={{
+                              padding: '2px 7px',
+                              borderRadius: '10px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              background: item.slot === 'AM' ? '#e3f2fd' : '#fff3e0',
+                              color:      item.slot === 'AM' ? '#1565c0' : '#e65100',
+                            }}>
+                              {item.slot === 'AM' ? '오전' : '오후'}
+                            </span>
+                          </td>
+                          <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{fmt(item.scheduledAt)}</td>
+                          <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{fmt(item.expiresAt)}</td>
+                          <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{fmt(item.respondedAt)}</td>
+                          <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-right">
+                            {item.distanceMeters != null ? (
+                              <span style={{ color: item.distanceMeters > 100 ? '#b71c1c' : undefined }}>
+                                {Math.round(item.distanceMeters)}
+                              </span>
+                            ) : '-'}
+                          </td>
+                          <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-right">
+                            {item.accuracyMeters != null ? (
+                              <span style={{ color: item.accuracyMeters >= 80 ? '#e65100' : undefined }}>
+                                {item.accuracyMeters >= 80 && '⚠ '}{Math.round(item.accuracyMeters)}
+                              </span>
+                            ) : '-'}
+                          </td>
+                          <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
+                            <span style={{ color: STATUS_COLOR[item.status] ?? '#333', fontWeight: 600, fontSize: '13px' }}>
+                              {STATUS_LABEL[item.status] ?? item.status}
+                            </span>
+                            {item.reissueCount > 0 && (
+                              <span className="inline-block ml-1 bg-[#e8eaf6] text-[#3949ab] text-[11px] px-1.5 py-[1px] rounded-lg">
+                                재{item.reissueCount}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
+                            {item.adminNote && (
+                              <span className="inline-block mr-1 bg-[rgba(244,121,32,0.12)] text-accent text-[11px] px-1.5 py-[1px] rounded-lg">
+                                메모
+                              </span>
+                            )}
+                            {item.needsReview && item.status === 'REVIEW_REQUIRED' && (
+                              <span className="inline-block bg-[#fce4ec] text-[#c62828] text-[11px] px-1.5 py-[1px] rounded-lg font-semibold">
+                                검토
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            />
           )}
         </div>
       </div>

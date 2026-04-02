@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface PolicyDoc {
   id: string
@@ -173,52 +174,85 @@ export default function PoliciesPage() {
             {grouped.map(group => (
               <div key={group.type} className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
                 <h2 className="text-[16px] font-bold mt-0 mb-4 border-b-2 border-brand pb-2">{group.label}</h2>
-                {group.docs.length === 0 ? (
-                  <p className="text-[#718096] text-[14px]">등록된 문서가 없습니다.</p>
-                ) : (
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr>
-                        {['버전', '제목', '시행일', '종료일', '상태', '필수', '동의자수', ''].map(h => (
-                          <th key={h} className="text-left px-3 py-2 text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {group.docs.map(doc => (
-                        <>
-                          <tr key={doc.id} className={doc.isActive ? 'bg-[#f0fdf4]' : 'bg-white'}>
-                            <td className="px-3 py-[10px] text-[14px] border-b border-brand"><span className="font-bold font-mono">v{doc.version}</span></td>
-                            <td className="px-3 py-[10px] text-[14px] border-b border-brand">{doc.title}</td>
-                            <td className="px-3 py-[10px] text-[14px] border-b border-brand">{fmt(doc.effectiveFrom)}</td>
-                            <td className="px-3 py-[10px] text-[14px] border-b border-brand">{doc.effectiveTo ? fmt(doc.effectiveTo) : '-'}</td>
-                            <td className="px-3 py-[10px] text-[14px] border-b border-brand">
-                              {doc.isActive ? (
-                                <span className="text-[11px] bg-green-light text-[#2e7d32] px-2 py-[2px] rounded-[10px] font-bold">현행</span>
-                              ) : (
-                                <span className="text-[11px] bg-brand text-muted-brand px-2 py-[2px] rounded-[10px]">구버전</span>
-                              )}
-                            </td>
-                            <td className="px-3 py-[10px] text-[14px] border-b border-brand">{doc.isRequired ? '필수' : '선택'}</td>
-                            <td className="px-3 py-[10px] text-[14px] border-b border-brand">{doc._count.consents}명</td>
-                            <td className="px-3 py-[10px] text-[14px] border-b border-brand">
-                              <button onClick={() => toggleContent(doc)} className="px-[10px] py-1 border border-[rgba(91,164,217,0.3)] rounded bg-card cursor-pointer text-[12px]">
-                                {expandedId === doc.id ? '닫기' : '내용 보기'}
-                              </button>
-                            </td>
+                <MobileCardList
+                  items={group.docs}
+                  emptyMessage="등록된 문서가 없습니다."
+                  keyExtractor={(doc) => doc.id}
+                  renderCard={(doc) => (
+                    <MobileCard
+                      title={doc.title}
+                      subtitle={`v${doc.version}`}
+                      badge={
+                        doc.isActive
+                          ? <span className="text-[11px] bg-green-light text-[#2e7d32] px-2 py-[2px] rounded-[10px] font-bold">현행</span>
+                          : <span className="text-[11px] bg-brand text-muted-brand px-2 py-[2px] rounded-[10px]">구버전</span>
+                      }
+                    >
+                      <MobileCardFields>
+                        <MobileCardField label="시행일" value={fmt(doc.effectiveFrom)} />
+                        <MobileCardField label="종료일" value={doc.effectiveTo ? fmt(doc.effectiveTo) : '-'} />
+                        <MobileCardField label="필수" value={doc.isRequired ? '필수' : '선택'} />
+                        <MobileCardField label="동의자수" value={`${doc._count.consents}명`} />
+                      </MobileCardFields>
+                      <MobileCardActions>
+                        <button onClick={() => toggleContent(doc)} className="px-[10px] py-1 border border-[rgba(91,164,217,0.3)] rounded bg-card cursor-pointer text-[12px]">
+                          {expandedId === doc.id ? '닫기' : '내용 보기'}
+                        </button>
+                      </MobileCardActions>
+                      {expandedId === doc.id && (
+                        <div className="mt-3 px-4 py-4 bg-surface border border-brand rounded">
+                          <pre className="text-[12px] whitespace-pre-wrap text-[#444] m-0">{expandedContent}</pre>
+                        </div>
+                      )}
+                    </MobileCard>
+                  )}
+                  renderTable={() => (
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr>
+                            {['버전', '제목', '시행일', '종료일', '상태', '필수', '동의자수', ''].map(h => (
+                              <th key={h} className="text-left px-3 py-2 text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
+                            ))}
                           </tr>
-                          {expandedId === doc.id && (
-                            <tr key={`${doc.id}_content`}>
-                              <td colSpan={8} className="px-4 py-4 bg-surface border-b border-brand">
-                                <pre className="text-[12px] whitespace-pre-wrap text-[#444] m-0">{expandedContent}</pre>
-                              </td>
-                            </tr>
-                          )}
-                        </>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
+                        </thead>
+                        <tbody>
+                          {group.docs.map(doc => (
+                            <>
+                              <tr key={doc.id} className={doc.isActive ? 'bg-[#f0fdf4]' : 'bg-white'}>
+                                <td className="px-3 py-[10px] text-[14px] border-b border-brand"><span className="font-bold font-mono">v{doc.version}</span></td>
+                                <td className="px-3 py-[10px] text-[14px] border-b border-brand">{doc.title}</td>
+                                <td className="px-3 py-[10px] text-[14px] border-b border-brand">{fmt(doc.effectiveFrom)}</td>
+                                <td className="px-3 py-[10px] text-[14px] border-b border-brand">{doc.effectiveTo ? fmt(doc.effectiveTo) : '-'}</td>
+                                <td className="px-3 py-[10px] text-[14px] border-b border-brand">
+                                  {doc.isActive ? (
+                                    <span className="text-[11px] bg-green-light text-[#2e7d32] px-2 py-[2px] rounded-[10px] font-bold">현행</span>
+                                  ) : (
+                                    <span className="text-[11px] bg-brand text-muted-brand px-2 py-[2px] rounded-[10px]">구버전</span>
+                                  )}
+                                </td>
+                                <td className="px-3 py-[10px] text-[14px] border-b border-brand">{doc.isRequired ? '필수' : '선택'}</td>
+                                <td className="px-3 py-[10px] text-[14px] border-b border-brand">{doc._count.consents}명</td>
+                                <td className="px-3 py-[10px] text-[14px] border-b border-brand">
+                                  <button onClick={() => toggleContent(doc)} className="px-[10px] py-1 border border-[rgba(91,164,217,0.3)] rounded bg-card cursor-pointer text-[12px]">
+                                    {expandedId === doc.id ? '닫기' : '내용 보기'}
+                                  </button>
+                                </td>
+                              </tr>
+                              {expandedId === doc.id && (
+                                <tr key={`${doc.id}_content`}>
+                                  <td colSpan={8} className="px-4 py-4 bg-surface border-b border-brand">
+                                    <pre className="text-[12px] whitespace-pre-wrap text-[#444] m-0">{expandedContent}</pre>
+                                  </td>
+                                </tr>
+                              )}
+                            </>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                />
               </div>
             ))}
           </div>

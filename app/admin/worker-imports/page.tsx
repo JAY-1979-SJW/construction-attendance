@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface ImportJob {
   id: string
@@ -115,57 +116,90 @@ export default function WorkerImportsPage() {
         <h2 className="font-semibold text-sm mb-3">업로드 이력</h2>
         {loading ? (
           <div className="text-center text-[#718096] text-sm py-4">로딩 중...</div>
-        ) : jobs.length === 0 ? (
-          <div className="text-center text-[#718096] text-sm py-4">업로드 이력이 없습니다.</div>
         ) : (
-          <div className="hidden sm:block overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="text-[#718096] border-b border-[rgba(91,164,217,0.1)]">
-                  <th className="text-left py-1.5 pr-2">파일명</th>
-                  <th className="text-center py-1.5 pr-2">전체</th>
-                  <th className="text-center py-1.5 pr-2">자동등록</th>
-                  <th className="text-center py-1.5 pr-2">검토</th>
-                  <th className="text-center py-1.5 pr-2">차단</th>
-                  <th className="text-center py-1.5 pr-2">실패</th>
-                  <th className="text-center py-1.5 pr-2">등록됨</th>
-                  <th className="text-left py-1.5">업로드일</th>
-                  <th className="text-left py-1.5">관리</th>
-                </tr>
-              </thead>
-              <tbody>
-                {jobs.map(job => (
-                  <tr key={job.id} className="border-b border-[rgba(91,164,217,0.05)] hover:bg-[rgba(91,164,217,0.05)]">
-                    <td className="py-1.5 pr-2 font-medium">{job.originalFilename}</td>
-                    <td className="py-1.5 pr-2 text-center">{job.totalRows}</td>
-                    <td className="py-1.5 pr-2 text-center text-green-400">{job.okRows}</td>
-                    <td className="py-1.5 pr-2 text-center text-amber-400">{job.reviewRows}</td>
-                    <td className="py-1.5 pr-2 text-center text-red-400">{job.blockRows}</td>
-                    <td className="py-1.5 pr-2 text-center text-[#718096]">{job.failedRows}</td>
-                    <td className="py-1.5 pr-2 text-center text-purple-400">{job.importedRows}</td>
-                    <td className="py-1.5 text-[#718096]">{new Date(job.createdAt).toLocaleString('ko-KR')}</td>
-                    <td className="py-1.5">
-                      {(job.reviewRows + job.blockRows) > 0 ? (
-                        <Link
-                          href={`/admin/worker-imports/${job.id}`}
-                          className="text-teal-400 hover:underline"
-                        >
-                          검수
-                        </Link>
-                      ) : (
-                        <Link
-                          href={`/admin/worker-imports/${job.id}`}
-                          className="text-[#718096] hover:underline"
-                        >
-                          상세
-                        </Link>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <MobileCardList
+            items={jobs}
+            keyExtractor={(job) => job.id}
+            emptyMessage="업로드 이력이 없습니다."
+            renderCard={(job) => (
+              <MobileCard
+                title={job.originalFilename}
+                subtitle={new Date(job.createdAt).toLocaleString('ko-KR')}
+                badge={
+                  (job.reviewRows + job.blockRows) > 0
+                    ? <span className="text-[11px] font-semibold text-amber-400 bg-amber-900/20 px-2 py-0.5 rounded-full">검수필요</span>
+                    : <span className="text-[11px] font-semibold text-green-400 bg-green-900/20 px-2 py-0.5 rounded-full">완료</span>
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField label="전체" value={job.totalRows} />
+                  <MobileCardField label="자동등록" value={<span className="text-green-400">{job.okRows}</span>} />
+                  {job.reviewRows > 0 && <MobileCardField label="검토" value={<span className="text-amber-400">{job.reviewRows}</span>} />}
+                  {job.blockRows > 0 && <MobileCardField label="차단" value={<span className="text-red-400">{job.blockRows}</span>} />}
+                  {job.failedRows > 0 && <MobileCardField label="실패" value={<span className="text-[#718096]">{job.failedRows}</span>} />}
+                  <MobileCardField label="등록됨" value={<span className="text-purple-400">{job.importedRows}</span>} />
+                </MobileCardFields>
+                <MobileCardActions>
+                  <Link
+                    href={`/admin/worker-imports/${job.id}`}
+                    className={(job.reviewRows + job.blockRows) > 0 ? 'text-teal-400 hover:underline text-sm font-medium' : 'text-[#718096] hover:underline text-sm'}
+                  >
+                    {(job.reviewRows + job.blockRows) > 0 ? '검수' : '상세'}
+                  </Link>
+                </MobileCardActions>
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-[#718096] border-b border-[rgba(91,164,217,0.1)]">
+                      <th className="text-left py-1.5 pr-2">파일명</th>
+                      <th className="text-center py-1.5 pr-2">전체</th>
+                      <th className="text-center py-1.5 pr-2">자동등록</th>
+                      <th className="text-center py-1.5 pr-2">검토</th>
+                      <th className="text-center py-1.5 pr-2">차단</th>
+                      <th className="text-center py-1.5 pr-2">실패</th>
+                      <th className="text-center py-1.5 pr-2">등록됨</th>
+                      <th className="text-left py-1.5">업로드일</th>
+                      <th className="text-left py-1.5">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {jobs.map(job => (
+                      <tr key={job.id} className="border-b border-[rgba(91,164,217,0.05)] hover:bg-[rgba(91,164,217,0.05)]">
+                        <td className="py-1.5 pr-2 font-medium">{job.originalFilename}</td>
+                        <td className="py-1.5 pr-2 text-center">{job.totalRows}</td>
+                        <td className="py-1.5 pr-2 text-center text-green-400">{job.okRows}</td>
+                        <td className="py-1.5 pr-2 text-center text-amber-400">{job.reviewRows}</td>
+                        <td className="py-1.5 pr-2 text-center text-red-400">{job.blockRows}</td>
+                        <td className="py-1.5 pr-2 text-center text-[#718096]">{job.failedRows}</td>
+                        <td className="py-1.5 pr-2 text-center text-purple-400">{job.importedRows}</td>
+                        <td className="py-1.5 text-[#718096]">{new Date(job.createdAt).toLocaleString('ko-KR')}</td>
+                        <td className="py-1.5">
+                          {(job.reviewRows + job.blockRows) > 0 ? (
+                            <Link
+                              href={`/admin/worker-imports/${job.id}`}
+                              className="text-teal-400 hover:underline"
+                            >
+                              검수
+                            </Link>
+                          ) : (
+                            <Link
+                              href={`/admin/worker-imports/${job.id}`}
+                              className="text-[#718096] hover:underline"
+                            >
+                              상세
+                            </Link>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          />
         )}
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface InventoryRow {
   siteId:            string | null
@@ -60,7 +61,7 @@ export default function InventoryPage() {
   }), { requestedQty: 0, orderedQty: 0, receivedQty: 0, pendingReceiveQty: 0, pendingOrderQty: 0 })
 
   return (
-    <div className="p-4 sm:p-8 overflow-x-auto">
+    <div className="p-4 sm:p-8">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-[22px] font-bold m-0">재고 현황</h1>
@@ -95,48 +96,73 @@ export default function InventoryPage() {
         </div>
 
         {/* 테이블 */}
-        <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-0">
           {loading ? (
             <div className="text-center py-12 text-muted-brand text-sm">로딩 중...</div>
-          ) : rows.length === 0 ? (
-            <div className="text-center py-12 text-muted-brand text-sm">집계 데이터가 없습니다.</div>
           ) : (
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  {['현장', '자재명', '규격', '단위', '청구량', '발주량', '입고량', '미입고잔량', '미발주잔량'].map(h => (
-                    <th key={h} className="text-left px-4 py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, i) => {
-                  const pendingReceive = Number(row.pendingReceiveQty)
-                  const pendingOrder   = Number(row.pendingOrderQty)
-                  return (
-                    <tr key={i} className="hover:bg-white/[0.02]">
-                      <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-muted-brand whitespace-nowrap">{row.siteName}</td>
-                      <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white font-medium">{row.itemName}</td>
-                      <td className="px-4 py-[10px] text-[12px] border-b border-[rgba(91,164,217,0.08)] text-muted-brand">{row.spec ?? '-'}</td>
-                      <td className="px-4 py-[10px] text-[12px] border-b border-[rgba(91,164,217,0.08)] text-muted-brand">{row.unit ?? '-'}</td>
-                      <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-secondary-brand text-right">{fmt(row.requestedQty)}</td>
-                      <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-accent text-right">{fmt(row.orderedQty)}</td>
-                      <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-[#66bb6a] text-right font-semibold">{fmt(row.receivedQty)}</td>
-                      <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-right">
-                        <span style={{ color: pendingReceive > 0 ? '#f9a825' : '#66bb6a' }}>
-                          {fmt(row.pendingReceiveQty)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-right">
-                        <span style={{ color: pendingOrder > 0 ? '#ef5350' : '#66bb6a' }}>
-                          {fmt(row.pendingOrderQty)}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+            <MobileCardList
+              items={rows}
+              emptyMessage="집계 데이터가 없습니다."
+              keyExtractor={(_, i) => String(i)}
+              renderCard={(row) => {
+                const pendingReceive = Number(row.pendingReceiveQty)
+                const pendingOrder   = Number(row.pendingOrderQty)
+                return (
+                  <MobileCard
+                    title={row.itemName}
+                    subtitle={`${row.siteName}${row.spec ? ' · ' + row.spec : ''}${row.unit ? ' · ' + row.unit : ''}`}
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="청구량" value={<span className="text-secondary-brand">{fmt(row.requestedQty)}</span>} />
+                      <MobileCardField label="발주량" value={<span className="text-accent">{fmt(row.orderedQty)}</span>} />
+                      <MobileCardField label="입고량" value={<span className="text-[#66bb6a] font-semibold">{fmt(row.receivedQty)}</span>} />
+                      <MobileCardField label="미입고잔량" value={<span style={{ color: pendingReceive > 0 ? '#f9a825' : '#66bb6a' }}>{fmt(row.pendingReceiveQty)}</span>} />
+                      <MobileCardField label="미발주잔량" value={<span style={{ color: pendingOrder > 0 ? '#ef5350' : '#66bb6a' }}>{fmt(row.pendingOrderQty)}</span>} />
+                    </MobileCardFields>
+                  </MobileCard>
+                )
+              }}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        {['현장', '자재명', '규격', '단위', '청구량', '발주량', '입고량', '미입고잔량', '미발주잔량'].map(h => (
+                          <th key={h} className="text-left px-4 py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((row, i) => {
+                        const pendingReceive = Number(row.pendingReceiveQty)
+                        const pendingOrder   = Number(row.pendingOrderQty)
+                        return (
+                          <tr key={i} className="hover:bg-white/[0.02]">
+                            <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-muted-brand whitespace-nowrap">{row.siteName}</td>
+                            <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white font-medium">{row.itemName}</td>
+                            <td className="px-4 py-[10px] text-[12px] border-b border-[rgba(91,164,217,0.08)] text-muted-brand">{row.spec ?? '-'}</td>
+                            <td className="px-4 py-[10px] text-[12px] border-b border-[rgba(91,164,217,0.08)] text-muted-brand">{row.unit ?? '-'}</td>
+                            <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-secondary-brand text-right">{fmt(row.requestedQty)}</td>
+                            <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-accent text-right">{fmt(row.orderedQty)}</td>
+                            <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-[#66bb6a] text-right font-semibold">{fmt(row.receivedQty)}</td>
+                            <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-right">
+                              <span style={{ color: pendingReceive > 0 ? '#f9a825' : '#66bb6a' }}>
+                                {fmt(row.pendingReceiveQty)}
+                              </span>
+                            </td>
+                            <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-right">
+                              <span style={{ color: pendingOrder > 0 ? '#ef5350' : '#66bb6a' }}>
+                                {fmt(row.pendingOrderQty)}
+                              </span>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            />
           )}
         </div>
     </div>

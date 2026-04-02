@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface AllocationRow {
   attendanceLogId: string
@@ -197,119 +198,227 @@ export default function LaborPage() {
         <>
           {/* ── 탭1: 투입현황 상세 ──────────────────────────── */}
           {tab === 'detail' && (
-            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 hidden sm:block overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    {['날짜', '근로자명', '소속', '직종', '출근현장', '인정현장', '이동', '출근', '퇴근', '인정시간', '상태', '보정', '자동', '집계'].map((h) => (
-                      <th key={h} className="text-left px-3 py-2.5 text-xs text-muted-brand border-b-2 border-secondary-brand/20 whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.length === 0 ? (
-                    <tr><td colSpan={14} className="text-center py-8 text-[#999]">데이터가 없습니다.</td></tr>
-                  ) : rows.map((row) => (
-                    <tr
-                      key={row.attendanceLogId}
-                      onClick={() => goToAttendance(row)}
-                      className="cursor-pointer hover:bg-[#f0f4ff]"
-                      style={{
-                        background: row.needsReview ? '#fff8f8' : row.isAdjusted ? '#faf5ff' : undefined,
-                      }}
-                    >
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.workDate}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">
-                        <span className="font-semibold text-secondary-brand underline">{row.workerName}</span>
+            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5">
+              <MobileCardList
+                items={rows}
+                keyExtractor={(row) => row.attendanceLogId}
+                emptyMessage="데이터가 없습니다."
+                renderCard={(row) => (
+                  <MobileCard
+                    title={
+                      <span className="font-semibold text-secondary-brand">
+                        {row.workerName}
                         {row.needsReview && (
                           <span className="ml-1.5 text-[11px] bg-red-light text-[#b71c1c] px-1.5 py-px rounded font-bold">처리필요</span>
                         )}
-                      </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.company}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.jobTitle}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.checkInSiteName}</td>
-                      <td className={`px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap ${row.hasMove ? 'font-semibold' : ''}`}>
-                        {row.allocatedSiteName}
-                        {row.hasMove && <span className="text-[11px] text-accent-hover ml-1">이동</span>}
-                      </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.hasMove ? '✓' : ''}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.checkInAt ?? '-'}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.checkOutAt ?? <span className="text-[#b71c1c]">미기록</span>}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap font-semibold">{formatMinutes(row.totalWorkedMinutes)}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">
-                        <span
-                          className="text-[11px] px-2 py-0.5 rounded-[10px] font-semibold"
-                          style={{
-                            color: STATUS_COLOR[row.status] ?? '#555',
-                            background: STATUS_BG[row.status] ?? '#f5f5f5',
-                          }}
-                        >
-                          {STATUS_LABEL[row.status] ?? row.status}
-                        </span>
-                      </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
-                        {row.isAdjusted && <span className="text-[#6a1b9a] text-[11px]">보정</span>}
-                      </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
-                        {row.isAutoCheckout && <span className="text-[#b71c1c] text-[11px]">AUTO</span>}
-                      </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
-                        {row.includeInLabor
-                          ? <span className="text-[#2e7d32] text-[11px]">포함</span>
-                          : row.needsReview
-                            ? <span className="text-[#b71c1c] text-[11px]">검토</span>
-                            : <span className="text-[#bbb] text-[11px]">제외</span>
+                      </span>
+                    }
+                    subtitle={`${row.workDate} · ${row.jobTitle}`}
+                    badge={
+                      <span
+                        className="text-[11px] px-2 py-0.5 rounded-[10px] font-semibold"
+                        style={{
+                          color: STATUS_COLOR[row.status] ?? '#555',
+                          background: STATUS_BG[row.status] ?? '#f5f5f5',
+                        }}
+                      >
+                        {STATUS_LABEL[row.status] ?? row.status}
+                      </span>
+                    }
+                    onClick={() => goToAttendance(row)}
+                    style={{
+                      background: row.needsReview ? '#fff8f8' : row.isAdjusted ? '#faf5ff' : undefined,
+                    }}
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="소속" value={row.company} />
+                      <MobileCardField label="출근현장" value={row.checkInSiteName} />
+                      <MobileCardField
+                        label="인정현장"
+                        value={
+                          <span className={row.hasMove ? 'font-semibold' : ''}>
+                            {row.allocatedSiteName}
+                            {row.hasMove && <span className="text-[11px] text-accent-hover ml-1">이동</span>}
+                          </span>
                         }
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      />
+                      <MobileCardField label="출근" value={row.checkInAt ?? '-'} />
+                      <MobileCardField
+                        label="퇴근"
+                        value={row.checkOutAt ?? <span className="text-[#b71c1c]">미기록</span>}
+                      />
+                      <MobileCardField label="인정시간" value={<span className="font-semibold">{formatMinutes(row.totalWorkedMinutes)}</span>} />
+                      <MobileCardField
+                        label="집계"
+                        value={
+                          row.includeInLabor
+                            ? <span className="text-[#2e7d32] text-[11px]">포함</span>
+                            : row.needsReview
+                              ? <span className="text-[#b71c1c] text-[11px]">검토</span>
+                              : <span className="text-[#bbb] text-[11px]">제외</span>
+                        }
+                      />
+                      {(row.isAdjusted || row.isAutoCheckout) && (
+                        <MobileCardField
+                          label="플래그"
+                          value={
+                            <span className="flex gap-1.5">
+                              {row.isAdjusted && <span className="text-[#6a1b9a] text-[11px]">보정</span>}
+                              {row.isAutoCheckout && <span className="text-[#b71c1c] text-[11px]">AUTO</span>}
+                            </span>
+                          }
+                        />
+                      )}
+                    </MobileCardFields>
+                  </MobileCard>
+                )}
+                renderTable={() => (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr>
+                          {['날짜', '근로자명', '소속', '직종', '출근현장', '인정현장', '이동', '출근', '퇴근', '인정시간', '상태', '보정', '자동', '집계'].map((h) => (
+                            <th key={h} className="text-left px-3 py-2.5 text-xs text-muted-brand border-b-2 border-secondary-brand/20 whitespace-nowrap">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map((row) => (
+                          <tr
+                            key={row.attendanceLogId}
+                            onClick={() => goToAttendance(row)}
+                            className="cursor-pointer hover:bg-[#f0f4ff]"
+                            style={{
+                              background: row.needsReview ? '#fff8f8' : row.isAdjusted ? '#faf5ff' : undefined,
+                            }}
+                          >
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.workDate}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">
+                              <span className="font-semibold text-secondary-brand underline">{row.workerName}</span>
+                              {row.needsReview && (
+                                <span className="ml-1.5 text-[11px] bg-red-light text-[#b71c1c] px-1.5 py-px rounded font-bold">처리필요</span>
+                              )}
+                            </td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.company}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.jobTitle}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.checkInSiteName}</td>
+                            <td className={`px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap ${row.hasMove ? 'font-semibold' : ''}`}>
+                              {row.allocatedSiteName}
+                              {row.hasMove && <span className="text-[11px] text-accent-hover ml-1">이동</span>}
+                            </td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.hasMove ? '✓' : ''}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.checkInAt ?? '-'}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.checkOutAt ?? <span className="text-[#b71c1c]">미기록</span>}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap font-semibold">{formatMinutes(row.totalWorkedMinutes)}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">
+                              <span
+                                className="text-[11px] px-2 py-0.5 rounded-[10px] font-semibold"
+                                style={{
+                                  color: STATUS_COLOR[row.status] ?? '#555',
+                                  background: STATUS_BG[row.status] ?? '#f5f5f5',
+                                }}
+                              >
+                                {STATUS_LABEL[row.status] ?? row.status}
+                              </span>
+                            </td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
+                              {row.isAdjusted && <span className="text-[#6a1b9a] text-[11px]">보정</span>}
+                            </td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
+                              {row.isAutoCheckout && <span className="text-[#b71c1c] text-[11px]">AUTO</span>}
+                            </td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
+                              {row.includeInLabor
+                                ? <span className="text-[#2e7d32] text-[11px]">포함</span>
+                                : row.needsReview
+                                  ? <span className="text-[#b71c1c] text-[11px]">검토</span>
+                                  : <span className="text-[#bbb] text-[11px]">제외</span>
+                              }
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              />
             </div>
           )}
 
           {/* ── 탭2: 노임집계 합계 ──────────────────────────── */}
           {tab === 'summary' && (
-            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 hidden sm:block overflow-x-auto">
+            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5">
               <div className="text-xs text-muted-brand mb-3">
                 * COMPLETED + ADJUSTED 기준 합산. MISSING_CHECKOUT은 검토필요 건수만 표시됩니다.
               </div>
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    {['인정현장', '근로자명', '소속', '직종', '투입일수', '인정시간', '보정', '자동처리', '검토필요', '비고'].map((h) => (
-                      <th key={h} className="text-left px-3 py-2.5 text-xs text-muted-brand border-b-2 border-secondary-brand/20 whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {summary.length === 0 ? (
-                    <tr><td colSpan={10} className="text-center py-8 text-[#999]">데이터가 없습니다.</td></tr>
-                  ) : summary.map((row, i) => (
-                    <tr key={i} style={{ background: row.needsReviewDays > 0 ? '#fff8f8' : 'white' }}>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap font-semibold">{row.allocatedSiteName}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap font-semibold">{row.workerName}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.company}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.jobTitle}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center font-bold text-secondary-brand">{row.totalDays}일</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center font-bold">{formatMinutes(row.totalMinutes)}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
-                        {row.adjustedDays > 0 && <span className="text-[#6a1b9a] text-xs">{row.adjustedDays}건</span>}
-                      </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
-                        {row.autoCheckoutDays > 0 && <span className="text-[#b71c1c] text-xs">{row.autoCheckoutDays}건</span>}
-                      </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
-                        {row.needsReviewDays > 0 && <span className="text-[#b71c1c] font-bold text-xs">{row.needsReviewDays}건 ⚠</span>}
-                      </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">
-                        {row.adjustedDays > 0 && '보정있음 '}
-                        {row.needsReviewDays > 0 && '검토필요'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <MobileCardList
+                items={summary}
+                keyExtractor={(row, i) => `${row.workerName}-${row.allocatedSiteName}-${i}`}
+                emptyMessage="데이터가 없습니다."
+                renderCard={(row) => (
+                  <MobileCard
+                    title={row.workerName}
+                    subtitle={row.allocatedSiteName}
+                    badge={
+                      row.needsReviewDays > 0
+                        ? <span className="text-[11px] text-[#b71c1c] font-bold">{row.needsReviewDays}건 ⚠</span>
+                        : undefined
+                    }
+                    style={{ background: row.needsReviewDays > 0 ? '#fff8f8' : undefined }}
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="소속" value={row.company} />
+                      <MobileCardField label="직종" value={row.jobTitle} />
+                      <MobileCardField label="투입일수" value={<span className="font-bold text-secondary-brand">{row.totalDays}일</span>} />
+                      <MobileCardField label="인정시간" value={<span className="font-bold">{formatMinutes(row.totalMinutes)}</span>} />
+                      {row.adjustedDays > 0 && (
+                        <MobileCardField label="보정" value={<span className="text-[#6a1b9a] text-xs">{row.adjustedDays}건</span>} />
+                      )}
+                      {row.autoCheckoutDays > 0 && (
+                        <MobileCardField label="자동처리" value={<span className="text-[#b71c1c] text-xs">{row.autoCheckoutDays}건</span>} />
+                      )}
+                    </MobileCardFields>
+                  </MobileCard>
+                )}
+                renderTable={() => (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr>
+                          {['인정현장', '근로자명', '소속', '직종', '투입일수', '인정시간', '보정', '자동처리', '검토필요', '비고'].map((h) => (
+                            <th key={h} className="text-left px-3 py-2.5 text-xs text-muted-brand border-b-2 border-secondary-brand/20 whitespace-nowrap">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {summary.map((row, i) => (
+                          <tr key={i} style={{ background: row.needsReviewDays > 0 ? '#fff8f8' : 'white' }}>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap font-semibold">{row.allocatedSiteName}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap font-semibold">{row.workerName}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.company}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.jobTitle}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center font-bold text-secondary-brand">{row.totalDays}일</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center font-bold">{formatMinutes(row.totalMinutes)}</td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
+                              {row.adjustedDays > 0 && <span className="text-[#6a1b9a] text-xs">{row.adjustedDays}건</span>}
+                            </td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
+                              {row.autoCheckoutDays > 0 && <span className="text-[#b71c1c] text-xs">{row.autoCheckoutDays}건</span>}
+                            </td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
+                              {row.needsReviewDays > 0 && <span className="text-[#b71c1c] font-bold text-xs">{row.needsReviewDays}건 ⚠</span>}
+                            </td>
+                            <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">
+                              {row.adjustedDays > 0 && '보정있음 '}
+                              {row.needsReviewDays > 0 && '검토필요'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              />
             </div>
           )}
         </>

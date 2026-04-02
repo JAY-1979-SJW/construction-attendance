@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface PurchaseOrder {
   id: string
@@ -87,46 +88,79 @@ export default function PurchaseOrdersPage() {
         <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {loading ? (
             <div className="text-center py-12 text-muted-brand">로딩 중...</div>
-          ) : orders.length === 0 ? (
-            <div className="text-center py-12 text-muted-brand">발주서가 없습니다.</div>
           ) : (
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  {['발주번호', '청구서', '현장', '상태', '항목수', '발행일', '납품요청일', ''].map(h => (
-                    <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map(o => (
-                  <tr key={o.id}>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]"><span className="text-[12px] text-muted-brand">{o.orderNo}</span></td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
-                      <div className="text-[13px]">{o.materialRequest.title}</div>
-                      <div className="text-[11px] text-muted-brand">{o.materialRequest.requestNo}</div>
-                    </td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{o.site?.name ?? '-'}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
-                      <span style={{
-                        padding: '2px 8px', borderRadius: '12px', fontSize: '12px',
-                        background: STATUS_COLOR[o.status] + '22',
-                        color: STATUS_COLOR[o.status],
-                        border: `1px solid ${STATUS_COLOR[o.status]}66`,
-                      }}>
-                        {STATUS_LABEL[o.status] ?? o.status}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] text-center">{o._count.items}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{o.issuedAt ? fmtDate(o.issuedAt) : '-'}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{o.deliveryRequestedDate ? fmtDate(o.deliveryRequestedDate) : '-'}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
-                      <Link href={`/admin/materials/purchase-orders/${o.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded text-[12px] font-semibold no-underline inline-block">보기</Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <MobileCardList
+              items={orders}
+              emptyMessage="발주서가 없습니다."
+              keyExtractor={(o) => o.id}
+              renderCard={(o) => (
+                <MobileCard
+                  title={o.materialRequest.title}
+                  subtitle={`${o.orderNo} · ${o.site?.name ?? '-'}`}
+                  badge={
+                    <span style={{
+                      padding: '2px 8px', borderRadius: '12px', fontSize: '12px',
+                      background: STATUS_COLOR[o.status] + '22',
+                      color: STATUS_COLOR[o.status],
+                      border: `1px solid ${STATUS_COLOR[o.status]}66`,
+                    }}>
+                      {STATUS_LABEL[o.status] ?? o.status}
+                    </span>
+                  }
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="청구번호" value={o.materialRequest.requestNo} />
+                    <MobileCardField label="항목수" value={`${o._count.items}건`} />
+                    <MobileCardField label="발행일" value={o.issuedAt ? fmtDate(o.issuedAt) : '-'} />
+                    <MobileCardField label="납품요청일" value={o.deliveryRequestedDate ? fmtDate(o.deliveryRequestedDate) : '-'} />
+                  </MobileCardFields>
+                  <MobileCardActions>
+                    <Link href={`/admin/materials/purchase-orders/${o.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded text-[12px] font-semibold no-underline inline-block">보기</Link>
+                  </MobileCardActions>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        {['발주번호', '청구서', '현장', '상태', '항목수', '발행일', '납품요청일', ''].map(h => (
+                          <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders.map(o => (
+                        <tr key={o.id}>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]"><span className="text-[12px] text-muted-brand">{o.orderNo}</span></td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
+                            <div className="text-[13px]">{o.materialRequest.title}</div>
+                            <div className="text-[11px] text-muted-brand">{o.materialRequest.requestNo}</div>
+                          </td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{o.site?.name ?? '-'}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
+                            <span style={{
+                              padding: '2px 8px', borderRadius: '12px', fontSize: '12px',
+                              background: STATUS_COLOR[o.status] + '22',
+                              color: STATUS_COLOR[o.status],
+                              border: `1px solid ${STATUS_COLOR[o.status]}66`,
+                            }}>
+                              {STATUS_LABEL[o.status] ?? o.status}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] text-center">{o._count.items}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{o.issuedAt ? fmtDate(o.issuedAt) : '-'}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{o.deliveryRequestedDate ? fmtDate(o.deliveryRequestedDate) : '-'}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
+                            <Link href={`/admin/materials/purchase-orders/${o.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded text-[12px] font-semibold no-underline inline-block">보기</Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            />
           )}
 
           {totalPages > 1 && (

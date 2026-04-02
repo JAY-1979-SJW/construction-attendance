@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 const XLSX_SUPPORTED = ['WAGE_LEDGER', 'INSURANCE_REPORT', 'TAX_REPORT', 'RETIREMENT_MUTUAL_SUMMARY', 'SUBCONTRACTOR_SETTLEMENT']
 
@@ -406,39 +407,81 @@ export default function DocumentCenterPage() {
       {/* 서식 안내 테이블 */}
       <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5">
         <h2 className="text-base font-bold mb-4">서식별 포함 내용</h2>
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              {['서식명', '포함 내용', '주요 활용', '형식'].map(h => (
-                <th key={h} className="px-3 py-2.5 text-left text-xs text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              { label: '노임대장', desc: '근로자별 일별 임금 지급 내역', use: '노무비 정산, 현장 제출용', xlsx: true },
-              { label: '월 출역표', desc: '근로자별 월간 출역 현황 및 공수', use: '공사일보 첨부, 현장 기록', xlsx: false },
-              { label: '보험판정표', desc: '4대보험 적용/제외 판정 결과', use: '보험 신고 기초자료', xlsx: true },
-              { label: '세금계산표', desc: '원천세 계산 내역 (과세/비과세)', use: '세무 신고용', xlsx: true },
-              { label: '퇴직공제 요약표', desc: '퇴직공제 인정일수 집계', use: '건설근로자공제회 신고', xlsx: true },
-              { label: '협력사 정산서', desc: '협력사별 노무비 정산 기초자료', use: '협력사 노무비 지급', xlsx: true },
-            ].map(row => (
-              <tr key={row.label}>
-                <td className="px-3 py-3 text-[13px] text-dim-brand border-b border-brand font-semibold">{row.label}</td>
-                <td className="px-3 py-3 text-[13px] text-dim-brand border-b border-brand">{row.desc}</td>
-                <td className="px-3 py-3 text-[13px] text-muted-brand border-b border-brand">{row.use}</td>
-                <td className="px-3 py-3 text-[13px] text-dim-brand border-b border-brand">
-                  <span className="text-xs text-muted-brand">CSV</span>
-                  {row.xlsx && (
-                    <span className="ml-1.5 text-xs bg-green-light text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
-                      XLSX
+        <MobileCardList
+          items={[
+            { label: '노임대장', desc: '근로자별 일별 임금 지급 내역', use: '노무비 정산, 현장 제출용', xlsx: true },
+            { label: '월 출역표', desc: '근로자별 월간 출역 현황 및 공수', use: '공사일보 첨부, 현장 기록', xlsx: false },
+            { label: '보험판정표', desc: '4대보험 적용/제외 판정 결과', use: '보험 신고 기초자료', xlsx: true },
+            { label: '세금계산표', desc: '원천세 계산 내역 (과세/비과세)', use: '세무 신고용', xlsx: true },
+            { label: '퇴직공제 요약표', desc: '퇴직공제 인정일수 집계', use: '건설근로자공제회 신고', xlsx: true },
+            { label: '협력사 정산서', desc: '협력사별 노무비 정산 기초자료', use: '협력사 노무비 지급', xlsx: true },
+          ]}
+          emptyMessage="서식 정보가 없습니다."
+          keyExtractor={(row) => row.label}
+          renderCard={(row) => (
+            <MobileCard
+              title={row.label}
+              badge={
+                row.xlsx
+                  ? <span className="text-xs bg-green-light text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">XLSX</span>
+                  : <span className="text-xs text-muted-brand">CSV만</span>
+              }
+            >
+              <MobileCardFields>
+                <MobileCardField label="포함 내용" value={row.desc} />
+                <MobileCardField label="주요 활용" value={row.use} />
+                <MobileCardField
+                  label="형식"
+                  value={
+                    <span>
+                      <span className="text-xs text-muted-brand">CSV</span>
+                      {row.xlsx && (
+                        <span className="ml-1.5 text-xs bg-green-light text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">XLSX</span>
+                      )}
                     </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  }
+                />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    {['서식명', '포함 내용', '주요 활용', '형식'].map(h => (
+                      <th key={h} className="px-3 py-2.5 text-left text-xs text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { label: '노임대장', desc: '근로자별 일별 임금 지급 내역', use: '노무비 정산, 현장 제출용', xlsx: true },
+                    { label: '월 출역표', desc: '근로자별 월간 출역 현황 및 공수', use: '공사일보 첨부, 현장 기록', xlsx: false },
+                    { label: '보험판정표', desc: '4대보험 적용/제외 판정 결과', use: '보험 신고 기초자료', xlsx: true },
+                    { label: '세금계산표', desc: '원천세 계산 내역 (과세/비과세)', use: '세무 신고용', xlsx: true },
+                    { label: '퇴직공제 요약표', desc: '퇴직공제 인정일수 집계', use: '건설근로자공제회 신고', xlsx: true },
+                    { label: '협력사 정산서', desc: '협력사별 노무비 정산 기초자료', use: '협력사 노무비 지급', xlsx: true },
+                  ].map(row => (
+                    <tr key={row.label}>
+                      <td className="px-3 py-3 text-[13px] text-dim-brand border-b border-brand font-semibold">{row.label}</td>
+                      <td className="px-3 py-3 text-[13px] text-dim-brand border-b border-brand">{row.desc}</td>
+                      <td className="px-3 py-3 text-[13px] text-muted-brand border-b border-brand">{row.use}</td>
+                      <td className="px-3 py-3 text-[13px] text-dim-brand border-b border-brand">
+                        <span className="text-xs text-muted-brand">CSV</span>
+                        {row.xlsx && (
+                          <span className="ml-1.5 text-xs bg-green-light text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
+                            XLSX
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
       </div>
     </div>
   )

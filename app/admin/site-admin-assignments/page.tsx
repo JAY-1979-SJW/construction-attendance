@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -225,60 +226,94 @@ export default function SiteAdminAssignmentsPage() {
         {/* 배정 목록 */}
         {loading ? (
           <div className="text-center text-gray-400 py-12">불러오는 중...</div>
-        ) : assignments.length === 0 ? (
-          <div className="text-center text-gray-400 py-12 bg-card border border-brand rounded-[12px]">
-            배정 내역이 없습니다.
-          </div>
         ) : (
-          <div className="bg-card border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50 border-b">
-                  <th className="text-left px-4 py-2.5 text-xs text-gray-600 font-medium">관리자</th>
-                  <th className="text-left px-4 py-2.5 text-xs text-gray-600 font-medium">담당 현장</th>
-                  <th className="text-left px-4 py-2.5 text-xs text-gray-600 font-medium">소속 회사</th>
-                  <th className="text-left px-4 py-2.5 text-xs text-gray-600 font-medium">배정일</th>
-                  <th className="text-left px-4 py-2.5 text-xs text-gray-600 font-medium">상태</th>
-                  <th className="px-4 py-2.5" />
-                </tr>
-              </thead>
-              <tbody>
-                {assignments.map((a) => (
-                  <tr key={a.id} className={`border-b ${!a.isActive ? 'opacity-50' : 'hover:bg-gray-50'}`}>
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-gray-800">{a.user.name}</p>
-                      <p className="text-xs text-gray-400">{a.user.email}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-gray-700">{a.site.name}</p>
-                      <p className="text-xs text-gray-400 truncate max-w-[180px]">{a.site.address}</p>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600 text-xs">{a.company.companyName}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{fmtDate(a.assignedAt)}</td>
-                    <td className="px-4 py-3">
-                      {a.isActive ? (
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">활성</span>
-                      ) : (
-                        <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">
-                          해제 {fmtDate(a.revokedAt)}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {a.isActive && (
-                        <button
-                          onClick={() => revoke(a.id, a.user.name, a.site.name)}
-                          className="text-xs text-red-400 hover:text-red-600"
-                        >
-                          배정 해제
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <MobileCardList
+            items={assignments}
+            emptyMessage="배정 내역이 없습니다."
+            keyExtractor={(a) => a.id}
+            renderCard={(a) => (
+              <MobileCard
+                title={a.user.name}
+                subtitle={a.user.email}
+                badge={
+                  a.isActive
+                    ? <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">활성</span>
+                    : <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">해제 {fmtDate(a.revokedAt)}</span>
+                }
+                className={!a.isActive ? 'opacity-50' : ''}
+              >
+                <MobileCardFields>
+                  <MobileCardField label="담당 현장" value={a.site.name} />
+                  <MobileCardField label="현장 주소" value={a.site.address} />
+                  <MobileCardField label="소속 회사" value={a.company.companyName} />
+                  <MobileCardField label="배정일" value={fmtDate(a.assignedAt)} />
+                </MobileCardFields>
+                {a.isActive && (
+                  <MobileCardActions>
+                    <button
+                      onClick={() => revoke(a.id, a.user.name, a.site.name)}
+                      className="text-xs text-red-400 hover:text-red-600"
+                    >
+                      배정 해제
+                    </button>
+                  </MobileCardActions>
+                )}
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <div className="overflow-x-auto">
+                <div className="bg-card border rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 border-b">
+                        <th className="text-left px-4 py-2.5 text-xs text-gray-600 font-medium">관리자</th>
+                        <th className="text-left px-4 py-2.5 text-xs text-gray-600 font-medium">담당 현장</th>
+                        <th className="text-left px-4 py-2.5 text-xs text-gray-600 font-medium">소속 회사</th>
+                        <th className="text-left px-4 py-2.5 text-xs text-gray-600 font-medium">배정일</th>
+                        <th className="text-left px-4 py-2.5 text-xs text-gray-600 font-medium">상태</th>
+                        <th className="px-4 py-2.5" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {assignments.map((a) => (
+                        <tr key={a.id} className={`border-b ${!a.isActive ? 'opacity-50' : 'hover:bg-gray-50'}`}>
+                          <td className="px-4 py-3">
+                            <p className="font-medium text-gray-800">{a.user.name}</p>
+                            <p className="text-xs text-gray-400">{a.user.email}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="font-medium text-gray-700">{a.site.name}</p>
+                            <p className="text-xs text-gray-400 truncate max-w-[180px]">{a.site.address}</p>
+                          </td>
+                          <td className="px-4 py-3 text-gray-600 text-xs">{a.company.companyName}</td>
+                          <td className="px-4 py-3 text-gray-500 text-xs">{fmtDate(a.assignedAt)}</td>
+                          <td className="px-4 py-3">
+                            {a.isActive ? (
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">활성</span>
+                            ) : (
+                              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">
+                                해제 {fmtDate(a.revokedAt)}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            {a.isActive && (
+                              <button
+                                onClick={() => revoke(a.id, a.user.name, a.site.name)}
+                                className="text-xs text-red-400 hover:text-red-600"
+                              >
+                                배정 해제
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          />
         )}
 
         {/* SITE_ADMIN 역할 안내 */}

@@ -1,7 +1,8 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface LaborCostRow {
   id: string
@@ -166,68 +167,121 @@ export default function LaborCostSummariesPage() {
         {loading ? (
           <div className="py-8 text-center text-[#999]">로딩 중...</div>
         ) : (
-          <div className="hidden sm:block overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  {[
-                    '현장명', '조직구분', '협력사명',
-                    '인원수', '공수',
-                    '총노임', '과세금액', '원천세',
-                    '국민연금', '건보', '고용보험', '퇴직공제(일)',
-                  ].map((h) => <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {items.length === 0 ? (
-                  <tr>
-                    <td colSpan={12} className="text-center py-6 text-[#999]">
-                      데이터 없음 — 집계 실행을 먼저 하세요
-                    </td>
-                  </tr>
-                ) : items.map((row) => (
-                  <tr key={row.id} className="cursor-default">
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
-                      {row.siteName}
-                      <br />
-                      <span className="text-[11px] text-[#999]">{row.siteId}</span>
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
-                      <span className="text-xs text-muted-brand">
-                        {ORG_TYPE_LABEL[row.orgType] ?? row.orgType}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{row.companyName}</td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{fmt(row.workerCount)}</td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{fmt(row.mandays)}</td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(row.totalWage)}</td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(row.taxableAmount)}</td>
-                    <td className="px-4 py-3 text-[13px] text-[#b71c1c] border-b border-[rgba(91,164,217,0.1)] align-top text-right">
-                      {fmt(row.withholdingTax)}
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
-                      <span className={`text-xs ${row.npTargetCount > 0 ? 'text-secondary-brand' : 'text-[#9e9e9e]'}`}>
+          <MobileCardList
+            items={items}
+            keyExtractor={(row) => row.id}
+            emptyMessage="데이터 없음 — 집계 실행을 먼저 하세요"
+            renderCard={(row) => (
+              <MobileCard
+                title={row.siteName}
+                subtitle={`${ORG_TYPE_LABEL[row.orgType] ?? row.orgType} · ${row.companyName}`}
+                badge={
+                  <span className="text-[11px] text-muted-brand px-2 py-0.5 bg-surface rounded-full">
+                    {fmt(row.workerCount)}명
+                  </span>
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField label="공수" value={`${fmt(row.mandays)}일`} />
+                  <MobileCardField label="총노임" value={fmtWon(row.totalWage)} />
+                  <MobileCardField label="과세금액" value={fmtWon(row.taxableAmount)} />
+                  <MobileCardField
+                    label="원천세"
+                    value={<span className="text-[#b71c1c]">{fmtWon(row.withholdingTax)}</span>}
+                  />
+                  <MobileCardField
+                    label="국민연금"
+                    value={
+                      <span className={row.npTargetCount > 0 ? 'text-secondary-brand' : 'text-[#9e9e9e]'}>
                         {fmt(row.npTargetCount)}명
                       </span>
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
-                      <span className={`text-xs ${row.hiTargetCount > 0 ? 'text-secondary-brand' : 'text-[#9e9e9e]'}`}>
+                    }
+                  />
+                  <MobileCardField
+                    label="건강보험"
+                    value={
+                      <span className={row.hiTargetCount > 0 ? 'text-secondary-brand' : 'text-[#9e9e9e]'}>
                         {fmt(row.hiTargetCount)}명
                       </span>
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
-                      <span className={`text-xs ${row.eiTargetCount > 0 ? 'text-secondary-brand' : 'text-[#9e9e9e]'}`}>
+                    }
+                  />
+                  <MobileCardField
+                    label="고용보험"
+                    value={
+                      <span className={row.eiTargetCount > 0 ? 'text-secondary-brand' : 'text-[#9e9e9e]'}>
                         {fmt(row.eiTargetCount)}명
                       </span>
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
-                      {fmt(row.retirementMutualDays)}일
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    }
+                  />
+                  <MobileCardField label="퇴직공제" value={`${fmt(row.retirementMutualDays)}일`} />
+                </MobileCardFields>
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      {[
+                        '현장명', '조직구분', '협력사명',
+                        '인원수', '공수',
+                        '총노임', '과세금액', '원천세',
+                        '국민연금', '건보', '고용보험', '퇴직공제(일)',
+                      ].map((h) => <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.length === 0 ? (
+                      <tr>
+                        <td colSpan={12} className="text-center py-6 text-[#999]">
+                          데이터 없음 — 집계 실행을 먼저 하세요
+                        </td>
+                      </tr>
+                    ) : items.map((row) => (
+                      <tr key={row.id} className="cursor-default">
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
+                          {row.siteName}
+                          <br />
+                          <span className="text-[11px] text-[#999]">{row.siteId}</span>
+                        </td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
+                          <span className="text-xs text-muted-brand">
+                            {ORG_TYPE_LABEL[row.orgType] ?? row.orgType}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{row.companyName}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{fmt(row.workerCount)}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{fmt(row.mandays)}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(row.totalWage)}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(row.taxableAmount)}</td>
+                        <td className="px-4 py-3 text-[13px] text-[#b71c1c] border-b border-[rgba(91,164,217,0.1)] align-top text-right">
+                          {fmt(row.withholdingTax)}
+                        </td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                          <span className={`text-xs ${row.npTargetCount > 0 ? 'text-secondary-brand' : 'text-[#9e9e9e]'}`}>
+                            {fmt(row.npTargetCount)}명
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                          <span className={`text-xs ${row.hiTargetCount > 0 ? 'text-secondary-brand' : 'text-[#9e9e9e]'}`}>
+                            {fmt(row.hiTargetCount)}명
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                          <span className={`text-xs ${row.eiTargetCount > 0 ? 'text-secondary-brand' : 'text-[#9e9e9e]'}`}>
+                            {fmt(row.eiTargetCount)}명
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                          {fmt(row.retirementMutualDays)}일
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          />
         )}
       </div>
     </div>

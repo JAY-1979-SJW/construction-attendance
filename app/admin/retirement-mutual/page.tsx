@@ -1,7 +1,8 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 type Tab = 'sites' | 'workers' | 'daily' | 'monthly' | 'export'
 
@@ -230,39 +231,74 @@ export default function RetirementMutualPage() {
           <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">퇴직공제 대상 현장</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr>
-                      {['현장명', '계약번호', '등록일', '활성'].map((h) => (
-                        <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sites.length === 0 ? (
-                      <tr><td colSpan={4} className="text-center py-6 text-[#999]">등록된 현장 없음</td></tr>
-                    ) : sites.map((site) => (
-                      <tr key={site.id}>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
-                          {site.siteName}<br /><span className="text-[11px] text-[#999]">{site.siteId}</span>
-                        </td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{site.contractNumber ?? '-'}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(site.createdAt).toLocaleDateString('ko-KR')}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
-                          <button
-                            onClick={() => toggleSite(site.id, site.enabledYn)}
-                            className="px-3 py-1 text-white border-none rounded-full cursor-pointer text-[12px] font-semibold"
-                            style={{ background: site.enabledYn ? '#2e7d32' : '#9e9e9e' }}
-                          >
-                            {site.enabledYn ? '활성' : '비활성'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <MobileCardList
+                items={sites}
+                keyExtractor={(site) => site.id}
+                emptyMessage="등록된 현장 없음"
+                renderCard={(site) => (
+                  <MobileCard
+                    title={site.siteName}
+                    subtitle={site.siteId}
+                    badge={
+                      <span
+                        className="text-[11px] font-semibold px-2 py-0.5 rounded-full text-white"
+                        style={{ background: site.enabledYn ? '#2e7d32' : '#9e9e9e' }}
+                      >
+                        {site.enabledYn ? '활성' : '비활성'}
+                      </span>
+                    }
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="계약번호" value={site.contractNumber ?? '-'} />
+                      <MobileCardField label="등록일" value={new Date(site.createdAt).toLocaleDateString('ko-KR')} />
+                    </MobileCardFields>
+                    <MobileCardActions>
+                      <button
+                        onClick={() => toggleSite(site.id, site.enabledYn)}
+                        className="px-3 py-1 text-white border-none rounded-full cursor-pointer text-[12px] font-semibold"
+                        style={{ background: site.enabledYn ? '#2e7d32' : '#9e9e9e' }}
+                      >
+                        {site.enabledYn ? '비활성으로 전환' : '활성으로 전환'}
+                      </button>
+                    </MobileCardActions>
+                  </MobileCard>
+                )}
+                renderTable={() => (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr>
+                          {['현장명', '계약번호', '등록일', '활성'].map((h) => (
+                            <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sites.length === 0 ? (
+                          <tr><td colSpan={4} className="text-center py-6 text-[#999]">등록된 현장 없음</td></tr>
+                        ) : sites.map((site) => (
+                          <tr key={site.id}>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
+                              {site.siteName}<br /><span className="text-[11px] text-[#999]">{site.siteId}</span>
+                            </td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{site.contractNumber ?? '-'}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(site.createdAt).toLocaleDateString('ko-KR')}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
+                              <button
+                                onClick={() => toggleSite(site.id, site.enabledYn)}
+                                className="px-3 py-1 text-white border-none rounded-full cursor-pointer text-[12px] font-semibold"
+                                style={{ background: site.enabledYn ? '#2e7d32' : '#9e9e9e' }}
+                              >
+                                {site.enabledYn ? '활성' : '비활성'}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              />
             )}
           </div>
         )}
@@ -272,40 +308,76 @@ export default function RetirementMutualPage() {
           <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">퇴직공제 대상 근로자</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr>
-                      {['근로자', '소속', '가입일', '등록일', '활성'].map((h) => (
-                        <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {workers.length === 0 ? (
-                      <tr><td colSpan={5} className="text-center py-6 text-[#999]">등록된 근로자 없음</td></tr>
-                    ) : workers.map((w) => (
-                      <tr key={w.id}>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
-                          {w.workerName}<br /><span className="text-[11px] text-[#999]">{w.workerId}</span>
-                        </td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{w.company}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{w.joinDate ? new Date(w.joinDate).toLocaleDateString('ko-KR') : '-'}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
-                          <button
-                            onClick={() => toggleWorker(w.id, w.enabledYn)}
-                            className="px-3 py-1 text-white border-none rounded-full cursor-pointer text-[12px] font-semibold"
-                            style={{ background: w.enabledYn ? '#2e7d32' : '#9e9e9e' }}
-                          >
-                            {w.enabledYn ? '활성' : '비활성'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <MobileCardList
+                items={workers}
+                keyExtractor={(w) => w.id}
+                emptyMessage="등록된 근로자 없음"
+                renderCard={(w) => (
+                  <MobileCard
+                    title={w.workerName}
+                    subtitle={w.company}
+                    badge={
+                      <span
+                        className="text-[11px] font-semibold px-2 py-0.5 rounded-full text-white"
+                        style={{ background: w.enabledYn ? '#2e7d32' : '#9e9e9e' }}
+                      >
+                        {w.enabledYn ? '활성' : '비활성'}
+                      </span>
+                    }
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="근로자ID" value={w.workerId} />
+                      <MobileCardField label="가입일" value={w.joinDate ? new Date(w.joinDate).toLocaleDateString('ko-KR') : '-'} />
+                      <MobileCardField label="등록일" value={new Date(w.createdAt).toLocaleDateString('ko-KR')} />
+                    </MobileCardFields>
+                    <MobileCardActions>
+                      <button
+                        onClick={() => toggleWorker(w.id, w.enabledYn)}
+                        className="px-3 py-1 text-white border-none rounded-full cursor-pointer text-[12px] font-semibold"
+                        style={{ background: w.enabledYn ? '#2e7d32' : '#9e9e9e' }}
+                      >
+                        {w.enabledYn ? '비활성으로 전환' : '활성으로 전환'}
+                      </button>
+                    </MobileCardActions>
+                  </MobileCard>
+                )}
+                renderTable={() => (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr>
+                          {['근로자', '소속', '가입일', '등록일', '활성'].map((h) => (
+                            <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {workers.length === 0 ? (
+                          <tr><td colSpan={5} className="text-center py-6 text-[#999]">등록된 근로자 없음</td></tr>
+                        ) : workers.map((w) => (
+                          <tr key={w.id}>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
+                              {w.workerName}<br /><span className="text-[11px] text-[#999]">{w.workerId}</span>
+                            </td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{w.company}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{w.joinDate ? new Date(w.joinDate).toLocaleDateString('ko-KR') : '-'}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
+                              <button
+                                onClick={() => toggleWorker(w.id, w.enabledYn)}
+                                className="px-3 py-1 text-white border-none rounded-full cursor-pointer text-[12px] font-semibold"
+                                style={{ background: w.enabledYn ? '#2e7d32' : '#9e9e9e' }}
+                              >
+                                {w.enabledYn ? '활성' : '비활성'}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              />
             )}
           </div>
         )}
@@ -315,40 +387,79 @@ export default function RetirementMutualPage() {
           <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">일별 퇴직공제 내역</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr>
-                      {['날짜', '근로자', '현장', '인정여부', '인정공수', '수동보정', '사유'].map((h) => (
-                        <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dailyRecords.length === 0 ? (
-                      <tr><td colSpan={7} className="text-center py-6 text-[#999]">데이터 없음</td></tr>
-                    ) : dailyRecords.map((r) => (
-                      <tr key={r.id}>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.date}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.workerName}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.siteName}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
-                          <span style={{ color: r.recognizedYn ? '#2e7d32' : '#9e9e9e' }} className="font-semibold text-[12px]">
-                            {r.recognizedYn ? '인정' : '미인정'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedMandays}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
-                          <span style={{ color: r.manualOverride ? '#e65100' : '#9e9e9e' }} className="text-[12px]">
+              <MobileCardList
+                items={dailyRecords}
+                keyExtractor={(r) => r.id}
+                emptyMessage="데이터 없음"
+                renderCard={(r) => (
+                  <MobileCard
+                    title={r.workerName}
+                    subtitle={`${r.date} · ${r.siteName}`}
+                    badge={
+                      <span
+                        className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                        style={{
+                          background: r.recognizedYn ? '#e8f5e9' : '#f5f5f5',
+                          color: r.recognizedYn ? '#2e7d32' : '#9e9e9e',
+                        }}
+                      >
+                        {r.recognizedYn ? '인정' : '미인정'}
+                      </span>
+                    }
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="인정공수" value={String(r.recognizedMandays)} />
+                      <MobileCardField
+                        label="수동보정"
+                        value={
+                          <span style={{ color: r.manualOverride ? '#e65100' : '#9e9e9e' }}>
                             {r.manualOverride ? '보정' : '-'}
                           </span>
-                        </td>
-                        <td className="px-4 py-3 text-[12px] text-muted-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.overrideReason ?? '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        }
+                      />
+                      {r.overrideReason && (
+                        <MobileCardField label="사유" value={r.overrideReason} />
+                      )}
+                    </MobileCardFields>
+                  </MobileCard>
+                )}
+                renderTable={() => (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr>
+                          {['날짜', '근로자', '현장', '인정여부', '인정공수', '수동보정', '사유'].map((h) => (
+                            <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dailyRecords.length === 0 ? (
+                          <tr><td colSpan={7} className="text-center py-6 text-[#999]">데이터 없음</td></tr>
+                        ) : dailyRecords.map((r) => (
+                          <tr key={r.id}>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.date}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.workerName}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.siteName}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                              <span style={{ color: r.recognizedYn ? '#2e7d32' : '#9e9e9e' }} className="font-semibold text-[12px]">
+                                {r.recognizedYn ? '인정' : '미인정'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedMandays}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                              <span style={{ color: r.manualOverride ? '#e65100' : '#9e9e9e' }} className="text-[12px]">
+                                {r.manualOverride ? '보정' : '-'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-[12px] text-muted-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.overrideReason ?? '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              />
             )}
           </div>
         )}
@@ -358,37 +469,65 @@ export default function RetirementMutualPage() {
           <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">월별 퇴직공제 요약</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr>
-                      {['귀속연월', '근로자', '현장', '인정일수', '인정공수', '상태'].map((h) => (
-                        <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {monthlyRecords.length === 0 ? (
-                      <tr><td colSpan={6} className="text-center py-6 text-[#999]">데이터 없음</td></tr>
-                    ) : monthlyRecords.map((r) => (
-                      <tr key={r.id}>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.monthKey}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.workerName}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.siteName}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedDays}일</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedMandays}</td>
-                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
-                          <span style={{
-                            color: r.status === 'CONFIRMED' ? '#2e7d32' : r.status === 'EXPORTED' ? '#1565c0' : '#888',
-                          }} className="text-[12px] font-semibold">
-                            {r.status === 'CONFIRMED' ? '확정' : r.status === 'EXPORTED' ? '신고완료' : r.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <MobileCardList
+                items={monthlyRecords}
+                keyExtractor={(r) => r.id}
+                emptyMessage="데이터 없음"
+                renderCard={(r) => (
+                  <MobileCard
+                    title={r.workerName}
+                    subtitle={`${r.monthKey} · ${r.siteName}`}
+                    badge={
+                      <span
+                        className="text-[11px] font-semibold"
+                        style={{
+                          color: r.status === 'CONFIRMED' ? '#2e7d32' : r.status === 'EXPORTED' ? '#1565c0' : '#888',
+                        }}
+                      >
+                        {r.status === 'CONFIRMED' ? '확정' : r.status === 'EXPORTED' ? '신고완료' : r.status}
+                      </span>
+                    }
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="인정일수" value={`${r.recognizedDays}일`} />
+                      <MobileCardField label="인정공수" value={String(r.recognizedMandays)} />
+                    </MobileCardFields>
+                  </MobileCard>
+                )}
+                renderTable={() => (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr>
+                          {['귀속연월', '근로자', '현장', '인정일수', '인정공수', '상태'].map((h) => (
+                            <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {monthlyRecords.length === 0 ? (
+                          <tr><td colSpan={6} className="text-center py-6 text-[#999]">데이터 없음</td></tr>
+                        ) : monthlyRecords.map((r) => (
+                          <tr key={r.id}>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.monthKey}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.workerName}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.siteName}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedDays}일</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedMandays}</td>
+                            <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
+                              <span style={{
+                                color: r.status === 'CONFIRMED' ? '#2e7d32' : r.status === 'EXPORTED' ? '#1565c0' : '#888',
+                              }} className="text-[12px] font-semibold">
+                                {r.status === 'CONFIRMED' ? '확정' : r.status === 'EXPORTED' ? '신고완료' : r.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              />
             )}
           </div>
         )}

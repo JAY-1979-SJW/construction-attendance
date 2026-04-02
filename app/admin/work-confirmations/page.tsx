@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Modal } from '@/components/admin/ui'
+import { Modal, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface WorkConfirmation {
   id: string
@@ -168,46 +168,75 @@ export default function WorkConfirmationsPage() {
         {/* 테이블 */}
         <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
           {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    {['날짜', '근로자', '현장', '출근', '퇴근', '소득유형', '공수', '확정보수', '상태', ''].map((h) => (
-                      <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.length === 0 ? (
-                    <tr><td colSpan={10} className="text-center py-6 text-[#999]">데이터 없음 — 초안 생성을 먼저 실행하세요</td></tr>
-                  ) : items.map((item) => (
-                    <tr key={item.id} className="cursor-default">
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.workDate}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.worker.name}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.site.name}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{fmtTime(item.attendanceDay?.firstCheckInAt ?? null)}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{fmtTime(item.attendanceDay?.lastCheckOutAt ?? null)}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{INCOME_LABEL[item.incomeTypeSnapshot ?? ''] ?? item.incomeTypeSnapshot}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
-                        {WORK_TYPE_LABEL[item.confirmedWorkType ?? ''] ?? '-'}
-                        <br /><span className="text-[11px] text-muted-brand">{item.confirmedWorkUnits}공수</span>
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.confirmedTotalAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
-                        <span style={{ color: STATUS_COLOR[item.confirmationStatus], fontWeight: 600, fontSize: '13px' }}>
-                          {STATUS_LABEL[item.confirmationStatus] ?? item.confirmationStatus}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
-                        {item.confirmationStatus !== 'CONFIRMED' && (
-                          <button onClick={() => openEdit(item)} className="px-[10px] py-1 text-[12px] bg-accent text-white border-0 rounded cursor-pointer">수정/확정</button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <MobileCardList
+              items={items}
+              emptyMessage="데이터 없음 — 초안 생성을 먼저 실행하세요"
+              keyExtractor={(item) => item.id}
+              renderCard={(item) => (
+                <MobileCard
+                  title={item.worker.name}
+                  subtitle={`${item.workDate} · ${item.site.name}`}
+                  badge={
+                    <span style={{ color: STATUS_COLOR[item.confirmationStatus], fontWeight: 600, fontSize: '12px' }}>
+                      {STATUS_LABEL[item.confirmationStatus] ?? item.confirmationStatus}
+                    </span>
+                  }
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="소득유형" value={INCOME_LABEL[item.incomeTypeSnapshot ?? ''] ?? item.incomeTypeSnapshot ?? '-'} />
+                    <MobileCardField label="공수" value={`${WORK_TYPE_LABEL[item.confirmedWorkType ?? ''] ?? '-'} (${item.confirmedWorkUnits}공수)`} />
+                    <MobileCardField label="출근" value={fmtTime(item.attendanceDay?.firstCheckInAt ?? null)} />
+                    <MobileCardField label="퇴근" value={fmtTime(item.attendanceDay?.lastCheckOutAt ?? null)} />
+                    <MobileCardField label="확정보수" value={fmt(item.confirmedTotalAmount)} />
+                  </MobileCardFields>
+                  {item.confirmationStatus !== 'CONFIRMED' && (
+                    <MobileCardActions>
+                      <button onClick={() => openEdit(item)} className="px-[10px] py-1 text-[12px] bg-accent text-white border-0 rounded cursor-pointer">수정/확정</button>
+                    </MobileCardActions>
+                  )}
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        {['날짜', '근로자', '현장', '출근', '퇴근', '소득유형', '공수', '확정보수', '상태', ''].map((h) => (
+                          <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {items.map((item) => (
+                        <tr key={item.id} className="cursor-default">
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.workDate}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.worker.name}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.site.name}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{fmtTime(item.attendanceDay?.firstCheckInAt ?? null)}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{fmtTime(item.attendanceDay?.lastCheckOutAt ?? null)}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{INCOME_LABEL[item.incomeTypeSnapshot ?? ''] ?? item.incomeTypeSnapshot}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
+                            {WORK_TYPE_LABEL[item.confirmedWorkType ?? ''] ?? '-'}
+                            <br /><span className="text-[11px] text-muted-brand">{item.confirmedWorkUnits}공수</span>
+                          </td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.confirmedTotalAmount)}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
+                            <span style={{ color: STATUS_COLOR[item.confirmationStatus], fontWeight: 600, fontSize: '13px' }}>
+                              {STATUS_LABEL[item.confirmationStatus] ?? item.confirmationStatus}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
+                            {item.confirmationStatus !== 'CONFIRMED' && (
+                              <button onClick={() => openEdit(item)} className="px-[10px] py-1 text-[12px] bg-accent text-white border-0 rounded cursor-pointer">수정/확정</button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            />
           )}
         </div>
     </div>

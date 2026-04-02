@@ -1,7 +1,7 @@
 ﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { PageShell, SectionCard, Btn, FilterSelect } from '@/components/admin/ui'
+import { PageShell, SectionCard, Btn, FilterSelect, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface Location {
   id: string; siteId: string; buildingName: string
@@ -144,45 +144,64 @@ export default function SiteLocationsPage() {
 
             {loading ? (
               <div className="text-[13px] text-muted2-brand py-4 text-center">로딩 중...</div>
-            ) : items.length === 0 ? (
-              <div className="text-[13px] text-muted2-brand py-4 text-center">위치가 없습니다. 템플릿으로 생성하세요.</div>
             ) : (
-              <div className="max-h-[500px] overflow-y-auto">
-                <table className="w-full text-[13px]">
-                  <thead className="sticky top-0 bg-card">
-                    <tr className="text-left text-[11px] text-muted2-brand border-b border-brand">
-                      <th className="py-2 font-normal">동</th>
-                      <th className="py-2 font-normal">층</th>
-                      <th className="py-2 font-normal">상세위치</th>
-                      <th className="py-2 font-normal text-center">상태</th>
-                      <th className="py-2 font-normal text-center">액션</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item) => (
-                      <tr key={item.id} className="border-b border-[#F9FAFB]"
-                        style={{ opacity: item.isActive ? 1 : 0.4 }}>
-                        <td className="py-2 text-body-brand">{item.buildingName}</td>
-                        <td className="py-2 text-body-brand">{item.floorLabel}</td>
-                        <td className="py-2 text-muted-brand">{item.detailLabel || '-'}</td>
-                        <td className="py-2 text-center">
-                          <span className={`text-[11px] px-2 py-0.5 rounded-full ${
-                            item.isActive ? 'bg-green-light text-status-working' : 'bg-footer text-muted2-brand'
-                          }`}>
-                            {item.isActive ? '활성' : '비활성'}
-                          </span>
-                        </td>
-                        <td className="py-2 text-center">
-                          <button onClick={() => toggleActive(item)}
-                            className="text-[11px] text-muted-brand hover:text-accent transition-colors">
-                            {item.isActive ? '비활성화' : '활성화'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <MobileCardList
+                items={items}
+                emptyMessage="위치가 없습니다. 템플릿으로 생성하세요."
+                keyExtractor={(item) => item.id}
+                renderCard={(item) => (
+                  <MobileCard
+                    title={`${item.buildingName} ${item.floorLabel}`}
+                    subtitle={item.detailLabel ?? undefined}
+                    badge={
+                      <span className={`text-[11px] px-2 py-0.5 rounded-full ${item.isActive ? 'bg-green-light text-status-working' : 'bg-footer text-muted2-brand'}`}>
+                        {item.isActive ? '활성' : '비활성'}
+                      </span>
+                    }
+                    className={item.isActive ? '' : 'opacity-40'}
+                  >
+                    <MobileCardActions>
+                      <button onClick={() => toggleActive(item)} className="px-3 py-1.5 bg-transparent border border-brand rounded text-xs text-muted-brand">
+                        {item.isActive ? '비활성화' : '활성화'}
+                      </button>
+                    </MobileCardActions>
+                  </MobileCard>
+                )}
+                renderTable={() => (
+                  <div className="max-h-[500px] overflow-y-auto">
+                    <table className="w-full text-[13px]">
+                      <thead className="sticky top-0 bg-card">
+                        <tr className="text-left text-[11px] text-muted2-brand border-b border-brand">
+                          <th className="py-2 font-normal">동</th>
+                          <th className="py-2 font-normal">층</th>
+                          <th className="py-2 font-normal">상세위치</th>
+                          <th className="py-2 font-normal text-center">상태</th>
+                          <th className="py-2 font-normal text-center">액션</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items.map((item) => (
+                          <tr key={item.id} className="border-b border-[#F9FAFB]" style={{ opacity: item.isActive ? 1 : 0.4 }}>
+                            <td className="py-2 text-body-brand">{item.buildingName}</td>
+                            <td className="py-2 text-body-brand">{item.floorLabel}</td>
+                            <td className="py-2 text-muted-brand">{item.detailLabel || '-'}</td>
+                            <td className="py-2 text-center">
+                              <span className={`text-[11px] px-2 py-0.5 rounded-full ${item.isActive ? 'bg-green-light text-status-working' : 'bg-footer text-muted2-brand'}`}>
+                                {item.isActive ? '활성' : '비활성'}
+                              </span>
+                            </td>
+                            <td className="py-2 text-center">
+                              <button onClick={() => toggleActive(item)} className="text-[11px] text-muted-brand hover:text-accent transition-colors">
+                                {item.isActive ? '비활성화' : '활성화'}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              />
             )}
           </SectionCard>
         </>

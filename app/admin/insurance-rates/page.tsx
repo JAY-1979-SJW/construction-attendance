@@ -1,7 +1,7 @@
 ﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { Modal } from '@/components/admin/ui'
+import { Modal, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 // ─── 타입 ─────────────────────────────────────────────────
 
@@ -347,60 +347,100 @@ export default function InsuranceRatesPage() {
       {/* 목록 */}
       {loading ? (
         <div className="text-center py-12 text-gray-400">로딩 중...</div>
-      ) : versions.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">해당하는 요율 버전이 없습니다.</div>
       ) : (
-        <div className="overflow-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-600">
-              <tr>
-                <th className="px-4 py-3 text-left">보험 종류</th>
-                <th className="px-4 py-3 text-left">적용 연도</th>
-                <th className="px-4 py-3 text-right">합산(%)</th>
-                <th className="px-4 py-3 text-right">근로자(%)</th>
-                <th className="px-4 py-3 text-right">사업주(%)</th>
-                <th className="px-4 py-3 text-left">고시 기관</th>
-                <th className="px-4 py-3 text-left">고시일</th>
-                <th className="px-4 py-3 text-left">상태</th>
-                <th className="px-4 py-3 text-left">작업</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {versions.map(v => (
-                <tr key={v.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{RATE_TYPE_LABEL[v.rateType]}</td>
-                  <td className="px-4 py-3">{v.effectiveYear}{v.effectiveMonth ? `년 ${v.effectiveMonth}월` : '년'}</td>
-                  <td className="px-4 py-3 text-right font-mono">{fmt(v.totalRatePct)}</td>
-                  <td className="px-4 py-3 text-right font-mono text-blue-700">{fmt(v.employeeRatePct)}</td>
-                  <td className="px-4 py-3 text-right font-mono text-orange-700">{fmt(v.employerRatePct)}</td>
-                  <td className="px-4 py-3 text-gray-600">{v.officialSourceName ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{fmtDate(v.officialAnnouncementDate)}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLOR[v.status]}`}>
-                      {STATUS_LABEL[v.status]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => setSelected(v)}
-                      className="text-xs text-blue-600 hover:underline"
-                    >
-                      상세/전환
-                    </button>
-                    {v.status === 'DRAFT' && (
-                      <button
-                        onClick={() => handleDelete(v.id)}
-                        className="ml-2 text-xs text-red-500 hover:underline"
-                      >
-                        삭제
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <MobileCardList
+          items={versions}
+          emptyMessage="해당하는 요율 버전이 없습니다."
+          keyExtractor={(v) => v.id}
+          renderCard={(v) => (
+            <MobileCard
+              title={RATE_TYPE_LABEL[v.rateType]}
+              subtitle={`${v.effectiveYear}${v.effectiveMonth ? `년 ${v.effectiveMonth}월` : '년'}`}
+              badge={
+                <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLOR[v.status]}`}>
+                  {STATUS_LABEL[v.status]}
+                </span>
+              }
+            >
+              <MobileCardFields>
+                <MobileCardField label="합산(%)" value={<span className="font-mono">{fmt(v.totalRatePct)}</span>} />
+                <MobileCardField label="근로자(%)" value={<span className="font-mono text-blue-700">{fmt(v.employeeRatePct)}</span>} />
+                <MobileCardField label="사업주(%)" value={<span className="font-mono text-orange-700">{fmt(v.employerRatePct)}</span>} />
+                <MobileCardField label="고시 기관" value={v.officialSourceName ?? '—'} />
+                <MobileCardField label="고시일" value={fmtDate(v.officialAnnouncementDate)} />
+              </MobileCardFields>
+              <MobileCardActions>
+                <button
+                  onClick={() => setSelected(v)}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  상세/전환
+                </button>
+                {v.status === 'DRAFT' && (
+                  <button
+                    onClick={() => handleDelete(v.id)}
+                    className="text-xs text-red-500 hover:underline"
+                  >
+                    삭제
+                  </button>
+                )}
+              </MobileCardActions>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <div className="overflow-x-auto rounded-lg border">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 text-xs text-gray-600">
+                  <tr>
+                    <th className="px-4 py-3 text-left">보험 종류</th>
+                    <th className="px-4 py-3 text-left">적용 연도</th>
+                    <th className="px-4 py-3 text-right">합산(%)</th>
+                    <th className="px-4 py-3 text-right">근로자(%)</th>
+                    <th className="px-4 py-3 text-right">사업주(%)</th>
+                    <th className="px-4 py-3 text-left">고시 기관</th>
+                    <th className="px-4 py-3 text-left">고시일</th>
+                    <th className="px-4 py-3 text-left">상태</th>
+                    <th className="px-4 py-3 text-left">작업</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {versions.map(v => (
+                    <tr key={v.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium">{RATE_TYPE_LABEL[v.rateType]}</td>
+                      <td className="px-4 py-3">{v.effectiveYear}{v.effectiveMonth ? `년 ${v.effectiveMonth}월` : '년'}</td>
+                      <td className="px-4 py-3 text-right font-mono">{fmt(v.totalRatePct)}</td>
+                      <td className="px-4 py-3 text-right font-mono text-blue-700">{fmt(v.employeeRatePct)}</td>
+                      <td className="px-4 py-3 text-right font-mono text-orange-700">{fmt(v.employerRatePct)}</td>
+                      <td className="px-4 py-3 text-gray-600">{v.officialSourceName ?? '—'}</td>
+                      <td className="px-4 py-3 text-gray-600">{fmtDate(v.officialAnnouncementDate)}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLOR[v.status]}`}>
+                          {STATUS_LABEL[v.status]}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => setSelected(v)}
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          상세/전환
+                        </button>
+                        {v.status === 'DRAFT' && (
+                          <button
+                            onClick={() => handleDelete(v.id)}
+                            className="ml-2 text-xs text-red-500 hover:underline"
+                          >
+                            삭제
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
       )}
 
       {/* 상세/상태 전환 모달 */}

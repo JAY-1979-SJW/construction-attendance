@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface Site {
   id: string
@@ -239,51 +240,67 @@ export default function SubcontractorSettlementsPage() {
           {loading ? (
             <div className="py-8 text-center text-[#999]">로딩 중...</div>
           ) : (
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    {['현장', '협력사', '사업자번호', '인원', '공수', '지급총액', '원천세', '퇴직공제', '최종지급예정액'].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {settlements.length === 0 ? (
-                    <tr>
-                      <td colSpan={9} className="text-center py-6 text-[#999]">
-                        데이터 없음 — 정산 실행을 먼저 하세요
-                      </td>
-                    </tr>
-                  ) : settlements.map(row => (
-                    <tr key={row.id}>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand">{row.site.name}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand">{row.company.companyName}</td>
-                      <td className="px-4 py-3 text-[12px] text-muted-brand border-b border-brand">{row.company.businessNumber}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-center">{fmt(row.workerCount)}명</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-center">{Number(row.confirmedWorkUnits).toFixed(1)}공수</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-right">{fmt(row.grossAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#b71c1c] border-b border-brand text-right">{fmt(row.taxAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#6a1b9a] border-b border-brand text-right">{fmt(row.retirementMutualAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-right font-bold">{fmt(row.finalPayableAmount)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                {settlements.length > 0 && totals && (
-                  <tfoot>
-                    <tr className="bg-brand font-bold">
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand font-bold" colSpan={3}>합계</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-center font-bold">{fmt(totals.workerCount)}명</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand"></td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-right font-bold">{fmt(totals.grossAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#b71c1c] border-b border-brand text-right font-bold">{fmt(totals.taxAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand"></td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-right font-bold">{fmt(totals.finalPayableAmount)}</td>
-                    </tr>
-                  </tfoot>
-                )}
-              </table>
-            </div>
+            <MobileCardList
+              items={settlements}
+              emptyMessage="데이터 없음 — 정산 실행을 먼저 하세요"
+              keyExtractor={(row) => row.id}
+              renderCard={(row) => (
+                <MobileCard
+                  title={row.company.companyName}
+                  subtitle={`${row.site.name} · ${row.company.businessNumber}`}
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="인원" value={`${fmt(row.workerCount)}명`} />
+                    <MobileCardField label="공수" value={`${Number(row.confirmedWorkUnits).toFixed(1)}공수`} />
+                    <MobileCardField label="지급총액" value={fmtWon(row.grossAmount)} />
+                    <MobileCardField label="원천세" value={<span style={{ color: '#b71c1c' }}>{fmtWon(row.taxAmount)}</span>} />
+                    <MobileCardField label="퇴직공제" value={<span style={{ color: '#6a1b9a' }}>{fmtWon(row.retirementMutualAmount)}</span>} />
+                    <MobileCardField label="최종지급예정액" value={<span className="font-bold">{fmtWon(row.finalPayableAmount)}</span>} />
+                  </MobileCardFields>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        {['현장', '협력사', '사업자번호', '인원', '공수', '지급총액', '원천세', '퇴직공제', '최종지급예정액'].map(h => (
+                          <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {settlements.map(row => (
+                        <tr key={row.id}>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand">{row.site.name}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand">{row.company.companyName}</td>
+                          <td className="px-4 py-3 text-[12px] text-muted-brand border-b border-brand">{row.company.businessNumber}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-center">{fmt(row.workerCount)}명</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-center">{Number(row.confirmedWorkUnits).toFixed(1)}공수</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-right">{fmt(row.grossAmount)}</td>
+                          <td className="px-4 py-3 text-[13px] text-[#b71c1c] border-b border-brand text-right">{fmt(row.taxAmount)}</td>
+                          <td className="px-4 py-3 text-[13px] text-[#6a1b9a] border-b border-brand text-right">{fmt(row.retirementMutualAmount)}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-right font-bold">{fmt(row.finalPayableAmount)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    {settlements.length > 0 && totals && (
+                      <tfoot>
+                        <tr className="bg-brand font-bold">
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand font-bold" colSpan={3}>합계</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-center font-bold">{fmt(totals.workerCount)}명</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand"></td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-right font-bold">{fmt(totals.grossAmount)}</td>
+                          <td className="px-4 py-3 text-[13px] text-[#b71c1c] border-b border-brand text-right font-bold">{fmt(totals.taxAmount)}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand"></td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-brand text-right font-bold">{fmt(totals.finalPayableAmount)}</td>
+                        </tr>
+                      </tfoot>
+                    )}
+                  </table>
+                </div>
+              )}
+            />
           )}
         </div>
     </div>

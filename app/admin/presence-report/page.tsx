@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface DailyRow {
   date: string
@@ -138,91 +139,154 @@ export default function PresenceReportPage() {
             {/* 일자별 표 */}
             <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
               <div className="text-[15px] font-bold mb-4">일자별 체류확인 현황</div>
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr>
-                      {['날짜', '전체', '완료', '완료율', '미응답', '미응답률', '이탈', '이탈률', '검토필요', '수동처리'].map((h) => (
-                        <th key={h} className="text-left px-3 py-[9px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.daily.map((row) => (
-                      <tr key={row.date} className={row.date === data.today ? 'bg-[#f3f8ff] font-semibold' : ''}>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
-                          {row.date}
-                          {row.date === data.today && <span className="ml-[6px] text-[11px] bg-[rgba(244,121,32,0.12)] text-accent px-[6px] py-[1px] rounded-[8px]">오늘</span>}
-                        </td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.total || '-'}</td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.completed || '-'}</td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={row.completedRate} /></td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.noResponse || '-'}</td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={row.noResponseRate} inverse /></td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.outOfFence || '-'}</td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={row.outOfFenceRate} inverse /></td>
-                        <td className={`px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center${row.review > 0 ? ' text-[#f57f17] font-bold' : ''}`}>
-                          {row.review || '-'}
-                        </td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{(row.manualConfirmed + row.manualRejected) || '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="bg-brand font-bold">
-                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap">합계</td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.total}</td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.completed}</td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={data.totals.completedRate} /></td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.noResponse}</td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={data.totals.noResponseRate} inverse /></td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.outOfFence}</td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={data.totals.outOfFenceRate} inverse /></td>
-                      <td className={`px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center${data.totals.review > 0 ? ' text-[#f57f17]' : ''}`}>
-                        {data.totals.review}
-                      </td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.manualConfirmed + data.totals.manualRejected}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
+              <MobileCardList
+                items={data.daily}
+                keyExtractor={(row) => row.date}
+                emptyMessage="데이터가 없습니다."
+                renderCard={(row) => (
+                  <MobileCard
+                    title={
+                      <>
+                        {row.date}
+                        {row.date === data.today && (
+                          <span className="ml-[6px] text-[11px] bg-[rgba(244,121,32,0.12)] text-accent px-[6px] py-[1px] rounded-[8px]">오늘</span>
+                        )}
+                      </>
+                    }
+                    badge={<RateCell rate={row.completedRate} />}
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="전체" value={row.total || '-'} />
+                      <MobileCardField label="완료" value={row.completed || '-'} />
+                      <MobileCardField label="미응답" value={row.noResponse ? <RateCell rate={row.noResponseRate} inverse /> : '-'} />
+                      <MobileCardField label="이탈" value={row.outOfFence ? <RateCell rate={row.outOfFenceRate} inverse /> : '-'} />
+                      {row.review > 0 && (
+                        <MobileCardField
+                          label="검토필요"
+                          value={<span className="text-[#f57f17] font-bold">{row.review}</span>}
+                        />
+                      )}
+                      {(row.manualConfirmed + row.manualRejected) > 0 && (
+                        <MobileCardField label="수동처리" value={row.manualConfirmed + row.manualRejected} />
+                      )}
+                    </MobileCardFields>
+                  </MobileCard>
+                )}
+                renderTable={() => (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr>
+                          {['날짜', '전체', '완료', '완료율', '미응답', '미응답률', '이탈', '이탈률', '검토필요', '수동처리'].map((h) => (
+                            <th key={h} className="text-left px-3 py-[9px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.daily.map((row) => (
+                          <tr key={row.date} className={row.date === data.today ? 'bg-[#f3f8ff] font-semibold' : ''}>
+                            <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
+                              {row.date}
+                              {row.date === data.today && <span className="ml-[6px] text-[11px] bg-[rgba(244,121,32,0.12)] text-accent px-[6px] py-[1px] rounded-[8px]">오늘</span>}
+                            </td>
+                            <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.total || '-'}</td>
+                            <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.completed || '-'}</td>
+                            <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={row.completedRate} /></td>
+                            <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.noResponse || '-'}</td>
+                            <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={row.noResponseRate} inverse /></td>
+                            <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.outOfFence || '-'}</td>
+                            <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={row.outOfFenceRate} inverse /></td>
+                            <td className={`px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center${row.review > 0 ? ' text-[#f57f17] font-bold' : ''}`}>
+                              {row.review || '-'}
+                            </td>
+                            <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{(row.manualConfirmed + row.manualRejected) || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr className="bg-brand font-bold">
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap">합계</td>
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.total}</td>
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.completed}</td>
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={data.totals.completedRate} /></td>
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.noResponse}</td>
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={data.totals.noResponseRate} inverse /></td>
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.outOfFence}</td>
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={data.totals.outOfFenceRate} inverse /></td>
+                          <td className={`px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center${data.totals.review > 0 ? ' text-[#f57f17]' : ''}`}>
+                            {data.totals.review}
+                          </td>
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.manualConfirmed + data.totals.manualRejected}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                )}
+              />
             </div>
 
             {/* 현장별 비교 */}
             {data.siteBreakdown.length > 1 && (
               <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-5">
                 <div className="text-[15px] font-bold mb-4">현장별 완료율 비교</div>
-                <div className="hidden sm:block overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr>
-                        {['현장', '전체', '완료율'].map((h) => (
-                          <th key={h} className="text-left px-3 py-[9px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.siteBreakdown.map((row) => (
-                        <tr key={row.siteId}>
-                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{row.siteName}</td>
-                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.total}</td>
-                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">
-                            <div className="flex items-center gap-2 justify-center">
-                              <div
-                                className="h-2 rounded transition-[width] duration-300"
-                                style={{
-                                  width: `${Math.min(row.completedRate ?? 0, 100)}px`,
-                                  background: pctColor(row.completedRate),
-                                }}
-                              />
-                              <RateCell rate={row.completedRate} />
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <MobileCardList
+                  items={data.siteBreakdown}
+                  keyExtractor={(row) => row.siteId}
+                  emptyMessage="현장 데이터가 없습니다."
+                  renderCard={(row) => (
+                    <MobileCard
+                      title={row.siteName}
+                      badge={<RateCell rate={row.completedRate} />}
+                    >
+                      <MobileCardFields>
+                        <MobileCardField label="전체" value={row.total} />
+                        <div className="flex items-center gap-2 mt-1">
+                          <div
+                            className="h-2 rounded transition-[width] duration-300"
+                            style={{
+                              width: `${Math.min(row.completedRate ?? 0, 100)}px`,
+                              background: pctColor(row.completedRate),
+                            }}
+                          />
+                          <RateCell rate={row.completedRate} />
+                        </div>
+                      </MobileCardFields>
+                    </MobileCard>
+                  )}
+                  renderTable={() => (
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr>
+                            {['현장', '전체', '완료율'].map((h) => (
+                              <th key={h} className="text-left px-3 py-[9px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {data.siteBreakdown.map((row) => (
+                            <tr key={row.siteId}>
+                              <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{row.siteName}</td>
+                              <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.total}</td>
+                              <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">
+                                <div className="flex items-center gap-2 justify-center">
+                                  <div
+                                    className="h-2 rounded transition-[width] duration-300"
+                                    style={{
+                                      width: `${Math.min(row.completedRate ?? 0, 100)}px`,
+                                      background: pctColor(row.completedRate),
+                                    }}
+                                  />
+                                  <RateCell rate={row.completedRate} />
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                />
               </div>
             )}
           </>

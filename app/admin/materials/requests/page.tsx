@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface MaterialRequest {
   id: string
@@ -94,45 +95,77 @@ export default function MaterialRequestsPage() {
         <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {loading ? (
             <div className="text-center py-12 text-muted-brand">로딩 중...</div>
-          ) : requests.length === 0 ? (
-            <div className="text-center py-12 text-muted-brand">등록된 청구서가 없습니다.</div>
           ) : (
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  {['청구번호', '제목', '현장', '상태', '항목수', '요청일', '납품요청일', ''].map(h => (
-                    <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {requests.map(r => (
-                  <tr key={r.id}>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
-                      <span className="text-[12px] text-muted-brand">{r.requestNo}</span>
-                    </td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{r.title}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{r.site?.name ?? '-'}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
-                      <span style={{
-                        padding: '2px 8px', borderRadius: '12px', fontSize: '12px',
-                        background: STATUS_COLOR[r.status] + '22',
-                        color: STATUS_COLOR[r.status],
-                        border: `1px solid ${STATUS_COLOR[r.status]}66`,
-                      }}>
-                        {STATUS_LABEL[r.status] ?? r.status}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] text-center">{r._count.items}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{fmtDate(r.createdAt)}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{r.deliveryRequestedAt ? fmtDate(r.deliveryRequestedAt) : '-'}</td>
-                    <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
-                      <Link href={`/admin/materials/requests/${r.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <MobileCardList
+              items={requests}
+              emptyMessage="등록된 청구서가 없습니다."
+              keyExtractor={(r) => r.id}
+              renderCard={(r) => (
+                <MobileCard
+                  title={r.title}
+                  subtitle={`${r.requestNo} · ${r.site?.name ?? '-'}`}
+                  badge={
+                    <span style={{
+                      padding: '2px 8px', borderRadius: '12px', fontSize: '12px',
+                      background: STATUS_COLOR[r.status] + '22',
+                      color: STATUS_COLOR[r.status],
+                      border: `1px solid ${STATUS_COLOR[r.status]}66`,
+                    }}>
+                      {STATUS_LABEL[r.status] ?? r.status}
+                    </span>
+                  }
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="항목수" value={`${r._count.items}건`} />
+                    <MobileCardField label="요청일" value={fmtDate(r.createdAt)} />
+                    <MobileCardField label="납품요청일" value={r.deliveryRequestedAt ? fmtDate(r.deliveryRequestedAt) : '-'} />
+                  </MobileCardFields>
+                  <MobileCardActions>
+                    <Link href={`/admin/materials/requests/${r.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
+                  </MobileCardActions>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        {['청구번호', '제목', '현장', '상태', '항목수', '요청일', '납품요청일', ''].map(h => (
+                          <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {requests.map(r => (
+                        <tr key={r.id}>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
+                            <span className="text-[12px] text-muted-brand">{r.requestNo}</span>
+                          </td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{r.title}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{r.site?.name ?? '-'}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
+                            <span style={{
+                              padding: '2px 8px', borderRadius: '12px', fontSize: '12px',
+                              background: STATUS_COLOR[r.status] + '22',
+                              color: STATUS_COLOR[r.status],
+                              border: `1px solid ${STATUS_COLOR[r.status]}66`,
+                            }}>
+                              {STATUS_LABEL[r.status] ?? r.status}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] text-center">{r._count.items}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{fmtDate(r.createdAt)}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{r.deliveryRequestedAt ? fmtDate(r.deliveryRequestedAt) : '-'}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
+                            <Link href={`/admin/materials/requests/${r.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            />
           )}
 
           {totalPages > 1 && (

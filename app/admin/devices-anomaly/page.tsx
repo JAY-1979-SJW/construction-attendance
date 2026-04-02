@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 type Severity = 'HIGH' | 'MEDIUM' | 'LOW'
 type AnomalyType =
@@ -145,73 +146,84 @@ export default function DevicesAnomalyPage() {
             <div className="text-[13px]">최근 30일간 기기 승인 및 공수 수정 패턴이 정상입니다.</div>
           </div>
         ) : (
-          <div className="hidden sm:block overflow-x-auto">
-            <table className="w-full border-collapse text-[13px]">
-              <thead>
-                <tr>
-                  {['유형', '심각도', '업체/관리자', '근로자', '기기정보', '발생시각', '상세내용'].map(h => (
-                    <th key={h} className="bg-brand px-[14px] py-3 text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {anomalies.map((a, i) => {
-                  const sev = SEVERITY_STYLE[a.severity]
-                  const typ = TYPE_STYLE[a.type]
-                  return (
-                    <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                      <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle">
-                        <span style={{
-                          background: typ.bg,
-                          color: typ.color,
-                          padding: '3px 10px',
-                          borderRadius: '10px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          whiteSpace: 'nowrap',
-                        }}>
-                          {TYPE_LABELS[a.type]}
-                        </span>
-                      </td>
-                      <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle">
-                        <span style={{
-                          background: sev.bg,
-                          color: sev.color,
-                          padding: '3px 10px',
-                          borderRadius: '10px',
-                          fontSize: '12px',
-                          fontWeight: 700,
-                          whiteSpace: 'nowrap',
-                        }}>
-                          {sev.label}
-                        </span>
-                      </td>
-                      <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle">
-                        <div className="font-semibold text-[13px]">{a.companyName}</div>
-                        <div className="text-[12px] text-muted-brand">{a.adminName}</div>
-                      </td>
-                      <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[13px] max-w-[160px]">
-                        <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                          {a.workerName}
-                        </div>
-                      </td>
-                      <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[12px] text-muted-brand max-w-[160px]">
-                        <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                          {a.deviceInfo}
-                        </div>
-                      </td>
-                      <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[12px] text-muted-brand whitespace-nowrap">
-                        {new Date(a.occurredAt).toLocaleString('ko-KR')}
-                      </td>
-                      <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[12px] text-muted-brand max-w-[240px]">
-                        {a.description}
-                      </td>
+          <MobileCardList
+            items={anomalies}
+            emptyMessage="탐지된 이상 행위가 없습니다."
+            keyExtractor={(_, i) => String(i)}
+            renderCard={(a) => {
+              const sev = SEVERITY_STYLE[a.severity]
+              const typ = TYPE_STYLE[a.type]
+              return (
+                <MobileCard
+                  title={TYPE_LABELS[a.type]}
+                  subtitle={new Date(a.occurredAt).toLocaleString('ko-KR')}
+                  badge={
+                    <span style={{ background: sev.bg, color: sev.color, padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 700 }}>
+                      {sev.label}
+                    </span>
+                  }
+                  style={{ borderLeft: `3px solid ${typ.color}` }}
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="업체" value={a.companyName} />
+                    <MobileCardField label="관리자" value={a.adminName} />
+                    <MobileCardField label="근로자" value={a.workerName} />
+                    <MobileCardField label="기기정보" value={a.deviceInfo} />
+                    <MobileCardField label="상세내용" value={a.description} />
+                  </MobileCardFields>
+                </MobileCard>
+              )
+            }}
+            renderTable={() => (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-[13px]">
+                  <thead>
+                    <tr>
+                      {['유형', '심각도', '업체/관리자', '근로자', '기기정보', '발생시각', '상세내용'].map(h => (
+                        <th key={h} className="bg-brand px-[14px] py-3 text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
+                      ))}
                     </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody>
+                    {anomalies.map((a, i) => {
+                      const sev = SEVERITY_STYLE[a.severity]
+                      const typ = TYPE_STYLE[a.type]
+                      return (
+                        <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
+                          <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle">
+                            <span style={{ background: typ.bg, color: typ.color, padding: '3px 10px', borderRadius: '10px', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                              {TYPE_LABELS[a.type]}
+                            </span>
+                          </td>
+                          <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle">
+                            <span style={{ background: sev.bg, color: sev.color, padding: '3px 10px', borderRadius: '10px', fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                              {sev.label}
+                            </span>
+                          </td>
+                          <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle">
+                            <div className="font-semibold text-[13px]">{a.companyName}</div>
+                            <div className="text-[12px] text-muted-brand">{a.adminName}</div>
+                          </td>
+                          <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[13px] max-w-[160px]">
+                            <div className="overflow-hidden text-ellipsis whitespace-nowrap">{a.workerName}</div>
+                          </td>
+                          <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[12px] text-muted-brand max-w-[160px]">
+                            <div className="overflow-hidden text-ellipsis whitespace-nowrap">{a.deviceInfo}</div>
+                          </td>
+                          <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[12px] text-muted-brand whitespace-nowrap">
+                            {new Date(a.occurredAt).toLocaleString('ko-KR')}
+                          </td>
+                          <td className="px-[14px] py-3 border-b border-[rgba(91,164,217,0.1)] align-middle text-[12px] text-muted-brand max-w-[240px]">
+                            {a.description}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          />
         )}
       </div>
     </div>

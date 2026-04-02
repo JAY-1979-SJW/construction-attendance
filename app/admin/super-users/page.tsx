@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface AdminAccount {
   id: string
@@ -186,78 +187,91 @@ export default function SuperUsersPage() {
       )}
 
       {loading ? <p>불러오는 중...</p> : (
-        <table className="w-full border-collapse text-[14px]">
-          <thead>
-            <tr>
-              {['이름', '이메일', '역할', '소속 업체', '상태', '마지막 로그인', '생성일', '조작'].map((h) => (
-                <th key={h} className="px-3 py-[10px] bg-brand border border-[rgba(255,255,255,0.12)] text-left font-semibold">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 && (
-              <tr><td colSpan={8} className="text-center px-3 py-8 text-muted-brand">계정이 없습니다.</td></tr>
-            )}
-            {filtered.map((a) => (
-              <tr key={a.id} className={a.isActive ? '' : 'opacity-60'}>
-                <td className="px-3 py-[10px] border border-brand font-semibold">{a.name}</td>
-                <td className="px-3 py-[10px] border border-brand">{a.email}</td>
-                <td className="px-3 py-[10px] border border-brand">
-                  <span className="font-semibold text-[12px]" style={{ color: ROLE_COLOR[a.role] ?? '#333' }}>
-                    {ROLE_LABEL[a.role] ?? a.role}
-                  </span>
-                </td>
-                <td className="px-3 py-[10px] border border-brand">
-                  {a.companyId ? (
-                    <Link href={`/admin/companies/${a.companyId}`} className="text-secondary-brand no-underline">
-                      {a.companyName}
-                    </Link>
-                  ) : '-'}
-                </td>
-                <td className="px-3 py-[10px] border border-brand">
-                  <div className="flex flex-col gap-1">
-                    <span className={`font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>
-                      {a.isActive ? '활성' : '비활성'}
-                    </span>
-                    {a.role === 'EXTERNAL_SITE_ADMIN' && a.companyVerificationStatus && (
-                      <span className={`text-[11px] px-[6px] py-[1px] rounded ${
-                        a.companyVerificationStatus === 'VERIFIED'
-                          ? 'bg-green-light text-[#2e7d32]'
-                          : a.companyVerificationStatus === 'PENDING_VERIFICATION'
-                          ? 'bg-[#fff8e1] text-[#f57f17]'
-                          : 'bg-[#fce4ec] text-[#c62828]'
-                      }`}>
-                        {a.companyVerificationStatus === 'VERIFIED' ? '인증완료' : a.companyVerificationStatus === 'PENDING_VERIFICATION' ? '인증대기' : a.companyVerificationStatus}
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td className="px-3 py-[10px] border border-brand">{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
-                <td className="px-3 py-[10px] border border-brand">{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
-                <td className="px-3 py-[10px] border border-brand">
-                  <div className="flex gap-1">
-                    {!a.isActive && (
-                      <button
-                        className="px-3 py-1 bg-[#388e3c] text-white border-none rounded-md cursor-pointer text-[12px]"
-                        onClick={() => activate(a.id)}
-                      >
-                        활성화
-                      </button>
-                    )}
-                    {a.isActive && (
-                      <button
-                        className="px-3 py-1 bg-[#e53935] text-white border-none rounded-md cursor-pointer text-[12px]"
-                        onClick={() => deactivate(a.id)}
-                      >
-                        비활성화
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <MobileCardList
+          items={filtered}
+          emptyMessage="계정이 없습니다."
+          keyExtractor={(a) => a.id}
+          renderCard={(a) => (
+            <MobileCard
+              title={a.name}
+              subtitle={a.email}
+              badge={
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ color: ROLE_COLOR[a.role] ?? '#333' }}>
+                  {ROLE_LABEL[a.role] ?? a.role}
+                </span>
+              }
+              className={a.isActive ? '' : 'opacity-60'}
+            >
+              <MobileCardFields>
+                <MobileCardField label="소속 업체" value={
+                  a.companyId
+                    ? <Link href={`/admin/companies/${a.companyId}`} className="text-secondary-brand no-underline">{a.companyName}</Link>
+                    : '-'
+                } />
+                <MobileCardField label="상태" value={
+                  <span className={`font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>{a.isActive ? '활성' : '비활성'}</span>
+                } />
+                <MobileCardField label="마지막 로그인" value={a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'} />
+                <MobileCardField label="생성일" value={new Date(a.createdAt).toLocaleDateString('ko-KR')} />
+              </MobileCardFields>
+              <MobileCardActions>
+                {!a.isActive && (
+                  <button className="px-3 py-1.5 bg-[#388e3c] text-white border-none rounded text-xs font-bold" onClick={() => activate(a.id)}>활성화</button>
+                )}
+                {a.isActive && (
+                  <button className="px-3 py-1.5 bg-[#e53935] text-white border-none rounded text-xs font-bold" onClick={() => deactivate(a.id)}>비활성화</button>
+                )}
+              </MobileCardActions>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[14px]">
+                <thead>
+                  <tr>
+                    {['이름', '이메일', '역할', '소속 업체', '상태', '마지막 로그인', '생성일', '조작'].map((h) => (
+                      <th key={h} className="px-3 py-[10px] bg-brand border border-[rgba(255,255,255,0.12)] text-left font-semibold">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((a) => (
+                    <tr key={a.id} className={a.isActive ? '' : 'opacity-60'}>
+                      <td className="px-3 py-[10px] border border-brand font-semibold">{a.name}</td>
+                      <td className="px-3 py-[10px] border border-brand">{a.email}</td>
+                      <td className="px-3 py-[10px] border border-brand">
+                        <span className="font-semibold text-[12px]" style={{ color: ROLE_COLOR[a.role] ?? '#333' }}>{ROLE_LABEL[a.role] ?? a.role}</span>
+                      </td>
+                      <td className="px-3 py-[10px] border border-brand">
+                        {a.companyId ? (
+                          <Link href={`/admin/companies/${a.companyId}`} className="text-secondary-brand no-underline">{a.companyName}</Link>
+                        ) : '-'}
+                      </td>
+                      <td className="px-3 py-[10px] border border-brand">
+                        <div className="flex flex-col gap-1">
+                          <span className={`font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>{a.isActive ? '활성' : '비활성'}</span>
+                          {a.role === 'EXTERNAL_SITE_ADMIN' && a.companyVerificationStatus && (
+                            <span className={`text-[11px] px-[6px] py-[1px] rounded ${a.companyVerificationStatus === 'VERIFIED' ? 'bg-green-light text-[#2e7d32]' : a.companyVerificationStatus === 'PENDING_VERIFICATION' ? 'bg-[#fff8e1] text-[#f57f17]' : 'bg-[#fce4ec] text-[#c62828]'}`}>
+                              {a.companyVerificationStatus === 'VERIFIED' ? '인증완료' : a.companyVerificationStatus === 'PENDING_VERIFICATION' ? '인증대기' : a.companyVerificationStatus}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-3 py-[10px] border border-brand">{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
+                      <td className="px-3 py-[10px] border border-brand">{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
+                      <td className="px-3 py-[10px] border border-brand">
+                        <div className="flex gap-1">
+                          {!a.isActive && <button className="px-3 py-1 bg-[#388e3c] text-white border-none rounded-md cursor-pointer text-[12px]" onClick={() => activate(a.id)}>활성화</button>}
+                          {a.isActive && <button className="px-3 py-1 bg-[#e53935] text-white border-none rounded-md cursor-pointer text-[12px]" onClick={() => deactivate(a.id)}>비활성화</button>}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
       )}
     </div>
   )

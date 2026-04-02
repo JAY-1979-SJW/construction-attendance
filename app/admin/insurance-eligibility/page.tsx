@@ -1,8 +1,9 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { PageShell } from '@/components/admin/ui/PageShell'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface InsuranceItem {
   id: string
@@ -92,44 +93,102 @@ export default function InsuranceEligibilityPage() {
 
       <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
         {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-          <div className="hidden sm:block overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  {['근로자', '고용형태', '근무일수', '확정금액', '국민연금', '건강보험', '고용보험', '산재보험'].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand border-b border-secondary-brand/20 whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {items.length === 0 ? (
-                  <tr><td colSpan={8} className="text-center py-6 text-[#999]">데이터 없음 — 보험판정 실행을 먼저 하세요</td></tr>
-                ) : items.map((item) => (
-                  <tr key={item.id} className="cursor-default">
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">{item.worker.name}</td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">{EMP_LABEL[item.worker.employmentType] ?? item.worker.employmentType}</td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top text-center">{item.totalWorkDays}일</td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top text-right">{fmt(item.totalConfirmedAmount)}</td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">
-                      {check(item.nationalPensionEligible)}
-                      <div className="text-[11px] text-muted-brand mt-0.5">{item.nationalPensionReason ?? ''}</div>
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">
-                      {check(item.healthInsuranceEligible)}
-                      <div className="text-[11px] text-muted-brand mt-0.5">{item.healthInsuranceReason ?? ''}</div>
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">
-                      {check(item.employmentInsuranceEligible)}
-                      <div className="text-[11px] text-muted-brand mt-0.5">{item.employmentInsuranceReason ?? ''}</div>
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">
-                      {check(item.industrialAccidentEligible)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <MobileCardList
+            items={items}
+            keyExtractor={(item) => item.id}
+            emptyMessage="데이터 없음 — 보험판정 실행을 먼저 하세요"
+            renderCard={(item) => (
+              <MobileCard
+                title={item.worker.name}
+                subtitle={EMP_LABEL[item.worker.employmentType] ?? item.worker.employmentType}
+                badge={
+                  <span
+                    className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{
+                      background: item.nationalPensionEligible ? '#e8f5e9' : '#f5f5f5',
+                      color: item.nationalPensionEligible ? '#2e7d32' : '#9e9e9e',
+                    }}
+                  >
+                    {item.nationalPensionEligible ? '국민연금 적용' : '국민연금 제외'}
+                  </span>
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField label="근무일수" value={`${item.totalWorkDays}일`} />
+                  <MobileCardField label="확정금액" value={fmt(item.totalConfirmedAmount)} />
+                  <MobileCardField
+                    label="건강보험"
+                    value={
+                      <span style={{ color: item.healthInsuranceEligible ? '#2e7d32' : '#9e9e9e' }}>
+                        {item.healthInsuranceEligible ? '✅ 적용' : '✗ 제외'}
+                        {item.healthInsuranceReason ? ` (${item.healthInsuranceReason})` : ''}
+                      </span>
+                    }
+                  />
+                  <MobileCardField
+                    label="고용보험"
+                    value={
+                      <span style={{ color: item.employmentInsuranceEligible ? '#2e7d32' : '#9e9e9e' }}>
+                        {item.employmentInsuranceEligible ? '✅ 적용' : '✗ 제외'}
+                        {item.employmentInsuranceReason ? ` (${item.employmentInsuranceReason})` : ''}
+                      </span>
+                    }
+                  />
+                  <MobileCardField
+                    label="산재보험"
+                    value={
+                      <span style={{ color: item.industrialAccidentEligible ? '#2e7d32' : '#9e9e9e' }}>
+                        {item.industrialAccidentEligible ? '✅ 적용' : '✗ 제외'}
+                      </span>
+                    }
+                  />
+                  {item.nationalPensionReason && (
+                    <MobileCardField label="국민연금 사유" value={item.nationalPensionReason} />
+                  )}
+                </MobileCardFields>
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      {['근로자', '고용형태', '근무일수', '확정금액', '국민연금', '건강보험', '고용보험', '산재보험'].map((h) => (
+                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand border-b border-secondary-brand/20 whitespace-nowrap">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.length === 0 ? (
+                      <tr><td colSpan={8} className="text-center py-6 text-[#999]">데이터 없음 — 보험판정 실행을 먼저 하세요</td></tr>
+                    ) : items.map((item) => (
+                      <tr key={item.id} className="cursor-default">
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">{item.worker.name}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">{EMP_LABEL[item.worker.employmentType] ?? item.worker.employmentType}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top text-center">{item.totalWorkDays}일</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top text-right">{fmt(item.totalConfirmedAmount)}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">
+                          {check(item.nationalPensionEligible)}
+                          <div className="text-[11px] text-muted-brand mt-0.5">{item.nationalPensionReason ?? ''}</div>
+                        </td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">
+                          {check(item.healthInsuranceEligible)}
+                          <div className="text-[11px] text-muted-brand mt-0.5">{item.healthInsuranceReason ?? ''}</div>
+                        </td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">
+                          {check(item.employmentInsuranceEligible)}
+                          <div className="text-[11px] text-muted-brand mt-0.5">{item.employmentInsuranceReason ?? ''}</div>
+                        </td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-secondary-brand/10 align-top">
+                          {check(item.industrialAccidentEligible)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          />
         )}
       </div>
     </PageShell>

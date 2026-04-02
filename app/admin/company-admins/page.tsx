@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface CompanyAdmin {
   id: string
@@ -138,47 +139,74 @@ export default function CompanyAdminsPage() {
       )}
 
       {loading ? <p>불러오는 중...</p> : (
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr>
-              {['이름', '이메일', '소속 업체', '상태', '마지막 로그인', '생성일', '조작'].map((h) => (
-                <th
-                  key={h}
-                  className="px-3 py-[10px] bg-brand border border-brand text-left font-semibold"
-                >{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {admins.length === 0 && (
-              <tr>
-                <td colSpan={7} className="text-center py-8 text-muted-brand">등록된 업체 관리자가 없습니다.</td>
-              </tr>
-            )}
-            {admins.map((a) => (
-              <tr key={a.id} className={a.isActive ? 'bg-white' : 'bg-surface'}>
-                <td className="px-3 py-[10px] border border-brand">{a.name}</td>
-                <td className="px-3 py-[10px] border border-brand">{a.email}</td>
-                <td className="px-3 py-[10px] border border-brand">{a.companyName}</td>
-                <td className="px-3 py-[10px] border border-brand">
-                  <span className={`font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>
-                    {a.isActive ? '활성' : '비활성'}
-                  </span>
-                </td>
-                <td className="px-3 py-[10px] border border-brand">{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
-                <td className="px-3 py-[10px] border border-brand">{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
-                <td className="px-3 py-[10px] border border-brand">
-                  <button
-                    className={`px-3 py-1 text-white border-none rounded-md cursor-pointer text-xs ${a.isActive ? 'bg-[#e53935]' : 'bg-[#388e3c]'}`}
-                    onClick={() => toggleActive(a.id, a.isActive)}
-                  >
-                    {a.isActive ? '정지' : '활성화'}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <MobileCardList
+          items={admins}
+          emptyMessage="등록된 업체 관리자가 없습니다."
+          keyExtractor={(a) => a.id}
+          renderCard={(a) => (
+            <MobileCard
+              title={a.name}
+              subtitle={a.email}
+              badge={
+                <span className={`text-[11px] font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>
+                  {a.isActive ? '활성' : '비활성'}
+                </span>
+              }
+              className={a.isActive ? '' : 'opacity-60'}
+            >
+              <MobileCardFields>
+                <MobileCardField label="소속 업체" value={a.companyName} />
+                <MobileCardField label="마지막 로그인" value={a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'} />
+                <MobileCardField label="생성일" value={new Date(a.createdAt).toLocaleDateString('ko-KR')} />
+              </MobileCardFields>
+              <MobileCardActions>
+                <button
+                  className={`px-3 py-1.5 text-white border-none rounded text-xs font-bold ${a.isActive ? 'bg-[#e53935]' : 'bg-[#388e3c]'}`}
+                  onClick={() => toggleActive(a.id, a.isActive)}
+                >
+                  {a.isActive ? '정지' : '활성화'}
+                </button>
+              </MobileCardActions>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    {['이름', '이메일', '소속 업체', '상태', '마지막 로그인', '생성일', '조작'].map((h) => (
+                      <th key={h} className="px-3 py-[10px] bg-brand border border-brand text-left font-semibold">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {admins.map((a) => (
+                    <tr key={a.id} className={a.isActive ? 'bg-white' : 'bg-surface'}>
+                      <td className="px-3 py-[10px] border border-brand">{a.name}</td>
+                      <td className="px-3 py-[10px] border border-brand">{a.email}</td>
+                      <td className="px-3 py-[10px] border border-brand">{a.companyName}</td>
+                      <td className="px-3 py-[10px] border border-brand">
+                        <span className={`font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>
+                          {a.isActive ? '활성' : '비활성'}
+                        </span>
+                      </td>
+                      <td className="px-3 py-[10px] border border-brand">{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
+                      <td className="px-3 py-[10px] border border-brand">{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
+                      <td className="px-3 py-[10px] border border-brand">
+                        <button
+                          className={`px-3 py-1 text-white border-none rounded-md cursor-pointer text-xs ${a.isActive ? 'bg-[#e53935]' : 'bg-[#388e3c]'}`}
+                          onClick={() => toggleActive(a.id, a.isActive)}
+                        >
+                          {a.isActive ? '정지' : '활성화'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
       )}
     </div>
   )

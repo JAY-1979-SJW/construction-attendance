@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface WageItem {
   id: string
@@ -113,46 +114,71 @@ export default function WageCalculationsPage() {
 
         <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
           {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    {['근로자', '소득유형', '근무일수', '총지급액', '비과세', '과세표준', '소득세', '지방소득세', '공식'].map((h) => (
-                      <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.length === 0 ? (
-                    <tr><td colSpan={9} className="text-center py-6 text-[#999]">데이터 없음 — 세금계산 실행을 먼저 하세요</td></tr>
-                  ) : items.map((item) => (
-                    <tr key={item.id} className="cursor-default">
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.worker.name}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
-                        <span className="font-semibold text-[12px]" style={{ color: INCOME_COLOR[item.incomeType] }}>
-                          {INCOME_LABEL[item.incomeType] ?? item.incomeType}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
-                        {Number(item.regularDays) + Number(item.halfDays)}일
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.grossAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.nonTaxableAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.taxableAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#b71c1c] border-b border-[rgba(91,164,217,0.1)] align-top text-right">
-                        {fmt(item.withholding?.incomeTaxAmount ?? 0)}
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-[#7b1fa2] border-b border-[rgba(91,164,217,0.1)] align-top text-right">
-                        {fmt(item.withholding?.localIncomeTaxAmount ?? 0)}
-                      </td>
-                      <td className="px-4 py-3 text-[11px] text-muted-brand border-b border-[rgba(91,164,217,0.1)] align-top max-w-[200px]">
-                        {FORMULA_LABEL[item.withholding?.formulaCode ?? ''] ?? item.withholding?.formulaCode ?? '-'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <MobileCardList
+              items={items}
+              emptyMessage="데이터 없음 — 세금계산 실행을 먼저 하세요"
+              keyExtractor={(item) => item.id}
+              renderCard={(item) => (
+                <MobileCard
+                  title={item.worker.name}
+                  subtitle={`${item.monthKey} · ${Number(item.regularDays) + Number(item.halfDays)}일`}
+                  badge={
+                    <span className="font-semibold text-[12px]" style={{ color: INCOME_COLOR[item.incomeType] }}>
+                      {INCOME_LABEL[item.incomeType] ?? item.incomeType}
+                    </span>
+                  }
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="총지급액" value={fmt(item.grossAmount) + '원'} />
+                    <MobileCardField label="비과세" value={fmt(item.nonTaxableAmount) + '원'} />
+                    <MobileCardField label="과세표준" value={fmt(item.taxableAmount) + '원'} />
+                    <MobileCardField label="소득세" value={<span style={{ color: '#b71c1c' }}>{fmt(item.withholding?.incomeTaxAmount ?? 0)}원</span>} />
+                    <MobileCardField label="지방소득세" value={<span style={{ color: '#7b1fa2' }}>{fmt(item.withholding?.localIncomeTaxAmount ?? 0)}원</span>} />
+                    <MobileCardField label="공식" value={FORMULA_LABEL[item.withholding?.formulaCode ?? ''] ?? item.withholding?.formulaCode ?? '-'} />
+                  </MobileCardFields>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        {['근로자', '소득유형', '근무일수', '총지급액', '비과세', '과세표준', '소득세', '지방소득세', '공식'].map((h) => (
+                          <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {items.map((item) => (
+                        <tr key={item.id} className="cursor-default">
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.worker.name}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
+                            <span className="font-semibold text-[12px]" style={{ color: INCOME_COLOR[item.incomeType] }}>
+                              {INCOME_LABEL[item.incomeType] ?? item.incomeType}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                            {Number(item.regularDays) + Number(item.halfDays)}일
+                          </td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.grossAmount)}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.nonTaxableAmount)}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.taxableAmount)}</td>
+                          <td className="px-4 py-3 text-[13px] text-[#b71c1c] border-b border-[rgba(91,164,217,0.1)] align-top text-right">
+                            {fmt(item.withholding?.incomeTaxAmount ?? 0)}
+                          </td>
+                          <td className="px-4 py-3 text-[13px] text-[#7b1fa2] border-b border-[rgba(91,164,217,0.1)] align-top text-right">
+                            {fmt(item.withholding?.localIncomeTaxAmount ?? 0)}
+                          </td>
+                          <td className="px-4 py-3 text-[11px] text-muted-brand border-b border-[rgba(91,164,217,0.1)] align-top max-w-[200px]">
+                            {FORMULA_LABEL[item.withholding?.formulaCode ?? ''] ?? item.withholding?.formulaCode ?? '-'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            />
           )}
         </div>
     </div>

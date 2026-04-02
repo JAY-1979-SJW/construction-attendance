@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface ImportJob {
   id: string
@@ -114,50 +115,79 @@ export default function SiteImportsPage() {
         {/* 작업 목록 */}
         <div className="font-bold text-[15px] mb-3">업로드 이력</div>
         {loading ? <p className="text-muted-brand">로딩 중...</p> : (
-          <div className="bg-card rounded-[12px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  {['업로드일시', '파일명', '상태', '전체', 'READY', '검수필요/실패', '승인', '등록완료', ''].map((h) => (
-                    <th key={h} className="text-left px-[14px] py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] bg-surface whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {jobs.length === 0 ? (
-                  <tr><td colSpan={9} className="text-center py-8 text-[#999]">업로드 이력이 없습니다.</td></tr>
-                ) : jobs.map((j) => (
-                  <tr key={j.id}>
-                    <td className="px-[14px] py-[10px] text-[13px] border-b border-brand">{formatDT(j.createdAt)}</td>
-                    <td className="px-[14px] py-[10px] text-[13px] border-b border-brand">
-                      <span className="text-[13px] text-dim-brand">{j.originalFilename}</span>
-                    </td>
-                    <td className="px-[14px] py-[10px] text-[13px] border-b border-brand">
-                      <span className="text-[11px] font-bold" style={{ color: JOB_STATUS_COLOR[j.status] ?? '#888' }}>
-                        {JOB_STATUS_LABEL[j.status] ?? j.status}
-                      </span>
-                    </td>
-                    <td className="px-[14px] py-[10px] text-[13px] border-b border-brand text-center">{j.totalRows}</td>
-                    <td className="px-[14px] py-[10px] text-[13px] border-b border-brand text-center">
-                      <span className="text-[#2e7d32] font-semibold">{j.readyRows}</span>
-                    </td>
-                    <td className="px-[14px] py-[10px] text-[13px] border-b border-brand text-center">
-                      <span className={j.failedRows > 0 ? 'text-accent-hover font-semibold' : 'text-[#888]'}>{j.failedRows}</span>
-                    </td>
-                    <td className="px-[14px] py-[10px] text-[13px] border-b border-brand text-center">
-                      <span className="text-secondary-brand font-semibold">{j.approvedRows}</span>
-                    </td>
-                    <td className="px-[14px] py-[10px] text-[13px] border-b border-brand text-center">
-                      <span className="text-[#4a148c] font-semibold">{j.importedRows}</span>
-                    </td>
-                    <td className="px-[14px] py-[10px] text-[13px] border-b border-brand">
-                      <Link href={`/admin/site-imports/${j.id}`} className="text-secondary-brand underline text-[13px] font-semibold">검수</Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <MobileCardList
+            items={jobs}
+            emptyMessage="업로드 이력이 없습니다."
+            keyExtractor={(j) => j.id}
+            renderCard={(j) => (
+              <MobileCard
+                title={j.originalFilename}
+                subtitle={formatDT(j.createdAt)}
+                badge={
+                  <span className="text-[11px] font-bold" style={{ color: JOB_STATUS_COLOR[j.status] ?? '#888' }}>
+                    {JOB_STATUS_LABEL[j.status] ?? j.status}
+                  </span>
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField label="전체" value={j.totalRows} />
+                  <MobileCardField label="READY" value={<span className="text-[#2e7d32] font-semibold">{j.readyRows}</span>} />
+                  <MobileCardField label="검수필요/실패" value={<span className={j.failedRows > 0 ? 'text-accent-hover font-semibold' : 'text-[#888]'}>{j.failedRows}</span>} />
+                  <MobileCardField label="승인" value={<span className="text-secondary-brand font-semibold">{j.approvedRows}</span>} />
+                  <MobileCardField label="등록완료" value={<span className="text-[#4a148c] font-semibold">{j.importedRows}</span>} />
+                </MobileCardFields>
+                <MobileCardActions>
+                  <Link href={`/admin/site-imports/${j.id}`} className="text-secondary-brand underline text-[13px] font-semibold">검수</Link>
+                </MobileCardActions>
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <div className="overflow-x-auto">
+                <div className="bg-card rounded-[12px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        {['업로드일시', '파일명', '상태', '전체', 'READY', '검수필요/실패', '승인', '등록완료', ''].map((h) => (
+                          <th key={h} className="text-left px-[14px] py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] bg-surface whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {jobs.map((j) => (
+                        <tr key={j.id}>
+                          <td className="px-[14px] py-[10px] text-[13px] border-b border-brand">{formatDT(j.createdAt)}</td>
+                          <td className="px-[14px] py-[10px] text-[13px] border-b border-brand">
+                            <span className="text-[13px] text-dim-brand">{j.originalFilename}</span>
+                          </td>
+                          <td className="px-[14px] py-[10px] text-[13px] border-b border-brand">
+                            <span className="text-[11px] font-bold" style={{ color: JOB_STATUS_COLOR[j.status] ?? '#888' }}>
+                              {JOB_STATUS_LABEL[j.status] ?? j.status}
+                            </span>
+                          </td>
+                          <td className="px-[14px] py-[10px] text-[13px] border-b border-brand text-center">{j.totalRows}</td>
+                          <td className="px-[14px] py-[10px] text-[13px] border-b border-brand text-center">
+                            <span className="text-[#2e7d32] font-semibold">{j.readyRows}</span>
+                          </td>
+                          <td className="px-[14px] py-[10px] text-[13px] border-b border-brand text-center">
+                            <span className={j.failedRows > 0 ? 'text-accent-hover font-semibold' : 'text-[#888]'}>{j.failedRows}</span>
+                          </td>
+                          <td className="px-[14px] py-[10px] text-[13px] border-b border-brand text-center">
+                            <span className="text-secondary-brand font-semibold">{j.approvedRows}</span>
+                          </td>
+                          <td className="px-[14px] py-[10px] text-[13px] border-b border-brand text-center">
+                            <span className="text-[#4a148c] font-semibold">{j.importedRows}</span>
+                          </td>
+                          <td className="px-[14px] py-[10px] text-[13px] border-b border-brand">
+                            <Link href={`/admin/site-imports/${j.id}`} className="text-secondary-brand underline text-[13px] font-semibold">검수</Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          />
         )}
     </div>
   )
