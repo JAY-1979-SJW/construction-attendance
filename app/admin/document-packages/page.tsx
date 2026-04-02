@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -56,11 +56,11 @@ export default function DocumentPackagesPage() {
         <h1 className="text-xl font-bold">투입 문서 관리</h1>
         <div className="flex gap-2">
           <button onClick={() => setViewMode('pending')}
-            className={`px-4 py-2 rounded-lg text-[13px] font-medium border cursor-pointer ${viewMode === 'pending' ? 'bg-[#f57c00] text-white border-[#f57c00]' : 'bg-white border-[#e0e0e0]'}`}>
+            className={`px-4 py-2 rounded-lg text-[13px] font-medium border cursor-pointer ${viewMode === 'pending' ? 'bg-[#f57c00] text-white border-[#f57c00]' : 'bg-white border-brand'}`}>
             검토대기 문서
           </button>
           <button onClick={() => setViewMode('packages')}
-            className={`px-4 py-2 rounded-lg text-[13px] font-medium border cursor-pointer ${viewMode === 'packages' ? 'bg-[#1976d2] text-white border-[#1976d2]' : 'bg-white border-[#e0e0e0]'}`}>
+            className={`px-4 py-2 rounded-lg text-[13px] font-medium border cursor-pointer ${viewMode === 'packages' ? 'bg-[#1976d2] text-white border-[#1976d2]' : 'bg-white border-brand'}`}>
             근로자별 패키지
           </button>
         </div>
@@ -71,13 +71,13 @@ export default function DocumentPackagesPage() {
         <input value={keyword} onChange={e => setKeyword(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && load()}
           placeholder="이름/연락처 검색"
-          className="px-3 py-2 border border-[#e0e0e0] rounded-md text-[13px] w-48" />
+          className="px-3 py-2 border border-brand rounded-md text-[13px] w-48" />
         <button onClick={load} className="px-3 py-2 bg-[#1976d2] text-white border-none rounded-md text-[13px] cursor-pointer">검색</button>
         {viewMode === 'packages' && (
           <div className="flex gap-1 ml-4">
             {['', 'NOT_READY', 'UNDER_REVIEW', 'READY', 'REJECTED', 'EXPIRED'].map(s => (
               <button key={s} onClick={() => setFilter(s)}
-                className={`px-3 py-1.5 rounded-full text-[12px] border cursor-pointer ${filter === s ? 'bg-[#37474f] text-white border-[#37474f]' : 'bg-white border-[#e0e0e0]'}`}>
+                className={`px-3 py-1.5 rounded-full text-[12px] border cursor-pointer ${filter === s ? 'bg-[#37474f] text-white border-[#37474f]' : 'bg-white border-brand'}`}>
                 {s ? STATUS_LABELS[s] : '전체'}
               </button>
             ))}
@@ -89,8 +89,8 @@ export default function DocumentPackagesPage() {
         <div className="text-center py-12 text-sm text-[#718096]">불러오는 중...</div>
       ) : viewMode === 'pending' ? (
         /* 검토대기 문서 목록 */
-        <div className="bg-white rounded-[12px] shadow-sm border border-[#E5E7EB]">
-          <div className="px-4 py-3 border-b border-[#e0e0e0] text-sm font-bold text-[#37474f]">
+        <div className="bg-card rounded-[12px] shadow-sm border border-brand">
+          <div className="px-4 py-3 border-b border-brand text-sm font-bold text-[#37474f]">
             검토대기 문서 ({pendingDocs.length}건)
           </div>
           {pendingDocs.length === 0 ? (
@@ -98,7 +98,7 @@ export default function DocumentPackagesPage() {
           ) : (
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="text-left text-xs text-[#718096] border-b border-[#e0e0e0]">
+                <tr className="text-left text-xs text-[#718096] border-b border-brand">
                   <th className="py-2.5 px-4">근로자</th>
                   <th className="py-2.5 px-4">현장</th>
                   <th className="py-2.5 px-4">문서</th>
@@ -108,7 +108,7 @@ export default function DocumentPackagesPage() {
               </thead>
               <tbody>
                 {pendingDocs.map((doc: any) => (
-                  <tr key={doc.id} className="border-b border-[#f5f5f5] hover:bg-[#fafafa]">
+                  <tr key={doc.id} className="border-b border-brand hover:bg-surface">
                     <td className="py-2.5 px-4">
                       <Link href={`/admin/workers/${doc.worker?.id}`} className="text-[#1976d2] no-underline font-medium">
                         {doc.worker?.name}
@@ -138,8 +138,8 @@ export default function DocumentPackagesPage() {
         </div>
       ) : (
         /* 근로자별 패키지 목록 */
-        <div className="bg-white rounded-[12px] shadow-sm border border-[#E5E7EB]">
-          <div className="px-4 py-3 border-b border-[#e0e0e0] text-sm font-bold text-[#37474f]">
+        <div className="bg-card rounded-[12px] shadow-sm border border-brand">
+          <div className="px-4 py-3 border-b border-brand text-sm font-bold text-[#37474f]">
             전체 {total}명
           </div>
           {packages.length === 0 ? (
@@ -147,7 +147,7 @@ export default function DocumentPackagesPage() {
           ) : (
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="text-left text-xs text-[#718096] border-b border-[#e0e0e0]">
+                <tr className="text-left text-xs text-[#718096] border-b border-brand">
                   <th className="py-2.5 px-4">근로자</th>
                   <th className="py-2.5 px-4">현장</th>
                   <th className="py-2.5 px-4">상태</th>
@@ -158,7 +158,7 @@ export default function DocumentPackagesPage() {
               </thead>
               <tbody>
                 {packages.map((pkg: any) => (
-                  <tr key={pkg.id} className="border-b border-[#f5f5f5] hover:bg-[#fafafa]">
+                  <tr key={pkg.id} className="border-b border-brand hover:bg-surface">
                     <td className="py-2.5 px-4">
                       <Link href={`/admin/workers/${pkg.worker?.id}`} className="text-[#1976d2] no-underline font-medium">
                         {pkg.worker?.name}

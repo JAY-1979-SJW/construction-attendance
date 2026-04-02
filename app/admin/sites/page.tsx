@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
@@ -161,21 +161,21 @@ const OP_LABEL: Record<OpStatus, string> = {
   ACTIVE: '운영중', UPCOMING: '예정', SUSPENDED: '중지', CLOSED: '종료', ATTENTION: '확인필요',
 }
 const OP_COLOR: Record<OpStatus, string> = {
-  ACTIVE:    'bg-[#ECFDF5] text-[#059669]',
-  UPCOMING:  'bg-[#EFF6FF] text-[#2563EB]',
-  SUSPENDED: 'bg-[#FFF7ED] text-[#92400E]',
-  CLOSED:    'bg-[#F3F4F6] text-[#6B7280]',
-  ATTENTION: 'bg-[#FEF2F2] text-[#DC2626]',
+  ACTIVE:    'bg-green-light text-[#059669]',
+  UPCOMING:  'bg-blue-light text-status-info',
+  SUSPENDED: 'bg-accent-light text-status-pending',
+  CLOSED:    'bg-footer text-muted-brand',
+  ATTENTION: 'bg-red-light text-status-rejected',
 }
 const CP_LABEL: Record<CpStatus, string> = {
   IN_PROGRESS: '진행중', NOT_STARTED: '시작전', ENDING_SOON: '종료임박', ENDED: '종료됨', UNSET: '미입력',
 }
 const CP_COLOR: Record<CpStatus, string> = {
-  IN_PROGRESS: 'bg-[#ECFDF5] text-[#059669]',
-  NOT_STARTED: 'bg-[#EFF6FF] text-[#2563EB]',
-  ENDING_SOON: 'bg-[#FFF7ED] text-[#EA580C]',
-  ENDED:       'bg-[#F3F4F6] text-[#6B7280]',
-  UNSET:       'bg-[#FEF9C3] text-[#92400E]',
+  IN_PROGRESS: 'bg-green-light text-[#059669]',
+  NOT_STARTED: 'bg-blue-light text-status-info',
+  ENDING_SOON: 'bg-accent-light text-accent-hover',
+  ENDED:       'bg-footer text-muted-brand',
+  UNSET:       'bg-[#FEF9C3] text-status-pending',
 }
 
 function fmtWon(n: number): string {
@@ -514,7 +514,7 @@ export default function SitesPage() {
   }
 
   // ── CSS 상수 ──────────────────────────────────────────────────────────────
-  const labelCls     = 'block text-[13px] font-semibold text-[#6B7280] mb-1'
+  const labelCls     = 'block text-[13px] font-semibold text-muted-brand mb-1'
 
   // ── 폼 필드 공통 렌더 ────────────────────────────────────────────────────
   const renderFormFields = (
@@ -534,7 +534,7 @@ export default function SitesPage() {
               className="px-3 py-[6px] bg-[rgba(244,121,32,0.12)] text-accent border border-[#90caf9] rounded-md cursor-pointer text-[13px] font-semibold whitespace-nowrap"
               onClick={() => openAddressSearch(target)}>주소 검색</button>
             <button type="button"
-              className="px-3 py-[6px] bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7] rounded-md cursor-pointer text-[13px] font-semibold whitespace-nowrap disabled:opacity-50"
+              className="px-3 py-[6px] bg-green-light text-[#2e7d32] border border-[#a5d6a7] rounded-md cursor-pointer text-[13px] font-semibold whitespace-nowrap disabled:opacity-50"
               disabled={gpsLoading} onClick={() => fillCurrentLocation(target)}>
               {gpsLoading ? '확인 중...' : '현재 위치'}
             </button>
@@ -545,7 +545,7 @@ export default function SitesPage() {
       </div>
       {geoStatus === 'loading' && <div className="text-xs text-[#F59E0B] mb-1">좌표 확인 중...</div>}
       {geoStatus === 'error'   && <div className="text-xs text-[#e53935] mb-1">좌표를 찾지 못했습니다. 주소를 다시 검색하세요.</div>}
-      {geoStatus === 'done' && f.latitude && <div className="text-xs text-[#16a34a] mb-1">좌표 확인 완료</div>}
+      {geoStatus === 'done' && f.latitude && <div className="text-xs text-status-working mb-1">좌표 확인 완료</div>}
       <input type="hidden" value={f.latitude} />
       <input type="hidden" value={f.longitude} />
       <FormInput label="GPS 허용 반경 (m)" value={f.allowedRadius} placeholder="100" onChange={e => onChange('allowedRadius', e.target.value)} />
@@ -569,25 +569,25 @@ export default function SitesPage() {
         <SectionCard>
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex-1 min-w-0">
-              <div className="text-[15px] font-bold text-[#0F172A] leading-snug">{s.name}</div>
-              {s.siteCode && <div className="font-mono text-[11px] text-[#9CA3AF] mt-[2px]">{s.siteCode}</div>}
+              <div className="text-[15px] font-bold text-title-brand leading-snug">{s.name}</div>
+              {s.siteCode && <div className="font-mono text-[11px] text-muted2-brand mt-[2px]">{s.siteCode}</div>}
             </div>
             <button
               onClick={() => setSelected(null)}
-              className="w-6 h-6 flex items-center justify-center rounded text-[#9CA3AF] hover:bg-[#F3F4F6] text-[16px] cursor-pointer flex-shrink-0"
+              className="w-6 h-6 flex items-center justify-center rounded text-muted2-brand hover:bg-footer text-[16px] cursor-pointer flex-shrink-0"
             >×</button>
           </div>
           {/* 운영 상태 + 계약 상태 배지 (분리 표시) */}
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1">
-              <span className="text-[10px] text-[#9CA3AF]">운영</span>
+              <span className="text-[10px] text-muted2-brand">운영</span>
               <span className={`px-2 py-[3px] rounded-[6px] text-[11px] font-bold ${OP_COLOR[s.opStatus]}`}>
                 {OP_LABEL[s.opStatus]}
               </span>
             </div>
             <span className="text-[#D1D5DB]">|</span>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] text-[#9CA3AF]">계약</span>
+              <span className="text-[10px] text-muted2-brand">계약</span>
               <span className={`px-2 py-[3px] rounded-[6px] text-[11px] font-bold ${CP_COLOR[s.cpStatus]}`}>
                 {CP_LABEL[s.cpStatus]}
               </span>
@@ -595,9 +595,9 @@ export default function SitesPage() {
           </div>
           {/* 확인필요 사유 (있는 경우) */}
           {s.reasons.length > 0 && (
-            <div className="mt-2 pt-2 border-t border-[#F3F4F6] flex flex-wrap gap-1">
+            <div className="mt-2 pt-2 border-t border-brand flex flex-wrap gap-1">
               {s.reasons.map(r => (
-                <span key={r} className="inline-flex items-center gap-1 px-2 py-[3px] bg-[#FEF2F2] text-[#DC2626] text-[11px] rounded-[5px] font-medium">
+                <span key={r} className="inline-flex items-center gap-1 px-2 py-[3px] bg-red-light text-status-rejected text-[11px] rounded-[5px] font-medium">
                   <span className="text-[9px]">!</span>{r}
                 </span>
               ))}
@@ -607,20 +607,20 @@ export default function SitesPage() {
 
         {/* A. 기본정보 */}
         <SectionCard>
-          <div className="text-[11px] font-bold text-[#9CA3AF] tracking-wide uppercase mb-2">기본정보</div>
+          <div className="text-[11px] font-bold text-muted2-brand tracking-wide uppercase mb-2">기본정보</div>
           <dl className="space-y-[6px] text-[13px]">
             <div className="flex gap-2">
-              <dt className="text-[#9CA3AF] w-[56px] flex-shrink-0">주소</dt>
-              <dd className="text-[#374151] break-all m-0">{s.address}</dd>
+              <dt className="text-muted2-brand w-[56px] flex-shrink-0">주소</dt>
+              <dd className="text-body-brand break-all m-0">{s.address}</dd>
             </div>
             <div className="flex gap-2">
-              <dt className="text-[#9CA3AF] w-[56px] flex-shrink-0">반경</dt>
-              <dd className="text-[#374151] m-0">{s.allowedRadius}m</dd>
+              <dt className="text-muted2-brand w-[56px] flex-shrink-0">반경</dt>
+              <dd className="text-body-brand m-0">{s.allowedRadius}m</dd>
             </div>
             {s.companyAssignments.length > 0 ? (
               <div className="flex gap-2">
-                <dt className="text-[#9CA3AF] w-[56px] flex-shrink-0">담당업체</dt>
-                <dd className="text-[#374151] m-0">
+                <dt className="text-muted2-brand w-[56px] flex-shrink-0">담당업체</dt>
+                <dd className="text-body-brand m-0">
                   {s.companyAssignments.map((a, i) => (
                     <span key={a.id}>
                       {i > 0 ? ', ' : ''}{a.company.companyName}
@@ -631,14 +631,14 @@ export default function SitesPage() {
               </div>
             ) : (
               <div className="flex gap-2">
-                <dt className="text-[#9CA3AF] w-[56px] flex-shrink-0">담당업체</dt>
+                <dt className="text-muted2-brand w-[56px] flex-shrink-0">담당업체</dt>
                 <dd className="text-[#EF4444] font-medium m-0">미배정</dd>
               </div>
             )}
             {s.notes && (
               <div className="flex gap-2">
-                <dt className="text-[#9CA3AF] w-[56px] flex-shrink-0">메모</dt>
-                <dd className="text-[#374151] m-0">{s.notes}</dd>
+                <dt className="text-muted2-brand w-[56px] flex-shrink-0">메모</dt>
+                <dd className="text-body-brand m-0">{s.notes}</dd>
               </div>
             )}
           </dl>
@@ -647,31 +647,31 @@ export default function SitesPage() {
         {/* B. 계약기간 */}
         <SectionCard>
           <div className="flex items-center justify-between mb-2">
-            <div className="text-[11px] font-bold text-[#9CA3AF] tracking-wide uppercase">계약기간</div>
+            <div className="text-[11px] font-bold text-muted2-brand tracking-wide uppercase">계약기간</div>
             <span className={`px-2 py-[2px] rounded-[5px] text-[11px] font-bold ${CP_COLOR[s.cpStatus]}`}>
               {CP_LABEL[s.cpStatus]}
             </span>
           </div>
           {(s.openedAt || s.closedAt) ? (
             <>
-              <div className="text-[13px] text-[#374151] font-medium mb-2">
+              <div className="text-[13px] text-body-brand font-medium mb-2">
                 {fmtDate(s.openedAt)} ~ {fmtDate(s.closedAt)}
               </div>
               {pct !== null && (
                 <>
-                  <div className="h-[6px] bg-[#F3F4F6] rounded-full overflow-hidden mb-1">
+                  <div className="h-[6px] bg-footer rounded-full overflow-hidden mb-1">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        s.cpStatus === 'ENDING_SOON' ? 'bg-[#F97316]' :
-                        s.cpStatus === 'ENDED'       ? 'bg-[#9CA3AF]' : 'bg-[#3B82F6]'
+                        s.cpStatus === 'ENDING_SOON' ? 'bg-brand-accent' :
+                        s.cpStatus === 'ENDED'       ? 'bg-muted2-brand' : 'bg-[#3B82F6]'
                       }`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-[11px] text-[#9CA3AF]">
+                  <div className="flex justify-between text-[11px] text-muted2-brand">
                     <span>진행률 {pct}%</span>
                     {days !== null && (
-                      <span className={days < 0 ? 'text-[#DC2626] font-bold' : days <= 30 ? 'text-[#EA580C] font-bold' : ''}>
+                      <span className={days < 0 ? 'text-status-rejected font-bold' : days <= 30 ? 'text-accent-hover font-bold' : ''}>
                         {days < 0 ? `${Math.abs(days)}일 경과` : `${days}일 남음`}
                       </span>
                     )}
@@ -686,47 +686,47 @@ export default function SitesPage() {
 
         {/* C. 운영현황 */}
         <SectionCard>
-          <div className="text-[11px] font-bold text-[#9CA3AF] tracking-wide uppercase mb-2">오늘 운영현황</div>
+          <div className="text-[11px] font-bold text-muted2-brand tracking-wide uppercase mb-2">오늘 운영현황</div>
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="bg-[#F9FAFB] rounded-[8px] py-2">
-              <div className="text-[18px] font-bold text-[#0F172A]">{s.assignedWorkerCount}</div>
-              <div className="text-[10px] text-[#9CA3AF] mt-[1px]">배정</div>
+            <div className="bg-surface rounded-[8px] py-2">
+              <div className="text-[18px] font-bold text-title-brand">{s.assignedWorkerCount}</div>
+              <div className="text-[10px] text-muted2-brand mt-[1px]">배정</div>
             </div>
-            <div className="bg-[#F9FAFB] rounded-[8px] py-2">
+            <div className="bg-surface rounded-[8px] py-2">
               <div className="text-[18px] font-bold text-[#059669]">{s.todayCheckInCount}</div>
-              <div className="text-[10px] text-[#9CA3AF] mt-[1px]">출근</div>
+              <div className="text-[10px] text-muted2-brand mt-[1px]">출근</div>
             </div>
-            <div className={`rounded-[8px] py-2 ${s.absentCount >= ABSENT_ALERT_THRESHOLD ? 'bg-[#FEF2F2]' : 'bg-[#F9FAFB]'}`}>
-              <div className={`text-[18px] font-bold ${s.absentCount >= ABSENT_ALERT_THRESHOLD ? 'text-[#DC2626]' : 'text-[#0F172A]'}`}>
+            <div className={`rounded-[8px] py-2 ${s.absentCount >= ABSENT_ALERT_THRESHOLD ? 'bg-red-light' : 'bg-surface'}`}>
+              <div className={`text-[18px] font-bold ${s.absentCount >= ABSENT_ALERT_THRESHOLD ? 'text-status-rejected' : 'text-title-brand'}`}>
                 {s.absentCount}
               </div>
-              <div className="text-[10px] text-[#9CA3AF] mt-[1px]">미출근</div>
+              <div className="text-[10px] text-muted2-brand mt-[1px]">미출근</div>
             </div>
           </div>
         </SectionCard>
 
         {/* D. 노임 (오늘/월누계/총누계) */}
         <SectionCard>
-          <div className="text-[11px] font-bold text-[#9CA3AF] tracking-wide uppercase mb-2">노임</div>
+          <div className="text-[11px] font-bold text-muted2-brand tracking-wide uppercase mb-2">노임</div>
           <dl className="space-y-[6px] text-[13px]">
             <div className="flex justify-between">
-              <dt className="text-[#6B7280]">오늘</dt>
-              <dd className="font-semibold text-[#0F172A] m-0">{fmtWon(s.todayWage)}</dd>
+              <dt className="text-muted-brand">오늘</dt>
+              <dd className="font-semibold text-title-brand m-0">{fmtWon(s.todayWage)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-[#6B7280]">이번 달 누계</dt>
-              <dd className="font-semibold text-[#0F172A] m-0">{fmtWon(s.monthWage)}</dd>
+              <dt className="text-muted-brand">이번 달 누계</dt>
+              <dd className="font-semibold text-title-brand m-0">{fmtWon(s.monthWage)}</dd>
             </div>
-            <div className="flex justify-between border-t border-[#F3F4F6] pt-[6px] mt-[6px]">
-              <dt className="text-[#6B7280] font-semibold">총 누계</dt>
-              <dd className="font-bold text-[#0F172A] m-0">{fmtWon(s.totalWage)}</dd>
+            <div className="flex justify-between border-t border-brand pt-[6px] mt-[6px]">
+              <dt className="text-muted-brand font-semibold">총 누계</dt>
+              <dd className="font-bold text-title-brand m-0">{fmtWon(s.totalWage)}</dd>
             </div>
           </dl>
         </SectionCard>
 
         {/* E. 관리 */}
         <SectionCard>
-          <div className="text-[11px] font-bold text-[#9CA3AF] tracking-wide uppercase mb-2">관리</div>
+          <div className="text-[11px] font-bold text-muted2-brand tracking-wide uppercase mb-2">관리</div>
           <div className="flex flex-col gap-2">
             <Link href={`/admin/attendance?siteId=${s.id}`} className="no-underline">
               <Btn variant="orange" className="w-full">출근현황 보기</Btn>
@@ -746,16 +746,16 @@ export default function SitesPage() {
 
           {/* 배정업체 목록 */}
           {s.companyAssignments.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-[#F3F4F6]">
-              <div className="text-[11px] font-bold text-[#9CA3AF] tracking-wide uppercase mb-2">
+            <div className="mt-3 pt-3 border-t border-brand">
+              <div className="text-[11px] font-bold text-muted2-brand tracking-wide uppercase mb-2">
                 배정업체 ({s.companyAssignments.length})
               </div>
               <div className="space-y-2">
                 {s.companyAssignments.map(a => (
                   <div key={a.id} className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="text-[12px] font-semibold text-[#111827]">{a.company.companyName}</div>
-                      <div className="text-[11px] text-[#9CA3AF]">
+                      <div className="text-[12px] font-semibold text-fore-brand">{a.company.companyName}</div>
+                      <div className="text-[11px] text-muted2-brand">
                         {CONTRACT_TYPE_LABELS[a.contractType] ?? a.contractType} · {fmtDate(a.startDate)}
                         {a.managerName && ` · ${a.managerName}`}
                       </div>
@@ -851,7 +851,7 @@ export default function SitesPage() {
         <div className="flex-1 min-w-0">
           <SectionCard padding={false}>
             {/* 헤더: 운영상태 + 계약상태 분리 */}
-            <div className="grid grid-cols-[minmax(0,1fr)_76px_100px_70px_56px_80px_80px] gap-2 px-4 py-2 bg-[#F9FAFB] border-b border-[#E5E7EB] text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wide">
+            <div className="grid grid-cols-[minmax(0,1fr)_76px_100px_70px_56px_80px_80px] gap-2 px-4 py-2 bg-surface border-b border-brand text-[10px] font-bold text-muted2-brand uppercase tracking-wide">
               <span>현장명</span>
               <span className="text-center">운영</span>
               <span className="text-center">계약기간</span>
@@ -862,15 +862,15 @@ export default function SitesPage() {
             </div>
 
             {loading ? (
-              <p className="text-[#9CA3AF] text-[13px] py-10 text-center">로딩 중...</p>
+              <p className="text-muted2-brand text-[13px] py-10 text-center">로딩 중...</p>
             ) : filtered.length === 0 ? (
-              <p className="text-[#9CA3AF] text-[13px] py-10 text-center">
+              <p className="text-muted2-brand text-[13px] py-10 text-center">
                 {search || opFilter !== 'ALL' || cpFilter !== 'ALL'
                   ? '조건에 맞는 현장이 없습니다.'
                   : '등록된 현장이 없습니다.'}
               </p>
             ) : (
-              <div className="divide-y divide-[#F3F4F6]">
+              <div className="divide-y divide-brand">
                 {filtered.map(s => {
                   const isSelected = selected?.id === s.id
                   const days = daysUntil(s.closedAt)
@@ -880,17 +880,17 @@ export default function SitesPage() {
                       onClick={() => setSelected(isSelected ? null : s)}
                       className={`grid grid-cols-[minmax(0,1fr)_76px_100px_70px_56px_80px_80px] gap-2 px-4 py-3 cursor-pointer transition-colors items-center ${
                         isSelected
-                          ? 'bg-[#FFF7ED] border-l-[3px] border-[#F97316]'
-                          : 'hover:bg-[#F9FAFB] border-l-[3px] border-l-transparent'
+                          ? 'bg-accent-light border-l-[3px] border-accent'
+                          : 'hover:bg-surface border-l-[3px] border-l-transparent'
                       } ${!s.isActive ? 'opacity-60' : ''}`}
                     >
                       {/* 현장명 + 확인필요 사유 힌트 */}
                       <div className="min-w-0">
-                        <div className="font-semibold text-[13px] text-[#111827] truncate">{s.name}</div>
+                        <div className="font-semibold text-[13px] text-fore-brand truncate">{s.name}</div>
                         {s.reasons.length > 0 ? (
-                          <div className="text-[10px] text-[#DC2626] truncate">{s.reasons[0]}{s.reasons.length > 1 ? ` 외 ${s.reasons.length - 1}건` : ''}</div>
+                          <div className="text-[10px] text-status-rejected truncate">{s.reasons[0]}{s.reasons.length > 1 ? ` 외 ${s.reasons.length - 1}건` : ''}</div>
                         ) : (
-                          <div className="text-[11px] text-[#9CA3AF] truncate">{s.address}</div>
+                          <div className="text-[11px] text-muted2-brand truncate">{s.address}</div>
                         )}
                       </div>
 
@@ -907,28 +907,28 @@ export default function SitesPage() {
                           {CP_LABEL[s.cpStatus]}
                         </span>
                         {days !== null && (
-                          <div className={`text-[10px] ${days < 0 ? 'text-[#DC2626] font-bold' : days <= 30 ? 'text-[#EA580C] font-semibold' : 'text-[#9CA3AF]'}`}>
+                          <div className={`text-[10px] ${days < 0 ? 'text-status-rejected font-bold' : days <= 30 ? 'text-accent-hover font-semibold' : 'text-muted2-brand'}`}>
                             {days < 0 ? `${Math.abs(days)}일 경과` : `${days}일 남음`}
                           </div>
                         )}
                       </div>
 
                       {/* 인원 (출근/배정) */}
-                      <div className="text-right text-[13px] font-semibold text-[#374151]">
+                      <div className="text-right text-[13px] font-semibold text-body-brand">
                         {s.todayCheckInCount}
-                        <span className="text-[11px] text-[#9CA3AF] font-normal">/{s.assignedWorkerCount}</span>
+                        <span className="text-[11px] text-muted2-brand font-normal">/{s.assignedWorkerCount}</span>
                       </div>
 
                       {/* 미출근 */}
-                      <div className={`text-right text-[13px] font-semibold ${s.absentCount >= ABSENT_ALERT_THRESHOLD ? 'text-[#DC2626]' : 'text-[#9CA3AF]'}`}>
+                      <div className={`text-right text-[13px] font-semibold ${s.absentCount >= ABSENT_ALERT_THRESHOLD ? 'text-status-rejected' : 'text-muted2-brand'}`}>
                         {s.absentCount > 0 ? s.absentCount : '—'}
                       </div>
 
                       {/* 오늘 노임 */}
-                      <div className="text-right text-[12px] text-[#374151]">{fmtWon(s.todayWage)}</div>
+                      <div className="text-right text-[12px] text-body-brand">{fmtWon(s.todayWage)}</div>
 
                       {/* 총 누계 */}
-                      <div className="text-right text-[12px] font-semibold text-[#374151]">{fmtWon(s.totalWage)}</div>
+                      <div className="text-right text-[12px] font-semibold text-body-brand">{fmtWon(s.totalWage)}</div>
                     </div>
                   )
                 })}
@@ -961,7 +961,7 @@ export default function SitesPage() {
             {renderFormFields(editForm, 'edit', (k, v) => setEditForm(f => ({ ...f, [k]: v })), editGeoStatus)}
             <div className="flex items-center gap-2 mb-4">
               <input type="checkbox" id="editActive" checked={editActive} onChange={e => setEditActive(e.target.checked)} />
-              <label htmlFor="editActive" className="text-sm text-[#374151]">현장 활성 상태</label>
+              <label htmlFor="editActive" className="text-sm text-body-brand">현장 활성 상태</label>
             </div>
             {editError && <Toast message={editError} variant="error" />}
             <ModalFooter>
@@ -1016,11 +1016,11 @@ export default function SitesPage() {
       <Modal open={!!policySite} onClose={() => setPolicySite(null)} title={`근무시간 정책 — ${policySite?.name ?? ''}`}>
         {policySite && (
           <>
-            <p className="text-[12px] text-[#6B7280] mb-4 leading-relaxed">
+            <p className="text-[12px] text-muted-brand mb-4 leading-relaxed">
               빈칸 = 회사 기본값 (출근 07:00 / 퇴근 17:00 / 휴게 60분).<br />
               <strong>휴게시간 차감(분)</strong>이 공수 계산에 직접 영향을 줍니다.
             </p>
-            {policyLoading ? <p className="text-[#9CA3AF] text-center text-[13px]">로딩 중...</p> : (
+            {policyLoading ? <p className="text-muted2-brand text-center text-[13px]">로딩 중...</p> : (
               <>
                 {policyEffective && (
                   <Toast

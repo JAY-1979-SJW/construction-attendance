@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { Modal, Toast } from '@/components/admin/ui'
@@ -94,8 +94,8 @@ export default function CompanyAdminRequestsPage() {
             key={st}
             className={`px-[18px] py-2 rounded-[20px] border text-sm cursor-pointer transition-colors ${
               filter === st
-                ? 'bg-[#F47920] text-white border-[#1976d2] font-bold'
-                : 'bg-white border-[#E5E7EB] text-muted-brand'
+                ? 'bg-brand-accent text-white border-[#1976d2] font-bold'
+                : 'bg-white border-brand text-muted-brand'
             }`}
             onClick={() => setFilter(st)}
           >
@@ -105,7 +105,7 @@ export default function CompanyAdminRequestsPage() {
       </div>
 
       {msg && (
-        <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-lg px-4 py-3 mb-4 text-[#2e7d32] text-sm">
+        <div className="bg-green-light border border-[#a5d6a7] rounded-lg px-4 py-3 mb-4 text-[#2e7d32] text-sm">
           {msg}
         </div>
       )}
@@ -114,7 +114,7 @@ export default function CompanyAdminRequestsPage() {
       {approveResult && (
         <div className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-lg p-4 mb-4 text-sm">
           <strong>승인 완료!</strong> 아래 임시 비밀번호를 신청자에게 전달하세요.<br />
-          <code className="block font-mono text-[18px] font-bold my-2 text-[#4A93C8] tracking-[0.1em]">{approveResult.temporaryPassword}</code>
+          <code className="block font-mono text-[18px] font-bold my-2 text-secondary-brand tracking-[0.1em]">{approveResult.temporaryPassword}</code>
           <button
             className="px-3 py-1 bg-[#eee] border-none rounded-md text-[13px] cursor-pointer mt-2"
             onClick={() => setApproveResult(null)}
@@ -134,7 +134,7 @@ export default function CompanyAdminRequestsPage() {
             </div>
             {mode === 'approve' && (
               <>
-                <label className="block text-[13px] font-semibold mb-[6px] text-[#CBD5E0]">임시 비밀번호 (비워두면 자동 생성)</label>
+                <label className="block text-[13px] font-semibold mb-[6px] text-dim-brand">임시 비밀번호 (비워두면 자동 생성)</label>
                 <input
                   className="w-full px-[10px] py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-sm box-border"
                   value={tempPass}
@@ -146,7 +146,7 @@ export default function CompanyAdminRequestsPage() {
             )}
             {mode === 'reject' && (
               <>
-                <label className="block text-[13px] font-semibold mb-[6px] text-[#CBD5E0]">반려 사유 *</label>
+                <label className="block text-[13px] font-semibold mb-[6px] text-dim-brand">반려 사유 *</label>
                 <textarea
                   className="w-full px-[10px] py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-sm box-border resize-y"
                   value={rejectReason}
@@ -197,7 +197,7 @@ export default function CompanyAdminRequestsPage() {
             </thead>
             <tbody>
               {data.map(r => (
-                <tr key={r.id} className="border-b border-[#f0f0f0]">
+                <tr key={r.id} className="border-b border-brand">
                   <td className="px-[14px] py-3 align-middle">{r.companyName}</td>
                   <td className="px-[14px] py-3 align-middle">{r.businessNumber}</td>
                   <td className="px-[14px] py-3 align-middle">

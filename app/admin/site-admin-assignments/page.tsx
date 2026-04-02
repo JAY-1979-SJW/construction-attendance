@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 
@@ -119,7 +119,7 @@ export default function SiteAdminAssignmentsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 헤더 */}
-      <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
+      <div className="bg-card border-b px-6 py-4 flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-gray-800">현장 관리자 배정</h1>
           <p className="text-xs text-gray-500 mt-0.5">
@@ -148,7 +148,7 @@ export default function SiteAdminAssignmentsPage() {
               <div>
                 <label className="text-xs text-gray-600 block mb-1">현장 관리자 (SITE_ADMIN) *</label>
                 <select
-                  className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+                  className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                   value={form.userId}
                   onChange={(e) => setForm((f) => ({ ...f, userId: e.target.value }))}
                 >
@@ -161,7 +161,7 @@ export default function SiteAdminAssignmentsPage() {
               <div>
                 <label className="text-xs text-gray-600 block mb-1">담당 현장 *</label>
                 <select
-                  className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+                  className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                   value={form.siteId}
                   onChange={(e) => setForm((f) => ({ ...f, siteId: e.target.value }))}
                 >
@@ -174,7 +174,7 @@ export default function SiteAdminAssignmentsPage() {
               <div>
                 <label className="text-xs text-gray-600 block mb-1">소속 회사 *</label>
                 <select
-                  className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+                  className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                   value={form.companyId}
                   onChange={(e) => setForm((f) => ({ ...f, companyId: e.target.value }))}
                 >
@@ -226,11 +226,11 @@ export default function SiteAdminAssignmentsPage() {
         {loading ? (
           <div className="text-center text-gray-400 py-12">불러오는 중...</div>
         ) : assignments.length === 0 ? (
-          <div className="text-center text-gray-400 py-12 bg-white border border-[#E5E7EB] rounded-[12px]">
+          <div className="text-center text-gray-400 py-12 bg-card border border-brand rounded-[12px]">
             배정 내역이 없습니다.
           </div>
         ) : (
-          <div className="bg-white border rounded-lg overflow-hidden">
+          <div className="bg-card border rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 border-b">

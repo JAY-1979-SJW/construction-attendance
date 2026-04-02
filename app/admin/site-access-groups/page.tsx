@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 
@@ -171,7 +171,7 @@ export default function SiteAccessGroupsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 헤더 */}
-      <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
+      <div className="bg-card border-b px-6 py-4 flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-gray-800">현장 접근 그룹</h1>
           <p className="text-xs text-gray-500 mt-0.5">
@@ -242,7 +242,7 @@ export default function SiteAccessGroupsPage() {
             {loading ? (
               <div className="text-center text-gray-400 py-8 text-sm">불러오는 중...</div>
             ) : groups.length === 0 ? (
-              <div className="text-center text-gray-400 py-8 text-sm bg-white border rounded-lg">그룹이 없습니다.</div>
+              <div className="text-center text-gray-400 py-8 text-sm bg-card border rounded-lg">그룹이 없습니다.</div>
             ) : (
               <div className="space-y-2">
                 {groups.map((g) => (
@@ -269,11 +269,11 @@ export default function SiteAccessGroupsPage() {
           {selected ? (
             <div className="flex-1 space-y-5">
               {/* 현장 목록 */}
-              <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5">
+              <div className="bg-card border border-brand rounded-[12px] p-5">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">현장 목록 ({selected.sites.length}개)</h3>
                 <div className="flex gap-2 mb-3">
                   <select
-                    className="flex-1 border rounded px-2 py-1.5 text-sm bg-white"
+                    className="flex-1 border rounded px-2 py-1.5 text-sm bg-card"
                     value={addSiteId}
                     onChange={(e) => setAddSiteId(e.target.value)}
                   >
@@ -315,11 +315,11 @@ export default function SiteAccessGroupsPage() {
               </div>
 
               {/* 사용자 목록 */}
-              <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5">
+              <div className="bg-card border border-brand rounded-[12px] p-5">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">할당된 사용자 ({selected.activeUsers.length}명)</h3>
                 <div className="flex gap-2 mb-3">
                   <select
-                    className="flex-1 border rounded px-2 py-1.5 text-sm bg-white"
+                    className="flex-1 border rounded px-2 py-1.5 text-sm bg-card"
                     value={addUserId}
                     onChange={(e) => setAddUserId(e.target.value)}
                   >
@@ -372,7 +372,7 @@ export default function SiteAccessGroupsPage() {
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-400 text-sm bg-white border rounded-lg">
+            <div className="flex-1 flex items-center justify-center text-gray-400 text-sm bg-card border rounded-lg">
               좌측에서 그룹을 선택하세요.
             </div>
           )}

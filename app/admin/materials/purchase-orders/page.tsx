@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -84,7 +84,7 @@ export default function PurchaseOrdersPage() {
           <span className="text-muted-brand text-sm">총 {total}건</span>
         </div>
 
-        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {loading ? (
             <div className="text-center py-12 text-muted-brand">로딩 중...</div>
           ) : orders.length === 0 ? (
@@ -121,7 +121,7 @@ export default function PurchaseOrdersPage() {
                     <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{o.issuedAt ? fmtDate(o.issuedAt) : '-'}</td>
                     <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{o.deliveryRequestedDate ? fmtDate(o.deliveryRequestedDate) : '-'}</td>
                     <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
-                      <Link href={`/admin/materials/purchase-orders/${o.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-[#5BA4D9] border border-[#90caf9] rounded text-[12px] font-semibold no-underline inline-block">보기</Link>
+                      <Link href={`/admin/materials/purchase-orders/${o.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded text-[12px] font-semibold no-underline inline-block">보기</Link>
                     </td>
                   </tr>
                 ))}

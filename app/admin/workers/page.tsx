@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
@@ -121,15 +121,15 @@ const EMP_LABELS: Record<string, string> = {
 // ── 도큐먼트/교육 배지 ────────────────────────────────────────────────────────
 function DocBadge({ has, yesLabel = '있음', noLabel = '없음' }: { has: boolean; yesLabel?: string; noLabel?: string }) {
   return has
-    ? <span className="text-[11px] font-semibold text-[#16A34A]">{yesLabel}</span>
-    : <span className="text-[11px] font-semibold text-[#DC2626]">{noLabel}</span>
+    ? <span className="text-[11px] font-semibold text-status-working">{yesLabel}</span>
+    : <span className="text-[11px] font-semibold text-status-rejected">{noLabel}</span>
 }
 
 // ── 패널 섹션/행 ──────────────────────────────────────────────────────────────
 function PanelSection({ label, children, warn }: { label: string; children: React.ReactNode; warn?: boolean }) {
   return (
     <div className="mb-5">
-      <div className={`text-[11px] font-bold uppercase tracking-wider mb-2.5 ${warn ? 'text-[#DC2626]' : 'text-[#9CA3AF]'}`}>
+      <div className={`text-[11px] font-bold uppercase tracking-wider mb-2.5 ${warn ? 'text-status-rejected' : 'text-muted2-brand'}`}>
         {label}
       </div>
       {children}
@@ -140,8 +140,8 @@ function PanelSection({ label, children, warn }: { label: string; children: Reac
 function PanelRow({ label, value, warn }: { label: string; value: React.ReactNode; warn?: boolean }) {
   return (
     <div className="flex items-start gap-2 mb-2">
-      <span className="text-[12px] text-[#9CA3AF] w-[88px] shrink-0 pt-[1px]">{label}</span>
-      <span className={`text-[13px] font-medium flex-1 ${warn ? 'text-[#DC2626]' : 'text-[#374151]'}`}>{value}</span>
+      <span className="text-[12px] text-muted2-brand w-[88px] shrink-0 pt-[1px]">{label}</span>
+      <span className={`text-[13px] font-medium flex-1 ${warn ? 'text-status-rejected' : 'text-body-brand'}`}>{value}</span>
     </div>
   )
 }
@@ -432,7 +432,7 @@ export default function WorkersPage() {
 
           {/* ── 필터 바 ── */}
           <SectionCard padding={false}>
-            <div className="px-5 pt-4 pb-3 flex items-center gap-3 flex-wrap border-b border-[#F3F4F6]">
+            <div className="px-5 pt-4 pb-3 flex items-center gap-3 flex-wrap border-b border-brand">
               <FilterInput
                 type="text"
                 placeholder="이름/연락처 검색"
@@ -462,7 +462,7 @@ export default function WorkersPage() {
             </div>
             {/* 상태 필터 pills */}
             <div className="px-5 py-2.5 flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] font-semibold text-[#9CA3AF] mr-1">상태</span>
+              <span className="text-[11px] font-semibold text-muted2-brand mr-1">상태</span>
               {[
                 { v: '',         l: '전체' },
                 { v: 'active',   l: '재직중' },
@@ -472,8 +472,8 @@ export default function WorkersPage() {
                   {opt.l}
                 </FilterPill>
               ))}
-              <span className="mx-2 text-[#E5E7EB]">|</span>
-              <span className="text-[11px] font-semibold text-[#9CA3AF] mr-1">투입</span>
+              <span className="mx-2 text-brand">|</span>
+              <span className="text-[11px] font-semibold text-muted2-brand mr-1">투입</span>
               {[
                 { v: '',            l: '전체' },
                 { v: 'ok',          l: '투입가능' },
@@ -485,7 +485,7 @@ export default function WorkersPage() {
                   {opt.l}
                 </FilterPill>
               ))}
-              <span className="text-[12px] text-[#6B7280] ml-1">총 {sorted.length}명</span>
+              <span className="text-[12px] text-muted-brand ml-1">총 {sorted.length}명</span>
             </div>
           </SectionCard>
         </div>
@@ -519,9 +519,9 @@ export default function WorkersPage() {
                 const cs = getConfirmStatus(w)
                 const isSelected = w.id === selectedId
                 const rowBg =
-                  isSelected ? 'bg-[#FFF7ED]' :
-                  elig === 'blocked' ? 'bg-[#FEF2F2] hover:bg-[#FEE2E2]' :
-                  (elig === 'docs_missing' || elig === 'edu_missing') ? 'bg-[#FFFBEB] hover:bg-[#FEF3C7]' :
+                  isSelected ? 'bg-accent-light' :
+                  elig === 'blocked' ? 'bg-red-light hover:bg-red-light' :
+                  (elig === 'docs_missing' || elig === 'edu_missing') ? 'bg-yellow-light hover:bg-yellow-light' :
                   ''
                 return (
                   <AdminTr
@@ -532,17 +532,17 @@ export default function WorkersPage() {
                   >
                     {/* 이름 */}
                     <AdminTd>
-                      <div className="font-semibold text-[#111827] whitespace-nowrap">{w.name}</div>
-                      {w.foreignerYn && <div className="text-[10px] text-[#6B7280]">외국인</div>}
+                      <div className="font-semibold text-fore-brand whitespace-nowrap">{w.name}</div>
+                      {w.foreignerYn && <div className="text-[10px] text-muted-brand">외국인</div>}
                     </AdminTd>
                     {/* 직종 */}
-                    <AdminTd className="text-[12px] text-[#6B7280]">{w.jobTitle}</AdminTd>
+                    <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
                     {/* 주배정 현장 */}
                     <AdminTd className="max-w-[110px]">
                       {(() => {
                         const primary = w.activeSites.find(s => s.isPrimary)
-                        if (primary) return <div className="text-[12px] text-[#374151] truncate">{primary.name}{w.activeSites.length > 1 && <span className="text-[10px] text-[#9CA3AF] ml-1">+{w.activeSites.length - 1}</span>}</div>
-                        if (w.activeSites.length > 0) return <div className="text-[12px] text-[#374151] truncate">{w.activeSites[0].name}{w.activeSites.length > 1 && <span className="text-[10px] text-[#9CA3AF] ml-1">+{w.activeSites.length - 1}</span>}</div>
+                        if (primary) return <div className="text-[12px] text-body-brand truncate">{primary.name}{w.activeSites.length > 1 && <span className="text-[10px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
+                        if (w.activeSites.length > 0) return <div className="text-[12px] text-body-brand truncate">{w.activeSites[0].name}{w.activeSites.length > 1 && <span className="text-[10px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
                         return <StatusBadge status="PENDING" label="미배정" />
                       })()}
                     </AdminTd>
@@ -551,7 +551,7 @@ export default function WorkersPage() {
                       {w.todayAttendance ? (
                         <div>
                           <StatusBadge status="WORKING" label="출근" />
-                          <div className="text-[10px] text-[#6B7280] mt-[2px] truncate max-w-[80px]">{w.todayAttendance.siteName}</div>
+                          <div className="text-[10px] text-muted-brand mt-[2px] truncate max-w-[80px]">{w.todayAttendance.siteName}</div>
                         </div>
                       ) : w.activeSites.length === 0 ? (
                         <span className="text-[11px] text-[#D1D5DB]">-</span>
@@ -583,13 +583,13 @@ export default function WorkersPage() {
                       <DocBadge has={w.hasSafetyCert} yesLabel="등록" noLabel="미등록" />
                     </AdminTd>
                     {/* 일당 */}
-                    <AdminTd className="text-right tabular-nums text-[12px] text-[#6B7280]">
+                    <AdminTd className="text-right tabular-nums text-[12px] text-muted-brand">
                       {w.dailyWage > 0 ? fmtWage(w.dailyWage) : '-'}
                     </AdminTd>
                     {/* 월 누계 */}
                     <AdminTd className="text-right tabular-nums">
                       {w.monthWage > 0
-                        ? <span className="font-semibold text-[#374151]">{fmtWage(w.monthWage)}</span>
+                        ? <span className="font-semibold text-body-brand">{fmtWage(w.monthWage)}</span>
                         : <span className="text-[#D1D5DB]">-</span>}
                     </AdminTd>
                     {/* 확인상태 */}
@@ -610,13 +610,13 @@ export default function WorkersPage() {
         {hasPanelOpen && selected && (
           <div className="w-[420px] shrink-0 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
             <SectionCard padding={false} className="overflow-hidden">
-              <div className="h-1 bg-[#F97316]" />
+              <div className="h-1 bg-brand-accent" />
 
               {/* 패널 헤더 */}
-              <div className="px-5 py-3.5 flex items-start justify-between border-b border-[#E5E7EB]">
+              <div className="px-5 py-3.5 flex items-start justify-between border-b border-brand">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-[15px] font-bold text-[#0F172A]">{selected.name}</h3>
+                    <h3 className="text-[15px] font-bold text-title-brand">{selected.name}</h3>
                     <StatusBadge status={selected.isActive ? 'ACTIVE' : 'INACTIVE'} label={selected.isActive ? '재직중' : '비활성'} />
                     {(() => {
                       const elig = getEligibility(selected)
@@ -628,10 +628,10 @@ export default function WorkersPage() {
                       )
                     })()}
                   </div>
-                  <p className="text-[12px] text-[#9CA3AF] mt-0.5">{selected.jobTitle} · {selected.primaryCompany?.companyName ?? '소속없음'}</p>
+                  <p className="text-[12px] text-muted2-brand mt-0.5">{selected.jobTitle} · {selected.primaryCompany?.companyName ?? '소속없음'}</p>
                 </div>
                 <button onClick={closePanel}
-                  className="w-7 h-7 flex items-center justify-center rounded-[6px] text-[#9CA3AF] hover:bg-[#F3F4F6] transition-colors shrink-0 ml-2">
+                  className="w-7 h-7 flex items-center justify-center rounded-[6px] text-muted2-brand hover:bg-footer transition-colors shrink-0 ml-2">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                 </button>
               </div>
@@ -650,24 +650,24 @@ export default function WorkersPage() {
                   <PanelRow label="소속현장" value={
                     selected.activeSites.length > 0
                       ? selected.activeSites.map(s => s.name).join(', ')
-                      : <span className="text-[#D97706]">미배치</span>
+                      : <span className="text-status-exception">미배치</span>
                   } warn={selected.activeSites.length === 0} />
                 </PanelSection>
 
                 {/* B. 서류 및 교육 상태 */}
                 <PanelSection label="B. 서류 및 교육 상태" warn={!selected.hasContract || !selected.hasSafetyEducation || !selected.hasSafetyCert}>
-                  <div className="rounded-[8px] border border-[#E5E7EB] overflow-hidden mb-3">
+                  <div className="rounded-[8px] border border-brand overflow-hidden mb-3">
                     {[
                       { label: '근로계약서 교부', has: selected.hasContract, date: selected.contractDate },
                       { label: '안전교육 이수',   has: selected.hasSafetyEducation, date: selected.safetyEducationDate },
                       { label: '안전교육증 등록', has: selected.hasSafetyCert, date: selected.safetyCertDate },
                     ].map((item, i) => (
-                      <div key={item.label} className={`flex items-center justify-between px-3 py-2.5 ${i > 0 ? 'border-t border-[#F3F4F6]' : ''}`}>
-                        <span className="text-[12px] font-medium text-[#374151]">{item.label}</span>
+                      <div key={item.label} className={`flex items-center justify-between px-3 py-2.5 ${i > 0 ? 'border-t border-brand' : ''}`}>
+                        <span className="text-[12px] font-medium text-body-brand">{item.label}</span>
                         <div className="text-right">
                           <DocBadge has={item.has} yesLabel="완료" noLabel="미완료" />
                           {item.has && item.date && (
-                            <div className="text-[10px] text-[#9CA3AF] mt-0.5">{fmtDate(item.date)}</div>
+                            <div className="text-[10px] text-muted2-brand mt-0.5">{fmtDate(item.date)}</div>
                           )}
                         </div>
                       </div>
@@ -678,8 +678,8 @@ export default function WorkersPage() {
                 {/* C. 노임 정보 */}
                 <PanelSection label="C. 노임 정보">
                   <PanelRow label="일당" value={<span className="font-semibold">{fmtWageFull(selected.dailyWage)}</span>} />
-                  <PanelRow label="월 누계" value={<span className="font-semibold text-[#F97316]">{fmtWageFull(selected.monthWage)}</span>} />
-                  <PanelRow label="전체 누계" value={<span className="text-[#6B7280]">{fmtWageFull(selected.totalWage)}</span>} />
+                  <PanelRow label="월 누계" value={<span className="font-semibold text-accent">{fmtWageFull(selected.monthWage)}</span>} />
+                  <PanelRow label="전체 누계" value={<span className="text-muted-brand">{fmtWageFull(selected.totalWage)}</span>} />
                 </PanelSection>
 
                 {/* D. 오늘 출근 */}
@@ -687,12 +687,12 @@ export default function WorkersPage() {
                   <PanelSection label="D. 오늘 출근">
                     <div className="rounded-[8px] border border-[#DCFCE7] bg-[#F0FDF4] px-3 py-2.5">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[12px] font-semibold text-[#16A34A]">{selected.todayAttendance.siteName}</span>
-                        <span className="text-[11px] font-bold text-[#16A34A] bg-[#DCFCE7] px-[6px] py-[1px] rounded">
+                        <span className="text-[12px] font-semibold text-status-working">{selected.todayAttendance.siteName}</span>
+                        <span className="text-[11px] font-bold text-status-working bg-[#DCFCE7] px-[6px] py-[1px] rounded">
                           {selected.todayAttendance.status === 'WORKING' ? '근무중' : selected.todayAttendance.status === 'COMPLETED' ? '퇴근' : selected.todayAttendance.status}
                         </span>
                       </div>
-                      <div className="text-[12px] text-[#374151]">
+                      <div className="text-[12px] text-body-brand">
                         출근 {selected.todayAttendance.checkInAt ? new Date(selected.todayAttendance.checkInAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}
                         {selected.todayAttendance.checkOutAt && (
                           <span className="ml-2">퇴근 {new Date(selected.todayAttendance.checkOutAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</span>
@@ -702,7 +702,7 @@ export default function WorkersPage() {
                       {(() => {
                         const primary = selected.activeSites.find(s => s.isPrimary)
                         if (primary && primary.id !== selected.todayAttendance!.siteId) {
-                          return <div className="text-[11px] text-[#D97706] mt-1">⚠ 주배정({primary.name})과 다른 현장 출근</div>
+                          return <div className="text-[11px] text-status-exception mt-1">⚠ 주배정({primary.name})과 다른 현장 출근</div>
                         }
                         return null
                       })()}
@@ -716,21 +716,21 @@ export default function WorkersPage() {
                     selected.activeSites.map(s => (
                       <div key={s.id} className="flex items-center gap-2 mb-2">
                         <div className="w-2 h-2 rounded-full bg-[#16A34A] shrink-0" />
-                        <span className="text-[13px] text-[#374151]">{s.name}</span>
-                        {s.isPrimary && <span className="text-[10px] font-bold text-[#F97316] bg-[#FFF7ED] px-[4px] py-[1px] rounded">주</span>}
-                        <span className="text-[11px] text-[#9CA3AF]">배치중</span>
+                        <span className="text-[13px] text-body-brand">{s.name}</span>
+                        {s.isPrimary && <span className="text-[10px] font-bold text-accent bg-accent-light px-[4px] py-[1px] rounded">주</span>}
+                        <span className="text-[11px] text-muted2-brand">배치중</span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-[13px] text-[#D97706] mb-2">현장 미배치 상태</div>
+                    <div className="text-[13px] text-status-exception mb-2">현장 미배치 상태</div>
                   )}
                   {canMutate && !showAssign && (
-                    <button onClick={() => setShowAssign(true)} className="mt-1 text-[12px] text-[#F97316] font-semibold bg-transparent border border-[#F97316] rounded-[6px] px-3 py-[5px] cursor-pointer hover:bg-[rgba(249,115,22,0.06)]">
+                    <button onClick={() => setShowAssign(true)} className="mt-1 text-[12px] text-accent font-semibold bg-transparent border border-accent rounded-[6px] px-3 py-[5px] cursor-pointer hover:bg-[rgba(249,115,22,0.06)]">
                       + 현장 배정
                     </button>
                   )}
                   {showAssign && (
-                    <div className="mt-2 p-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg">
+                    <div className="mt-2 p-3 bg-yellow-light border border-yellow rounded-lg">
                       <FormSelect
                         value={assignSiteId} onChange={e => setAssignSiteId(e.target.value)}
                         placeholder="현장 선택"
@@ -756,19 +756,19 @@ export default function WorkersPage() {
 
                   {/* 기본정보 수정 폼 */}
                   {editing ? (
-                    <div className="rounded-[10px] bg-[#F5F3FF] border border-[#DDD6FE] px-4 py-4 mb-3">
-                      <div className="text-[11px] font-bold text-[#7C3AED] mb-3">기본정보 수정</div>
+                    <div className="rounded-[10px] bg-[#F5F3FF] border border-purple px-4 py-4 mb-3">
+                      <div className="text-[11px] font-bold text-status-adjusted mb-3">기본정보 수정</div>
                       <FormInput label="이름" value={editForm.name} onChange={e => setEditForm(ef => ({ ...ef, name: e.target.value }))} className="mb-2" />
                       <FormInput label="연락처" value={editForm.phone} onChange={e => setEditForm(ef => ({ ...ef, phone: e.target.value }))} className="mb-2" />
                       <FormInput label="직종" value={editForm.jobTitle} onChange={e => setEditForm(ef => ({ ...ef, jobTitle: e.target.value }))} className="mb-2" />
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="text-[12px] text-[#6B7280] w-[48px] shrink-0">상태</span>
+                        <span className="text-[12px] text-muted-brand w-[48px] shrink-0">상태</span>
                         <label className="flex items-center gap-1.5 cursor-pointer">
                           <input type="checkbox" checked={editForm.isActive} onChange={e => setEditForm(ef => ({ ...ef, isActive: e.target.checked }))} />
-                          <span className="text-[13px] text-[#374151]">재직중</span>
+                          <span className="text-[13px] text-body-brand">재직중</span>
                         </label>
                       </div>
-                      {editError && <div className="text-[12px] text-[#DC2626] mb-2">{editError}</div>}
+                      {editError && <div className="text-[12px] text-status-rejected mb-2">{editError}</div>}
                       <div className="flex gap-2">
                         <Btn variant="primary" size="sm" onClick={saveEdit} disabled={editSaving} className="flex-1">
                           {editSaving ? '저장 중...' : '저장'}
@@ -780,15 +780,15 @@ export default function WorkersPage() {
                     </div>
                   ) : (
                     <button onClick={startEdit}
-                      className="w-full mb-2 py-2 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#374151] hover:bg-[#F9FAFB] cursor-pointer bg-white transition-colors text-left px-3">
+                      className="w-full mb-2 py-2 border border-brand rounded-[8px] text-[13px] text-body-brand hover:bg-surface cursor-pointer bg-card transition-colors text-left px-3">
                       기본정보 수정
                     </button>
                   )}
 
                   {/* 서류/교육 처리 */}
                   {processingDoc ? (
-                    <div className="rounded-[10px] bg-[#FFF7ED] border border-[#FED7AA] px-4 py-4 mb-3">
-                      <div className="text-[11px] font-bold text-[#F97316] mb-3">
+                    <div className="rounded-[10px] bg-accent-light border border-accent-light px-4 py-4 mb-3">
+                      <div className="text-[11px] font-bold text-accent mb-3">
                         {processingDoc === 'contract' && '근로계약서 교부 처리'}
                         {processingDoc === 'safetyEdu' && '안전교육 이수 처리'}
                         {processingDoc === 'safetyCert' && '안전교육증 등록 처리'}
@@ -807,19 +807,19 @@ export default function WorkersPage() {
                     <div className="flex flex-col gap-2 mb-3">
                       {!selected.hasContract && (
                         <button onClick={() => setProcessingDoc('contract')}
-                          className="w-full py-2 bg-[#FEF2F2] hover:bg-[#FEE2E2] border border-[#FCA5A5] text-[#DC2626] text-[13px] font-semibold rounded-[8px] cursor-pointer transition-colors">
+                          className="w-full py-2 bg-red-light hover:bg-red-light border border-[#FCA5A5] text-status-rejected text-[13px] font-semibold rounded-[8px] cursor-pointer transition-colors">
                           근로계약서 교부 처리
                         </button>
                       )}
                       {!selected.hasSafetyEducation && (
                         <button onClick={() => setProcessingDoc('safetyEdu')}
-                          className="w-full py-2 bg-[#FFFBEB] hover:bg-[#FEF3C7] border border-[#FDE68A] text-[#D97706] text-[13px] font-semibold rounded-[8px] cursor-pointer transition-colors">
+                          className="w-full py-2 bg-yellow-light hover:bg-yellow-light border border-yellow text-status-exception text-[13px] font-semibold rounded-[8px] cursor-pointer transition-colors">
                           안전교육 이수 처리
                         </button>
                       )}
                       {!selected.hasSafetyCert && (
                         <button onClick={() => setProcessingDoc('safetyCert')}
-                          className="w-full py-2 bg-[#FFFBEB] hover:bg-[#FEF3C7] border border-[#FDE68A] text-[#D97706] text-[13px] font-semibold rounded-[8px] cursor-pointer transition-colors">
+                          className="w-full py-2 bg-yellow-light hover:bg-yellow-light border border-yellow text-status-exception text-[13px] font-semibold rounded-[8px] cursor-pointer transition-colors">
                           안전교육증 등록 처리
                         </button>
                       )}
@@ -832,7 +832,7 @@ export default function WorkersPage() {
                       const today = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10)
                       window.location.href = `/admin/attendance?name=${encodeURIComponent(selected.name)}&date=${today}`
                     }}
-                    className="flex items-center justify-center w-full py-2 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#6B7280] hover:bg-[#F9FAFB] transition-colors cursor-pointer bg-white"
+                    className="flex items-center justify-center w-full py-2 border border-brand rounded-[8px] text-[13px] text-muted-brand hover:bg-surface transition-colors cursor-pointer bg-card"
                   >
                     오늘 출퇴근 기록 보기 →
                   </button>

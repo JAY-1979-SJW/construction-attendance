@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { PageShell, SectionCard, Btn, FilterSelect } from '@/components/admin/ui'
@@ -92,7 +92,7 @@ export default function SiteLocationsPage() {
       <SectionCard className="mb-4">
         <div className="flex gap-3 items-end">
           <div className="flex-1">
-            <div className="text-[12px] text-[#9CA3AF] mb-1">현장</div>
+            <div className="text-[12px] text-muted2-brand mb-1">현장</div>
             <FilterSelect value={siteId} onChange={(e) => setSiteId(e.target.value)}>
               <option value="">현장 선택</option>
               {sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -105,52 +105,52 @@ export default function SiteLocationsPage() {
         <>
           {/* 템플릿 생성 */}
           <SectionCard className="mb-4">
-            <div className="text-[14px] font-semibold text-[#374151] mb-3">템플릿 자동생성</div>
+            <div className="text-[14px] font-semibold text-body-brand mb-3">템플릿 자동생성</div>
             <div className="grid grid-cols-2 gap-3 text-[13px]">
               <div>
-                <div className="text-[11px] text-[#9CA3AF] mb-1">동 (쉼표 구분)</div>
+                <div className="text-[11px] text-muted2-brand mb-1">동 (쉼표 구분)</div>
                 <input type="text" value={genBuildings} onChange={(e) => setGenBuildings(e.target.value)}
-                  className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:border-[#F97316]" />
+                  className="w-full border border-brand rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:border-accent" />
               </div>
               <div>
-                <div className="text-[11px] text-[#9CA3AF] mb-1">특수구역 (쉼표 구분)</div>
+                <div className="text-[11px] text-muted2-brand mb-1">특수구역 (쉼표 구분)</div>
                 <input type="text" value={genSpecials} onChange={(e) => setGenSpecials(e.target.value)}
-                  className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:border-[#F97316]" />
+                  className="w-full border border-brand rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:border-accent" />
               </div>
               <div>
-                <div className="text-[11px] text-[#9CA3AF] mb-1">지하 시작층 (예: -2)</div>
+                <div className="text-[11px] text-muted2-brand mb-1">지하 시작층 (예: -2)</div>
                 <input type="number" value={genUnder} onChange={(e) => setGenUnder(Number(e.target.value))}
-                  className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:border-[#F97316]" />
+                  className="w-full border border-brand rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:border-accent" />
               </div>
               <div>
-                <div className="text-[11px] text-[#9CA3AF] mb-1">지상 종료층 (예: 30)</div>
+                <div className="text-[11px] text-muted2-brand mb-1">지상 종료층 (예: 30)</div>
                 <input type="number" value={genAbove} onChange={(e) => setGenAbove(Number(e.target.value))}
-                  className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:border-[#F97316]" />
+                  className="w-full border border-brand rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:border-accent" />
               </div>
             </div>
             <div className="flex gap-2 mt-3 items-center">
               <Btn variant="orange" onClick={handleGenerate}>자동생성</Btn>
-              {msg && <span className="text-[13px] text-[#F97316]">{msg}</span>}
+              {msg && <span className="text-[13px] text-accent">{msg}</span>}
             </div>
           </SectionCard>
 
           {/* 위치 목록 */}
           <SectionCard>
             <div className="flex items-center justify-between mb-3">
-              <div className="text-[14px] font-semibold text-[#374151]">
+              <div className="text-[14px] font-semibold text-body-brand">
                 위치 목록 ({items.length}개 / {buildings.length}개 동)
               </div>
             </div>
 
             {loading ? (
-              <div className="text-[13px] text-[#9CA3AF] py-4 text-center">로딩 중...</div>
+              <div className="text-[13px] text-muted2-brand py-4 text-center">로딩 중...</div>
             ) : items.length === 0 ? (
-              <div className="text-[13px] text-[#9CA3AF] py-4 text-center">위치가 없습니다. 템플릿으로 생성하세요.</div>
+              <div className="text-[13px] text-muted2-brand py-4 text-center">위치가 없습니다. 템플릿으로 생성하세요.</div>
             ) : (
               <div className="max-h-[500px] overflow-y-auto">
                 <table className="w-full text-[13px]">
-                  <thead className="sticky top-0 bg-white">
-                    <tr className="text-left text-[11px] text-[#9CA3AF] border-b border-[#F3F4F6]">
+                  <thead className="sticky top-0 bg-card">
+                    <tr className="text-left text-[11px] text-muted2-brand border-b border-brand">
                       <th className="py-2 font-normal">동</th>
                       <th className="py-2 font-normal">층</th>
                       <th className="py-2 font-normal">상세위치</th>
@@ -162,19 +162,19 @@ export default function SiteLocationsPage() {
                     {items.map((item) => (
                       <tr key={item.id} className="border-b border-[#F9FAFB]"
                         style={{ opacity: item.isActive ? 1 : 0.4 }}>
-                        <td className="py-2 text-[#374151]">{item.buildingName}</td>
-                        <td className="py-2 text-[#374151]">{item.floorLabel}</td>
-                        <td className="py-2 text-[#6B7280]">{item.detailLabel || '-'}</td>
+                        <td className="py-2 text-body-brand">{item.buildingName}</td>
+                        <td className="py-2 text-body-brand">{item.floorLabel}</td>
+                        <td className="py-2 text-muted-brand">{item.detailLabel || '-'}</td>
                         <td className="py-2 text-center">
                           <span className={`text-[11px] px-2 py-0.5 rounded-full ${
-                            item.isActive ? 'bg-[#ECFDF5] text-[#16A34A]' : 'bg-[#F3F4F6] text-[#9CA3AF]'
+                            item.isActive ? 'bg-green-light text-status-working' : 'bg-footer text-muted2-brand'
                           }`}>
                             {item.isActive ? '활성' : '비활성'}
                           </span>
                         </td>
                         <td className="py-2 text-center">
                           <button onClick={() => toggleActive(item)}
-                            className="text-[11px] text-[#6B7280] hover:text-[#F97316] transition-colors">
+                            className="text-[11px] text-muted-brand hover:text-accent transition-colors">
                             {item.isActive ? '비활성화' : '활성화'}
                           </button>
                         </td>

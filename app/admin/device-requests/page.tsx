@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -69,7 +69,7 @@ export default function DeviceRequestsPage() {
         <h1 className="text-[22px] font-bold m-0 mb-5">기기 등록/변경 요청 ({total}건)</h1>
 
         {msg && (
-          <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-lg px-4 py-3 text-sm text-[#2e7d32] mb-4">
+          <div className="bg-green-light border border-[#a5d6a7] rounded-lg px-4 py-3 text-sm text-[#2e7d32] mb-4">
             {msg}
           </div>
         )}
@@ -88,7 +88,7 @@ export default function DeviceRequestsPage() {
         </div>
 
         {loading ? <p>로딩 중...</p> : (
-          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
+          <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b-2 border-[rgba(91,164,217,0.2)]">
@@ -102,7 +102,7 @@ export default function DeviceRequestsPage() {
                   <tr><td colSpan={9} className="text-center py-6 text-[#999]">요청이 없습니다.</td></tr>
                 ) : items.map((item) => (
                   <tr key={item.id} className="border-b border-[rgba(91,164,217,0.1)]">
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
+                    <td className="px-3 py-3 text-sm text-dim-brand">
                       <span style={{
                         fontSize: '11px',
                         fontWeight: 700,
@@ -115,18 +115,18 @@ export default function DeviceRequestsPage() {
                         {getRequestType(item)}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{item.workerName}</td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{formatPhone(item.workerPhone)}</td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{item.company}</td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{item.newDeviceName}</td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]"><span className="text-xs">{item.reason}</span></td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{formatDt(item.requestedAt)}</td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
+                    <td className="px-3 py-3 text-sm text-dim-brand">{item.workerName}</td>
+                    <td className="px-3 py-3 text-sm text-dim-brand">{formatPhone(item.workerPhone)}</td>
+                    <td className="px-3 py-3 text-sm text-dim-brand">{item.company}</td>
+                    <td className="px-3 py-3 text-sm text-dim-brand">{item.newDeviceName}</td>
+                    <td className="px-3 py-3 text-sm text-dim-brand"><span className="text-xs">{item.reason}</span></td>
+                    <td className="px-3 py-3 text-sm text-dim-brand">{formatDt(item.requestedAt)}</td>
+                    <td className="px-3 py-3 text-sm text-dim-brand">
                       <span style={{ color: STATUS_COLOR[item.status], fontWeight: 600, fontSize: '12px' }}>
                         {STATUS_LABEL[item.status]}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
+                    <td className="px-3 py-3 text-sm text-dim-brand">
                       {item.status === 'PENDING' && canMutate && (
                         <div className="flex gap-1.5">
                           <button

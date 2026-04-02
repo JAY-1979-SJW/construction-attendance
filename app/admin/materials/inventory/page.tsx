@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -85,7 +85,7 @@ export default function InventoryPage() {
             { label: '미입고 잔량', value: total.pendingReceiveQty, color: '#f9a825' },
             { label: '미발주 잔량', value: total.pendingOrderQty,   color: '#ef5350' },
           ].map(c => (
-            <div key={c.label} className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+            <div key={c.label} className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
               <div className="text-[11px] text-muted-brand mb-1">{c.label}</div>
               <div className="text-[22px] font-bold" style={{ color: c.color }}>
                 {c.value % 1 === 0 ? c.value.toLocaleString() : c.value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
@@ -95,7 +95,7 @@ export default function InventoryPage() {
         </div>
 
         {/* 테이블 */}
-        <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {loading ? (
             <div className="text-center py-12 text-muted-brand text-sm">로딩 중...</div>
           ) : rows.length === 0 ? (
@@ -119,8 +119,8 @@ export default function InventoryPage() {
                       <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white font-medium">{row.itemName}</td>
                       <td className="px-4 py-[10px] text-[12px] border-b border-[rgba(91,164,217,0.08)] text-muted-brand">{row.spec ?? '-'}</td>
                       <td className="px-4 py-[10px] text-[12px] border-b border-[rgba(91,164,217,0.08)] text-muted-brand">{row.unit ?? '-'}</td>
-                      <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-[#5BA4D9] text-right">{fmt(row.requestedQty)}</td>
-                      <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-[#F47920] text-right">{fmt(row.orderedQty)}</td>
+                      <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-secondary-brand text-right">{fmt(row.requestedQty)}</td>
+                      <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-accent text-right">{fmt(row.orderedQty)}</td>
                       <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-[#66bb6a] text-right font-semibold">{fmt(row.receivedQty)}</td>
                       <td className="px-4 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-right">
                         <span style={{ color: pendingReceive > 0 ? '#f9a825' : '#66bb6a' }}>

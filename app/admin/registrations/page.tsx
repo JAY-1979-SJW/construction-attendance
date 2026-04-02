@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import {
@@ -282,7 +282,7 @@ export default function RegistrationsPage() {
         {(['PENDING', 'APPROVED', 'REJECTED', 'SUSPENDED'] as const).map(st => (
           <button key={st} onClick={() => { setFilter(st); setSelected(null) }}
             className={`rounded-xl px-4 py-3 text-left border transition-colors cursor-pointer ${
-              filter === st ? 'border-[#F97316] bg-[rgba(249,115,22,0.08)]' : 'border-[rgba(91,164,217,0.15)] bg-card'
+              filter === st ? 'border-accent bg-[rgba(249,115,22,0.08)]' : 'border-[rgba(91,164,217,0.15)] bg-card'
             }`}>
             <div className="text-[12px] text-muted-brand mb-1">{STATUS_LABEL[st]}</div>
             <div className="text-[22px] font-bold" style={{ color: STATUS_COLOR[st] }}>{counts[st]}</div>
@@ -321,7 +321,7 @@ export default function RegistrationsPage() {
         onClose={closeModal}
         title={modalTarget?.action === 'reject' ? '반려 사유 입력' : '정지 사유 입력'}
       >
-        <p className="text-[13px] text-[#6B7280] mb-3">
+        <p className="text-[13px] text-muted-brand mb-3">
           {modalTarget?.action === 'reject'
             ? '반려 사유를 입력하면 근로자에게 이메일로 안내됩니다.'
             : '정지 사유를 입력하세요. 정지된 계정은 로그인이 차단됩니다.'}
@@ -333,7 +333,7 @@ export default function RegistrationsPage() {
           rows={3}
         />
         {modalReason.length > 200 && (
-          <p className="text-[12px] text-[#dc2626] mt-1">{modalReason.length}/200자 — 초과</p>
+          <p className="text-[12px] text-status-rejected mt-1">{modalReason.length}/200자 — 초과</p>
         )}
         <ModalFooter>
           <Btn variant="ghost" onClick={closeModal}>취소</Btn>
@@ -355,9 +355,9 @@ export default function RegistrationsPage() {
 
       {/* ── 목록 테이블 ── */}
       {loading ? (
-        <div className="text-center py-16 text-[#9CA3AF]">로딩 중...</div>
+        <div className="text-center py-16 text-muted2-brand">로딩 중...</div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-[#9CA3AF]">
+        <div className="text-center py-16 text-muted2-brand">
           {search ? '검색 결과가 없습니다.' : `${STATUS_LABEL[filter]} 상태의 신청이 없습니다.`}
         </div>
       ) : (
@@ -372,23 +372,23 @@ export default function RegistrationsPage() {
             return (
             <AdminTr key={r.id} onClick={() => setSelected(r)} highlighted={selected?.id === r.id}>
               <AdminTd>
-                <div className="font-semibold text-[13px] text-[#111827]">{r.name}</div>
-                {r.phone && <div className="text-[11px] text-[#9CA3AF]">{r.phone}</div>}
+                <div className="font-semibold text-[13px] text-fore-brand">{r.name}</div>
+                {r.phone && <div className="text-[11px] text-muted2-brand">{r.phone}</div>}
               </AdminTd>
-              <AdminTd>{r.email ?? <span className="text-[#9CA3AF]">-</span>}</AdminTd>
+              <AdminTd>{r.email ?? <span className="text-muted2-brand">-</span>}</AdminTd>
               <AdminTd>{r.jobTitle}</AdminTd>
               <AdminTd>
                 <div className="flex items-center gap-1 text-[12px]">
                   <span style={{ color: ds.requiredMet ? '#16a34a' : '#dc2626' }}>
                     {ds.requiredMet ? '●' : '○'}
                   </span>
-                  <span className={ds.requiredMet ? 'text-[#16a34a] font-medium' : 'text-[#dc2626]'}>
+                  <span className={ds.requiredMet ? 'text-status-working font-medium' : 'text-status-rejected'}>
                     {ds.requiredDone}/{ds.requiredTotal}
                   </span>
                 </div>
               </AdminTd>
               <AdminTd>
-                <span className="text-[12px] text-[#6B7280]">{ds.allDone}/{ds.allTotal}</span>
+                <span className="text-[12px] text-muted-brand">{ds.allDone}/{ds.allTotal}</span>
               </AdminTd>
               {/* 승인 탭에서만 투입 가능 상태 표시 */}
               {filter === 'APPROVED' && eligibility && (
@@ -404,7 +404,7 @@ export default function RegistrationsPage() {
                   </span>
                 </AdminTd>
               )}
-              <AdminTd className="text-[12px] text-[#9CA3AF]">{fmtDate(r.createdAt)}</AdminTd>
+              <AdminTd className="text-[12px] text-muted2-brand">{fmtDate(r.createdAt)}</AdminTd>
               <AdminTd>
                 <StatusBadge status={r.accountStatus} label={STATUS_LABEL[r.accountStatus]} />
               </AdminTd>
@@ -463,7 +463,7 @@ export default function RegistrationsPage() {
           <div className="space-y-5">
             {/* ── 기본 정보 ── */}
             <section>
-              <h4 className="text-[12px] font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">기본 정보</h4>
+              <h4 className="text-[12px] font-semibold text-muted2-brand uppercase tracking-wider mb-3">기본 정보</h4>
               <div className="space-y-2">
                 <MetaRow label="이메일">{selected.email ?? '-'}</MetaRow>
                 <MetaRow label="전화번호">{selected.phone ?? '-'}</MetaRow>
@@ -482,7 +482,7 @@ export default function RegistrationsPage() {
                 )}
                 {selected.rejectReason && (
                   <MetaRow label="반려/정지 사유">
-                    <span className="text-[#dc2626]">{selected.rejectReason}</span>
+                    <span className="text-status-rejected">{selected.rejectReason}</span>
                   </MetaRow>
                 )}
                 {selected.devices.length > 0 && (
@@ -497,7 +497,7 @@ export default function RegistrationsPage() {
             {/* ── 승인 가능 조건 (PENDING) ── */}
             {selected.accountStatus === 'PENDING' && (
               <section>
-                <h4 className="text-[12px] font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">승인 가능 조건</h4>
+                <h4 className="text-[12px] font-semibold text-muted2-brand uppercase tracking-wider mb-3">승인 가능 조건</h4>
                 <div
                   className="rounded-lg px-3 py-2 mb-3 text-[13px] font-medium"
                   style={{
@@ -515,7 +515,7 @@ export default function RegistrationsPage() {
                         width: 7, height: 7, borderRadius: '50%', display: 'inline-block',
                         backgroundColor: c.met ? '#16a34a' : '#dc2626',
                       }} />
-                      <span className={c.met ? 'text-[#374151]' : 'text-[#dc2626] font-medium'}>{c.label}</span>
+                      <span className={c.met ? 'text-body-brand' : 'text-status-rejected font-medium'}>{c.label}</span>
                     </div>
                   ))}
                 </div>
@@ -528,7 +528,7 @@ export default function RegistrationsPage() {
               const siteMissing = SITE_DOCS.filter(d => !d.check(selected))
               return (
                 <section>
-                  <h4 className="text-[12px] font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">현장 투입 가능 상태</h4>
+                  <h4 className="text-[12px] font-semibold text-muted2-brand uppercase tracking-wider mb-3">현장 투입 가능 상태</h4>
                   <div
                     className="rounded-lg px-3 py-2 mb-3 text-[13px] font-medium"
                     style={{
@@ -541,14 +541,14 @@ export default function RegistrationsPage() {
                   </div>
                   {siteMissing.length > 0 && (
                     <div className="space-y-[4px]">
-                      <p className="text-[11px] text-[#9CA3AF] mb-1">미제출 현장 서류:</p>
+                      <p className="text-[11px] text-muted2-brand mb-1">미제출 현장 서류:</p>
                       {siteMissing.map(d => (
                         <div key={d.key} className="flex items-center gap-2 text-[12px]">
                           <span style={{
                             width: 7, height: 7, borderRadius: '50%', display: 'inline-block',
                             backgroundColor: '#F97316',
                           }} />
-                          <span className="text-[#F97316]">{d.name}</span>
+                          <span className="text-accent">{d.name}</span>
                         </div>
                       ))}
                     </div>
@@ -559,7 +559,7 @@ export default function RegistrationsPage() {
 
             {/* ── 서류 현황 ── */}
             <section>
-              <h4 className="text-[12px] font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">서류 현황</h4>
+              <h4 className="text-[12px] font-semibold text-muted2-brand uppercase tracking-wider mb-3">서류 현황</h4>
               <div className="space-y-[6px]">
                 {DOC_DEFS.map((doc) => {
                   const submitted = doc.check(selected)
@@ -570,7 +570,7 @@ export default function RegistrationsPage() {
                           width: 8, height: 8, borderRadius: '50%', display: 'inline-block',
                           backgroundColor: submitted ? '#16a34a' : '#E5E7EB',
                         }} />
-                        <span className={submitted ? 'text-[#111827]' : 'text-[#9CA3AF]'}>{doc.name}</span>
+                        <span className={submitted ? 'text-fore-brand' : 'text-muted2-brand'}>{doc.name}</span>
                       </div>
                       <span
                         className="text-[10px] px-[6px] py-[1px] rounded"
@@ -590,14 +590,14 @@ export default function RegistrationsPage() {
             {/* ── 동의 현황 ── */}
             {selected.consents.length > 0 && (
               <section>
-                <h4 className="text-[12px] font-semibold text-[#9CA3AF] uppercase tracking-wider mb-3">동의 현황</h4>
+                <h4 className="text-[12px] font-semibold text-muted2-brand uppercase tracking-wider mb-3">동의 현황</h4>
                 <div className="space-y-[4px]">
                   {selected.consents.map((c, i) => (
                     <div key={i} className="flex items-center gap-2 text-[12px]">
                       <span style={{ color: c.agreed ? '#16a34a' : '#dc2626' }}>
                         {c.agreed ? '●' : '○'}
                       </span>
-                      <span className="text-[#374151]">{c.consentType.replace(/_/g, ' ')}</span>
+                      <span className="text-body-brand">{c.consentType.replace(/_/g, ' ')}</span>
                     </div>
                   ))}
                 </div>

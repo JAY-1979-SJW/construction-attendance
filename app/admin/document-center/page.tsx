@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -165,7 +165,7 @@ export default function DocumentCenterPage() {
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">서식 출력 센터</h1>
 
-      <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5">
+      <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5">
         {/* 귀속연월 + 현장 */}
         <div className="grid grid-cols-2 gap-4 mb-5">
           <div>
@@ -198,7 +198,7 @@ export default function DocumentCenterPage() {
           <div className="flex items-center gap-2 mb-2">
             <label className="text-xs text-muted-brand font-semibold">서식 종류</label>
             {XLSX_SUPPORTED.includes(docType) ? (
-              <span className="text-[11px] px-2 py-0.5 bg-[#e8f5e9] text-[#2e7d32] rounded-full font-semibold">
+              <span className="text-[11px] px-2 py-0.5 bg-green-light text-[#2e7d32] rounded-full font-semibold">
                 XLSX 지원
               </span>
             ) : (
@@ -214,19 +214,19 @@ export default function DocumentCenterPage() {
                 onClick={() => setDocType(d.value)}
                 className={`text-left px-3.5 py-3 rounded-lg border cursor-pointer transition-all ${
                   docType === d.value
-                    ? 'bg-[rgba(91,164,217,0.1)] border-[#1976d2] text-[#4A93C8]'
-                    : 'bg-white border-[#E5E7EB]'
+                    ? 'bg-[rgba(91,164,217,0.1)] border-[#1976d2] text-secondary-brand'
+                    : 'bg-white border-brand'
                 }`}
               >
                 <div className="font-semibold text-sm flex items-center gap-1.5">
                   {d.label}
                   {XLSX_SUPPORTED.includes(d.value) && (
-                    <span className="text-[10px] bg-[#e8f5e9] text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
+                    <span className="text-[10px] bg-green-light text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
                       XLSX
                     </span>
                   )}
                 </div>
-                <div className={`text-xs mt-0.5 ${docType === d.value ? 'text-[#1565c0]' : 'text-[#9e9e9e]'}`}>
+                <div className={`text-xs mt-0.5 ${docType === d.value ? 'text-secondary-brand' : 'text-[#9e9e9e]'}`}>
                   {d.desc}
                 </div>
               </button>
@@ -236,7 +236,7 @@ export default function DocumentCenterPage() {
 
         {/* 선택된 서식 설명 */}
         {selectedDoc && (
-          <div className="bg-[rgba(91,164,217,0.1)] rounded-md px-3.5 py-2.5 mb-4 text-sm text-[#4A93C8]">
+          <div className="bg-[rgba(91,164,217,0.1)] rounded-md px-3.5 py-2.5 mb-4 text-sm text-secondary-brand">
             <strong>{selectedDoc.label}</strong>: {selectedDoc.desc}
             {hasXlsx && (
               <span className="ml-2 text-xs text-[#2e7d32] font-semibold">
@@ -260,9 +260,9 @@ export default function DocumentCenterPage() {
 
         {/* 사전검사 결과 패널 */}
         {preflight ? (
-          <div className="mb-4 border border-[#E5E7EB] rounded-[12px] overflow-hidden">
+          <div className="mb-4 border border-brand rounded-[12px] overflow-hidden">
             {/* 헤더 - 결과 요약 */}
-            <div className={`px-4 py-3.5 flex items-center justify-between border-b border-[#e0e0e0] ${
+            <div className={`px-4 py-3.5 flex items-center justify-between border-b border-brand ${
               preflight.summary.errorCount > 0
                 ? 'bg-[#fff5f5]'
                 : preflight.summary.warningCount > 0
@@ -285,7 +285,7 @@ export default function DocumentCenterPage() {
               {/* 배지 요약 */}
               <div className="flex gap-1.5">
                 {preflight.summary.errorCount > 0 && (
-                  <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[#ffebee] text-[#c62828] rounded-full">
+                  <span className="px-2.5 py-0.5 text-[11px] font-bold bg-red-light text-[#c62828] rounded-full">
                     오류 {preflight.summary.errorCount}
                   </span>
                 )}
@@ -300,7 +300,7 @@ export default function DocumentCenterPage() {
                   </span>
                 )}
                 {preflight.summary.errorCount === 0 && preflight.summary.warningCount === 0 && (
-                  <span className="px-2.5 py-0.5 text-[11px] font-bold bg-[#e8f5e9] text-[#2e7d32] rounded-full">
+                  <span className="px-2.5 py-0.5 text-[11px] font-bold bg-green-light text-[#2e7d32] rounded-full">
                     이상 없음
                   </span>
                 )}
@@ -311,18 +311,18 @@ export default function DocumentCenterPage() {
             {preflight.issues.length > 0 ? (
               <ul className="m-0 p-0 list-none">
                 {preflight.issues.map((issue, i) => (
-                  <li key={i} className={`px-3.5 py-2.5 flex gap-2.5 items-start ${i < preflight.issues.length - 1 ? 'border-b border-[#f5f5f5]' : ''}`}>
+                  <li key={i} className={`px-3.5 py-2.5 flex gap-2.5 items-start ${i < preflight.issues.length - 1 ? 'border-b border-brand' : ''}`}>
                     <span className={`mt-px flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
                       issue.severity === 'ERROR'
-                        ? 'bg-[#ffebee] text-[#c62828]'
+                        ? 'bg-red-light text-[#c62828]'
                         : issue.severity === 'WARNING'
                           ? 'bg-[#fff8e1] text-[#f57f17]'
-                          : 'bg-[#e3f2fd] text-[#1565c0]'
+                          : 'bg-[#e3f2fd] text-secondary-brand'
                     }`}>
                       {issue.severity === 'ERROR' ? '!' : issue.severity === 'WARNING' ? '△' : 'i'}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[13px] font-semibold text-[#CBD5E0]">{issue.message}</div>
+                      <div className="text-[13px] font-semibold text-dim-brand">{issue.message}</div>
                       {issue.detail && (
                         <div className="text-xs text-muted-brand mt-0.5">{issue.detail}</div>
                       )}
@@ -343,11 +343,11 @@ export default function DocumentCenterPage() {
             )}
 
             {/* 재실행 버튼 */}
-            <div className="px-3.5 py-2.5 bg-[#fafafa] border-t border-[#f0f0f0] flex justify-end">
+            <div className="px-3.5 py-2.5 bg-surface border-t border-brand flex justify-end">
               <button
                 onClick={handlePreflight}
                 disabled={preflightLoading}
-                className="text-xs text-[#5BA4D9] bg-transparent border-0 cursor-pointer"
+                className="text-xs text-secondary-brand bg-transparent border-0 cursor-pointer"
                 style={{ opacity: preflightLoading ? 0.5 : 1 }}
               >
                 {preflightLoading ? '검사 중...' : '↻ 사전검사 재실행'}
@@ -355,7 +355,7 @@ export default function DocumentCenterPage() {
             </div>
           </div>
         ) : (
-          <div className="mb-4 border border-[#E5E7EB] rounded-[12px] px-4 py-4 bg-[#fafafa] text-[13px] text-[#aaa] text-center">
+          <div className="mb-4 border border-brand rounded-[12px] px-4 py-4 bg-surface text-[13px] text-[#aaa] text-center">
             사전검사를 실행하면 결과가 여기에 표시됩니다.
           </div>
         )}
@@ -366,7 +366,7 @@ export default function DocumentCenterPage() {
           <button
             onClick={handleDownload}
             disabled={loading || downloadBlocked}
-            className={`py-3 bg-[#F47920] text-white border-0 rounded-lg cursor-pointer text-[15px] font-bold ${hasXlsx ? 'flex-1' : 'w-full'}`}
+            className={`py-3 bg-brand-accent text-white border-0 rounded-lg cursor-pointer text-[15px] font-bold ${hasXlsx ? 'flex-1' : 'w-full'}`}
             style={{ opacity: (loading || downloadBlocked) ? 0.5 : 1 }}
           >
             {loading ? '생성 중...' : downloadBlocked ? '오류 해결 필요 (CSV)' : 'CSV 다운로드'}
@@ -397,14 +397,14 @@ export default function DocumentCenterPage() {
 
         {/* 결과 메시지 */}
         {msg && (
-          <div className={`mt-3 px-3.5 py-2.5 rounded-md text-[13px] ${isSuccess ? 'bg-[#e8f5e9] text-[#2e7d32]' : 'bg-[#ffebee] text-[#c62828]'}`}>
+          <div className={`mt-3 px-3.5 py-2.5 rounded-md text-[13px] ${isSuccess ? 'bg-green-light text-[#2e7d32]' : 'bg-red-light text-[#c62828]'}`}>
             {msg}
           </div>
         )}
       </div>
 
       {/* 서식 안내 테이블 */}
-      <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5">
+      <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5">
         <h2 className="text-base font-bold mb-4">서식별 포함 내용</h2>
         <table className="w-full border-collapse">
           <thead>
@@ -424,13 +424,13 @@ export default function DocumentCenterPage() {
               { label: '협력사 정산서', desc: '협력사별 노무비 정산 기초자료', use: '협력사 노무비 지급', xlsx: true },
             ].map(row => (
               <tr key={row.label}>
-                <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5] font-semibold">{row.label}</td>
-                <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5]">{row.desc}</td>
-                <td className="px-3 py-3 text-[13px] text-muted-brand border-b border-[#f5f5f5]">{row.use}</td>
-                <td className="px-3 py-3 text-[13px] text-[#CBD5E0] border-b border-[#f5f5f5]">
+                <td className="px-3 py-3 text-[13px] text-dim-brand border-b border-brand font-semibold">{row.label}</td>
+                <td className="px-3 py-3 text-[13px] text-dim-brand border-b border-brand">{row.desc}</td>
+                <td className="px-3 py-3 text-[13px] text-muted-brand border-b border-brand">{row.use}</td>
+                <td className="px-3 py-3 text-[13px] text-dim-brand border-b border-brand">
                   <span className="text-xs text-muted-brand">CSV</span>
                   {row.xlsx && (
-                    <span className="ml-1.5 text-xs bg-[#e8f5e9] text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
+                    <span className="ml-1.5 text-xs bg-green-light text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
                       XLSX
                     </span>
                   )}

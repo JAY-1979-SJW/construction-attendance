@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -143,7 +143,7 @@ export default function CompaniesPage() {
         </div>
 
         {msg && (
-          <div className={`rounded-lg px-4 py-3 mb-4 text-sm ${msg.includes('완료') ? 'bg-[#e8f5e9] text-[#2e7d32]' : 'bg-[#ffebee] text-[#c62828]'}`}>
+          <div className={`rounded-lg px-4 py-3 mb-4 text-sm ${msg.includes('완료') ? 'bg-green-light text-[#2e7d32]' : 'bg-red-light text-[#c62828]'}`}>
             {msg}
           </div>
         )}
@@ -169,7 +169,7 @@ export default function CompaniesPage() {
 
         {/* 등록/수정 폼 */}
         {showForm && (
-          <div className="bg-white rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+          <div className="bg-card rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
             <h3 className="m-0 mb-4 text-base">{editId ? '회사 수정' : '회사 등록'}</h3>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
               {[
@@ -220,7 +220,7 @@ export default function CompaniesPage() {
         )}
 
         {/* 테이블 */}
-        <div className="bg-white rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
+        <div className="bg-card rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
           {loading ? (
             <div className="py-8 text-center text-[#999]">로딩 중...</div>
           ) : (
@@ -238,27 +238,27 @@ export default function CompaniesPage() {
                     <tr><td colSpan={9} className="text-center py-8 text-[#999]">등록된 회사가 없습니다.</td></tr>
                   ) : companies.map(c => (
                     <tr key={c.id} className={`border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors ${c.isActive ? '' : 'opacity-50'}`}>
-                      <td className="px-4 py-3 text-sm text-[#CBD5E0]">
+                      <td className="px-4 py-3 text-sm text-dim-brand">
                         <div className="font-semibold">{c.companyName}</div>
                         {c.companyCode && <div className="text-[11px] text-muted-brand">{c.companyCode}</div>}
                       </td>
-                      <td className="px-4 py-3 text-sm text-[#CBD5E0]">
+                      <td className="px-4 py-3 text-sm text-dim-brand">
                         <span className="bg-[rgba(244,121,32,0.12)] text-accent px-2 py-0.5 rounded-[10px] text-[11px] font-semibold">
                           {COMPANY_TYPES[c.companyType] ?? c.companyType}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-xs text-muted-brand">{c.businessNumber ?? '-'}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0]">{c.representativeName ?? '-'}</td>
-                      <td className="px-4 py-3 text-xs text-[#CBD5E0]">{c.contactName ? `${c.contactName}${c.contactPhone ? ` (${c.contactPhone})` : ''}` : '-'}</td>
-                      <td className="px-4 py-3 text-sm text-[#CBD5E0] text-center">{c._count.workerAssignments}명</td>
-                      <td className="px-4 py-3 text-sm text-[#CBD5E0] text-center">{c._count.siteAssignments}개</td>
-                      <td className="px-4 py-3 text-sm text-[#CBD5E0]">
+                      <td className="px-4 py-3 text-[13px] text-dim-brand">{c.representativeName ?? '-'}</td>
+                      <td className="px-4 py-3 text-xs text-dim-brand">{c.contactName ? `${c.contactName}${c.contactPhone ? ` (${c.contactPhone})` : ''}` : '-'}</td>
+                      <td className="px-4 py-3 text-sm text-dim-brand text-center">{c._count.workerAssignments}명</td>
+                      <td className="px-4 py-3 text-sm text-dim-brand text-center">{c._count.siteAssignments}개</td>
+                      <td className="px-4 py-3 text-sm text-dim-brand">
                         <span className={`font-semibold text-xs ${c.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>{c.isActive ? '활성' : '비활성'}</span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-[#CBD5E0]">
-                        <button onClick={() => openEdit(c)} className="px-2.5 py-1 bg-transparent border border-[#E5E7EB] rounded text-xs text-secondary-brand cursor-pointer">수정</button>
+                      <td className="px-4 py-3 text-sm text-dim-brand">
+                        <button onClick={() => openEdit(c)} className="px-2.5 py-1 bg-transparent border border-brand rounded text-xs text-secondary-brand cursor-pointer">수정</button>
                         {c.isActive && (
-                          <button onClick={() => handleDeactivate(c.id, c.companyName)} className="px-2.5 py-1 bg-transparent border border-[#E5E7EB] rounded text-xs text-[#c62828] cursor-pointer ml-1">비활성화</button>
+                          <button onClick={() => handleDeactivate(c.id, c.companyName)} className="px-2.5 py-1 bg-transparent border border-brand rounded text-xs text-[#c62828] cursor-pointer ml-1">비활성화</button>
                         )}
                       </td>
                     </tr>

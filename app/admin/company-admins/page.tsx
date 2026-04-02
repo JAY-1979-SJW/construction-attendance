@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 
@@ -144,7 +144,7 @@ export default function CompanyAdminsPage() {
               {['이름', '이메일', '소속 업체', '상태', '마지막 로그인', '생성일', '조작'].map((h) => (
                 <th
                   key={h}
-                  className="px-3 py-[10px] bg-brand border border-[#E5E7EB] text-left font-semibold"
+                  className="px-3 py-[10px] bg-brand border border-brand text-left font-semibold"
                 >{h}</th>
               ))}
             </tr>
@@ -156,18 +156,18 @@ export default function CompanyAdminsPage() {
               </tr>
             )}
             {admins.map((a) => (
-              <tr key={a.id} className={a.isActive ? 'bg-white' : 'bg-[#fafafa]'}>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.name}</td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.email}</td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.companyName}</td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">
+              <tr key={a.id} className={a.isActive ? 'bg-white' : 'bg-surface'}>
+                <td className="px-3 py-[10px] border border-brand">{a.name}</td>
+                <td className="px-3 py-[10px] border border-brand">{a.email}</td>
+                <td className="px-3 py-[10px] border border-brand">{a.companyName}</td>
+                <td className="px-3 py-[10px] border border-brand">
                   <span className={`font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>
                     {a.isActive ? '활성' : '비활성'}
                   </span>
                 </td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">
+                <td className="px-3 py-[10px] border border-brand">{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
+                <td className="px-3 py-[10px] border border-brand">{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
+                <td className="px-3 py-[10px] border border-brand">
                   <button
                     className={`px-3 py-1 text-white border-none rounded-md cursor-pointer text-xs ${a.isActive ? 'bg-[#e53935]' : 'bg-[#388e3c]'}`}
                     onClick={() => toggleActive(a.id, a.isActive)}

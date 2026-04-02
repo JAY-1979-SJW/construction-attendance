@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -17,7 +17,7 @@ const STATUS_LABEL: Record<string, string> = {
   DRAFT: '초안', SIGNED: '서명완료', ACTIVE: '활성', ENDED: '종료',
 }
 const STATUS_COLOR: Record<string, string> = {
-  DRAFT:  'bg-[rgba(255,255,255,0.04)] text-[#CBD5E0]',
+  DRAFT:  'bg-[rgba(255,255,255,0.04)] text-dim-brand',
   SIGNED: 'bg-blue-100 text-blue-700',
   ACTIVE: 'bg-green-100 text-green-700',
   ENDED:  'bg-red-100 text-red-600',
@@ -119,7 +119,7 @@ export default function ContractsPage() {
           + 신규 계약
         </Link>
       </div>
-      <div className="flex gap-3 flex-wrap bg-white border rounded-[12px] p-5">
+      <div className="flex gap-3 flex-wrap bg-card border rounded-[12px] p-5">
         <input
           type="text" placeholder="근로자명 · 연락처 · 현장 검색"
           value={search} onChange={e => setSearch(e.target.value)}
@@ -160,9 +160,9 @@ export default function ContractsPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white border rounded-[12px] overflow-x-auto">
+        <div className="bg-card border rounded-[12px] overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-[rgba(255,255,255,0.04)] text-xs text-[#CBD5E0] border-b">
+            <thead className="bg-[rgba(255,255,255,0.04)] text-xs text-dim-brand border-b">
               <tr>
                 <th className="px-4 py-3 text-left">근로자</th>
                 <th className="px-4 py-3 text-left">현장</th>
@@ -182,9 +182,9 @@ export default function ContractsPage() {
                     <div className="font-medium">{c.worker.name}</div>
                     <div className="text-xs text-[#718096]">{c.worker.jobTitle}</div>
                   </td>
-                  <td className="px-4 py-3 text-[#CBD5E0] text-xs">{c.site?.name || '—'}</td>
+                  <td className="px-4 py-3 text-dim-brand text-xs">{c.site?.name || '—'}</td>
                   <td className="px-4 py-3">{CONTRACT_KIND_LABEL[c.contractKind || ''] || '—'}</td>
-                  <td className="px-4 py-3 text-xs text-[#CBD5E0]">
+                  <td className="px-4 py-3 text-xs text-dim-brand">
                     {TEMPLATE_LABEL[c.contractTemplateType || ''] || '—'}
                   </td>
                   <td className="px-4 py-3 text-xs">
@@ -192,7 +192,7 @@ export default function ContractsPage() {
                     <div className="text-[#718096]">{c.endDate || '무기한'}</div>
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-xs">{amountLabel(c)}</td>
-                  <td className="px-4 py-3 text-center text-xs text-[#CBD5E0]">{insuranceSummary(c)}</td>
+                  <td className="px-4 py-3 text-center text-xs text-dim-brand">{insuranceSummary(c)}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLOR[c.contractStatus] || ''}`}>
                       {STATUS_LABEL[c.contractStatus] || c.contractStatus}
@@ -229,7 +229,7 @@ export default function ContractsPage() {
         <div className="flex justify-center gap-2 text-sm">
           <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
             className="px-3 py-1.5 border rounded disabled:opacity-40">이전</button>
-          <span className="px-3 py-1.5 text-[#CBD5E0]">{page} / {Math.ceil(total / limit)}</span>
+          <span className="px-3 py-1.5 text-dim-brand">{page} / {Math.ceil(total / limit)}</span>
           <button onClick={() => setPage(p => p + 1)} disabled={page * limit >= total}
             className="px-3 py-1.5 border rounded disabled:opacity-40">다음</button>
         </div>

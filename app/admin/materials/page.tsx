@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
@@ -153,7 +153,7 @@ export default function MaterialsPage() {
             <h1 className="text-2xl font-bold m-0 mb-1">자재관리</h1>
             <p className="text-sm text-muted-brand m-0">계약내역서 엑셀 파일을 업로드하여 공종별 자재를 파싱·집계합니다</p>
           </div>
-          <button onClick={() => setShowUpload(true)} className="px-5 py-[10px] bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-sm font-semibold">+ 내역서 업로드</button>
+          <button onClick={() => setShowUpload(true)} className="px-5 py-[10px] bg-brand-accent text-white border-0 rounded-md cursor-pointer text-sm font-semibold">+ 내역서 업로드</button>
         </div>
 
         {/* 빠른 링크 */}
@@ -163,7 +163,7 @@ export default function MaterialsPage() {
             { href: '/admin/materials/purchase-orders', label: '발주관리', desc: '발주서 생성 · 발행',   color: '#F47920' },
             { href: '/admin/materials/inventory',       label: '재고현황', desc: '청구·발주·입고 집계', color: '#66bb6a' },
           ].map(c => (
-            <a key={c.href} href={c.href} className="no-underline bg-white border border-[rgba(91,164,217,0.15)] rounded-[12px] p-5 flex items-center gap-3 hover:border-[rgba(91,164,217,0.35)] transition-colors">
+            <a key={c.href} href={c.href} className="no-underline bg-card border border-[rgba(91,164,217,0.15)] rounded-[12px] p-5 flex items-center gap-3 hover:border-[rgba(91,164,217,0.35)] transition-colors">
               <div className="w-2 h-2 rounded-full shrink-0" style={{ background: c.color }} />
               <div>
                 <div className="text-[14px] font-semibold text-white">{c.label}</div>
@@ -211,8 +211,8 @@ export default function MaterialsPage() {
               {uploadError && <Toast message={uploadError} variant="error" />}
 
               <div className="flex gap-3 justify-end mt-5">
-                <button onClick={() => { setShowUpload(false); setUploadError('') }} className="px-5 py-[10px] bg-[#e0e0e0] text-[#CBD5E0] border-0 rounded-md cursor-pointer text-sm" disabled={uploading}>취소</button>
-                <button onClick={handleUpload} className="px-5 py-[10px] bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-sm font-semibold" disabled={uploading}>
+                <button onClick={() => { setShowUpload(false); setUploadError('') }} className="px-5 py-[10px] bg-brand-deeper text-dim-brand border-0 rounded-md cursor-pointer text-sm" disabled={uploading}>취소</button>
+                <button onClick={handleUpload} className="px-5 py-[10px] bg-brand-accent text-white border-0 rounded-md cursor-pointer text-sm font-semibold" disabled={uploading}>
                   {uploading ? '업로드 중...' : '업로드'}
                 </button>
               </div>
@@ -228,7 +228,7 @@ export default function MaterialsPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {loading ? (
             <div className="py-10 text-center text-muted-brand">로딩 중...</div>
           ) : (
@@ -252,7 +252,7 @@ export default function MaterialsPage() {
                       </td>
                       <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">{doc.site?.name ?? '-'}</td>
                       <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
-                        <span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-[#e8f5e9] text-[#2e7d32]">
+                        <span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-green-light text-[#2e7d32]">
                           {DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
                         </span>
                       </td>
@@ -269,9 +269,9 @@ export default function MaterialsPage() {
                       <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(doc.uploadedAt).toLocaleDateString('ko-KR')}</td>
                       <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
                         <div className="flex gap-2">
-                          <Link href={`/admin/materials/estimates/${doc.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-[#5BA4D9] border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
+                          <Link href={`/admin/materials/estimates/${doc.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
                           <button onClick={() => handleReparse(doc.id)} className="px-[10px] py-1 bg-[#f3e5f5] text-[#7b1fa2] border border-[#ce93d8] rounded cursor-pointer text-[12px] font-semibold">재파싱</button>
-                          <button onClick={() => handleDelete(doc.id)} className="px-[10px] py-1 bg-[#ffebee] text-[#b71c1c] border border-[#ef9a9a] rounded cursor-pointer text-[12px] font-semibold">삭제</button>
+                          <button onClick={() => handleDelete(doc.id)} className="px-[10px] py-1 bg-red-light text-[#b71c1c] border border-[#ef9a9a] rounded cursor-pointer text-[12px] font-semibold">삭제</button>
                         </div>
                       </td>
                     </tr>

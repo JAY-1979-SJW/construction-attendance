@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
@@ -127,7 +127,7 @@ export default function SuperUsersPage() {
         {['ALL', 'SUPER_ADMIN', 'ADMIN', 'VIEWER', 'COMPANY_ADMIN', 'SITE_ADMIN', 'EXTERNAL_SITE_ADMIN'].map((r) => (
           <button
             key={r}
-            className={`px-[14px] py-[6px] border-none rounded-md cursor-pointer text-[13px] ${filterRole === r ? 'bg-[#1a1a2e] text-white' : 'bg-[#f0f0f0] text-[#333]'}`}
+            className={`px-[14px] py-[6px] border-none rounded-md cursor-pointer text-[13px] ${filterRole === r ? 'bg-[#1a1a2e] text-white' : 'bg-footer text-[#333]'}`}
             onClick={() => setFilterRole(r)}
           >
             {r === 'ALL' ? '전체' : ROLE_LABEL[r]}
@@ -161,7 +161,7 @@ export default function SuperUsersPage() {
               </>
             )}
             {form.role === 'SITE_ADMIN' && (
-              <p className="col-span-full text-[12px] text-[#e65100] m-0">
+              <p className="col-span-full text-[12px] text-accent-hover m-0">
                 ℹ SITE_ADMIN은 계정 생성 후 &quot;현장 관리자 배정&quot; 페이지에서 담당 현장을 지정하세요.
               </p>
             )}
@@ -200,21 +200,21 @@ export default function SuperUsersPage() {
             )}
             {filtered.map((a) => (
               <tr key={a.id} className={a.isActive ? '' : 'opacity-60'}>
-                <td className="px-3 py-[10px] border border-[#e0e0e0] font-semibold">{a.name}</td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.email}</td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">
+                <td className="px-3 py-[10px] border border-brand font-semibold">{a.name}</td>
+                <td className="px-3 py-[10px] border border-brand">{a.email}</td>
+                <td className="px-3 py-[10px] border border-brand">
                   <span className="font-semibold text-[12px]" style={{ color: ROLE_COLOR[a.role] ?? '#333' }}>
                     {ROLE_LABEL[a.role] ?? a.role}
                   </span>
                 </td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">
+                <td className="px-3 py-[10px] border border-brand">
                   {a.companyId ? (
-                    <Link href={`/admin/companies/${a.companyId}`} className="text-[#4A93C8] no-underline">
+                    <Link href={`/admin/companies/${a.companyId}`} className="text-secondary-brand no-underline">
                       {a.companyName}
                     </Link>
                   ) : '-'}
                 </td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">
+                <td className="px-3 py-[10px] border border-brand">
                   <div className="flex flex-col gap-1">
                     <span className={`font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#c62828]'}`}>
                       {a.isActive ? '활성' : '비활성'}
@@ -222,7 +222,7 @@ export default function SuperUsersPage() {
                     {a.role === 'EXTERNAL_SITE_ADMIN' && a.companyVerificationStatus && (
                       <span className={`text-[11px] px-[6px] py-[1px] rounded ${
                         a.companyVerificationStatus === 'VERIFIED'
-                          ? 'bg-[#e8f5e9] text-[#2e7d32]'
+                          ? 'bg-green-light text-[#2e7d32]'
                           : a.companyVerificationStatus === 'PENDING_VERIFICATION'
                           ? 'bg-[#fff8e1] text-[#f57f17]'
                           : 'bg-[#fce4ec] text-[#c62828]'
@@ -232,9 +232,9 @@ export default function SuperUsersPage() {
                     )}
                   </div>
                 </td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
-                <td className="px-3 py-[10px] border border-[#e0e0e0]">
+                <td className="px-3 py-[10px] border border-brand">{a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('ko-KR') : '-'}</td>
+                <td className="px-3 py-[10px] border border-brand">{new Date(a.createdAt).toLocaleDateString('ko-KR')}</td>
+                <td className="px-3 py-[10px] border border-brand">
                   <div className="flex gap-1">
                     {!a.isActive && (
                       <button

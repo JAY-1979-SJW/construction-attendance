@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -88,7 +88,7 @@ export default function DevicesPage() {
         <h1 className="text-[22px] font-bold m-0 mb-5">기기 차단 관리 ({total}건)</h1>
 
         {msg && (
-          <div className={`border rounded-lg px-4 py-3 text-sm mb-4 ${msg.ok ? 'bg-[#e8f5e9] border-[#a5d6a7] text-[#2e7d32]' : 'bg-[#ffebee] border-[#ef9a9a] text-[#c62828]'}`}>
+          <div className={`border rounded-lg px-4 py-3 text-sm mb-4 ${msg.ok ? 'bg-green-light border-[#a5d6a7] text-[#2e7d32]' : 'bg-red-light border-[#ef9a9a] text-[#c62828]'}`}>
             {msg.text}
           </div>
         )}
@@ -106,7 +106,7 @@ export default function DevicesPage() {
         </div>
 
         {loading ? <p>로딩 중...</p> : (
-          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
+          <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b-2 border-[rgba(91,164,217,0.2)]">
@@ -121,25 +121,25 @@ export default function DevicesPage() {
                 ) : items.map(item => (
                   <tr key={item.id} className="border-b border-[rgba(91,164,217,0.1)]"
                     style={{ background: item.isBlocked ? '#fff8f8' : 'transparent' }}>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
+                    <td className="px-3 py-3 text-sm text-dim-brand">
                       <div className="font-semibold">{item.workerName}</div>
                       {item.isPrimary && (
                         <span className="text-[10px] bg-[rgba(244,121,32,0.12)] text-accent px-1.5 py-0.5 rounded-lg mt-0.5 inline-block">주기기</span>
                       )}
                     </td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{fmtPhone(item.workerPhone)}</td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{item.deviceName}</td>
+                    <td className="px-3 py-3 text-sm text-dim-brand">{fmtPhone(item.workerPhone)}</td>
+                    <td className="px-3 py-3 text-sm text-dim-brand">{item.deviceName}</td>
                     <td className="px-3 py-3 text-[11px] text-muted-brand font-mono">{item.deviceToken}</td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{item.platform ?? '-'}</td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">{fmt(item.lastLoginAt)}</td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
+                    <td className="px-3 py-3 text-sm text-dim-brand">{item.platform ?? '-'}</td>
+                    <td className="px-3 py-3 text-sm text-dim-brand">{fmt(item.lastLoginAt)}</td>
+                    <td className="px-3 py-3 text-sm text-dim-brand">
                       {item.isBlocked ? (
-                        <span className="text-[11px] bg-[#ffebee] text-[#c62828] px-2 py-0.5 rounded-[10px] font-bold">차단됨</span>
+                        <span className="text-[11px] bg-red-light text-[#c62828] px-2 py-0.5 rounded-[10px] font-bold">차단됨</span>
                       ) : (
-                        <span className="text-[11px] bg-[#e8f5e9] text-[#2e7d32] px-2 py-0.5 rounded-[10px] font-bold">정상</span>
+                        <span className="text-[11px] bg-green-light text-[#2e7d32] px-2 py-0.5 rounded-[10px] font-bold">정상</span>
                       )}
                     </td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
+                    <td className="px-3 py-3 text-sm text-dim-brand">
                       {item.isBlocked ? (
                         <span className="text-xs text-[#c62828]">{item.blockReason ?? '-'}</span>
                       ) : (
@@ -154,7 +154,7 @@ export default function DevicesPage() {
                         )
                       )}
                     </td>
-                    <td className="px-3 py-3 text-sm text-[#CBD5E0]">
+                    <td className="px-3 py-3 text-sm text-dim-brand">
                       {canMutate && (
                         item.isBlocked ? (
                           <button

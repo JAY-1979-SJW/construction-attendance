@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -273,8 +273,8 @@ function DocDetailPanel({
 
       {/* 문서 내용 — max-h-[400px] */}
       {contentText && (
-        <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-[8px] p-4 max-h-[400px] overflow-y-auto">
-          <pre className="text-[12px] text-[#374151] whitespace-pre-wrap m-0 font-[inherit] leading-relaxed break-words">
+        <div className="bg-surface border border-brand rounded-[8px] p-4 max-h-[400px] overflow-y-auto">
+          <pre className="text-[12px] text-body-brand whitespace-pre-wrap m-0 font-[inherit] leading-relaxed break-words">
             {contentText}
           </pre>
         </div>
@@ -384,7 +384,7 @@ function SafetyDocsContent() {
 
 export default function SafetyDocsPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-[#9CA3AF]">로딩 중...</div>}>
+    <Suspense fallback={<div className="p-6 text-muted2-brand">로딩 중...</div>}>
       <SafetyDocsContent />
     </Suspense>
   )

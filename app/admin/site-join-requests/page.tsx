@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { Modal } from '@/components/admin/ui'
@@ -77,7 +77,7 @@ export default function SiteJoinRequestsPage() {
             'px-[18px] py-2 rounded-[20px] text-sm cursor-pointer',
             filter === st
               ? 'bg-accent text-white border border-[#1976d2] font-bold'
-              : 'bg-white border border-[#E5E7EB] text-muted-brand',
+              : 'bg-white border border-brand text-muted-brand',
           ].join(' ')}>
             {STATUS_LABEL[st]}
           </button>
@@ -85,7 +85,7 @@ export default function SiteJoinRequestsPage() {
       </div>
 
       {msg && (
-        <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-lg px-4 py-3 mb-4 text-[#2e7d32] text-[14px]">{msg}</div>
+        <div className="bg-green-light border border-[#a5d6a7] rounded-lg px-4 py-3 mb-4 text-[#2e7d32] text-[14px]">{msg}</div>
       )}
 
       <Modal open={!!rejectId} onClose={() => { setRejectId(null); setRejectReason('') }} title="반려 사유 입력">
@@ -120,7 +120,7 @@ export default function SiteJoinRequestsPage() {
             </thead>
             <tbody>
               {data.map(r => (
-                <tr key={r.id} className="border-b border-[#f0f0f0]">
+                <tr key={r.id} className="border-b border-brand">
                   <td className="px-[14px] py-3 align-middle">
                     {r.worker.name}
                     <div className="text-[11px] text-muted-brand mt-[2px]">{r.worker.jobTitle}</div>

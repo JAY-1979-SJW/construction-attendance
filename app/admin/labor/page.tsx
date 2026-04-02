@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -118,7 +118,7 @@ export default function LaborPage() {
   }
 
   return (
-    <div className="p-5 md:p-6 bg-[#F5F7FA]">
+    <div className="p-5 md:p-6 bg-brand">
 
       {/* 노무 관제 허브 */}
       <div className="flex gap-3 mb-6 flex-wrap">
@@ -134,7 +134,7 @@ export default function LaborPage() {
           <Link
             key={item.href}
             href={item.href}
-            className="bg-white rounded-[12px] px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.08)] no-underline hover:shadow-[0_4px_12px_rgba(0,0,0,0.45)] transition-shadow"
+            className="bg-card rounded-[12px] px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.08)] no-underline hover:shadow-[0_4px_12px_rgba(0,0,0,0.45)] transition-shadow"
           >
             <div className="text-[13px] font-bold text-secondary-brand">{item.label}</div>
             <div className="text-[11px] text-muted-brand mt-0.5">{item.desc}</div>
@@ -172,7 +172,7 @@ export default function LaborPage() {
             { label: '검토 필요(미퇴근)', value: meta.needsReviewCount, color: '#b71c1c' },
             { label: '자동처리 포함', value: meta.autoCount, color: '#6a1b9a' },
           ].map((item) => (
-            <div key={item.label} className="bg-white rounded-[12px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)] min-w-[140px]" style={{ borderTop: `3px solid ${item.color}` }}>
+            <div key={item.label} className="bg-card rounded-[12px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)] min-w-[140px]" style={{ borderTop: `3px solid ${item.color}` }}>
               <div className="text-[28px] font-bold mb-1" style={{ color: item.color }}>{item.value}</div>
               <div className="text-xs text-muted-brand">{item.label}</div>
             </div>
@@ -181,7 +181,7 @@ export default function LaborPage() {
       )}
 
       {/* 탭 */}
-      <div className="flex gap-0 mb-4 border-b-2 border-[#e0e0e0]">
+      <div className="flex gap-0 mb-4 border-b-2 border-brand">
         {(['detail', 'summary'] as const).map((t) => (
           <button
             key={t}
@@ -197,7 +197,7 @@ export default function LaborPage() {
         <>
           {/* ── 탭1: 투입현황 상세 ──────────────────────────── */}
           {tab === 'detail' && (
-            <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 overflow-x-auto">
+            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
@@ -218,25 +218,25 @@ export default function LaborPage() {
                         background: row.needsReview ? '#fff8f8' : row.isAdjusted ? '#faf5ff' : undefined,
                       }}
                     >
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.workDate}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.workDate}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">
                         <span className="font-semibold text-secondary-brand underline">{row.workerName}</span>
                         {row.needsReview && (
-                          <span className="ml-1.5 text-[10px] bg-[#ffebee] text-[#b71c1c] px-1.5 py-px rounded font-bold">처리필요</span>
+                          <span className="ml-1.5 text-[10px] bg-red-light text-[#b71c1c] px-1.5 py-px rounded font-bold">처리필요</span>
                         )}
                       </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.company}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.jobTitle}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.checkInSiteName}</td>
-                      <td className={`px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap ${row.hasMove ? 'font-semibold' : ''}`}>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.company}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.jobTitle}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.checkInSiteName}</td>
+                      <td className={`px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap ${row.hasMove ? 'font-semibold' : ''}`}>
                         {row.allocatedSiteName}
-                        {row.hasMove && <span className="text-[10px] text-[#e65100] ml-1">이동</span>}
+                        {row.hasMove && <span className="text-[10px] text-accent-hover ml-1">이동</span>}
                       </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{row.hasMove ? '✓' : ''}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.checkInAt ?? '-'}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.checkOutAt ?? <span className="text-[#b71c1c]">미기록</span>}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap font-semibold">{formatMinutes(row.totalWorkedMinutes)}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.hasMove ? '✓' : ''}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.checkInAt ?? '-'}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.checkOutAt ?? <span className="text-[#b71c1c]">미기록</span>}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap font-semibold">{formatMinutes(row.totalWorkedMinutes)}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">
                         <span
                           className="text-[11px] px-2 py-0.5 rounded-[10px] font-semibold"
                           style={{
@@ -247,13 +247,13 @@ export default function LaborPage() {
                           {STATUS_LABEL[row.status] ?? row.status}
                         </span>
                       </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
                         {row.isAdjusted && <span className="text-[#6a1b9a] text-[11px]">보정</span>}
                       </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
                         {row.isAutoCheckout && <span className="text-[#b71c1c] text-[11px]">AUTO</span>}
                       </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
                         {row.includeInLabor
                           ? <span className="text-[#2e7d32] text-[11px]">포함</span>
                           : row.needsReview
@@ -270,7 +270,7 @@ export default function LaborPage() {
 
           {/* ── 탭2: 노임집계 합계 ──────────────────────────── */}
           {tab === 'summary' && (
-            <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 overflow-x-auto">
+            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 overflow-x-auto">
               <div className="text-xs text-muted-brand mb-3">
                 * COMPLETED + ADJUSTED 기준 합산. MISSING_CHECKOUT은 검토필요 건수만 표시됩니다.
               </div>
@@ -287,22 +287,22 @@ export default function LaborPage() {
                     <tr><td colSpan={10} className="text-center py-8 text-[#999]">데이터가 없습니다.</td></tr>
                   ) : summary.map((row, i) => (
                     <tr key={i} style={{ background: row.needsReviewDays > 0 ? '#fff8f8' : 'white' }}>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap font-semibold">{row.allocatedSiteName}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap font-semibold">{row.workerName}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.company}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.jobTitle}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center font-bold text-[#4A93C8]">{row.totalDays}일</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center font-bold">{formatMinutes(row.totalMinutes)}</td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap font-semibold">{row.allocatedSiteName}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap font-semibold">{row.workerName}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.company}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.jobTitle}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center font-bold text-secondary-brand">{row.totalDays}일</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center font-bold">{formatMinutes(row.totalMinutes)}</td>
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
                         {row.adjustedDays > 0 && <span className="text-[#6a1b9a] text-xs">{row.adjustedDays}건</span>}
                       </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
                         {row.autoCheckoutDays > 0 && <span className="text-[#b71c1c] text-xs">{row.autoCheckoutDays}건</span>}
                       </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">
                         {row.needsReviewDays > 0 && <span className="text-[#b71c1c] font-bold text-xs">{row.needsReviewDays}건 ⚠</span>}
                       </td>
-                      <td className="px-3 py-[9px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
+                      <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">
                         {row.adjustedDays > 0 && '보정있음 '}
                         {row.needsReviewDays > 0 && '검토필요'}
                       </td>
@@ -316,10 +316,10 @@ export default function LaborPage() {
       )}
 
       {/* 집계 기준 안내 */}
-      <div className="bg-white rounded-[12px] px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+      <div className="bg-card rounded-[12px] px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
         <div className="text-xs text-muted-brand font-semibold mb-2.5 uppercase">집계 기준</div>
         <div className="flex items-center gap-2.5 mb-1.5">
-          <span className="text-[11px] px-2 py-0.5 rounded-[10px] font-semibold text-[#4A93C8] bg-secondary-brand/10">완료</span>
+          <span className="text-[11px] px-2 py-0.5 rounded-[10px] font-semibold text-secondary-brand bg-secondary-brand/10">완료</span>
           <span className="text-[13px] text-muted-brand">정상 집계 포함 (COMPLETED)</span>
         </div>
         <div className="flex items-center gap-2.5 mb-1.5">
@@ -327,7 +327,7 @@ export default function LaborPage() {
           <span className="text-[13px] text-muted-brand">관리자 보정 후 집계 포함 (ADJUSTED)</span>
         </div>
         <div className="flex items-center gap-2.5 mb-1.5">
-          <span className="text-[11px] px-2 py-0.5 rounded-[10px] font-semibold text-[#b71c1c] bg-[#ffebee]">미퇴근</span>
+          <span className="text-[11px] px-2 py-0.5 rounded-[10px] font-semibold text-[#b71c1c] bg-red-light">미퇴근</span>
           <span className="text-[13px] text-muted-brand">집계 제외 — 검토 필요 (MISSING_CHECKOUT)</span>
         </div>
         <div className="flex items-center gap-2.5 mt-2 text-xs text-muted-brand">

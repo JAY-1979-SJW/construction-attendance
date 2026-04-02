@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -77,7 +77,7 @@ export default function MaterialRequestsPage() {
             <h1 className="text-2xl font-bold m-0 mb-1">자재청구 목록</h1>
             <p className="text-sm text-muted-brand m-0">현장별 자재청구서를 관리합니다.</p>
           </div>
-          <button onClick={() => router.push('/admin/materials/requests/new')} className="px-5 py-[10px] bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-sm font-semibold">
+          <button onClick={() => router.push('/admin/materials/requests/new')} className="px-5 py-[10px] bg-brand-accent text-white border-0 rounded-md cursor-pointer text-sm font-semibold">
             + 청구서 작성
           </button>
         </div>
@@ -91,7 +91,7 @@ export default function MaterialRequestsPage() {
           <span className="text-muted-brand text-sm">총 {total}건</span>
         </div>
 
-        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {loading ? (
             <div className="text-center py-12 text-muted-brand">로딩 중...</div>
           ) : requests.length === 0 ? (
@@ -127,7 +127,7 @@ export default function MaterialRequestsPage() {
                     <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{fmtDate(r.createdAt)}</td>
                     <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">{r.deliveryRequestedAt ? fmtDate(r.deliveryRequestedAt) : '-'}</td>
                     <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)]">
-                      <Link href={`/admin/materials/requests/${r.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-[#5BA4D9] border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
+                      <Link href={`/admin/materials/requests/${r.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
                     </td>
                   </tr>
                 ))}

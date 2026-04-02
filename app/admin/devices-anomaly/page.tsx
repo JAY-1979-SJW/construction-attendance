@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -98,7 +98,7 @@ export default function DevicesAnomalyPage() {
           <button
             onClick={load}
             disabled={loading}
-            className="px-5 py-2.5 bg-[#F47920] text-white border-none rounded-lg cursor-pointer text-[14px] font-semibold"
+            className="px-5 py-2.5 bg-brand-accent text-white border-none rounded-lg cursor-pointer text-[14px] font-semibold"
             style={{ opacity: loading ? 0.6 : 1 }}
           >
             {loading ? '조회 중...' : '새로고침'}
@@ -107,7 +107,7 @@ export default function DevicesAnomalyPage() {
       </div>
 
       {msg && (
-        <div className="bg-[#ffebee] text-[#c62828] rounded-lg px-4 py-3 mb-4 text-[14px]">
+        <div className="bg-red-light text-[#c62828] rounded-lg px-4 py-3 mb-4 text-[14px]">
           {msg}
         </div>
       )}
@@ -128,14 +128,14 @@ export default function DevicesAnomalyPage() {
             <div className="text-[12px] font-semibold" style={{ color: style.color }}>{label}</div>
           </div>
         ))}
-        <div className="bg-white border border-[#E5E7EB] rounded-[12px] px-6 py-[14px] min-w-[120px] text-center">
+        <div className="bg-card border border-brand rounded-[12px] px-6 py-[14px] min-w-[120px] text-center">
           <div className="text-[28px] font-bold text-muted-brand">{anomalies.length}</div>
           <div className="text-[12px] font-semibold text-muted-brand">전체</div>
         </div>
       </div>
 
       {/* 테이블 */}
-      <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
+      <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
         {loading ? (
           <div className="py-12 text-center text-[#999]">탐지 중...</div>
         ) : anomalies.length === 0 ? (
@@ -150,7 +150,7 @@ export default function DevicesAnomalyPage() {
               <thead>
                 <tr>
                   {['유형', '심각도', '업체/관리자', '근로자', '기기정보', '발생시각', '상세내용'].map(h => (
-                    <th key={h} className="bg-brand px-[14px] py-3 text-left font-semibold text-muted-brand border-b border-[#e0e0e0] whitespace-nowrap">{h}</th>
+                    <th key={h} className="bg-brand px-[14px] py-3 text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
