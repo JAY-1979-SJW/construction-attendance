@@ -10,6 +10,7 @@ import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
 const createSchema = z.object({
   name: z.string().optional().default(''),
   address: z.string().min(1, '현장주소는 필수입니다.'),
+  addressJibun: z.string().optional(),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
   allowedRadius: z.number().int().min(10).max(5000).default(100),
@@ -55,8 +56,11 @@ export async function GET(request: NextRequest) {
       }),
     ])
 
+    // 위도/경도는 DB에만 보관, API 응답에서 제외
+    const sanitizedSites = sites.map(({ latitude, longitude, ...rest }) => rest)
+
     if (!includeStats) {
-      return ok({ items: sites, total, page, pageSize })
+      return ok({ items: sanitizedSites, total, page, pageSize })
     }
 
     // ── 현장별 통계 집계 (배치 쿼리 5개) ──────────────────────────────────
@@ -105,10 +109,11 @@ export async function GET(request: NextRequest) {
     const totalWageMap = new Map(totalWages.map((r: { siteId: string; _sum: { confirmedTotalAmount: number | null } }) => [r.siteId, r._sum.confirmedTotalAmount ?? 0]))
 
     const items = sites.map(s => {
+      const { latitude: _lat, longitude: _lng, ...siteRest } = s
       const assigned  = assignedMap.get(s.id) ?? 0
       const checkedIn = attendMap.get(s.id) ?? 0
       return {
-        ...s,
+        ...siteRest,
         assignedWorkerCount: assigned,
         todayCheckInCount:   checkedIn,
         absentCount:         Math.max(0, assigned - checkedIn),

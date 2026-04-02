@@ -199,7 +199,7 @@ function progressPct(openedAt?: string | null, closedAt?: string | null): number
 
 // ── 폼 초기값 ─────────────────────────────────────────────────────────────
 const emptyForm = {
-  name: '', address: '', addressDetail: '', latitude: '', longitude: '',
+  name: '', address: '', addressJibun: '', addressDetail: '', latitude: '', longitude: '',
   allowedRadius: '100', siteCode: '', openedAt: '', closedAt: '', notes: '',
 }
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
@@ -356,11 +356,12 @@ export default function SitesPage() {
   const openAddressSearch = (target: 'form' | 'edit') => {
     if (!window.daum?.Postcode) { alert('주소 검색 서비스 로딩 중입니다.'); return }
     new window.daum.Postcode({
-      oncomplete: async (data) => {
+      oncomplete: async (data: { roadAddress: string; jibunAddress: string }) => {
         const address = data.roadAddress || data.jibunAddress
+        const addressJibun = data.jibunAddress || ''
         const setStatus = target === 'form' ? setFormGeoStatus : setEditGeoStatus
         const setF      = target === 'form' ? setForm          : setEditForm
-        setF(f => ({ ...f, address, latitude: '', longitude: '' }))
+        setF(f => ({ ...f, address, addressJibun, latitude: '', longitude: '' }))
         setStatus('loading')
         try {
           const res  = await fetch(`/api/admin/geocode?address=${encodeURIComponent(address)}`)
@@ -405,7 +406,8 @@ export default function SitesPage() {
     const res = await fetch('/api/admin/sites', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: form.name, address: fullAddress, latitude: lat, longitude: lng,
+        name: form.name, address: fullAddress, addressJibun: form.addressJibun || undefined,
+        latitude: lat, longitude: lng,
         allowedRadius: parseInt(form.allowedRadius, 10),
         siteCode: form.siteCode || undefined,
         openedAt: form.openedAt || undefined, closedAt: form.closedAt || undefined,

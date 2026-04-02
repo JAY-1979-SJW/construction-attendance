@@ -768,7 +768,8 @@ model Site {
   id                 String    @id @default(cuid())
   siteCode           String?   @unique
   name               String
-  address            String
+  address            String              // 도로명 주소
+  addressJibun       String?             // 지번 주소
   latitude           Float
   longitude          Float
   allowedRadius      Int       @default(100) // meters

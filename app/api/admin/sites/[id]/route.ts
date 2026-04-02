@@ -31,8 +31,6 @@ export async function GET(
         id: true,
         name: true,
         address: true,
-        latitude: true,
-        longitude: true,
         allowedRadius: true,
         isActive: true,
         siteCode: true,
