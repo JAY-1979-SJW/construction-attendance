@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 
@@ -38,20 +38,20 @@ export default function LaborSitesPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-[20px] font-bold text-[#0F172A]">현장별 노무현황</h1>
-          <p className="text-[13px] text-[#6B7280] mt-0.5">현장 단위 인원·공수·노임 집계</p>
+          <h1 className="text-[20px] font-bold text-title-brand">현장별 노무현황</h1>
+          <p className="text-[13px] text-muted-brand mt-0.5">현장 단위 인원·공수·노임 집계</p>
         </div>
         <div className="flex items-center gap-3">
           {!loading && (
-            <span className="text-[12px] text-[#9CA3AF]">
-              합계 <span className="font-semibold text-[#F97316]">{totalWage.toLocaleString()}원</span>
+            <span className="text-[12px] text-muted2-brand">
+              합계 <span className="font-semibold text-accent">{totalWage.toLocaleString()}원</span>
             </span>
           )}
           <input
             type="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="text-[13px] border border-[#E5E7EB] rounded-[8px] px-3 py-1.5 focus:outline-none focus:border-[#F97316]"
+            className="text-[13px] border border-brand rounded-[8px] px-3 py-1.5 focus:outline-none focus:border-accent"
           />
         </div>
       </div>
@@ -60,14 +60,14 @@ export default function LaborSitesPage() {
         <table className="w-full text-[12px]">
           <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
             <tr>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">현장명</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">총 인원</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">출근 인원</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">공수 합계</th>
-              <th className="px-3 py-2.5 text-right text-[11px] font-semibold text-[#6B7280]">월 노임</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">확정</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">미확정</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">보험 대상</th>
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">현장명</th>
+              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">총 인원</th>
+              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">출근 인원</th>
+              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">공수 합계</th>
+              <th className="px-3 py-2.5 text-right text-[11px] font-semibold text-muted-brand">월 노임</th>
+              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">확정</th>
+              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">미확정</th>
+              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">보험 대상</th>
             </tr>
           </thead>
           <tbody>
@@ -76,28 +76,28 @@ export default function LaborSitesPage() {
                 <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
                   {Array.from({ length: 8 }).map((__, j) => (
                     <td key={j} className="px-3 py-3">
-                      <div className="h-3.5 bg-[#F3F4F6] rounded animate-pulse" style={{ width: j === 0 ? 100 : 40 }} />
+                      <div className="h-3.5 bg-footer rounded animate-pulse" style={{ width: j === 0 ? 100 : 40 }} />
                     </td>
                   ))}
                 </tr>
               ))
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-[13px] text-[#9CA3AF]">
+                <td colSpan={8} className="px-4 py-10 text-center text-[13px] text-muted2-brand">
                   현장 노무 데이터가 없습니다.
                 </td>
               </tr>
             ) : (
               rows.map((row) => (
-                <tr key={row.siteId} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-[#FAFAFA]">
-                  <td className="px-3 py-2.5 font-medium text-[#0F172A]">{row.siteName}</td>
-                  <td className="px-3 py-2.5 text-center text-[#374151]">{row.totalWorkers}명</td>
-                  <td className="px-3 py-2.5 text-center text-[#374151]">{row.workedWorkers}명</td>
-                  <td className="px-3 py-2.5 text-center font-medium text-[#374151]">{row.totalManday.toFixed(2)}</td>
-                  <td className="px-3 py-2.5 text-right font-semibold text-[#0F172A]">{row.totalWage.toLocaleString()}원</td>
-                  <td className="px-3 py-2.5 text-center text-[#16A34A]">{row.confirmedCount}</td>
-                  <td className="px-3 py-2.5 text-center text-[#D97706]">{row.pendingCount}</td>
-                  <td className="px-3 py-2.5 text-center text-[#374151]">{row.insuranceTargets}명</td>
+                <tr key={row.siteId} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-surface">
+                  <td className="px-3 py-2.5 font-medium text-title-brand">{row.siteName}</td>
+                  <td className="px-3 py-2.5 text-center text-body-brand">{row.totalWorkers}명</td>
+                  <td className="px-3 py-2.5 text-center text-body-brand">{row.workedWorkers}명</td>
+                  <td className="px-3 py-2.5 text-center font-medium text-body-brand">{row.totalManday.toFixed(2)}</td>
+                  <td className="px-3 py-2.5 text-right font-semibold text-title-brand">{row.totalWage.toLocaleString()}원</td>
+                  <td className="px-3 py-2.5 text-center text-status-working">{row.confirmedCount}</td>
+                  <td className="px-3 py-2.5 text-center text-status-exception">{row.pendingCount}</td>
+                  <td className="px-3 py-2.5 text-center text-body-brand">{row.insuranceTargets}명</td>
                 </tr>
               ))
             )}

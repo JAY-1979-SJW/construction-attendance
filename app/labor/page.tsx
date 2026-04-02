@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 
@@ -47,9 +47,9 @@ function KPICard({
         border: accent ? '1px solid #FED7AA' : '1px solid #E5E7EB',
       }}
     >
-      <span className="text-[12px] text-[#9CA3AF]">{label}</span>
+      <span className="text-[12px] text-muted2-brand">{label}</span>
       {loading ? (
-        <div className="h-7 w-24 bg-[#F3F4F6] rounded animate-pulse" />
+        <div className="h-7 w-24 bg-footer rounded animate-pulse" />
       ) : (
         <span
           className="text-[22px] font-bold"
@@ -58,7 +58,7 @@ function KPICard({
           {value}
         </span>
       )}
-      {sub && <span className="text-[11px] text-[#9CA3AF]">{sub}</span>}
+      {sub && <span className="text-[11px] text-muted2-brand">{sub}</span>}
     </div>
   )
 }
@@ -94,8 +94,8 @@ export default function LaborDashboardPage() {
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[20px] font-bold text-[#0F172A]">노무 대시보드</h1>
-          <p className="text-[13px] text-[#6B7280] mt-0.5">
+          <h1 className="text-[20px] font-bold text-title-brand">노무 대시보드</h1>
+          <p className="text-[13px] text-muted-brand mt-0.5">
             {month.replace('-', '년 ')}월 기준 노무 현황 요약
           </p>
         </div>
@@ -103,7 +103,7 @@ export default function LaborDashboardPage() {
           type="month"
           value={month}
           onChange={(e) => setMonth(e.target.value)}
-          className="text-[13px] border border-[#E5E7EB] rounded-[8px] px-3 py-1.5 text-[#374151] focus:outline-none focus:border-[#F97316]"
+          className="text-[13px] border border-brand rounded-[8px] px-3 py-1.5 text-body-brand focus:outline-none focus:border-accent"
         />
       </div>
 
@@ -157,7 +157,7 @@ export default function LaborDashboardPage() {
 
       {/* 안내 */}
       <div
-        className="rounded-[10px] px-4 py-3 text-[12px] text-[#6B7280]"
+        className="rounded-[10px] px-4 py-3 text-[12px] text-muted-brand"
         style={{ background: '#F9FAFB', border: '1px solid #E5E7EB' }}
       >
         노임·4대보험·서류 상세 내용은 각 메뉴에서 확인할 수 있습니다.

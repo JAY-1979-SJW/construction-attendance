@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -143,7 +143,7 @@ export default function LaborSidebar() {
       style={{ background: '#FFFFFF', borderRight: '1px solid #E5E7EB' }}
     >
       {/* 상단 4px 오렌지 라인 */}
-      <div className="h-1 shrink-0 bg-[#F97316]" />
+      <div className="h-1 shrink-0 bg-brand-accent" />
 
       {/* 로고 */}
       <div
@@ -151,7 +151,7 @@ export default function LaborSidebar() {
         style={{ borderBottom: '1px solid #F3F4F6' }}
       >
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-[#FFF7ED] rounded-[8px] flex items-center justify-center shrink-0">
+          <div className="w-7 h-7 bg-accent-light rounded-[8px] flex items-center justify-center shrink-0">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
               <path
                 d="M12 2L3 7v5c0 5.25 3.75 10.16 9 11.34C17.25 22.16 21 17.25 21 12V7L12 2z"
@@ -159,9 +159,9 @@ export default function LaborSidebar() {
               />
             </svg>
           </div>
-          <span className="text-[14px] font-bold text-[#0F172A]">
+          <span className="text-[14px] font-bold text-title-brand">
             노무관리
-            <span className="text-[11px] font-normal text-[#9CA3AF] ml-1">시스템</span>
+            <span className="text-[11px] font-normal text-muted2-brand ml-1">시스템</span>
           </span>
         </div>
       </div>
@@ -171,7 +171,7 @@ export default function LaborSidebar() {
         {NAV_ITEMS.map((item) => (
           <NavLink key={item.href} item={item} pathname={pathname} />
         ))}
-        <div className="mx-4 my-2 border-t border-[#F3F4F6]" />
+        <div className="mx-4 my-2 border-t border-brand" />
         <NavLink item={SETTINGS_ITEM} pathname={pathname} />
       </nav>
 
@@ -179,7 +179,7 @@ export default function LaborSidebar() {
       <div className="px-3 py-3 shrink-0" style={{ borderTop: '1px solid #E5E7EB' }}>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2 text-[12px] py-2 px-3 rounded-[8px] transition-colors text-left text-[#9CA3AF]"
+          className="w-full flex items-center gap-2 text-[12px] py-2 px-3 rounded-[8px] transition-colors text-left text-muted2-brand"
           onMouseEnter={(e) => {
             ;(e.currentTarget as HTMLElement).style.background = '#FFF1F2'
             ;(e.currentTarget as HTMLElement).style.color = '#B91C1C'

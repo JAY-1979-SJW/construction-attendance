@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 const PLANNED_ITEMS = [
   {
@@ -32,13 +32,13 @@ export default function ReportsPage() {
   return (
     <div className="p-6 max-w-[860px]">
       <div className="mb-5">
-        <h1 className="text-[20px] font-bold text-[#0F172A]">노동부 대응자료</h1>
-        <p className="text-[13px] text-[#6B7280] mt-0.5">근로감독·노무분쟁 대응을 위한 자료 출력</p>
+        <h1 className="text-[20px] font-bold text-title-brand">노동부 대응자료</h1>
+        <p className="text-[13px] text-muted-brand mt-0.5">근로감독·노무분쟁 대응을 위한 자료 출력</p>
       </div>
 
       {/* 현재 상태 안내 */}
       <div
-        className="rounded-[10px] px-4 py-3 mb-5 text-[12px] text-[#374151]"
+        className="rounded-[10px] px-4 py-3 mb-5 text-[12px] text-body-brand"
         style={{ background: '#FFF7ED', border: '1px solid #FED7AA' }}
       >
         <strong className="text-[#C2410C]">구현 전 단계입니다.</strong>
@@ -61,8 +61,8 @@ export default function ReportsPage() {
               {item.badge}
             </div>
             <div>
-              <p className="text-[13px] font-semibold text-[#0F172A] mb-0.5">{item.title}</p>
-              <p className="text-[12px] text-[#6B7280] leading-relaxed">{item.desc}</p>
+              <p className="text-[13px] font-semibold text-title-brand mb-0.5">{item.title}</p>
+              <p className="text-[12px] text-muted-brand leading-relaxed">{item.desc}</p>
             </div>
           </div>
         ))}

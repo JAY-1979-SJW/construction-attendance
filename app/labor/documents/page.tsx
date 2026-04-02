@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 
@@ -58,8 +58,8 @@ export default function DocumentsPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-[20px] font-bold text-[#0F172A]">근로자 서류관리</h1>
-          <p className="text-[13px] text-[#6B7280] mt-0.5">신분증·계약서·4대보험 증빙 서류 현황</p>
+          <h1 className="text-[20px] font-bold text-title-brand">근로자 서류관리</h1>
+          <p className="text-[13px] text-muted-brand mt-0.5">신분증·계약서·4대보험 증빙 서류 현황</p>
         </div>
       </div>
 
@@ -70,12 +70,12 @@ export default function DocumentsPage() {
           placeholder="근로자명 검색"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="text-[12px] border border-[#E5E7EB] rounded-[8px] px-3 py-1.5 w-[160px] focus:outline-none focus:border-[#F97316]"
+          className="text-[12px] border border-brand rounded-[8px] px-3 py-1.5 w-[160px] focus:outline-none focus:border-accent"
         />
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value as DocumentRow['documentType'] | '')}
-          className="text-[12px] border border-[#E5E7EB] rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-[#F97316] text-[#374151]"
+          className="text-[12px] border border-brand rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-accent text-body-brand"
         >
           <option value="">서류 유형 전체</option>
           <option value="ID_CARD">신분증</option>
@@ -86,14 +86,14 @@ export default function DocumentsPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as DocumentRow['status'] | '')}
-          className="text-[12px] border border-[#E5E7EB] rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-[#F97316] text-[#374151]"
+          className="text-[12px] border border-brand rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-accent text-body-brand"
         >
           <option value="">검토 상태 전체</option>
           <option value="REVIEW_PENDING">검토대기</option>
           <option value="UPLOADED">업로드완료</option>
           <option value="APPROVED">검토완료</option>
         </select>
-        <span className="ml-auto text-[12px] text-[#9CA3AF]">{filtered.length}건</span>
+        <span className="ml-auto text-[12px] text-muted2-brand">{filtered.length}건</span>
       </div>
 
       {/* 테이블 */}
@@ -101,12 +101,12 @@ export default function DocumentsPage() {
         <table className="w-full text-[12px]">
           <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
             <tr>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">근로자명</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">서류 유형</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">검토 상태</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">업로드일</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">만료일</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">검토 완료</th>
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">근로자명</th>
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">서류 유형</th>
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">검토 상태</th>
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">업로드일</th>
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">만료일</th>
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">검토 완료</th>
             </tr>
           </thead>
           <tbody>
@@ -115,14 +115,14 @@ export default function DocumentsPage() {
                 <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
                   {Array.from({ length: 6 }).map((__, j) => (
                     <td key={j} className="px-3 py-3">
-                      <div className="h-3.5 bg-[#F3F4F6] rounded animate-pulse" style={{ width: j === 0 ? 64 : 80 }} />
+                      <div className="h-3.5 bg-footer rounded animate-pulse" style={{ width: j === 0 ? 64 : 80 }} />
                     </td>
                   ))}
                 </tr>
               ))
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-[13px] text-[#9CA3AF]">
+                <td colSpan={6} className="px-4 py-10 text-center text-[13px] text-muted2-brand">
                   서류 데이터가 없습니다.
                 </td>
               </tr>
@@ -130,9 +130,9 @@ export default function DocumentsPage() {
               filtered.map((row) => {
                 const ss = STATUS_STYLE[row.status]
                 return (
-                  <tr key={row.id} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-[#FAFAFA]">
-                    <td className="px-3 py-2.5 font-medium text-[#0F172A]">{row.workerName}</td>
-                    <td className="px-3 py-2.5 text-[#374151]">{DOC_TYPE_LABEL[row.documentType]}</td>
+                  <tr key={row.id} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-surface">
+                    <td className="px-3 py-2.5 font-medium text-title-brand">{row.workerName}</td>
+                    <td className="px-3 py-2.5 text-body-brand">{DOC_TYPE_LABEL[row.documentType]}</td>
                     <td className="px-3 py-2.5">
                       <span
                         className="inline-block text-[11px] font-medium px-2 py-0.5 rounded-full"
@@ -141,9 +141,9 @@ export default function DocumentsPage() {
                         {STATUS_LABEL[row.status]}
                       </span>
                     </td>
-                    <td className="px-3 py-2.5 text-[#6B7280]">{row.uploadedAt.slice(0, 10)}</td>
-                    <td className="px-3 py-2.5 text-[#6B7280]">{row.expiresAt?.slice(0, 10) ?? '-'}</td>
-                    <td className="px-3 py-2.5 text-[#6B7280]">
+                    <td className="px-3 py-2.5 text-muted-brand">{row.uploadedAt.slice(0, 10)}</td>
+                    <td className="px-3 py-2.5 text-muted-brand">{row.expiresAt?.slice(0, 10) ?? '-'}</td>
+                    <td className="px-3 py-2.5 text-muted-brand">
                       {row.reviewedAt ? `${row.reviewedAt.slice(0, 10)} (${row.reviewedBy ?? ''})` : '-'}
                     </td>
                   </tr>
