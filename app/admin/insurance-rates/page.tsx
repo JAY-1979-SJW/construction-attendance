@@ -179,14 +179,7 @@ export default function InsuranceRatesPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* 서브 네비게이션 */}
-      <div className="flex gap-2 text-sm border-b pb-3">
-        <a href="/admin/insurance-rates" className="px-3 py-1.5 bg-blue-600 text-white rounded font-medium">요율 버전 관리</a>
-        <a href="/admin/insurance-rates/sources" className="px-3 py-1.5 bg-card border rounded text-gray-600 hover:bg-gray-50">고시 소스 관리</a>
-        <a href="/admin/insurance-rates/calculate" className="px-3 py-1.5 bg-card border rounded text-gray-600 hover:bg-gray-50">보험료 계산기</a>
-      </div>
-
-      <div className="flex items-center justify-between">
+<div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">보험요율 버전 관리</h1>
           <p className="text-sm text-gray-500 mt-1">

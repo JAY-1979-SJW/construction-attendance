@@ -111,22 +111,25 @@ export default function AttendancePage() {
 
   // ── 초기 데이터 로딩 ─────────────────────────────────────────
   useEffect(() => {
-    // 온보딩 미완료 시 온보딩 페이지로 이동
-    if (typeof window !== 'undefined' && !localStorage.getItem('onboarding_done')) {
-      router.push('/onboarding')
-      return
-    }
-
     Promise.all([
       fetch('/api/auth/me').then((r) => r.json()),
       fetch('/api/attendance/today').then((r) => r.json()),
     ]).then(([meData, todayData]) => {
       if (!meData.success) {
+        // 세션 없음 → 온보딩 미완료면 온보딩, 완료면 미리보기
+        if (typeof window !== 'undefined' && !localStorage.getItem('onboarding_done')) {
+          router.push('/onboarding')
+          return
+        }
         setIsPreview(true)
         setWorker({ name: '홍길동 (미리보기)', company: '해한건설', jobTitle: '철근공' })
         setToday(null)
         setLoading(false)
         return
+      }
+      // 세션 유효 → onboarding_done 복원 (localStorage가 초기화된 경우 대비)
+      if (typeof window !== 'undefined' && !localStorage.getItem('onboarding_done')) {
+        localStorage.setItem('onboarding_done', 'true')
       }
       // PENDING / REJECTED 사용자 → 승인대기 또는 로그인으로 이동
       if (meData.data.accountStatus === 'PENDING') {
