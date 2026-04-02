@@ -89,6 +89,7 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
 
+
 ::selection {
   background-color: rgba(249, 115, 22, 0.2);
   color: #111827;
@@ -98,15 +99,52 @@ h1, h2, h3, h4, h5, h6 {
 
 /* 텍스트 */
 .text-accent          { color: #F97316; }
+.text-accent-hover    { color: #EA580C; }
 .text-secondary-brand { color: #5BA4D9; }
 .text-muted-brand     { color: #6B7280; }
+.text-muted2-brand    { color: #9CA3AF; }
+.text-fore-brand      { color: #111827; }
+.text-title-brand     { color: #0F172A; }
+.text-body-brand      { color: #374151; }
+.text-dim-brand       { color: #CBD5E0; }
 
 /* 배경 */
-.bg-brand       { background-color: #F5F7FA; }
-.bg-brand-dark  { background-color: #F0F2F5; }
-.bg-brand-deeper{ background-color: #E5E7EB; }
-.bg-card        { background-color: #FFFFFF; }
-.bg-footer      { background-color: #F3F4F6; }
+.bg-brand         { background-color: #F5F7FA; }
+.bg-brand-dark    { background-color: #F0F2F5; }
+.bg-brand-deeper  { background-color: #E5E7EB; }
+.bg-card          { background-color: #FFFFFF; }
+.bg-muted-brand   { background-color: #6B7280; }
+.bg-muted2-brand  { background-color: #9CA3AF; }
+.bg-footer        { background-color: #F3F4F6; }
+.bg-surface       { background-color: #F9FAFB; }
+.bg-accent-light  { background-color: #FFF7ED; }
+.bg-accent-pale   { background-color: #FEE2C0; }
+.bg-green-light   { background-color: #ECFDF5; }
+.bg-blue-light    { background-color: #EFF6FF; }
+.bg-red-light     { background-color: #FEE2E2; }
+.bg-yellow-light  { background-color: #FFFBEB; }
+.bg-purple-light  { background-color: #F3E8FF; }
+
+/* 보더 */
+.border-brand     { border-color: #E5E7EB; }
+.border-accent    { border-color: #F97316; }
+.border-accent-light { border-color: #FED7AA; }
+.border-green     { border-color: #A7F3D0; }
+.border-blue      { border-color: #93C5FD; }
+.border-red       { border-color: #F87171; }
+.border-yellow    { border-color: #FDE68A; }
+.border-purple    { border-color: #DDD6FE; }
+
+/* 상태 텍스트 */
+.text-status-working   { color: #16A34A; }
+.text-status-completed { color: #6B7280; }
+.text-status-missing   { color: #B91C1C; }
+.text-status-exception { color: #D97706; }
+.text-status-adjusted  { color: #7C3AED; }
+.text-status-pending   { color: #92400E; }
+.text-status-approved  { color: #065F46; }
+.text-status-rejected  { color: #991B1B; }
+.text-status-info      { color: #2563EB; }
 
 /* 그라데이션 텍스트 */
 .gradient-text {
