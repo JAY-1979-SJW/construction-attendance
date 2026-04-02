@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 
@@ -141,7 +141,7 @@ export default function OpsAttendancePage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-[22px] font-bold text-[#111827] mb-5">출퇴근 현황</h1>
+      <h1 className="text-[22px] font-bold text-fore-brand mb-5">출퇴근 현황</h1>
 
       <div className="flex gap-2 items-center mb-5 flex-wrap">
         <select
@@ -162,12 +162,12 @@ export default function OpsAttendancePage() {
         />
         <button
           onClick={load}
-          className="px-4 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]"
+          className="px-4 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[13px]"
         >
           조회
         </button>
         {isReadOnly && (
-          <span className="px-[10px] py-[5px] bg-[rgba(251,191,36,0.15)] border border-[rgba(251,191,36,0.4)] rounded text-[12px] text-[#92400e]">
+          <span className="px-[10px] py-[5px] bg-[rgba(251,191,36,0.15)] border border-[rgba(251,191,36,0.4)] rounded text-[12px] text-status-pending">
             읽기 전용 모드
           </span>
         )}
@@ -186,22 +186,22 @@ export default function OpsAttendancePage() {
       )}
 
       {!siteId ? (
-        <div className="text-center py-[60px] bg-white rounded-lg border border-[#e5e7eb] text-[#6b7280] text-[14px]">
+        <div className="text-center py-[60px] bg-card rounded-lg border border-brand text-muted-brand text-[14px]">
           현장을 선택하면 출퇴근 현황을 확인할 수 있습니다.
         </div>
       ) : loading ? (
-        <p className="text-[#6b7280]">로딩 중...</p>
+        <p className="text-muted-brand">로딩 중...</p>
       ) : records.length === 0 ? (
-        <div className="text-center py-[60px] bg-white rounded-lg border border-[#e5e7eb] text-[#6b7280] text-[14px]">
+        <div className="text-center py-[60px] bg-card rounded-lg border border-brand text-muted-brand text-[14px]">
           해당 날짜의 출퇴근 기록이 없습니다.
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-[#e5e7eb] overflow-auto">
+        <div className="bg-card rounded-lg border border-brand overflow-auto">
           <table className="w-full border-collapse text-[13px]">
-            <thead className="bg-[#f9fafb]">
+            <thead className="bg-surface">
               <tr>
                 {['근로자명', '현장', '출근', '퇴근', '공수', '상태', ...(isReadOnly ? [] : [''])].map((h, i) => (
-                  <th key={i} className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb] whitespace-nowrap">{h}</th>
+                  <th key={i} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -214,15 +214,15 @@ export default function OpsAttendancePage() {
 
                 return (
                   <>
-                    <tr key={r.id} className="border-b border-[#f3f4f6] hover:bg-[#F9FAFB]">
+                    <tr key={r.id} className="border-b border-brand hover:bg-surface">
                       <td className="px-4 py-[13px] font-semibold text-[#1f2937]">{r.workerName}</td>
-                      <td className="px-4 py-[13px] text-[#374151]">{r.siteName || '—'}</td>
-                      <td className="px-4 py-[13px] text-[#374151] whitespace-nowrap">{fmtTime(r.checkInAt)}</td>
-                      <td className="px-4 py-[13px] text-[#374151] whitespace-nowrap">{fmtTime(r.checkOutAt)}</td>
-                      <td className="px-4 py-[13px] text-[#374151] whitespace-nowrap">
+                      <td className="px-4 py-[13px] text-body-brand">{r.siteName || '—'}</td>
+                      <td className="px-4 py-[13px] text-body-brand whitespace-nowrap">{fmtTime(r.checkInAt)}</td>
+                      <td className="px-4 py-[13px] text-body-brand whitespace-nowrap">{fmtTime(r.checkOutAt)}</td>
+                      <td className="px-4 py-[13px] text-body-brand whitespace-nowrap">
                         <span>{calcManDay(displayMinutes)}</span>
                         {r.manualAdjustedYn && (
-                          <span className="ml-1.5 px-1.5 py-0.5 rounded text-[11px] font-semibold bg-[#fef3c7] text-[#92400e]">수동</span>
+                          <span className="ml-1.5 px-1.5 py-0.5 rounded text-[11px] font-semibold bg-yellow-light text-status-pending">수동</span>
                         )}
                       </td>
                       <td className="px-4 py-[13px]">
@@ -238,7 +238,7 @@ export default function OpsAttendancePage() {
                           {canEdit && !isEditing && (
                             <button
                               onClick={() => openEdit(r)}
-                              className="px-3 py-[5px] bg-[#F97316] text-white border-none rounded-[5px] cursor-pointer text-[12px]"
+                              className="px-3 py-[5px] bg-brand-accent text-white border-none rounded-[5px] cursor-pointer text-[12px]"
                             >
                               수정
                             </button>
@@ -246,7 +246,7 @@ export default function OpsAttendancePage() {
                           {isEditing && (
                             <button
                               onClick={cancelEdit}
-                              className="px-3 py-[5px] bg-[#6b7280] text-white border-none rounded-[5px] cursor-pointer text-[12px]"
+                              className="px-3 py-[5px] bg-muted-brand text-white border-none rounded-[5px] cursor-pointer text-[12px]"
                             >
                               취소
                             </button>
@@ -258,10 +258,10 @@ export default function OpsAttendancePage() {
                       <tr key={`${r.id}-edit`} className="bg-[#fffde7]">
                         <td colSpan={7} className="px-4 py-3">
                           <div className="flex items-center gap-2.5 flex-wrap">
-                            <span className="text-[13px] text-[#6b7280]">
+                            <span className="text-[13px] text-muted-brand">
                               자동 계산: <strong>{calcManDay(r.workedMinutesAuto ?? r.workedMinutesRaw)}</strong>
                             </span>
-                            <label className="text-[12px] font-semibold text-[#374151]">분 (0~1440)</label>
+                            <label className="text-[12px] font-semibold text-body-brand">분 (0~1440)</label>
                             <input
                               type="number"
                               min={0}
@@ -271,7 +271,7 @@ export default function OpsAttendancePage() {
                               className="px-2.5 py-1.5 border border-[#d1d5db] rounded-md text-[13px] w-[90px] outline-none"
                               placeholder="예: 480"
                             />
-                            <label className="text-[12px] font-semibold text-[#374151]">수정 사유</label>
+                            <label className="text-[12px] font-semibold text-body-brand">수정 사유</label>
                             <input
                               type="text"
                               value={editReason}
@@ -289,7 +289,7 @@ export default function OpsAttendancePage() {
                             </button>
                           </div>
                           {editError && (
-                            <p className="mt-2 mb-0 text-[12px] text-[#dc2626]">{editError}</p>
+                            <p className="mt-2 mb-0 text-[12px] text-status-rejected">{editError}</p>
                           )}
                         </td>
                       </tr>

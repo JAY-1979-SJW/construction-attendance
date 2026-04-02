@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 
@@ -116,11 +116,11 @@ export default function OpsWorklogsPage() {
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-5">
-        <h1 className="text-[22px] font-bold text-[#111827] m-0">작업일보</h1>
+        <h1 className="text-[22px] font-bold text-fore-brand m-0">작업일보</h1>
         {siteId && !isReadOnly && (
           <button
             onClick={() => setShowForm(v => !v)}
-            className="px-4 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]"
+            className="px-4 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[13px]"
           >
             {showForm ? '취소' : '+ 일보 작성'}
           </button>
@@ -144,7 +144,7 @@ export default function OpsWorklogsPage() {
           value={fromDate}
           onChange={e => setFromDate(e.target.value)}
         />
-        <span className="text-[#9ca3af] text-[13px]">~</span>
+        <span className="text-muted2-brand text-[13px]">~</span>
         <input
           type="date"
           className="px-[10px] py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]"
@@ -153,12 +153,12 @@ export default function OpsWorklogsPage() {
         />
         <button
           onClick={load}
-          className="px-4 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]"
+          className="px-4 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[13px]"
         >
           조회
         </button>
         {isReadOnly && (
-          <span className="px-[10px] py-[5px] bg-[rgba(251,191,36,0.15)] border border-[rgba(251,191,36,0.4)] rounded text-[12px] text-[#92400e]">
+          <span className="px-[10px] py-[5px] bg-[rgba(251,191,36,0.15)] border border-[rgba(251,191,36,0.4)] rounded text-[12px] text-status-pending">
             읽기 전용
           </span>
         )}
@@ -178,11 +178,11 @@ export default function OpsWorklogsPage() {
 
       {/* 작성 폼 */}
       {showForm && !isReadOnly && (
-        <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-[10px] p-5 mb-5">
+        <div className="bg-blue-light border border-[#bfdbfe] rounded-[10px] p-5 mb-5">
           <h3 className="m-0 mb-4 text-[14px] font-semibold text-[#1e40af]">작업일보 작성</h3>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">날짜 *</label>
+              <label className="block text-[12px] text-muted-brand mb-1">날짜 *</label>
               <input
                 type="date"
                 className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
@@ -191,7 +191,7 @@ export default function OpsWorklogsPage() {
               />
             </div>
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">날씨</label>
+              <label className="block text-[12px] text-muted-brand mb-1">날씨</label>
               <select
                 className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border"
                 value={form.weatherCondition ?? ''}
@@ -203,7 +203,7 @@ export default function OpsWorklogsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">전체 인원</label>
+              <label className="block text-[12px] text-muted-brand mb-1">전체 인원</label>
               <input
                 type="number"
                 min={0}
@@ -213,7 +213,7 @@ export default function OpsWorklogsPage() {
               />
             </div>
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">정상 출근</label>
+              <label className="block text-[12px] text-muted-brand mb-1">정상 출근</label>
               <input
                 type="number"
                 min={0}
@@ -223,7 +223,7 @@ export default function OpsWorklogsPage() {
               />
             </div>
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">결근</label>
+              <label className="block text-[12px] text-muted-brand mb-1">결근</label>
               <input
                 type="number"
                 min={0}
@@ -239,10 +239,10 @@ export default function OpsWorklogsPage() {
                 checked={form.safetyIncident}
                 onChange={e => setForm(f => ({ ...f, safetyIncident: e.target.checked }))}
               />
-              <label htmlFor="safetyIncident" className="text-[13px] text-[#374151]">안전 사고 발생</label>
+              <label htmlFor="safetyIncident" className="text-[13px] text-body-brand">안전 사고 발생</label>
             </div>
             <div className="col-span-2">
-              <label className="block text-[12px] text-[#6b7280] mb-1">작업 요약</label>
+              <label className="block text-[12px] text-muted-brand mb-1">작업 요약</label>
               <textarea
                 rows={3}
                 className="w-full border border-[rgba(91,164,217,0.3)] rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
@@ -258,20 +258,20 @@ export default function OpsWorklogsPage() {
                 checked={form.isFinalized}
                 onChange={e => setForm(f => ({ ...f, isFinalized: e.target.checked }))}
               />
-              <label htmlFor="isFinalized" className="text-[13px] text-[#374151]">마감 처리</label>
+              <label htmlFor="isFinalized" className="text-[13px] text-body-brand">마감 처리</label>
             </div>
           </div>
           <div className="flex gap-2 mt-4">
             <button
               onClick={handleSubmit}
               disabled={saving}
-              className="px-5 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px] disabled:opacity-50"
+              className="px-5 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[13px] disabled:opacity-50"
             >
               {saving ? '저장 중...' : '등록'}
             </button>
             <button
               onClick={() => setShowForm(false)}
-              className="px-4 py-2 bg-white text-[#374151] border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px]"
+              className="px-4 py-2 bg-card text-body-brand border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px]"
             >
               취소
             </button>
@@ -280,40 +280,40 @@ export default function OpsWorklogsPage() {
       )}
 
       {!siteId ? (
-        <div className="text-center text-[#9ca3af] py-12 bg-white border border-[#e5e7eb] rounded-lg text-[14px]">
+        <div className="text-center text-muted2-brand py-12 bg-card border border-brand rounded-lg text-[14px]">
           현장을 선택하면 작업일보를 확인할 수 있습니다.
         </div>
       ) : loading ? (
-        <p className="text-[#6b7280] text-center py-10">불러오는 중...</p>
+        <p className="text-muted-brand text-center py-10">불러오는 중...</p>
       ) : logs.length === 0 ? (
-        <div className="text-center text-[#9ca3af] py-12 bg-white border border-[#e5e7eb] rounded-lg text-[14px]">
+        <div className="text-center text-muted2-brand py-12 bg-card border border-brand rounded-lg text-[14px]">
           해당 기간에 작업일보가 없습니다.
         </div>
       ) : (
-        <div className="bg-white border border-[#e5e7eb] rounded-lg overflow-auto">
+        <div className="bg-card border border-brand rounded-lg overflow-auto">
           <table className="w-full border-collapse text-[13px]">
-            <thead className="bg-[#f9fafb]">
+            <thead className="bg-surface">
               <tr>
                 {['날짜', '전체', '정상', '결근', '날씨', '안전사고', '상태', '요약'].map(h => (
-                  <th key={h} className="px-[14px] py-[10px] text-left text-[12px] text-[#6b7280] font-semibold border-b border-[#e5e7eb]">{h}</th>
+                  <th key={h} className="px-[14px] py-[10px] text-left text-[12px] text-muted-brand font-semibold border-b border-brand">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {logs.map(log => (
-                <tr key={log.id} className="border-b border-[#f3f4f6] hover:bg-[rgba(91,164,217,0.04)]">
-                  <td className="px-[14px] py-[10px] text-[#374151] whitespace-nowrap">{fmtDate(log.workDate)}</td>
-                  <td className="px-[14px] py-[10px] text-[#374151] text-center">{log.totalWorkers}</td>
-                  <td className="px-[14px] py-[10px] text-[#374151] text-center">{log.normalWorkers}</td>
-                  <td className="px-[14px] py-[10px] text-[#374151] text-center">{log.absentWorkers}</td>
-                  <td className="px-[14px] py-[10px] text-[#374151]">
+                <tr key={log.id} className="border-b border-brand hover:bg-[rgba(91,164,217,0.04)]">
+                  <td className="px-[14px] py-[10px] text-body-brand whitespace-nowrap">{fmtDate(log.workDate)}</td>
+                  <td className="px-[14px] py-[10px] text-body-brand text-center">{log.totalWorkers}</td>
+                  <td className="px-[14px] py-[10px] text-body-brand text-center">{log.normalWorkers}</td>
+                  <td className="px-[14px] py-[10px] text-body-brand text-center">{log.absentWorkers}</td>
+                  <td className="px-[14px] py-[10px] text-body-brand">
                     {log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '—'}
                   </td>
                   <td className="px-[14px] py-[10px]">
                     {log.safetyIncident ? (
-                      <span className="text-[#dc2626] text-[12px] font-semibold">발생</span>
+                      <span className="text-status-rejected text-[12px] font-semibold">발생</span>
                     ) : (
-                      <span className="text-[#9ca3af] text-[12px]">없음</span>
+                      <span className="text-muted2-brand text-[12px]">없음</span>
                     )}
                   </td>
                   <td className="px-[14px] py-[10px]">
@@ -327,7 +327,7 @@ export default function OpsWorklogsPage() {
                       {log.isFinalized ? '마감' : '작성중'}
                     </span>
                   </td>
-                  <td className="px-[14px] py-[10px] text-[#374151] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                  <td className="px-[14px] py-[10px] text-body-brand max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                     {log.workSummary ?? '—'}
                   </td>
                 </tr>

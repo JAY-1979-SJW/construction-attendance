@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers'
+﻿import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { jwtVerify } from 'jose'
 import { prisma } from '@/lib/db/prisma'
@@ -47,9 +47,9 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
       : '내부 운영'
 
   return (
-    <div className="h-screen flex flex-col font-sans bg-[#F5F7FA] overflow-hidden">
+    <div className="h-screen flex flex-col font-sans bg-brand overflow-hidden">
       {/* 상단 4px 오렌지 악센트 라인 */}
-      <div className="shrink-0 h-1 bg-[#F97316]" />
+      <div className="shrink-0 h-1 bg-brand-accent" />
       <OpsTopNav
         userName={session.name}
         roleLabel={roleLabel}

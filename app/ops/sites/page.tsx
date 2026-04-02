@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -41,8 +41,8 @@ export default function OpsSiteList() {
   return (
     <div className="p-8">
       <div className="flex items-center gap-3 mb-5">
-        <h1 className="text-[22px] font-bold text-[#111827] m-0">내 담당 현장</h1>
-        <span className="text-[14px] text-[#6b7280] bg-[#f3f4f6] px-[10px] py-[2px] rounded-xl">{total}개</span>
+        <h1 className="text-[22px] font-bold text-fore-brand m-0">내 담당 현장</h1>
+        <span className="text-[14px] text-muted-brand bg-footer px-[10px] py-[2px] rounded-xl">{total}개</span>
       </div>
 
       <div className="mb-4">
@@ -55,33 +55,33 @@ export default function OpsSiteList() {
       </div>
 
       {loading ? (
-        <p className="text-[#6b7280]">로딩 중...</p>
+        <p className="text-muted-brand">로딩 중...</p>
       ) : sites.length === 0 ? (
-        <div className="text-center py-[60px] px-5 bg-white rounded-lg text-[#6b7280] border border-[#e5e7eb]">
+        <div className="text-center py-[60px] px-5 bg-card rounded-lg text-muted-brand border border-brand">
           <p>배정된 현장이 없습니다.</p>
-          <p className="text-[13px] mt-2 text-[#9ca3af]">관리자에게 현장 배정을 요청하세요.</p>
+          <p className="text-[13px] mt-2 text-muted2-brand">관리자에게 현장 배정을 요청하세요.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-[#e5e7eb] overflow-hidden">
+        <div className="bg-card rounded-lg border border-brand overflow-hidden">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-[#f9fafb]">
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">현장명</th>
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">주소</th>
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">상태</th>
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">작업자 수</th>
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]"></th>
+              <tr className="bg-surface">
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">현장명</th>
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">주소</th>
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">상태</th>
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">작업자 수</th>
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand"></th>
               </tr>
             </thead>
             <tbody>
               {sites.map(site => {
                 const s = STATUS_LABELS[site.status] ?? { label: site.status, bg: '#f3f4f6', color: '#6b7280' }
                 return (
-                  <tr key={site.id} className="border-b border-[#f3f4f6]">
+                  <tr key={site.id} className="border-b border-brand">
                     <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
                       <span className="font-semibold">{site.name}</span>
                     </td>
-                    <td className="px-4 py-[14px] text-[13px] text-[#6b7280]">
+                    <td className="px-4 py-[14px] text-[13px] text-muted-brand">
                       {site.address ?? '—'}
                     </td>
                     <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
@@ -96,7 +96,7 @@ export default function OpsSiteList() {
                     <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
                       <Link
                         href={`/ops/sites/${site.id}`}
-                        className="px-3 py-[5px] bg-[#eff6ff] text-[#1d4ed8] rounded-[5px] no-underline text-[13px] font-medium"
+                        className="px-3 py-[5px] bg-blue-light text-[#1d4ed8] rounded-[5px] no-underline text-[13px] font-medium"
                       >
                         상세 보기
                       </Link>

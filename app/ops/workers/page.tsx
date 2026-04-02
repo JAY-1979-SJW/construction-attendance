@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -55,8 +55,8 @@ export default function OpsWorkersPage() {
   return (
     <div className="p-8">
       <div className="flex items-center gap-3 mb-5">
-        <h1 className="text-[22px] font-bold text-[#111827] m-0">작업자 현황</h1>
-        <span className="text-[14px] text-[#6b7280] bg-[#f3f4f6] px-[10px] py-[2px] rounded-xl">{total}명</span>
+        <h1 className="text-[22px] font-bold text-fore-brand m-0">작업자 현황</h1>
+        <span className="text-[14px] text-muted-brand bg-footer px-[10px] py-[2px] rounded-xl">{total}명</span>
       </div>
 
       <form onSubmit={handleSearch} className="flex gap-2 mb-4">
@@ -68,25 +68,25 @@ export default function OpsWorkersPage() {
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]"
+          className="px-4 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[13px]"
         >
           검색
         </button>
       </form>
 
       {loading ? (
-        <p className="text-[#6b7280]">로딩 중...</p>
+        <p className="text-muted-brand">로딩 중...</p>
       ) : workers.length === 0 ? (
-        <div className="text-center py-[60px] px-5 bg-white rounded-lg text-[#6b7280] border border-[#e5e7eb]">
+        <div className="text-center py-[60px] px-5 bg-card rounded-lg text-muted-brand border border-brand">
           <p>배정된 작업자가 없습니다.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-[#e5e7eb] overflow-auto">
+        <div className="bg-card rounded-lg border border-brand overflow-auto">
           <table className="w-full border-collapse text-[13px]">
-            <thead className="bg-[#f9fafb]">
+            <thead className="bg-surface">
               <tr>
                 {['이름', '직종', '고용형태', '배정 현장', '상태', ''].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb] whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -94,11 +94,11 @@ export default function OpsWorkersPage() {
               {workers.map(w => {
                 const st = ACCOUNT_STATUS_MAP[w.accountStatus] ?? { label: w.accountStatus, bg: '#f3f4f6', color: '#6b7280' }
                 return (
-                  <tr key={w.id} className="border-b border-[#f3f4f6] hover:bg-[rgba(91,164,217,0.04)]">
+                  <tr key={w.id} className="border-b border-brand hover:bg-[rgba(91,164,217,0.04)]">
                     <td className="px-4 py-[13px] font-semibold text-[#1f2937]">{w.name}</td>
-                    <td className="px-4 py-[13px] text-[#374151]">{w.jobTitle || '—'}</td>
-                    <td className="px-4 py-[13px] text-[#374151]">{EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType}</td>
-                    <td className="px-4 py-[13px] text-[#374151]">
+                    <td className="px-4 py-[13px] text-body-brand">{w.jobTitle || '—'}</td>
+                    <td className="px-4 py-[13px] text-body-brand">{EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType}</td>
+                    <td className="px-4 py-[13px] text-body-brand">
                       {w.activeSites && w.activeSites.length > 0
                         ? w.activeSites.map(s => s.name).join(', ')
                         : '—'}
@@ -114,7 +114,7 @@ export default function OpsWorkersPage() {
                     <td className="px-4 py-[13px]">
                       <Link
                         href={`/admin/workers/${w.id}`}
-                        className="px-3 py-[5px] bg-[#eff6ff] text-[#1d4ed8] rounded-[5px] no-underline text-[12px] font-medium"
+                        className="px-3 py-[5px] bg-blue-light text-[#1d4ed8] rounded-[5px] no-underline text-[12px] font-medium"
                       >
                         상세 보기
                       </Link>
