@@ -118,7 +118,7 @@ export default function WorkerImportsPage() {
         ) : jobs.length === 0 ? (
           <div className="text-center text-[#718096] text-sm py-4">업로드 이력이 없습니다.</div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-[#718096] border-b border-[rgba(91,164,217,0.1)]">

@@ -105,8 +105,31 @@ export default function DevicesPage() {
           ))}
         </div>
 
-        {loading ? <p>로딩 중...</p> : (
-          <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
+        {loading ? <p>로딩 중...</p> : items.length === 0 ? (
+          <div className="text-center py-12 text-muted2-brand text-[13px]">기기가 없습니다.</div>
+        ) : (
+          <>
+          {/* 모바일: 카드형 */}
+          <div className="sm:hidden space-y-2">
+            {items.map(item => (
+              <div key={item.id} className="bg-card rounded-[12px] border border-brand p-4" style={{ background: item.isBlocked ? '#fff8f8' : undefined }}>
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <div>
+                    <div className="text-[14px] font-semibold text-title-brand">{item.workerName}</div>
+                    <div className="text-[13px] text-muted-brand">{item.deviceName}</div>
+                  </div>
+                  {item.isBlocked ? (
+                    <span className="text-[11px] bg-red-light text-[#c62828] px-2 py-0.5 rounded-[10px] font-bold shrink-0">차단</span>
+                  ) : (
+                    <span className="text-[11px] bg-green-light text-[#2e7d32] px-2 py-0.5 rounded-[10px] font-bold shrink-0">정상</span>
+                  )}
+                </div>
+                <div className="text-[12px] text-muted2-brand">{item.platform ?? '-'} · {fmt(item.lastLoginAt)}</div>
+              </div>
+            ))}
+          </div>
+          {/* 데스크: 테이블 */}
+          <div className="hidden sm:block bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b-2 border-[rgba(91,164,217,0.2)]">
@@ -180,6 +203,7 @@ export default function DevicesPage() {
               </tbody>
             </table>
           </div>
+          </>
         )}
     </div>
   )

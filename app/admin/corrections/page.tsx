@@ -124,7 +124,7 @@ export default function CorrectionsPage() {
           {loading ? (
             <div className="py-8 text-center text-[#999]">로딩 중...</div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-[rgba(91,164,217,0.15)]">

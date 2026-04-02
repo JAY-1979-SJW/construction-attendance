@@ -232,7 +232,7 @@ export default function MaterialsPage() {
           {loading ? (
             <div className="py-10 text-center text-muted-brand">로딩 중...</div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
                   <tr>

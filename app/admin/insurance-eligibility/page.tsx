@@ -92,7 +92,7 @@ export default function InsuranceEligibilityPage() {
 
       <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
         {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-          <div className="overflow-x-auto">
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr>

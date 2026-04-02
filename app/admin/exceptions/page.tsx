@@ -66,7 +66,7 @@ export default function ExceptionsPage() {
       <h1 className="text-[22px] font-bold mb-5">예외 승인 ({total}건)</h1>
 
       {loading ? <p>로딩 중...</p> : (
-        <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
+        <div className="hidden sm:block bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr>{['날짜', '이름', '현장', '사유', '요청일', '처리'].map((h) => (

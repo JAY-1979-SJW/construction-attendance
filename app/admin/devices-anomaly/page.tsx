@@ -145,7 +145,7 @@ export default function DevicesAnomalyPage() {
             <div className="text-[13px]">최근 30일간 기기 승인 및 공수 수정 패턴이 정상입니다.</div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full border-collapse text-[13px]">
               <thead>
                 <tr>

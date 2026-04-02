@@ -197,7 +197,7 @@ export default function LaborPage() {
         <>
           {/* ── 탭1: 투입현황 상세 ──────────────────────────── */}
           {tab === 'detail' && (
-            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 overflow-x-auto">
+            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 hidden sm:block overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
@@ -270,7 +270,7 @@ export default function LaborPage() {
 
           {/* ── 탭2: 노임집계 합계 ──────────────────────────── */}
           {tab === 'summary' && (
-            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 overflow-x-auto">
+            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5 hidden sm:block overflow-x-auto">
               <div className="text-xs text-muted-brand mb-3">
                 * COMPLETED + ADJUSTED 기준 합산. MISSING_CHECKOUT은 검토필요 건수만 표시됩니다.
               </div>

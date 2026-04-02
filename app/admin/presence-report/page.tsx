@@ -138,7 +138,7 @@ export default function PresenceReportPage() {
             {/* 일자별 표 */}
             <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
               <div className="text-[15px] font-bold mb-4">일자별 체류확인 현황</div>
-              <div className="overflow-x-auto">
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr>
@@ -192,7 +192,7 @@ export default function PresenceReportPage() {
             {data.siteBreakdown.length > 1 && (
               <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-5">
                 <div className="text-[15px] font-bold mb-4">현장별 완료율 비교</div>
-                <div className="overflow-x-auto">
+                <div className="hidden sm:block overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
                       <tr>

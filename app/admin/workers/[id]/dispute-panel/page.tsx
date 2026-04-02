@@ -275,7 +275,7 @@ export default function DisputePanelPage() {
       </div>
 
       {/* 섹션 탭 */}
-      <div className="flex gap-1 mb-4 overflow-x-auto">
+      <div className="flex gap-1 mb-4 hidden sm:block overflow-x-auto">
         {SECTIONS.map(sec => (
           <button
             key={sec.id}

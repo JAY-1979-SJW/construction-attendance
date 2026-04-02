@@ -75,7 +75,7 @@ const AGG_STATUS_COLOR: Record<string, string> = { DRAFT: '#607d8b', REVIEWED: '
 function RawSheetGrid({ cells, maxDisplayRows }: { cells: CellData[][], maxDisplayRows: number }) {
   if (!cells || cells.length === 0) return <div className="py-6 text-[#718096] text-center">셀 데이터가 없습니다</div>
   return (
-    <div className="overflow-x-auto overflow-y-auto max-h-[60vh]">
+    <div className="hidden sm:block overflow-x-auto overflow-y-auto max-h-[60vh]">
       <table className="border-collapse text-[12px]" style={{ tableLayout: 'auto', minWidth: '100%' }}>
         <tbody>
           {cells.slice(0, maxDisplayRows).map((row, rowIdx) => (
@@ -317,7 +317,7 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
 
       {loading ? <div className="py-10 text-center text-muted-brand">로딩 중...</div> : (
         <div>
-          <div className="overflow-x-auto">
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr>
@@ -553,7 +553,7 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
         {/* Aggregate list */}
         <div className="flex-1 min-w-0">
           {loading ? <div className="py-10 text-center text-muted-brand">로딩 중...</div> : (
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
                   <tr>{['상태', '품명', '규격', '단위', '총수량', '총금액', '출처', '보정', '검토', '액션'].map(h => (
@@ -864,7 +864,7 @@ export default function EstimateDetailPage() {
           {/* Tab: Sheet List */}
           {activeTab === 'sheets' && (
             sheetsLoading ? <div className="py-10 text-center text-muted-brand">로딩 중...</div> : (
-              <div className="overflow-x-auto">
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead><tr>{['#', '시트명', '유형', '공종', '행수', '열수', '검토필요', '상태', '보기'].map(h => (
                     <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>

@@ -1077,7 +1077,7 @@ function NewContractPage() {
         {showGuide && (
           <div className="p-5 space-y-5">
             {/* 비교표 */}
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-xs border-collapse">
                 <thead>
                   <tr className="bg-[rgba(255,255,255,0.04)]">

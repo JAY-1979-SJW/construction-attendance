@@ -267,7 +267,7 @@ export default function WagePage() {
           {loading ? (
             <div className="py-10 text-center text-[#999]">집계 중...</div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               {items.length === 0 ? (
                 <div className="py-10 text-center text-[#999]">
                   이 월에 집계된 근무 기록이 없습니다.
@@ -367,7 +367,7 @@ export default function WagePage() {
           {ratesLoading ? (
             <div className="py-10 text-center text-[#999]">로딩 중...</div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               {rates.length === 0 ? (
                 <div className="py-10 text-center text-[#999]">
                   이 월에 출퇴근 기록이 있는 근로자가 없습니다.

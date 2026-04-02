@@ -325,7 +325,7 @@ export default function CompanyDetailPage() {
           {admins.length === 0 ? (
             <div className="py-6 text-center text-[#718096] text-sm">등록된 관리자 계정이 없습니다.</div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-[rgba(91,164,217,0.15)]">

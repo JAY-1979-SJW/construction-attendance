@@ -183,7 +183,7 @@ export default function CompanyAdminRequestsPage() {
       ) : data.length === 0 ? (
         <div className="text-center py-[60px] text-muted-brand text-[15px]">{STATUS_LABEL[filter]} 상태의 신청이 없습니다.</div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>

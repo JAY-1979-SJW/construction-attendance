@@ -250,7 +250,7 @@ export default function MaterialRequestDetailPage() {
   const canCancel = ['DRAFT', 'SUBMITTED'].includes(req.status)
 
   return (
-    <div className="p-8 overflow-x-auto">
+    <div className="p-4 sm:p-8 overflow-x-auto">
         {/* 헤더 */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center gap-3">

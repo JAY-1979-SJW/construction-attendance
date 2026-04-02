@@ -127,7 +127,7 @@ function NewPurchaseOrderInner() {
   }
 
   return (
-    <div className="p-8 overflow-x-auto">
+    <div className="p-4 sm:p-8 overflow-x-auto">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/admin/materials/purchase-orders" className="text-muted-brand no-underline text-[13px] px-3 py-[6px] border border-[rgba(91,164,217,0.2)] rounded whitespace-nowrap">← 목록</Link>
           <div>

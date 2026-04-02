@@ -60,7 +60,7 @@ export default function InventoryPage() {
   }), { requestedQty: 0, orderedQty: 0, receivedQty: 0, pendingReceiveQty: 0, pendingOrderQty: 0 })
 
   return (
-    <div className="p-8 overflow-x-auto">
+    <div className="p-4 sm:p-8 overflow-x-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-[22px] font-bold m-0">재고 현황</h1>

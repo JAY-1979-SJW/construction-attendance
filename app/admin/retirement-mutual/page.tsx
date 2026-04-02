@@ -230,7 +230,7 @@ export default function RetirementMutualPage() {
           <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">퇴직공제 대상 현장</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-              <div className="overflow-x-auto">
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr>
@@ -272,7 +272,7 @@ export default function RetirementMutualPage() {
           <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">퇴직공제 대상 근로자</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-              <div className="overflow-x-auto">
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr>
@@ -315,7 +315,7 @@ export default function RetirementMutualPage() {
           <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">일별 퇴직공제 내역</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-              <div className="overflow-x-auto">
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr>
@@ -358,7 +358,7 @@ export default function RetirementMutualPage() {
           <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
             <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">월별 퇴직공제 요약</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
-              <div className="overflow-x-auto">
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr>

@@ -162,7 +162,7 @@ export default function LaborReviewPage() {
 
       {/* 목록 */}
       <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full border-collapse text-[13px] min-w-[900px]">
             <thead>
               <tr className="bg-[#263238] text-white">

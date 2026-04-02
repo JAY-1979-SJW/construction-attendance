@@ -175,7 +175,7 @@ export default function AuditLogsPage() {
         </div>
 
         {loading ? <p className="text-muted-brand">로딩 중...</p> : (
-          <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden overflow-x-auto">
+          <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden hidden sm:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr>

@@ -166,7 +166,7 @@ export default function LaborCostSummariesPage() {
         {loading ? (
           <div className="py-8 text-center text-[#999]">로딩 중...</div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr>

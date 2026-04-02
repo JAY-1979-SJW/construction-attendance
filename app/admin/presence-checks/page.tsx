@@ -368,7 +368,7 @@ export default function PresenceChecksPage() {
           ) : items.length === 0 ? (
             <div className="text-center py-8 text-[#718096] text-[14px]">해당 조건에 맞는 기록이 없습니다.</div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
