@@ -457,7 +457,10 @@ export default function WorkersPage() {
               <div className="flex-1" />
               <Btn variant="ghost" size="sm" onClick={load}>새로고침</Btn>
               {canMutate && (
-                <Btn variant="orange" size="sm" onClick={() => router.push('/admin/workers/new')}>+ 근로자 등록</Btn>
+                <>
+                  <Btn variant="ghost" size="sm" onClick={() => router.push('/admin/worker-imports')}>엑셀 일괄 등록</Btn>
+                  <Btn variant="orange" size="sm" onClick={() => router.push('/admin/workers/new')}>+ 근로자 등록</Btn>
+                </>
               )}
             </div>
             {/* 상태 필터 pills */}
