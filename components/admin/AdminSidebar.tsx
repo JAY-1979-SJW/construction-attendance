@@ -152,6 +152,7 @@ const MENU: MenuItem[] = [
       { href: '/admin/settings',       label: '설정' },
       { href: '/admin/companies',      label: '회사 정보' },
       { href: '/admin/document-center', label: '문서 센터' },
+      { href: '/admin/connections',      label: '접속 현황' },
       { href: '/admin/audit-logs',      label: '감사 로그' },
       { href: '/admin/super-users',     label: '관리자 계정' },
       { href: '/admin/policies',        label: '정책 관리' },
