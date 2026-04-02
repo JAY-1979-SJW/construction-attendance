@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface AuditLog {
   id: string
@@ -175,8 +176,45 @@ export default function AuditLogsPage() {
         </div>
 
         {loading ? <p className="text-muted-brand">로딩 중...</p> : (
-          <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden hidden sm:block overflow-x-auto">
-            <table className="w-full border-collapse">
+          <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
+            <MobileCardList
+              items={items}
+              emptyMessage="로그가 없습니다."
+              keyExtractor={(item) => item.id}
+              renderCard={(item) => (
+                <MobileCard
+                  title={<ActionTypeBadge actionType={item.actionType} />}
+                  subtitle={formatDateTime(item.createdAt)}
+                  badge={
+                    <span style={{
+                      fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '8px',
+                      color: ACTOR_TYPE_COLOR[item.actorType] ?? '#555',
+                      background: ACTOR_TYPE_BG[item.actorType] ?? '#f5f5f5',
+                    }}>
+                      {item.actorType}
+                    </span>
+                  }
+                  onClick={() => setExpanded(expanded === item.id ? null : item.id)}
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="내용" value={item.summary} />
+                    {item.targetType && <MobileCardField label="대상 유형" value={item.targetType} />}
+                    {item.targetId && <MobileCardField label="대상 ID" value={shortId(item.targetId)} />}
+                    {item.ipAddress && <MobileCardField label="IP" value={item.ipAddress} />}
+                  </MobileCardFields>
+                  {expanded === item.id && item.metadataJson && (
+                    <div className="mt-2 pt-2 border-t border-brand">
+                      <div className="text-[11px] font-bold text-muted-brand mb-1 uppercase">메타데이터</div>
+                      <pre className="text-[11px] text-dim-brand whitespace-pre-wrap break-all m-0">
+                        {JSON.stringify(item.metadataJson, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
               <thead>
                 <tr>
                   {['시각', '행위자', '유형', '액션', '대상', '내용'].map((h) => (
@@ -274,7 +312,10 @@ export default function AuditLogsPage() {
                   </>
                 ))}
               </tbody>
-            </table>
+                  </table>
+                </div>
+              )}
+            />
           </div>
         )}
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { PageShell } from '@/components/admin/ui/PageShell'
+import { PageShell, MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface CorrectionRecord {
   id: string
@@ -124,82 +124,120 @@ export default function CorrectionsPage() {
           {loading ? (
             <div className="py-8 text-center text-[#999]">로딩 중...</div>
           ) : (
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-[rgba(91,164,217,0.15)]">
-                    {['일시', '도메인', '대상 ID', '액션', '사유', '처리자', '변경 전/후'].map((h) => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand uppercase tracking-wider whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.length === 0 ? (
-                    <tr><td colSpan={7} className="text-center py-6 text-[#999]">이력 없음</td></tr>
-                  ) : items.map((item) => (
-                    <>
-                      <tr key={item.id} className="border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors">
-                        <td className="px-4 py-3 text-sm text-dim-brand">{fmtDate(item.createdAt)}</td>
-                        <td className="px-4 py-3 text-sm text-dim-brand">
-                          <span className="text-xs font-semibold text-secondary-brand bg-[rgba(91,164,217,0.1)] px-2 py-0.5 rounded">
-                            {domainLabel(item.domainType)}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-xs text-muted-brand font-mono max-w-[140px] overflow-hidden text-ellipsis whitespace-nowrap">
-                          {item.targetId}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-dim-brand">
-                          <span style={{
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            color: item.action === 'DELETE' ? '#c62828' : item.action === 'CREATE' ? '#2e7d32' : '#e65100',
-                          }}>
-                            {item.action}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-xs text-muted-brand max-w-[200px]">{item.reason ?? '-'}</td>
-                        <td className="px-4 py-3 text-sm text-dim-brand">{item.operatorName ?? item.operatorId ?? '-'}</td>
-                        <td className="px-4 py-3 text-sm text-dim-brand">
-                          {(item.beforeJson || item.afterJson) && (
-                            <button
-                              onClick={() => toggleExpand(item.id)}
-                              className="px-2.5 py-0.5 text-xs text-white border-none rounded cursor-pointer font-semibold"
-                              style={{ background: expandedId === item.id ? '#455a64' : '#607d8b' }}
-                            >
-                              {expandedId === item.id ? '접기' : '보기'}
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                      {expandedId === item.id && (
-                        <tr key={`${item.id}-expand`}>
-                          <td colSpan={7} className="p-0 bg-brand border-b border-[rgba(91,164,217,0.08)]">
-                            <div className="grid grid-cols-1 sm:grid-cols-2">
-                              <div className="p-4 border-r border-[rgba(91,164,217,0.15)]">
-                                <div className="text-[11px] font-bold text-[#c62828] mb-2 uppercase">
-                                  변경 전 (Before)
-                                </div>
-                                <pre className="text-[11px] text-dim-brand m-0 whitespace-pre-wrap break-all">
-                                  {item.beforeJson ? JSON.stringify(item.beforeJson, null, 2) : '(없음)'}
-                                </pre>
-                              </div>
-                              <div className="p-4">
-                                <div className="text-[11px] font-bold text-[#2e7d32] mb-2 uppercase">
-                                  변경 후 (After)
-                                </div>
-                                <pre className="text-[11px] text-dim-brand m-0 whitespace-pre-wrap break-all">
-                                  {item.afterJson ? JSON.stringify(item.afterJson, null, 2) : '(없음)'}
-                                </pre>
-                              </div>
-                            </div>
+            <MobileCardList
+              items={items}
+              emptyMessage="이력 없음"
+              renderCard={(item) => (
+                <MobileCard
+                  key={item.id}
+                  title={domainLabel(item.domainType)}
+                  subtitle={`${item.action} · ${fmtDate(item.createdAt)}`}
+                  badge={
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: item.action === 'DELETE' ? '#c62828' : item.action === 'CREATE' ? '#2e7d32' : '#e65100' }}>
+                      {item.action}
+                    </span>
+                  }
+                  onClick={(item.beforeJson || item.afterJson) ? () => toggleExpand(item.id) : undefined}
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="대상 ID" value={item.targetId} />
+                    <MobileCardField label="사유" value={item.reason || '—'} />
+                    <MobileCardField label="처리자" value={item.operatorName || item.operatorId || '—'} />
+                    <MobileCardField label="일시" value={fmtDate(item.createdAt)} />
+                  </MobileCardFields>
+                  {expandedId === item.id && (item.beforeJson || item.afterJson) && (
+                    <div className="mt-2 pt-2 border-t border-brand">
+                      {item.beforeJson && (
+                        <div className="mb-2">
+                          <div className="text-[11px] font-bold text-[#c62828] mb-1">변경 전</div>
+                          <pre className="text-[11px] text-dim-brand whitespace-pre-wrap break-all m-0">{JSON.stringify(item.beforeJson, null, 2)}</pre>
+                        </div>
+                      )}
+                      {item.afterJson && (
+                        <div>
+                          <div className="text-[11px] font-bold text-[#2e7d32] mb-1">변경 후</div>
+                          <pre className="text-[11px] text-dim-brand whitespace-pre-wrap break-all m-0">{JSON.stringify(item.afterJson, null, 2)}</pre>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="border-b border-[rgba(91,164,217,0.15)]">
+                      {['일시', '도메인', '대상 ID', '액션', '사유', '처리자', '변경 전/후'].map((h) => (
+                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand uppercase tracking-wider whitespace-nowrap">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item) => (
+                      <>
+                        <tr key={item.id} className="border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors">
+                          <td className="px-4 py-3 text-sm text-dim-brand">{fmtDate(item.createdAt)}</td>
+                          <td className="px-4 py-3 text-sm text-dim-brand">
+                            <span className="text-xs font-semibold text-secondary-brand bg-[rgba(91,164,217,0.1)] px-2 py-0.5 rounded">
+                              {domainLabel(item.domainType)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-muted-brand font-mono max-w-[140px] overflow-hidden text-ellipsis whitespace-nowrap">
+                            {item.targetId}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-dim-brand">
+                            <span style={{
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              color: item.action === 'DELETE' ? '#c62828' : item.action === 'CREATE' ? '#2e7d32' : '#e65100',
+                            }}>
+                              {item.action}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-muted-brand max-w-[200px]">{item.reason ?? '-'}</td>
+                          <td className="px-4 py-3 text-sm text-dim-brand">{item.operatorName ?? item.operatorId ?? '-'}</td>
+                          <td className="px-4 py-3 text-sm text-dim-brand">
+                            {(item.beforeJson || item.afterJson) && (
+                              <button
+                                onClick={() => toggleExpand(item.id)}
+                                className="px-2.5 py-0.5 text-xs text-white border-none rounded cursor-pointer font-semibold"
+                                style={{ background: expandedId === item.id ? '#455a64' : '#607d8b' }}
+                              >
+                                {expandedId === item.id ? '접기' : '보기'}
+                              </button>
+                            )}
                           </td>
                         </tr>
-                      )}
-                    </>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        {expandedId === item.id && (
+                          <tr key={`${item.id}-expand`}>
+                            <td colSpan={7} className="p-0 bg-brand border-b border-[rgba(91,164,217,0.08)]">
+                              <div className="grid grid-cols-1 sm:grid-cols-2">
+                                <div className="p-4 border-r border-[rgba(91,164,217,0.15)]">
+                                  <div className="text-[11px] font-bold text-[#c62828] mb-2 uppercase">
+                                    변경 전 (Before)
+                                  </div>
+                                  <pre className="text-[11px] text-dim-brand m-0 whitespace-pre-wrap break-all">
+                                    {item.beforeJson ? JSON.stringify(item.beforeJson, null, 2) : '(없음)'}
+                                  </pre>
+                                </div>
+                                <div className="p-4">
+                                  <div className="text-[11px] font-bold text-[#2e7d32] mb-2 uppercase">
+                                    변경 후 (After)
+                                  </div>
+                                  <pre className="text-[11px] text-dim-brand m-0 whitespace-pre-wrap break-all">
+                                    {item.afterJson ? JSON.stringify(item.afterJson, null, 2) : '(없음)'}
+                                  </pre>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            />
           )}
 
           {/* 페이지네이션 */}

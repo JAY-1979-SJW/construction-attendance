@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
-import { Modal, Toast } from '@/components/admin/ui'
+import { Modal, Toast, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface ExceptionRecord {
   id: string
@@ -66,34 +66,57 @@ export default function ExceptionsPage() {
       <h1 className="text-[22px] font-bold mb-5">예외 승인 ({total}건)</h1>
 
       {loading ? <p>로딩 중...</p> : (
-        <div className="hidden sm:block bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>{['날짜', '이름', '현장', '사유', '요청일', '처리'].map((h) => (
-                <th key={h} className="text-left px-3 py-2.5 text-xs text-muted-brand border-b-2 border-secondary-brand/20">{h}</th>
-              ))}</tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
-                <tr><td colSpan={6} className="text-center py-6 text-[#999]">대기 중인 예외 요청이 없습니다.</td></tr>
-              ) : items.map((item) => (
-                <tr key={item.id}>
-                  <td className="px-3 py-3 text-sm border-b border-brand">{item.workDate}</td>
-                  <td className="px-3 py-3 text-sm border-b border-brand">{item.workerName}<br /><span className="text-xs text-[#999]">{item.company}</span></td>
-                  <td className="px-3 py-3 text-sm border-b border-brand">{item.siteName}</td>
-                  <td className="px-3 py-3 text-sm border-b border-brand"><span className="text-xs">{item.exceptionReason}</span></td>
-                  <td className="px-3 py-3 text-sm border-b border-brand">{formatDt(item.createdAt)}</td>
-                  <td className="px-3 py-3 text-sm border-b border-brand">
-                    {canMutate
-                      ? <button onClick={() => { setSelected(item); setApproveData({ checkInAt: item.checkInAt?.slice(0, 16) ?? '', checkOutAt: item.checkOutAt?.slice(0, 16) ?? '', note: '' }) }} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px]">처리</button>
-                      : <span className="text-xs text-[#bbb]">조회 전용</span>
-                    }
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <MobileCardList
+          items={items}
+          keyExtractor={(item) => item.id}
+          emptyMessage="대기 중인 예외 요청이 없습니다."
+          renderCard={(item) => (
+            <MobileCard
+              title={item.workerName}
+              subtitle={`${item.company} · ${item.siteName}`}
+            >
+              <MobileCardFields>
+                <MobileCardField label="날짜" value={item.workDate} />
+                <MobileCardField label="사유" value={item.exceptionReason || '—'} />
+                <MobileCardField label="요청일" value={formatDt(item.createdAt)} />
+              </MobileCardFields>
+              <MobileCardActions>
+                {canMutate
+                  ? <button onClick={() => { setSelected(item); setApproveData({ checkInAt: item.checkInAt?.slice(0, 16) ?? '', checkOutAt: item.checkOutAt?.slice(0, 16) ?? '', note: '' }) }} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px]">처리</button>
+                  : <span className="text-xs text-[#bbb]">조회 전용</span>
+                }
+              </MobileCardActions>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>{['날짜', '이름', '현장', '사유', '요청일', '처리'].map((h) => (
+                    <th key={h} className="text-left px-3 py-2.5 text-xs text-muted-brand border-b-2 border-secondary-brand/20">{h}</th>
+                  ))}</tr>
+                </thead>
+                <tbody>
+                  {items.map((item) => (
+                    <tr key={item.id}>
+                      <td className="px-3 py-3 text-sm border-b border-brand">{item.workDate}</td>
+                      <td className="px-3 py-3 text-sm border-b border-brand">{item.workerName}<br /><span className="text-xs text-[#999]">{item.company}</span></td>
+                      <td className="px-3 py-3 text-sm border-b border-brand">{item.siteName}</td>
+                      <td className="px-3 py-3 text-sm border-b border-brand"><span className="text-xs">{item.exceptionReason}</span></td>
+                      <td className="px-3 py-3 text-sm border-b border-brand">{formatDt(item.createdAt)}</td>
+                      <td className="px-3 py-3 text-sm border-b border-brand">
+                        {canMutate
+                          ? <button onClick={() => { setSelected(item); setApproveData({ checkInAt: item.checkInAt?.slice(0, 16) ?? '', checkOutAt: item.checkOutAt?.slice(0, 16) ?? '', note: '' }) }} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px]">처리</button>
+                          : <span className="text-xs text-[#bbb]">조회 전용</span>
+                        }
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
       )}
 
       {/* 처리 모달 */}

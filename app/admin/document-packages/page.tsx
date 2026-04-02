@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 const STATUS_LABELS: Record<string, string> = {
   NOT_READY: '준비 필요', UNDER_REVIEW: '검토 중', READY: '투입 가능', REJECTED: '보완 필요', EXPIRED: '만료 재제출 필요',
@@ -93,48 +94,73 @@ export default function DocumentPackagesPage() {
           <div className="px-4 py-3 border-b border-brand text-sm font-bold text-[#37474f]">
             검토대기 문서 ({pendingDocs.length}건)
           </div>
-          {pendingDocs.length === 0 ? (
-            <div className="py-8 text-center text-sm text-[#718096]">검토대기 문서가 없습니다.</div>
-          ) : (
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="text-left text-xs text-[#718096] border-b border-brand">
-                  <th className="py-2.5 px-4">근로자</th>
-                  <th className="py-2.5 px-4">현장</th>
-                  <th className="py-2.5 px-4">문서</th>
-                  <th className="py-2.5 px-4">제출일</th>
-                  <th className="py-2.5 px-4">액션</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pendingDocs.map((doc: any) => (
-                  <tr key={doc.id} className="border-b border-brand hover:bg-surface">
-                    <td className="py-2.5 px-4">
-                      <Link href={`/admin/workers/${doc.worker?.id}`} className="text-[#1976d2] no-underline font-medium">
-                        {doc.worker?.name}
-                      </Link>
-                      {doc.worker?.phone && <span className="text-xs text-[#718096] ml-1">{doc.worker.phone}</span>}
-                    </td>
-                    <td className="py-2.5 px-4 text-xs">{doc.site?.name || '—'}</td>
-                    <td className="py-2.5 px-4">
-                      <span className="px-2 py-0.5 rounded bg-[#fff3e0] text-[#f57c00] text-[11px] font-bold">
-                        {DOC_TYPE_LABELS[doc.docType] || doc.docType}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-4 text-xs text-[#718096]">
-                      {doc.submittedAt ? new Date(doc.submittedAt).toLocaleDateString('ko-KR') : '—'}
-                    </td>
-                    <td className="py-2.5 px-4">
-                      <Link href={`/admin/workers/${doc.worker?.id}`}
-                        className="px-3 py-1 bg-[#1976d2] text-white rounded text-[11px] no-underline font-bold">
-                        검토하기
-                      </Link>
-                    </td>
+          <MobileCardList
+            items={pendingDocs}
+            emptyMessage="검토대기 문서가 없습니다."
+            keyExtractor={(doc: any) => doc.id}
+            renderCard={(doc: any) => (
+              <MobileCard
+                title={doc.worker?.name}
+                subtitle={doc.worker?.phone}
+                badge={
+                  <span className="px-2 py-0.5 rounded bg-[#fff3e0] text-[#f57c00] text-[11px] font-bold">
+                    {DOC_TYPE_LABELS[doc.docType] || doc.docType}
+                  </span>
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField label="현장" value={doc.site?.name || '—'} />
+                  <MobileCardField label="제출일" value={doc.submittedAt ? new Date(doc.submittedAt).toLocaleDateString('ko-KR') : '—'} />
+                </MobileCardFields>
+                <MobileCardActions>
+                  <Link href={`/admin/workers/${doc.worker?.id}`}
+                    className="px-3 py-1 bg-[#1976d2] text-white rounded text-[11px] no-underline font-bold">
+                    검토하기
+                  </Link>
+                </MobileCardActions>
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="text-left text-xs text-[#718096] border-b border-brand">
+                    <th className="py-2.5 px-4">근로자</th>
+                    <th className="py-2.5 px-4">현장</th>
+                    <th className="py-2.5 px-4">문서</th>
+                    <th className="py-2.5 px-4">제출일</th>
+                    <th className="py-2.5 px-4">액션</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {pendingDocs.map((doc: any) => (
+                    <tr key={doc.id} className="border-b border-brand hover:bg-surface">
+                      <td className="py-2.5 px-4">
+                        <Link href={`/admin/workers/${doc.worker?.id}`} className="text-[#1976d2] no-underline font-medium">
+                          {doc.worker?.name}
+                        </Link>
+                        {doc.worker?.phone && <span className="text-xs text-[#718096] ml-1">{doc.worker.phone}</span>}
+                      </td>
+                      <td className="py-2.5 px-4 text-xs">{doc.site?.name || '—'}</td>
+                      <td className="py-2.5 px-4">
+                        <span className="px-2 py-0.5 rounded bg-[#fff3e0] text-[#f57c00] text-[11px] font-bold">
+                          {DOC_TYPE_LABELS[doc.docType] || doc.docType}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-4 text-xs text-[#718096]">
+                        {doc.submittedAt ? new Date(doc.submittedAt).toLocaleDateString('ko-KR') : '—'}
+                      </td>
+                      <td className="py-2.5 px-4">
+                        <Link href={`/admin/workers/${doc.worker?.id}`}
+                          className="px-3 py-1 bg-[#1976d2] text-white rounded text-[11px] no-underline font-bold">
+                          검토하기
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          />
         </div>
       ) : (
         /* 근로자별 패키지 목록 */
@@ -142,59 +168,94 @@ export default function DocumentPackagesPage() {
           <div className="px-4 py-3 border-b border-brand text-sm font-bold text-[#37474f]">
             전체 {total}명
           </div>
-          {packages.length === 0 ? (
-            <div className="py-8 text-center text-sm text-[#718096]">데이터가 없습니다.</div>
-          ) : (
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="text-left text-xs text-[#718096] border-b border-brand">
-                  <th className="py-2.5 px-4">근로자</th>
-                  <th className="py-2.5 px-4">현장</th>
-                  <th className="py-2.5 px-4">상태</th>
-                  <th className="py-2.5 px-4">승인</th>
-                  <th className="py-2.5 px-4">문서별 상태</th>
-                  <th className="py-2.5 px-4">액션</th>
-                </tr>
-              </thead>
-              <tbody>
-                {packages.map((pkg: any) => (
-                  <tr key={pkg.id} className="border-b border-brand hover:bg-surface">
-                    <td className="py-2.5 px-4">
-                      <Link href={`/admin/workers/${pkg.worker?.id}`} className="text-[#1976d2] no-underline font-medium">
-                        {pkg.worker?.name}
-                      </Link>
-                      <div className="text-xs text-[#718096]">{pkg.worker?.jobTitle}</div>
-                    </td>
-                    <td className="py-2.5 px-4 text-xs">{pkg.site?.name || '—'}</td>
-                    <td className="py-2.5 px-4">
-                      <span className="px-2 py-0.5 rounded text-white text-[11px] font-bold"
-                        style={{ background: STATUS_COLORS[pkg.overallStatus] || '#9e9e9e' }}>
-                        {STATUS_LABELS[pkg.overallStatus] || pkg.overallStatus}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-4 text-xs">{pkg.approvedDocCount}/{pkg.requiredDocCount}</td>
-                    <td className="py-2.5 px-4">
-                      <div className="flex gap-1 flex-wrap">
-                        {pkg.onboardingDocs?.map((doc: any) => (
-                          <span key={doc.id} className="px-1.5 py-0.5 rounded text-[11px] font-bold text-white"
-                            style={{ background: DOC_STATUS_COLORS[doc.status] || '#9e9e9e' }}
-                            title={`${DOC_TYPE_LABELS[doc.docType]}: ${DOC_STATUS_LABELS[doc.status]}`}>
-                            {DOC_TYPE_LABELS[doc.docType]?.slice(0, 2)}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="py-2.5 px-4">
-                      <Link href={`/admin/workers/${pkg.worker?.id}`}
-                        className="px-3 py-1 bg-[#37474f] text-white rounded text-[11px] no-underline font-bold">
-                        상세
-                      </Link>
-                    </td>
+          <MobileCardList
+            items={packages}
+            emptyMessage="데이터가 없습니다."
+            keyExtractor={(pkg: any) => pkg.id}
+            renderCard={(pkg: any) => (
+              <MobileCard
+                title={pkg.worker?.name}
+                subtitle={pkg.worker?.jobTitle}
+                badge={
+                  <span style={{ background: STATUS_COLORS[pkg.overallStatus] || '#9e9e9e' }}
+                    className="px-2 py-0.5 rounded text-white text-[11px] font-bold">
+                    {STATUS_LABELS[pkg.overallStatus] || pkg.overallStatus}
+                  </span>
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField label="현장" value={pkg.site?.name || '—'} />
+                  <MobileCardField label="승인" value={`${pkg.approvedDocCount}/${pkg.requiredDocCount}`} />
+                </MobileCardFields>
+                <div className="flex gap-1 flex-wrap mt-2">
+                  {pkg.onboardingDocs?.map((doc: any) => (
+                    <span key={doc.id} className="px-1.5 py-0.5 rounded text-[11px] font-bold text-white"
+                      style={{ background: DOC_STATUS_COLORS[doc.status] || '#9e9e9e' }}
+                      title={`${DOC_TYPE_LABELS[doc.docType]}: ${DOC_STATUS_LABELS[doc.status]}`}>
+                      {DOC_TYPE_LABELS[doc.docType]?.slice(0, 2)}
+                    </span>
+                  ))}
+                </div>
+                <MobileCardActions>
+                  <Link href={`/admin/workers/${pkg.worker?.id}`}
+                    className="px-3 py-1 bg-[#37474f] text-white rounded text-[11px] no-underline font-bold">
+                    상세
+                  </Link>
+                </MobileCardActions>
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="text-left text-xs text-[#718096] border-b border-brand">
+                    <th className="py-2.5 px-4">근로자</th>
+                    <th className="py-2.5 px-4">현장</th>
+                    <th className="py-2.5 px-4">상태</th>
+                    <th className="py-2.5 px-4">승인</th>
+                    <th className="py-2.5 px-4">문서별 상태</th>
+                    <th className="py-2.5 px-4">액션</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {packages.map((pkg: any) => (
+                    <tr key={pkg.id} className="border-b border-brand hover:bg-surface">
+                      <td className="py-2.5 px-4">
+                        <Link href={`/admin/workers/${pkg.worker?.id}`} className="text-[#1976d2] no-underline font-medium">
+                          {pkg.worker?.name}
+                        </Link>
+                        <div className="text-xs text-[#718096]">{pkg.worker?.jobTitle}</div>
+                      </td>
+                      <td className="py-2.5 px-4 text-xs">{pkg.site?.name || '—'}</td>
+                      <td className="py-2.5 px-4">
+                        <span className="px-2 py-0.5 rounded text-white text-[11px] font-bold"
+                          style={{ background: STATUS_COLORS[pkg.overallStatus] || '#9e9e9e' }}>
+                          {STATUS_LABELS[pkg.overallStatus] || pkg.overallStatus}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-4 text-xs">{pkg.approvedDocCount}/{pkg.requiredDocCount}</td>
+                      <td className="py-2.5 px-4">
+                        <div className="flex gap-1 flex-wrap">
+                          {pkg.onboardingDocs?.map((doc: any) => (
+                            <span key={doc.id} className="px-1.5 py-0.5 rounded text-[11px] font-bold text-white"
+                              style={{ background: DOC_STATUS_COLORS[doc.status] || '#9e9e9e' }}
+                              title={`${DOC_TYPE_LABELS[doc.docType]}: ${DOC_STATUS_LABELS[doc.status]}`}>
+                              {DOC_TYPE_LABELS[doc.docType]?.slice(0, 2)}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="py-2.5 px-4">
+                        <Link href={`/admin/workers/${pkg.worker?.id}`}
+                          className="px-3 py-1 bg-[#37474f] text-white rounded text-[11px] no-underline font-bold">
+                          상세
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          />
         </div>
       )}
     </div>

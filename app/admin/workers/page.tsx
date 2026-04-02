@@ -11,6 +11,7 @@ import {
   AdminTable, AdminTr, AdminTd, EmptyRow,
   FormInput, FormSelect, ModalFooter,
   Modal, Toast, FloatingToast,
+  MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions,
 } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
@@ -511,102 +512,130 @@ export default function WorkersPage() {
 
         {/* 근로자 목록 */}
         <div className={`flex-1 min-w-0 transition-all ${hasPanelOpen ? 'max-w-[calc(100%-444px)]' : ''}`}>
-          <AdminTable headers={['이름', '직종', '주배정현장', '오늘출근', '상태', '투입가능', '근로계약서', '안전교육', '안전교육증', '일당', '월 누계', '확인상태']}>
-            {loading ? (
-              <EmptyRow colSpan={12} message="로딩 중..." />
-            ) : sorted.length === 0 ? (
-              <EmptyRow colSpan={12} message="조회된 근로자가 없습니다" />
-            ) : (
-              sorted.map(w => {
-                const elig = getEligibility(w)
-                const cs = getConfirmStatus(w)
-                const isSelected = w.id === selectedId
-                const rowBg =
-                  isSelected ? 'bg-accent-light' :
-                  elig === 'blocked' ? 'bg-red-light hover:bg-red-light' :
-                  (elig === 'docs_missing' || elig === 'edu_missing') ? 'bg-yellow-light hover:bg-yellow-light' :
-                  ''
-                return (
-                  <AdminTr
-                    key={w.id}
-                    onClick={() => openDetail(w.id)}
-                    highlighted={isSelected}
-                    className={rowBg}
-                  >
-                    {/* 이름 */}
-                    <AdminTd>
-                      <div className="font-semibold text-fore-brand whitespace-nowrap">{w.name}</div>
-                      {w.foreignerYn && <div className="text-[11px] text-muted-brand">외국인</div>}
-                    </AdminTd>
-                    {/* 직종 */}
-                    <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
-                    {/* 주배정 현장 */}
-                    <AdminTd className="max-w-[110px]">
-                      {(() => {
-                        const primary = w.activeSites.find(s => s.isPrimary)
-                        if (primary) return <div className="text-[12px] text-body-brand truncate">{primary.name}{w.activeSites.length > 1 && <span className="text-[11px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
-                        if (w.activeSites.length > 0) return <div className="text-[12px] text-body-brand truncate">{w.activeSites[0].name}{w.activeSites.length > 1 && <span className="text-[11px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
-                        return <StatusBadge status="PENDING" label="미배정" />
-                      })()}
-                    </AdminTd>
-                    {/* 오늘 출근 */}
-                    <AdminTd>
-                      {w.todayAttendance ? (
-                        <div>
-                          <StatusBadge status="WORKING" label="출근" />
-                          <div className="text-[11px] text-muted-brand mt-[2px] truncate max-w-[80px]">{w.todayAttendance.siteName}</div>
-                        </div>
-                      ) : w.activeSites.length === 0 ? (
-                        <span className="text-[11px] text-[#D1D5DB]">-</span>
-                      ) : (
-                        <StatusBadge status="INACTIVE" label="미출근" />
-                      )}
-                    </AdminTd>
-                    {/* 상태 */}
-                    <AdminTd>
-                      <StatusBadge status={w.isActive ? 'ACTIVE' : 'INACTIVE'} label={w.isActive ? '재직중' : '비활성'} />
-                    </AdminTd>
-                    {/* 투입가능 */}
-                    <AdminTd>
-                      <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
-                        style={{ color: ELIGIBILITY_LABEL[elig].color, backgroundColor: ELIGIBILITY_LABEL[elig].bg }}>
-                        {ELIGIBILITY_LABEL[elig].label}
-                      </span>
-                    </AdminTd>
-                    {/* 근로계약서 */}
-                    <AdminTd>
-                      <DocBadge has={w.hasContract} yesLabel="교부" noLabel="미교부" />
-                    </AdminTd>
-                    {/* 안전교육 */}
-                    <AdminTd>
-                      <DocBadge has={w.hasSafetyEducation} yesLabel="이수" noLabel="미이수" />
-                    </AdminTd>
-                    {/* 안전교육증 */}
-                    <AdminTd>
-                      <DocBadge has={w.hasSafetyCert} yesLabel="등록" noLabel="미등록" />
-                    </AdminTd>
-                    {/* 일당 */}
-                    <AdminTd className="text-right tabular-nums text-[12px] text-muted-brand">
-                      {w.dailyWage > 0 ? fmtWage(w.dailyWage) : '-'}
-                    </AdminTd>
-                    {/* 월 누계 */}
-                    <AdminTd className="text-right tabular-nums">
-                      {w.monthWage > 0
-                        ? <span className="font-semibold text-body-brand">{fmtWage(w.monthWage)}</span>
-                        : <span className="text-[#D1D5DB]">-</span>}
-                    </AdminTd>
-                    {/* 확인상태 */}
-                    <AdminTd>
-                      <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
-                        style={{ color: cs.color, backgroundColor: cs.bg }}>
-                        {cs.label}
-                      </span>
-                    </AdminTd>
-                  </AdminTr>
-                )
-              })
+          <MobileCardList
+            items={sorted}
+            keyExtractor={(w) => w.id}
+            renderCard={(w) => {
+              const elig = getEligibility(w)
+              const primarySite = w.activeSites.find(s => s.isPrimary) || w.activeSites[0]
+              return (
+                <MobileCard
+                  title={w.name}
+                  subtitle={`${w.jobTitle} · ${w.primaryCompany?.companyName || '소속없음'}`}
+                  badge={<StatusBadge status={elig === 'ok' ? 'ACTIVE' : elig === 'blocked' ? 'INACTIVE' : 'PENDING'} label={ELIGIBILITY_LABEL[elig].label} />}
+                  onClick={() => openDetail(w.id)}
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="주배정현장" value={primarySite?.name || '미배정'} />
+                    <MobileCardField label="상태" value={w.isActive ? '재직중' : '비활성'} />
+                    <MobileCardField
+                      label="오늘출근"
+                      value={w.todayAttendance ? `출근 · ${w.todayAttendance.siteName}` : w.activeSites.length === 0 ? '-' : '미출근'}
+                    />
+                    <MobileCardField label="일당" value={w.dailyWage > 0 ? fmtWage(w.dailyWage) : '-'} />
+                  </MobileCardFields>
+                </MobileCard>
+              )
+            }}
+            renderTable={() => (
+              <AdminTable headers={['이름', '직종', '주배정현장', '오늘출근', '상태', '투입가능', '근로계약서', '안전교육', '안전교육증', '일당', '월 누계', '확인상태']}>
+                {loading ? (
+                  <EmptyRow colSpan={12} message="로딩 중..." />
+                ) : sorted.length === 0 ? (
+                  <EmptyRow colSpan={12} message="조회된 근로자가 없습니다" />
+                ) : (
+                  sorted.map(w => {
+                    const elig = getEligibility(w)
+                    const cs = getConfirmStatus(w)
+                    const isSelected = w.id === selectedId
+                    const rowBg =
+                      isSelected ? 'bg-accent-light' :
+                      elig === 'blocked' ? 'bg-red-light hover:bg-red-light' :
+                      (elig === 'docs_missing' || elig === 'edu_missing') ? 'bg-yellow-light hover:bg-yellow-light' :
+                      ''
+                    return (
+                      <AdminTr
+                        key={w.id}
+                        onClick={() => openDetail(w.id)}
+                        highlighted={isSelected}
+                        className={rowBg}
+                      >
+                        {/* 이름 */}
+                        <AdminTd>
+                          <div className="font-semibold text-fore-brand whitespace-nowrap">{w.name}</div>
+                          {w.foreignerYn && <div className="text-[11px] text-muted-brand">외국인</div>}
+                        </AdminTd>
+                        {/* 직종 */}
+                        <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
+                        {/* 주배정 현장 */}
+                        <AdminTd className="max-w-[110px]">
+                          {(() => {
+                            const primary = w.activeSites.find(s => s.isPrimary)
+                            if (primary) return <div className="text-[12px] text-body-brand truncate">{primary.name}{w.activeSites.length > 1 && <span className="text-[11px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
+                            if (w.activeSites.length > 0) return <div className="text-[12px] text-body-brand truncate">{w.activeSites[0].name}{w.activeSites.length > 1 && <span className="text-[11px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
+                            return <StatusBadge status="PENDING" label="미배정" />
+                          })()}
+                        </AdminTd>
+                        {/* 오늘 출근 */}
+                        <AdminTd>
+                          {w.todayAttendance ? (
+                            <div>
+                              <StatusBadge status="WORKING" label="출근" />
+                              <div className="text-[11px] text-muted-brand mt-[2px] truncate max-w-[80px]">{w.todayAttendance.siteName}</div>
+                            </div>
+                          ) : w.activeSites.length === 0 ? (
+                            <span className="text-[11px] text-[#D1D5DB]">-</span>
+                          ) : (
+                            <StatusBadge status="INACTIVE" label="미출근" />
+                          )}
+                        </AdminTd>
+                        {/* 상태 */}
+                        <AdminTd>
+                          <StatusBadge status={w.isActive ? 'ACTIVE' : 'INACTIVE'} label={w.isActive ? '재직중' : '비활성'} />
+                        </AdminTd>
+                        {/* 투입가능 */}
+                        <AdminTd>
+                          <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
+                            style={{ color: ELIGIBILITY_LABEL[elig].color, backgroundColor: ELIGIBILITY_LABEL[elig].bg }}>
+                            {ELIGIBILITY_LABEL[elig].label}
+                          </span>
+                        </AdminTd>
+                        {/* 근로계약서 */}
+                        <AdminTd>
+                          <DocBadge has={w.hasContract} yesLabel="교부" noLabel="미교부" />
+                        </AdminTd>
+                        {/* 안전교육 */}
+                        <AdminTd>
+                          <DocBadge has={w.hasSafetyEducation} yesLabel="이수" noLabel="미이수" />
+                        </AdminTd>
+                        {/* 안전교육증 */}
+                        <AdminTd>
+                          <DocBadge has={w.hasSafetyCert} yesLabel="등록" noLabel="미등록" />
+                        </AdminTd>
+                        {/* 일당 */}
+                        <AdminTd className="text-right tabular-nums text-[12px] text-muted-brand">
+                          {w.dailyWage > 0 ? fmtWage(w.dailyWage) : '-'}
+                        </AdminTd>
+                        {/* 월 누계 */}
+                        <AdminTd className="text-right tabular-nums">
+                          {w.monthWage > 0
+                            ? <span className="font-semibold text-body-brand">{fmtWage(w.monthWage)}</span>
+                            : <span className="text-[#D1D5DB]">-</span>}
+                        </AdminTd>
+                        {/* 확인상태 */}
+                        <AdminTd>
+                          <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
+                            style={{ color: cs.color, backgroundColor: cs.bg }}>
+                            {cs.label}
+                          </span>
+                        </AdminTd>
+                      </AdminTr>
+                    )
+                  })
+                )}
+              </AdminTable>
             )}
-          </AdminTable>
+          />
         </div>
 
         {/* 상세 패널 (sticky) */}

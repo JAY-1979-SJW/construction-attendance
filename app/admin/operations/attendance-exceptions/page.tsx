@@ -1,7 +1,7 @@
 ﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { Modal } from '@/components/admin/ui'
+import { Modal, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 /**
  * 출퇴근 예외/누락 처리 센터
@@ -316,65 +316,96 @@ export default function AttendanceExceptionsPage() {
 
       {/* 목록 */}
       <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
-        <table className="w-full border-collapse text-[13px]">
-          <thead>
-            <tr className="bg-[#263238] text-white">
-              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">근로자</th>
-              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">소속</th>
-              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">현장</th>
-              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">작업일</th>
-              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">출근</th>
-              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">퇴근</th>
-              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">상태</th>
-              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">경과일</th>
-              <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">처리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="text-center py-10 text-[#999]">
-                  {loading ? '조회 중...' : '처리 대기 항목이 없습니다.'}
-                </td>
-              </tr>
-            ) : (
-              items.map((item, i) => (
-                <tr key={item.id} style={{ background: i % 2 === 1 ? '#fafafa' : '#fff' }}>
-                  <td className="px-3 py-[10px] border-b border-brand align-top">
-                    <div className="font-bold">{item.workerName}</div>
-                    <div className="text-[11px] text-muted-brand">{item.workerPhone}</div>
-                  </td>
-                  <td className="px-3 py-[10px] border-b border-brand align-top">{item.company || '—'}</td>
-                  <td className="px-3 py-[10px] border-b border-brand align-top">{item.siteName}</td>
-                  <td className="px-3 py-[10px] border-b border-brand align-top">{item.workDate}</td>
-                  <td className="px-3 py-[10px] border-b border-brand align-top">{fmtTime(item.checkInAt)}</td>
-                  <td className="px-3 py-[10px] border-b border-brand align-top">{fmtTime(item.checkOutAt)}</td>
-                  <td className="px-3 py-[10px] border-b border-brand align-top">
-                    <span style={{ color: STATUS_COLOR[item.status] ?? '#333', fontWeight: 700 }}>
-                      {STATUS_LABEL[item.status] ?? item.status}
-                    </span>
-                    {item.exceptionReason && (
-                      <div className="text-[11px] text-muted-brand">{item.exceptionReason}</div>
-                    )}
-                  </td>
-                  <td className="px-3 py-[10px] border-b border-brand align-top text-center">
-                    <span style={{ color: item.daysBehind > 3 ? '#c62828' : item.daysBehind > 0 ? '#e65100' : '#333', fontWeight: item.daysBehind > 3 ? 700 : 400 }}>
-                      {item.daysBehind}일
-                    </span>
-                  </td>
-                  <td className="px-3 py-[10px] border-b border-brand align-top">
-                    <button
-                      onClick={() => { setTarget(item); setAction(''); setCheckOut(''); setNote('') }}
-                      className="px-3 py-1 bg-[#E06810] text-white border-0 rounded text-[12px] cursor-pointer font-bold"
-                    >
-                      처리
-                    </button>
-                  </td>
+        <MobileCardList
+          items={items}
+          emptyMessage={loading ? '조회 중...' : '처리 대기 항목이 없습니다.'}
+          keyExtractor={(item) => item.id}
+          renderCard={(item) => (
+            <MobileCard
+              title={item.workerName}
+              subtitle={`${item.workDate} · ${item.siteName}`}
+              badge={
+                <span style={{ fontSize: '11px', fontWeight: 700, color: STATUS_COLOR[item.status] ?? '#333' }}>
+                  {STATUS_LABEL[item.status] ?? item.status}
+                </span>
+              }
+            >
+              <MobileCardFields>
+                <MobileCardField label="소속" value={item.company || '—'} />
+                <MobileCardField label="연락처" value={item.workerPhone} />
+                <MobileCardField label="출근" value={fmtTime(item.checkInAt)} />
+                <MobileCardField label="퇴근" value={fmtTime(item.checkOutAt)} />
+                <MobileCardField label="경과일" value={
+                  <span style={{ color: item.daysBehind > 3 ? '#c62828' : item.daysBehind > 0 ? '#e65100' : '#333', fontWeight: item.daysBehind > 3 ? 700 : 400 }}>
+                    {item.daysBehind}일
+                  </span>
+                } />
+                {item.exceptionReason && <MobileCardField label="사유" value={item.exceptionReason} />}
+              </MobileCardFields>
+              <MobileCardActions>
+                <button
+                  onClick={() => { setTarget(item); setAction(''); setCheckOut(''); setNote('') }}
+                  className="px-3 py-1.5 bg-[#E06810] text-white border-0 rounded text-xs cursor-pointer font-bold"
+                >
+                  처리
+                </button>
+              </MobileCardActions>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse text-[13px]">
+              <thead>
+                <tr className="bg-[#263238] text-white">
+                  <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">근로자</th>
+                  <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">소속</th>
+                  <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">현장</th>
+                  <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">작업일</th>
+                  <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">출근</th>
+                  <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">퇴근</th>
+                  <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">상태</th>
+                  <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">경과일</th>
+                  <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">처리</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {items.map((item, i) => (
+                  <tr key={item.id} style={{ background: i % 2 === 1 ? '#fafafa' : '#fff' }}>
+                    <td className="px-3 py-[10px] border-b border-brand align-top">
+                      <div className="font-bold">{item.workerName}</div>
+                      <div className="text-[11px] text-muted-brand">{item.workerPhone}</div>
+                    </td>
+                    <td className="px-3 py-[10px] border-b border-brand align-top">{item.company || '—'}</td>
+                    <td className="px-3 py-[10px] border-b border-brand align-top">{item.siteName}</td>
+                    <td className="px-3 py-[10px] border-b border-brand align-top">{item.workDate}</td>
+                    <td className="px-3 py-[10px] border-b border-brand align-top">{fmtTime(item.checkInAt)}</td>
+                    <td className="px-3 py-[10px] border-b border-brand align-top">{fmtTime(item.checkOutAt)}</td>
+                    <td className="px-3 py-[10px] border-b border-brand align-top">
+                      <span style={{ color: STATUS_COLOR[item.status] ?? '#333', fontWeight: 700 }}>
+                        {STATUS_LABEL[item.status] ?? item.status}
+                      </span>
+                      {item.exceptionReason && (
+                        <div className="text-[11px] text-muted-brand">{item.exceptionReason}</div>
+                      )}
+                    </td>
+                    <td className="px-3 py-[10px] border-b border-brand align-top text-center">
+                      <span style={{ color: item.daysBehind > 3 ? '#c62828' : item.daysBehind > 0 ? '#e65100' : '#333', fontWeight: item.daysBehind > 3 ? 700 : 400 }}>
+                        {item.daysBehind}일
+                      </span>
+                    </td>
+                    <td className="px-3 py-[10px] border-b border-brand align-top">
+                      <button
+                        onClick={() => { setTarget(item); setAction(''); setCheckOut(''); setNote('') }}
+                        className="px-3 py-1 bg-[#E06810] text-white border-0 rounded text-[12px] cursor-pointer font-bold"
+                      >
+                        처리
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       </div>
 
       {/* 페이지네이션 */}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 const COMPANY_TYPES: Record<string, string> = {
   SELF: '자사',
@@ -224,48 +225,81 @@ export default function CompaniesPage() {
           {loading ? (
             <div className="py-8 text-center text-[#999]">로딩 중...</div>
           ) : (
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-[rgba(91,164,217,0.15)]">
-                    {['회사명', '유형', '사업자번호', '대표자', '담당자', '근로자', '현장', '상태', ''].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand uppercase tracking-wider">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {companies.length === 0 ? (
-                    <tr><td colSpan={9} className="text-center py-8 text-[#999]">등록된 회사가 없습니다.</td></tr>
-                  ) : companies.map(c => (
-                    <tr key={c.id} className={`border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors ${c.isActive ? '' : 'opacity-50'}`}>
-                      <td className="px-4 py-3 text-sm text-dim-brand">
-                        <div className="font-semibold">{c.companyName}</div>
-                        {c.companyCode && <div className="text-[11px] text-muted-brand">{c.companyCode}</div>}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-dim-brand">
-                        <span className="bg-[rgba(244,121,32,0.12)] text-accent px-2 py-0.5 rounded-[10px] text-[11px] font-semibold">
-                          {COMPANY_TYPES[c.companyType] ?? c.companyType}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-xs text-muted-brand">{c.businessNumber ?? '-'}</td>
-                      <td className="px-4 py-3 text-[13px] text-dim-brand">{c.representativeName ?? '-'}</td>
-                      <td className="px-4 py-3 text-xs text-dim-brand">{c.contactName ? `${c.contactName}${c.contactPhone ? ` (${c.contactPhone})` : ''}` : '-'}</td>
-                      <td className="px-4 py-3 text-sm text-dim-brand text-center">{c._count.workerAssignments}명</td>
-                      <td className="px-4 py-3 text-sm text-dim-brand text-center">{c._count.siteAssignments}개</td>
-                      <td className="px-4 py-3 text-sm text-dim-brand">
-                        <span className={`font-semibold text-xs ${c.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>{c.isActive ? '활성' : '비활성'}</span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-dim-brand">
-                        <button onClick={() => openEdit(c)} className="px-2.5 py-1 bg-transparent border border-brand rounded text-xs text-secondary-brand cursor-pointer">수정</button>
-                        {c.isActive && (
-                          <button onClick={() => handleDeactivate(c.id, c.companyName)} className="px-2.5 py-1 bg-transparent border border-brand rounded text-xs text-[#c62828] cursor-pointer ml-1">비활성화</button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <MobileCardList
+              items={companies}
+              emptyMessage="등록된 회사가 없습니다."
+              keyExtractor={(c) => c.id}
+              renderCard={(c) => (
+                <MobileCard
+                  title={c.companyName}
+                  subtitle={c.companyCode ?? undefined}
+                  badge={
+                    <span className="bg-[rgba(244,121,32,0.12)] text-accent px-2 py-0.5 rounded-[10px] text-[11px] font-semibold">
+                      {COMPANY_TYPES[c.companyType] ?? c.companyType}
+                    </span>
+                  }
+                  className={c.isActive ? '' : 'opacity-50'}
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="사업자번호" value={c.businessNumber ?? '—'} />
+                    <MobileCardField label="대표자" value={c.representativeName ?? '—'} />
+                    <MobileCardField label="담당자" value={c.contactName ? `${c.contactName}${c.contactPhone ? ` (${c.contactPhone})` : ''}` : '—'} />
+                    <MobileCardField label="근로자/현장" value={`${c._count.workerAssignments}명 / ${c._count.siteAssignments}개`} />
+                    <MobileCardField label="상태" value={
+                      <span className={`font-semibold ${c.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>{c.isActive ? '활성' : '비활성'}</span>
+                    } />
+                  </MobileCardFields>
+                  <MobileCardActions>
+                    <button onClick={() => openEdit(c)} className="px-3 py-1.5 bg-transparent border border-brand rounded text-xs text-secondary-brand cursor-pointer">수정</button>
+                    {c.isActive && (
+                      <button onClick={() => handleDeactivate(c.id, c.companyName)} className="px-3 py-1.5 bg-transparent border border-brand rounded text-xs text-[#c62828] cursor-pointer">비활성화</button>
+                    )}
+                  </MobileCardActions>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-sm">
+                    <thead>
+                      <tr className="border-b border-[rgba(91,164,217,0.15)]">
+                        {['회사명', '유형', '사업자번호', '대표자', '담당자', '근로자', '현장', '상태', ''].map(h => (
+                          <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand uppercase tracking-wider">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {companies.map(c => (
+                        <tr key={c.id} className={`border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors ${c.isActive ? '' : 'opacity-50'}`}>
+                          <td className="px-4 py-3 text-sm text-dim-brand">
+                            <div className="font-semibold">{c.companyName}</div>
+                            {c.companyCode && <div className="text-[11px] text-muted-brand">{c.companyCode}</div>}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-dim-brand">
+                            <span className="bg-[rgba(244,121,32,0.12)] text-accent px-2 py-0.5 rounded-[10px] text-[11px] font-semibold">
+                              {COMPANY_TYPES[c.companyType] ?? c.companyType}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-muted-brand">{c.businessNumber ?? '-'}</td>
+                          <td className="px-4 py-3 text-[13px] text-dim-brand">{c.representativeName ?? '-'}</td>
+                          <td className="px-4 py-3 text-xs text-dim-brand">{c.contactName ? `${c.contactName}${c.contactPhone ? ` (${c.contactPhone})` : ''}` : '-'}</td>
+                          <td className="px-4 py-3 text-sm text-dim-brand text-center">{c._count.workerAssignments}명</td>
+                          <td className="px-4 py-3 text-sm text-dim-brand text-center">{c._count.siteAssignments}개</td>
+                          <td className="px-4 py-3 text-sm text-dim-brand">
+                            <span className={`font-semibold text-xs ${c.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>{c.isActive ? '활성' : '비활성'}</span>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-dim-brand">
+                            <button onClick={() => openEdit(c)} className="px-2.5 py-1 bg-transparent border border-brand rounded text-xs text-secondary-brand cursor-pointer">수정</button>
+                            {c.isActive && (
+                              <button onClick={() => handleDeactivate(c.id, c.companyName)} className="px-2.5 py-1 bg-transparent border border-brand rounded text-xs text-[#c62828] cursor-pointer ml-1">비활성화</button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            />
           )}
         </div>
     </div>

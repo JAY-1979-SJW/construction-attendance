@@ -1,7 +1,7 @@
 ﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Modal } from '@/components/admin/ui'
+import { Modal, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface JoinRequest {
   id: string
@@ -109,47 +109,72 @@ export default function SiteJoinRequestsPage() {
       ) : data.length === 0 ? (
         <div className="text-center py-[60px] text-muted-brand text-[15px]">{STATUS_LABEL[filter]} 상태의 신청이 없습니다.</div>
       ) : (
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full border-collapse text-[14px]">
-            <thead>
-              <tr>
-                {['근로자', '전화번호', '현장', '상태', '신청일', ''].map(h => (
-                  <th key={h} className="bg-[#1E3350] px-[14px] py-3 text-left font-bold text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map(r => (
-                <tr key={r.id} className="border-b border-brand">
-                  <td className="px-[14px] py-3 align-middle">
-                    {r.worker.name}
-                    <div className="text-[11px] text-muted-brand mt-[2px]">{r.worker.jobTitle}</div>
-                  </td>
-                  <td className="px-[14px] py-3 align-middle">{r.worker.phone}</td>
-                  <td className="px-[14px] py-3 align-middle">
-                    {r.site.name}
-                    <div className="text-[11px] text-muted-brand mt-[2px]">{r.site.address}</div>
-                  </td>
-                  <td className="px-[14px] py-3 align-middle">
-                    <span className="inline-block text-white text-[11px] font-bold px-2 py-[3px] rounded-[12px]" style={{ background: STATUS_COLOR[r.status] }}>
-                      {STATUS_LABEL[r.status]}
-                    </span>
-                    {r.rejectReason && <div className="text-[11px] text-[#c62828] mt-1 max-w-[160px]">{r.rejectReason}</div>}
-                  </td>
-                  <td className="px-[14px] py-3 align-middle">{new Date(r.requestedAt).toLocaleDateString()}</td>
-                  <td className="px-[14px] py-3 align-middle">
-                    {r.status === 'PENDING' && (
-                      <div className="flex gap-[6px]">
-                        <button className="px-3 py-[6px] bg-[#2e7d32] text-white border-0 rounded-md text-[12px] cursor-pointer font-semibold" onClick={() => approve(r.id)} disabled={processing === r.id}>승인</button>
-                        <button className="px-3 py-[6px] bg-[#c62828] text-white border-0 rounded-md text-[12px] cursor-pointer font-semibold" onClick={() => { setRejectId(r.id); setRejectReason('') }}>반려</button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <MobileCardList
+          items={data}
+          keyExtractor={(r) => r.id}
+          renderCard={(r) => (
+            <MobileCard
+              title={r.worker.name}
+              subtitle={`${r.worker.jobTitle} · ${r.worker.phone}`}
+              badge={<span className="inline-block text-white text-[11px] font-bold px-2 py-[3px] rounded-[12px]" style={{ background: STATUS_COLOR[r.status] }}>{STATUS_LABEL[r.status]}</span>}
+            >
+              <MobileCardFields>
+                <MobileCardField label="현장" value={r.site.name} />
+                <MobileCardField label="신청일" value={new Date(r.requestedAt).toLocaleDateString()} />
+              </MobileCardFields>
+              {r.rejectReason && <div className="text-[11px] text-[#c62828] mt-1">{r.rejectReason}</div>}
+              {r.status === 'PENDING' && (
+                <MobileCardActions>
+                  <button className="px-3 py-[6px] bg-[#2e7d32] text-white border-none rounded-md text-[12px] cursor-pointer font-semibold" onClick={() => approve(r.id)} disabled={processing === r.id}>승인</button>
+                  <button className="px-3 py-[6px] bg-[#c62828] text-white border-none rounded-md text-[12px] cursor-pointer font-semibold" onClick={() => { setRejectId(r.id); setRejectReason('') }}>반려</button>
+                </MobileCardActions>
+              )}
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[14px]">
+                <thead>
+                  <tr>
+                    {['근로자', '전화번호', '현장', '상태', '신청일', ''].map(h => (
+                      <th key={h} className="bg-[#1E3350] px-[14px] py-3 text-left font-bold text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map(r => (
+                    <tr key={r.id} className="border-b border-brand">
+                      <td className="px-[14px] py-3 align-middle">
+                        {r.worker.name}
+                        <div className="text-[11px] text-muted-brand mt-[2px]">{r.worker.jobTitle}</div>
+                      </td>
+                      <td className="px-[14px] py-3 align-middle">{r.worker.phone}</td>
+                      <td className="px-[14px] py-3 align-middle">
+                        {r.site.name}
+                        <div className="text-[11px] text-muted-brand mt-[2px]">{r.site.address}</div>
+                      </td>
+                      <td className="px-[14px] py-3 align-middle">
+                        <span className="inline-block text-white text-[11px] font-bold px-2 py-[3px] rounded-[12px]" style={{ background: STATUS_COLOR[r.status] }}>
+                          {STATUS_LABEL[r.status]}
+                        </span>
+                        {r.rejectReason && <div className="text-[11px] text-[#c62828] mt-1 max-w-[160px]">{r.rejectReason}</div>}
+                      </td>
+                      <td className="px-[14px] py-3 align-middle">{new Date(r.requestedAt).toLocaleDateString()}</td>
+                      <td className="px-[14px] py-3 align-middle">
+                        {r.status === 'PENDING' && (
+                          <div className="flex gap-[6px]">
+                            <button className="px-3 py-[6px] bg-[#2e7d32] text-white border-0 rounded-md text-[12px] cursor-pointer font-semibold" onClick={() => approve(r.id)} disabled={processing === r.id}>승인</button>
+                            <button className="px-3 py-[6px] bg-[#c62828] text-white border-0 rounded-md text-[12px] cursor-pointer font-semibold" onClick={() => { setRejectId(r.id); setRejectReason('') }}>반려</button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
       )}
     </div>
   )

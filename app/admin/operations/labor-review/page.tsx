@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 /**
  * 공수/정산 사전 검토 화면
@@ -162,79 +163,115 @@ export default function LaborReviewPage() {
 
       {/* 목록 */}
       <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full border-collapse text-[13px] min-w-[900px]">
-            <thead>
-              <tr className="bg-[#263238] text-white">
-                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">근로자</th>
-                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">현장</th>
-                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">작업일</th>
-                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">공수</th>
-                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">자동계산</th>
-                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">최종시간</th>
-                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">기본급</th>
-                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">수정여부</th>
-                <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">확정</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="text-center py-10 text-[#999]">
-                    {loading ? '조회 중...' : '미확정 항목이 없습니다.'}
-                  </td>
-                </tr>
-              ) : (
-                items.map((item, i) => {
-                  const isConfirming = confirming.has(item.id)
-                  return (
-                    <tr key={item.id} style={{ background: item.isZeroMinutes ? '#fff8e1' : item.hasOverride ? '#f3e5f5' : i % 2 === 1 ? '#fafafa' : '#fff' }}>
-                      <td className="px-3 py-[9px] border-b border-brand align-top">
-                        <div className="font-bold">{item.workerName}</div>
-                        <div className="text-[11px] text-muted-brand">{item.workerPhone}</div>
-                      </td>
-                      <td className="px-3 py-[9px] border-b border-brand align-top">{item.siteName}</td>
-                      <td className="px-3 py-[9px] border-b border-brand align-top">{item.workDate}</td>
-                      <td className="px-3 py-[9px] border-b border-brand align-top">
-                        <span className="font-bold">{item.confirmedWorkUnits > 0 ? `${item.confirmedWorkUnits}공수` : '—'}</span>
-                        {item.confirmedWorkType && (
-                          <div className="text-[11px] text-muted-brand">{item.confirmedWorkType}</div>
-                        )}
-                      </td>
-                      <td className="px-3 py-[9px] border-b border-brand align-top">{fmtMinutes(item.workedMinutesAuto)}</td>
-                      <td className="px-3 py-[9px] border-b border-brand align-top" style={{ color: item.isZeroMinutes ? '#c62828' : item.hasOverride ? '#6a1b9a' : '#333', fontWeight: item.isZeroMinutes ? 700 : 400 }}>
-                        {fmtMinutes(item.workedMinutesFinal)}
-                        {item.isZeroMinutes && <span className="text-[11px] ml-1">⚠️0</span>}
-                      </td>
-                      <td className="px-3 py-[9px] border-b border-brand align-top">{fmtAmount(item.confirmedBaseAmount)}</td>
-                      <td className="px-3 py-[9px] border-b border-brand align-top">
-                        {item.hasOverride ? (
-                          <span className="text-[#6a1b9a] text-[11px] font-bold">수동수정</span>
-                        ) : (
-                          <span className="text-[#718096] text-[11px]">자동</span>
-                        )}
-                        {item.manualAdjustedReason && (
-                          <div className="text-[11px] text-muted-brand max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">
-                            {item.manualAdjustedReason}
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-3 py-[9px] border-b border-brand align-top">
-                        <button
-                          onClick={() => confirmOne(item.id)}
-                          disabled={isConfirming}
-                          className={`px-3 py-[5px] text-white border-none rounded text-xs font-bold ${isConfirming ? 'bg-[#bdbdbd] cursor-not-allowed' : 'bg-[#2e7d32] cursor-pointer'}`}
-                        >
-                          {isConfirming ? '처리중' : '확정'}
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+        <MobileCardList
+          items={items}
+          emptyMessage={loading ? '조회 중...' : '미확정 항목이 없습니다.'}
+          keyExtractor={(item) => item.id}
+          renderCard={(item) => {
+            const isConfirming = confirming.has(item.id)
+            return (
+              <MobileCard
+                title={item.workerName}
+                subtitle={`${item.workDate} · ${item.siteName}`}
+                badge={
+                  item.isZeroMinutes ? (
+                    <span className="text-[11px] font-bold text-[#c62828]">0분</span>
+                  ) : item.hasOverride ? (
+                    <span className="text-[11px] font-bold text-[#6a1b9a]">수동수정</span>
+                  ) : undefined
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField label="공수" value={item.confirmedWorkUnits > 0 ? `${item.confirmedWorkUnits}공수` : '—'} />
+                  <MobileCardField label="자동계산" value={fmtMinutes(item.workedMinutesAuto)} />
+                  <MobileCardField label="최종시간" value={
+                    <span style={{ color: item.isZeroMinutes ? '#c62828' : item.hasOverride ? '#6a1b9a' : undefined, fontWeight: item.isZeroMinutes ? 700 : undefined }}>
+                      {fmtMinutes(item.workedMinutesFinal)}
+                    </span>
+                  } />
+                  <MobileCardField label="기본급" value={fmtAmount(item.confirmedBaseAmount)} />
+                  {item.manualAdjustedReason && <MobileCardField label="수정사유" value={item.manualAdjustedReason} />}
+                </MobileCardFields>
+                <MobileCardActions>
+                  <button
+                    onClick={() => confirmOne(item.id)}
+                    disabled={isConfirming}
+                    className={`px-3 py-1.5 text-white border-none rounded text-xs font-bold ${isConfirming ? 'bg-[#bdbdbd] cursor-not-allowed' : 'bg-[#2e7d32] cursor-pointer'}`}
+                  >
+                    {isConfirming ? '처리중' : '확정'}
+                  </button>
+                </MobileCardActions>
+              </MobileCard>
+            )
+          }}
+          renderTable={() => (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px] min-w-[900px]">
+                <thead>
+                  <tr className="bg-[#263238] text-white">
+                    <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">근로자</th>
+                    <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">현장</th>
+                    <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">작업일</th>
+                    <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">공수</th>
+                    <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">자동계산</th>
+                    <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">최종시간</th>
+                    <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">기본급</th>
+                    <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">수정여부</th>
+                    <th className="px-3 py-[10px] text-left font-bold text-[12px] whitespace-nowrap">확정</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item, i) => {
+                    const isConfirming = confirming.has(item.id)
+                    return (
+                      <tr key={item.id} style={{ background: item.isZeroMinutes ? '#fff8e1' : item.hasOverride ? '#f3e5f5' : i % 2 === 1 ? '#fafafa' : '#fff' }}>
+                        <td className="px-3 py-[9px] border-b border-brand align-top">
+                          <div className="font-bold">{item.workerName}</div>
+                          <div className="text-[11px] text-muted-brand">{item.workerPhone}</div>
+                        </td>
+                        <td className="px-3 py-[9px] border-b border-brand align-top">{item.siteName}</td>
+                        <td className="px-3 py-[9px] border-b border-brand align-top">{item.workDate}</td>
+                        <td className="px-3 py-[9px] border-b border-brand align-top">
+                          <span className="font-bold">{item.confirmedWorkUnits > 0 ? `${item.confirmedWorkUnits}공수` : '—'}</span>
+                          {item.confirmedWorkType && (
+                            <div className="text-[11px] text-muted-brand">{item.confirmedWorkType}</div>
+                          )}
+                        </td>
+                        <td className="px-3 py-[9px] border-b border-brand align-top">{fmtMinutes(item.workedMinutesAuto)}</td>
+                        <td className="px-3 py-[9px] border-b border-brand align-top" style={{ color: item.isZeroMinutes ? '#c62828' : item.hasOverride ? '#6a1b9a' : '#333', fontWeight: item.isZeroMinutes ? 700 : 400 }}>
+                          {fmtMinutes(item.workedMinutesFinal)}
+                          {item.isZeroMinutes && <span className="text-[11px] ml-1">⚠️0</span>}
+                        </td>
+                        <td className="px-3 py-[9px] border-b border-brand align-top">{fmtAmount(item.confirmedBaseAmount)}</td>
+                        <td className="px-3 py-[9px] border-b border-brand align-top">
+                          {item.hasOverride ? (
+                            <span className="text-[#6a1b9a] text-[11px] font-bold">수동수정</span>
+                          ) : (
+                            <span className="text-[#718096] text-[11px]">자동</span>
+                          )}
+                          {item.manualAdjustedReason && (
+                            <div className="text-[11px] text-muted-brand max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">
+                              {item.manualAdjustedReason}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-3 py-[9px] border-b border-brand align-top">
+                          <button
+                            onClick={() => confirmOne(item.id)}
+                            disabled={isConfirming}
+                            className={`px-3 py-[5px] text-white border-none rounded text-xs font-bold ${isConfirming ? 'bg-[#bdbdbd] cursor-not-allowed' : 'bg-[#2e7d32] cursor-pointer'}`}
+                          >
+                            {isConfirming ? '처리중' : '확정'}
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
       </div>
 
       {/* 페이지네이션 */}

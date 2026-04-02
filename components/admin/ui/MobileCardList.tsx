@@ -6,7 +6,7 @@ import React from 'react'
  * 사용법:
  *   <MobileCardList
  *     items={data}
- *     renderCard={(item) => <div>...</div>}
+ *     renderCard={(item) => <MobileCard title={...}>...</MobileCard>}
  *     renderTable={() => <AdminTable>...</AdminTable>}
  *     emptyMessage="데이터가 없습니다."
  *   />
@@ -21,6 +21,7 @@ interface MobileCardListProps<T> {
   renderTable: () => React.ReactNode
   emptyMessage?: string
   className?: string
+  keyExtractor?: (item: T, index: number) => string
 }
 
 export function MobileCardList<T>({
@@ -29,6 +30,7 @@ export function MobileCardList<T>({
   renderTable,
   emptyMessage = '데이터가 없습니다.',
   className,
+  keyExtractor,
 }: MobileCardListProps<T>) {
   if (items.length === 0) {
     return (
@@ -43,7 +45,9 @@ export function MobileCardList<T>({
       {/* 모바일: 카드 리스트 */}
       <div className="sm:hidden space-y-2">
         {items.map((item, i) => (
-          <React.Fragment key={i}>{renderCard(item, i)}</React.Fragment>
+          <React.Fragment key={keyExtractor ? keyExtractor(item, i) : i}>
+            {renderCard(item, i)}
+          </React.Fragment>
         ))}
       </div>
       {/* 데스크: 테이블 */}
@@ -64,6 +68,8 @@ export function MobileCard({
   meta,
   onClick,
   children,
+  className: extraCls,
+  style,
 }: {
   title: React.ReactNode
   subtitle?: React.ReactNode
@@ -71,11 +77,14 @@ export function MobileCard({
   meta?: React.ReactNode
   onClick?: () => void
   children?: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
 }) {
   return (
     <div
       onClick={onClick}
-      className={`bg-card rounded-[12px] border border-brand p-4 ${onClick ? 'cursor-pointer hover:bg-surface active:bg-brand transition-colors' : ''}`}
+      style={style}
+      className={`bg-card rounded-[12px] border border-brand p-4 ${onClick ? 'cursor-pointer hover:bg-surface active:bg-brand transition-colors' : ''} ${extraCls ?? ''}`}
     >
       <div className="flex items-start justify-between gap-2 mb-1">
         <div className="min-w-0 flex-1">
@@ -85,6 +94,60 @@ export function MobileCard({
         {badge && <div className="shrink-0">{badge}</div>}
       </div>
       {meta && <div className="text-[12px] text-muted2-brand mt-1">{meta}</div>}
+      {children}
+    </div>
+  )
+}
+
+/**
+ * MobileCardField — 카드 내부 보조 필드 (라벨:값 쌍)
+ */
+export function MobileCardField({
+  label,
+  value,
+  className,
+}: {
+  label: string
+  value: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={`flex items-center justify-between text-[12px] ${className ?? ''}`}>
+      <span className="text-muted2-brand shrink-0">{label}</span>
+      <span className="text-body-brand font-medium text-right ml-2 truncate">{value}</span>
+    </div>
+  )
+}
+
+/**
+ * MobileCardFields — 여러 필드를 세로로 배치
+ */
+export function MobileCardFields({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={`mt-2 space-y-1 ${className ?? ''}`}>
+      {children}
+    </div>
+  )
+}
+
+/**
+ * MobileCardActions — 카드 하단 액션 버튼 영역
+ */
+export function MobileCardActions({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={`mt-3 pt-2 border-t border-brand flex items-center gap-1.5 flex-wrap ${className ?? ''}`}>
       {children}
     </div>
   )

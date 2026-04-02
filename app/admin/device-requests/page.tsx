@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
-import { StatusBadge } from '@/components/admin/ui'
+import { StatusBadge, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface DeviceRequest {
   id: string
@@ -91,81 +91,79 @@ export default function DeviceRequestsPage() {
         {loading ? <p>로딩 중...</p> : items.length === 0 ? (
           <div className="text-center py-12 text-muted2-brand text-[13px]">요청이 없습니다.</div>
         ) : (
-          <>
-            {/* 모바일: 카드형 */}
-            <div className="sm:hidden space-y-2">
-              {items.map((item) => (
-                <div key={item.id} className="bg-card rounded-[12px] border border-brand p-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="min-w-0">
-                      <div className="text-[14px] font-semibold text-title-brand">{item.workerName}</div>
-                      <div className="text-[13px] text-muted-brand">{formatPhone(item.workerPhone)}</div>
-                    </div>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: getTypeColor(item), background: item.oldDeviceToken === null ? '#e3f2fd' : '#f3e5f5', padding: '2px 8px', borderRadius: '10px', whiteSpace: 'nowrap' }}>
-                      {getRequestType(item)}
-                    </span>
+          <MobileCardList
+            items={items}
+            keyExtractor={(item) => item.id}
+            emptyMessage="요청이 없습니다."
+            renderCard={(item) => (
+              <MobileCard
+                title={item.workerName}
+                subtitle={formatPhone(item.workerPhone)}
+                badge={<span style={{ fontSize: '11px', fontWeight: 700, color: getTypeColor(item), background: item.oldDeviceToken === null ? '#e3f2fd' : '#f3e5f5', padding: '2px 8px', borderRadius: '10px', whiteSpace: 'nowrap' as const }}>{getRequestType(item)}</span>}
+              >
+                <MobileCardFields>
+                  <MobileCardField label="기기명" value={item.newDeviceName} />
+                  {item.reason && <MobileCardField label="사유" value={item.reason} />}
+                  <MobileCardField label="요청일" value={formatDt(item.requestedAt)} />
+                </MobileCardFields>
+                {item.status === 'PENDING' && canMutate ? (
+                  <MobileCardActions>
+                    <button onClick={() => handleAction(item.id, 'APPROVE')} disabled={processing === item.id}
+                      className="px-3 py-1.5 bg-[#2e7d32] text-white border-none rounded-md cursor-pointer text-xs font-semibold disabled:opacity-50">승인</button>
+                    <button onClick={() => handleAction(item.id, 'REJECT')} disabled={processing === item.id}
+                      className="px-3 py-1.5 bg-[#e53935] text-white border-none rounded-md cursor-pointer text-xs font-semibold disabled:opacity-50">반려</button>
+                  </MobileCardActions>
+                ) : (
+                  <div className="mt-2 text-right">
+                    <span style={{ color: STATUS_COLOR[item.status], fontWeight: 600, fontSize: '12px' }}>{STATUS_LABEL[item.status]}</span>
                   </div>
-                  <div className="text-[13px] text-body-brand mb-1">{item.newDeviceName}</div>
-                  {item.reason && <div className="text-[12px] text-muted2-brand mb-2">{item.reason}</div>}
-                  <div className="flex items-center justify-between">
-                    <div className="text-[12px] text-muted2-brand">{formatDt(item.requestedAt)}</div>
-                    {item.status === 'PENDING' && canMutate ? (
-                      <div className="flex gap-1.5">
-                        <button onClick={() => handleAction(item.id, 'APPROVE')} disabled={processing === item.id}
-                          className="px-3 py-1.5 bg-[#2e7d32] text-white border-none rounded-md cursor-pointer text-xs font-semibold disabled:opacity-50">승인</button>
-                        <button onClick={() => handleAction(item.id, 'REJECT')} disabled={processing === item.id}
-                          className="px-3 py-1.5 bg-[#e53935] text-white border-none rounded-md cursor-pointer text-xs font-semibold disabled:opacity-50">반려</button>
-                      </div>
-                    ) : (
-                      <span style={{ color: STATUS_COLOR[item.status], fontWeight: 600, fontSize: '12px' }}>{STATUS_LABEL[item.status]}</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            {/* 데스크: 테이블 */}
-            <div className="hidden sm:block bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="border-b-2 border-[rgba(91,164,217,0.2)]">
-                    {['유형', '근로자', '연락처', '새 기기명', '사유', '요청일', '상태', '처리'].map((h) => (
-                      <th key={h} className="text-left px-3 py-2.5 text-xs text-muted-brand">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item) => (
-                    <tr key={item.id} className="border-b border-[rgba(91,164,217,0.1)]">
-                      <td className="px-3 py-3">
-                        <span style={{ fontSize: '11px', fontWeight: 700, color: getTypeColor(item), background: item.oldDeviceToken === null ? '#e3f2fd' : '#f3e5f5', padding: '2px 8px', borderRadius: '10px', whiteSpace: 'nowrap' }}>
-                          {getRequestType(item)}
-                        </span>
-                      </td>
-                      <td className="px-3 py-3 text-sm">{item.workerName}</td>
-                      <td className="px-3 py-3 text-sm text-muted-brand">{formatPhone(item.workerPhone)}</td>
-                      <td className="px-3 py-3 text-sm">{item.newDeviceName}</td>
-                      <td className="px-3 py-3 text-xs text-muted-brand">{item.reason}</td>
-                      <td className="px-3 py-3 text-sm text-muted-brand">{formatDt(item.requestedAt)}</td>
-                      <td className="px-3 py-3">
-                        <span style={{ color: STATUS_COLOR[item.status], fontWeight: 600, fontSize: '12px' }}>{STATUS_LABEL[item.status]}</span>
-                      </td>
-                      <td className="px-3 py-3">
-                        {item.status === 'PENDING' && canMutate && (
-                          <div className="flex gap-1.5">
-                            <button onClick={() => handleAction(item.id, 'APPROVE')} disabled={processing === item.id}
-                              className="px-3 py-1 bg-[#2e7d32] text-white border-none rounded cursor-pointer text-xs disabled:opacity-50">승인</button>
-                            <button onClick={() => handleAction(item.id, 'REJECT')} disabled={processing === item.id}
-                              className="px-3 py-1 bg-[#e53935] text-white border-none rounded cursor-pointer text-xs disabled:opacity-50">반려</button>
-                          </div>
-                        )}
-                        {item.processedAt && <span className="text-[11px] text-[#999]">{formatDt(item.processedAt)}</span>}
-                      </td>
+                )}
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="border-b-2 border-[rgba(91,164,217,0.2)]">
+                      {['유형', '근로자', '연락처', '새 기기명', '사유', '요청일', '상태', '처리'].map((h) => (
+                        <th key={h} className="text-left px-3 py-2.5 text-xs text-muted-brand">{h}</th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
+                  </thead>
+                  <tbody>
+                    {items.map((item) => (
+                      <tr key={item.id} className="border-b border-[rgba(91,164,217,0.1)]">
+                        <td className="px-3 py-3">
+                          <span style={{ fontSize: '11px', fontWeight: 700, color: getTypeColor(item), background: item.oldDeviceToken === null ? '#e3f2fd' : '#f3e5f5', padding: '2px 8px', borderRadius: '10px', whiteSpace: 'nowrap' }}>
+                            {getRequestType(item)}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 text-sm">{item.workerName}</td>
+                        <td className="px-3 py-3 text-sm text-muted-brand">{formatPhone(item.workerPhone)}</td>
+                        <td className="px-3 py-3 text-sm">{item.newDeviceName}</td>
+                        <td className="px-3 py-3 text-xs text-muted-brand">{item.reason}</td>
+                        <td className="px-3 py-3 text-sm text-muted-brand">{formatDt(item.requestedAt)}</td>
+                        <td className="px-3 py-3">
+                          <span style={{ color: STATUS_COLOR[item.status], fontWeight: 600, fontSize: '12px' }}>{STATUS_LABEL[item.status]}</span>
+                        </td>
+                        <td className="px-3 py-3">
+                          {item.status === 'PENDING' && canMutate && (
+                            <div className="flex gap-1.5">
+                              <button onClick={() => handleAction(item.id, 'APPROVE')} disabled={processing === item.id}
+                                className="px-3 py-1 bg-[#2e7d32] text-white border-none rounded cursor-pointer text-xs disabled:opacity-50">승인</button>
+                              <button onClick={() => handleAction(item.id, 'REJECT')} disabled={processing === item.id}
+                                className="px-3 py-1 bg-[#e53935] text-white border-none rounded cursor-pointer text-xs disabled:opacity-50">반려</button>
+                            </div>
+                          )}
+                          {item.processedAt && <span className="text-[11px] text-[#999]">{formatDt(item.processedAt)}</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          />
         )}
     </div>
   )
