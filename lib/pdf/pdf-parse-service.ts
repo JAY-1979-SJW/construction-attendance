@@ -207,11 +207,12 @@ async function parseContractFromPdfVision(buffer: Buffer): Promise<ParsedContrac
         role: 'user',
         content: [
           {
-            type: 'input_file',
+            type: 'input_file' as const,
+            filename: 'contract.pdf',
             file_data: `data:application/pdf;base64,${base64}`,
           },
           {
-            type: 'input_text',
+            type: 'input_text' as const,
             text: VISION_PROMPT,
           },
         ],
