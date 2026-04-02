@@ -70,6 +70,7 @@ export default function MyStatusPage() {
   const [sites, setSites] = useState<{ siteId: string; siteName: string; address: string; joinStatus: string | null; canJoin: boolean }[]>([])
   const [joiningId, setJoiningId] = useState<string | null>(null)
   const [joinMsg, setJoinMsg] = useState('')
+  const [insuranceOpen, setInsuranceOpen] = useState(false)
 
   useEffect(() => {
     fetch('/api/worker/my-status')
@@ -298,12 +299,24 @@ export default function MyStatusPage() {
           </div>
         )}
 
-        {/* 노무/보험 상태 */}
+        {/* 노무/보험 상태 (접이식) */}
         {complianceStatus && (
           <div className="bg-card rounded-xl p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-            <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">노무·보험 처리 현황</h2>
-            <p className="text-xs text-[#718096] mb-3">
-              출퇴근 가능 여부와 별도입니다. 출퇴근이 가능해도 보험 미처리 상태일 수 있습니다.
+            <button
+              onClick={() => setInsuranceOpen(o => !o)}
+              className="w-full flex items-center justify-between bg-transparent border-none cursor-pointer p-0"
+            >
+              <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] m-0">노무·보험 처리 현황</h2>
+              <span className="text-muted-brand text-[14px]">{insuranceOpen ? '▲' : '▼'}</span>
+            </button>
+            {!insuranceOpen && (
+              <p className="text-xs text-[#718096] mt-2 mb-0">
+                탭하여 보험 처리 현황 확인
+              </p>
+            )}
+            {insuranceOpen && (<>
+            <p className="text-xs text-[#718096] mt-3 mb-3">
+              출퇴근 가능 여부와 별도입니다.
             </p>
             <div className="flex flex-col gap-[6px]">
               {[
@@ -333,6 +346,7 @@ export default function MyStatusPage() {
                 </span>
               </div>
             </div>
+            </>)}
           </div>
         )}
 

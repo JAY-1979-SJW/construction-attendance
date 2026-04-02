@@ -566,13 +566,13 @@ export default function AttendancePage() {
               </div>
             </div>
 
-            {/* 근무중 바로가기 (TBM / 작업완료) */}
+            {/* 근무중 바로가기 (2x2 그리드) */}
             {!isPreview && today.status === 'WORKING' && (
-              <div className="mt-4 flex gap-2">
-                <a href="/tbm" className="flex-1 py-2.5 rounded-xl text-center text-[12px] font-bold border border-blue-200 bg-blue-50 text-blue-700 no-underline">TBM</a>
-                <a href="/work-orders" className="flex-1 py-2.5 rounded-xl text-center text-[12px] font-bold border border-orange-200 bg-orange-50 text-orange-700 no-underline">작업지시</a>
-                <a href="/work-complete" className="flex-1 py-2.5 rounded-xl text-center text-[12px] font-bold border border-green-200 bg-green-50 text-green-700 no-underline">완료보고</a>
-                <a href="/daily-report" className="flex-1 py-2.5 rounded-xl text-center text-[12px] font-bold border border-gray-200 bg-gray-50 text-gray-700 no-underline">작업일보</a>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <a href="/tbm" className="py-3 rounded-xl text-center text-[13px] font-bold border border-blue-200 bg-blue-50 text-blue-700 no-underline">TBM</a>
+                <a href="/work-orders" className="py-3 rounded-xl text-center text-[13px] font-bold border border-orange-200 bg-orange-50 text-orange-700 no-underline">작업지시</a>
+                <a href="/work-complete" className="py-3 rounded-xl text-center text-[13px] font-bold border border-green-200 bg-green-50 text-green-700 no-underline">완료보고</a>
+                <a href="/daily-report" className="py-3 rounded-xl text-center text-[13px] font-bold border border-gray-200 bg-gray-50 text-gray-700 no-underline">작업일보</a>
               </div>
             )}
 
@@ -655,8 +655,8 @@ export default function AttendancePage() {
                     <button
                       onClick={() => handleDirectCheckOut()}
                       disabled={checkOutLoading}
-                      className="w-full py-[14px] text-[17px] font-bold bg-brand-accent-hover text-white border-none rounded-xl cursor-pointer flex-1"
-                      style={{ opacity: checkOutLoading ? 0.6 : 1 }}
+                      className="w-full py-[18px] text-[19px] font-bold bg-brand-accent-hover text-white border-none rounded-2xl cursor-pointer flex-1"
+                      style={{ opacity: checkOutLoading ? 0.6 : 1, boxShadow: '0 4px 12px rgba(234,88,12,0.3)' }}
                     >
                       {checkOutLoading ? '퇴근 처리 중...' : '퇴근하기'}
                     </button>
@@ -703,12 +703,12 @@ export default function AttendancePage() {
                 </div>
                 {eligibility.map(c => {
                   const ACTION_HINT: Record<string, string> = {
-                    account: '관리자 승인을 기다려 주세요.',
-                    device: '기기 등록 후 관리자 승인을 기다려 주세요.',
-                    site: '하단 [현장] 탭에서 현장 참여를 신청하세요.',
-                    docs: '하단 [서류] 탭에서 서류를 제출하세요.',
-                    time: '출근 가능 시간에 다시 시도하세요.',
-                    gps: '현장 근처로 이동하세요.',
+                    account: '관리자 승인 대기',
+                    device: '기기 등록 필요',
+                    site: '[현장] 탭에서 신청',
+                    docs: '[서류] 탭에서 제출',
+                    time: '출근 가능 시간 아님',
+                    gps: '현장 근처로 이동',
                     duplicate: '',
                   }
                   return (
@@ -746,7 +746,7 @@ export default function AttendancePage() {
                     <button
                       onClick={() => handleDirectCheckIn(availableSites[0].siteId)}
                       disabled={checkInLoading || (eligibilityChecked && !eligibility.every(c => c.passed))}
-                      className="w-full py-[14px] text-[16px] font-bold text-white border-none rounded-xl cursor-pointer"
+                      className="w-full py-[18px] text-[19px] font-bold text-white border-none rounded-2xl cursor-pointer"
                       style={{
                         background: eligibilityChecked && !eligibility.every(c => c.passed) ? '#9CA3AF' : '#2e7d32',
                         opacity: checkInLoading ? 0.6 : 1,
@@ -802,6 +802,23 @@ export default function AttendancePage() {
           </div>
         )}
       </div>
+
+      {/* 예외 신청 바로가기 */}
+      {!isPreview && !today && (
+        <div className="bg-card rounded-2xl p-4 mb-4 border border-brand">
+          <a
+            href="/my/requests"
+            className="flex items-center gap-3 no-underline"
+          >
+            <span className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-[18px] shrink-0">!</span>
+            <div className="flex-1">
+              <div className="text-[14px] font-bold text-title-brand">예외 신청</div>
+              <div className="text-[12px] text-muted-brand">출근 불가 사유, GPS 오류 등 문의</div>
+            </div>
+            <span className="text-[#D1D5DB] text-[18px]">›</span>
+          </a>
+        </div>
+      )}
 
       {/* 최근 내 기록 */}
       {!isPreview && history.length > 0 && (
