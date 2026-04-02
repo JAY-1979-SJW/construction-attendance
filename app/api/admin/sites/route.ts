@@ -8,14 +8,14 @@ import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
 
 const createSchema = z.object({
-  name: z.string().min(1),
-  address: z.string().min(1),
+  name: z.string().optional().default(''),
+  address: z.string().min(1, '현장주소는 필수입니다.'),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
   allowedRadius: z.number().int().min(10).max(5000).default(100),
   siteCode: z.string().optional(),
-  openedAt: z.string().optional(),
-  closedAt: z.string().optional(),
+  openedAt: z.string().min(1, '공사 시작일은 필수입니다.'),
+  closedAt: z.string().min(1, '공사 종료일은 필수입니다.'),
   notes: z.string().optional(),
 })
 
@@ -139,6 +139,10 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) return badRequest(parsed.error.errors[0].message)
 
     const { siteCode, openedAt, closedAt, notes, ...coreData } = parsed.data
+    // name이 비어 있으면 주소에서 자동 생성
+    if (!coreData.name) {
+      coreData.name = coreData.address.split(' ').slice(0, 3).join(' ') + ' 현장'
+    }
     const qrToken = generateToken(32)
     const site = await prisma.site.create({
       data: {

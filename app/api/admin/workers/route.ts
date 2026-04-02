@@ -28,13 +28,13 @@ function normalizePhone(raw: string): string {
 const createSchema = z.object({
   name: z.string().min(1, '이름은 필수입니다.'),
   phone: z.string().min(1, '연락처는 필수입니다.'),
-  jobTitle: z.string().min(1, '직종은 필수입니다.'),
+  birthDate: z.string().min(1, '생년월일은 필수입니다.'),
+  jobTitle: z.string().optional().default('미설정'),
   employmentType: z.enum(['REGULAR', 'DAILY_CONSTRUCTION', 'BUSINESS_33', 'FIXED_TERM', 'CONTINUOUS_SITE', 'OTHER']).optional(),
   organizationType: z.enum(['DIRECT', 'SUBCONTRACTOR']).optional(),
   foreignerYn: z.boolean().optional(),
   nationalityCode: z.string().optional(),
   skillLevel: z.string().optional(),
-  birthDate: z.string().optional(),
   subcontractorName: z.string().max(100).optional(),
 })
 
