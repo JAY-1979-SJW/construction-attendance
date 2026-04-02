@@ -1,4 +1,8 @@
-﻿export function AuthCard({ children }: { children: React.ReactNode }) {
+﻿'use client'
+
+import { useState } from 'react'
+
+export function AuthCard({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-full max-w-[440px] bg-card rounded-[20px] border border-brand shadow-[0_4px_24px_rgba(0,0,0,0.06)] px-8 py-9">
       {children}
@@ -39,20 +43,35 @@ export function AuthInput({
   id: string; label: string; type?: string; value: string;
   onChange: (v: string) => void; placeholder?: string; autoComplete?: string;
 }) {
+  const [showPw, setShowPw] = useState(false)
+  const isPassword = type === 'password'
+
   return (
     <div className="mb-4">
       <label htmlFor={id} className="block text-[13px] font-semibold text-body-brand mb-[6px]">
         {label}
       </label>
-      <input
-        id={id}
-        type={type}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full h-12 px-4 text-[15px] text-fore-brand bg-card border border-brand rounded-[10px] outline-none placeholder:text-muted2-brand focus:border-accent focus:ring-2 focus:ring-[rgba(249,115,22,0.12)] transition-colors"
-      />
+      <div className="relative">
+        <input
+          id={id}
+          type={isPassword && showPw ? 'text' : type}
+          autoComplete={autoComplete}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-full h-12 px-4 ${isPassword ? 'pr-12' : ''} text-[15px] text-fore-brand bg-card border border-brand rounded-[10px] outline-none placeholder:text-muted2-brand focus:border-accent focus:ring-2 focus:ring-[rgba(249,115,22,0.12)] transition-colors`}
+        />
+        {isPassword && (
+          <button type="button" onClick={() => setShowPw(!showPw)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-muted-brand hover:text-fore-brand p-1">
+            {showPw ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            )}
+          </button>
+        )}
+      </div>
     </div>
   )
 }

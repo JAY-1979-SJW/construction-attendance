@@ -6,6 +6,24 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 
+function PasswordInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+  const [show, setShow] = useState(false)
+  return (
+    <div className="relative">
+      <input type={show ? 'text' : 'password'} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+        className="w-full h-11 px-3 pr-11 text-[14px] border border-brand rounded-lg bg-card text-fore-brand outline-none focus:border-accent" />
+      <button type="button" onClick={() => setShow(!show)}
+        className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-muted-brand hover:text-fore-brand p-1">
+        {show ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        ) : (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        )}
+      </button>
+    </div>
+  )
+}
+
 interface PolicyDoc {
   id: string
   documentType: string
@@ -210,13 +228,11 @@ function RegisterContent() {
             </div>
             <div>
               <label className="block text-[13px] font-semibold text-body-brand mb-1">비밀번호 * (6자 이상)</label>
-              <input type="password" value={regPassword} onChange={e => setRegPassword(e.target.value)} placeholder="비밀번호"
-                className="w-full h-11 px-3 text-[14px] border border-brand rounded-lg bg-card text-fore-brand outline-none focus:border-accent" />
+              <PasswordInput value={regPassword} onChange={setRegPassword} placeholder="비밀번호" />
             </div>
             <div>
               <label className="block text-[13px] font-semibold text-body-brand mb-1">비밀번호 확인 *</label>
-              <input type="password" value={regPasswordConfirm} onChange={e => setRegPasswordConfirm(e.target.value)} placeholder="비밀번호 다시 입력"
-                className="w-full h-11 px-3 text-[14px] border border-brand rounded-lg bg-card text-fore-brand outline-none focus:border-accent" />
+              <PasswordInput value={regPasswordConfirm} onChange={setRegPasswordConfirm} placeholder="비밀번호 다시 입력" />
             </div>
             <div>
               <label className="block text-[13px] font-semibold text-body-brand mb-1">이름 (실명) *</label>
