@@ -19,8 +19,8 @@ export async function signToken(
   payload: Omit<JwtPayload, 'iat' | 'exp'>,
   expiresIn?: string,
 ): Promise<string> {
-  // admin: 1일, worker: 7일 (환경변수로 override 가능, 호출자가 직접 지정도 가능)
-  const defaultExpiry = payload.type === 'admin' ? '1d' : '7d'
+  // admin: 30일, worker: 7일 (환경변수로 override 가능, 호출자가 직접 지정도 가능)
+  const defaultExpiry = payload.type === 'admin' ? '30d' : '7d'
   const resolvedExpiry = expiresIn ?? process.env.JWT_EXPIRES_IN ?? defaultExpiry
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: algorithm })
