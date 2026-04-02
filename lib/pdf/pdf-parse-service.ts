@@ -1,15 +1,13 @@
 /**
  * PDF 파싱 서비스
  *
- * 1단계: pdf-parse 로 PDF 버퍼 → 텍스트 추출
+ * 1단계: pdfjs-dist 로 PDF 버퍼 → 텍스트 추출
  * 2단계: OpenAI API 로 텍스트 → 구조화 데이터 추출 (계약서 필드)
  *
  * 사용 위치:
  *   - api/admin/documents/parse-pdf/route.ts
  */
 import OpenAI from 'openai'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require('pdf-parse')
 
 // ─── 타입 ───────────────────────────────────────────────────────────────────
 
@@ -48,11 +46,27 @@ export interface ParsedContractFields {
 // ─── 1단계: PDF → 텍스트 ─────────────────────────────────────────────────────
 
 export async function extractTextFromPdf(buffer: Buffer): Promise<PdfTextResult> {
-  const result = await pdfParse(buffer)
+  // pdfjs-dist legacy build (CJS, Node.js 호환)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js')
+
+  const data = new Uint8Array(buffer)
+  const doc = await pdfjsLib.getDocument({ data }).promise
+
+  let text = ''
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i)
+    const content = await page.getTextContent()
+    const pageText = content.items
+      .map((item: { str: string }) => item.str)
+      .join(' ')
+    text += pageText + '\n'
+  }
+
   return {
-    text: result.text as string,
-    pages: result.numpages as number,
-    info: (result.info ?? {}) as Record<string, unknown>,
+    text: text.trim(),
+    pages: doc.numPages as number,
+    info: {},
   }
 }
 

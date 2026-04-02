@@ -5,7 +5,7 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
 
-  serverExternalPackages: ['pdf-parse'],
+  serverExternalPackages: ['pdfjs-dist'],
 
   // /super/* → /admin/*으로 영구 리디렉트
   async redirects() {
