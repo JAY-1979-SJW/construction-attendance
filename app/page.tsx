@@ -26,9 +26,6 @@ export default function LandingPage() {
 
             {/* 네비게이션 */}
             <nav className="flex items-center gap-2">
-              <Link href="/guide" className="hidden sm:block text-[13px] text-muted-brand hover:text-fore-brand transition-colors px-3 py-1.5 no-underline">
-                둘러보기
-              </Link>
               <Link href="/login"
                 className="text-[13px] font-medium text-body-brand border border-brand rounded-[8px] px-4 py-[7px] no-underline hover:border-[#D1D5DB] transition-colors">
                 로그인
@@ -61,14 +58,15 @@ export default function LandingPage() {
               관리자는 현장별 출근 현황과 근무일수를<br />
               한눈에 확인할 수 있습니다.
             </p>
-            <div className="flex gap-3 flex-wrap">
-              <Link href="/register"
-                className="inline-block py-3 px-7 bg-brand-accent hover:bg-brand-accent-hover text-white rounded-[12px] no-underline text-[15px] font-semibold shadow-[0_2px_10px_rgba(249,115,22,0.25)] transition-colors">
-                무료 시작하기
-              </Link>
+            <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/guide"
-                className="inline-block py-3 px-7 border border-brand text-body-brand hover:border-[#D1D5DB] bg-card rounded-[12px] no-underline text-[15px] font-medium transition-colors">
-                둘러보기
+                className="inline-flex items-center justify-center gap-2 py-3.5 px-8 bg-[#1E293B] hover:bg-[#334155] text-white rounded-[12px] no-underline text-[16px] font-bold shadow-[0_2px_12px_rgba(0,0,0,0.15)] transition-colors">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                가입 없이 둘러보기
+              </Link>
+              <Link href="/register"
+                className="inline-flex items-center justify-center py-3.5 px-8 bg-brand-accent hover:bg-brand-accent-hover text-white rounded-[12px] no-underline text-[15px] font-semibold shadow-[0_2px_10px_rgba(249,115,22,0.25)] transition-colors">
+                무료 시작하기
               </Link>
             </div>
           </div>

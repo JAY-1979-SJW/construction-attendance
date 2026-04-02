@@ -25,7 +25,6 @@ export default function PublicChatWidget() {
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [expandedFaq, setExpandedFaq] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -46,6 +45,11 @@ export default function PublicChatWidget() {
         body: JSON.stringify({ question: q }),
       })
       const data = await res.json()
+      if (res.status === 429) {
+        setMessages(prev => [...prev.slice(0, -1), { role: 'assistant', text: data.error || '질문 횟수를 초과했습니다.' }])
+        setLoading(false)
+        return
+      }
       const assistantMsg: ChatMsg = {
         role: 'assistant',
         faqs: data.faqs ?? [],
@@ -143,20 +147,10 @@ export default function PublicChatWidget() {
                   <div className="space-y-2">
                     <p className="text-[11px] text-muted-brand m-0">관련 FAQ {msg.faqs.length}건</p>
                     {msg.faqs.map(faq => (
-                      <div key={faq.id} className="bg-card rounded-xl border border-brand overflow-hidden">
-                        <button
-                          onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
-                          className="w-full text-left px-3 py-2.5 bg-transparent border-none cursor-pointer hover:bg-surface transition-colors"
-                        >
-                          <p className="text-[13px] font-semibold text-fore-brand m-0 leading-snug">{faq.question}</p>
-                          <p className="text-[11px] text-muted-brand mt-1 m-0 line-clamp-2">{faq.shortAnswer}</p>
-                        </button>
-                        {expandedFaq === faq.id && (
-                          <div className="px-3 pb-3 border-t border-brand pt-2">
-                            {faq.longAnswer && <p className="text-[12px] text-body-brand leading-relaxed whitespace-pre-wrap m-0">{faq.longAnswer}</p>}
-                            {faq.legalBasis && <p className="text-[11px] text-muted-brand mt-2 m-0">근거: {faq.legalBasis}</p>}
-                          </div>
-                        )}
+                      <div key={faq.id} className="bg-card rounded-xl border border-brand px-3 py-2.5">
+                        <p className="text-[13px] font-semibold text-fore-brand m-0 leading-snug">{faq.question}</p>
+                        <p className="text-[11px] text-muted-brand mt-1 m-0 line-clamp-2">{faq.shortAnswer}</p>
+                        <p className="text-[10px] text-accent mt-1.5 m-0">자세한 내용은 회원가입 후 확인하세요</p>
                       </div>
                     ))}
                   </div>

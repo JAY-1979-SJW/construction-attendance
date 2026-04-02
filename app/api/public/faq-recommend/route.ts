@@ -21,9 +21,11 @@ const CLASSIFIER_SYSTEM_PROMPT = `당신은 건설현장 노동법 FAQ 분류 �
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  const { allowed } = checkRateLimit(`public-faq:${ip}`, { maxAttempts: 20, windowMs: 60_000 })
-  if (!allowed) {
-    return NextResponse.json({ error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' }, { status: 429 })
+
+  // 비로그인: 하루 3회 제한
+  const { allowed: dailyAllowed } = checkRateLimit(`public-faq-daily:${ip}`, { maxAttempts: 3, windowMs: 24 * 60 * 60_000 })
+  if (!dailyAllowed) {
+    return NextResponse.json({ error: '무료 질문 횟수를 모두 사용했습니다. 회원가입 후 이용해주세요.', limitReached: true }, { status: 429 })
   }
 
   const body = await req.json().catch(() => ({}))
@@ -105,7 +107,7 @@ export async function POST(req: NextRequest) {
     where: { id: { in: selectedIds }, isActive: true, status: 'APPROVED' },
     select: {
       id: true, category: true, question: true,
-      shortAnswer: true, longAnswer: true, legalBasis: true, priority: true,
+      shortAnswer: true, priority: true,
     },
   })
   const orderedFaqs = selectedIds.map(id => faqs.find(f => f.id === id)).filter(Boolean)
