@@ -121,6 +121,77 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── 왜 필요한가 ─────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-surface border-t border-footer">
+        <div className="max-w-[960px] mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-[11px] font-semibold text-accent tracking-[2px] uppercase mb-3">WHY</p>
+            <h2 className="text-[28px] sm:text-[32px] font-bold text-title-brand tracking-[-0.3px] leading-[1.35]">
+              건설현장, 기록 없이<br />운영하고 계신가요?
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+            {[
+              {
+                icon: '🚨',
+                title: '중대재해처벌법',
+                highlight: '사업주 처벌 강화',
+                desc: '2024년부터 50인 미만 사업장까지 확대 적용. 안전조치 의무 위반 시 1년 이상 징역 또는 10억원 이하 벌금. 누가, 언제, 어디서 일했는지 기록이 없으면 방어가 불가능합니다.',
+                tag: '산업안전보건법 제38조',
+              },
+              {
+                icon: '⚖️',
+                title: '노사분쟁 대비',
+                highlight: '출퇴근 기록이 증거',
+                desc: '임금 체불, 근로시간 분쟁, 부당해고 소송에서 출퇴근 기록은 핵심 증거입니다. 수기 대장은 법적 효력이 약하지만, GPS 기반 전자 기록은 객관적 증거로 인정됩니다.',
+                tag: '근로기준법 제48조',
+              },
+              {
+                icon: '📋',
+                title: '4대보험·퇴직공제',
+                highlight: '신고 누락 = 과태료',
+                desc: '일용근로자 고용보험 신고, 퇴직공제 납부는 매월 의무입니다. 근무일수가 정확하지 않으면 과소/과다 신고로 과태료가 부과됩니다.',
+                tag: '고용보험법 제15조',
+              },
+            ].map(item => (
+              <div key={item.title} className="bg-card rounded-[16px] border border-brand p-6 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all">
+                <div className="text-[32px] mb-3">{item.icon}</div>
+                <h3 className="text-[16px] font-bold text-fore-brand mb-1">{item.title}</h3>
+                <p className="text-[13px] font-semibold text-accent mb-3 m-0">{item.highlight}</p>
+                <p className="text-[13px] text-muted-brand leading-[1.75] mb-3 m-0">{item.desc}</p>
+                <span className="inline-block text-[11px] text-muted2-brand bg-surface px-2.5 py-1 rounded-full">{item.tag}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-card rounded-[16px] border border-brand p-7 md:p-8">
+            <div className="text-center mb-6">
+              <h3 className="text-[18px] font-bold text-fore-brand mb-2">수기 대장 vs 전자 출퇴근</h3>
+              <p className="text-[13px] text-muted-brand m-0">같은 현장, 다른 결과</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-red-50 rounded-xl p-5 border border-red-200">
+                <div className="text-[14px] font-bold text-red-700 mb-3">수기 출석부</div>
+                <ul className="space-y-2 m-0 p-0 list-none text-[13px] text-red-600">
+                  {['대리 서명 가능 → 증거력 없음', '분쟁 시 "위조" 주장에 반박 불가', '월말 정산 시 일수 오류 발생', '감독관 점검 시 보완 요구'].map(t => (
+                    <li key={t} className="flex items-start gap-2"><span className="shrink-0 mt-0.5">✕</span>{t}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="bg-green-50 rounded-xl p-5 border border-green-200">
+                <div className="text-[14px] font-bold text-green-700 mb-3">GPS 전자 출퇴근</div>
+                <ul className="space-y-2 m-0 p-0 list-none text-[13px] text-green-700">
+                  {['GPS 좌표 + 시간 자동 기록 → 객관적 증거', '대리 출근 불가 (기기 인증)', '공수·급여 자동 계산 → 정산 오류 제로', '감독관 점검 시 즉시 출력 가능'].map(t => (
+                    <li key={t} className="flex items-start gap-2"><span className="shrink-0 mt-0.5">✓</span>{t}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── 핵심 기능 ───────────────────────────────────────── */}
       <section id="features" className="py-20 px-6 bg-card">
         <div className="max-w-[1100px] mx-auto">
