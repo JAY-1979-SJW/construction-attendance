@@ -279,7 +279,7 @@ export default function WorkerImportReviewPage() {
                         <button
                           onClick={() => handleDecision(row.id, 'USE_EXISTING')}
                           disabled={saving}
-                          className="px-2 py-1 bg-[#e3f2fd] text-[#1565c0] border-0 rounded text-[10px] cursor-pointer font-semibold"
+                          className="px-2 py-1 bg-[#e3f2fd] text-[#1565c0] border-0 rounded text-[11px] cursor-pointer font-semibold"
                         >
                           기존 사용
                         </button>
@@ -287,14 +287,14 @@ export default function WorkerImportReviewPage() {
                       <button
                         onClick={() => handleDecision(row.id, 'REGISTER_NEW')}
                         disabled={saving}
-                        className="px-2 py-1 bg-[#e8f5e9] text-[#2e7d32] border-0 rounded text-[10px] cursor-pointer font-semibold"
+                        className="px-2 py-1 bg-[#e8f5e9] text-[#2e7d32] border-0 rounded text-[11px] cursor-pointer font-semibold"
                       >
                         신규 등록
                       </button>
                       <button
                         onClick={() => handleDecision(row.id, 'CANCEL')}
                         disabled={saving}
-                        className="px-2 py-1 bg-[#f5f5f5] text-[#757575] border-0 rounded text-[10px] cursor-pointer font-semibold"
+                        className="px-2 py-1 bg-[#f5f5f5] text-[#757575] border-0 rounded text-[11px] cursor-pointer font-semibold"
                       >
                         취소
                       </button>

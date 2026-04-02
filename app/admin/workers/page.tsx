@@ -536,7 +536,7 @@ export default function WorkersPage() {
                     {/* 이름 */}
                     <AdminTd>
                       <div className="font-semibold text-fore-brand whitespace-nowrap">{w.name}</div>
-                      {w.foreignerYn && <div className="text-[10px] text-muted-brand">외국인</div>}
+                      {w.foreignerYn && <div className="text-[11px] text-muted-brand">외국인</div>}
                     </AdminTd>
                     {/* 직종 */}
                     <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
@@ -544,8 +544,8 @@ export default function WorkersPage() {
                     <AdminTd className="max-w-[110px]">
                       {(() => {
                         const primary = w.activeSites.find(s => s.isPrimary)
-                        if (primary) return <div className="text-[12px] text-body-brand truncate">{primary.name}{w.activeSites.length > 1 && <span className="text-[10px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
-                        if (w.activeSites.length > 0) return <div className="text-[12px] text-body-brand truncate">{w.activeSites[0].name}{w.activeSites.length > 1 && <span className="text-[10px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
+                        if (primary) return <div className="text-[12px] text-body-brand truncate">{primary.name}{w.activeSites.length > 1 && <span className="text-[11px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
+                        if (w.activeSites.length > 0) return <div className="text-[12px] text-body-brand truncate">{w.activeSites[0].name}{w.activeSites.length > 1 && <span className="text-[11px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
                         return <StatusBadge status="PENDING" label="미배정" />
                       })()}
                     </AdminTd>
@@ -554,7 +554,7 @@ export default function WorkersPage() {
                       {w.todayAttendance ? (
                         <div>
                           <StatusBadge status="WORKING" label="출근" />
-                          <div className="text-[10px] text-muted-brand mt-[2px] truncate max-w-[80px]">{w.todayAttendance.siteName}</div>
+                          <div className="text-[11px] text-muted-brand mt-[2px] truncate max-w-[80px]">{w.todayAttendance.siteName}</div>
                         </div>
                       ) : w.activeSites.length === 0 ? (
                         <span className="text-[11px] text-[#D1D5DB]">-</span>
@@ -625,7 +625,7 @@ export default function WorkersPage() {
                       const elig = getEligibility(selected)
                       const e = ELIGIBILITY_LABEL[elig]
                       return elig !== 'ok' && (
-                        <span className="text-[10px] font-bold px-1.5 py-[2px] rounded" style={{ color: e.color, backgroundColor: e.bg }}>
+                        <span className="text-[11px] font-bold px-1.5 py-[2px] rounded" style={{ color: e.color, backgroundColor: e.bg }}>
                           {e.label}
                         </span>
                       )
@@ -670,7 +670,7 @@ export default function WorkersPage() {
                         <div className="text-right">
                           <DocBadge has={item.has} yesLabel="완료" noLabel="미완료" />
                           {item.has && item.date && (
-                            <div className="text-[10px] text-muted2-brand mt-0.5">{fmtDate(item.date)}</div>
+                            <div className="text-[11px] text-muted2-brand mt-0.5">{fmtDate(item.date)}</div>
                           )}
                         </div>
                       </div>
@@ -720,7 +720,7 @@ export default function WorkersPage() {
                       <div key={s.id} className="flex items-center gap-2 mb-2">
                         <div className="w-2 h-2 rounded-full bg-[#16A34A] shrink-0" />
                         <span className="text-[13px] text-body-brand">{s.name}</span>
-                        {s.isPrimary && <span className="text-[10px] font-bold text-accent bg-accent-light px-[4px] py-[1px] rounded">주</span>}
+                        {s.isPrimary && <span className="text-[11px] font-bold text-accent bg-accent-light px-[4px] py-[1px] rounded">주</span>}
                         <span className="text-[11px] text-muted2-brand">배치중</span>
                       </div>
                     ))

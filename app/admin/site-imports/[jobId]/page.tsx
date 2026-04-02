@@ -296,7 +296,7 @@ export default function SiteImportReviewPage() {
                           {(row.candidatesJson as SiteCandidate[]).map((c, ci) => (
                             <div key={ci} className="bg-[rgba(91,164,217,0.08)] rounded px-2 py-1">
                               <div className="font-semibold">{c.name}</div>
-                              <div className="text-[#999] text-[10px]">{c.address}</div>
+                              <div className="text-[#999] text-[11px]">{c.address}</div>
                             </div>
                           ))}
                         </div>
@@ -323,14 +323,14 @@ export default function SiteImportReviewPage() {
                           <button
                             onClick={() => patchRow(row.id, { validationStatus: 'APPROVED', userDecision: 'REGISTER_NEW' })}
                             disabled={saving}
-                            className="px-2 py-1 bg-[#e8f5e9] text-[#2e7d32] border-0 rounded text-[10px] cursor-pointer font-semibold"
+                            className="px-2 py-1 bg-[#e8f5e9] text-[#2e7d32] border-0 rounded text-[11px] cursor-pointer font-semibold"
                           >
                             신규 등록
                           </button>
                           <button
                             onClick={() => patchRow(row.id, { validationStatus: 'FAILED', userDecision: 'CANCEL' })}
                             disabled={saving}
-                            className="px-2 py-1 bg-[#f5f5f5] text-[#757575] border-0 rounded text-[10px] cursor-pointer font-semibold"
+                            className="px-2 py-1 bg-[#f5f5f5] text-[#757575] border-0 rounded text-[11px] cursor-pointer font-semibold"
                           >
                             취소
                           </button>

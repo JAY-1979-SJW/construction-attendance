@@ -17,10 +17,10 @@ export function KpiCard({ label, value, unit, sub, accentColor = '#E5E7EB', href
     >
       <div className="text-[11px] font-semibold text-muted-brand mb-2 tracking-wide uppercase">{label}</div>
       <div className="flex items-baseline gap-1 mb-1">
-        <span className="text-[32px] font-bold text-title-brand leading-none tabular-nums">{value}</span>
+        <span className="text-[22px] font-bold text-title-brand leading-none tabular-nums">{value}</span>
         {unit && <span className="text-[12px] font-medium text-muted2-brand">{unit}</span>}
       </div>
-      {sub && <div className="text-[11px] text-[#D1D5DB]">{sub}</div>}
+      {sub && <div className="text-[11px] text-muted-brand">{sub}</div>}
     </div>
   )
   if (href) return <Link href={href} className="no-underline block">{inner}</Link>

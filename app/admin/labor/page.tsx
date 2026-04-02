@@ -222,7 +222,7 @@ export default function LaborPage() {
                       <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">
                         <span className="font-semibold text-secondary-brand underline">{row.workerName}</span>
                         {row.needsReview && (
-                          <span className="ml-1.5 text-[10px] bg-red-light text-[#b71c1c] px-1.5 py-px rounded font-bold">처리필요</span>
+                          <span className="ml-1.5 text-[11px] bg-red-light text-[#b71c1c] px-1.5 py-px rounded font-bold">처리필요</span>
                         )}
                       </td>
                       <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.company}</td>
@@ -230,7 +230,7 @@ export default function LaborPage() {
                       <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.checkInSiteName}</td>
                       <td className={`px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap ${row.hasMove ? 'font-semibold' : ''}`}>
                         {row.allocatedSiteName}
-                        {row.hasMove && <span className="text-[10px] text-accent-hover ml-1">이동</span>}
+                        {row.hasMove && <span className="text-[11px] text-accent-hover ml-1">이동</span>}
                       </td>
                       <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.hasMove ? '✓' : ''}</td>
                       <td className="px-3 py-[9px] text-[13px] border-b border-brand whitespace-nowrap">{row.checkInAt ?? '-'}</td>

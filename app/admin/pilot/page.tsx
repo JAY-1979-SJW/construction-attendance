@@ -107,7 +107,7 @@ export default function PilotMonitorPage() {
                     </div>
                     <div className="text-[14px] font-semibold mb-[2px]">{label}</div>
                     <div className="text-[12px] text-[#aaa]">{sub}</div>
-                    {isAlert && <div className="absolute top-3 right-3 bg-[#d32f2f] text-white text-[10px] px-[6px] py-[2px] rounded font-semibold">확인 필요</div>}
+                    {isAlert && <div className="absolute top-3 right-3 bg-[#d32f2f] text-white text-[11px] px-[6px] py-[2px] rounded font-semibold">확인 필요</div>}
                   </div>
                 )
               })}

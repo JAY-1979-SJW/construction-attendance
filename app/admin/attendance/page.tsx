@@ -891,7 +891,7 @@ function AttendancePageInner() {
                               const w = allWorkers.find(w2 => w2.id === item.workerId)
                               const primary = w?.activeSites.find(s => s.isPrimary)
                               if (primary && primary.id !== item.siteId) {
-                                return <span className="text-[10px] font-bold text-status-exception bg-yellow-light px-1 py-[1px] rounded">불일치</span>
+                                return <span className="text-[11px] font-bold text-status-exception bg-yellow-light px-1 py-[1px] rounded">불일치</span>
                               }
                               return null
                             })()}
@@ -919,7 +919,7 @@ function AttendancePageInner() {
                               {cs.label}{cs.reason && ` · ${cs.reason}`}
                             </span>
                             {item.adminNote && (
-                              <div className="text-[10px] text-muted-brand mt-[2px] max-w-[120px] truncate" title={item.adminNote}>📝 {item.adminNote}</div>
+                              <div className="text-[11px] text-muted-brand mt-[2px] max-w-[120px] truncate" title={item.adminNote}>📝 {item.adminNote}</div>
                             )}
                           </AdminTd>
                         </AdminTr>
@@ -976,10 +976,10 @@ function AttendancePageInner() {
                     </h3>
                     <StatusBadge status={selected.status} label={STATUS_LABEL[selected.status] ?? selected.status} />
                     {selected.isAutoCheckout && (
-                      <span className="text-[10px] bg-red-light text-status-missing px-1.5 py-[2px] rounded font-bold">AUTO</span>
+                      <span className="text-[11px] bg-red-light text-status-missing px-1.5 py-[2px] rounded font-bold">AUTO</span>
                     )}
                     {selected.manualAdjustedYn && (
-                      <span className="text-[10px] bg-[#F3E8FF] text-status-adjusted px-1.5 py-[2px] rounded font-bold">수동보정</span>
+                      <span className="text-[11px] bg-[#F3E8FF] text-status-adjusted px-1.5 py-[2px] rounded font-bold">수동보정</span>
                     )}
                   </div>
                   <p className="text-[12px] text-muted2-brand mt-0.5">

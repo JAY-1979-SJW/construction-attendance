@@ -573,7 +573,7 @@ export default function RegistrationsPage() {
                         <span className={submitted ? 'text-fore-brand' : 'text-muted2-brand'}>{doc.name}</span>
                       </div>
                       <span
-                        className="text-[10px] px-[6px] py-[1px] rounded"
+                        className="text-[11px] px-[6px] py-[1px] rounded"
                         style={{
                           backgroundColor: `${RULE_COLOR[doc.rule]}12`,
                           color: RULE_COLOR[doc.rule],

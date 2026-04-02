@@ -105,7 +105,7 @@ export default function AttendanceCalendar({ siteId }: Props) {
           ].map(c => (
             <div key={c.label} className="bg-card rounded-lg px-2 py-3 border border-brand text-center" style={{ borderTop: `2px solid ${c.color}` }}>
               <div className="text-[14px] font-bold text-fore-brand">{c.value}</div>
-              <div className="text-[10px] text-muted-brand">{c.label}</div>
+              <div className="text-[11px] text-muted-brand">{c.label}</div>
             </div>
           ))}
         </div>
@@ -173,7 +173,7 @@ export default function AttendanceCalendar({ siteId }: Props) {
       )}
 
       {/* 범례 */}
-      <div className="flex items-center gap-4 justify-center text-[10px] text-muted-brand">
+      <div className="flex items-center gap-4 justify-center text-[11px] text-muted-brand">
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#16a34a]" />퇴근완료</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#2563EB]" />근무중</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#e65100]" />예외</span>

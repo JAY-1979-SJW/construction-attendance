@@ -221,7 +221,7 @@ export default function DocumentCenterPage() {
                 <div className="font-semibold text-sm flex items-center gap-1.5">
                   {d.label}
                   {XLSX_SUPPORTED.includes(d.value) && (
-                    <span className="text-[10px] bg-green-light text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
+                    <span className="text-[11px] bg-green-light text-[#2e7d32] px-1.5 py-0.5 rounded font-bold">
                       XLSX
                     </span>
                   )}

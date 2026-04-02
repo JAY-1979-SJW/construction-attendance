@@ -943,7 +943,7 @@ function NewContractPage() {
                     if (!value || !pdfParsed.confidence) return null
                     const conf = (pdfParsed.confidence as Record<string, number>)[key]
                     if (typeof conf === 'number' && conf < 0.7) {
-                      return <span className="text-amber-400 text-[10px]">확인 필요</span>
+                      return <span className="text-amber-400 text-[11px]">확인 필요</span>
                     }
                     return null
                   })()}

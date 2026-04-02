@@ -282,7 +282,7 @@ export default function CompanyDetailPage() {
                 }}>
                   <div>
                     <span style={{ fontSize: '13px', fontWeight: 600, color: isOn ? '#2e7d32' : '#555' }}>{label}</span>
-                    {isPaid && <span className="ml-1.5 text-[10px] bg-[#fff3e0] text-accent-hover px-1.5 py-0.5 rounded-lg font-semibold">유료</span>}
+                    {isPaid && <span className="ml-1.5 text-[11px] bg-[#fff3e0] text-accent-hover px-1.5 py-0.5 rounded-lg font-semibold">유료</span>}
                   </div>
                   <button
                     onClick={() => handleToggleFlag(key)}

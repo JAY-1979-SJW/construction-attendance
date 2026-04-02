@@ -326,5 +326,5 @@ function ActionTypeBadge({ actionType }: { actionType: string }) {
 }
 
 /* ── 스타일 상수 ─────────────────────────────────────────── */
-const detailLabelCls = 'text-[10px] text-[#aaa] font-semibold uppercase mb-0.5'
+const detailLabelCls = 'text-[11px] text-[#aaa] font-semibold uppercase mb-0.5'
 const detailValueCls = 'text-[12px] text-dim-brand font-mono'

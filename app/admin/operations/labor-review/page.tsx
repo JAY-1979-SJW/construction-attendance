@@ -204,7 +204,7 @@ export default function LaborReviewPage() {
                       <td className="px-3 py-[9px] border-b border-brand align-top">{fmtMinutes(item.workedMinutesAuto)}</td>
                       <td className="px-3 py-[9px] border-b border-brand align-top" style={{ color: item.isZeroMinutes ? '#c62828' : item.hasOverride ? '#6a1b9a' : '#333', fontWeight: item.isZeroMinutes ? 700 : 400 }}>
                         {fmtMinutes(item.workedMinutesFinal)}
-                        {item.isZeroMinutes && <span className="text-[10px] ml-1">⚠️0</span>}
+                        {item.isZeroMinutes && <span className="text-[11px] ml-1">⚠️0</span>}
                       </td>
                       <td className="px-3 py-[9px] border-b border-brand align-top">{fmtAmount(item.confirmedBaseAmount)}</td>
                       <td className="px-3 py-[9px] border-b border-brand align-top">
@@ -214,7 +214,7 @@ export default function LaborReviewPage() {
                           <span className="text-[#718096] text-[11px]">자동</span>
                         )}
                         {item.manualAdjustedReason && (
-                          <div className="text-[10px] text-muted-brand max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">
+                          <div className="text-[11px] text-muted-brand max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">
                             {item.manualAdjustedReason}
                           </div>
                         )}

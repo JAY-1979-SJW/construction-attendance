@@ -339,9 +339,9 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><span className="text-[11px] text-muted-brand">{row.sheetName}</span></td>
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><RowTypeBadge type={row.rowType} /></td>
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] overflow-hidden text-ellipsis whitespace-nowrap">
-                        {row.sectionName && <span className="text-[10px] text-[#718096] block">{row.sectionName}</span>}
+                        {row.sectionName && <span className="text-[11px] text-[#718096] block">{row.sectionName}</span>}
                         {isOverridden && row.manualItemName
-                          ? <><span className="text-secondary-brand font-semibold">{row.manualItemName}</span><span className="text-[10px] text-[#bbb] ml-1">({row.rawItemName})</span></>
+                          ? <><span className="text-secondary-brand font-semibold">{row.manualItemName}</span><span className="text-[11px] text-[#bbb] ml-1">({row.rawItemName})</span></>
                           : fmt(row.rawItemName)}
                       </td>
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap text-[12px]">
@@ -576,7 +576,7 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                         </td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap">
                           <strong>{row.normalizedItemName}</strong>
-                          {row.manualOverrideUsed && <span className="ml-1 text-[10px] text-[#7b1fa2] font-bold">보정</span>}
+                          {row.manualOverrideUsed && <span className="ml-1 text-[11px] text-[#7b1fa2] font-bold">보정</span>}
                         </td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap text-[12px] text-muted-brand">
                           {row.normalizedSpec || '-'}

@@ -152,7 +152,7 @@ function KpiCard({
     >
       <div className="text-[11px] font-semibold text-muted-brand mb-2 uppercase tracking-wide leading-tight">{label}</div>
       <div className="flex items-baseline gap-1 mb-1">
-        <span className={`text-[28px] font-bold leading-none tabular-nums ${alert ? 'text-status-missing' : 'text-title-brand'}`}>
+        <span className={`text-[22px] font-bold leading-none tabular-nums ${alert ? 'text-status-missing' : 'text-title-brand'}`}>
           {value}
         </span>
         {unit && <span className="text-[12px] text-muted2-brand">{unit}</span>}
@@ -182,13 +182,13 @@ function SiteCard({ site }: { site: SiteSummary }) {
           <span className="text-[13px] font-semibold text-fore-brand leading-snug">{site.name}</span>
           <div className="flex items-center gap-1 shrink-0">
             {isExpired && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-footer text-muted-brand border border-[#D1D5DB]">계약종료</span>
+              <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-footer text-muted-brand border border-[#D1D5DB]">계약종료</span>
             )}
             {isNearing && !isExpired && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-light text-status-pending border border-yellow">임박</span>
+              <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-light text-status-pending border border-yellow">임박</span>
             )}
             {hasIssue && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-light text-status-missing border border-[#F87171]">
+              <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-red-light text-status-missing border border-[#F87171]">
                 확인 {site.issue}
               </span>
             )}
@@ -199,10 +199,10 @@ function SiteCard({ site }: { site: SiteSummary }) {
         {prog ? (
           <div className="mb-2">
             <div className="flex items-center justify-between mb-0.5">
-              <span className="text-[10px] text-muted2-brand tabular-nums">
+              <span className="text-[11px] text-muted2-brand tabular-nums">
                 {fmtDate(site.openedAt)} ~ {fmtDate(site.closedAt)}
               </span>
-              <span className="text-[10px] text-muted-brand tabular-nums">{prog.pct}% · 잔여 {prog.remaining}일</span>
+              <span className="text-[11px] text-muted-brand tabular-nums">{prog.pct}% · 잔여 {prog.remaining}일</span>
             </div>
             <div className="w-full h-1.5 bg-footer rounded-full overflow-hidden">
               <div
@@ -216,7 +216,7 @@ function SiteCard({ site }: { site: SiteSummary }) {
           </div>
         ) : (
           site.openedAt || site.closedAt ? (
-            <div className="mb-2 text-[10px] text-[#D1D5DB]">
+            <div className="mb-2 text-[11px] text-[#D1D5DB]">
               {fmtDate(site.openedAt)} ~ {fmtDate(site.closedAt)}
             </div>
           ) : null
@@ -241,15 +241,15 @@ function SiteCard({ site }: { site: SiteSummary }) {
         {/* 노임 현황 */}
         <div className="border-t border-brand pt-2 grid grid-cols-3 gap-1 text-center">
           <div>
-            <div className="text-[10px] text-muted2-brand mb-0.5">오늘</div>
+            <div className="text-[11px] text-muted2-brand mb-0.5">오늘</div>
             <div className="text-[12px] font-semibold text-body-brand tabular-nums">{fmtWageShort(site.todayWage)}</div>
           </div>
           <div>
-            <div className="text-[10px] text-muted2-brand mb-0.5">이번달</div>
+            <div className="text-[11px] text-muted2-brand mb-0.5">이번달</div>
             <div className="text-[12px] font-semibold text-body-brand tabular-nums">{fmtWageShort(site.monthWage)}</div>
           </div>
           <div>
-            <div className="text-[10px] text-muted2-brand mb-0.5">총 누계</div>
+            <div className="text-[11px] text-muted2-brand mb-0.5">총 누계</div>
             <div className="text-[12px] font-bold text-title-brand tabular-nums">{fmtWageShort(site.totalWage)}</div>
           </div>
         </div>
@@ -377,10 +377,10 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2">
             <span className="text-[13px] font-semibold text-body-brand">{selectedSiteInfo.name}</span>
             {remainingDays !== null && remainingDays <= 0 && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-light text-status-missing border border-[#F87171]">계약 종료</span>
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-light text-status-missing border border-[#F87171]">계약 종료</span>
             )}
             {remainingDays !== null && remainingDays > 0 && remainingDays <= 30 && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-light text-status-pending border border-yellow">종료 임박</span>
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-yellow-light text-status-pending border border-yellow">종료 임박</span>
             )}
           </div>
 

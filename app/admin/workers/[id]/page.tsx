@@ -715,7 +715,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-card border-[#EF4444] text-status-rejected hover:bg-red-light transition-colors"
                 >
                   {doc.label}{doc.expiresAt ? ` (${doc.expiresAt.slice(0, 10)} 만료)` : ' (만료)'}
-                  <span className="text-[10px]">&rarr;</span>
+                  <span className="text-[11px]">&rarr;</span>
                 </button>
               ))}
             </div>
@@ -732,7 +732,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
                     className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-card border-[#F59E0B] text-status-exception hover:bg-yellow-light transition-colors"
                   >
                     {doc.label} ({doc.expiresAt?.slice(0, 10)}, {daysLeft}일 남음)
-                    <span className="text-[10px]">&rarr;</span>
+                    <span className="text-[11px]">&rarr;</span>
                   </button>
                 )
               })}
@@ -748,7 +748,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-card border-[#EF4444] text-status-rejected hover:bg-red-light transition-colors"
                 >
                   {doc.label} (반려)
-                  <span className="text-[10px]">&rarr;</span>
+                  <span className="text-[11px]">&rarr;</span>
                 </button>
               ))}
             </div>
@@ -768,7 +768,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
                     className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-card border-[#F59E0B] text-status-pending hover:bg-yellow-light transition-colors"
                   >
                     {doc.label}{hint ? ` (${hint})` : ''}
-                    <span className="text-[10px]">&rarr;</span>
+                    <span className="text-[11px]">&rarr;</span>
                   </button>
                 )
               })}
@@ -1955,7 +1955,7 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
                 <div className="text-[12px] font-bold text-muted-brand mb-2">이전 이력 ({previewDoc.history.length}건)</div>
                 {previewDoc.history.map((h, i) => (
                   <div key={h.id} className="flex items-start gap-2 mb-1.5 text-[12px]">
-                    <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold ${h.status === 'REJECTED' ? 'bg-red-light text-status-rejected' : 'bg-footer text-muted-brand'}`}>
+                    <span className={`shrink-0 px-1.5 py-0.5 rounded text-[11px] font-semibold ${h.status === 'REJECTED' ? 'bg-red-light text-status-rejected' : 'bg-footer text-muted-brand'}`}>
                       {i + 1}차 {h.status === 'REJECTED' ? '반려' : h.status}
                     </span>
                     {h.rejectReason && <span className="text-muted2-brand">{h.rejectReason}</span>}

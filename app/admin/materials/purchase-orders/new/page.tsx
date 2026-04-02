@@ -202,7 +202,7 @@ function NewPurchaseOrderInner() {
                         </td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
                           <div className="font-medium">{item.itemName}</div>
-                          {item.isUrgent && <span className="text-[10px] text-[#ef5350]">긴급</span>}
+                          {item.isUrgent && <span className="text-[11px] text-[#ef5350]">긴급</span>}
                         </td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.spec ?? '-'}</td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.unit ?? '-'}</td>
@@ -227,7 +227,7 @@ function NewPurchaseOrderInner() {
                               border: `1px solid ${isOver ? '#ef5350' : '#E5E7EB'}`,
                             }}
                           />
-                          {isOver && <div className="text-[10px] text-[#ef5350] mt-[2px]">잔량 초과</div>}
+                          {isOver && <div className="text-[11px] text-[#ef5350] mt-[2px]">잔량 초과</div>}
                         </td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
                           <span style={{

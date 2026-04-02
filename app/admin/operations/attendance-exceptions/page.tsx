@@ -262,7 +262,7 @@ export default function AttendanceExceptionsPage() {
                     <tr key={d.id} style={{ background: i % 2 === 1 ? '#fafafa' : '#fff' }}>
                       <td className="px-3 py-2 border-t border-brand">
                         <div className="font-bold">{d.workerName}</div>
-                        <div className="text-[10px] text-[#999]">{d.workerPhone}</div>
+                        <div className="text-[11px] text-[#999]">{d.workerPhone}</div>
                       </td>
                       <td className="px-3 py-2 border-t border-brand">{d.siteName}</td>
                       <td className="px-3 py-2 border-t border-brand">{d.workDate ?? d.checkDate ?? '—'}</td>

@@ -176,7 +176,7 @@ export default function DocumentPackagesPage() {
                     <td className="py-2.5 px-4">
                       <div className="flex gap-1 flex-wrap">
                         {pkg.onboardingDocs?.map((doc: any) => (
-                          <span key={doc.id} className="px-1.5 py-0.5 rounded text-[10px] font-bold text-white"
+                          <span key={doc.id} className="px-1.5 py-0.5 rounded text-[11px] font-bold text-white"
                             style={{ background: DOC_STATUS_COLORS[doc.status] || '#9e9e9e' }}
                             title={`${DOC_TYPE_LABELS[doc.docType]}: ${DOC_STATUS_LABELS[doc.status]}`}>
                             {DOC_TYPE_LABELS[doc.docType]?.slice(0, 2)}

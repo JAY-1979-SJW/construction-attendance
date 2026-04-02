@@ -124,7 +124,7 @@ export default function DevicesPage() {
                     <td className="px-3 py-3 text-sm text-dim-brand">
                       <div className="font-semibold">{item.workerName}</div>
                       {item.isPrimary && (
-                        <span className="text-[10px] bg-[rgba(244,121,32,0.12)] text-accent px-1.5 py-0.5 rounded-lg mt-0.5 inline-block">주기기</span>
+                        <span className="text-[11px] bg-[rgba(244,121,32,0.12)] text-accent px-1.5 py-0.5 rounded-lg mt-0.5 inline-block">주기기</span>
                       )}
                     </td>
                     <td className="px-3 py-3 text-sm text-dim-brand">{fmtPhone(item.workerPhone)}</td>

@@ -156,7 +156,7 @@ function SummaryCard({ log, manpowerStats }: { log: SiteWorkLog; manpowerStats?:
           ].map(({ label, value }) => (
             <div key={label} className="bg-amber-50 rounded-lg p-2.5 text-center border border-amber-100">
               <div className="text-lg font-bold text-amber-800">{value.toLocaleString()}</div>
-              <div className="text-[10px] text-amber-600 mt-0.5">{label}</div>
+              <div className="text-[11px] text-amber-600 mt-0.5">{label}</div>
             </div>
           ))}
         </div>
