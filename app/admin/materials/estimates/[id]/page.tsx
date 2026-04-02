@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -187,7 +187,7 @@ function OverrideModal({ row, docId, onClose, onSaved }: OverrideModalProps) {
 
         {/* 원문 정보 */}
         <div className="bg-brand rounded-md px-[14px] py-[10px] mb-[18px] text-[12px] text-muted-brand">
-          <div className="font-bold mb-1 text-[#CBD5E0]">원문 (수정불가)</div>
+          <div className="font-bold mb-1 text-dim-brand">원문 (수정불가)</div>
           <div>품명: {row.rawItemName || '-'} / 규격: {row.rawSpec || '-'} / 단위: {row.rawUnit || '-'} / 수량: {row.rawQuantity || '-'}</div>
         </div>
 
@@ -221,12 +221,12 @@ function OverrideModal({ row, docId, onClose, onSaved }: OverrideModalProps) {
         {error && <div className="text-[#b71c1c] text-[13px] mb-3">{error}</div>}
 
         <div className="flex justify-between gap-2">
-          <button onClick={handleClearAll} disabled={saving} className="px-[14px] py-2 bg-[#ffebee] text-[#b71c1c] border border-[#ef9a9a] rounded-md cursor-pointer text-[13px] font-semibold">
+          <button onClick={handleClearAll} disabled={saving} className="px-[14px] py-2 bg-red-light text-[#b71c1c] border border-[#ef9a9a] rounded-md cursor-pointer text-[13px] font-semibold">
             보정 전체 해제
           </button>
           <div className="flex gap-2">
             <button onClick={onClose} disabled={saving} className="px-4 py-2 bg-[rgba(91,164,217,0.1)] text-muted-brand border border-[rgba(91,164,217,0.3)] rounded-md cursor-pointer text-[13px]">취소</button>
-            <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
+            <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-brand-accent text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
               {saving ? '저장 중...' : '저장'}
             </button>
           </div>
@@ -341,17 +341,17 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] overflow-hidden text-ellipsis whitespace-nowrap">
                         {row.sectionName && <span className="text-[10px] text-[#718096] block">{row.sectionName}</span>}
                         {isOverridden && row.manualItemName
-                          ? <><span className="text-[#5BA4D9] font-semibold">{row.manualItemName}</span><span className="text-[10px] text-[#bbb] ml-1">({row.rawItemName})</span></>
+                          ? <><span className="text-secondary-brand font-semibold">{row.manualItemName}</span><span className="text-[10px] text-[#bbb] ml-1">({row.rawItemName})</span></>
                           : fmt(row.rawItemName)}
                       </td>
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap text-[12px]">
-                        {isOverridden && row.manualSpec ? <span className="text-[#5BA4D9]">{row.manualSpec}</span> : fmt(row.rawSpec)}
+                        {isOverridden && row.manualSpec ? <span className="text-secondary-brand">{row.manualSpec}</span> : fmt(row.rawSpec)}
                       </td>
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
-                        {isOverridden && row.manualUnit ? <span className="text-[#5BA4D9]">{row.manualUnit}</span> : fmt(row.rawUnit)}
+                        {isOverridden && row.manualUnit ? <span className="text-secondary-brand">{row.manualUnit}</span> : fmt(row.rawUnit)}
                       </td>
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-right text-[12px]">
-                        {isOverridden && row.manualQuantity ? <span className="text-[#5BA4D9]">{row.manualQuantity}</span> : fmt(row.rawQuantity)}
+                        {isOverridden && row.manualQuantity ? <span className="text-secondary-brand">{row.manualQuantity}</span> : fmt(row.rawQuantity)}
                       </td>
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                         {row.aggregateCandidate
@@ -360,7 +360,7 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
                       </td>
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                         {isOverridden
-                          ? <span className="text-[11px] text-[#5BA4D9] font-semibold" title={row.overrideReason ?? ''}>보정됨</span>
+                          ? <span className="text-[11px] text-secondary-brand font-semibold" title={row.overrideReason ?? ''}>보정됨</span>
                           : <span className="text-[#bbb] text-[12px]">-</span>}
                       </td>
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-muted-brand">
@@ -373,9 +373,9 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
                       </td>
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                         {isExcluded
-                          ? <span className="text-[11px] px-[6px] py-[2px] rounded-[8px] bg-[#ffebee] text-[#b71c1c] font-bold">제외</span>
+                          ? <span className="text-[11px] px-[6px] py-[2px] rounded-[8px] bg-red-light text-[#b71c1c] font-bold">제외</span>
                           : row.reviewRequired
-                            ? <span className="text-[11px] text-[#e65100]">검토</span>
+                            ? <span className="text-[11px] text-accent-hover">검토</span>
                             : null}
                       </td>
                       <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top whitespace-nowrap">
@@ -388,7 +388,7 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
                           </button>
                           <button
                             onClick={() => setEditingRow(row)}
-                            className="px-2 py-[3px] text-[11px] font-semibold rounded cursor-pointer border border-[#F47920] bg-[rgba(244,121,32,0.12)] text-[#F47920]">
+                            className="px-2 py-[3px] text-[11px] font-semibold rounded cursor-pointer border border-[#F47920] bg-[rgba(244,121,32,0.12)] text-accent">
                             보정
                           </button>
                         </div>
@@ -518,23 +518,23 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
       )}
 
       {/* 집계 제어 툴바 */}
-      <div className="flex gap-[10px] items-center mb-4 flex-wrap px-4 py-3 bg-brand rounded-lg border border-[#e0e0e0]">
+      <div className="flex gap-[10px] items-center mb-4 flex-wrap px-4 py-3 bg-brand rounded-lg border border-brand">
         <button
           onClick={handleRebuild}
           disabled={rebuilding}
           className="px-4 py-2 bg-[#7b1fa2] text-white border-0 rounded-md cursor-pointer text-[13px] font-bold">
           {rebuilding ? '재집계 중...' : '보정 반영 재집계'}
         </button>
-        <button onClick={() => handleBulkStatus('REVIEWED')} disabled={statusChanging} className="px-[14px] py-[6px] bg-[rgba(244,121,32,0.12)] text-[#F47920] border border-[#90caf9] rounded-md cursor-pointer text-[13px] font-semibold">검토완료</button>
-        <button onClick={() => handleBulkStatus('CONFIRMED')} disabled={statusChanging} className="px-[14px] py-[6px] bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7] rounded-md cursor-pointer text-[13px] font-semibold">전체 확정</button>
-        <button onClick={() => handleBulkStatus('DRAFT')} disabled={statusChanging} className="px-[14px] py-[6px] bg-[#fff3e0] text-[#e65100] border border-[#ffcc80] rounded-md cursor-pointer text-[13px] font-semibold">확정 해제</button>
+        <button onClick={() => handleBulkStatus('REVIEWED')} disabled={statusChanging} className="px-[14px] py-[6px] bg-[rgba(244,121,32,0.12)] text-accent border border-[#90caf9] rounded-md cursor-pointer text-[13px] font-semibold">검토완료</button>
+        <button onClick={() => handleBulkStatus('CONFIRMED')} disabled={statusChanging} className="px-[14px] py-[6px] bg-green-light text-[#2e7d32] border border-[#a5d6a7] rounded-md cursor-pointer text-[13px] font-semibold">전체 확정</button>
+        <button onClick={() => handleBulkStatus('DRAFT')} disabled={statusChanging} className="px-[14px] py-[6px] bg-[#fff3e0] text-accent-hover border border-[#ffcc80] rounded-md cursor-pointer text-[13px] font-semibold">확정 해제</button>
         <label className="flex items-center gap-[5px] text-[13px] cursor-pointer ml-2">
           <input type="checkbox" checked={reviewOnly} onChange={e => setReviewOnly(e.target.checked)} />
           검토필요만
         </label>
         <span className="text-[13px] text-muted-brand ml-2">
           총 {items.length}건
-          {reviewCount > 0 && <span className="text-[#e65100]"> / 검토 {reviewCount}건</span>}
+          {reviewCount > 0 && <span className="text-accent-hover"> / 검토 {reviewCount}건</span>}
           {confirmedCount > 0 && <span className="text-[#2e7d32]"> / 확정 {confirmedCount}건</span>}
           {overrideCount > 0 && <span className="text-[#7b1fa2]"> / 보정 {overrideCount}건</span>}
         </span>
@@ -544,7 +544,7 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
       </div>
 
       {isAllConfirmed && (
-        <div className="px-4 py-[10px] bg-[#e8f5e9] rounded-md mb-[14px] text-[13px] text-[#2e7d32] font-semibold border border-[#a5d6a7]">
+        <div className="px-4 py-[10px] bg-green-light rounded-md mb-[14px] text-[13px] text-[#2e7d32] font-semibold border border-[#a5d6a7]">
           모든 집계가 확정 상태입니다. 수정하려면 "확정 해제"를 클릭하세요.
         </div>
       )}
@@ -585,7 +585,7 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmtNum(row.totalQuantity)}</td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmtNum(row.totalAmount)}</td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
-                          <span className="text-[12px] px-2 py-[1px] rounded-[10px] bg-[#e8f5e9] text-[#2e7d32] font-semibold">
+                          <span className="text-[12px] px-2 py-[1px] rounded-[10px] bg-green-light text-[#2e7d32] font-semibold">
                             {row.sourceRowCount}행
                           </span>
                         </td>
@@ -595,16 +595,16 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                             : <span className="text-[#bbb] text-[11px]">-</span>}
                         </td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
-                          {row.reviewRequired && <span className="text-[12px] text-[#e65100] font-bold">검토</span>}
+                          {row.reviewRequired && <span className="text-[12px] text-accent-hover font-bold">검토</span>}
                         </td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top whitespace-nowrap" onClick={e => e.stopPropagation()}>
                           {!isConfirmed ? (
                             <div className="flex gap-1">
-                              <button onClick={() => handleSingleStatus(row, 'REVIEWED')} className="px-[7px] py-[2px] text-[11px] rounded cursor-pointer border border-[#F47920] bg-[rgba(244,121,32,0.12)] text-[#F47920]">검토</button>
-                              <button onClick={() => handleSingleStatus(row, 'CONFIRMED')} className="px-[7px] py-[2px] text-[11px] rounded cursor-pointer border border-[#a5d6a7] bg-[#e8f5e9] text-[#2e7d32]">확정</button>
+                              <button onClick={() => handleSingleStatus(row, 'REVIEWED')} className="px-[7px] py-[2px] text-[11px] rounded cursor-pointer border border-[#F47920] bg-[rgba(244,121,32,0.12)] text-accent">검토</button>
+                              <button onClick={() => handleSingleStatus(row, 'CONFIRMED')} className="px-[7px] py-[2px] text-[11px] rounded cursor-pointer border border-[#a5d6a7] bg-green-light text-[#2e7d32]">확정</button>
                             </div>
                           ) : (
-                            <button onClick={() => handleSingleStatus(row, 'REVIEWED')} className="px-[7px] py-[2px] text-[11px] rounded cursor-pointer border border-[#ffcc80] bg-[#fff3e0] text-[#e65100]">해제</button>
+                            <button onClick={() => handleSingleStatus(row, 'REVIEWED')} className="px-[7px] py-[2px] text-[11px] rounded cursor-pointer border border-[#ffcc80] bg-[#fff3e0] text-accent-hover">해제</button>
                           )}
                         </td>
                       </tr>
@@ -659,8 +659,8 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                         <span className="text-muted-brand">{row.sheetName} 행 {row.rowNo + 1}</span>
                         <div className="flex gap-1 items-center">
                           {isExcluded && <span className="text-[#b71c1c] font-bold text-[11px]">제외</span>}
-                          {isOverridden && <span className="text-[#5BA4D9] font-bold text-[11px]">보정</span>}
-                          {row.reviewRequired && <span className="text-[#e65100] font-semibold text-[11px]">검토</span>}
+                          {isOverridden && <span className="text-secondary-brand font-bold text-[11px]">보정</span>}
+                          {row.reviewRequired && <span className="text-accent-hover font-semibold text-[11px]">검토</span>}
                         </div>
                       </div>
                       {/* 원문 vs 보정값 비교 */}
@@ -671,7 +671,7 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                           <div>원문 단위: {row.rawUnit || '-'} / 수량: {row.rawQuantity || '-'}</div>
                         </div>
                         {isOverridden && (
-                          <div className="text-[#4A93C8]">
+                          <div className="text-secondary-brand">
                             <div>보정 품명: {row.manualItemName || <span className="text-[#bbb]">-</span>}</div>
                             <div>보정 규격: {row.manualSpec || <span className="text-[#bbb]">-</span>}</div>
                             <div>보정 단위: {row.manualUnit || '-'} / 수량: {row.manualQuantity || '-'}</div>
@@ -700,7 +700,7 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                           </button>
                           <button
                             onClick={() => setEditingSourceRow(row)}
-                            className="px-2 py-[2px] text-[11px] rounded cursor-pointer border border-[#F47920] bg-[rgba(244,121,32,0.12)] text-[#F47920] font-semibold">
+                            className="px-2 py-[2px] text-[11px] rounded cursor-pointer border border-[#F47920] bg-[rgba(244,121,32,0.12)] text-accent font-semibold">
                             보정편집
                           </button>
                         </div>
@@ -809,13 +809,13 @@ export default function EstimateDetailPage() {
   return (
     <div className="p-8 min-w-0">
         <div className="flex items-center gap-2 mb-5 text-sm text-muted-brand">
-          <Link href="/admin/materials" className="text-[#5BA4D9] no-underline">자재관리</Link>
+          <Link href="/admin/materials" className="text-secondary-brand no-underline">자재관리</Link>
           <span>/</span>
-          <span className="text-[#CBD5E0]">{doc.fileName}</span>
+          <span className="text-dim-brand">{doc.fileName}</span>
         </div>
 
         {/* Header card */}
-        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-6">
+        <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-6">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-[20px] font-bold m-0 mb-2">{doc.fileName}</h1>
@@ -828,7 +828,7 @@ export default function EstimateDetailPage() {
               </div>
               {doc.notes && <div className="mt-2 text-[13px] text-muted-brand">{doc.notes}</div>}
               {doc.errorMessage && (
-                <div className="mt-2 px-3 py-2 bg-[#ffebee] rounded-md text-[#b71c1c] text-[13px]">
+                <div className="mt-2 px-3 py-2 bg-red-light rounded-md text-[#b71c1c] text-[13px]">
                   오류: {doc.errorMessage}
                 </div>
               )}
@@ -844,7 +844,7 @@ export default function EstimateDetailPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-0 border-b-2 border-[#e0e0e0]">
+        <div className="flex gap-0 border-b-2 border-brand">
           {tabs.map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               style={{
@@ -859,7 +859,7 @@ export default function EstimateDetailPage() {
           ))}
         </div>
 
-        <div className="bg-white rounded-b-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-card rounded-b-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
 
           {/* Tab: Sheet List */}
           {activeTab === 'sheets' && (
@@ -876,13 +876,13 @@ export default function EstimateDetailPage() {
                       <tr key={sheet.id}>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{sheet.sheetIndex + 1}</td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><strong>{sheet.sheetName}</strong>{sheet.isHidden && <span className="ml-[6px] text-[11px] text-[#999]">(숨김)</span>}</td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-[rgba(244,121,32,0.12)] text-[#F47920]">{SHEET_TYPE_LABEL[sheet.sheetType] ?? sheet.sheetType}</span></td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-[rgba(244,121,32,0.12)] text-accent">{SHEET_TYPE_LABEL[sheet.sheetType] ?? sheet.sheetType}</span></td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{sheet.discipline ?? <span className="text-[#bbb]">-</span>}</td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{sheet.maxRows}</td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{sheet.maxCols}</td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{sheet.needsReview ? <span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-[#fff3e0] text-[#e65100] font-semibold">검토필요</span> : <span className="text-[12px] text-[#bbb]">-</span>}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">{sheet.needsReview ? <span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-[#fff3e0] text-accent-hover font-semibold">검토필요</span> : <span className="text-[12px] text-[#bbb]">-</span>}</td>
                         <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><span className="text-[12px] font-semibold" style={{ color: STATUS_COLOR[sheet.parseStatus] }}>{STATUS_LABEL[sheet.parseStatus] ?? sheet.parseStatus}</span></td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><button onClick={() => { setActiveTab('raw'); setSelectedSheetId(sheet.id) }} className="px-[10px] py-1 bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7] rounded cursor-pointer text-[12px] font-semibold">원문보기</button></td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><button onClick={() => { setActiveTab('raw'); setSelectedSheetId(sheet.id) }} className="px-[10px] py-1 bg-green-light text-[#2e7d32] border border-[#a5d6a7] rounded cursor-pointer text-[12px] font-semibold">원문보기</button></td>
                       </tr>
                     ))}
                   </tbody>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, Suspense } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
@@ -57,7 +57,7 @@ const TERMINATION_REASON_LABEL: Record<string, string> = {
 function SectionTitle({ n, title }: { n: number; title: string }) {
   return (
     <div className="flex items-center gap-3 mt-8 mb-3 pb-2 border-b-2 border-white">
-      <span className="bg-white text-[#111827] text-sm font-bold px-3 py-1 rounded">{n}</span>
+      <span className="bg-card text-fore-brand text-sm font-bold px-3 py-1 rounded">{n}</span>
       <h2 className="text-lg font-bold">{title}</h2>
     </div>
   )
@@ -69,7 +69,7 @@ function InfoTable({ rows }: { rows: [string, string | React.ReactNode][] }) {
       <tbody>
         {rows.map(([label, value], i) => (
           <tr key={i} className="border border-[rgba(91,164,217,0.25)]">
-            <th className="bg-[rgba(255,255,255,0.04)] border-r border-[rgba(91,164,217,0.25)] px-3 py-2 text-left font-semibold w-44 text-[#CBD5E0]">{label}</th>
+            <th className="bg-[rgba(255,255,255,0.04)] border-r border-[rgba(91,164,217,0.25)] px-3 py-2 text-left font-semibold w-44 text-dim-brand">{label}</th>
             <td className="px-3 py-2 text-white">{value || <span className="text-[#718096] italic">기록 없음</span>}</td>
           </tr>
         ))}
@@ -154,11 +154,11 @@ function EvidencePageContent() {
         <h1 className="text-2xl font-bold mb-1">종료 증빙 패키지</h1>
         <p className="text-[#718096] text-sm mb-4">Termination Evidence Package</p>
         <div className="grid grid-cols-2 gap-2 text-sm text-left max-w-sm mx-auto">
-          <span className="text-[#CBD5E0] font-medium">근로자명</span><span className="font-bold">{cover.workerName}</span>
-          <span className="text-[#CBD5E0] font-medium">소속 회사</span><span>{cover.companyName}</span>
-          <span className="text-[#CBD5E0] font-medium">소속 현장</span><span>{cover.siteName}</span>
-          <span className="text-[#CBD5E0] font-medium">종료일</span><span>{cover.terminationDate}</span>
-          <span className="text-[#CBD5E0] font-medium">종료 유형</span><span>{TERMINATION_REASON_LABEL[cover.terminationType] ?? cover.terminationType}</span>
+          <span className="text-dim-brand font-medium">근로자명</span><span className="font-bold">{cover.workerName}</span>
+          <span className="text-dim-brand font-medium">소속 회사</span><span>{cover.companyName}</span>
+          <span className="text-dim-brand font-medium">소속 현장</span><span>{cover.siteName}</span>
+          <span className="text-dim-brand font-medium">종료일</span><span>{cover.terminationDate}</span>
+          <span className="text-dim-brand font-medium">종료 유형</span><span>{TERMINATION_REASON_LABEL[cover.terminationType] ?? cover.terminationType}</span>
         </div>
         <p className="text-xs text-[#718096] mt-4">출력일시: {new Date(pkg.meta.generatedAt).toLocaleString('ko-KR')} · 출력 관리자: {cover.printedByName}</p>
       </div>
@@ -205,7 +205,7 @@ function EvidencePageContent() {
                     {SEVERITY_LABEL[item.severity] ?? item.severity}
                   </span>
                 </td>
-                <td className={`border border-[rgba(91,164,217,0.25)] px-3 py-2 ${!item.passed ? 'text-orange-700' : 'text-[#CBD5E0]'}`}>
+                <td className={`border border-[rgba(91,164,217,0.25)] px-3 py-2 ${!item.passed ? 'text-orange-700' : 'text-dim-brand'}`}>
                   {item.passed ? '적정' : (item.action ? `미비 — 권장: ${item.action}` : '미비')}
                 </td>
               </tr>
@@ -216,7 +216,7 @@ function EvidencePageContent() {
 
       {/* 3. 계약/문서 현황 */}
       <SectionTitle n={3} title="계약 / 문서 현황" />
-      <div className="font-semibold text-sm mb-1 text-[#CBD5E0]">계약서 내역</div>
+      <div className="font-semibold text-sm mb-1 text-dim-brand">계약서 내역</div>
       {contractsAndDocs.contracts.length === 0 ? <EmptyNote text="계약서 기록 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
           <thead><tr className="bg-[rgba(255,255,255,0.04)]">
@@ -239,7 +239,7 @@ function EvidencePageContent() {
           </tbody>
         </table>
       )}
-      <div className="font-semibold text-sm mb-1 text-[#CBD5E0]">문서 교부 이력</div>
+      <div className="font-semibold text-sm mb-1 text-dim-brand">문서 교부 이력</div>
       {contractsAndDocs.deliveryLogs.length === 0 ? <EmptyNote text="문서 교부 기록 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
           <thead><tr className="bg-[rgba(255,255,255,0.04)]">
@@ -273,7 +273,7 @@ function EvidencePageContent() {
 
       {/* 5. 경고/소명/통지 */}
       <SectionTitle n={5} title="경고 / 소명 / 통지 기록" />
-      <div className="font-semibold text-sm mb-1 text-[#CBD5E0]">경고 발행 이력 ({hrActions.warnings.length}건)</div>
+      <div className="font-semibold text-sm mb-1 text-dim-brand">경고 발행 이력 ({hrActions.warnings.length}건)</div>
       {hrActions.warnings.length === 0 ? <EmptyNote text="경고 기록 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
           <thead><tr className="bg-[rgba(255,255,255,0.04)]">
@@ -292,7 +292,7 @@ function EvidencePageContent() {
           </tbody>
         </table>
       )}
-      <div className="font-semibold text-sm mb-1 text-[#CBD5E0]">소명 요청 이력 ({hrActions.explanations.length}건)</div>
+      <div className="font-semibold text-sm mb-1 text-dim-brand">소명 요청 이력 ({hrActions.explanations.length}건)</div>
       {hrActions.explanations.length === 0 ? <EmptyNote text="소명 요청 기록 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
           <thead><tr className="bg-[rgba(255,255,255,0.04)]">
@@ -311,7 +311,7 @@ function EvidencePageContent() {
           </tbody>
         </table>
       )}
-      <div className="font-semibold text-sm mb-1 text-[#CBD5E0]">통지서 이력 ({hrActions.notices.length}건)</div>
+      <div className="font-semibold text-sm mb-1 text-dim-brand">통지서 이력 ({hrActions.notices.length}건)</div>
       {hrActions.notices.length === 0 ? <EmptyNote text="통지서 기록 없음" /> : (
         <table className="w-full border-collapse text-sm mb-4">
           <thead><tr className="bg-[rgba(255,255,255,0.04)]">

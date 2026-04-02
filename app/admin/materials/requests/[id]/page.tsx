@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -310,7 +310,7 @@ export default function MaterialRequestDetailPage() {
         </div>
 
         {/* 기본 정보 카드 */}
-        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {editMode ? (
             <div>
               <div className="grid grid-cols-2 gap-4 mb-4">
@@ -330,7 +330,7 @@ export default function MaterialRequestDetailPage() {
               </div>
               <div className="flex gap-2 justify-end">
                 <button onClick={() => setEditMode(false)} className="px-4 py-2 bg-white/[0.08] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px]">취소</button>
-                <button onClick={handleSaveEdit} disabled={actionLoading} className="px-[18px] py-2 bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">저장</button>
+                <button onClick={handleSaveEdit} disabled={actionLoading} className="px-[18px] py-2 bg-brand-accent text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">저장</button>
               </div>
             </div>
           ) : (
@@ -345,13 +345,13 @@ export default function MaterialRequestDetailPage() {
         </div>
 
         {/* 품목 목록 */}
-        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
+        <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-[15px] font-semibold m-0">
               청구 품목 <span className="text-muted-brand font-normal">({req.items.length}건)</span>
             </h2>
             {isDraft && (
-              <button onClick={() => setShowPicker(true)} className="px-[18px] py-2 bg-[#F47920] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">+ 품목 추가</button>
+              <button onClick={() => setShowPicker(true)} className="px-[18px] py-2 bg-brand-accent text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">+ 품목 추가</button>
             )}
           </div>
 
@@ -398,7 +398,7 @@ export default function MaterialRequestDetailPage() {
 
         {/* 발주 현황 — APPROVED 상태에서만 표시 */}
         {req.status === 'APPROVED' && orderableItems.length > 0 && (
-          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
+          <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-[15px] font-semibold m-0">발주 현황</h2>
               <button
@@ -422,7 +422,7 @@ export default function MaterialRequestDetailPage() {
                     <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.spec ?? '-'}</td>
                     <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.unit ?? '-'}</td>
                     <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right">{Number(item.requestedQty).toLocaleString()}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right text-[#5BA4D9]">{Number(item.orderedQty).toLocaleString()}</td>
+                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right text-secondary-brand">{Number(item.orderedQty).toLocaleString()}</td>
                     <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right font-semibold"
                       style={{ color: Number(item.remainingQty) <= 0 ? '#607d8b' : '#66bb6a' }}>
                       {Number(item.remainingQty).toLocaleString()}
@@ -445,7 +445,7 @@ export default function MaterialRequestDetailPage() {
         )}
 
         {/* 상태 이력 */}
-        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
+        <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-4">
           <h2 className="text-[15px] font-semibold m-0 mb-4">상태 이력</h2>
           <div className="flex flex-col gap-2">
             {req.history.map((h, i) => (

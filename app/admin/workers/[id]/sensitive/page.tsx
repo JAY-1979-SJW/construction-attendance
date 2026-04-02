@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -155,7 +155,7 @@ export default function WorkerSensitivePage() {
           <h1 className="text-[22px] font-bold mt-1 mb-4">개인정보 관리 — {workerName}</h1>
         </div>
 
-        <div className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-md px-3.5 py-2 text-[13px] text-[#4A93C8] mb-4">
+        <div className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-md px-3.5 py-2 text-[13px] text-secondary-brand mb-4">
           출퇴근 가능 여부(계정 승인)와 노무/4대보험 완료 상태는 별도로 관리됩니다.
           신분증 파일은 시스템에 저장하지 않습니다.
         </div>
@@ -188,7 +188,7 @@ export default function WorkerSensitivePage() {
 
         {/* ── 민감정보 ── */}
         {activeTab === 'sensitive' && (
-          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+          <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <h3 className="text-[15px] font-bold mt-0 mb-3">현재 저장값 (마스킹)</h3>
             {sensitive ? (
               <div className="flex flex-col">
@@ -205,9 +205,9 @@ export default function WorkerSensitivePage() {
 
             {canMutate && (
               <>
-                <hr className="my-5 border-[#f0f0f0]" />
+                <hr className="my-5 border-brand" />
                 <h3 className="text-[15px] font-bold mt-0 mb-3">입력/수정</h3>
-                <p className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-md px-3.5 py-2 text-[13px] text-[#4A93C8] mb-4">
+                <p className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-md px-3.5 py-2 text-[13px] text-secondary-brand mb-4">
                   신분증 파일은 시스템에 저장하지 않습니다. 필요 시 본사 보안 채널로 별도 처리하세요.
                 </p>
                 <div className="grid grid-cols-2 gap-4 mb-4">
@@ -240,7 +240,7 @@ export default function WorkerSensitivePage() {
 
         {/* ── 계좌정보 ── */}
         {activeTab === 'bank' && (
-          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+          <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <h3 className="text-[15px] font-bold mt-0 mb-3">현재 저장값 (마스킹)</h3>
             {bank ? (
               <div className="flex flex-col">
@@ -253,7 +253,7 @@ export default function WorkerSensitivePage() {
 
             {canMutate && (
               <>
-                <hr className="my-5 border-[#f0f0f0]" />
+                <hr className="my-5 border-brand" />
                 <h3 className="text-[15px] font-bold mt-0 mb-3">계좌 입력/수정</h3>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <F label="은행 코드" value={bankForm.bankCode} onChange={v => setBankForm(f => ({ ...f, bankCode: v }))} placeholder="예: 004 (국민은행)" />
@@ -270,8 +270,8 @@ export default function WorkerSensitivePage() {
 
         {/* ── 노무/보험 상태 ── */}
         {activeTab === 'compliance' && (
-          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-            <div className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-md px-3.5 py-2 text-[13px] text-[#4A93C8] mb-4">
+          <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+            <div className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-md px-3.5 py-2 text-[13px] text-secondary-brand mb-4">
               출퇴근 가능 여부와 이 상태는 별도입니다. 근로자가 출퇴근 가능해도 보험 미완료일 수 있습니다.
             </div>
             {compliance ? (
@@ -286,7 +286,7 @@ export default function WorkerSensitivePage() {
                   {[['국민연금', 'nationalPensionStatus'], ['건강보험', 'healthInsuranceStatus'],
                     ['고용보험', 'employmentInsuranceStatus'], ['산재보험', 'industrialAccidentStatus'],
                     ['퇴직공제', 'retirementMutualStatus']].map(([label, key]) => (
-                    <div key={key} className="flex justify-between px-3 py-2 bg-[#f9f9f9] rounded-md text-[14px]">
+                    <div key={key} className="flex justify-between px-3 py-2 bg-surface rounded-md text-[14px]">
                       <span>{label}</span>
                       <span className="font-semibold" style={{ color: STATUS_COLOR[compliance[key as keyof ComplianceStatus] as string] ?? '#888' }}>
                         {STATUS_LABEL[compliance[key as keyof ComplianceStatus] as string] ?? '-'}
@@ -299,7 +299,7 @@ export default function WorkerSensitivePage() {
 
             {canMutate && (
               <>
-                <hr className="my-5 border-[#f0f0f0]" />
+                <hr className="my-5 border-brand" />
                 <h3 className="text-[15px] font-bold mt-0 mb-3">상태 갱신</h3>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   {[['nationalPensionStatus', '국민연금'], ['healthInsuranceStatus', '건강보험'],
@@ -324,8 +324,8 @@ export default function WorkerSensitivePage() {
 
         {/* ── 원문 복호화 (SUPER_ADMIN만) ── */}
         {activeTab === 'decrypt' && isSuperAdmin && (
-          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-            <div className="bg-[#fff3e0] border border-[#ff9800] rounded-lg px-4 py-3 mb-5 text-[13px] text-[#e65100]">
+          <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+            <div className="bg-[#fff3e0] border border-[#ff9800] rounded-lg px-4 py-3 mb-5 text-[13px] text-accent-hover">
               복호화 조회는 감사로그에 기록됩니다. 반드시 업무상 필요한 경우에만 사용하세요.
               <br />화면 캡처 · 공유 · 재저장을 금지합니다.
             </div>
@@ -355,12 +355,12 @@ export default function WorkerSensitivePage() {
 
             {decryptResult && (
               <div className="mt-5 bg-[#fff3e0] border border-[#ff9800] rounded-lg p-4">
-                <div className="text-[12px] text-[#e65100] mb-3 font-semibold">
+                <div className="text-[12px] text-accent-hover mb-3 font-semibold">
                   복호화된 원문 데이터 (페이지를 벗어나면 사라집니다)
                 </div>
                 {Object.entries(decryptResult).map(([k, v]) => (
                   <div key={k} className="flex gap-4 py-1.5 text-[14px] border-b border-[#ffe0b2]">
-                    <span className="text-[#e65100] min-w-[120px] font-semibold">{k}</span>
+                    <span className="text-accent-hover min-w-[120px] font-semibold">{k}</span>
                     <span className="font-mono">{v ?? '-'}</span>
                   </div>
                 ))}
@@ -374,7 +374,7 @@ export default function WorkerSensitivePage() {
 
 function Row({ k, v, mono }: { k: string; v: string | null | undefined; mono?: boolean }) {
   return (
-    <div className="flex gap-4 py-2 border-b border-[#f0f0f0] text-[14px]">
+    <div className="flex gap-4 py-2 border-b border-brand text-[14px]">
       <span className="text-muted-brand min-w-[140px] shrink-0">{k}</span>
       <span style={{ fontFamily: mono ? 'monospace' : 'inherit' }}>{v ?? '-'}</span>
     </div>

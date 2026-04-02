@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -191,13 +191,13 @@ export default function CompanyDetailPage() {
         </div>
 
         {msg && (
-          <div className={`rounded-lg px-4 py-3 mb-4 text-sm ${msg.includes('완료') || msg.includes('변경') || msg.includes('활성') ? 'bg-[#e8f5e9] text-[#2e7d32]' : 'bg-[#ffebee] text-[#c62828]'}`}>
+          <div className={`rounded-lg px-4 py-3 mb-4 text-sm ${msg.includes('완료') || msg.includes('변경') || msg.includes('활성') ? 'bg-green-light text-[#2e7d32]' : 'bg-red-light text-[#c62828]'}`}>
             {msg}
           </div>
         )}
 
         {/* Section 1: 기본 정보 */}
-        <div className="bg-white rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="bg-card rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           <h2 className="text-base font-bold m-0 mb-4 text-white">기본 정보</h2>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
             <div>
@@ -261,7 +261,7 @@ export default function CompanyDetailPage() {
         </div>
 
         {/* Section 2: 기능 플래그 관리 */}
-        <div className="bg-white rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="bg-card rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           <h2 className="text-base font-bold m-0 mb-4 text-white">기능 플래그 관리</h2>
           <p className="text-[13px] text-muted-brand mb-4">(유료) 표시 항목은 유료 플랜에서 제공되는 기능입니다.</p>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-2.5">
@@ -282,7 +282,7 @@ export default function CompanyDetailPage() {
                 }}>
                   <div>
                     <span style={{ fontSize: '13px', fontWeight: 600, color: isOn ? '#2e7d32' : '#555' }}>{label}</span>
-                    {isPaid && <span className="ml-1.5 text-[10px] bg-[#fff3e0] text-[#e65100] px-1.5 py-0.5 rounded-lg font-semibold">유료</span>}
+                    {isPaid && <span className="ml-1.5 text-[10px] bg-[#fff3e0] text-accent-hover px-1.5 py-0.5 rounded-lg font-semibold">유료</span>}
                   </div>
                   <button
                     onClick={() => handleToggleFlag(key)}
@@ -320,7 +320,7 @@ export default function CompanyDetailPage() {
         </div>
 
         {/* Section 3: 업체 관리자 계정 */}
-        <div className="bg-white rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="bg-card rounded-[12px] p-5 mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           <h2 className="text-base font-bold m-0 mb-4 text-white">업체 관리자 계정</h2>
           {admins.length === 0 ? (
             <div className="py-6 text-center text-[#718096] text-sm">등록된 관리자 계정이 없습니다.</div>
@@ -337,9 +337,9 @@ export default function CompanyDetailPage() {
                 <tbody>
                   {admins.map(admin => (
                     <tr key={admin.id} className="border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors">
-                      <td className="px-4 py-3 text-sm text-[#CBD5E0]">{admin.name}</td>
+                      <td className="px-4 py-3 text-sm text-dim-brand">{admin.name}</td>
                       <td className="px-4 py-3 text-xs text-muted-brand">{admin.email}</td>
-                      <td className="px-4 py-3 text-sm text-[#CBD5E0]">
+                      <td className="px-4 py-3 text-sm text-dim-brand">
                         <span style={{
                           background: admin.isActive ? '#e8f5e9' : '#f5f5f5',
                           color: admin.isActive ? '#2e7d32' : '#9e9e9e',
@@ -354,7 +354,7 @@ export default function CompanyDetailPage() {
                       <td className="px-4 py-3 text-xs text-muted-brand">
                         {admin.lastLoginAt ? new Date(admin.lastLoginAt).toLocaleString('ko-KR') : '없음'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-[#CBD5E0]">
+                      <td className="px-4 py-3 text-sm text-dim-brand">
                         <button
                           onClick={() => handleToggleAdmin(admin.id, admin.isActive)}
                           disabled={togglingAdmin === admin.id}

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -211,7 +211,7 @@ export default function TerminationPage() {
     <div className="max-w-[720px] mx-auto px-4 py-6 font-[system-ui,sans-serif]">
       {/* 뒤로가기 */}
       <div className="mb-4">
-        <Link href={`/admin/workers/${workerId}`} className="text-[#4A93C8] text-[14px] no-underline">
+        <Link href={`/admin/workers/${workerId}`} className="text-secondary-brand text-[14px] no-underline">
           ← 근로자 상세로 돌아가기
         </Link>
       </div>
@@ -260,21 +260,21 @@ export default function TerminationPage() {
 
       {/* 에러 */}
       {error && (
-        <div className="bg-[#ffebee] border border-[#ef9a9a] rounded-lg px-4 py-3 mb-4 text-[#c62828] text-[14px]">
+        <div className="bg-red-light border border-[#ef9a9a] rounded-lg px-4 py-3 mb-4 text-[#c62828] text-[14px]">
           {error}
         </div>
       )}
 
       {/* ── Step 1: 기본정보 ─────────────────────────────────────────────────── */}
       {step === 1 && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5">
+        <div className="bg-card border border-brand rounded-[12px] p-5">
           <h2 className="m-0 mb-5 text-[16px] font-bold">Step 1 — 종료 기본정보 입력</h2>
 
           <Field label="종료 유형" required>
             <select
               value={form.terminationReason}
               onChange={e => setForm(f => ({ ...f, terminationReason: e.target.value }))}
-              className="w-full px-3 py-2.5 border border-white/[0.12] rounded-lg text-[14px] outline-none box-border bg-white"
+              className="w-full px-3 py-2.5 border border-white/[0.12] rounded-lg text-[14px] outline-none box-border bg-card"
             >
               <option value="">선택하세요</option>
               {TERMINATION_REASONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -325,11 +325,11 @@ export default function TerminationPage() {
 
       {/* ── Step 2: 자동점검 결과 ────────────────────────────────────────────── */}
       {step === 2 && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5">
+        <div className="bg-card border border-brand rounded-[12px] p-5">
           <h2 className="m-0 mb-5 text-[16px] font-bold">Step 2 — 자동점검 결과</h2>
 
           {hasCritical && (
-            <div className="bg-[#ffebee] border-2 border-[#e53935] rounded-[10px] px-4 py-3.5 mb-5">
+            <div className="bg-red-light border-2 border-[#e53935] rounded-[10px] px-4 py-3.5 mb-5">
               <div className="text-[15px] font-black text-[#c62828] mb-2">
                 🚨 치명 리스크 {criticals.length}건 — 즉시 보완이 필요합니다
               </div>
@@ -367,7 +367,7 @@ export default function TerminationPage() {
           </div>
 
           <div className="flex gap-2.5">
-            <button onClick={() => setStep(1)} className="px-5 py-3.5 border border-white/[0.12] rounded-lg bg-white cursor-pointer text-[14px] text-muted-brand">← 수정</button>
+            <button onClick={() => setStep(1)} className="px-5 py-3.5 border border-white/[0.12] rounded-lg bg-card cursor-pointer text-[14px] text-muted-brand">← 수정</button>
             <button onClick={handleCheckReviewed} className="flex-1 py-3.5 border-none rounded-lg bg-[#1565c0] text-white text-[14px] font-bold cursor-pointer">
               {(criticals.length + dangers.length) > 0 ? '누락항목 보완하기 →' : '최종 확인으로 →'}
             </button>
@@ -377,7 +377,7 @@ export default function TerminationPage() {
 
       {/* ── Step 3: 누락항목 보완 ────────────────────────────────────────────── */}
       {step === 3 && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5">
+        <div className="bg-card border border-brand rounded-[12px] p-5">
           <h2 className="m-0 mb-4 text-[16px] font-bold">Step 3 — 누락항목 보완</h2>
           <p className="m-0 mb-5 text-[13px] text-muted-brand">
             아래 항목들을 보완한 후 재점검을 실행하세요. 치명 항목은 반드시 처리해 주세요.
@@ -405,7 +405,7 @@ export default function TerminationPage() {
           })}
 
           <div className="flex gap-2.5 mt-2">
-            <button onClick={() => setStep(2)} className="px-5 py-3.5 border border-white/[0.12] rounded-lg bg-white cursor-pointer text-[14px] text-muted-brand">← 점검결과 보기</button>
+            <button onClick={() => setStep(2)} className="px-5 py-3.5 border border-white/[0.12] rounded-lg bg-card cursor-pointer text-[14px] text-muted-brand">← 점검결과 보기</button>
             <button onClick={handleRecheck} disabled={loading}
               className="flex-1 py-3.5 border-none rounded-lg text-white text-[14px] font-bold"
               style={{ background: loading ? '#bdbdbd' : '#1565c0', cursor: loading ? 'not-allowed' : 'pointer' }}>
@@ -417,14 +417,14 @@ export default function TerminationPage() {
 
       {/* ── Step 4: 최종 확인 ────────────────────────────────────────────────── */}
       {step === 4 && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5">
+        <div className="bg-card border border-brand rounded-[12px] p-5">
           <h2 className="m-0 mb-1.5 text-[16px] font-bold">Step 4 — 관리자 최종 확인</h2>
           <p className="m-0 mb-5 text-[13px] text-muted-brand">
             아래 항목을 모두 확인한 후 종료를 확정할 수 있습니다.
           </p>
 
           {hasCritical && (
-            <div className="bg-[#ffebee] border-2 border-[#e53935] rounded-[10px] px-4 py-3 mb-4 text-[13px] text-[#c62828] font-bold">
+            <div className="bg-red-light border-2 border-[#e53935] rounded-[10px] px-4 py-3 mb-4 text-[13px] text-[#c62828] font-bold">
               🚨 치명 리스크 {criticals.length}건이 미해결 상태입니다. 확정 전 반드시 보완하세요.
             </div>
           )}
@@ -456,7 +456,7 @@ export default function TerminationPage() {
 
           {/* 종료정보 요약 */}
           <div className="bg-brand rounded-[10px] px-4 py-3.5 mb-5 text-[13px] text-muted-brand">
-            <div className="font-bold mb-2 text-[#CBD5E0]">종료 처리 요약</div>
+            <div className="font-bold mb-2 text-dim-brand">종료 처리 요약</div>
             <div>사유: <strong>{TERMINATION_REASONS.find(r => r.value === form.terminationReason)?.label}</strong></div>
             <div>종료일: <strong>{form.terminationDate}</strong></div>
             <div className="mt-1 text-[#777]">{form.detailReason}</div>
@@ -464,13 +464,13 @@ export default function TerminationPage() {
 
           {/* 치명 경고 반복 표시 (확정 버튼 근처) */}
           {hasCritical && (
-            <div className="bg-[#ffebee] border-2 border-[#e53935] rounded-[10px] px-4 py-3 mb-4 text-[13px] text-[#c62828]">
+            <div className="bg-red-light border-2 border-[#e53935] rounded-[10px] px-4 py-3 mb-4 text-[13px] text-[#c62828]">
               🚨 <strong>치명 리스크 미해결 — 종료 후 분쟁 발생 시 불리할 수 있습니다.</strong>
             </div>
           )}
 
           <div className="flex gap-2.5">
-            <button onClick={() => setStep(3)} className="px-5 py-3.5 border border-white/[0.12] rounded-lg bg-white cursor-pointer text-[14px] text-muted-brand">← 보완 액션으로</button>
+            <button onClick={() => setStep(3)} className="px-5 py-3.5 border border-white/[0.12] rounded-lg bg-card cursor-pointer text-[14px] text-muted-brand">← 보완 액션으로</button>
             <button
               onClick={handleConfirm}
               disabled={!allChecked || saving}
@@ -488,7 +488,7 @@ export default function TerminationPage() {
 
       {/* ── Step 5: 완료 ─────────────────────────────────────────────────────── */}
       {(step === 5 || done) && (
-        <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-xl p-8 text-center">
+        <div className="bg-green-light border border-[#a5d6a7] rounded-xl p-8 text-center">
           <div className="text-[48px] mb-3">✅</div>
           <h2 className="m-0 mb-2 text-[20px] font-black text-[#2e7d32]">종료 처리 완료</h2>
           <p className="m-0 mb-6 text-[14px] text-muted-brand">
@@ -537,7 +537,7 @@ export default function TerminationPage() {
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div className="mb-4">
-      <label className="block text-[13px] font-bold mb-1.5 text-[#CBD5E0]">
+      <label className="block text-[13px] font-bold mb-1.5 text-dim-brand">
         {label} {required && <span className="text-[#e53935]">*</span>}
       </label>
       {children}

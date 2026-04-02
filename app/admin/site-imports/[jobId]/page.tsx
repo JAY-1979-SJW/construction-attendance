@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -164,13 +164,13 @@ export default function SiteImportReviewPage() {
 
           {/* 액션 버튼 */}
           <div className="flex gap-2.5 items-center flex-wrap">
-            <button onClick={approveAllReady} className="px-4 py-2 bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7] rounded-lg cursor-pointer text-[13px] font-semibold">
+            <button onClick={approveAllReady} className="px-4 py-2 bg-green-light text-[#2e7d32] border border-[#a5d6a7] rounded-lg cursor-pointer text-[13px] font-semibold">
               READY 전체 승인 ({job.readyRows})
             </button>
             <button
               onClick={handleImport}
               disabled={importing || approvedCount === 0}
-              className="px-5 py-2 bg-[#F47920] text-white border-0 rounded-lg cursor-pointer text-[13px] font-semibold"
+              className="px-5 py-2 bg-brand-accent text-white border-0 rounded-lg cursor-pointer text-[13px] font-semibold"
               style={{ opacity: importing || approvedCount === 0 ? 0.5 : 1 }}
             >
               {importing ? '등록 중...' : `승인된 현장 등록 (${approvedCount}건)`}
@@ -195,7 +195,7 @@ export default function SiteImportReviewPage() {
 
         {/* 등록 결과 */}
         {importResult && (
-          <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-[10px] px-4 py-3.5 mb-4">
+          <div className="bg-green-light border border-[#a5d6a7] rounded-[10px] px-4 py-3.5 mb-4">
             <div className="font-bold text-[#2e7d32] mb-1">✅ {importResult.importedCount}개 현장 등록 완료</div>
             {importResult.errors.length > 0 && (
               <div className="text-xs text-[#b71c1c] mt-1.5">
@@ -227,12 +227,12 @@ export default function SiteImportReviewPage() {
         </div>
 
         {/* 테이블 */}
-        <div className="bg-white rounded-[12px] overflow-x-auto shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-card rounded-[12px] overflow-x-auto shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           <table className="w-full border-collapse">
             <thead>
               <tr>
                 {['행', '현장명', '원본 주소', '정제 주소', '위도', '경도', '반경(m)', '상태', '메시지', '수정', '승인'].map((h) => (
-                  <th key={h} className="text-left px-3 py-2.5 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] bg-[#fafafa] whitespace-nowrap">{h}</th>
+                  <th key={h} className="text-left px-3 py-2.5 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] bg-surface whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -249,13 +249,13 @@ export default function SiteImportReviewPage() {
                       {row.normalizedAddress ?? <span className="text-[#ccc]">-</span>}
                     </td>
                     <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-[11px] font-mono">
-                      {row.latitude != null ? row.latitude.toFixed(5) : <span className="text-[#e65100]">없음</span>}
+                      {row.latitude != null ? row.latitude.toFixed(5) : <span className="text-accent-hover">없음</span>}
                     </td>
                     <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-[11px] font-mono">
-                      {row.longitude != null ? row.longitude.toFixed(5) : <span className="text-[#e65100]">없음</span>}
+                      {row.longitude != null ? row.longitude.toFixed(5) : <span className="text-accent-hover">없음</span>}
                     </td>
                     <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
-                      {row.allowedRadiusMeters ?? <span className="text-[#e65100]">-</span>}
+                      {row.allowedRadiusMeters ?? <span className="text-accent-hover">-</span>}
                     </td>
                     <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                       <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
@@ -263,7 +263,7 @@ export default function SiteImportReviewPage() {
                         {STATUS_LABEL[row.validationStatus]}
                       </span>
                     </td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] text-[11px] text-[#e65100]">
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] text-[11px] text-accent-hover">
                       {row.validationMessage ?? ''}
                     </td>
                     <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
@@ -348,7 +348,7 @@ export default function SiteImportReviewPage() {
                           </div>
                           <div className="flex gap-2">
                             <button onClick={saveEdit} disabled={saving}
-                              className="px-4 py-2 bg-[#F47920] text-white border-0 rounded-lg cursor-pointer text-[13px] font-semibold">
+                              className="px-4 py-2 bg-brand-accent text-white border-0 rounded-lg cursor-pointer text-[13px] font-semibold">
                               {saving ? '저장 중...' : '저장'}
                             </button>
                             <button onClick={() => setEditingId(null)}

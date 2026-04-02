@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -280,7 +280,7 @@ export default function WorkerDetailPage() {
         {/* 헤더 */}
         <div className="mb-5">
           <div className="flex items-center gap-3">
-            <button onClick={() => router.push('/admin/workers')} className="px-3 py-1.5 bg-white border border-secondary-brand/30 rounded-md cursor-pointer text-[13px]">← 목록</button>
+            <button onClick={() => router.push('/admin/workers')} className="px-3 py-1.5 bg-card border border-secondary-brand/30 rounded-md cursor-pointer text-[13px]">← 목록</button>
             <h1 className="m-0 text-xl font-bold inline-flex items-baseline gap-1.5">
               {worker.name}
               <span className={`ml-2 text-sm font-normal ${worker.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>
@@ -302,7 +302,7 @@ export default function WorkerDetailPage() {
         </div>
 
         {/* 탭 */}
-        <div className="flex gap-1 mb-4 border-b border-[#e0e0e0] pb-0">
+        <div className="flex gap-1 mb-4 border-b border-brand pb-0">
           {([['info', '기본정보'], ['profile', '분류정보'], ['company', '회사배정'], ['site', '현장배정'], ['insurance', '보험상태'], ['contracts', '계약서'], ['safety', '안전문서'], ['onboarding', '투입문서'], ['docs', '문서'], ['hrActions', '경고·소명']] as [Tab, string][]).map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)} className={`px-[18px] py-2 bg-transparent border-none border-b-2 cursor-pointer text-[13px] font-medium flex items-center gap-1.5 -mb-px ${tab === key ? 'border-[#1976d2] text-secondary-brand font-bold' : 'border-transparent text-muted-brand'}`}>
               {label}
@@ -320,7 +320,7 @@ export default function WorkerDetailPage() {
         </div>
 
         {/* 탭 컨텐츠 */}
-        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {tab === 'info' && <InfoTab worker={worker} onRefresh={load} onNavigateDoc={(doc) => {
             if (doc.actionType === 'CONTRACT_NEW') {
               router.push(`/admin/contracts/new?workerId=${worker.id}`)
@@ -359,7 +359,7 @@ export default function WorkerDetailPage() {
         {worker.isActive && (
           <div className="bg-[#fff3e0] border border-[#ffcc80] rounded-xl px-5 py-4 flex items-center justify-between mt-4">
             <div>
-              <div className="text-sm font-bold text-[#e65100]">종료 처리</div>
+              <div className="text-sm font-bold text-accent-hover">종료 처리</div>
               <div className="text-xs text-[#718096] mt-0.5">체크리스트 완료 후 종료 확정이 가능합니다. 단순 상태 변경은 허용되지 않습니다.</div>
             </div>
             <Link
@@ -608,7 +608,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h3 className="mt-0 mb-0 text-sm font-bold text-[#CBD5E0]">기본 정보</h3>
+        <h3 className="mt-0 mb-0 text-sm font-bold text-dim-brand">기본 정보</h3>
         {!editing && (
           <button
             onClick={openEdit}
@@ -621,7 +621,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
 
       {/* 편집 모드 */}
       {editing ? (
-        <div className="bg-[#f8f9fa] border border-[#e0e0e0] rounded-lg p-5">
+        <div className="bg-[#f8f9fa] border border-brand rounded-lg p-5">
           <div className="text-[12px] text-muted-brand font-semibold mb-4 uppercase">편집 항목</div>
           {[
             { label: '이름 *', value: editName, set: setEditName, type: 'text', placeholder: '홍길동' },
@@ -635,7 +635,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
                 value={value}
                 onChange={e => set(e.target.value)}
                 placeholder={placeholder}
-                className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px] bg-white"
+                className="flex-1 px-3 py-2 border border-secondary-brand/30 rounded-md text-[13px] bg-card"
               />
             </div>
           ))}
@@ -663,7 +663,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
             </button>
             <button
               onClick={() => setEditing(false)}
-              className="px-5 py-2 bg-white border border-secondary-brand/30 rounded-md cursor-pointer text-[13px]"
+              className="px-5 py-2 bg-card border border-secondary-brand/30 rounded-md cursor-pointer text-[13px]"
             >
               취소
             </button>
@@ -675,8 +675,8 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
         {/* 투입 가능 상태 카드 */}
         <div className={`mb-5 p-4 rounded-lg border ${
           worker.assignmentEligibility === 'READY' ? 'bg-[#F0FDF4] border-[#BBF7D0]' :
-          worker.assignmentEligibility === 'NEEDS_DOCS' ? 'bg-[#FFFBEB] border-[#FDE68A]' :
-          'bg-[#FEF2F2] border-[#FECACA]'
+          worker.assignmentEligibility === 'NEEDS_DOCS' ? 'bg-yellow-light border-yellow' :
+          'bg-red-light border-[#FECACA]'
         }`}>
           <div className="flex items-center gap-2 mb-1">
             <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: eligStyle.color }} />
@@ -689,17 +689,17 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
           {worker.assignmentEligibility !== 'READY' && (
             <div className="mt-2 space-y-1">
               {worker.accountStatus !== 'APPROVED' && (
-                <div className="text-[12px] text-[#DC2626] flex items-center gap-1">
+                <div className="text-[12px] text-status-rejected flex items-center gap-1">
                   <span>✕</span> 계정: {worker.accountStatus === 'PENDING' ? '승인 대기' : worker.accountStatus === 'REJECTED' ? '반려됨' : worker.accountStatus === 'SUSPENDED' ? '정지됨' : worker.accountStatus}
                 </div>
               )}
               {!worker.isActive && worker.accountStatus === 'APPROVED' && (
-                <div className="text-[12px] text-[#DC2626] flex items-center gap-1">
+                <div className="text-[12px] text-status-rejected flex items-center gap-1">
                   <span>✕</span> 계정 비활성 상태
                 </div>
               )}
               {worker._count.devices === 0 && (
-                <div className="text-[12px] text-[#DC2626] flex items-center gap-1">
+                <div className="text-[12px] text-status-rejected flex items-center gap-1">
                   <span>✕</span> 등록된 기기 없음 — 기기 등록/승인 필요
                 </div>
               )}
@@ -707,12 +707,12 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
           )}
           {worker.expiredDocs && worker.expiredDocs.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
-              <span className="text-[12px] text-[#DC2626] mr-1 pt-0.5">만료 서류:</span>
+              <span className="text-[12px] text-status-rejected mr-1 pt-0.5">만료 서류:</span>
               {worker.expiredDocs.map(doc => (
                 <button
                   key={doc.key}
                   onClick={() => onNavigateDoc?.(doc)}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-white border-[#EF4444] text-[#DC2626] hover:bg-[#FEF2F2] transition-colors"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-card border-[#EF4444] text-status-rejected hover:bg-red-light transition-colors"
                 >
                   {doc.label}{doc.expiresAt ? ` (${doc.expiresAt.slice(0, 10)} 만료)` : ' (만료)'}
                   <span className="text-[10px]">&rarr;</span>
@@ -722,14 +722,14 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
           )}
           {worker.expiringDocs && worker.expiringDocs.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
-              <span className="text-[12px] text-[#D97706] mr-1 pt-0.5">만료 예정:</span>
+              <span className="text-[12px] text-status-exception mr-1 pt-0.5">만료 예정:</span>
               {worker.expiringDocs.map(doc => {
                 const daysLeft = doc.expiresAt ? Math.ceil((new Date(doc.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0
                 return (
                   <button
                     key={doc.key}
                     onClick={() => onNavigateDoc?.(doc)}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-white border-[#F59E0B] text-[#D97706] hover:bg-[#FEF3C7] transition-colors"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-card border-[#F59E0B] text-status-exception hover:bg-yellow-light transition-colors"
                   >
                     {doc.label} ({doc.expiresAt?.slice(0, 10)}, {daysLeft}일 남음)
                     <span className="text-[10px]">&rarr;</span>
@@ -740,12 +740,12 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
           )}
           {worker.rejectedDocs && worker.rejectedDocs.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
-              <span className="text-[12px] text-[#DC2626] mr-1 pt-0.5">보완 필요:</span>
+              <span className="text-[12px] text-status-rejected mr-1 pt-0.5">보완 필요:</span>
               {worker.rejectedDocs.map(doc => (
                 <button
                   key={doc.key}
                   onClick={() => onNavigateDoc?.(doc)}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-white border-[#EF4444] text-[#DC2626] hover:bg-[#FEF2F2] transition-colors"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-card border-[#EF4444] text-status-rejected hover:bg-red-light transition-colors"
                 >
                   {doc.label} (반려)
                   <span className="text-[10px]">&rarr;</span>
@@ -755,7 +755,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
           )}
           {worker.missingDocs && worker.missingDocs.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
-              <span className="text-[12px] text-[#92400E] mr-1 pt-0.5">부족 서류:</span>
+              <span className="text-[12px] text-status-pending mr-1 pt-0.5">부족 서류:</span>
               {worker.missingDocs.map(doc => {
                 const STATUS_HINT: Record<string, string> = {
                   NOT_SUBMITTED: '', SUBMITTED: '작성됨', REVIEW_REQUESTED: '검토중',
@@ -765,7 +765,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
                   <button
                     key={doc.key}
                     onClick={() => onNavigateDoc?.(doc)}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-white border-[#F59E0B] text-[#92400E] hover:bg-[#FEF3C7] transition-colors"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border cursor-pointer bg-card border-[#F59E0B] text-status-pending hover:bg-yellow-light transition-colors"
                   >
                     {doc.label}{hint ? ` (${hint})` : ''}
                     <span className="text-[10px]">&rarr;</span>
@@ -780,15 +780,15 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
           <tbody>
             <tr>
               <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">이름</td>
-              <td className="py-2 text-[13px] text-[#CBD5E0]">{worker.name}</td>
+              <td className="py-2 text-[13px] text-dim-brand">{worker.name}</td>
             </tr>
             <tr>
               <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">휴대폰</td>
-              <td className="py-2 text-[13px] text-[#CBD5E0]">{fmtPhone(worker.phone)}</td>
+              <td className="py-2 text-[13px] text-dim-brand">{fmtPhone(worker.phone)}</td>
             </tr>
             <tr>
               <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">직종</td>
-              <td className="py-2 text-[13px] text-[#CBD5E0]">{worker.jobTitle}</td>
+              <td className="py-2 text-[13px] text-dim-brand">{worker.jobTitle}</td>
             </tr>
             <tr>
               <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">활성 상태</td>
@@ -801,7 +801,7 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
             {readonlyRows.map(([label, value]) => (
               <tr key={String(label)}>
                 <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px] align-top">{label}</td>
-                <td className="py-2 text-[13px] text-[#CBD5E0]">{value}</td>
+                <td className="py-2 text-[13px] text-dim-brand">{value}</td>
               </tr>
             ))}
           </tbody>
@@ -818,7 +818,7 @@ function CompanyTab({ assignments, onAdd }: { assignments: CompanyAssignment[]; 
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h3 className="mt-0 mb-0 text-sm font-bold text-[#CBD5E0]">회사 배정 이력</h3>
+        <h3 className="mt-0 mb-0 text-sm font-bold text-dim-brand">회사 배정 이력</h3>
         <button onClick={onAdd} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold">+ 회사 배정</button>
       </div>
       {assignments.length === 0 ? (
@@ -828,20 +828,20 @@ function CompanyTab({ assignments, onAdd }: { assignments: CompanyAssignment[]; 
           <thead>
             <tr>
               {['회사명', '유형', '고용형태', '시작일', '종료일', '주소속', '메모'].map(h => (
-                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-[#e0e0e0] text-muted-brand">{h}</th>
+                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-brand text-muted-brand">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {assignments.map(a => (
               <tr key={a.id}>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.company.companyName}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]"><span className="bg-accent/12 text-accent px-2 py-0.5 rounded text-[11px]">{a.company.companyType ?? '—'}</span></td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.employmentType}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{fmtDate(a.validFrom)}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{fmtDate(a.validTo)}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.isPrimary ? <span className="bg-[#e8f5e9] text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주소속</span> : '—'}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.notes ?? '—'}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.company.companyName}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand"><span className="bg-accent/12 text-accent px-2 py-0.5 rounded text-[11px]">{a.company.companyType ?? '—'}</span></td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.employmentType}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.validFrom)}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.validTo)}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.isPrimary ? <span className="bg-green-light text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주소속</span> : '—'}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.notes ?? '—'}</td>
               </tr>
             ))}
           </tbody>
@@ -857,7 +857,7 @@ function SiteTab({ assignments, onAdd }: { assignments: SiteAssignment[]; onAdd:
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h3 className="mt-0 mb-0 text-sm font-bold text-[#CBD5E0]">현장 배정 이력</h3>
+        <h3 className="mt-0 mb-0 text-sm font-bold text-dim-brand">현장 배정 이력</h3>
         <button onClick={onAdd} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold">+ 현장 배정</button>
       </div>
       {assignments.length === 0 ? (
@@ -867,24 +867,24 @@ function SiteTab({ assignments, onAdd }: { assignments: SiteAssignment[]; onAdd:
           <thead>
             <tr>
               {['현장명', '소속회사', '직종/공종', '배정일', '종료일', '상태', '주현장'].map(h => (
-                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-[#e0e0e0] text-muted-brand">{h}</th>
+                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-brand text-muted-brand">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {assignments.map(a => (
               <tr key={a.id} style={{ opacity: a.isActive ? 1 : 0.6 }}>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.site.name}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.company.companyName}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.tradeType ?? '—'}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{fmtDate(a.assignedFrom)}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{fmtDate(a.assignedTo)}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.site.name}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.company.companyName}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.tradeType ?? '—'}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.assignedFrom)}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.assignedTo)}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
                   <span className={`text-xs font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>
                     {a.isActive ? '활성' : '비활성'}
                   </span>
                 </td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">{a.isPrimary ? <span className="bg-[#e8f5e9] text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주현장</span> : '—'}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.isPrimary ? <span className="bg-green-light text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주현장</span> : '—'}</td>
               </tr>
             ))}
           </tbody>
@@ -907,7 +907,7 @@ function InsuranceTab({ statuses, onAdd }: { statuses: InsuranceStatus[]; onAdd:
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h3 className="mt-0 mb-0 text-sm font-bold text-[#CBD5E0]">4대보험 상태</h3>
+        <h3 className="mt-0 mb-0 text-sm font-bold text-dim-brand">4대보험 상태</h3>
         <button onClick={onAdd} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold">+ 보험 등록/수정</button>
       </div>
       {statuses.length === 0 ? (
@@ -920,7 +920,7 @@ function InsuranceTab({ statuses, onAdd }: { statuses: InsuranceStatus[]; onAdd:
           </div>
           <div className="grid grid-cols-4 gap-2 mb-2.5">
             {ins4(st).map(([label, val]) => (
-              <div key={label} className="bg-[#f9f9f9] rounded-md p-2.5 text-center">
+              <div key={label} className="bg-surface rounded-md p-2.5 text-center">
                 <div className="text-[11px] text-muted-brand mb-1">{label}</div>
                 <div className={`text-[13px] font-bold ${val === 'ENROLLED' ? 'text-[#2e7d32]' : val === 'LOSS' ? 'text-[#c62828]' : val === 'EXEMPT' ? 'text-[#f57c00]' : 'text-[#999]'}`}>
                   {INSURANCE_STATUS_LABELS[val] ?? val}
@@ -945,7 +945,7 @@ function InsuranceTab({ statuses, onAdd }: { statuses: InsuranceStatus[]; onAdd:
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]">
-      <div className="bg-white rounded-[12px] p-5 w-[480px] max-h-[80vh] overflow-y-auto">
+      <div className="bg-card rounded-[12px] p-5 w-[480px] max-h-[80vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-5">
           <h3 className="m-0 text-base">{title}</h3>
           <button onClick={onClose} className="bg-transparent border-none text-lg cursor-pointer text-muted-brand">✕</button>
@@ -1073,7 +1073,7 @@ function DocsTab({ workerId }: { workerId: string }) {
     <div>
       {/* 업로드 폼 */}
       <div className="bg-brand rounded-lg p-4 mb-5">
-        <div className="font-bold text-[13px] mb-3 text-[#CBD5E0]">문서 업로드</div>
+        <div className="font-bold text-[13px] mb-3 text-dim-brand">문서 업로드</div>
         <div className="flex gap-2.5 flex-wrap items-end">
           <div>
             <div className="text-[11px] text-muted-brand mb-1">문서 유형</div>
@@ -1112,9 +1112,9 @@ function DocsTab({ workerId }: { workerId: string }) {
 
       {/* 필터 */}
       <div className="flex gap-2 mb-3.5 flex-wrap">
-        <button onClick={() => setFilterType('')} className={`px-3 py-1 rounded-2xl border-none cursor-pointer text-xs font-semibold ${filterType === '' ? 'bg-[#1976d2] text-white' : 'bg-[#f0f0f0] text-[#666]'}`}>전체</button>
+        <button onClick={() => setFilterType('')} className={`px-3 py-1 rounded-2xl border-none cursor-pointer text-xs font-semibold ${filterType === '' ? 'bg-[#1976d2] text-white' : 'bg-footer text-[#666]'}`}>전체</button>
         {Object.entries(DOC_TYPE_LABEL).map(([v, l]) => (
-          <button key={v} onClick={() => setFilterType(v)} className={`px-3 py-1 rounded-2xl border-none cursor-pointer text-xs font-semibold ${filterType === v ? 'bg-[#1976d2] text-white' : 'bg-[#f0f0f0] text-[#666]'}`}>{l}</button>
+          <button key={v} onClick={() => setFilterType(v)} className={`px-3 py-1 rounded-2xl border-none cursor-pointer text-xs font-semibold ${filterType === v ? 'bg-[#1976d2] text-white' : 'bg-footer text-[#666]'}`}>{l}</button>
         ))}
       </div>
 
@@ -1126,40 +1126,40 @@ function DocsTab({ workerId }: { workerId: string }) {
           <thead>
             <tr>
               {['유형', '파일명', '크기', '업로드일', '만료일', '상태', '검토자/일', '비고', '열람', '다운로드', '상태변경'].map((h) => (
-                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-[#e0e0e0] text-muted-brand">{h}</th>
+                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-brand text-muted-brand">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {docs.map((doc) => (
               <tr key={doc.id}>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
                   <span className="text-[11px] font-bold bg-accent/12 text-accent px-2 py-0.5 rounded-lg">
                     {DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
                   </span>
                 </td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] max-w-[180px] text-xs text-[#CBD5E0] break-all">
+                <td className="px-3 py-2.5 border-b border-brand max-w-[180px] text-xs text-dim-brand break-all">
                   {/* 파일명만 노출 — 민감문서는 내용 미노출 */}
                   {doc.file.originalFilename}
                 </td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[11px] text-muted-brand">{fmtBytes(doc.file.sizeBytes)}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[11px] text-muted-brand whitespace-nowrap">
+                <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand">{fmtBytes(doc.file.sizeBytes)}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand whitespace-nowrap">
                   {new Date(doc.file.uploadedAt).toLocaleDateString('ko-KR')}
                 </td>
-                <td className={`px-3 py-2.5 border-b border-[#f0f0f0] text-[11px] ${doc.expiresAt && new Date(doc.expiresAt) < new Date() ? 'text-[#b71c1c]' : 'text-[#555]'}`}>
+                <td className={`px-3 py-2.5 border-b border-brand text-[11px] ${doc.expiresAt && new Date(doc.expiresAt) < new Date() ? 'text-[#b71c1c]' : 'text-[#555]'}`}>
                   {doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString('ko-KR') : '—'}
                 </td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
                   <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
                     style={{ color: DOC_STATUS_COLOR[doc.status], background: DOC_STATUS_BG[doc.status] }}>
                     {DOC_STATUS_LABEL[doc.status] ?? doc.status}
                   </span>
                 </td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[11px] text-muted-brand whitespace-nowrap">
+                <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand whitespace-nowrap">
                   {doc.reviewedBy ? `${doc.reviewedBy.slice(-6)} / ${doc.reviewedAt ? new Date(doc.reviewedAt).toLocaleDateString('ko-KR') : '—'}` : '—'}
                 </td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[11px] text-muted-brand max-w-[120px]">{doc.notes ?? '—'}</td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
+                <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand max-w-[120px]">{doc.notes ?? '—'}</td>
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
                   <a
                     href={`/api/admin/workers/${workerId}/documents/${doc.id}/download?inline=1`}
                     target="_blank"
@@ -1169,7 +1169,7 @@ function DocsTab({ workerId }: { workerId: string }) {
                     열람
                   </a>
                 </td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
                   <a
                     href={`/api/admin/workers/${workerId}/documents/${doc.id}/download`}
                     className="text-xs text-muted-brand underline"
@@ -1177,7 +1177,7 @@ function DocsTab({ workerId }: { workerId: string }) {
                     다운로드
                   </a>
                 </td>
-                <td className="px-3 py-2.5 border-b border-[#f0f0f0] text-[#CBD5E0]">
+                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
                   <select
                     value={doc.status}
                     onChange={(e) => changeStatus(doc.id, e.target.value)}
@@ -1264,7 +1264,7 @@ function ProfileTab({ workerId }: { workerId: string }) {
         )}
       </div>
 
-      {msg && <div className="px-3 py-2 bg-[#e8f5e9] rounded-md text-[13px] text-[#2e7d32] mb-3">{msg}</div>}
+      {msg && <div className="px-3 py-2 bg-green-light rounded-md text-[13px] text-[#2e7d32] mb-3">{msg}</div>}
 
       {!editing && !profile && (
         <div className="py-8 text-center text-[#718096] text-sm">
@@ -1283,9 +1283,9 @@ function ProfileTab({ workerId }: { workerId: string }) {
             ['계속근로 검토', profile.continuousWorkReview === 'REVIEW_REQUIRED'
               ? '⚠️ 검토 필요' : '이상 없음'],
           ].map(([label, value]) => (
-            <div key={label as string} className="p-3 bg-[#f9f9f9] rounded-lg">
+            <div key={label as string} className="p-3 bg-surface rounded-lg">
               <div className="text-[11px] text-muted-brand mb-1">{label}</div>
-              <div className={`text-sm font-semibold ${profile.continuousWorkReview === 'REVIEW_REQUIRED' && label === '계속근로 검토' ? 'text-[#e65100]' : 'text-[#333]'}`}>
+              <div className={`text-sm font-semibold ${profile.continuousWorkReview === 'REVIEW_REQUIRED' && label === '계속근로 검토' ? 'text-accent-hover' : 'text-[#333]'}`}>
                 {value as string}
               </div>
             </div>
@@ -1396,7 +1396,7 @@ function ContractsTab({ workerId, onDocChange }: { workerId: string; onDocChange
       ) : (
         <table className="w-full border-collapse text-[13px]">
           <thead>
-            <tr className="bg-brand border-b border-[#e5e7eb]">
+            <tr className="bg-brand border-b border-brand">
               <th className="px-3 py-2 text-left">유형</th>
               <th className="px-3 py-2 text-left">현장</th>
               <th className="px-3 py-2 text-left">기간</th>
@@ -1409,7 +1409,7 @@ function ContractsTab({ workerId, onDocChange }: { workerId: string; onDocChange
           </thead>
           <tbody>
             {contracts.map(c => (
-              <tr key={c.id} className="border-b border-[#f0f0f0]">
+              <tr key={c.id} className="border-b border-brand">
                 <td className="px-3 py-2">
                   {CONTRACT_TYPE_LABEL[c.contractType] || c.contractType}
                   {c.currentVersion && c.currentVersion > 1 && (
@@ -1426,22 +1426,22 @@ function ContractsTab({ workerId, onDocChange }: { workerId: string; onDocChange
                 <td className="px-3 py-2 text-center">
                   <span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${
                     c.contractStatus === 'ACTIVE' ? 'bg-[#dcfce7] text-[#166534]'
-                    : c.contractStatus === 'REJECTED' ? 'bg-[#fef2f2] text-[#dc2626]'
+                    : c.contractStatus === 'REJECTED' ? 'bg-red-light text-status-rejected'
                     : c.contractStatus === 'REVIEW_REQUESTED' || c.contractStatus === 'SIGNED' ? 'bg-[#fef9c3] text-[#854d0e]'
-                    : c.contractStatus === 'DRAFT' ? 'bg-[#f3f4f6] text-[#6b7280]'
-                    : 'bg-[#f3f4f6] text-[#6b7280]'
+                    : c.contractStatus === 'DRAFT' ? 'bg-footer text-muted-brand'
+                    : 'bg-footer text-muted-brand'
                   }`}>
                     {CONTRACT_STATUS_LABEL[c.contractStatus] || c.contractStatus}
                   </span>
                 </td>
-                <td className={`px-3 py-2 text-center ${c.signedAt ? 'text-[#16a34a]' : 'text-[#d1d5db]'}`}>
+                <td className={`px-3 py-2 text-center ${c.signedAt ? 'text-status-working' : 'text-[#d1d5db]'}`}>
                   {c.signedAt ? '✓' : '—'}
                 </td>
-                <td className={`px-3 py-2 text-center ${c.deliveredAt ? 'text-[#16a34a]' : 'text-[#d1d5db]'}`}>
+                <td className={`px-3 py-2 text-center ${c.deliveredAt ? 'text-status-working' : 'text-[#d1d5db]'}`}>
                   {c.deliveredAt ? '✓' : '—'}
                 </td>
                 <td className="px-3 py-2 text-center">
-                  <a href={`/admin/contracts/${c.id}`} className="text-[#2563eb] text-[12px] no-underline">상세</a>
+                  <a href={`/admin/contracts/${c.id}`} className="text-status-info text-[12px] no-underline">상세</a>
                 </td>
               </tr>
             ))}
@@ -1618,7 +1618,7 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
       ) : (
         <table className="w-full border-collapse text-[13px]">
           <thead>
-            <tr className="bg-brand border-b border-[#e5e7eb]">
+            <tr className="bg-brand border-b border-brand">
               <th className="px-3 py-2 text-left">문서 종류</th>
               <th className="px-3 py-2 text-left">현장</th>
               <th className="px-3 py-2 text-left">문서일</th>
@@ -1629,16 +1629,16 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
           </thead>
           <tbody>
             {docs.map(d => (
-              <tr key={d.id} className="border-b border-[#f0f0f0]">
+              <tr key={d.id} className="border-b border-brand">
                 <td className="px-3 py-2">{SAFETY_DOC_LABELS[d.documentType] || d.documentType}</td>
                 <td className="px-3 py-2 text-muted-brand">{d.site?.name || '—'}</td>
                 <td className="px-3 py-2 text-muted-brand">{d.educationDate || d.documentDate || '—'}</td>
                 <td className="px-3 py-2 text-center">
                   <span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${
                     d.status === 'APPROVED' ? 'bg-[#dcfce7] text-[#166534]'
-                    : d.status === 'REJECTED' ? 'bg-[#fee2e2] text-[#991b1b]'
+                    : d.status === 'REJECTED' ? 'bg-red-light text-status-rejected'
                     : d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED' ? 'bg-[#dbeafe] text-[#1e40af]'
-                    : d.status === 'ISSUED' ? 'bg-[#f3f4f6] text-[#6b7280]'
+                    : d.status === 'ISSUED' ? 'bg-footer text-muted-brand'
                     : 'bg-[#fef9c3] text-[#854d0e]'
                   }`}>
                     {d.status === 'APPROVED' ? '승인' : d.status === 'REJECTED' ? '반려' : d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED' ? '검토대기' : d.status === 'ISSUED' ? '발행' : '초안'}
@@ -1649,7 +1649,7 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
                 </td>
                 <td className="px-3 py-2 text-center flex flex-wrap gap-1 justify-center">
                   <button onClick={() => handlePreview(d.id)}
-                    className="px-2 py-0.5 text-[11px] border border-secondary-brand/30 rounded cursor-pointer bg-white">
+                    className="px-2 py-0.5 text-[11px] border border-secondary-brand/30 rounded cursor-pointer bg-card">
                     미리보기
                   </button>
                   {(d.status === 'DRAFT' || d.status === 'ISSUED') && (
@@ -1693,7 +1693,7 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
       {/* 생성 폼 모달 */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
-          <div className="bg-white rounded-[12px] p-5 w-[480px] max-h-[80vh] overflow-y-auto">
+          <div className="bg-card rounded-[12px] p-5 w-[480px] max-h-[80vh] overflow-y-auto">
             <h3 className="mt-0 mb-5 text-[16px]">안전문서 생성</h3>
 
             <div className="mb-3.5">
@@ -1748,9 +1748,9 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
             {form.documentType === 'PPE_PROVISION' && (
               <div className="mb-3.5">
                 <label className="block text-[13px] font-semibold mb-2">보호구 품목별 지급 현황</label>
-                <div className="text-[11px] text-[#6b7280] mb-2">지급한 품목에 체크하고 수량·상태·설명 여부를 입력하세요.</div>
+                <div className="text-[11px] text-muted-brand mb-2">지급한 품목에 체크하고 수량·상태·설명 여부를 입력하세요.</div>
                 {ppeItems.map((item, idx) => (
-                  <div key={item.name} className={`border border-[#e5e7eb] rounded-md px-3 py-2.5 mb-2 ${item.issued ? 'bg-[#f0fdf4]' : 'bg-[#fafafa]'}`}>
+                  <div key={item.name} className={`border border-brand rounded-md px-3 py-2.5 mb-2 ${item.issued ? 'bg-[#f0fdf4]' : 'bg-surface'}`}>
                     <div className="flex items-center gap-2 mb-1.5">
                       <label className="flex items-center gap-1.5 font-semibold text-[13px] cursor-pointer flex-1">
                         <input type="checkbox" checked={item.issued}
@@ -1758,19 +1758,19 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
                         {item.name}
                       </label>
                       {item.issued && (
-                        <span className="text-[11px] text-[#16a34a] font-semibold">지급</span>
+                        <span className="text-[11px] text-status-working font-semibold">지급</span>
                       )}
                     </div>
                     {item.issued && (
                       <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
                         <div>
-                          <label className="text-[11px] text-[#6b7280] block mb-0.5">수량</label>
+                          <label className="text-[11px] text-muted-brand block mb-0.5">수량</label>
                           <input type="number" min={1} value={item.qty}
                             onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, qty: Number(e.target.value) } : it))}
                             className="w-full px-2 py-1 border border-secondary-brand/30 rounded text-[13px]" />
                         </div>
                         <div>
-                          <label className="text-[11px] text-[#6b7280] block mb-0.5">상태</label>
+                          <label className="text-[11px] text-muted-brand block mb-0.5">상태</label>
                           <select value={item.condition}
                             onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, condition: e.target.value } : it))}
                             className="w-full px-2 py-1 border border-secondary-brand/30 rounded text-[13px]">
@@ -1791,7 +1791,7 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
                           교체 필요
                         </label>
                         <div className="col-span-2">
-                          <label className="text-[11px] text-[#6b7280] block mb-0.5">비고</label>
+                          <label className="text-[11px] text-muted-brand block mb-0.5">비고</label>
                           <input type="text" value={item.note} placeholder="규격, 특이사항 등"
                             onChange={e => setPpeItems(prev => prev.map((it, i) => i === idx ? { ...it, note: e.target.value } : it))}
                             className="w-full px-2 py-1 border border-secondary-brand/30 rounded text-[13px]" />
@@ -1922,7 +1922,7 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
 
             <div className="flex gap-2.5 mt-5">
               <button onClick={() => setShowForm(false)}
-                className="flex-1 py-2.5 border border-secondary-brand/30 rounded-md bg-white cursor-pointer">
+                className="flex-1 py-2.5 border border-secondary-brand/30 rounded-md bg-card cursor-pointer">
                 취소
               </button>
               <button onClick={handleSubmit} disabled={submitting}
@@ -1937,28 +1937,28 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
       {/* 미리보기 모달 */}
       {previewDoc && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
-          <div className="bg-white rounded-[12px] p-5 w-[700px] max-h-[85vh] overflow-y-auto">
+          <div className="bg-card rounded-[12px] p-5 w-[700px] max-h-[85vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="m-0 text-[16px]">{SAFETY_DOC_LABELS[previewDoc.documentType] || previewDoc.documentType}</h3>
               <button onClick={() => setPreviewDoc(null)} className="border-none bg-transparent text-[20px] cursor-pointer">✕</button>
             </div>
             {/* 현재 반려 사유 */}
             {previewDoc.status === 'REJECTED' && previewDoc.rejectReason && (
-              <div className="bg-[#fef2f2] border border-[#fecaca] rounded-md p-3 mb-3">
-                <div className="text-[12px] font-bold text-[#991b1b] mb-1">반려 사유</div>
-                <div className="text-[13px] text-[#dc2626]">{previewDoc.rejectReason}</div>
+              <div className="bg-red-light border border-[#fecaca] rounded-md p-3 mb-3">
+                <div className="text-[12px] font-bold text-status-rejected mb-1">반려 사유</div>
+                <div className="text-[13px] text-status-rejected">{previewDoc.rejectReason}</div>
               </div>
             )}
             {/* 이전 반려 이력 */}
             {previewDoc.history && previewDoc.history.length > 0 && (
-              <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-md p-3 mb-3">
-                <div className="text-[12px] font-bold text-[#6b7280] mb-2">이전 이력 ({previewDoc.history.length}건)</div>
+              <div className="bg-surface border border-brand rounded-md p-3 mb-3">
+                <div className="text-[12px] font-bold text-muted-brand mb-2">이전 이력 ({previewDoc.history.length}건)</div>
                 {previewDoc.history.map((h, i) => (
                   <div key={h.id} className="flex items-start gap-2 mb-1.5 text-[12px]">
-                    <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold ${h.status === 'REJECTED' ? 'bg-[#fee2e2] text-[#991b1b]' : 'bg-[#f3f4f6] text-[#6b7280]'}`}>
+                    <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold ${h.status === 'REJECTED' ? 'bg-red-light text-status-rejected' : 'bg-footer text-muted-brand'}`}>
                       {i + 1}차 {h.status === 'REJECTED' ? '반려' : h.status}
                     </span>
-                    {h.rejectReason && <span className="text-[#9ca3af]">{h.rejectReason}</span>}
+                    {h.rejectReason && <span className="text-muted2-brand">{h.rejectReason}</span>}
                     <span className="text-[#d1d5db] ml-auto shrink-0">{new Date(h.createdAt).toLocaleDateString('ko-KR')}</span>
                   </div>
                 ))}
@@ -1981,7 +1981,7 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
                 다운로드
               </button>
               <button onClick={() => setPreviewDoc(null)}
-                className="px-4 py-2 border border-secondary-brand/30 rounded-md bg-white cursor-pointer text-[13px]">
+                className="px-4 py-2 border border-secondary-brand/30 rounded-md bg-card cursor-pointer text-[13px]">
                 닫기
               </button>
             </div>
@@ -2091,7 +2091,7 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
         ) : (
           warnings.map((w: Record<string, unknown>) => (
             <div key={w.id as string}
-              className="border border-[#f0f0f0] rounded-lg px-3.5 py-2.5 mb-2"
+              className="border border-brand rounded-lg px-3.5 py-2.5 mb-2"
               style={{ borderLeft: `4px solid ${WARNING_LEVEL_COLOR[w.warningLevel as string] ?? '#e0e0e0'}` }}>
               <div className="flex justify-between mb-1">
                 <span className="text-[12px] font-bold" style={{ color: WARNING_LEVEL_COLOR[w.warningLevel as string] ?? '#666' }}>
@@ -2121,7 +2121,7 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
               className="w-full px-2 py-2 mb-2.5 border border-secondary-brand/20 rounded-md text-[13px] resize-y box-border" />
             <div className="flex gap-2">
               <button onClick={() => setShowWarning(false)}
-                className="px-4 py-2 border border-secondary-brand/20 rounded-md bg-white cursor-pointer text-[13px]">취소</button>
+                className="px-4 py-2 border border-secondary-brand/20 rounded-md bg-card cursor-pointer text-[13px]">취소</button>
               <button onClick={submitWarning} disabled={saving || !wForm.reason.trim()}
                 className="px-4 py-2 text-white border-none rounded-md text-[13px] font-bold cursor-pointer"
                 style={{ background: saving ? '#bdbdbd' : '#e65100' }}>
@@ -2145,10 +2145,10 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
           <div className="text-[#718096] text-[13px]">소명 요청 내역이 없습니다.</div>
         ) : (
           explanations.map((e: Record<string, unknown>) => (
-            <div key={e.id as string} className="border border-[#f0f0f0] rounded-lg px-3.5 py-2.5 mb-2">
+            <div key={e.id as string} className="border border-brand rounded-lg px-3.5 py-2.5 mb-2">
               <div className="flex justify-between mb-1">
                 <span className="text-[13px] font-semibold">{e.subject as string}</span>
-                <span className="text-[11px] text-[#4A93C8] bg-secondary-brand/10 px-2 py-px rounded-[20px] font-bold">
+                <span className="text-[11px] text-secondary-brand bg-secondary-brand/10 px-2 py-px rounded-[20px] font-bold">
                   {EXPL_STATUS_LABEL[e.status as string] ?? e.status as string}
                 </span>
               </div>
@@ -2171,7 +2171,7 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
               className="w-full px-2 py-2 mb-2.5 border border-secondary-brand/20 rounded-md text-[13px] box-border" />
             <div className="flex gap-2">
               <button onClick={() => setShowExplain(false)}
-                className="px-4 py-2 border border-secondary-brand/20 rounded-md bg-white cursor-pointer text-[13px]">취소</button>
+                className="px-4 py-2 border border-secondary-brand/20 rounded-md bg-card cursor-pointer text-[13px]">취소</button>
               <button onClick={submitExplanation} disabled={saving || !eForm.subject.trim() || !eForm.reason.trim()}
                 className="px-4 py-2 text-white border-none rounded-md text-[13px] font-bold cursor-pointer"
                 style={{ background: saving ? '#bdbdbd' : '#1565c0' }}>
@@ -2195,7 +2195,7 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
           <div className="text-[#718096] text-[13px]">통지 기록이 없습니다.</div>
         ) : (
           notices.map((n: Record<string, unknown>) => (
-            <div key={n.id as string} className="border border-[#f0f0f0] rounded-lg px-3.5 py-2.5 mb-2">
+            <div key={n.id as string} className="border border-brand rounded-lg px-3.5 py-2.5 mb-2">
               <div className="flex justify-between mb-1">
                 <span className="text-[13px] font-semibold">{n.title as string}</span>
                 <span className="text-[11px] text-muted-brand bg-brand px-2 py-px rounded-[20px]">
@@ -2208,7 +2208,7 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
         )}
 
         {showNotice && (
-          <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5 mt-3">
+          <div className="bg-card border border-brand rounded-[12px] p-5 mt-3">
             <h4 className="mt-0 mb-3 text-[13px] font-bold">통지서 발행 — {workerName}</h4>
             <select value={nForm.noticeType} onChange={e => setNForm(f => ({ ...f, noticeType: e.target.value }))}
               className="w-full px-2 py-2 mb-2 border border-secondary-brand/20 rounded-md text-[13px]">
@@ -2229,7 +2229,7 @@ function HrActionsTab({ workerId, workerName }: { workerId: string; workerName: 
               className="w-full px-2 py-2 mb-2.5 border border-secondary-brand/20 rounded-md text-[13px] box-border" />
             <div className="flex gap-2">
               <button onClick={() => setShowNotice(false)}
-                className="px-4 py-2 border border-secondary-brand/20 rounded-md bg-white cursor-pointer text-[13px]">취소</button>
+                className="px-4 py-2 border border-secondary-brand/20 rounded-md bg-card cursor-pointer text-[13px]">취소</button>
               <button onClick={submitNotice} disabled={saving || !nForm.title.trim() || !nForm.content.trim()}
                 className="px-4 py-2 text-white border-none rounded-md text-[13px] font-bold cursor-pointer"
                 style={{ background: saving ? '#bdbdbd' : '#37474f' }}>
@@ -2307,7 +2307,7 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
       {data.packages.map((pkg: any) => (
         <div key={pkg.id} className="mb-6">
           {/* 상단 요약 */}
-          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-[#e0e0e0]">
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-brand">
             <span className="px-3 py-1 rounded-full text-white text-xs font-bold"
               style={{ background: PACKAGE_STATUS_COLORS[pkg.overallStatus] || '#9e9e9e' }}>
               {PACKAGE_STATUS_LABELS[pkg.overallStatus] || pkg.overallStatus}
@@ -2323,7 +2323,7 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
           {/* 문서 목록 */}
           <table className="w-full text-[13px] border-collapse">
             <thead>
-              <tr className="text-left text-xs text-[#718096] border-b border-[#e0e0e0]">
+              <tr className="text-left text-xs text-[#718096] border-b border-brand">
                 <th className="py-2 px-2">문서명</th>
                 <th className="py-2 px-2">상태</th>
                 <th className="py-2 px-2">제출일</th>
@@ -2334,7 +2334,7 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
             </thead>
             <tbody>
               {pkg.onboardingDocs.map((doc: any) => (
-                <tr key={doc.id} className="border-b border-[#f5f5f5] hover:bg-[#fafafa]">
+                <tr key={doc.id} className="border-b border-brand hover:bg-surface">
                   <td className="py-2.5 px-2 font-medium">{doc.title || doc.docType}</td>
                   <td className="py-2.5 px-2">
                     <span className="px-2 py-0.5 rounded text-white text-[11px] font-bold"
@@ -2368,12 +2368,12 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
                       {doc.docType === 'HEALTH_CERTIFICATE' && doc.status !== 'NOT_SUBMITTED' && doc.submissions?.some((s: any) => s.fileId) && (
                         <button
                           onClick={() => window.open(`/api/admin/workers/${workerId}/onboarding-docs/${doc.docType}/file?inline=1`, '_blank')}
-                          className="px-2 py-1 bg-[#e3f2fd] border border-[#90caf9] rounded text-[11px] text-[#1565c0] cursor-pointer">
+                          className="px-2 py-1 bg-[#e3f2fd] border border-[#90caf9] rounded text-[11px] text-secondary-brand cursor-pointer">
                           파일보기
                         </button>
                       )}
                       {doc.submissions?.length > 0 && (
-                        <button className="px-2 py-1 bg-[#f5f5f5] border border-[#e0e0e0] rounded text-[11px] cursor-pointer">
+                        <button className="px-2 py-1 bg-surface border border-brand rounded text-[11px] cursor-pointer">
                           이력({doc.submissions.length})
                         </button>
                       )}
@@ -2389,7 +2389,7 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
       {/* 검토 모달 */}
       {reviewModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setReviewModal(null)}>
-          <div className="bg-white rounded-[12px] p-5 w-[420px] max-w-[90vw]" onClick={e => e.stopPropagation()}>
+          <div className="bg-card rounded-[12px] p-5 w-[420px] max-w-[90vw]" onClick={e => e.stopPropagation()}>
             <h3 className="text-base font-bold mb-4">
               {reviewModal.action === 'APPROVE' ? '문서 승인' : '문서 반려'}
             </h3>
@@ -2399,7 +2399,7 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
                 <textarea value={reason} onChange={e => setReason(e.target.value)}
                   placeholder="반려 사유를 입력하세요"
                   rows={3}
-                  className="w-full px-3 py-2 border border-[#e0e0e0] rounded-md text-[13px] resize-y box-border" />
+                  className="w-full px-3 py-2 border border-brand rounded-md text-[13px] resize-y box-border" />
               </div>
             )}
             {reviewModal.action === 'APPROVE' && (
@@ -2407,7 +2407,7 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
             )}
             <div className="flex gap-2 justify-end">
               <button onClick={() => setReviewModal(null)}
-                className="px-4 py-2 border border-[#e0e0e0] rounded-md bg-white cursor-pointer text-[13px]">취소</button>
+                className="px-4 py-2 border border-brand rounded-md bg-card cursor-pointer text-[13px]">취소</button>
               <button onClick={handleReview}
                 disabled={saving || (reviewModal.action === 'REJECT' && !reason.trim())}
                 className="px-4 py-2 text-white border-none rounded-md text-[13px] font-bold cursor-pointer"

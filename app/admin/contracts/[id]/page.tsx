@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -87,7 +87,7 @@ const STATUS_LABEL: Record<string, string> = {
   DRAFT: '초안', SIGNED: '검토 대기', REVIEW_REQUESTED: '검토 대기', ACTIVE: '승인 (이행중)', REJECTED: '반려', ENDED: '종료',
 }
 const STATUS_COLOR: Record<string, string> = {
-  DRAFT:  'bg-[rgba(255,255,255,0.04)] text-[#CBD5E0]',
+  DRAFT:  'bg-[rgba(255,255,255,0.04)] text-dim-brand',
   SIGNED: 'bg-yellow-100 text-yellow-700',
   REVIEW_REQUESTED: 'bg-yellow-100 text-yellow-700',
   ACTIVE: 'bg-green-100 text-green-700',
@@ -244,7 +244,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-[#718096] hover:text-[#CBD5E0] text-sm">← 뒤로</button>
+          <button onClick={() => router.back()} className="text-[#718096] hover:text-dim-brand text-sm">← 뒤로</button>
           <div>
             <h1 className="text-xl font-bold">{contract.worker.name} — {TEMPLATE_LABEL[contract.contractTemplateType || ''] || '계약'}</h1>
             <div className="text-sm text-[#718096] mt-0.5">{contract.site?.name || '현장 미지정'} · {contract.startDate} ~ {contract.endDate || '무기한'}</div>
@@ -344,8 +344,8 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       <div className="grid grid-cols-3 gap-6">
         {/* 계약 정보 */}
         <div className="col-span-1 space-y-4">
-          <div className="bg-white border rounded-[12px] p-5 space-y-3">
-            <h2 className="font-semibold text-[#CBD5E0] text-sm">계약 기본 정보</h2>
+          <div className="bg-card border rounded-[12px] p-5 space-y-3">
+            <h2 className="font-semibold text-dim-brand text-sm">계약 기본 정보</h2>
             <dl className="space-y-1.5 text-xs">
               <div className="flex justify-between">
                 <dt className="text-[#718096]">근로자</dt>
@@ -384,8 +384,8 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             </dl>
           </div>
 
-          <div className="bg-white border rounded-[12px] p-5 space-y-3">
-            <h2 className="font-semibold text-[#CBD5E0] text-sm">임금 조건</h2>
+          <div className="bg-card border rounded-[12px] p-5 space-y-3">
+            <h2 className="font-semibold text-dim-brand text-sm">임금 조건</h2>
             <dl className="space-y-1.5 text-xs">
               {contract.dailyWage > 0 && (
                 <div className="flex justify-between">
@@ -416,8 +416,8 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             </dl>
           </div>
 
-          <div className="bg-white border rounded-[12px] p-5 space-y-2">
-            <h2 className="font-semibold text-[#CBD5E0] text-sm">4대보험</h2>
+          <div className="bg-card border rounded-[12px] p-5 space-y-2">
+            <h2 className="font-semibold text-dim-brand text-sm">4대보험</h2>
             <div className="grid grid-cols-2 gap-1 text-xs">
               {[
                 ['국민연금', contract.nationalPensionYn],
@@ -437,7 +437,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
         {/* 문서 패키지 */}
         <div className="col-span-2 space-y-4">
-          <div className="bg-white border rounded-[12px] p-5">
+          <div className="bg-card border rounded-[12px] p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-white">문서 패키지 — {
                 packageKey === 'DIRECT_EMPLOYEE'  ? 'A. 직접고용 (일용직)' :
@@ -495,7 +495,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
                         disabled={isGenerating}
                         className={`px-2 py-1 text-xs rounded
                           ${generated
-                            ? 'bg-card border text-[#CBD5E0] hover:bg-[rgba(255,255,255,0.04)]'
+                            ? 'bg-card border text-dim-brand hover:bg-[rgba(255,255,255,0.04)]'
                             : 'bg-blue-600 text-white hover:bg-blue-700'
                           } disabled:opacity-50`}>
                         {isGenerating ? '생성 중...' : generated ? '재생성' : '생성'}
@@ -522,16 +522,16 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 특약사항 */}
           {contract.specialTerms && (
-            <div className="bg-white border rounded-[12px] p-5">
-              <h2 className="font-semibold text-[#CBD5E0] text-sm mb-2">특약사항</h2>
-              <p className="text-sm text-[#CBD5E0] whitespace-pre-wrap">{contract.specialTerms}</p>
+            <div className="bg-card border rounded-[12px] p-5">
+              <h2 className="font-semibold text-dim-brand text-sm mb-2">특약사항</h2>
+              <p className="text-sm text-dim-brand whitespace-pre-wrap">{contract.specialTerms}</p>
             </div>
           )}
 
           {/* 근로시간 상세 */}
           {(contract.breakStartTime || contract.weeklyWorkDays || contract.holidayRule) && (
-            <div className="bg-white border rounded-[12px] p-5 space-y-2">
-              <h2 className="font-semibold text-[#CBD5E0] text-sm">근로시간 상세</h2>
+            <div className="bg-card border rounded-[12px] p-5 space-y-2">
+              <h2 className="font-semibold text-dim-brand text-sm">근로시간 상세</h2>
               <dl className="space-y-1.5 text-xs">
                 {contract.breakStartTime && (
                   <div className="flex justify-between">
@@ -563,8 +563,8 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 수당 */}
           {contract.allowanceJson && contract.allowanceJson.length > 0 && (
-            <div className="bg-white border rounded-[12px] p-5 space-y-2">
-              <h2 className="font-semibold text-[#CBD5E0] text-sm">수당 항목</h2>
+            <div className="bg-card border rounded-[12px] p-5 space-y-2">
+              <h2 className="font-semibold text-dim-brand text-sm">수당 항목</h2>
               <dl className="space-y-1.5 text-xs">
                 {contract.allowanceJson.map((a, i) => (
                   <div key={i} className="flex justify-between">
@@ -578,8 +578,8 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 버전 이력 */}
           {versions.length > 0 && (
-            <div className="bg-white border rounded-[12px] p-5">
-              <h2 className="font-semibold text-[#CBD5E0] text-sm mb-3">버전 이력</h2>
+            <div className="bg-card border rounded-[12px] p-5">
+              <h2 className="font-semibold text-dim-brand text-sm mb-3">버전 이력</h2>
               <div className="space-y-2">
                 {versions.map(v => (
                   <div key={v.id} className="flex items-center justify-between py-2 border-b last:border-b-0 text-xs">
@@ -601,8 +601,8 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 메모 */}
           {contract.notes && (
-            <div className="bg-white border rounded-[12px] p-5">
-              <h2 className="font-semibold text-[#CBD5E0] text-sm mb-2">내부 메모</h2>
+            <div className="bg-card border rounded-[12px] p-5">
+              <h2 className="font-semibold text-dim-brand text-sm mb-2">내부 메모</h2>
               <p className="text-sm text-[#718096]">{contract.notes}</p>
             </div>
           )}
@@ -612,7 +612,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       {/* 문서 미리보기 모달 */}
       <Modal open={!!previewDoc} onClose={() => setPreviewDoc(null)} title={previewDoc?.title ?? ''} width={768}>
             <div className="flex-1 overflow-y-auto">
-              <pre className="text-xs font-mono whitespace-pre-wrap leading-relaxed text-[#CBD5E0]">
+              <pre className="text-xs font-mono whitespace-pre-wrap leading-relaxed text-dim-brand">
                 {previewDoc?.content}
               </pre>
             </div>

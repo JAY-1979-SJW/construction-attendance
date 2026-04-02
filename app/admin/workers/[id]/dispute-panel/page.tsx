@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
@@ -236,19 +236,19 @@ export default function DisputePanelPage() {
     <div className="max-w-[900px] mx-auto px-4 py-6">
       {/* 뒤로가기 */}
       <div className="mb-4">
-        <Link href={`/admin/workers/${workerId}`} className="text-[#4A93C8] text-sm no-underline">
+        <Link href={`/admin/workers/${workerId}`} className="text-secondary-brand text-sm no-underline">
           ← 근로자 상세로 돌아가기
         </Link>
       </div>
 
       {/* 헤더 */}
-      <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-5 mb-4">
+      <div className="bg-card border border-brand rounded-[12px] p-5 mb-4">
         <div className="flex justify-between items-start flex-wrap gap-4">
           <div>
             <div className="flex items-center gap-2.5 mb-1.5">
               <h1 className="m-0 text-xl font-black">{worker.name}</h1>
               {openDisputes.length > 0 && (
-                <span className="bg-[#ffebee] text-[#c62828] text-[11px] font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-red-light text-[#c62828] text-[11px] font-bold px-2 py-0.5 rounded-full">
                   진행 중 분쟁 {openDisputes.length}건
                 </span>
               )}
@@ -268,7 +268,7 @@ export default function DisputePanelPage() {
 
         {/* 관리자 경고 박스 */}
         {defenseScore < 40 && (
-          <div className="mt-3.5 bg-[#fff3e0] border border-[#ffcc80] rounded-lg px-3.5 py-2.5 text-[13px] text-[#e65100]">
+          <div className="mt-3.5 bg-[#fff3e0] border border-[#ffcc80] rounded-lg px-3.5 py-2.5 text-[13px] text-accent-hover">
             <strong>주의:</strong> 방어 점수가 낮습니다. 계약서·문서 교부 이력을 보강하고 출퇴근 기록을 점검하세요.
           </div>
         )}
@@ -313,7 +313,7 @@ export default function DisputePanelPage() {
       {activeSection === 'risks' && (
         <div className="flex flex-col gap-3">
           {criticalRisks.length > 0 && (
-            <div className="bg-[#ffebee] border-2 border-[#e53935] rounded-[10px] px-4 py-3.5">
+            <div className="bg-red-light border-2 border-[#e53935] rounded-[10px] px-4 py-3.5">
               <div className="text-[14px] font-black text-[#c62828] mb-1.5">
                 🚨 치명 리스크 {criticalRisks.length}개 섹션 — 즉시 조치 필요
               </div>
@@ -334,9 +334,9 @@ export default function DisputePanelPage() {
             }
             const hdr = LEVEL_CFG[section.worstLevel]
             return (
-              <div key={section.id} className="bg-white rounded-[12px] overflow-hidden"
+              <div key={section.id} className="bg-card rounded-[12px] overflow-hidden"
                 style={{ border: `1px solid ${section.worstLevel !== 'OK' ? hdr.border : '#e0e0e0'}` }}>
-                <div className="px-4 py-3.5 border-b border-[#f0f0f0] flex justify-between items-center"
+                <div className="px-4 py-3.5 border-b border-brand flex justify-between items-center"
                   style={{ background: section.worstLevel !== 'OK' ? hdr.bg : '#fafafa' }}>
                   <span className="font-bold text-[14px]">{section.title}</span>
                   <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-full"
@@ -348,7 +348,7 @@ export default function DisputePanelPage() {
                   {section.items.map(item => {
                     const cfg = LEVEL_CFG[item.level]
                     return (
-                      <div key={item.key} className="flex items-center gap-2.5 py-2 border-b border-[#f5f5f5]">
+                      <div key={item.key} className="flex items-center gap-2.5 py-2 border-b border-brand">
                         <span className="text-[14px] w-[18px] shrink-0">{item.level === 'OK' ? '✅' : cfg.icon}</span>
                         <div className="flex-1 text-[13px]"
                           style={{ color: item.level === 'OK' ? '#555' : cfg.color, fontWeight: item.level !== 'OK' ? 600 : 400 }}>
@@ -357,7 +357,7 @@ export default function DisputePanelPage() {
                         {item.level !== 'OK' && item.action && (
                           <a
                             href={item.actionHref ?? `/admin/workers/${workerId}`}
-                            className="text-[12px] text-[#4A93C8] bg-[rgba(91,164,217,0.1)] px-2.5 py-0.5 rounded-md no-underline shrink-0"
+                            className="text-[12px] text-secondary-brand bg-[rgba(91,164,217,0.1)] px-2.5 py-0.5 rounded-md no-underline shrink-0"
                           >
                             {item.action} →
                           </a>
@@ -374,8 +374,8 @@ export default function DisputePanelPage() {
 
       {/* 문서 교부 */}
       {activeSection === 'documents' && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
-          <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">
+        <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
+          <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">
             문서 교부 이력 ({deliveryLogs.length}건)
           </div>
           {deliveryLogs.length === 0 ? (
@@ -385,7 +385,7 @@ export default function DisputePanelPage() {
           ) : (
             <table className="w-full border-collapse text-[13px]">
               <thead>
-                <tr className="bg-[#fafafa]">
+                <tr className="bg-surface">
                   {['문서 유형', '교부 방법', '상태', '교부일'].map(h => (
                     <th key={h} className="px-4 py-2.5 text-left font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)]">{h}</th>
                   ))}
@@ -393,7 +393,7 @@ export default function DisputePanelPage() {
               </thead>
               <tbody>
                 {deliveryLogs.map(log => (
-                  <tr key={log.id} className="border-b border-[#f5f5f5]">
+                  <tr key={log.id} className="border-b border-brand">
                     <td className="px-4 py-2.5">{log.documentType}</td>
                     <td className="px-4 py-2.5 text-muted-brand">{log.deliveryMethod}</td>
                     <td className="px-4 py-2.5">
@@ -414,8 +414,8 @@ export default function DisputePanelPage() {
 
       {/* 출퇴근 이력 */}
       {activeSection === 'attendance' && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
-          <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">
+        <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
+          <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">
             출퇴근 이력 (최근 90일, {recentAttendance.length}건)
           </div>
           {recentAttendance.length === 0 ? (
@@ -423,7 +423,7 @@ export default function DisputePanelPage() {
           ) : (
             <table className="w-full border-collapse text-[13px]">
               <thead>
-                <tr className="bg-[#fafafa]">
+                <tr className="bg-surface">
                   {['날짜', '출근', '퇴근', '상태'].map(h => (
                     <th key={h} className="px-4 py-2.5 text-left font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)]">{h}</th>
                   ))}
@@ -431,7 +431,7 @@ export default function DisputePanelPage() {
               </thead>
               <tbody>
                 {recentAttendance.map(rec => (
-                  <tr key={rec.id} className="border-b border-[#f5f5f5]">
+                  <tr key={rec.id} className="border-b border-brand">
                     <td className="px-4 py-2.5 font-semibold">{rec.workDate}</td>
                     <td className="px-4 py-2.5 text-muted-brand">{rec.checkInAt ? new Date(rec.checkInAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                     <td className="px-4 py-2.5 text-muted-brand">{rec.checkOutAt ? new Date(rec.checkOutAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
@@ -446,8 +446,8 @@ export default function DisputePanelPage() {
 
       {/* 수정 이력 */}
       {activeSection === 'adjustments' && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
-          <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">
+        <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
+          <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">
             출퇴근 수정 이력 ({adjustmentLogs.length}건)
           </div>
           {adjustmentLogs.length === 0 ? (
@@ -455,7 +455,7 @@ export default function DisputePanelPage() {
           ) : (
             <div className="p-4">
               {adjustmentLogs.map(log => (
-                <div key={log.id} className="border border-[#f0f0f0] rounded-lg p-3 mb-2.5">
+                <div key={log.id} className="border border-brand rounded-lg p-3 mb-2.5">
                   <div className="flex justify-between mb-1.5">
                     <span className="text-[13px] font-bold">{log.field}</span>
                     <span className="text-[11px] text-[#999]">{new Date(log.createdAt).toLocaleDateString('ko-KR')}</span>
@@ -477,8 +477,8 @@ export default function DisputePanelPage() {
 
       {/* 분쟁 케이스 */}
       {activeSection === 'disputes' && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
-          <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">
+        <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
+          <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">
             분쟁 케이스 ({disputeCases.length}건)
           </div>
           {disputeCases.length === 0 ? (
@@ -493,7 +493,7 @@ export default function DisputePanelPage() {
                   }}>
                   <div className="flex justify-between items-start mb-1.5">
                     <div>
-                      <span className="text-[12px] bg-[#f0f0f0] px-2 py-0.5 rounded mr-2">
+                      <span className="text-[12px] bg-footer px-2 py-0.5 rounded mr-2">
                         {DISPUTE_TYPE_LABEL[dc.disputeType] ?? dc.disputeType}
                       </span>
                       <span className="text-[14px] font-bold">{dc.title}</span>
@@ -546,7 +546,7 @@ export default function DisputePanelPage() {
           />
         </div>
         <div className="flex gap-2.5">
-          <button onClick={() => setShowNewCase(false)} className="flex-1 py-3 border border-white/[0.12] rounded-lg bg-white cursor-pointer text-[14px]">취소</button>
+          <button onClick={() => setShowNewCase(false)} className="flex-1 py-3 border border-white/[0.12] rounded-lg bg-card cursor-pointer text-[14px]">취소</button>
           <button
             onClick={handleOpenCase}
             disabled={!newCaseForm.disputeType || !newCaseForm.title || submitting}
@@ -563,7 +563,7 @@ export default function DisputePanelPage() {
 
 function StatCard({ label, value, sub, accent }: { label: string; value: string; sub: string; accent?: boolean }) {
   return (
-    <div className="bg-white rounded-[12px] p-5" style={{ border: `1px solid ${accent ? '#ffcdd2' : '#e0e0e0'}` }}>
+    <div className="bg-card rounded-[12px] p-5" style={{ border: `1px solid ${accent ? '#ffcdd2' : '#e0e0e0'}` }}>
       <div className="text-[12px] text-[#718096] mb-1.5">{label}</div>
       <div className="text-[22px] font-black" style={{ color: accent ? '#c62828' : '#1a1a2e' }}>{value}</div>
       <div className="text-[12px] text-[#718096] mt-1">{sub}</div>
