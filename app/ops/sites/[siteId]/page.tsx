@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
@@ -53,11 +53,11 @@ export default function OpsSiteDetail() {
   const canMutateAttendance = session?.role === 'SITE_ADMIN' || session?.role === 'ADMIN' || session?.role === 'SUPER_ADMIN'
 
   if (loading) return (
-    <div className="p-8"><p className="text-[#6b7280] text-[14px]">로딩 중...</p></div>
+    <div className="p-8"><p className="text-muted-brand text-[14px]">로딩 중...</p></div>
   )
   if (error === 'ACCESS_DENIED') return (
     <div className="p-8">
-      <div className="bg-[#fef2f2] border border-[#fca5a5] rounded-lg p-8 text-center text-[#991b1b]">
+      <div className="bg-red-light border border-[#fca5a5] rounded-lg p-8 text-center text-status-rejected">
         <strong>접근 권한이 없습니다</strong>
         <p>이 현장에 대한 접근 권한이 없습니다.</p>
         <Link href="/ops/sites" className="text-[#1d4ed8] no-underline text-[14px] mt-3 block">← 현장 목록으로</Link>
@@ -65,25 +65,25 @@ export default function OpsSiteDetail() {
     </div>
   )
   if (!site) return (
-    <div className="p-8"><p className="text-[#6b7280] text-[14px]">현장을 찾을 수 없습니다.</p></div>
+    <div className="p-8"><p className="text-muted-brand text-[14px]">현장을 찾을 수 없습니다.</p></div>
   )
 
   return (
     <div className="p-8">
       <div className="mb-3">
-        <Link href="/ops/sites" className="text-[#6b7280] no-underline text-[13px]">← 현장 목록</Link>
+        <Link href="/ops/sites" className="text-muted-brand no-underline text-[13px]">← 현장 목록</Link>
       </div>
 
       <div className="flex items-center gap-3 mb-5 flex-wrap">
-        <h1 className="text-[22px] font-bold text-[#111827] m-0">{site.name}</h1>
+        <h1 className="text-[22px] font-bold text-fore-brand m-0">{site.name}</h1>
         {isReadOnly && (
-          <span className="text-[11px] px-[10px] py-[3px] bg-[#fef3c7] text-[#92400e] border border-[#f59e0b] rounded">읽기 전용</span>
+          <span className="text-[11px] px-[10px] py-[3px] bg-yellow-light text-status-pending border border-[#f59e0b] rounded">읽기 전용</span>
         )}
         <StatusBadge status={site.status} />
       </div>
 
       {/* 탭 */}
-      <div className="flex gap-1 border-b border-[#e5e7eb] mb-6 flex-wrap">
+      <div className="flex gap-1 border-b border-brand mb-6 flex-wrap">
         {TABS.map(({ key, label }) => (
           <button
             key={key}
@@ -91,7 +91,7 @@ export default function OpsSiteDetail() {
             className={`px-4 py-2 border-none bg-transparent cursor-pointer text-[14px] border-b-2 transition-colors ${
               tab === key
                 ? 'text-[#1d4ed8] border-b-[#1d4ed8] font-semibold'
-                : 'text-[#6b7280] border-b-transparent'
+                : 'text-muted-brand border-b-transparent'
             }`}
           >
             {label}
@@ -99,7 +99,7 @@ export default function OpsSiteDetail() {
         ))}
       </div>
 
-      <div className="bg-white rounded-lg p-6 border border-[#e5e7eb]">
+      <div className="bg-card rounded-lg p-6 border border-brand">
         {tab === 'info' && <InfoTab site={site} isReadOnly={isReadOnly} siteId={siteId} />}
         {tab === 'attendance' && <AttendanceTab siteId={siteId} canMutate={canMutateAttendance} />}
         {tab === 'worklogs' && <WorklogsTab siteId={siteId} isReadOnly={isReadOnly} />}
@@ -144,7 +144,7 @@ function InfoTab({ site, isReadOnly, siteId }: { site: SiteInfo; isReadOnly: boo
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[12px] text-[#9ca3af] font-medium">{label}</span>
+      <span className="text-[12px] text-muted2-brand font-medium">{label}</span>
       <span className="text-[14px] text-[#1f2937]">{value}</span>
     </div>
   )
@@ -175,28 +175,28 @@ function AttendanceTab({ siteId, canMutate }: { siteId: string; canMutate: boole
           className="px-[10px] py-[6px] border border-[rgba(91,164,217,0.3)] rounded-md text-[14px]"
         />
         {!canMutate && (
-          <span className="text-[12px] text-[#b45309] bg-[#fef3c7] px-3 py-[6px] rounded">
+          <span className="text-[12px] text-[#b45309] bg-yellow-light px-3 py-[6px] rounded">
             이 현장의 출퇴근은 읽기 전용입니다.
           </span>
         )}
       </div>
-      {loading ? <p className="text-[#6b7280] text-[14px]">로딩 중...</p> : (
+      {loading ? <p className="text-muted-brand text-[14px]">로딩 중...</p> : (
         items.length === 0 ? (
-          <p className="text-[#6b7280] text-[14px]">출퇴근 기록이 없습니다.</p>
+          <p className="text-muted-brand text-[14px]">출퇴근 기록이 없습니다.</p>
         ) : (
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-[#f9fafb]">
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">작업자</th>
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">출근</th>
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">퇴근</th>
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">상태</th>
-                {canMutate && <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]"></th>}
+              <tr className="bg-surface">
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">작업자</th>
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">출근</th>
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">퇴근</th>
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">상태</th>
+                {canMutate && <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand"></th>}
               </tr>
             </thead>
             <tbody>
               {items.map((item) => (
-                <tr key={item.id as string} className="border-b border-[#f3f4f6]">
+                <tr key={item.id as string} className="border-b border-brand">
                   <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{item.workerName as string}</td>
                   <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{formatTime(item.checkInAt as string | null)}</td>
                   <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{formatTime(item.checkOutAt as string | null)}</td>
@@ -220,12 +220,12 @@ function AttendanceTab({ siteId, canMutate }: { siteId: string; canMutate: boole
 function WorklogsTab({ siteId, isReadOnly }: { siteId: string; isReadOnly: boolean }) {
   return (
     <div>
-      <p className="text-[#6b7280] text-[14px]">
+      <p className="text-muted-brand text-[14px]">
         작업일보 기능은 현장 상세 페이지에서 이용하세요.{' '}
         <Link href={`/admin/sites/${siteId}`} className="text-[#1d4ed8] text-[13px] no-underline">관리자 현장 페이지 →</Link>
       </p>
       {isReadOnly && (
-        <p className="text-[12px] text-[#b45309] bg-[#fef3c7] px-3 py-[6px] rounded inline-block">
+        <p className="text-[12px] text-[#b45309] bg-yellow-light px-3 py-[6px] rounded inline-block">
           지정 현장 운영형은 작업일보 작성이 제한됩니다.
         </p>
       )}
@@ -247,15 +247,15 @@ function NoticesTab({ siteId, isReadOnly }: { siteId: string; isReadOnly: boolea
 
   return (
     <div>
-      {loading ? <p className="text-[#6b7280] text-[14px]">로딩 중...</p> : (
+      {loading ? <p className="text-muted-brand text-[14px]">로딩 중...</p> : (
         notices.length === 0 ? (
-          <p className="text-[#6b7280] text-[14px]">등록된 공지가 없습니다.</p>
+          <p className="text-muted-brand text-[14px]">등록된 공지가 없습니다.</p>
         ) : (
           <div className="flex flex-col gap-3">
             {notices.map(n => (
-              <div key={n.id as string} className="px-4 py-[14px] border border-[#e5e7eb] rounded-md bg-[#fafafa]">
+              <div key={n.id as string} className="px-4 py-[14px] border border-brand rounded-md bg-surface">
                 <strong className="text-[#1f2937]">{n.title as string}</strong>
-                <p className="text-[13px] text-[#6b7280] mt-1 mb-0">
+                <p className="text-[13px] text-muted-brand mt-1 mb-0">
                   {(n.startDate as string)?.slice(0, 10)}
                 </p>
               </div>
@@ -286,21 +286,21 @@ function SchedulesTab({ siteId, isReadOnly }: { siteId: string; isReadOnly: bool
 
   return (
     <div>
-      {loading ? <p className="text-[#6b7280] text-[14px]">로딩 중...</p> : (
+      {loading ? <p className="text-muted-brand text-[14px]">로딩 중...</p> : (
         schedules.length === 0 ? (
-          <p className="text-[#6b7280] text-[14px]">등록된 일정이 없습니다.</p>
+          <p className="text-muted-brand text-[14px]">등록된 일정이 없습니다.</p>
         ) : (
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-[#f9fafb]">
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">날짜</th>
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">구분</th>
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">제목</th>
+              <tr className="bg-surface">
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">날짜</th>
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">구분</th>
+                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">제목</th>
               </tr>
             </thead>
             <tbody>
               {schedules.map(s => (
-                <tr key={s.id as string} className="border-b border-[#f3f4f6]">
+                <tr key={s.id as string} className="border-b border-brand">
                   <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{(s.scheduleDate as string)?.slice(0, 10)}</td>
                   <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{s.scheduleType as string}</td>
                   <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{s.title as string}</td>
@@ -347,7 +347,7 @@ function AttStatusBadge({ status }: { status: string }) {
   }
   return (
     <span
-      className="text-[12px] px-2 py-[3px] rounded font-medium text-[#374151]"
+      className="text-[12px] px-2 py-[3px] rounded font-medium text-body-brand"
       style={{ background: map[status] ?? '#f3f4f6' }}
     >
       {status}
