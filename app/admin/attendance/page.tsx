@@ -10,6 +10,7 @@ import {
   FormInput, FormTextarea, ModalFooter,
   FloatingToast, Modal,
 } from '@/components/admin/ui'
+import AttendanceCalendar from '@/components/admin/AttendanceCalendar'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
 interface AttendanceRecord {
@@ -417,6 +418,7 @@ function AttendancePageInner() {
 
   // 저장 토스트
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null)
+  const [viewTab, setViewTab] = useState<'list' | 'calendar'>('list')
   const showToast = (ok: boolean, msg: string) => {
     setToast({ ok, msg })
     setTimeout(() => setToast(null), 3000)
@@ -673,6 +675,33 @@ function AttendancePageInner() {
         description="날짜별 출퇴근 현황을 관리합니다"
       />
 
+      {/* ── 뷰 탭 ── */}
+      <div className="flex bg-card rounded-xl border border-brand overflow-hidden">
+        {[
+          { key: 'list' as const, label: '리스트' },
+          { key: 'calendar' as const, label: '캘린더' },
+        ].map(t => (
+          <button
+            key={t.key}
+            onClick={() => setViewTab(t.key)}
+            className={`flex-1 py-2.5 text-[13px] font-semibold border-none cursor-pointer transition-colors ${
+              viewTab === t.key ? 'bg-brand-accent text-white' : 'bg-card text-muted-brand hover:bg-surface'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── 캘린더 뷰 ── */}
+      {viewTab === 'calendar' && (
+        <SectionCard>
+          <AttendanceCalendar siteId={siteId || undefined} />
+        </SectionCard>
+      )}
+
+      {/* ── 리스트 뷰: 필터 바 ── */}
+      {viewTab === 'list' && <>
       {/* ── 필터 바 ── */}
       <SectionCard padding={false}>
         {/* 1행: 조회 컨트롤 */}
@@ -1453,6 +1482,7 @@ function AttendancePageInner() {
           </button>
         </div>
       </Modal>
+      </>}
     </PageShell>
   )
 }
