@@ -1288,28 +1288,31 @@ function ProfileTab({ workerId }: { workerId: string }) {
       )}
 
       {!editing && profile && (
-        <div className="grid grid-cols-2 gap-4">
-          {[
-            ['근로자 구분',  WORKER_CLASS_LABEL[profile.workerClass as string]    || (profile.workerClass as string)],
-            ['근무형태',    EMPLOYMENT_MODE_LABEL[profile.employmentMode as string] || (profile.employmentMode as string)],
-            ['세무형태',    TAX_MODE_LABEL[profile.taxMode as string]            || (profile.taxMode as string)],
-            ['보험형태',    INSURANCE_MODE_LABEL[profile.insuranceMode as string] || (profile.insuranceMode as string)],
-            ['사무실 근무', (profile.officeWorkerYn ? '예' : '아니요')],
-            ['계속근로 검토', profile.continuousWorkReview === 'REVIEW_REQUIRED'
-              ? '⚠️ 검토 필요' : '이상 없음'],
-          ].map(([label, value]) => (
-            <div key={label as string} className="p-3 bg-surface rounded-lg">
-              <div className="text-[11px] text-muted-brand mb-1">{label}</div>
-              <div className={`text-sm font-semibold ${profile.continuousWorkReview === 'REVIEW_REQUIRED' && label === '계속근로 검토' ? 'text-accent-hover' : 'text-[#333]'}`}>
-                {value as string}
-              </div>
-            </div>
-          ))}
+        <div className="space-y-5">
+          <InfoSection title="근로형태 분류">
+            <InfoRow label="근로자 구분" value={WORKER_CLASS_LABEL[profile.workerClass as string] || (profile.workerClass as string)} />
+            <InfoRow label="근무형태" value={EMPLOYMENT_MODE_LABEL[profile.employmentMode as string] || (profile.employmentMode as string)} />
+            <InfoRow label="세무형태" value={TAX_MODE_LABEL[profile.taxMode as string] || (profile.taxMode as string)} />
+            <InfoRow label="보험형태" value={INSURANCE_MODE_LABEL[profile.insuranceMode as string] || (profile.insuranceMode as string)} />
+            <InfoRow label="사무실 근무" value={profile.officeWorkerYn ? '예' : '아니요'} />
+            <InfoRow
+              label="계속근로 검토"
+              value={profile.continuousWorkReview === 'REVIEW_REQUIRED' ? '⚠️ 검토 필요' : '이상 없음'}
+              accent={profile.continuousWorkReview === 'REVIEW_REQUIRED'}
+            />
+          </InfoSection>
           {!!profile.classificationNote && (
-            <div className="col-span-2 p-3 bg-[#fff3e0] rounded-lg">
-              <div className="text-[11px] text-muted-brand mb-1">관리자 메모</div>
-              <div className="text-[13px]">{String(profile.classificationNote)}</div>
-            </div>
+            <InfoSection title="관리자 메모">
+              <InfoRow
+                label="메모"
+                value={
+                  <div className="whitespace-pre-wrap break-keep text-[13px] font-medium text-title-brand">
+                    {String(profile.classificationNote)}
+                  </div>
+                }
+                noBorder
+              />
+            </InfoSection>
           )}
         </div>
       )}
