@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -195,7 +195,7 @@ export default function MyDocumentsPage() {
               <div className="flex items-center gap-[10px]">
                 <span className="text-2xl">{safetyDocs.length + contracts.length > 0 ? '📋' : '📄'}</span>
                 <div>
-                  <div className="text-[15px] font-bold text-[#0F172A]">
+                  <div className="text-[15px] font-bold text-title-brand">
                     안전서류 {safetyDocs.length}건 · 계약서 {contracts.length}건 · 동의서 {consents.length}건
                   </div>
                   <div className="text-[13px] text-gray-500 mt-0.5">
@@ -223,7 +223,7 @@ export default function MyDocumentsPage() {
         )}
 
         {/* 탭 */}
-        <div className="flex border-b bg-white sticky top-14 z-10">
+        <div className="flex border-b bg-card sticky top-14 z-10">
           {tabs.map(t => (
             <button
               key={t.key}
@@ -250,9 +250,9 @@ export default function MyDocumentsPage() {
                 const expiry = getExpiryInfo(doc)
                 return (
                   <Link key={doc.id} href={`/my/documents/${doc.id}`} className="block no-underline">
-                    <div className="bg-white rounded-xl p-4 shadow-sm active:bg-gray-50 transition-colors">
+                    <div className="bg-card rounded-xl p-4 shadow-sm active:bg-gray-50 transition-colors">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-sm text-[#0F172A]">
+                        <span className="font-medium text-sm text-title-brand">
                           {DOC_TYPE_LABELS[doc.documentType] ?? doc.documentType}
                         </span>
                         <StatusBadge status={doc.status} />
@@ -278,7 +278,7 @@ export default function MyDocumentsPage() {
               <EmptyState text="근로계약서가 없습니다" />
             ) : (
               contracts.map(c => (
-                <div key={c.id} className="bg-white rounded-xl p-4 shadow-sm">
+                <div key={c.id} className="bg-card rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-medium text-sm">
                       {c.contractKind === 'EMPLOYMENT' ? '근로계약' : '용역계약'}
@@ -298,7 +298,7 @@ export default function MyDocumentsPage() {
               <EmptyState text="동의 이력이 없습니다" />
             ) : (
               consents.map(c => (
-                <div key={c.id} className="bg-white rounded-xl p-4 shadow-sm">
+                <div key={c.id} className="bg-card rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-medium text-sm">
                       {CONSENT_LABELS[c.consentType] ?? c.consentType}

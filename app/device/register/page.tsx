@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -64,7 +64,7 @@ export default function DeviceRegisterPage() {
         </p>
 
         <div className="mb-5">
-          <label className="block text-sm font-semibold text-[#CBD5E0] mb-2">기기 이름</label>
+          <label className="block text-sm font-semibold text-dim-brand mb-2">기기 이름</label>
           <input
             type="text"
             value={deviceName}

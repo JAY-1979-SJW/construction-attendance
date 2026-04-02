@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -90,7 +90,7 @@ export default function DeviceChangePage() {
         <p className="text-[13px] text-muted-brand text-center mb-7 leading-[1.5]">관리자 승인 후 새 기기로 출퇴근할 수 있습니다.</p>
 
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-[#CBD5E0] mb-2">새 기기 이름</label>
+          <label className="block text-sm font-semibold text-dim-brand mb-2">새 기기 이름</label>
           <input
             type="text"
             value={deviceName}
@@ -100,7 +100,7 @@ export default function DeviceChangePage() {
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-[#CBD5E0] mb-2">변경 사유</label>
+          <label className="block text-sm font-semibold text-dim-brand mb-2">변경 사유</label>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}

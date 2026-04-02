@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
@@ -43,7 +43,7 @@ export default function MySitesPage() {
         ) : (
           <div className="space-y-3">
             {sites.map(site => (
-              <div key={site.siteId} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+              <div key={site.siteId} className="bg-card rounded-2xl p-4 shadow-sm border border-gray-100">
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <div className="font-bold text-[15px] text-gray-800">

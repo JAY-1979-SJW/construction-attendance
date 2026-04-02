@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
@@ -126,11 +126,11 @@ function Sel({ label, value, onChange, options, placeholder }: {
 }) {
   return (
     <div className="flex-1 min-w-0">
-      <div className="text-[11px] text-[#9CA3AF] mb-1">{label}</div>
+      <div className="text-[11px] text-muted2-brand mb-1">{label}</div>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full text-[13px] border border-[#E5E7EB] rounded-lg px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316]"
+        className="w-full text-[13px] border border-brand rounded-lg px-3 py-2.5 bg-card focus:outline-none focus:border-accent"
       >
         <option value="">{placeholder || `${label} 선택`}</option>
         {options.map((o) => (
@@ -178,26 +178,26 @@ function DropSel({ label, value, onChange, options, placeholder }: {
 
   return (
     <div className="flex-1 min-w-0 relative" ref={ref}>
-      <div className="text-[11px] text-[#9CA3AF] mb-1">{label}</div>
+      <div className="text-[11px] text-muted2-brand mb-1">{label}</div>
       <button type="button" onClick={handleToggle}
-        className="w-full text-left text-[13px] border border-[#E5E7EB] rounded-lg px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316] truncate">
-        <span className={selectedLabel ? 'text-[#374151]' : 'text-[#9CA3AF]'}>
+        className="w-full text-left text-[13px] border border-brand rounded-lg px-3 py-2.5 bg-card focus:outline-none focus:border-accent truncate">
+        <span className={selectedLabel ? 'text-body-brand' : 'text-muted2-brand'}>
           {selectedLabel || placeholder || `${label} 선택`}
         </span>
       </button>
       {open && (
-        <div className={`absolute z-20 left-0 right-0 bg-white border border-[#E5E7EB] rounded-lg shadow-lg max-h-[240px] overflow-y-auto ${
+        <div className={`absolute z-20 left-0 right-0 bg-card border border-brand rounded-lg shadow-lg max-h-[240px] overflow-y-auto ${
           openUp ? 'bottom-full mb-1' : 'mt-1'
         }`}>
           <button type="button" onClick={() => { onChange(''); setOpen(false) }}
-            className="w-full text-left px-3 py-2 text-[13px] text-[#9CA3AF] border-b border-[#F3F4F6]">
+            className="w-full text-left px-3 py-2 text-[13px] text-muted2-brand border-b border-brand">
             {placeholder || `${label} 선택`}
           </button>
           {options.map((o) => (
             <button key={o.value} type="button"
               onClick={() => { onChange(o.value); setOpen(false) }}
-              className={`w-full text-left px-3 py-2.5 text-[13px] border-b border-[#F3F4F6] last:border-0 transition-colors ${
-                o.value === value ? 'bg-[#FFF7ED] text-[#F97316] font-medium' : 'text-[#374151] active:bg-[#FAFAFA]'
+              className={`w-full text-left px-3 py-2.5 text-[13px] border-b border-brand last:border-0 transition-colors ${
+                o.value === value ? 'bg-accent-light text-accent font-medium' : 'text-body-brand active:bg-surface'
               }`}>
               <div className="line-clamp-2">{o.label}</div>
             </button>
@@ -261,7 +261,7 @@ function FloorSel({ value, onChange, floors, building }: {
 
   return (
     <div className="flex-1 min-w-0 relative" ref={ref}>
-      <div className="text-[11px] text-[#9CA3AF] mb-1">층</div>
+      <div className="text-[11px] text-muted2-brand mb-1">층</div>
       <button type="button" onClick={() => {
           if (disabled) return
           if (!open && ref.current) {
@@ -272,32 +272,32 @@ function FloorSel({ value, onChange, floors, building }: {
         }} disabled={disabled}
         className={`w-full text-left text-[13px] border rounded-lg px-3 py-2.5 truncate ${
           disabled
-            ? 'bg-[#F9FAFB] border-[#E5E7EB] text-[#D1D5DB]'
-            : 'bg-white border-[#E5E7EB] focus:outline-none focus:border-[#F97316] text-[#374151]'
+            ? 'bg-surface border-brand text-[#D1D5DB]'
+            : 'bg-white border-brand focus:outline-none focus:border-accent text-body-brand'
         }`}>
         {value || (disabled ? '동 먼저 선택' : '층 선택')}
       </button>
       {open && !disabled && (
-        <div className={`absolute z-20 left-0 right-0 bg-white border border-[#E5E7EB] rounded-lg shadow-lg max-h-[280px] overflow-y-auto ${
+        <div className={`absolute z-20 left-0 right-0 bg-card border border-brand rounded-lg shadow-lg max-h-[280px] overflow-y-auto ${
             openUp ? 'bottom-full mb-1' : 'mt-1'
           }`}>
           {/* 10개 초과 시 검색 입력 표시 */}
           {floors.length > 10 && (
-            <div className="sticky top-0 z-10 bg-white border-b border-[#E5E7EB] p-2">
+            <div className="sticky top-0 z-10 bg-card border-b border-brand p-2">
               <input type="text" placeholder="층 검색..." value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full text-[13px] border border-[#E5E7EB] rounded px-2 py-1.5 focus:outline-none focus:border-[#F97316]"
+                className="w-full text-[13px] border border-brand rounded px-2 py-1.5 focus:outline-none focus:border-accent"
               />
             </div>
           )}
           {orderedGroups.map(({ group, items }) => (
             <div key={group}>
-              <div className="px-3 py-1 text-[10px] text-[#9CA3AF] bg-[#F9FAFB] font-medium">{group}</div>
+              <div className="px-3 py-1 text-[10px] text-muted2-brand bg-surface font-medium">{group}</div>
               {items.map((f) => (
                 <button key={`${group}-${f}`} type="button"
                   onClick={() => { onChange(f); setOpen(false); setSearch('') }}
-                  className={`w-full text-left px-3 py-2 text-[13px] border-b border-[#F3F4F6] last:border-0 transition-colors ${
-                    f === value ? 'bg-[#FFF7ED] text-[#F97316] font-medium' : 'text-[#374151] active:bg-[#FAFAFA]'
+                  className={`w-full text-left px-3 py-2 text-[13px] border-b border-brand last:border-0 transition-colors ${
+                    f === value ? 'bg-accent-light text-accent font-medium' : 'text-body-brand active:bg-surface'
                   }`}>
                   {f}
                 </button>
@@ -305,7 +305,7 @@ function FloorSel({ value, onChange, floors, building }: {
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="px-3 py-4 text-[13px] text-[#9CA3AF] text-center">검색 결과 없음</div>
+            <div className="px-3 py-4 text-[13px] text-muted2-brand text-center">검색 결과 없음</div>
           )}
         </div>
       )}
@@ -585,18 +585,18 @@ export default function DailyReportPage() {
   // ── 렌더링 ────────────────────────────────────────────────
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
-      <div className="text-[#9CA3AF] text-sm">로딩 중...</div>
+    <div className="min-h-screen bg-surface flex items-center justify-center">
+      <div className="text-muted2-brand text-sm">로딩 중...</div>
     </div>
   )
 
   if (!attendance) return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-brand">
       <WorkerTopBar />
       <div className="mobile-content">
-        <div className="bg-white rounded-xl p-6 mt-4 text-center">
-          <div className="text-[#374151] font-semibold text-[15px] mb-1">작업일보</div>
-          <div className="text-[#9CA3AF] text-[13px]">
+        <div className="bg-card rounded-xl p-6 mt-4 text-center">
+          <div className="text-body-brand font-semibold text-[15px] mb-1">작업일보</div>
+          <div className="text-muted2-brand text-[13px]">
             오늘 출근 기록이 없습니다.<br />출근 후 작업일보를 작성할 수 있습니다.
           </div>
         </div>
@@ -606,24 +606,24 @@ export default function DailyReportPage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-brand">
       <WorkerTopBar />
       <div className="mobile-content">
 
         {/* ── 현장 + 작업일자 ─────────────────────────────── */}
-        <div className="bg-white rounded-xl p-4 mt-3">
-          <div className="text-[16px] font-bold text-[#0F172A]">작업일보</div>
-          <div className="mt-1.5 text-[13px] text-[#6B7280]">
+        <div className="bg-card rounded-xl p-4 mt-3">
+          <div className="text-[16px] font-bold text-title-brand">작업일보</div>
+          <div className="mt-1.5 text-[13px] text-muted-brand">
             {attendance.checkInSite.name}
           </div>
-          <div className="text-[13px] text-[#6B7280]">
+          <div className="text-[13px] text-muted-brand">
             {todayStr} · {workerName} · {workerJobTitle}
           </div>
         </div>
 
         {/* ── 공종 / 작업사항 ────────────────────────────── */}
-        <div className="bg-white rounded-xl p-4 mt-3">
-          <div className="text-[13px] font-semibold text-[#374151] mb-3">공종 / 작업사항</div>
+        <div className="bg-card rounded-xl p-4 mt-3">
+          <div className="text-[13px] font-semibold text-body-brand mb-3">공종 / 작업사항</div>
           <div className="space-y-2.5">
             <DropSel label="공종계열" value={familyCode}
               onChange={(v) => { setFamilyCode(v); setTradeCode(''); setTaskCode('') }}
@@ -640,7 +640,7 @@ export default function DailyReportPage() {
               />
             </div>
             {tradeSummary && (
-              <div className="text-[12px] text-[#6B7280] bg-[#F9FAFB] rounded-xl px-3 py-1.5">
+              <div className="text-[12px] text-muted-brand bg-surface rounded-xl px-3 py-1.5">
                 {tradeSummary}
               </div>
             )}
@@ -649,32 +649,32 @@ export default function DailyReportPage() {
               value={workDetail}
               onChange={(e) => setWorkDetail(e.target.value)}
               rows={2}
-              className="w-full text-[14px] border border-[#E5E7EB] rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316] resize-none"
+              className="w-full text-[14px] border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent resize-none"
             />
           </div>
         </div>
 
         {/* ── 근무시간 ───────────────────────────────────── */}
-        <div className="bg-white rounded-xl p-4 mt-3">
-          <div className="text-[13px] font-semibold text-[#374151] mb-2">근무시간</div>
+        <div className="bg-card rounded-xl p-4 mt-3">
+          <div className="text-[13px] font-semibold text-body-brand mb-2">근무시간</div>
           <div className="flex gap-2 items-center">
             <input type="time" value={workStart} onChange={(e) => setWorkStart(e.target.value)}
-              className="flex-1 text-[14px] border border-[#E5E7EB] rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316]" />
-            <span className="text-[14px] text-[#9CA3AF]">~</span>
+              className="flex-1 text-[14px] border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent" />
+            <span className="text-[14px] text-muted2-brand">~</span>
             <input type="time" value={workEnd} onChange={(e) => setWorkEnd(e.target.value)}
-              className="flex-1 text-[14px] border border-[#E5E7EB] rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316]" />
+              className="flex-1 text-[14px] border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent" />
           </div>
         </div>
 
         {/* ── 사진 ───────────────────────────────────────── */}
-        <div className="bg-white rounded-xl p-4 mt-3">
+        <div className="bg-card rounded-xl p-4 mt-3">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-[13px] font-semibold text-[#374151]">사진</div>
-            <span className="text-[11px] text-[#9CA3AF]">{photos.length}/3</span>
+            <div className="text-[13px] font-semibold text-body-brand">사진</div>
+            <span className="text-[11px] text-muted2-brand">{photos.length}/3</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             {photos.map((p, i) => (
-              <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-[#E5E7EB]">
+              <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-brand">
                 <img
                   src={`/api/worker/daily-reports/photos/file?path=${encodeURIComponent(p)}`}
                   alt=""
@@ -687,18 +687,18 @@ export default function DailyReportPage() {
               </div>
             ))}
             {photos.length < 3 && (
-              <label className="aspect-square rounded-xl border-2 border-dashed border-[#D1D5DB] flex flex-col items-center justify-center cursor-pointer active:bg-[#F9FAFB]">
+              <label className="aspect-square rounded-xl border-2 border-dashed border-[#D1D5DB] flex flex-col items-center justify-center cursor-pointer active:bg-surface">
                 <input type="file" accept="image/*" capture="environment" className="hidden"
                   onChange={handlePhotoUpload} disabled={uploading} />
                 {uploading ? (
-                  <div className="text-[12px] text-[#9CA3AF]">업로드 중...</div>
+                  <div className="text-[12px] text-muted2-brand">업로드 중...</div>
                 ) : (
                   <>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[#D1D5DB]">
                       <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/>
                       <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5"/>
                     </svg>
-                    <div className="text-[11px] text-[#9CA3AF] mt-1">사진 추가</div>
+                    <div className="text-[11px] text-muted2-brand mt-1">사진 추가</div>
                   </>
                 )}
               </label>
@@ -707,19 +707,19 @@ export default function DailyReportPage() {
         </div>
 
         {/* ── 메모 / 특이사항 ────────────────────────────── */}
-        <div className="bg-white rounded-xl p-4 mt-3">
-          <div className="text-[13px] font-semibold text-[#374151] mb-2">메모 / 특이사항</div>
+        <div className="bg-card rounded-xl p-4 mt-3">
+          <div className="text-[13px] font-semibold text-body-brand mb-2">메모 / 특이사항</div>
           <textarea
             placeholder="메모나 특이사항을 입력하세요"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full text-[14px] border border-[#E5E7EB] rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:border-[#F97316] resize-none"
+            className="w-full text-[14px] border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent resize-none"
           />
         </div>
 
         {/* ── 메시지 ─────────────────────────────────────── */}
-        {msg && <div className="mt-3 text-center text-[13px] text-[#F97316] font-medium">{msg}</div>}
+        {msg && <div className="mt-3 text-center text-[13px] text-accent font-medium">{msg}</div>}
 
         {/* ── 저장 버튼 ──────────────────────────────────── */}
         <button onClick={handleSave} disabled={saving}

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -128,10 +128,10 @@ export default function MyStatusPage() {
   return (
     <>
       <WorkerTopBar />
-      <div className="mobile-content bg-[#F5F7FA]">
+      <div className="mobile-content bg-brand">
       <WorkerDisclaimerBanner />
       <div>
-        <h1 className="text-2xl font-bold mb-4 text-[#0F172A]">내 상태</h1>
+        <h1 className="text-2xl font-bold mb-4 text-title-brand">내 상태</h1>
 
         {/* ── 출퇴근 가능 여부 요약 (최상단) ── */}
         <div
@@ -177,7 +177,7 @@ export default function MyStatusPage() {
             <span className="text-sm text-muted-brand">{accountStatus.message}</span>
           </div>
           {accountStatus.rejectReason && (
-            <div className="bg-[rgba(220,38,38,0.06)] border border-[rgba(220,38,38,0.2)] rounded-md px-3 py-[10px] text-[13px] text-[#dc2626] mt-2">
+            <div className="bg-[rgba(220,38,38,0.06)] border border-[rgba(220,38,38,0.2)] rounded-md px-3 py-[10px] text-[13px] text-status-rejected mt-2">
               반려 사유: {accountStatus.rejectReason}
             </div>
           )}
@@ -218,8 +218,8 @@ export default function MyStatusPage() {
             <h2 className="text-xs font-bold text-muted-brand uppercase tracking-[0.05em] mb-[14px]">현장 참여 현황</h2>
 
             {assignedSites.map(a => (
-              <div key={a.siteId} className="border border-[#E5E7EB] rounded-[10px] px-4 py-[14px] mb-[10px] bg-white">
-                <div className="text-[15px] font-bold text-[#0F172A]">{a.siteName}</div>
+              <div key={a.siteId} className="border border-brand rounded-[10px] px-4 py-[14px] mb-[10px] bg-card">
+                <div className="text-[15px] font-bold text-title-brand">{a.siteName}</div>
                 <div className="text-[13px] text-muted-brand mt-1">{a.address}</div>
                 <div className="flex gap-2 mt-2 items-center flex-wrap">
                   <span
@@ -234,8 +234,8 @@ export default function MyStatusPage() {
             ))}
 
             {joinRequests.map(j => (
-              <div key={j.requestId} className="border border-[#E5E7EB] rounded-[10px] px-4 py-[14px] mb-[10px] bg-white">
-                <div className="text-[15px] font-bold text-[#0F172A]">{j.siteName}</div>
+              <div key={j.requestId} className="border border-brand rounded-[10px] px-4 py-[14px] mb-[10px] bg-card">
+                <div className="text-[15px] font-bold text-title-brand">{j.siteName}</div>
                 <div className="text-[13px] text-muted-brand mt-1">{j.address}</div>
                 <div className="flex gap-2 mt-2 flex-wrap">
                   <span
@@ -250,7 +250,7 @@ export default function MyStatusPage() {
                   <p className="text-[13px] text-muted-brand mt-2">관리자 승인 후 이 현장에서 출퇴근할 수 있습니다.</p>
                 )}
                 {j.rejectReason && (
-                  <div className="bg-[rgba(220,38,38,0.06)] border border-[rgba(220,38,38,0.2)] rounded-md px-3 py-[10px] text-[13px] text-[#dc2626] mt-2">
+                  <div className="bg-[rgba(220,38,38,0.06)] border border-[rgba(220,38,38,0.2)] rounded-md px-3 py-[10px] text-[13px] text-status-rejected mt-2">
                     <strong>반려 사유:</strong> {j.rejectReason}
                   </div>
                 )}
@@ -281,8 +281,8 @@ export default function MyStatusPage() {
               <p className="text-[13px] text-muted-brand mt-2">참여 신청 가능한 현장이 없습니다.<br />이미 신청한 현장이 있거나 등록된 현장이 없습니다.</p>
             ) : (
               sites.filter(site => site.canJoin).map(site => (
-                <div key={site.siteId} className="border border-[#E5E7EB] rounded-[10px] px-4 py-[14px] mb-[10px] bg-white">
-                  <div className="text-[15px] font-bold text-[#0F172A]">{site.siteName}</div>
+                <div key={site.siteId} className="border border-brand rounded-[10px] px-4 py-[14px] mb-[10px] bg-card">
+                  <div className="text-[15px] font-bold text-title-brand">{site.siteName}</div>
                   <div className="text-[13px] text-muted-brand mt-1">{site.address}</div>
                   <button
                     className="mt-[10px] px-5 py-2 bg-accent text-white border-none rounded-lg text-[13px] font-semibold cursor-pointer"
