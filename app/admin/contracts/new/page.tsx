@@ -270,6 +270,53 @@ function NewContractPage() {
     }
   }
 
+  // ─── 현장명/주소 normalize ────────────────────────────────────
+  function normalizeSiteName(name: string): string {
+    return name
+      .replace(/\s+/g, ' ').trim().toLowerCase()
+      .replace(/\(.*?\)/g, '')            // 괄호 내용 제거
+      .replace(/(construction|project|공사|현장|신축|증축|리모델링)$/i, '')
+      .trim()
+  }
+
+  function normalizeAddress(addr: string): string {
+    return addr
+      .replace(/\s+/g, ' ').trim().toLowerCase()
+      .replace(/[·\-,]/g, ' ')
+      .replace(/\s+/g, ' ').trim()
+  }
+
+  function findSimilarSite(siteName: string, siteAddr: string): typeof sites[number] | null {
+    const normName = normalizeSiteName(siteName)
+    const normAddr = normalizeAddress(siteAddr)
+
+    // 1단계: 정규화된 name+address 완전 일치
+    const exact = sites.find(s =>
+      normalizeSiteName(s.name) === normName && normalizeAddress(s.address || '') === normAddr
+    )
+    if (exact) return exact
+
+    // 2단계: 정규화된 name 포함 관계 (한쪽이 다른 쪽을 포함)
+    const nameContains = sites.find(s => {
+      const n = normalizeSiteName(s.name)
+      return (n.includes(normName) || normName.includes(n)) && n.length > 2
+    })
+    if (nameContains) return nameContains
+
+    // 3단계: 주소 일치 + name 일부 겹침
+    if (normAddr) {
+      const addrMatch = sites.find(s => {
+        if (!s.address) return false
+        const a = normalizeAddress(s.address)
+        const n = normalizeSiteName(s.name)
+        return a === normAddr && normName.split(' ').some(w => w.length > 1 && n.includes(w))
+      })
+      if (addrMatch) return addrMatch
+    }
+
+    return null
+  }
+
   async function autoCreateSite(siteName: string, siteAddr: string) {
     if (!siteName || !siteAddr) return
     setSiteCreating(true)
@@ -278,10 +325,28 @@ function NewContractPage() {
       // 1. geocode로 좌표 조회
       const geoRes = await fetch(`/api/admin/geocode?address=${encodeURIComponent(siteAddr)}`)
       const geoJson = await geoRes.json()
-      const lat = geoJson.data?.lat ?? 37.5665 // 서울시청 기본값
-      const lng = geoJson.data?.lng ?? 126.9780
 
-      // 2. 현장 생성
+      // geocode 실패 시 자동 생성 금지
+      if (!geoJson.success || !geoJson.data?.lat || !geoJson.data?.lng) {
+        setSiteCreateResult('failed')
+        return
+      }
+      const lat = geoJson.data.lat
+      const lng = geoJson.data.lng
+
+      // 2. geocode 좌표 기반 중복 확인 — 같은 좌표 반경 200m 이내 현장 있으면 중복 의심
+      //    (프론트에서 가능한 범위: sites 목록의 lat/lng 비교)
+      //    sites에 lat/lng가 없으므로 name+address 기반 최종 1회 더 비교
+      const finalCheck = findSimilarSite(siteName, siteAddr)
+      if (finalCheck) {
+        // 유사 현장 발견 → 그 현장을 연결하고 자동 생성하지 않음
+        setSites(prev => prev) // 목록 변경 없음
+        setForm(f => ({ ...f, siteId: finalCheck.id, siteAddress: finalCheck.address || siteAddr }))
+        setSiteCreateResult('created') // UI에는 매칭 성공으로 표시
+        return
+      }
+
+      // 3. 현장 생성
       const siteRes = await fetch('/api/admin/sites', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -297,9 +362,7 @@ function NewContractPage() {
       const siteJson = await siteRes.json()
       if (siteJson.success && siteJson.data?.id) {
         const newSiteId = siteJson.data.id
-        // sites 목록 갱신
         setSites(prev => [{ id: newSiteId, name: siteName, address: siteAddr }, ...prev])
-        // form에 siteId 세팅
         setForm(f => ({ ...f, siteId: newSiteId, siteAddress: siteAddr }))
         setSiteCreateResult('created')
       } else {
@@ -316,20 +379,19 @@ function NewContractPage() {
     const filled: string[] = []
     const updates: Record<string, unknown> = {}
 
-    // 현장명 → sites 에서 매칭 시도
+    // 현장명 → 유사 매칭 포함 검색
     if (fields.siteName) {
       const siteName = String(fields.siteName)
       const siteAddr = fields.siteAddress ? String(fields.siteAddress) : ''
-      // name+address 조합 매칭 우선, name만 매칭 차선
-      const exactMatch = sites.find(s => s.name === siteName && s.address === siteAddr)
-      const nameMatch = !exactMatch ? sites.find(s => s.name === siteName) : null
-      const matched = exactMatch || nameMatch
+
+      // 정규화 기반 유사 매칭
+      const matched = findSimilarSite(siteName, siteAddr)
       if (matched) {
         updates.siteId = matched.id
         updates.siteAddress = matched.address || siteAddr
         filled.push('siteId')
       } else if (siteAddr) {
-        // 매칭 안 됨 + 주소 있음 → 자동 현장 개설
+        // 유사 현장도 없음 + 주소 있음 → 자동 현장 개설
         updates.siteAddress = siteAddr
         updates.projectName = siteName
         autoCreateSite(siteName, siteAddr)
