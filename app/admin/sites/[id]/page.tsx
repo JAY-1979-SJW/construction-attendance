@@ -7,7 +7,7 @@ import { WorklogTab } from '@/components/admin/site-ops/WorklogTab'
 import { TbmTab } from '@/components/admin/site-ops/TbmTab'
 import { DailyOpsCard } from '@/components/admin/site-ops/DailyOpsCard'
 import { DocumentPolicyTab } from '@/components/admin/site-ops/DocumentPolicyTab'
-import { InfoRow, InfoSection } from '@/components/admin/ui'
+import { InfoRow, InfoSection, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -1019,121 +1019,82 @@ export default function SiteDetailPage() {
                 <p className="mb-2">등록된 참여회사가 없습니다.</p>
                 <p className="text-xs">위 버튼으로 참여회사를 추가하세요.</p>
               </div>
-            ) : (
-              <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-surface border-b border-brand">
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">회사명</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">참여 상태</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">인증 상태</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">관리자</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">담당자</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">기간</th>
-                      <th className="px-4 py-2.5 text-xs text-body-brand font-medium text-right">액션</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {siteCompanies.map((a) => {
-                      const vs = a.company.externalVerificationStatus
-                      const ps = a.participationStatus
-                      const vsLabel: Record<string, string> = {
-                        DRAFT: '미신청', PENDING_VERIFICATION: '인증 대기',
-                        VERIFIED: '인증완료', REJECTED: '반려', INACTIVE: '비활성',
-                      }
-                      const vsColor: Record<string, string> = {
-                        DRAFT: 'bg-surface text-[#718096]',
-                        PENDING_VERIFICATION: 'bg-yellow-100 text-yellow-700',
-                        VERIFIED: 'bg-green-100 text-green-700',
-                        REJECTED: 'bg-red-100 text-red-600',
-                        INACTIVE: 'bg-surface text-[#718096]',
-                      }
-                      const psLabel: Record<string, string> = {
-                        PLANNED: '참여 예정', ACTIVE: '운영 중', STOPPED: '참여 중지',
-                      }
-                      const psColor: Record<string, string> = {
-                        PLANNED: 'bg-blue-50 text-blue-600',
-                        ACTIVE:  'bg-green-100 text-green-700',
-                        STOPPED: 'bg-surface text-[#718096]',
-                      }
-                      const ctype: Record<string, string> = {
-                        PRIME: '원청', SUBCONTRACT: '하도급', JOINT_VENTURE: '공동도급', SPECIALTY: '전문건설',
-                      }
-                      const canActivate = ps !== 'ACTIVE' && (!vs || vs === 'VERIFIED')
-                      const canStop = ps === 'ACTIVE'
-                      return (
-                        <tr key={a.id} className="border-b border-brand hover:bg-surface">
-                          <td className="px-4 py-2.5">
-                            <div className="font-medium text-sm text-fore-brand">{a.company.companyName}</div>
-                            <div className="text-xs text-[#718096]">{ctype[a.contractType] ?? a.contractType}</div>
-                          </td>
-                          <td className="px-4 py-2.5">
-                            <span className={`text-xs px-2 py-0.5 rounded font-medium ${psColor[ps] ?? 'bg-surface text-[#718096]'}`}>
-                              {psLabel[ps] ?? ps}
-                            </span>
-                          </td>
-                          <td className="px-4 py-2.5">
-                            {vs ? (
-                              <span className={`text-xs px-2 py-0.5 rounded font-medium ${vsColor[vs] ?? 'bg-surface text-[#718096]'}`}>
-                                {vsLabel[vs] ?? vs}
-                              </span>
-                            ) : (
-                              <span className="text-xs text-[#718096]">내부</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-2.5 text-center text-sm text-body-brand">
-                            {a.managerCount > 0 ? (
-                              <span className="bg-blue-900/40 text-blue-600 text-xs px-2 py-0.5 rounded">{a.managerCount}명</span>
-                            ) : (
-                              <span className="text-xs text-[#718096]">—</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-2.5 text-[#718096] text-xs">
-                            {a.managerName ?? '—'}{a.managerPhone && ` · ${a.managerPhone}`}
-                          </td>
-                          <td className="px-4 py-2.5 text-[#718096] text-xs">
-                            {fmtDate(a.startDate)} ~{a.endDate ? ` ${fmtDate(a.endDate)}` : ' 진행중'}
-                          </td>
-                          <td className="px-4 py-2.5 text-right">
-                            <div className="flex gap-1.5 justify-end">
-                              {canActivate && (
-                                <button
-                                  onClick={() => changeParticipationStatus(a.id, 'ACTIVE')}
-                                  className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
-                                >
-                                  운영 활성
-                                </button>
-                              )}
-                              {canStop && (
-                                <button
-                                  onClick={() => changeParticipationStatus(a.id, 'STOPPED')}
-                                  className="text-xs bg-gray-400 text-white px-2 py-1 rounded hover:bg-gray-500"
-                                >
-                                  중지
-                                </button>
-                              )}
-                              <button
-                                onClick={() => removeCompanyAssignment(a.id)}
-                                className="text-xs text-red-400 hover:text-red-600 px-1"
-                              >
-                                해제
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td colSpan={7} className="px-4 py-2 text-xs text-[#718096] bg-surface">
-                        총 {siteCompanies.length}개 회사 · 운영중 {siteCompanies.filter((a) => a.participationStatus === 'ACTIVE').length}개
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            )}
+            ) : (() => {
+              const vsLabel: Record<string, string> = { DRAFT: '미신청', PENDING_VERIFICATION: '인증 대기', VERIFIED: '인증완료', REJECTED: '반려', INACTIVE: '비활성' }
+              const vsColor: Record<string, string> = { DRAFT: 'bg-surface text-[#718096]', PENDING_VERIFICATION: 'bg-yellow-100 text-yellow-700', VERIFIED: 'bg-green-100 text-green-700', REJECTED: 'bg-red-100 text-red-600', INACTIVE: 'bg-surface text-[#718096]' }
+              const psLabel: Record<string, string> = { PLANNED: '참여 예정', ACTIVE: '운영 중', STOPPED: '참여 중지' }
+              const psColor: Record<string, string> = { PLANNED: 'bg-blue-50 text-blue-600', ACTIVE: 'bg-green-100 text-green-700', STOPPED: 'bg-surface text-[#718096]' }
+              const ctype: Record<string, string> = { PRIME: '원청', SUBCONTRACT: '하도급', JOINT_VENTURE: '공동도급', SPECIALTY: '전문건설' }
+              return (
+                <MobileCardList
+                  items={siteCompanies}
+                  keyExtractor={(a) => a.id}
+                  emptyMessage="참여회사가 없습니다."
+                  renderCard={(a) => {
+                    const vs = a.company.externalVerificationStatus
+                    const ps = a.participationStatus
+                    const canActivate = ps !== 'ACTIVE' && (!vs || vs === 'VERIFIED')
+                    const canStop = ps === 'ACTIVE'
+                    return (
+                      <MobileCard
+                        title={a.company.companyName}
+                        subtitle={ctype[a.contractType] ?? a.contractType}
+                        badge={<span className={`text-xs px-2 py-0.5 rounded font-medium ${psColor[ps] ?? 'bg-surface text-[#718096]'}`}>{psLabel[ps] ?? ps}</span>}
+                      >
+                        <MobileCardFields>
+                          <MobileCardField label="인증" value={vs ? <span className={`text-xs px-2 py-0.5 rounded font-medium ${vsColor[vs] ?? ''}`}>{vsLabel[vs] ?? vs}</span> : <span className="text-xs text-[#718096]">내부</span>} />
+                          <MobileCardField label="관리자" value={a.managerCount > 0 ? `${a.managerCount}명` : '—'} />
+                          <MobileCardField label="담당자" value={`${a.managerName ?? '—'}${a.managerPhone ? ` · ${a.managerPhone}` : ''}`} />
+                          <MobileCardField label="기간" value={`${fmtDate(a.startDate)} ~${a.endDate ? ` ${fmtDate(a.endDate)}` : ' 진행중'}`} />
+                        </MobileCardFields>
+                        <MobileCardActions>
+                          {canActivate && <button onClick={() => changeParticipationStatus(a.id, 'ACTIVE')} className="text-xs bg-green-600 text-white px-2 py-1 rounded">운영 활성</button>}
+                          {canStop && <button onClick={() => changeParticipationStatus(a.id, 'STOPPED')} className="text-xs bg-gray-400 text-white px-2 py-1 rounded">중지</button>}
+                          <button onClick={() => removeCompanyAssignment(a.id)} className="text-xs text-red-400 hover:text-red-600 px-1">해제</button>
+                        </MobileCardActions>
+                      </MobileCard>
+                    )
+                  }}
+                  renderTable={() => (
+                    <div className="bg-card border border-brand rounded-[12px] overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-surface border-b border-brand">
+                            <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">회사명</th>
+                            <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">참여 상태</th>
+                            <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">인증 상태</th>
+                            <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">관리자</th>
+                            <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">담당자</th>
+                            <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">기간</th>
+                            <th className="px-4 py-2.5 text-xs text-body-brand font-medium text-right">액션</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {siteCompanies.map((a) => {
+                            const vs = a.company.externalVerificationStatus
+                            const ps = a.participationStatus
+                            const canActivate = ps !== 'ACTIVE' && (!vs || vs === 'VERIFIED')
+                            const canStop = ps === 'ACTIVE'
+                            return (
+                              <tr key={a.id} className="border-b border-brand hover:bg-surface">
+                                <td className="px-4 py-2.5"><div className="font-medium text-sm text-fore-brand">{a.company.companyName}</div><div className="text-xs text-[#718096]">{ctype[a.contractType] ?? a.contractType}</div></td>
+                                <td className="px-4 py-2.5"><span className={`text-xs px-2 py-0.5 rounded font-medium ${psColor[ps] ?? 'bg-surface text-[#718096]'}`}>{psLabel[ps] ?? ps}</span></td>
+                                <td className="px-4 py-2.5">{vs ? <span className={`text-xs px-2 py-0.5 rounded font-medium ${vsColor[vs] ?? ''}`}>{vsLabel[vs] ?? vs}</span> : <span className="text-xs text-[#718096]">내부</span>}</td>
+                                <td className="px-4 py-2.5 text-center">{a.managerCount > 0 ? <span className="bg-blue-900/40 text-blue-600 text-xs px-2 py-0.5 rounded">{a.managerCount}명</span> : <span className="text-xs text-[#718096]">—</span>}</td>
+                                <td className="px-4 py-2.5 text-[#718096] text-xs">{a.managerName ?? '—'}{a.managerPhone && ` · ${a.managerPhone}`}</td>
+                                <td className="px-4 py-2.5 text-[#718096] text-xs">{fmtDate(a.startDate)} ~{a.endDate ? ` ${fmtDate(a.endDate)}` : ' 진행중'}</td>
+                                <td className="px-4 py-2.5 text-right"><div className="flex gap-1.5 justify-end">{canActivate && <button onClick={() => changeParticipationStatus(a.id, 'ACTIVE')} className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">운영 활성</button>}{canStop && <button onClick={() => changeParticipationStatus(a.id, 'STOPPED')} className="text-xs bg-gray-400 text-white px-2 py-1 rounded hover:bg-gray-500">중지</button>}<button onClick={() => removeCompanyAssignment(a.id)} className="text-xs text-red-400 hover:text-red-600 px-1">해제</button></div></td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                        <tfoot><tr><td colSpan={7} className="px-4 py-2 text-xs text-[#718096] bg-surface">총 {siteCompanies.length}개 회사 · 운영중 {siteCompanies.filter((a) => a.participationStatus === 'ACTIVE').length}개</td></tr></tfoot>
+                      </table>
+                    </div>
+                  )}
+                />
+              )
+            })()}
           </div>
         )}
 
@@ -1248,52 +1209,55 @@ export default function SiteDetailPage() {
                 <p className="text-xs">위 버튼으로 근로자를 이 현장에 배치하세요.</p>
               </div>
             ) : (
-              <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-surface border-b border-brand">
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">이름</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">소속</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">공종</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">배정 기간</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">주 배정</th>
-                      <th className="px-4 py-2.5" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {assignedWorkers.map((a) => (
-                      <tr key={a.id} className="border-b border-brand hover:bg-surface">
-                        <td className="px-4 py-2.5 font-medium text-fore-brand">{a.worker.name}</td>
-                        <td className="px-4 py-2.5 text-[#718096] text-xs">{a.company.companyName}</td>
-                        <td className="px-4 py-2.5 text-[#718096] text-xs">{a.tradeType ?? '—'}</td>
-                        <td className="px-4 py-2.5 text-[#718096] text-xs">
-                          {fmtDate(a.assignedFrom)} ~ {a.assignedTo ? fmtDate(a.assignedTo) : '진행중'}
-                        </td>
-                        <td className="px-4 py-2.5">
-                          {a.isPrimary && (
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">주</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-2.5 text-right">
-                          <button
-                            onClick={() => removeAssignment(a.id)}
-                            className="text-xs text-red-400 hover:text-red-600"
-                          >
-                            배정해제
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td colSpan={6} className="px-4 py-2 text-xs text-[#718096] bg-surface">
-                        총 {assignedWorkers.length}명 배치됨
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
+              <MobileCardList
+                items={assignedWorkers}
+                keyExtractor={(a) => a.id}
+                emptyMessage="배치된 근로자가 없습니다."
+                renderCard={(a) => (
+                  <MobileCard
+                    title={a.worker.name}
+                    subtitle={a.company.companyName}
+                    badge={a.isPrimary ? <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">주</span> : undefined}
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="공종" value={a.tradeType ?? '—'} />
+                      <MobileCardField label="배정 기간" value={`${fmtDate(a.assignedFrom)} ~ ${a.assignedTo ? fmtDate(a.assignedTo) : '진행중'}`} />
+                    </MobileCardFields>
+                    <MobileCardActions>
+                      <button onClick={() => removeAssignment(a.id)} className="text-xs text-red-400 hover:text-red-600">배정해제</button>
+                    </MobileCardActions>
+                  </MobileCard>
+                )}
+                renderTable={() => (
+                  <div className="bg-card border border-brand rounded-[12px] overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-surface border-b border-brand">
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">이름</th>
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">소속</th>
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">공종</th>
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">배정 기간</th>
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">주 배정</th>
+                          <th className="px-4 py-2.5" />
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {assignedWorkers.map((a) => (
+                          <tr key={a.id} className="border-b border-brand hover:bg-surface">
+                            <td className="px-4 py-2.5 font-medium text-fore-brand">{a.worker.name}</td>
+                            <td className="px-4 py-2.5 text-[#718096] text-xs">{a.company.companyName}</td>
+                            <td className="px-4 py-2.5 text-[#718096] text-xs">{a.tradeType ?? '—'}</td>
+                            <td className="px-4 py-2.5 text-[#718096] text-xs">{fmtDate(a.assignedFrom)} ~ {a.assignedTo ? fmtDate(a.assignedTo) : '진행중'}</td>
+                            <td className="px-4 py-2.5">{a.isPrimary && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">주</span>}</td>
+                            <td className="px-4 py-2.5 text-right"><button onClick={() => removeAssignment(a.id)} className="text-xs text-red-400 hover:text-red-600">배정해제</button></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot><tr><td colSpan={6} className="px-4 py-2 text-xs text-[#718096] bg-surface">총 {assignedWorkers.length}명 배치됨</td></tr></tfoot>
+                    </table>
+                  </div>
+                )}
+              />
             )}
           </div>
         )}
@@ -1669,67 +1633,63 @@ export default function SiteDetailPage() {
             ) : workers.length === 0 ? (
               <div className="text-center text-[#718096] py-8">해당 날짜 인원 데이터가 없습니다.</div>
             ) : (
-              <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-surface border-b border-brand">
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">이름</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">팀</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">출근</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">출근시각</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">퇴근시각</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">TBM</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">안전확인</th>
-                      <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">특이사항</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {workers.map((w) => (
-                      <tr key={w.id} className="border-b border-brand hover:bg-surface">
-                        <td className="px-4 py-2.5 font-medium text-fore-brand">{w.worker.name}</td>
-                        <td className="px-4 py-2.5 text-[#718096]">{w.teamLabel ?? '—'}</td>
-                        <td className="px-4 py-2.5">
-                          <span className={`text-xs px-2 py-0.5 rounded ${
-                            w.attendanceStatus === 'PRESENT' ? 'bg-green-100 text-green-700' :
-                            w.attendanceStatus === 'ABSENT'  ? 'bg-red-100 text-red-700' :
-                            'bg-surface text-[#718096]'
-                          }`}>
-                            {ATTENDANCE_STATUS_LABELS[w.attendanceStatus] ?? w.attendanceStatus}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5 text-body-brand text-xs">{fmtDateTime(w.checkInAt)}</td>
-                        <td className="px-4 py-2.5 text-body-brand text-xs">
-                          {w.checkOutAt ? fmtDateTime(w.checkOutAt) : (
-                            <span className="text-orange-500">미퇴근</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <span className={`text-xs px-2 py-0.5 rounded ${
-                            w.tbmStatus === 'ATTENDED'     ? 'bg-green-100 text-green-700' :
-                            w.tbmStatus === 'NOT_ATTENDED' ? 'bg-red-100 text-red-700' :
-                            'bg-surface text-[#718096]'
-                          }`}>
-                            {TBM_STATUS_LABELS[w.tbmStatus] ?? w.tbmStatus}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <span className={`text-xs px-2 py-0.5 rounded ${
-                            w.safetyCheckStatus === 'COMPLETED'     ? 'bg-green-100 text-green-700' :
-                            w.safetyCheckStatus === 'NOT_COMPLETED' ? 'bg-red-100 text-red-700' :
-                            'bg-surface text-[#718096]'
-                          }`}>
-                            {SAFETY_STATUS_LABELS[w.safetyCheckStatus] ?? w.safetyCheckStatus}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5 text-xs text-[#718096]">{w.remarks ?? '—'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div className="px-4 py-2 text-xs text-[#718096] bg-surface">
-                  총 {workers.length}명
-                </div>
-              </div>
+              <MobileCardList
+                items={workers}
+                keyExtractor={(w) => w.id}
+                emptyMessage="출근자 데이터가 없습니다."
+                renderCard={(w) => (
+                  <MobileCard
+                    title={w.worker.name}
+                    subtitle={w.teamLabel ?? '—'}
+                    badge={
+                      <span className={`text-xs px-2 py-0.5 rounded ${w.attendanceStatus === 'PRESENT' ? 'bg-green-100 text-green-700' : w.attendanceStatus === 'ABSENT' ? 'bg-red-100 text-red-700' : 'bg-surface text-[#718096]'}`}>
+                        {ATTENDANCE_STATUS_LABELS[w.attendanceStatus] ?? w.attendanceStatus}
+                      </span>
+                    }
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="출근시각" value={fmtDateTime(w.checkInAt)} />
+                      <MobileCardField label="퇴근시각" value={w.checkOutAt ? fmtDateTime(w.checkOutAt) : <span className="text-orange-500">미퇴근</span>} />
+                      <MobileCardField label="TBM" value={<span className={`text-xs px-2 py-0.5 rounded ${w.tbmStatus === 'ATTENDED' ? 'bg-green-100 text-green-700' : w.tbmStatus === 'NOT_ATTENDED' ? 'bg-red-100 text-red-700' : 'bg-surface text-[#718096]'}`}>{TBM_STATUS_LABELS[w.tbmStatus] ?? w.tbmStatus}</span>} />
+                      <MobileCardField label="안전확인" value={<span className={`text-xs px-2 py-0.5 rounded ${w.safetyCheckStatus === 'COMPLETED' ? 'bg-green-100 text-green-700' : w.safetyCheckStatus === 'NOT_COMPLETED' ? 'bg-red-100 text-red-700' : 'bg-surface text-[#718096]'}`}>{SAFETY_STATUS_LABELS[w.safetyCheckStatus] ?? w.safetyCheckStatus}</span>} />
+                      {w.remarks && <MobileCardField label="특이사항" value={w.remarks} />}
+                    </MobileCardFields>
+                  </MobileCard>
+                )}
+                renderTable={() => (
+                  <div className="bg-card border border-brand rounded-[12px] overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-surface border-b border-brand">
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">이름</th>
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">팀</th>
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">출근</th>
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">출근시각</th>
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">퇴근시각</th>
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">TBM</th>
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">안전확인</th>
+                          <th className="text-left px-4 py-2.5 text-xs text-body-brand font-medium">특이사항</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {workers.map((w) => (
+                          <tr key={w.id} className="border-b border-brand hover:bg-surface">
+                            <td className="px-4 py-2.5 font-medium text-fore-brand">{w.worker.name}</td>
+                            <td className="px-4 py-2.5 text-[#718096]">{w.teamLabel ?? '—'}</td>
+                            <td className="px-4 py-2.5"><span className={`text-xs px-2 py-0.5 rounded ${w.attendanceStatus === 'PRESENT' ? 'bg-green-100 text-green-700' : w.attendanceStatus === 'ABSENT' ? 'bg-red-100 text-red-700' : 'bg-surface text-[#718096]'}`}>{ATTENDANCE_STATUS_LABELS[w.attendanceStatus] ?? w.attendanceStatus}</span></td>
+                            <td className="px-4 py-2.5 text-body-brand text-xs">{fmtDateTime(w.checkInAt)}</td>
+                            <td className="px-4 py-2.5 text-body-brand text-xs">{w.checkOutAt ? fmtDateTime(w.checkOutAt) : <span className="text-orange-500">미퇴근</span>}</td>
+                            <td className="px-4 py-2.5"><span className={`text-xs px-2 py-0.5 rounded ${w.tbmStatus === 'ATTENDED' ? 'bg-green-100 text-green-700' : w.tbmStatus === 'NOT_ATTENDED' ? 'bg-red-100 text-red-700' : 'bg-surface text-[#718096]'}`}>{TBM_STATUS_LABELS[w.tbmStatus] ?? w.tbmStatus}</span></td>
+                            <td className="px-4 py-2.5"><span className={`text-xs px-2 py-0.5 rounded ${w.safetyCheckStatus === 'COMPLETED' ? 'bg-green-100 text-green-700' : w.safetyCheckStatus === 'NOT_COMPLETED' ? 'bg-red-100 text-red-700' : 'bg-surface text-[#718096]'}`}>{SAFETY_STATUS_LABELS[w.safetyCheckStatus] ?? w.safetyCheckStatus}</span></td>
+                            <td className="px-4 py-2.5 text-xs text-[#718096]">{w.remarks ?? '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <div className="px-4 py-2 text-xs text-[#718096] bg-surface">총 {workers.length}명</div>
+                  </div>
+                )}
+              />
             )}
           </div>
         )}

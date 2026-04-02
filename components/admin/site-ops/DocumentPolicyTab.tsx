@@ -97,7 +97,7 @@ export function DocumentPolicyTab({ siteId }: Props) {
         )}
       </div>
 
-      <div className="bg-card rounded border border-brand overflow-hidden">
+      <div className="bg-card rounded border border-brand overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-surface text-left text-muted-brand">
