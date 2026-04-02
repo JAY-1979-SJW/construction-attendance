@@ -34,13 +34,21 @@ export async function POST(req: NextRequest) {
 
   const mode = formData.get('mode') as string | null
 
-  // mode=text : 텍스트 추출만 (Claude API 호출 안 함)
-  if (mode === 'text') {
-    const { text, pages, info } = await extractTextFromPdf(buffer)
-    return NextResponse.json({ text, pages, info, textLength: text.length })
-  }
+  try {
+    // mode=text : 텍스트 추출만 (OpenAI API 호출 안 함)
+    if (mode === 'text') {
+      const { text, pages, info } = await extractTextFromPdf(buffer)
+      return NextResponse.json({ text, pages, info, textLength: text.length })
+    }
 
-  // 기본: 텍스트 추출 + Claude 구조화 파싱
-  const result = await parsePdfContract(buffer)
-  return NextResponse.json(result)
+    // 기본: 텍스트 추출 + OpenAI 구조화 파싱 (실패 시 Vision fallback)
+    const result = await parsePdfContract(buffer)
+    return NextResponse.json(result)
+  } catch (err) {
+    console.error('[parse-pdf] 처리 오류:', (err as Error).message)
+    return NextResponse.json(
+      { error: 'PDF 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
+      { status: 500 }
+    )
+  }
 }

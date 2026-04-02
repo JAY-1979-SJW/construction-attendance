@@ -123,34 +123,39 @@ export async function parseContractFields(text: string): Promise<ParsedContractF
     return { rawText: text, confidence: {}, contractType: undefined }
   }
 
-  const client = new OpenAI({ apiKey })
+  try {
+    const client = new OpenAI({ apiKey })
 
-  // 토큰 절약: 텍스트가 너무 길면 앞뒤 8000자만 사용
-  const maxLen = 16000
-  const truncated = text.length > maxLen
-    ? text.slice(0, maxLen / 2) + '\n...(중략)...\n' + text.slice(-maxLen / 2)
-    : text
+    // 토큰 절약: 텍스트가 너무 길면 앞뒤 8000자만 사용
+    const maxLen = 16000
+    const truncated = text.length > maxLen
+      ? text.slice(0, maxLen / 2) + '\n...(중략)...\n' + text.slice(-maxLen / 2)
+      : text
 
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    max_tokens: 1024,
-    messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
-      {
-        role: 'user',
-        content: `다음은 근로계약서 PDF에서 추출된 텍스트입니다. 구조화된 JSON으로 변환해주세요.\n\n${truncated}`,
-      },
-    ],
-  })
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 1024,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        {
+          role: 'user',
+          content: `다음은 근로계약서 PDF에서 추출된 텍스트입니다. 구조화된 JSON으로 변환해주세요.\n\n${truncated}`,
+        },
+      ],
+    })
 
-  const responseText = response.choices[0]?.message?.content ?? ''
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
+    const responseText = response.choices[0]?.message?.content ?? ''
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      return { rawText: text, confidence: {}, contractType: undefined }
+    }
+
+    const parsed = JSON.parse(jsonMatch[0]) as ParsedContractFields
+    return { ...parsed, rawText: text, confidence: parsed.confidence ?? {} }
+  } catch (err) {
+    console.error('[parseContractFields] OpenAI API 오류:', (err as Error).message)
     return { rawText: text, confidence: {}, contractType: undefined }
   }
-
-  const parsed = JSON.parse(jsonMatch[0]) as ParsedContractFields
-  return { ...parsed, rawText: text, confidence: parsed.confidence ?? {} }
 }
 
 // ─── 2-B: 스캔/이미지 PDF → OpenAI Vision 직접 분석 ────────────────────────
@@ -197,46 +202,51 @@ async function parseContractFromPdfVision(buffer: Buffer): Promise<ParsedContrac
     return { rawText: '', confidence: {}, contractType: undefined }
   }
 
-  const client = new OpenAI({ apiKey })
-  const base64 = buffer.toString('base64')
+  try {
+    const client = new OpenAI({ apiKey })
+    const base64 = buffer.toString('base64')
 
-  const response = await client.responses.create({
-    model: 'gpt-4o-mini',
-    input: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'input_file' as const,
-            filename: 'contract.pdf',
-            file_data: `data:application/pdf;base64,${base64}`,
-          },
-          {
-            type: 'input_text' as const,
-            text: VISION_PROMPT,
-          },
-        ],
-      },
-    ],
-  })
+    const response = await client.responses.create({
+      model: 'gpt-4o-mini',
+      input: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'input_file' as const,
+              filename: 'contract.pdf',
+              file_data: `data:application/pdf;base64,${base64}`,
+            },
+            {
+              type: 'input_text' as const,
+              text: VISION_PROMPT,
+            },
+          ],
+        },
+      ],
+    })
 
-  // Responses API 결과에서 텍스트 추출
-  let outputText = ''
-  for (const item of response.output || []) {
-    if (item.type === 'message' && 'content' in item) {
-      for (const c of (item as { content: Array<{ type: string; text?: string }> }).content) {
-        if (c.type === 'output_text' && c.text) outputText += c.text
+    // Responses API 결과에서 텍스트 추출
+    let outputText = ''
+    for (const item of response.output || []) {
+      if (item.type === 'message' && 'content' in item) {
+        for (const c of (item as { content: Array<{ type: string; text?: string }> }).content) {
+          if (c.type === 'output_text' && c.text) outputText += c.text
+        }
       }
     }
-  }
 
-  const jsonMatch = outputText.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
-    return { rawText: '[Vision 분석 실패]', confidence: {}, contractType: undefined }
-  }
+    const jsonMatch = outputText.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      return { rawText: '[Vision 분석 실패]', confidence: {}, contractType: undefined }
+    }
 
-  const parsed = JSON.parse(jsonMatch[0]) as ParsedContractFields
-  return { ...parsed, rawText: '[Vision OCR]', confidence: parsed.confidence ?? {} }
+    const parsed = JSON.parse(jsonMatch[0]) as ParsedContractFields
+    return { ...parsed, rawText: '[Vision OCR]', confidence: parsed.confidence ?? {} }
+  } catch (err) {
+    console.error('[parseContractFromPdfVision] OpenAI API 오류:', (err as Error).message)
+    return { rawText: '[Vision API 오류]', confidence: {}, contractType: undefined }
+  }
 }
 
 // ─── 통합: PDF 버퍼 → 구조화 데이터 ──────────────────────────────────────────
