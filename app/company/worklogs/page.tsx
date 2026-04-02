@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 
@@ -71,11 +71,11 @@ export default function CompanyWorklogsPage() {
 
   return (
     <div className="p-8 font-sans">
-      <h1 className="text-[22px] font-bold text-[#111827] mb-5">작업일보</h1>
+      <h1 className="text-[22px] font-bold text-fore-brand mb-5">작업일보</h1>
 
       <div className="flex gap-2 items-center mb-5 flex-wrap">
         <select
-          className="px-3 py-2 border border-[#E5E7EB] rounded-md text-[13px] min-w-[160px]"
+          className="px-3 py-2 border border-brand rounded-md text-[13px] min-w-[160px]"
           value={siteId}
           onChange={(e) => setSiteId(e.target.value)}
         >
@@ -84,48 +84,48 @@ export default function CompanyWorklogsPage() {
             <option key={s.id} value={s.id}>{s.name}</option>
           ))}
         </select>
-        <input type="date" className="px-[10px] py-2 border border-[#E5E7EB] rounded-md text-[13px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-        <span className="text-[#9ca3af] text-[13px]">~</span>
-        <input type="date" className="px-[10px] py-2 border border-[#E5E7EB] rounded-md text-[13px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-        <button onClick={load} className="px-4 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]">조회</button>
+        <input type="date" className="px-[10px] py-2 border border-brand rounded-md text-[13px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+        <span className="text-muted2-brand text-[13px]">~</span>
+        <input type="date" className="px-[10px] py-2 border border-brand rounded-md text-[13px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+        <button onClick={load} className="px-4 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[13px]">조회</button>
       </div>
 
       {!siteId && (
-        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">현장을 선택하면 작업일보를 확인할 수 있습니다.</div>
+        <div className="text-center text-muted2-brand py-12 bg-card border border-brand rounded-lg text-[14px]">현장을 선택하면 작업일보를 확인할 수 있습니다.</div>
       )}
 
-      {msg && <div className="px-[14px] py-[10px] bg-[#fee2e2] text-[#991b1b] rounded-md text-[13px] mb-3">{msg}</div>}
+      {msg && <div className="px-[14px] py-[10px] bg-red-light text-status-rejected rounded-md text-[13px] mb-3">{msg}</div>}
 
       {loading ? (
-        <p className="text-[#9ca3af] text-center py-10">불러오는 중...</p>
+        <p className="text-muted2-brand text-center py-10">불러오는 중...</p>
       ) : siteId && logs.length === 0 ? (
-        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">해당 기간에 작업일보가 없습니다.</div>
+        <div className="text-center text-muted2-brand py-12 bg-card border border-brand rounded-lg text-[14px]">해당 기간에 작업일보가 없습니다.</div>
       ) : logs.length > 0 ? (
-        <div className="bg-card border border-[#e5e7eb] rounded-lg overflow-auto">
+        <div className="bg-card border border-brand rounded-lg overflow-auto">
           <table className="w-full border-collapse text-[13px]">
-            <thead className="bg-[#f9fafb]">
+            <thead className="bg-surface">
               <tr>
                 {['날짜', '전체 인원', '정상 출근', '결근', '날씨', '안전 사고', '상태', '요약'].map(h => (
-                  <th key={h} className="px-[14px] py-[10px] text-left text-[12px] text-[#6b7280] font-semibold border-b border-[#e5e7eb]">{h}</th>
+                  <th key={h} className="px-[14px] py-[10px] text-left text-[12px] text-muted-brand font-semibold border-b border-brand">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {logs.map(log => (
-                <tr key={log.id} className="border-b border-[#f3f4f6]">
-                  <td className="px-[14px] py-[10px] text-[#374151] align-middle">{fmtDate(log.workDate)}</td>
-                  <td className="px-[14px] py-[10px] text-[#374151] align-middle text-center">{log.totalWorkers}</td>
-                  <td className="px-[14px] py-[10px] text-[#374151] align-middle text-center">{log.normalWorkers}</td>
-                  <td className="px-[14px] py-[10px] text-[#374151] align-middle text-center">{log.absentWorkers}</td>
-                  <td className="px-[14px] py-[10px] text-[#374151] align-middle">{log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '—'}</td>
-                  <td className="px-[14px] py-[10px] text-[#374151] align-middle">
+                <tr key={log.id} className="border-b border-brand">
+                  <td className="px-[14px] py-[10px] text-body-brand align-middle">{fmtDate(log.workDate)}</td>
+                  <td className="px-[14px] py-[10px] text-body-brand align-middle text-center">{log.totalWorkers}</td>
+                  <td className="px-[14px] py-[10px] text-body-brand align-middle text-center">{log.normalWorkers}</td>
+                  <td className="px-[14px] py-[10px] text-body-brand align-middle text-center">{log.absentWorkers}</td>
+                  <td className="px-[14px] py-[10px] text-body-brand align-middle">{log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '—'}</td>
+                  <td className="px-[14px] py-[10px] text-body-brand align-middle">
                     {log.safetyIncident ? (
-                      <span className="text-[#dc2626] text-[12px] font-semibold">발생</span>
+                      <span className="text-status-rejected text-[12px] font-semibold">발생</span>
                     ) : (
-                      <span className="text-[#9ca3af] text-[12px]">없음</span>
+                      <span className="text-muted2-brand text-[12px]">없음</span>
                     )}
                   </td>
-                  <td className="px-[14px] py-[10px] text-[#374151] align-middle">
+                  <td className="px-[14px] py-[10px] text-body-brand align-middle">
                     <span
                       className="text-[11px] px-2 py-[2px] rounded"
                       style={{
@@ -136,7 +136,7 @@ export default function CompanyWorklogsPage() {
                       {log.isFinalized ? '마감' : '작성중'}
                     </span>
                   </td>
-                  <td className="px-[14px] py-[10px] text-[#374151] align-middle max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                  <td className="px-[14px] py-[10px] text-body-brand align-middle max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                     {log.workSummary ?? '—'}
                   </td>
                 </tr>

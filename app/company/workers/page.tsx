@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -81,17 +81,17 @@ export default function CompanyWorkersPage() {
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-5">
-        <h1 className="text-[22px] font-bold m-0 text-[#111827]">근로자 관리 ({total}명)</h1>
+        <h1 className="text-[22px] font-bold m-0 text-fore-brand">근로자 관리 ({total}명)</h1>
         <button
           onClick={() => { setShowForm(true); setFormError('') }}
-          className="px-4 py-2 bg-[#F97316] text-white border-none rounded-[7px] cursor-pointer text-sm font-semibold"
+          className="px-4 py-2 bg-brand-accent text-white border-none rounded-[7px] cursor-pointer text-sm font-semibold"
         >
           + 근로자 등록
         </button>
       </div>
 
       {msg && (
-        <p className="bg-[#e8f5e9] text-[#2e7d32] px-3.5 py-2.5 rounded-[6px] mb-4 text-sm">{msg}</p>
+        <p className="bg-green-light text-[#2e7d32] px-3.5 py-2.5 rounded-[6px] mb-4 text-sm">{msg}</p>
       )}
 
       <form onSubmit={handleSearch} className="flex gap-2 mb-4">
@@ -99,7 +99,7 @@ export default function CompanyWorkersPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="이름으로 검색"
-          className="px-3 py-2 border border-[#E5E7EB] rounded-[7px] text-sm w-[220px] outline-none"
+          className="px-3 py-2 border border-brand rounded-[7px] text-sm w-[220px] outline-none"
         />
         <button
           type="submit"
@@ -119,7 +119,7 @@ export default function CompanyWorkersPage() {
                 {['이름', '연락처', '직종', '고용형태', '출근현장', '상태'].map((h) => (
                   <th
                     key={h}
-                    className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[#eee] bg-[#fafafa] whitespace-nowrap"
+                    className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand bg-surface whitespace-nowrap"
                   >
                     {h}
                   </th>
@@ -128,15 +128,15 @@ export default function CompanyWorkersPage() {
             </thead>
             <tbody>
               {workers.length === 0 ? (
-                <tr><td colSpan={6} className="p-8 text-center text-[#9CA3AF] text-sm">근로자가 없습니다.</td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-muted2-brand text-sm">근로자가 없습니다.</td></tr>
               ) : workers.map((w) => (
-                <tr key={w.id} className="border-b border-[#f0f0f0]">
-                  <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">{w.name}</td>
-                  <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">{formatPhone(w.phone)}</td>
-                  <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">{w.jobTitle}</td>
-                  <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">{EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType}</td>
-                  <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">{w.activeSites?.map((s) => s.name).join(', ') || '-'}</td>
-                  <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">
+                <tr key={w.id} className="border-b border-brand">
+                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{w.name}</td>
+                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{formatPhone(w.phone)}</td>
+                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{w.jobTitle}</td>
+                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType}</td>
+                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{w.activeSites?.map((s) => s.name).join(', ') || '-'}</td>
+                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">
                     <span
                       className="px-2 py-0.5 rounded text-[12px] font-semibold"
                       style={{
@@ -157,7 +157,7 @@ export default function CompanyWorkersPage() {
       {showForm && (
         <div className="fixed inset-0 bg-black/45 flex items-center justify-center z-[1000]">
           <div className="bg-card rounded-xl p-8 w-full max-w-[420px] shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
-            <h2 className="text-lg font-bold m-0 mb-5 text-[#111827]">근로자 등록</h2>
+            <h2 className="text-lg font-bold m-0 mb-5 text-fore-brand">근로자 등록</h2>
             <div className="mb-3.5">
               <label className="block text-[13px] font-semibold text-muted-brand mb-1.5">이름</label>
               <input
@@ -190,7 +190,7 @@ export default function CompanyWorkersPage() {
               <select
                 value={form.employmentType}
                 onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
-                className="w-full px-3 py-2.5 text-sm border border-[#E5E7EB] rounded-[7px] outline-none bg-card box-border"
+                className="w-full px-3 py-2.5 text-sm border border-brand rounded-[7px] outline-none bg-card box-border"
               >
                 <option value="DAILY_CONSTRUCTION">일용직</option>
                 <option value="REGULAR">정규직</option>
@@ -209,7 +209,7 @@ export default function CompanyWorkersPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-4 py-2 bg-[#F97316] text-white border-none rounded-[7px] cursor-pointer text-sm font-semibold"
+                className="px-4 py-2 bg-brand-accent text-white border-none rounded-[7px] cursor-pointer text-sm font-semibold"
                 style={{ opacity: saving ? 0.6 : 1 }}
               >
                 {saving ? '저장 중...' : '등록'}

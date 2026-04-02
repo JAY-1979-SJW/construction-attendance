@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -160,7 +160,7 @@ export default function CompanyAttendancePage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-[22px] font-bold m-0 mb-5 text-[#111827]">출퇴근 현황</h1>
+      <h1 className="text-[22px] font-bold m-0 mb-5 text-fore-brand">출퇴근 현황</h1>
 
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <label className="text-[13px] font-semibold text-muted-brand">날짜</label>
@@ -168,7 +168,7 @@ export default function CompanyAttendancePage() {
           type="date"
           value={date}
           onChange={handleDateChange}
-          className="px-3 py-2 border border-[#E5E7EB] rounded-[7px] text-sm outline-none"
+          className="px-3 py-2 border border-brand rounded-[7px] text-sm outline-none"
         />
         <label className="flex items-center text-[13px] font-medium text-muted-brand cursor-pointer">
           <input
@@ -191,7 +191,7 @@ export default function CompanyAttendancePage() {
                 {['근로자명', '현장', '출근시각', '퇴근시각', '공수', '상태', ''].map((h, i) => (
                   <th
                     key={i}
-                    className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[#eee] bg-[#fafafa] whitespace-nowrap"
+                    className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand bg-surface whitespace-nowrap"
                   >
                     {h}
                   </th>
@@ -200,7 +200,7 @@ export default function CompanyAttendancePage() {
             </thead>
             <tbody>
               {displayedRecords.length === 0 ? (
-                <tr><td colSpan={7} className="p-8 text-center text-[#9CA3AF] text-sm">출퇴근 기록이 없습니다.</td></tr>
+                <tr><td colSpan={7} className="p-8 text-center text-muted2-brand text-sm">출퇴근 기록이 없습니다.</td></tr>
               ) : displayedRecords.map((r) => {
                 const isEditing = editingId === r.id
                 const canEdit = !!r.attendanceDayId && EDITABLE_STATUSES.has(r.status)
@@ -208,18 +208,18 @@ export default function CompanyAttendancePage() {
 
                 return (
                   <>
-                    <tr key={r.id} className="border-b border-[#f0f0f0]">
-                      <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">{r.workerName}</td>
-                      <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">{r.siteName || '-'}</td>
-                      <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">{formatTime(r.checkInAt)}</td>
-                      <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">{formatTime(r.checkOutAt)}</td>
-                      <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">
+                    <tr key={r.id} className="border-b border-brand">
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{r.workerName}</td>
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{r.siteName || '-'}</td>
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{formatTime(r.checkInAt)}</td>
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{formatTime(r.checkOutAt)}</td>
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">
                         <span>{calcManDay(displayMinutes)}</span>
                         {r.manualAdjustedYn && (
                           <span className="ml-1.5 px-1.5 py-0.5 rounded text-[11px] font-semibold bg-[#fff8e1] text-[#f57f17] border border-[#ffe082]">수동</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">
                         <span
                           className="px-2 py-0.5 rounded text-[12px] font-semibold"
                           style={{
@@ -230,7 +230,7 @@ export default function CompanyAttendancePage() {
                           {STATUS_LABEL[r.status] ?? r.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-[#374151] whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">
                         {canEdit && !isEditing && (
                           <button
                             onClick={() => openEdit(r)}

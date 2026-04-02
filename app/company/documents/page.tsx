@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -85,7 +85,7 @@ export default function CompanyDocumentsPage() {
           <h1 className="text-[22px] font-bold m-0">노임서류 · 집계</h1>
           <p className="text-[13px] text-muted-brand mt-1 mb-0">월별 노임비 집계 및 근무 확정 요약을 조회합니다.</p>
         </div>
-        <button onClick={() => load(selectedMonth || undefined)} disabled={loading} className="px-5 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[14px] font-semibold">
+        <button onClick={() => load(selectedMonth || undefined)} disabled={loading} className="px-5 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[14px] font-semibold">
           {loading ? '조회중...' : '새로고침'}
         </button>
       </div>
@@ -104,7 +104,7 @@ export default function CompanyDocumentsPage() {
       )}
 
       {blocked ? (
-        <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden px-12 py-12 text-center text-[#9CA3AF]">
+        <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden px-12 py-12 text-center text-muted2-brand">
           <div className="text-[32px] mb-[10px]">🔒</div>
           <div className="font-semibold">노임서류 기능이 비활성화되어 있습니다.</div>
         </div>
@@ -146,7 +146,7 @@ export default function CompanyDocumentsPage() {
           <div className="mb-6">
             <h2 className="text-[16px] font-bold m-0 mb-[10px]">근무 확정 요약</h2>
             {data.confirmationSummary.length === 0 ? (
-              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden px-6 py-6 text-center text-[#9CA3AF] text-[14px]">
+              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden px-6 py-6 text-center text-muted2-brand text-[14px]">
                 확정된 근무 기록이 없습니다.
               </div>
             ) : (
@@ -155,17 +155,17 @@ export default function CompanyDocumentsPage() {
                   <thead>
                     <tr>
                       {['월', '확정 건수', '총 공수', '총 금액'].map(h => (
-                        <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-[#e0e0e0] whitespace-nowrap">{h}</th>
+                        <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {data.confirmationSummary.map((row, i) => (
                       <tr key={row.monthKey} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                        <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle font-semibold">{row.monthKey}</td>
-                        <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{row.confirmedCount}건</td>
-                        <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{row.totalWorkUnits.toFixed(2)}일</td>
-                        <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{fmt(row.totalAmount)}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle font-semibold">{row.monthKey}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.confirmedCount}건</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.totalWorkUnits.toFixed(2)}일</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(row.totalAmount)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -178,7 +178,7 @@ export default function CompanyDocumentsPage() {
           <div>
             <h2 className="text-[16px] font-bold m-0 mb-[10px]">노임비 집계표</h2>
             {data.laborSummaries.length === 0 ? (
-              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden px-6 py-6 text-center text-[#9CA3AF] text-[14px]">
+              <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden px-6 py-6 text-center text-muted2-brand text-[14px]">
                 노임비 집계 데이터가 없습니다.
                 <div className="text-[12px] mt-1">슈퍼관리자 메뉴 → 노무비 집계 실행 후 조회 가능합니다.</div>
               </div>
@@ -189,16 +189,16 @@ export default function CompanyDocumentsPage() {
                     <thead>
                       <tr>
                         {['월', '현장', '구분', '근로자수', '공수', '지급총액', '원천세', '퇴직공제(일)', '생성일'].map(h => (
-                          <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-[#e0e0e0] whitespace-nowrap">{h}</th>
+                          <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {data.laborSummaries.map((row, i) => (
                         <tr key={row.id} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle font-semibold">{row.monthKey}</td>
-                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle">{row.siteName}</td>
-                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle">
+                          <td className="px-3 py-[10px] border-b border-brand align-middle font-semibold">{row.monthKey}</td>
+                          <td className="px-3 py-[10px] border-b border-brand align-middle">{row.siteName}</td>
+                          <td className="px-3 py-[10px] border-b border-brand align-middle">
                             <span
                               className="text-[11px] px-2 py-[2px] rounded-lg"
                               style={{
@@ -209,12 +209,12 @@ export default function CompanyDocumentsPage() {
                               {ORG_LABEL[row.organizationType] ?? row.organizationType}
                             </span>
                           </td>
-                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{row.workerCount}명</td>
-                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{row.confirmedWorkUnits.toFixed(2)}</td>
-                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{fmt(row.grossAmount)}</td>
-                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right text-[#c62828]">{fmt(row.withholdingTaxAmount)}</td>
-                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">{row.retirementMutualTargetDays}일</td>
-                          <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-[12px] text-muted-brand">
+                          <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.workerCount}명</td>
+                          <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.confirmedWorkUnits.toFixed(2)}</td>
+                          <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(row.grossAmount)}</td>
+                          <td className="px-3 py-[10px] border-b border-brand align-middle text-right text-[#c62828]">{fmt(row.withholdingTaxAmount)}</td>
+                          <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.retirementMutualTargetDays}일</td>
+                          <td className="px-3 py-[10px] border-b border-brand align-middle text-[12px] text-muted-brand">
                             {new Date(row.createdAt).toLocaleDateString('ko-KR')}
                           </td>
                         </tr>

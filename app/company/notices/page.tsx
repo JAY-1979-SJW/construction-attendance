@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 
@@ -107,9 +107,9 @@ export default function CompanyNoticesPage() {
   return (
     <div className="p-8 max-w-[900px] font-sans">
       <div className="flex justify-between items-center mb-5">
-        <h1 className="text-[22px] font-bold text-[#111827] m-0">공지/일정</h1>
+        <h1 className="text-[22px] font-bold text-fore-brand m-0">공지/일정</h1>
         {siteId && (
-          <button onClick={() => setShowForm(v => !v)} className="px-4 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]">
+          <button onClick={() => setShowForm(v => !v)} className="px-4 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[13px]">
             {showForm ? '취소' : '+ 공지 등록'}
           </button>
         )}
@@ -117,7 +117,7 @@ export default function CompanyNoticesPage() {
 
       <div className="flex gap-2 items-center mb-5">
         <select
-          className="px-3 py-2 border border-[#E5E7EB] rounded-md text-[13px] min-w-[180px]"
+          className="px-3 py-2 border border-brand rounded-md text-[13px] min-w-[180px]"
           value={siteId}
           onChange={(e) => { setSiteId(e.target.value); setShowForm(false) }}
         >
@@ -142,22 +142,22 @@ export default function CompanyNoticesPage() {
 
       {/* 공지 등록 폼 */}
       {showForm && (
-        <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-[10px] p-5 mb-5">
+        <div className="bg-blue-light border border-[#bfdbfe] rounded-[10px] p-5 mb-5">
           <h3 className="m-0 mb-4 text-[14px] font-semibold text-[#1e40af]">새 공지 등록</h3>
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="block text-[12px] text-[#6b7280] mb-1">제목 *</label>
+              <label className="block text-[12px] text-muted-brand mb-1">제목 *</label>
               <input
-                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
+                className="w-full border border-brand rounded-md px-[10px] py-2 text-[13px] box-border"
                 placeholder="공지 제목"
                 value={form.title}
                 onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))}
               />
             </div>
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">공지 유형</label>
+              <label className="block text-[12px] text-muted-brand mb-1">공지 유형</label>
               <select
-                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
+                className="w-full border border-brand rounded-md px-[10px] py-2 text-[13px] box-border"
                 value={form.noticeType}
                 onChange={(e) => setForm(f => ({ ...f, noticeType: e.target.value }))}
               >
@@ -167,9 +167,9 @@ export default function CompanyNoticesPage() {
               </select>
             </div>
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">노출 대상</label>
+              <label className="block text-[12px] text-muted-brand mb-1">노출 대상</label>
               <select
-                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
+                className="w-full border border-brand rounded-md px-[10px] py-2 text-[13px] box-border"
                 value={form.visibilityScope}
                 onChange={(e) => setForm(f => ({ ...f, visibilityScope: e.target.value }))}
               >
@@ -179,28 +179,28 @@ export default function CompanyNoticesPage() {
               </select>
             </div>
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">시작일</label>
+              <label className="block text-[12px] text-muted-brand mb-1">시작일</label>
               <input
                 type="date"
-                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
+                className="w-full border border-brand rounded-md px-[10px] py-2 text-[13px] box-border"
                 value={form.startDate}
                 onChange={(e) => setForm(f => ({ ...f, startDate: e.target.value }))}
               />
             </div>
             <div>
-              <label className="block text-[12px] text-[#6b7280] mb-1">종료일</label>
+              <label className="block text-[12px] text-muted-brand mb-1">종료일</label>
               <input
                 type="date"
-                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
+                className="w-full border border-brand rounded-md px-[10px] py-2 text-[13px] box-border"
                 value={form.endDate}
                 onChange={(e) => setForm(f => ({ ...f, endDate: e.target.value }))}
               />
             </div>
             <div className="col-span-2">
-              <label className="block text-[12px] text-[#6b7280] mb-1">내용</label>
+              <label className="block text-[12px] text-muted-brand mb-1">내용</label>
               <textarea
                 rows={4}
-                className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
+                className="w-full border border-brand rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
                 value={form.content}
                 onChange={(e) => setForm(f => ({ ...f, content: e.target.value }))}
               />
@@ -212,30 +212,30 @@ export default function CompanyNoticesPage() {
                 checked={form.isTodayHighlight}
                 onChange={(e) => setForm(f => ({ ...f, isTodayHighlight: e.target.checked }))}
               />
-              <label htmlFor="highlight" className="text-[13px] text-[#374151]">오늘 하이라이트 표시</label>
+              <label htmlFor="highlight" className="text-[13px] text-body-brand">오늘 하이라이트 표시</label>
             </div>
           </div>
           <div className="flex gap-2 mt-4">
-            <button onClick={handleSubmit} disabled={saving} className="px-5 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]">
+            <button onClick={handleSubmit} disabled={saving} className="px-5 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[13px]">
               {saving ? '등록 중...' : '등록'}
             </button>
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-card text-[#374151] border border-[#E5E7EB] rounded-md cursor-pointer text-[13px]">취소</button>
+            <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-card text-body-brand border border-brand rounded-md cursor-pointer text-[13px]">취소</button>
           </div>
         </div>
       )}
 
       {!siteId ? (
-        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">현장을 선택하면 공지 목록을 확인할 수 있습니다.</div>
+        <div className="text-center text-muted2-brand py-12 bg-card border border-brand rounded-lg text-[14px]">현장을 선택하면 공지 목록을 확인할 수 있습니다.</div>
       ) : loading ? (
-        <p className="text-[#9ca3af] text-center py-10">불러오는 중...</p>
+        <p className="text-muted2-brand text-center py-10">불러오는 중...</p>
       ) : notices.length === 0 ? (
-        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg text-[14px]">등록된 공지가 없습니다.</div>
+        <div className="text-center text-muted2-brand py-12 bg-card border border-brand rounded-lg text-[14px]">등록된 공지가 없습니다.</div>
       ) : (
         <div className="flex flex-col gap-2">
           {notices.map(n => (
             <div
               key={n.id}
-              className="bg-card border border-[#e5e7eb] rounded-lg px-4 py-[14px]"
+              className="bg-card border border-brand rounded-lg px-4 py-[14px]"
               style={{ opacity: n.isActive ? 1 : 0.5 }}
             >
               <div className="flex gap-2 items-center mb-[6px]">
@@ -251,22 +251,22 @@ export default function CompanyNoticesPage() {
                   </span>
                 )}
                 {!n.isActive && (
-                  <span className="text-[11px] text-[#9ca3af]">비활성</span>
+                  <span className="text-[11px] text-muted2-brand">비활성</span>
                 )}
               </div>
               <div
                 className="cursor-pointer"
                 onClick={() => setExpanded(expanded === n.id ? null : n.id)}
               >
-                <div className="font-semibold text-[14px] text-[#111827] mb-1">
+                <div className="font-semibold text-[14px] text-fore-brand mb-1">
                   {n.title}
                 </div>
-                <div className="text-[12px] text-[#9ca3af]">
+                <div className="text-[12px] text-muted2-brand">
                   {fmtDate(n.startDate)}{n.endDate && ` ~ ${fmtDate(n.endDate)}`} · {fmtDate(n.createdAt)} 등록
                 </div>
               </div>
               {expanded === n.id && (
-                <div className="mt-[10px] p-[10px] bg-[#f9fafb] rounded-md text-[13px] text-[#374151] whitespace-pre-wrap">
+                <div className="mt-[10px] p-[10px] bg-surface rounded-md text-[13px] text-body-brand whitespace-pre-wrap">
                   {n.content || '내용 없음'}
                 </div>
               )}
