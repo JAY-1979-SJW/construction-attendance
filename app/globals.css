@@ -119,6 +119,8 @@ h1, h2, h3, h4, h5, h6 {
 .bg-surface       { background-color: #F9FAFB; }
 .bg-accent-light  { background-color: #FFF7ED; }
 .bg-accent-pale   { background-color: #FEE2C0; }
+.bg-brand-accent  { background-color: #F97316; }
+.bg-brand-accent-hover { background-color: #EA580C; }
 .bg-green-light   { background-color: #ECFDF5; }
 .bg-blue-light    { background-color: #EFF6FF; }
 .bg-red-light     { background-color: #FEE2E2; }
@@ -129,6 +131,7 @@ h1, h2, h3, h4, h5, h6 {
 .border-brand     { border-color: #E5E7EB; }
 .border-accent    { border-color: #F97316; }
 .border-accent-light { border-color: #FED7AA; }
+.border-accent-pale  { border-color: #FDBA74; }
 .border-green     { border-color: #A7F3D0; }
 .border-blue      { border-color: #93C5FD; }
 .border-red       { border-color: #F87171; }

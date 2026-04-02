@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 
@@ -81,7 +81,7 @@ export function DailyOpsCard({
 
   if (loading) {
     return (
-      <div className="bg-white border rounded-xl p-4 mb-4 flex items-center gap-3 text-gray-400 text-sm">
+      <div className="bg-card border rounded-xl p-4 mb-4 flex items-center gap-3 text-gray-400 text-sm">
         <span className="animate-pulse">당일 운영 현황 로딩 중...</span>
       </div>
     )
@@ -90,7 +90,7 @@ export function DailyOpsCard({
   const s = data
 
   return (
-    <div className="bg-white border rounded-xl p-4 mb-4 shadow-sm">
+    <div className="bg-card border rounded-xl p-4 mb-4 shadow-sm">
       <div className="flex flex-wrap items-center gap-3">
 
         {/* 작업일보 상태 */}

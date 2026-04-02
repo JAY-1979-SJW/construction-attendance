@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
@@ -171,7 +171,7 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
   const pageTitle = getPageTitle(pathname)
 
   return (
-    <div className="flex min-h-screen bg-[#F5F7FA]">
+    <div className="flex min-h-screen bg-brand">
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* 모바일 오버레이 */}
@@ -190,16 +190,16 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
         {/* TopBar */}
         <header className="shrink-0 z-20">
           {/* 4px 오렌지 상단 라인 */}
-          <div className="h-1 bg-[#F97316]" />
+          <div className="h-1 bg-brand-accent" />
           {/* 헤더 바 */}
           <div
-            className="bg-white flex items-center h-[52px] px-4 gap-3"
+            className="bg-card flex items-center h-[52px] px-4 gap-3"
             style={{ borderBottom: '1px solid #F3F4F6' }}
           >
             {/* 햄버거 */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="flex flex-col gap-[5px] p-2 rounded-[8px] hover:bg-[#F3F4F6] transition-colors shrink-0"
+              className="flex flex-col gap-[5px] p-2 rounded-[8px] hover:bg-footer transition-colors shrink-0"
               aria-label="메뉴 토글"
             >
               <span
@@ -222,25 +222,25 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
             {/* 브랜드 (사이드바 접힌 상태에서 표시) */}
             {!sidebarOpen && (
               <Link href="/admin" className="flex items-center gap-2 no-underline shrink-0">
-                <div className="w-7 h-7 bg-[#FFF7ED] rounded-[8px] flex items-center justify-center">
+                <div className="w-7 h-7 bg-accent-light rounded-[8px] flex items-center justify-center">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
-                <span className="text-[14px] font-bold text-[#0F172A]">
-                  해한<span className="text-[#F97316]">AI</span>
+                <span className="text-[14px] font-bold text-title-brand">
+                  해한<span className="text-accent">AI</span>
                 </span>
               </Link>
             )}
 
             {/* 현재 섹션명 */}
             {sectionName && (
-              <span className="text-[13px] font-medium text-[#374151]">{sectionName}</span>
+              <span className="text-[13px] font-medium text-body-brand">{sectionName}</span>
             )}
 
             {/* 관리자 포털 뱃지 */}
-            <span className="ml-auto text-[11px] font-semibold text-[#F97316] border border-[#FDBA74] bg-[#FFF7ED] rounded-full px-3 py-[3px] shrink-0">
+            <span className="ml-auto text-[11px] font-semibold text-accent border border-accent-pale bg-accent-light rounded-full px-3 py-[3px] shrink-0">
               관리자 포털
             </span>
           </div>
@@ -248,13 +248,13 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
 
         {/* 페이지 타이틀 — shrink-0, 스크롤 영역 밖 (절대 고정) */}
         {pageTitle && (
-          <div className="shrink-0 bg-[#F5F7FA] px-5 md:px-6 pt-4 pb-3" style={{ borderBottom: '1px solid #E5E7EB' }}>
-            <h1 className="text-[18px] font-bold text-[#0F172A]">{pageTitle}</h1>
+          <div className="shrink-0 bg-brand px-5 md:px-6 pt-4 pb-3" style={{ borderBottom: '1px solid #E5E7EB' }}>
+            <h1 className="text-[18px] font-bold text-title-brand">{pageTitle}</h1>
           </div>
         )}
 
         {/* 콘텐츠 (독립 스크롤) */}
-        <div className="flex-1 overflow-auto bg-[#F5F7FA]">
+        <div className="flex-1 overflow-auto bg-brand">
           {children}
         </div>
       </div>

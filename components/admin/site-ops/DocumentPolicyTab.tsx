@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 
@@ -72,15 +72,15 @@ export function DocumentPolicyTab({ siteId }: Props) {
   }
 
   if (loading) {
-    return <div className="text-sm text-[#6B7280] py-8 text-center">불러오는 중...</div>
+    return <div className="text-sm text-muted-brand py-8 text-center">불러오는 중...</div>
   }
 
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h2 className="font-semibold text-[#374151]">문서 정책</h2>
-          <p className="text-xs text-[#6B7280] mt-1">
+          <h2 className="font-semibold text-body-brand">문서 정책</h2>
+          <p className="text-xs text-muted-brand mt-1">
             {hasCustom
               ? '이 현장에 맞춤 문서정책이 설정되어 있습니다.'
               : '기본 정책 사용 중 (5종 문서 전체 필수). 수정하면 이 현장만 적용됩니다.'}
@@ -97,10 +97,10 @@ export function DocumentPolicyTab({ siteId }: Props) {
         )}
       </div>
 
-      <div className="bg-white rounded border border-[#E5E7EB] overflow-hidden">
+      <div className="bg-card rounded border border-brand overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#F9FAFB] text-left text-[#6B7280]">
+            <tr className="bg-surface text-left text-muted-brand">
               <th className="px-4 py-3 font-medium">문서 유형</th>
               <th className="px-4 py-3 font-medium text-center w-24">활성</th>
               <th className="px-4 py-3 font-medium text-center w-24">필수</th>
@@ -109,9 +109,9 @@ export function DocumentPolicyTab({ siteId }: Props) {
           </thead>
           <tbody>
             {policies.map((p, idx) => (
-              <tr key={p.docType} className="border-t border-[#E5E7EB]">
+              <tr key={p.docType} className="border-t border-brand">
                 <td className="px-4 py-3">
-                  <span className={p.isActive ? 'text-[#111827]' : 'text-[#9CA3AF] line-through'}>
+                  <span className={p.isActive ? 'text-fore-brand' : 'text-muted2-brand line-through'}>
                     {p.label}
                   </span>
                 </td>
@@ -122,7 +122,7 @@ export function DocumentPolicyTab({ siteId }: Props) {
                       p.isActive ? 'bg-green-500' : 'bg-gray-300'
                     }`}
                   >
-                    <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                    <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-card transition-transform ${
                       p.isActive ? 'left-5' : 'left-0.5'
                     }`} />
                   </button>
@@ -140,7 +140,7 @@ export function DocumentPolicyTab({ siteId }: Props) {
                       {p.isRequired ? '필수' : '선택'}
                     </button>
                   ) : (
-                    <span className="text-xs text-[#9CA3AF]">-</span>
+                    <span className="text-xs text-muted2-brand">-</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-center">
@@ -148,10 +148,10 @@ export function DocumentPolicyTab({ siteId }: Props) {
                     <span className="text-xs text-red-500">출근 차단 대상</span>
                   )}
                   {p.isActive && !p.isRequired && (
-                    <span className="text-xs text-[#6B7280]">제출 권장</span>
+                    <span className="text-xs text-muted-brand">제출 권장</span>
                   )}
                   {!p.isActive && (
-                    <span className="text-xs text-[#9CA3AF]">비활성</span>
+                    <span className="text-xs text-muted2-brand">비활성</span>
                   )}
                 </td>
               </tr>
@@ -160,7 +160,7 @@ export function DocumentPolicyTab({ siteId }: Props) {
         </table>
       </div>
 
-      <p className="text-xs text-[#9CA3AF] mt-3">
+      <p className="text-xs text-muted2-brand mt-3">
         필수 문서가 미완료된 근로자는 출근이 차단됩니다. 선택 문서는 제출을 권장하지만 출근에 영향하지 않습니다.
       </p>
     </div>

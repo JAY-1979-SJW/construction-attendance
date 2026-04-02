@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 
@@ -82,7 +82,7 @@ export default function KakaoMap({ lat, lng, markerTitle, height = '280px' }: Ka
   if (!JS_KEY) {
     return (
       <div style={{ height }}
-        className="flex items-center justify-center rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] text-yellow-600 text-sm">
+        className="flex items-center justify-center rounded-lg border border-brand bg-surface text-yellow-600 text-sm">
         카카오맵 키 설정 필요 (NEXT_PUBLIC_KAKAO_MAP_JS_KEY)
       </div>
     )
@@ -91,7 +91,7 @@ export default function KakaoMap({ lat, lng, markerTitle, height = '280px' }: Ka
   if (!hasCoords) {
     return (
       <div style={{ height }}
-        className="flex items-center justify-center rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] text-[#9CA3AF] text-sm">
+        className="flex items-center justify-center rounded-lg border border-brand bg-surface text-muted2-brand text-sm">
         위치 정보 없음
       </div>
     )
@@ -100,19 +100,19 @@ export default function KakaoMap({ lat, lng, markerTitle, height = '280px' }: Ka
   return (
     <div style={{ position: 'relative', height }}>
       {status === 'loading' && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-[#F9FAFB] text-[#9CA3AF] text-sm z-10">
+        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-surface text-muted2-brand text-sm z-10">
           지도 불러오는 중...
         </div>
       )}
       {status === 'error' && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-[#F9FAFB] text-[#dc2626] text-sm z-10">
+        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-surface text-status-rejected text-sm z-10">
           지도 로드 실패
         </div>
       )}
       <div
         ref={containerRef}
         style={{ width: '100%', height: '100%' }}
-        className="rounded-lg border border-[#E5E7EB] overflow-hidden"
+        className="rounded-lg border border-brand overflow-hidden"
       />
     </div>
   )

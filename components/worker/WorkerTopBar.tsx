@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Image from 'next/image'
 
@@ -15,9 +15,9 @@ export default function WorkerTopBar() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 safe-top">
       {/* 상단 4px 오렌지 라인 */}
-      <div className="h-1 w-full bg-[#F97316]" />
+      <div className="h-1 w-full bg-brand-accent" />
       {/* 로고 바 */}
-      <div className="h-[53px] bg-white border-b border-[#E5E7EB] flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+      <div className="h-[53px] bg-card border-b border-brand flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
         <Image
           src="/logo/logo_main.png"
           alt="해한Ai Engineering"

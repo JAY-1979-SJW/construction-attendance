@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useRef, useEffect, useState, useCallback } from 'react'
 
@@ -114,7 +114,7 @@ export default function SignatureCanvas({
     <div className="flex flex-col gap-2">
       <div className="text-[13px] font-semibold text-[#222] mb-1">전자서명</div>
       <div
-        className="border-2 border-dashed rounded-lg overflow-hidden bg-white"
+        className="border-2 border-dashed rounded-lg overflow-hidden bg-card"
         style={{ borderColor: hasStrokes ? accentColor : '#ccc' }}
       >
         <canvas

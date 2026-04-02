@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 /**
  * FaqChatWidget
@@ -109,7 +109,7 @@ export default function FaqChatWidget({ contractType, page, formContext, onClose
   }
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
+    <div className="flex flex-col h-full bg-card rounded-xl shadow-xl overflow-hidden border border-gray-200">
       {/* 헤더 */}
       <div className="flex items-center justify-between px-4 py-3 bg-blue-600 text-white">
         <div className="flex items-center gap-2">
@@ -144,7 +144,7 @@ export default function FaqChatWidget({ contractType, page, formContext, onClose
               <div className="max-w-[90%] space-y-2">
                 {/* 로딩 */}
                 {msg.loading && (
-                  <div className="flex items-center gap-2 bg-white rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm border border-gray-200">
+                  <div className="flex items-center gap-2 bg-card rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm border border-gray-200">
                     <span className="text-xs text-gray-500">질문 분석 중</span>
                     <span className="flex gap-0.5">
                       {[0, 1, 2].map(i => (
@@ -160,7 +160,7 @@ export default function FaqChatWidget({ contractType, page, formContext, onClose
 
                 {/* 텍스트 메시지 */}
                 {msg.text && !msg.loading && (
-                  <div className="bg-white rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm border border-gray-200">
+                  <div className="bg-card rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm border border-gray-200">
                     <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{msg.text}</p>
                   </div>
                 )}
@@ -192,7 +192,7 @@ export default function FaqChatWidget({ contractType, page, formContext, onClose
       </div>
 
       {/* 입력 영역 */}
-      <div className="px-3 py-3 border-t border-gray-200 bg-white">
+      <div className="px-3 py-3 border-t border-gray-200 bg-card">
         <div className="flex gap-2 items-end">
           <textarea
             value={input}

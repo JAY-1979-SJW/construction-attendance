@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 
@@ -173,7 +173,7 @@ export function TbmTab({ siteId, selectedDate, locked = false }: {
             <div className="col-span-2">
               <label className="text-xs text-gray-600 block mb-1">TBM 제목 *</label>
               <input
-                className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+                className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                 value={form.title}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                 placeholder="예: 오전 TBM"
@@ -183,7 +183,7 @@ export function TbmTab({ siteId, selectedDate, locked = false }: {
               <label className="text-xs text-gray-600 block mb-1">실시 시각</label>
               <input
                 type="datetime-local"
-                className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+                className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                 value={form.conductedAt}
                 onChange={(e) => setForm((f) => ({ ...f, conductedAt: e.target.value }))}
               />
@@ -193,7 +193,7 @@ export function TbmTab({ siteId, selectedDate, locked = false }: {
                 <label className="text-xs text-gray-600 block mb-1">참석 인원</label>
                 <input
                   type="number" min={0}
-                  className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+                  className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                   value={form.attendeeCount}
                   onChange={(e) => setForm((f) => ({ ...f, attendeeCount: parseInt(e.target.value) || 0 }))}
                 />
@@ -202,7 +202,7 @@ export function TbmTab({ siteId, selectedDate, locked = false }: {
                 <label className="text-xs text-gray-600 block mb-1">미참석 인원</label>
                 <input
                   type="number" min={0}
-                  className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+                  className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                   value={form.absentCount}
                   onChange={(e) => setForm((f) => ({ ...f, absentCount: parseInt(e.target.value) || 0 }))}
                 />
@@ -212,7 +212,7 @@ export function TbmTab({ siteId, selectedDate, locked = false }: {
               <label className="text-xs text-gray-600 block mb-1">교육/전달 내용</label>
               <textarea
                 rows={4}
-                className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+                className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                 placeholder="오늘 TBM 전달사항, 위험요인 및 예방조치 내용을 입력하세요"
                 value={form.content}
                 onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
@@ -221,7 +221,7 @@ export function TbmTab({ siteId, selectedDate, locked = false }: {
             <div className="col-span-2">
               <label className="text-xs text-gray-600 block mb-1">특이사항</label>
               <input
-                className="w-full border rounded px-2 py-1.5 text-sm bg-white"
+                className="w-full border rounded px-2 py-1.5 text-sm bg-card"
                 placeholder="예: A팀 1명 지각으로 별도 전달"
                 value={form.notes}
                 onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
@@ -249,7 +249,7 @@ export function TbmTab({ siteId, selectedDate, locked = false }: {
 
       {/* 기록 표시 */}
       {!editing && exists && record && (
-        <div className="bg-white border rounded-xl p-5 space-y-4">
+        <div className="bg-card border rounded-xl p-5 space-y-4">
           {/* 헤더 */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -298,7 +298,7 @@ export function TbmTab({ siteId, selectedDate, locked = false }: {
 
       {/* 빈 상태 */}
       {!editing && !exists && (
-        <div className="text-center text-gray-400 py-10 bg-white border rounded-xl">
+        <div className="text-center text-gray-400 py-10 bg-card border rounded-xl">
           <p className="mb-3">이 날짜의 TBM 기록이 없습니다.</p>
           {!locked && (
             <button
