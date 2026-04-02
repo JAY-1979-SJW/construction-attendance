@@ -160,17 +160,36 @@ export default function ContractsPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-card border rounded-[12px] overflow-x-auto">
+        {/* 모바일: 카드형 */}
+        <div className="sm:hidden space-y-2">
+          {filtered.map(c => (
+            <Link key={c.id} href={`/admin/contracts/${c.id}`} className="block bg-card rounded-[12px] border border-brand p-4 no-underline">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div>
+                  <div className="text-[14px] font-semibold text-title-brand">{c.worker.name}</div>
+                  <div className="text-[13px] text-muted-brand">{c.worker.jobTitle} · {c.site?.name || '—'}</div>
+                </div>
+                <span className={`px-2 py-0.5 rounded text-xs font-medium shrink-0 ${STATUS_COLOR[c.contractStatus] || ''}`}>
+                  {STATUS_LABEL[c.contractStatus] || c.contractStatus}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-[12px] text-muted2-brand mt-2">
+                <span>{c.startDate} ~ {c.endDate || '무기한'}</span>
+                <span className="font-mono">{amountLabel(c)}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+        {/* 데스크: 테이블 */}
+        <div className="hidden sm:block bg-card border rounded-[12px] overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-[rgba(255,255,255,0.04)] text-xs text-dim-brand border-b">
               <tr>
                 <th className="px-4 py-3 text-left">근로자</th>
                 <th className="px-4 py-3 text-left">현장</th>
                 <th className="px-4 py-3 text-left">계약종류</th>
-                <th className="px-4 py-3 text-left">템플릿</th>
                 <th className="px-4 py-3 text-left">기간</th>
                 <th className="px-4 py-3 text-right">금액</th>
-                <th className="px-4 py-3 text-center">보험</th>
                 <th className="px-4 py-3 text-center">상태</th>
                 <th className="px-4 py-3 text-center">액션</th>
               </tr>
@@ -184,15 +203,11 @@ export default function ContractsPage() {
                   </td>
                   <td className="px-4 py-3 text-dim-brand text-xs">{c.site?.name || '—'}</td>
                   <td className="px-4 py-3">{CONTRACT_KIND_LABEL[c.contractKind || ''] || '—'}</td>
-                  <td className="px-4 py-3 text-xs text-dim-brand">
-                    {TEMPLATE_LABEL[c.contractTemplateType || ''] || '—'}
-                  </td>
                   <td className="px-4 py-3 text-xs">
                     <div>{c.startDate}</div>
                     <div className="text-[#718096]">{c.endDate || '무기한'}</div>
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-xs">{amountLabel(c)}</td>
-                  <td className="px-4 py-3 text-center text-xs text-dim-brand">{insuranceSummary(c)}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLOR[c.contractStatus] || ''}`}>
                       {STATUS_LABEL[c.contractStatus] || c.contractStatus}
@@ -206,15 +221,11 @@ export default function ContractsPage() {
                       </Link>
                       {(c.contractStatus === 'DRAFT' || c.contractStatus === 'SIGNED') && (
                         <button onClick={() => handleActivate(c.id)}
-                          className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200">
-                          활성화
-                        </button>
+                          className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200">활성화</button>
                       )}
                       {c.contractStatus === 'ACTIVE' && (
                         <button onClick={() => handleEnd(c.id)}
-                          className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">
-                          종료
-                        </button>
+                          className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200">종료</button>
                       )}
                     </div>
                   </td>

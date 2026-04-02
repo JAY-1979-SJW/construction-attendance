@@ -853,10 +853,14 @@ function NewContractPage() {
   }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center gap-3">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <button onClick={() => router.back()} className="text-[#718096] hover:text-dim-brand text-sm">← 뒤로</button>
-        <h1 className="text-2xl font-bold">신규 계약 등록</h1>
+        <h1 className="text-xl sm:text-2xl font-bold">신규 계약 등록</h1>
+      </div>
+      {/* 모바일 안내 */}
+      <div className="sm:hidden bg-blue-50 border border-blue-200 rounded-xl p-3 text-[13px] text-blue-700">
+        계약서 등록은 넓은 화면에서 작성하시면 더 편합니다.
       </div>
 
       {/* PDF 계약서 업로드 → 자동 채움 */}
