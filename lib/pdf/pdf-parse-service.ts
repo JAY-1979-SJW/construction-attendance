@@ -153,23 +153,110 @@ export async function parseContractFields(text: string): Promise<ParsedContractF
   return { ...parsed, rawText: text, confidence: parsed.confidence ?? {} }
 }
 
+// ─── 2-B: 스캔/이미지 PDF → OpenAI Vision 직접 분석 ────────────────────────
+
+const VISION_PROMPT = `당신은 한국 건설현장 근로계약서 분석 전문가입니다.
+첨부된 PDF 파일은 스캔된 근로계약서입니다. 이미지에서 텍스트를 읽어 계약서 필드를 JSON으로 반환하세요.
+
+반환 형식:
+{
+  "companyName": "사업주/업체명",
+  "companyBizNo": "사업자등록번호",
+  "companyCeo": "대표자명",
+  "companyAddress": "사업장 주소",
+  "workerName": "근로자명",
+  "workerBirthDate": "YYYY-MM-DD",
+  "workerPhone": "연락처",
+  "workerAddress": "근로자 주소",
+  "siteName": "현장명/공사명",
+  "siteAddress": "현장 주소",
+  "jobTitle": "직종/업무내용",
+  "startDate": "YYYY-MM-DD",
+  "endDate": "YYYY-MM-DD",
+  "dailyWage": 숫자(원),
+  "monthlySalary": 숫자(원),
+  "paymentDay": 매월 지급일(숫자),
+  "checkInTime": "HH:MM",
+  "checkOutTime": "HH:MM",
+  "breakHours": 숫자(시간),
+  "contractType": "DAILY|REGULAR|FIXED_TERM|SUBCONTRACT|FREELANCER",
+  "specialTerms": "특약사항 원문",
+  "confidence": { "필드명": 0.0~1.0 }
+}
+
+규칙:
+- 이미지에서 확인할 수 없는 필드는 null 반환
+- 날짜는 반드시 YYYY-MM-DD 형식
+- 금액은 숫자만 (쉼표/원 제거)
+- confidence 는 각 필드의 추출 확신도 (0.0~1.0)
+- JSON만 반환, 설명 불필요`
+
+async function parseContractFromPdfVision(buffer: Buffer): Promise<ParsedContractFields> {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    return { rawText: '', confidence: {}, contractType: undefined }
+  }
+
+  const client = new OpenAI({ apiKey })
+  const base64 = buffer.toString('base64')
+
+  const response = await client.responses.create({
+    model: 'gpt-4o-mini',
+    input: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'input_file',
+            file_data: `data:application/pdf;base64,${base64}`,
+          },
+          {
+            type: 'input_text',
+            text: VISION_PROMPT,
+          },
+        ],
+      },
+    ],
+  })
+
+  // Responses API 결과에서 텍스트 추출
+  let outputText = ''
+  for (const item of response.output || []) {
+    if (item.type === 'message' && 'content' in item) {
+      for (const c of (item as { content: Array<{ type: string; text?: string }> }).content) {
+        if (c.type === 'output_text' && c.text) outputText += c.text
+      }
+    }
+  }
+
+  const jsonMatch = outputText.match(/\{[\s\S]*\}/)
+  if (!jsonMatch) {
+    return { rawText: '[Vision 분석 실패]', confidence: {}, contractType: undefined }
+  }
+
+  const parsed = JSON.parse(jsonMatch[0]) as ParsedContractFields
+  return { ...parsed, rawText: '[Vision OCR]', confidence: parsed.confidence ?? {} }
+}
+
 // ─── 통합: PDF 버퍼 → 구조화 데이터 ──────────────────────────────────────────
+
+const MIN_TEXT_LENGTH = 50 // 이하이면 스캔 PDF로 판단
 
 export async function parsePdfContract(buffer: Buffer): Promise<{
   fields: ParsedContractFields
   pages: number
   textLength: number
+  method: 'text' | 'vision'
 }> {
   const { text, pages } = await extractTextFromPdf(buffer)
 
-  if (!text || text.trim().length === 0) {
-    return {
-      fields: { rawText: '', confidence: {}, contractType: undefined },
-      pages,
-      textLength: 0,
-    }
+  // 텍스트 추출 성공 → 기존 텍스트 기반 파싱
+  if (text && text.trim().length >= MIN_TEXT_LENGTH) {
+    const fields = await parseContractFields(text)
+    return { fields, pages, textLength: text.length, method: 'text' }
   }
 
-  const fields = await parseContractFields(text)
-  return { fields, pages, textLength: text.length }
+  // 텍스트 추출 실패/부족 → OpenAI Vision으로 PDF 직접 분석
+  const fields = await parseContractFromPdfVision(buffer)
+  return { fields, pages, textLength: 0, method: 'vision' }
 }

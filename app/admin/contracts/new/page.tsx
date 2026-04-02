@@ -229,11 +229,13 @@ function NewContractPage() {
   const [pdfError, setPdfError] = useState('')
   const [pdfParsed, setPdfParsed] = useState<Record<string, unknown> | null>(null)
   const [pdfFilledFields, setPdfFilledFields] = useState<string[]>([])
+  const [pdfMethod, setPdfMethod] = useState<'text' | 'vision' | ''>('')
 
   async function handlePdfUpload(file: File) {
     setPdfError('')
     setPdfParsed(null)
     setPdfFilledFields([])
+    setPdfMethod('')
 
     if (file.type !== 'application/pdf') {
       setPdfError('PDF 파일만 지원합니다.')
@@ -257,6 +259,7 @@ function NewContractPage() {
       }
       const fields = json.fields || json
       setPdfParsed(fields)
+      setPdfMethod(json.method || 'text')
       applyPdfFieldsToForm(fields)
     } catch (e) {
       setPdfError('PDF 파싱 중 오류가 발생했습니다.')
@@ -651,6 +654,12 @@ function NewContractPage() {
           <div className="bg-teal-950/30 border border-teal-400/30 rounded-lg p-4 space-y-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-bold text-teal-300">PDF 추출 결과 미리보기</span>
+              {pdfMethod === 'vision' && (
+                <span className="text-xs bg-purple-900/50 text-purple-300 rounded-full px-2 py-0.5 font-medium">Vision OCR</span>
+              )}
+              {pdfMethod === 'text' && (
+                <span className="text-xs bg-teal-900/50 text-teal-300 rounded-full px-2 py-0.5 font-medium">텍스트 추출</span>
+              )}
               <span className="text-xs text-[#718096]">— 아래 값이 입력칸에 자동 반영됨 (수정 가능)</span>
             </div>
             <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
