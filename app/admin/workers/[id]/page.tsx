@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { InfoRow, InfoSection } from '@/components/admin/ui'
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -585,24 +586,53 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
     PENDING: '승인 대기', APPROVED: '승인', REJECTED: '반려', SUSPENDED: '정지', ACTIVE: '활성',
   }
 
-  const readonlyRows: [string, string | React.ReactNode][] = [
-    ['근로자 코드', worker.workerCode ?? '—'],
-    ['계정 상태', ACCOUNT_STATUS_LABELS[worker.accountStatus ?? ''] ?? worker.accountStatus ?? '—'],
-    ['고용형태', EMPLOYMENT_TYPE_LABELS[worker.employmentType] ?? worker.employmentType],
-    ['소득구분', worker.incomeType === 'DAILY_WAGE' ? '일당' : worker.incomeType === 'MONTHLY_SALARY' ? '월급' : worker.incomeType],
-    ['직접/협력', worker.organizationType === 'DIRECT' ? '직영' : `협력사${worker.subcontractorName ? ` (${worker.subcontractorName})` : ''}`],
-    ['생년월일', worker.birthDate ? `${worker.birthDate.slice(0, 4)}.${worker.birthDate.slice(4, 6)}.${worker.birthDate.slice(6, 8)}` : '—'],
-    ['숙련도', worker.skillLevel ?? '—'],
-    ['외국인', worker.foreignerYn ? `예 (${worker.nationalityCode ?? '—'})` : '아니오'],
-    ['계좌', worker.bankAccountSecure
-      ? `${worker.bankAccountSecure.bankName ?? '—'} / ${worker.bankAccountSecure.accountNumberMasked ?? '****'}`
-      : '미등록 (개인정보 관리에서 입력)'],
-    ['퇴직공제 대상', worker.retirementMutualTargetYn ? '대상' : '비대상'],
-    ['퇴직공제 상태', worker.retirementMutualStatus],
-    ['4대보험 적용', worker.fourInsurancesEligibleYn ? '적용' : '미적용'],
-    ['신분증 상태', worker.idVerificationStatus ?? '—'],
-    ['등록일', fmtDate(worker.createdAt)],
-    ['최근 수정', fmtDate(worker.updatedAt)],
+  type InfoRowItem = { label: string; value: React.ReactNode; mono?: boolean; accent?: boolean }
+  type SectionDef = { key: string; title: string; rows: InfoRowItem[] }
+
+  const infoSections: SectionDef[] = [
+    {
+      key: 'identity',
+      title: '기본 식별',
+      rows: [
+        { label: '이름', value: worker.name },
+        { label: '휴대폰', value: fmtPhone(worker.phone), mono: true },
+        { label: '직종', value: worker.jobTitle },
+        { label: '활성 상태', value: <span className={`font-semibold ${worker.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>{worker.isActive ? '활성' : '비활성'}</span> },
+        { label: '근로자 코드', value: worker.workerCode ?? '—', mono: true },
+        { label: '계정 상태', value: ACCOUNT_STATUS_LABELS[worker.accountStatus ?? ''] ?? worker.accountStatus ?? '—' },
+      ],
+    },
+    {
+      key: 'employment',
+      title: '고용 정보',
+      rows: [
+        { label: '고용형태', value: EMPLOYMENT_TYPE_LABELS[worker.employmentType] ?? worker.employmentType },
+        { label: '소득구분', value: worker.incomeType === 'DAILY_WAGE' ? '일당' : worker.incomeType === 'MONTHLY_SALARY' ? '월급' : worker.incomeType },
+        { label: '직접/협력', value: worker.organizationType === 'DIRECT' ? '직영' : `협력사${worker.subcontractorName ? ` (${worker.subcontractorName})` : ''}` },
+        { label: '생년월일', value: worker.birthDate ? `${worker.birthDate.slice(0, 4)}.${worker.birthDate.slice(4, 6)}.${worker.birthDate.slice(6, 8)}` : '—', mono: true },
+        { label: '숙련도', value: worker.skillLevel ?? '—' },
+        { label: '외국인', value: worker.foreignerYn ? `예 (${worker.nationalityCode ?? '—'})` : '아니오' },
+      ],
+    },
+    {
+      key: 'finance',
+      title: '정산/보험',
+      rows: [
+        { label: '계좌', value: worker.bankAccountSecure ? `${worker.bankAccountSecure.bankName ?? '—'} / ${worker.bankAccountSecure.accountNumberMasked ?? '****'}` : '미등록', mono: true },
+        { label: '퇴직공제 대상', value: worker.retirementMutualTargetYn ? '대상' : '비대상' },
+        { label: '퇴직공제 상태', value: worker.retirementMutualStatus },
+        { label: '4대보험 적용', value: worker.fourInsurancesEligibleYn ? '적용' : '미적용' },
+      ],
+    },
+    {
+      key: 'system',
+      title: '시스템',
+      rows: [
+        { label: '신분증 상태', value: worker.idVerificationStatus ?? '—' },
+        { label: '등록일', value: fmtDate(worker.createdAt), mono: true },
+        { label: '최근 수정', value: fmtDate(worker.updatedAt), mono: true },
+      ],
+    },
   ]
 
   return (
@@ -776,36 +806,21 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
           )}
         </div>
 
-        <table className="w-full border-collapse">
-          <tbody>
-            <tr>
-              <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">이름</td>
-              <td className="py-2 text-[13px] text-dim-brand">{worker.name}</td>
-            </tr>
-            <tr>
-              <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">휴대폰</td>
-              <td className="py-2 text-[13px] text-dim-brand">{fmtPhone(worker.phone)}</td>
-            </tr>
-            <tr>
-              <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">직종</td>
-              <td className="py-2 text-[13px] text-dim-brand">{worker.jobTitle}</td>
-            </tr>
-            <tr>
-              <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px]">활성 상태</td>
-              <td className="py-2 text-[13px]">
-                <span className={`font-semibold ${worker.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>
-                  {worker.isActive ? '활성' : '비활성'}
-                </span>
-              </td>
-            </tr>
-            {readonlyRows.map(([label, value]) => (
-              <tr key={String(label)}>
-                <td className="py-2 pr-4 font-semibold text-[13px] text-muted-brand w-[140px] align-top">{label}</td>
-                <td className="py-2 text-[13px] text-dim-brand">{value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="space-y-5">
+          {infoSections.map((section) => (
+            <InfoSection key={section.key} title={section.title}>
+              {section.rows.map((row) => (
+                <InfoRow
+                  key={`${section.key}-${row.label}`}
+                  label={row.label}
+                  value={row.value}
+                  mono={row.mono}
+                  accent={row.accent}
+                />
+              ))}
+            </InfoSection>
+          ))}
+        </div>
         </>
       )}
     </div>
