@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 
@@ -62,7 +62,7 @@ function Badge({ label, bg, color }: { label: string; bg: string; color: string 
 
 function Check({ v }: { v: boolean }) {
   return v
-    ? <span className="text-[#16A34A] font-medium">●</span>
+    ? <span className="text-status-working font-medium">●</span>
     : <span className="text-[#D1D5DB]">○</span>
 }
 
@@ -102,20 +102,20 @@ export default function InsurancePage() {
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-[20px] font-bold text-[#0F172A]">4대보험 관리</h1>
-          <p className="text-[13px] text-[#6B7280] mt-0.5">신고 대상자·취득/상실 반영·제출 이력</p>
+          <h1 className="text-[20px] font-bold text-title-brand">4대보험 관리</h1>
+          <p className="text-[13px] text-muted-brand mt-0.5">신고 대상자·취득/상실 반영·제출 이력</p>
         </div>
         <input
           type="month"
           value={month}
           onChange={(e) => setMonth(e.target.value)}
-          className="text-[13px] border border-[#E5E7EB] rounded-[8px] px-3 py-1.5 focus:outline-none focus:border-[#F97316]"
+          className="text-[13px] border border-brand rounded-[8px] px-3 py-1.5 focus:outline-none focus:border-accent"
         />
       </div>
 
       {/* 회사 기준 안내 */}
       <div
-        className="flex items-start gap-2 rounded-[10px] px-4 py-3 mb-4 text-[12px] text-[#374151]"
+        className="flex items-start gap-2 rounded-[10px] px-4 py-3 mb-4 text-[12px] text-body-brand"
         style={{ background: '#FFF7ED', border: '1px solid #FED7AA' }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="mt-0.5 shrink-0">
@@ -125,7 +125,7 @@ export default function InsurancePage() {
         <span>
           <strong className="text-[#C2410C]">4대보험 상태는 현장별이 아니라 회사 기준으로 관리됩니다.</strong>
           {' '}동일 근로자가 여러 현장에 배정된 경우에도 보험 신고는 회사 단위로 1건 처리됩니다.
-          현장별 노무현황은 <span className="text-[#F97316] font-medium">현장별 노무현황</span> 메뉴에서 확인하세요.
+          현장별 노무현황은 <span className="text-accent font-medium">현장별 노무현황</span> 메뉴에서 확인하세요.
         </span>
       </div>
 
@@ -156,7 +156,7 @@ export default function InsurancePage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as InsuranceTarget['reportingStatus'] | '')}
-              className="text-[12px] border border-[#E5E7EB] rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-[#F97316] text-[#374151]"
+              className="text-[12px] border border-brand rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-accent text-body-brand"
             >
               <option value="">신고 상태 전체</option>
               <option value="NOT_CHECKED">미확인</option>
@@ -165,7 +165,7 @@ export default function InsurancePage() {
               <option value="EXCEPTION_REVIEW_REQUIRED">예외확인필요</option>
               <option value="VERIFIED">확인완료</option>
             </select>
-            <span className="text-[12px] text-[#9CA3AF] ml-auto">{targets.length}명</span>
+            <span className="text-[12px] text-muted2-brand ml-auto">{targets.length}명</span>
           </div>
 
           {/* 테이블 */}
@@ -173,15 +173,15 @@ export default function InsurancePage() {
             <table className="w-full text-[12px]">
               <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
                 <tr>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">근로자명</th>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">근무일수</th>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">국민연금</th>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">건강보험</th>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">고용보험</th>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">산재보험</th>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">취득일</th>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">상실일</th>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">신고 상태</th>
+                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">근로자명</th>
+                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">근무일수</th>
+                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">국민연금</th>
+                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">건강보험</th>
+                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">고용보험</th>
+                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">산재보험</th>
+                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">취득일</th>
+                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">상실일</th>
+                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">신고 상태</th>
                 </tr>
               </thead>
               <tbody>
@@ -190,14 +190,14 @@ export default function InsurancePage() {
                     <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
                       {Array.from({ length: 9 }).map((__, j) => (
                         <td key={j} className="px-3 py-3">
-                          <div className="h-3.5 bg-[#F3F4F6] rounded animate-pulse" style={{ width: j === 0 ? 64 : 36 }} />
+                          <div className="h-3.5 bg-footer rounded animate-pulse" style={{ width: j === 0 ? 64 : 36 }} />
                         </td>
                       ))}
                     </tr>
                   ))
                 ) : targets.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-4 py-10 text-center text-[13px] text-[#9CA3AF]">
+                    <td colSpan={9} className="px-4 py-10 text-center text-[13px] text-muted2-brand">
                       신고 대상자가 없습니다.
                     </td>
                   </tr>
@@ -208,16 +208,16 @@ export default function InsurancePage() {
                       <tr
                         key={t.workerId}
                         style={{ borderBottom: '1px solid #F3F4F6' }}
-                        className="hover:bg-[#FAFAFA]"
+                        className="hover:bg-surface"
                       >
-                        <td className="px-3 py-2.5 font-medium text-[#0F172A]">{t.workerName}</td>
-                        <td className="px-3 py-2.5 text-center text-[#374151]">{t.workDays}일</td>
+                        <td className="px-3 py-2.5 font-medium text-title-brand">{t.workerName}</td>
+                        <td className="px-3 py-2.5 text-center text-body-brand">{t.workDays}일</td>
                         <td className="px-3 py-2.5 text-center"><Check v={t.nationalPensionEligible} /></td>
                         <td className="px-3 py-2.5 text-center"><Check v={t.healthInsuranceEligible} /></td>
                         <td className="px-3 py-2.5 text-center"><Check v={t.employmentInsuranceEligible} /></td>
                         <td className="px-3 py-2.5 text-center"><Check v={t.industrialAccidentEligible} /></td>
-                        <td className="px-3 py-2.5 text-[#6B7280]">{t.acquisitionDate ?? '-'}</td>
-                        <td className="px-3 py-2.5 text-[#6B7280]">{t.lossDate ?? '-'}</td>
+                        <td className="px-3 py-2.5 text-muted-brand">{t.acquisitionDate ?? '-'}</td>
+                        <td className="px-3 py-2.5 text-muted-brand">{t.lossDate ?? '-'}</td>
                         <td className="px-3 py-2.5">
                           <Badge label={REPORTING_LABEL[t.reportingStatus]} bg={rs.bg} color={rs.color} />
                         </td>
@@ -236,12 +236,12 @@ export default function InsurancePage() {
           <table className="w-full text-[12px]">
             <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
               <tr>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">신고월</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">신고 유형</th>
-                <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-[#6B7280]">대상 인원</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">제출자</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">제출일시</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280]">처리 상태</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">신고월</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">신고 유형</th>
+                <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">대상 인원</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">제출자</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">제출일시</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">처리 상태</th>
               </tr>
             </thead>
             <tbody>
@@ -250,25 +250,25 @@ export default function InsurancePage() {
                   <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
                     {Array.from({ length: 6 }).map((__, j) => (
                       <td key={j} className="px-3 py-3">
-                        <div className="h-3.5 bg-[#F3F4F6] rounded animate-pulse" style={{ width: 72 }} />
+                        <div className="h-3.5 bg-footer rounded animate-pulse" style={{ width: 72 }} />
                       </td>
                     ))}
                   </tr>
                 ))
               ) : history.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-[13px] text-[#9CA3AF]">
+                  <td colSpan={6} className="px-4 py-10 text-center text-[13px] text-muted2-brand">
                     제출 이력이 없습니다.
                   </td>
                 </tr>
               ) : (
                 history.map((h) => (
-                  <tr key={h.id} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-[#FAFAFA]">
-                    <td className="px-3 py-2.5 text-[#374151]">{h.monthKey}</td>
-                    <td className="px-3 py-2.5 text-[#374151]">{h.type}</td>
-                    <td className="px-3 py-2.5 text-center text-[#374151]">{h.targetCount}명</td>
-                    <td className="px-3 py-2.5 text-[#6B7280]">{h.submittedBy}</td>
-                    <td className="px-3 py-2.5 text-[#6B7280]">{h.submittedAt}</td>
+                  <tr key={h.id} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-surface">
+                    <td className="px-3 py-2.5 text-body-brand">{h.monthKey}</td>
+                    <td className="px-3 py-2.5 text-body-brand">{h.type}</td>
+                    <td className="px-3 py-2.5 text-center text-body-brand">{h.targetCount}명</td>
+                    <td className="px-3 py-2.5 text-muted-brand">{h.submittedBy}</td>
+                    <td className="px-3 py-2.5 text-muted-brand">{h.submittedAt}</td>
                     <td className="px-3 py-2.5">
                       <span
                         className="text-[11px] font-medium"

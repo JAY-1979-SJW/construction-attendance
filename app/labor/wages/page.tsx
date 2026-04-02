@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 
@@ -150,7 +150,7 @@ export default function WagesPage() {
     const active = sortKey === k
     return (
       <th
-        className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] cursor-pointer select-none whitespace-nowrap"
+        className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand cursor-pointer select-none whitespace-nowrap"
         onClick={() => handleSort(k)}
       >
         {label}
@@ -164,15 +164,15 @@ export default function WagesPage() {
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-[20px] font-bold text-[#0F172A]">노임 관리</h1>
-          <p className="text-[13px] text-[#6B7280] mt-0.5">근로자별·현장별 월 노임 현황</p>
+          <h1 className="text-[20px] font-bold text-title-brand">노임 관리</h1>
+          <p className="text-[13px] text-muted-brand mt-0.5">근로자별·현장별 월 노임 현황</p>
         </div>
         <div className="flex items-center gap-2">
           <input
             type="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="text-[13px] border border-[#E5E7EB] rounded-[8px] px-3 py-1.5 focus:outline-none focus:border-[#F97316]"
+            className="text-[13px] border border-brand rounded-[8px] px-3 py-1.5 focus:outline-none focus:border-accent"
           />
         </div>
       </div>
@@ -204,13 +204,13 @@ export default function WagesPage() {
           placeholder="근로자 / 현장 검색"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="text-[12px] border border-[#E5E7EB] rounded-[8px] px-3 py-1.5 w-[180px] focus:outline-none focus:border-[#F97316]"
+          className="text-[12px] border border-brand rounded-[8px] px-3 py-1.5 w-[180px] focus:outline-none focus:border-accent"
         />
 
         <select
           value={payFilter}
           onChange={(e) => setPayFilter(e.target.value as WageRow['paymentStatus'] | '')}
-          className="text-[12px] border border-[#E5E7EB] rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-[#F97316] text-[#374151]"
+          className="text-[12px] border border-brand rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-accent text-body-brand"
         >
           <option value="">지급 전체</option>
           <option value="UNPAID">미지급</option>
@@ -221,7 +221,7 @@ export default function WagesPage() {
         <select
           value={confirmFilter}
           onChange={(e) => setConfirmFilter(e.target.value as WageRow['confirmationStatus'] | '')}
-          className="text-[12px] border border-[#E5E7EB] rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-[#F97316] text-[#374151]"
+          className="text-[12px] border border-brand rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-accent text-body-brand"
         >
           <option value="">확정 전체</option>
           <option value="DRAFT">미확정</option>
@@ -229,9 +229,9 @@ export default function WagesPage() {
           <option value="LOCKED">잠금</option>
         </select>
 
-        <div className="ml-auto text-[12px] text-[#9CA3AF]">
-          {filtered.length}건 · 합계 <span className="font-semibold text-[#F97316]">{totalWage.toLocaleString()}원</span>
-          {' '}/ 공수 <span className="font-semibold text-[#374151]">{totalManday.toFixed(2)}</span>
+        <div className="ml-auto text-[12px] text-muted2-brand">
+          {filtered.length}건 · 합계 <span className="font-semibold text-accent">{totalWage.toLocaleString()}원</span>
+          {' '}/ 공수 <span className="font-semibold text-body-brand">{totalManday.toFixed(2)}</span>
         </div>
       </div>
 
@@ -245,18 +245,18 @@ export default function WagesPage() {
             <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
               <tr>
                 <SortTh label="근로자명" k="workerName" />
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap">소속/근로형태</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand whitespace-nowrap">소속/근로형태</th>
                 <SortTh label="현장명" k="siteName" />
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap">기간</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand whitespace-nowrap">기간</th>
                 <SortTh label="출근일수" k="attendanceDays" />
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap">작업일보</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand whitespace-nowrap">작업일보</th>
                 <SortTh label="총 공수" k="totalManday" />
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap">노임 단가</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand whitespace-nowrap">노임 단가</th>
                 <SortTh label="지급예정액" k="monthlyWage" />
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap">지급 상태</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap">확정 상태</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap">4대보험</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#6B7280] whitespace-nowrap">비고</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand whitespace-nowrap">지급 상태</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand whitespace-nowrap">확정 상태</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand whitespace-nowrap">4대보험</th>
+                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand whitespace-nowrap">비고</th>
               </tr>
             </thead>
             <tbody>
@@ -265,14 +265,14 @@ export default function WagesPage() {
                   <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
                     {Array.from({ length: 13 }).map((__, j) => (
                       <td key={j} className="px-3 py-3">
-                        <div className="h-3.5 bg-[#F3F4F6] rounded animate-pulse" style={{ width: j === 0 ? 72 : j === 1 ? 60 : j === 2 ? 100 : 48 }} />
+                        <div className="h-3.5 bg-footer rounded animate-pulse" style={{ width: j === 0 ? 72 : j === 1 ? 60 : j === 2 ? 100 : 48 }} />
                       </td>
                     ))}
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={13} className="px-4 py-10 text-center text-[13px] text-[#9CA3AF]">
+                  <td colSpan={13} className="px-4 py-10 text-center text-[13px] text-muted2-brand">
                     해당 조건의 노임 데이터가 없습니다.
                   </td>
                 </tr>
@@ -284,19 +284,19 @@ export default function WagesPage() {
                     <tr
                       key={`${row.workerId}-${row.siteId}-${row.monthKey}-${idx}`}
                       style={{ borderBottom: '1px solid #F3F4F6' }}
-                      className="hover:bg-[#FAFAFA] transition-colors"
+                      className="hover:bg-surface transition-colors"
                     >
-                      <td className="px-3 py-2.5 font-medium text-[#0F172A]">{row.workerName}</td>
-                      <td className="px-3 py-2.5 text-[#6B7280] whitespace-nowrap">
+                      <td className="px-3 py-2.5 font-medium text-title-brand">{row.workerName}</td>
+                      <td className="px-3 py-2.5 text-muted-brand whitespace-nowrap">
                         {EMP_TYPE_LABEL[row.employmentType] ?? row.employmentType}
                       </td>
-                      <td className="px-3 py-2.5 text-[#374151]">{row.siteName}</td>
-                      <td className="px-3 py-2.5 text-[#6B7280] whitespace-nowrap">{row.monthKey}</td>
-                      <td className="px-3 py-2.5 text-center text-[#374151]">{row.attendanceDays}일</td>
-                      <td className="px-3 py-2.5 text-center text-[#374151]">{row.workLogDays}일</td>
-                      <td className="px-3 py-2.5 text-center font-medium text-[#374151]">{row.totalManday.toFixed(2)}</td>
-                      <td className="px-3 py-2.5 text-right text-[#374151]">{row.dailyRate > 0 ? fmtWon(row.dailyRate) : '-'}</td>
-                      <td className="px-3 py-2.5 text-right font-semibold text-[#0F172A]">{fmtWon(row.monthlyWage)}</td>
+                      <td className="px-3 py-2.5 text-body-brand">{row.siteName}</td>
+                      <td className="px-3 py-2.5 text-muted-brand whitespace-nowrap">{row.monthKey}</td>
+                      <td className="px-3 py-2.5 text-center text-body-brand">{row.attendanceDays}일</td>
+                      <td className="px-3 py-2.5 text-center text-body-brand">{row.workLogDays}일</td>
+                      <td className="px-3 py-2.5 text-center font-medium text-body-brand">{row.totalManday.toFixed(2)}</td>
+                      <td className="px-3 py-2.5 text-right text-body-brand">{row.dailyRate > 0 ? fmtWon(row.dailyRate) : '-'}</td>
+                      <td className="px-3 py-2.5 text-right font-semibold text-title-brand">{fmtWon(row.monthlyWage)}</td>
                       <td className="px-3 py-2.5">
                         <Badge label={PAYMENT_LABEL[row.paymentStatus]} bg={pStyle.bg} color={pStyle.color} />
                       </td>
@@ -305,12 +305,12 @@ export default function WagesPage() {
                       </td>
                       <td className="px-3 py-2.5 text-center">
                         {row.insuranceEligible ? (
-                          <span className="text-[#16A34A] font-medium">대상</span>
+                          <span className="text-status-working font-medium">대상</span>
                         ) : (
-                          <span className="text-[#9CA3AF]">해당없음</span>
+                          <span className="text-muted2-brand">해당없음</span>
                         )}
                       </td>
-                      <td className="px-3 py-2.5 text-[#9CA3AF] max-w-[120px] truncate">
+                      <td className="px-3 py-2.5 text-muted2-brand max-w-[120px] truncate">
                         {row.notes ?? '-'}
                       </td>
                     </tr>

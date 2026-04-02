@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 const PLANNED_SETTINGS = [
   {
@@ -27,13 +27,13 @@ export default function LaborSettingsPage() {
   return (
     <div className="p-6 max-w-[860px]">
       <div className="mb-5">
-        <h1 className="text-[20px] font-bold text-[#0F172A]">설정</h1>
-        <p className="text-[13px] text-[#6B7280] mt-0.5">노무관리 앱 전용 설정</p>
+        <h1 className="text-[20px] font-bold text-title-brand">설정</h1>
+        <p className="text-[13px] text-muted-brand mt-0.5">노무관리 앱 전용 설정</p>
       </div>
 
       {/* 현재 상태 안내 */}
       <div
-        className="rounded-[10px] px-4 py-3 mb-5 text-[12px] text-[#374151]"
+        className="rounded-[10px] px-4 py-3 mb-5 text-[12px] text-body-brand"
         style={{ background: '#FFF7ED', border: '1px solid #FED7AA' }}
       >
         <strong className="text-[#C2410C]">구현 전 단계입니다.</strong>
@@ -54,8 +54,8 @@ export default function LaborSettingsPage() {
               {item.badge}
             </div>
             <div>
-              <p className="text-[13px] font-semibold text-[#0F172A] mb-0.5">{item.title}</p>
-              <p className="text-[12px] text-[#6B7280] leading-relaxed">{item.desc}</p>
+              <p className="text-[13px] font-semibold text-title-brand mb-0.5">{item.title}</p>
+              <p className="text-[12px] text-muted-brand leading-relaxed">{item.desc}</p>
             </div>
           </div>
         ))}
