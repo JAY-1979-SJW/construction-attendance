@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 
@@ -102,8 +102,8 @@ export default function InsuranceCalculatePage() {
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       {/* 서브 네비게이션 */}
       <div className="flex gap-2 text-sm border-b pb-3">
-        <a href="/admin/insurance-rates" className="px-3 py-1.5 bg-white border rounded text-gray-600 hover:bg-gray-50">요율 버전 관리</a>
-        <a href="/admin/insurance-rates/sources" className="px-3 py-1.5 bg-white border rounded text-gray-600 hover:bg-gray-50">고시 소스 관리</a>
+        <a href="/admin/insurance-rates" className="px-3 py-1.5 bg-card border rounded text-gray-600 hover:bg-gray-50">요율 버전 관리</a>
+        <a href="/admin/insurance-rates/sources" className="px-3 py-1.5 bg-card border rounded text-gray-600 hover:bg-gray-50">고시 소스 관리</a>
         <a href="/admin/insurance-rates/calculate" className="px-3 py-1.5 bg-blue-600 text-white rounded font-medium">보험료 계산기</a>
       </div>
 
@@ -115,7 +115,7 @@ export default function InsuranceCalculatePage() {
       </div>
 
       {/* 입력 */}
-      <div className="bg-white border rounded-lg p-5 space-y-4">
+      <div className="bg-card border rounded-lg p-5 space-y-4">
         <div className="flex gap-4 flex-wrap">
           <div>
             <label className="text-xs font-medium text-gray-600 block mb-1">임금 구분</label>
@@ -207,7 +207,7 @@ export default function InsuranceCalculatePage() {
           </div>
 
           {/* 보험별 상세 */}
-          <div className="bg-white border rounded-lg overflow-hidden">
+          <div className="bg-card border rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-xs text-gray-600">
                 <tr>
@@ -259,7 +259,7 @@ export default function InsuranceCalculatePage() {
       {/* 결과 — 일용 */}
       {result && result.wageType === 'DAILY' && result.result && (
         <div className="space-y-4">
-          <div className="bg-white border rounded-lg p-5 space-y-3">
+          <div className="bg-card border rounded-lg p-5 space-y-3">
             <div className="text-sm font-semibold text-gray-700">
               {result.referenceDate} 기준 — 일급 {won(result.dailyWage ?? 0)} (건설업 일용근로자)
             </div>

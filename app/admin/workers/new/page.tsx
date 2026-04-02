@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -216,10 +216,10 @@ export default function WorkersNewPage() {
       {/* ── 중복 경고 ───────────────────────────────────────────── */}
       {dupWarnings.length > 0 && (
         <div className="max-w-[720px] mb-4">
-          <div className="bg-[#FFFBEB] border border-[#F59E0B] rounded-[8px] px-4 py-3">
-            <div className="text-[12px] font-bold text-[#92400E] mb-1">중복 의심</div>
+          <div className="bg-yellow-light border border-[#F59E0B] rounded-[8px] px-4 py-3">
+            <div className="text-[12px] font-bold text-status-pending mb-1">중복 의심</div>
             {dupWarnings.map((w, i) => (
-              <div key={i} className="text-[12px] text-[#92400E]">{w}</div>
+              <div key={i} className="text-[12px] text-status-pending">{w}</div>
             ))}
           </div>
         </div>
@@ -228,7 +228,7 @@ export default function WorkersNewPage() {
       <div className="max-w-[720px]">
         {/* ── 기본정보 ─────────────────────────────────────────── */}
         <SectionCard>
-          <h3 className="text-[14px] font-bold text-[#111827] mb-4">기본정보</h3>
+          <h3 className="text-[14px] font-bold text-fore-brand mb-4">기본정보</h3>
           <FormGrid cols={2}>
             <FormInput
               label="이름" required
@@ -273,7 +273,7 @@ export default function WorkersNewPage() {
 
         {/* ── 근무정보 ─────────────────────────────────────────── */}
         <SectionCard>
-          <h3 className="text-[14px] font-bold text-[#111827] mb-4">근무정보</h3>
+          <h3 className="text-[14px] font-bold text-fore-brand mb-4">근무정보</h3>
           <FormGrid cols={2}>
             <div>
               <FormSelect
@@ -300,14 +300,14 @@ export default function WorkersNewPage() {
               options={EMP_OPTIONS.map(o => ({ value: o.value, label: o.label }))}
             />
           </FormGrid>
-          <p className="text-[11px] text-[#9CA3AF] mt-2">
+          <p className="text-[11px] text-muted2-brand mt-2">
             고용형태는 근로형태·계약구분·운영분류를 통합한 값입니다. 추후 세분화됩니다.
           </p>
         </SectionCard>
 
         {/* ── 소속정보 ─────────────────────────────────────────── */}
         <SectionCard>
-          <h3 className="text-[14px] font-bold text-[#111827] mb-4">소속정보</h3>
+          <h3 className="text-[14px] font-bold text-fore-brand mb-4">소속정보</h3>
           <FormGrid cols={2}>
             <FormSelect
               label="소속 구분" required
@@ -327,7 +327,7 @@ export default function WorkersNewPage() {
             )}
           </FormGrid>
           {isSubcontractor && (
-            <p className="text-[11px] text-[#9CA3AF] mt-2">
+            <p className="text-[11px] text-muted2-brand mt-2">
               추후 회사 관리에서 정식 등록하면 자동으로 연결됩니다.
             </p>
           )}
@@ -335,26 +335,26 @@ export default function WorkersNewPage() {
 
         {/* ── 필수서류 안내 ────────────────────────────────────── */}
         <SectionCard>
-          <h3 className="text-[14px] font-bold text-[#111827] mb-4">필수서류 안내</h3>
-          <p className="text-[12px] text-[#6B7280] mb-3">
+          <h3 className="text-[14px] font-bold text-fore-brand mb-4">필수서류 안내</h3>
+          <p className="text-[12px] text-muted-brand mb-3">
             등록 후 아래 서류를 제출해야 현장 투입이 가능합니다. 승인(APPROVED)과 투입 가능은 별도로 관리됩니다.
           </p>
-          <div className="border border-[#E5E7EB] rounded-[8px] overflow-hidden">
+          <div className="border border-brand rounded-[8px] overflow-hidden">
             <table className="w-full text-[12px]">
               <thead>
-                <tr className="bg-[#F9FAFB]">
-                  <th className="text-left px-3 py-2 font-semibold text-[#6B7280]">서류명</th>
-                  <th className="text-left px-3 py-2 font-semibold text-[#6B7280]">구분</th>
-                  <th className="text-left px-3 py-2 font-semibold text-[#6B7280]">제출 시점</th>
+                <tr className="bg-surface">
+                  <th className="text-left px-3 py-2 font-semibold text-muted-brand">서류명</th>
+                  <th className="text-left px-3 py-2 font-semibold text-muted-brand">구분</th>
+                  <th className="text-left px-3 py-2 font-semibold text-muted-brand">제출 시점</th>
                 </tr>
               </thead>
               <tbody>
                 {DOC_GUIDE.map(d => {
                   const t = TIMING_LABELS[d.timing]
                   return (
-                    <tr key={d.name} className="border-t border-[#F3F4F6]">
-                      <td className="px-3 py-2 text-[#374151]">{d.name}</td>
-                      <td className="px-3 py-2 text-[#9CA3AF]">{d.rule}</td>
+                    <tr key={d.name} className="border-t border-brand">
+                      <td className="px-3 py-2 text-body-brand">{d.name}</td>
+                      <td className="px-3 py-2 text-muted2-brand">{d.rule}</td>
                       <td className="px-3 py-2">
                         <span className="inline-block px-2 py-0.5 rounded text-[11px] font-medium" style={{ color: t.color, backgroundColor: t.bg }}>
                           {t.label}
@@ -370,27 +370,27 @@ export default function WorkersNewPage() {
 
         {/* ── 상태 초기값 안내 ─────────────────────────────────── */}
         <SectionCard>
-          <h3 className="text-[14px] font-bold text-[#111827] mb-3">등록 후 상태</h3>
+          <h3 className="text-[14px] font-bold text-fore-brand mb-3">등록 후 상태</h3>
           <div className="flex flex-col gap-2.5 text-[12px]">
             <div className="flex items-start gap-2">
               <span className="inline-block w-2 h-2 rounded-full bg-[#16A34A] mt-1 shrink-0" />
               <div>
-                <span className="text-[#374151] font-semibold">계정 상태: APPROVED</span>
-                <span className="text-[#9CA3AF] ml-1">— 관리자 직접 등록이므로 별도 승인 불필요</span>
+                <span className="text-body-brand font-semibold">계정 상태: APPROVED</span>
+                <span className="text-muted2-brand ml-1">— 관리자 직접 등록이므로 별도 승인 불필요</span>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <span className="inline-block w-2 h-2 rounded-full bg-[#D97706] mt-1 shrink-0" />
               <div>
-                <span className="text-[#374151] font-semibold">투입 가능: 서류미비</span>
-                <span className="text-[#9CA3AF] ml-1">— 계약서 + 건강서류 + 안전교육 완료 후 전환</span>
+                <span className="text-body-brand font-semibold">투입 가능: 서류미비</span>
+                <span className="text-muted2-brand ml-1">— 계약서 + 건강서류 + 안전교육 완료 후 전환</span>
               </div>
             </div>
             <div className="flex items-start gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-[#6B7280] mt-1 shrink-0" />
+              <span className="inline-block w-2 h-2 rounded-full bg-muted-brand mt-1 shrink-0" />
               <div>
-                <span className="text-[#374151] font-semibold">다음 액션</span>
-                <span className="text-[#9CA3AF] ml-1">— 상세 페이지에서 서류 제출, 현장 배정, 회사 배정 진행</span>
+                <span className="text-body-brand font-semibold">다음 액션</span>
+                <span className="text-muted2-brand ml-1">— 상세 페이지에서 서류 제출, 현장 배정, 회사 배정 진행</span>
               </div>
             </div>
           </div>
