@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -170,7 +170,7 @@ export default function WorkerContractConfirmPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-brand gap-3 px-6">
         <p className="text-[#c62828] text-[14px] text-center">{error || '계약 정보를 찾을 수 없습니다.'}</p>
-        <button onClick={() => router.back()} className="px-5 py-2 bg-[#F47920] text-white border-none rounded-lg text-[13px] cursor-pointer">
+        <button onClick={() => router.back()} className="px-5 py-2 bg-brand-accent text-white border-none rounded-lg text-[13px] cursor-pointer">
           돌아가기
         </button>
       </div>
@@ -274,7 +274,7 @@ export default function WorkerContractConfirmPage() {
                     className="w-[18px] h-[18px] mt-px shrink-0"
                     style={{ accentColor: accent }}
                   />
-                  <span className="text-[13px] text-[#CBD5E0] leading-[1.5]">{label}</span>
+                  <span className="text-[13px] text-dim-brand leading-[1.5]">{label}</span>
                 </label>
               ))}
             </div>
@@ -323,7 +323,7 @@ export default function WorkerContractConfirmPage() {
 
                   {/* 서명란 */}
                   {renderedDoc.signatureBlock && (
-                    <div className="mt-6 pt-4 border-t border-[#eee]">
+                    <div className="mt-6 pt-4 border-t border-brand">
                       <div className="text-[12px] text-[#555] leading-[1.8] whitespace-pre-wrap">
                         {renderedDoc.signatureBlock}
                       </div>
@@ -343,7 +343,7 @@ export default function WorkerContractConfirmPage() {
             {/* 최종 확인 */}
             <div className="bg-card rounded-xl p-[18px] shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
               <div className="bg-[#fff8e1] border border-[#ffe082] rounded-lg p-3 mb-3">
-                <div className="text-[13px] font-bold text-[#e65100] mb-[6px]">서명 전 최종 확인</div>
+                <div className="text-[13px] font-bold text-accent-hover mb-[6px]">서명 전 최종 확인</div>
                 <p className="text-[12px] text-[#5d4037] leading-[1.6] m-0">
                   위 계약서 내용을 모두 읽고 확인하였으며, 동의 후에는 내용 변경이 어려울 수 있습니다.
                 </p>
@@ -356,7 +356,7 @@ export default function WorkerContractConfirmPage() {
                   className="w-[18px] h-[18px] mt-[2px] shrink-0"
                   style={{ accentColor: accent }}
                 />
-                <span className="text-[13px] text-[#CBD5E0] leading-[1.6]">
+                <span className="text-[13px] text-dim-brand leading-[1.6]">
                   {guide?.finalCheckText ?? '위 계약서 내용을 모두 확인하였으며, 이에 동의합니다.'}
                 </span>
               </label>
@@ -382,7 +382,7 @@ export default function WorkerContractConfirmPage() {
         {/* ── 3단계: 전자서명 ──────────────────────────────── */}
         {step === 'sign' && (
           <>
-            <div className="bg-[#e8f5e9] border border-[#a5d6a7] rounded-xl p-4">
+            <div className="bg-green-light border border-[#a5d6a7] rounded-xl p-4">
               <div className="text-[13px] font-bold text-[#2e7d32] mb-[6px]">전자서명 안내</div>
               <p className="text-[12px] text-[#33691e] leading-[1.6] m-0">
                 아래 서명란에 본인의 서명을 입력해 주세요.<br />

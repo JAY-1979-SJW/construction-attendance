@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
@@ -219,7 +219,7 @@ export default function MyOnboardingPage() {
                 const isResubmit = doc.status === 'REJECTED' || doc.status === 'EXPIRED'
 
                 return (
-                  <div key={doc.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                  <div key={doc.id} className="bg-card rounded-2xl p-4 shadow-sm border border-gray-100">
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <div className="font-bold text-[15px] text-gray-800">{doc.label}</div>
@@ -293,7 +293,7 @@ export default function MyOnboardingPage() {
       {/* 전자서명 모달 */}
       {activeDoc && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center">
-          <div className="bg-white w-full max-w-lg rounded-t-3xl p-6 pb-8 animate-[slideUp_0.3s_ease] max-h-[90vh] overflow-y-auto">
+          <div className="bg-card w-full max-w-lg rounded-t-3xl p-6 pb-8 animate-[slideUp_0.3s_ease] max-h-[90vh] overflow-y-auto">
             <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
             <h3 className="text-lg font-bold text-gray-800 mb-2">
               {docs.find(d => d.docType === activeDoc)?.label}
@@ -351,7 +351,7 @@ export default function MyOnboardingPage() {
 
             <div className="flex gap-3">
               <button onClick={() => { setActiveDoc(null); setSignatureData(null) }}
-                className="flex-1 py-3.5 rounded-xl text-[14px] font-bold border border-gray-300 bg-white text-gray-600 cursor-pointer">
+                className="flex-1 py-3.5 rounded-xl text-[14px] font-bold border border-gray-300 bg-card text-gray-600 cursor-pointer">
                 취소
               </button>
               <button onClick={() => {

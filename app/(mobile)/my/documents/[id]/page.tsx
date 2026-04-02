@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -124,9 +124,9 @@ export default function DocumentDetailPage() {
         ) : doc ? (<>
           <div className="px-4 space-y-4">
             {/* 헤더 */}
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-card rounded-xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-2">
-                <h1 className="text-[16px] font-bold text-[#0F172A] m-0">
+                <h1 className="text-[16px] font-bold text-title-brand m-0">
                   {DOC_TYPE_LABELS[doc.documentType] ?? doc.documentType}
                 </h1>
                 {status && (
@@ -174,9 +174,9 @@ export default function DocumentDetailPage() {
 
             {/* 문서 내용 */}
             {doc.contentText && (
-              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="bg-card rounded-xl shadow-sm overflow-hidden">
                 <div className="px-4 py-3 border-b border-gray-100">
-                  <h2 className="text-[14px] font-semibold text-[#374151] m-0">문서 내용</h2>
+                  <h2 className="text-[14px] font-semibold text-body-brand m-0">문서 내용</h2>
                 </div>
                 <div className="p-4 max-h-[400px] overflow-y-auto">
                   <pre className="text-[12px] text-gray-600 whitespace-pre-wrap m-0 font-[inherit] leading-relaxed">
@@ -226,7 +226,7 @@ export default function DocumentDetailPage() {
             {/* 다운로드 버튼 */}
             <button
               onClick={handleDownload}
-              className="w-full py-3 bg-[#F97316] text-white text-[14px] font-semibold rounded-xl border-none cursor-pointer active:bg-[#EA580C] transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 bg-brand-accent text-white text-[14px] font-semibold rounded-xl border-none cursor-pointer active:bg-[#EA580C] transition-colors flex items-center justify-center gap-2"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -238,8 +238,8 @@ export default function DocumentDetailPage() {
           {/* 서명 확인 모달 */}
           {showSignConfirm && (
             <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50">
-              <div className="bg-white w-full max-w-md rounded-t-2xl p-6 pb-8">
-                <h3 className="text-[16px] font-bold text-[#0F172A] m-0 mb-3">서명 확인</h3>
+              <div className="bg-card w-full max-w-md rounded-t-2xl p-6 pb-8">
+                <h3 className="text-[16px] font-bold text-title-brand m-0 mb-3">서명 확인</h3>
                 <p className="text-[13px] text-gray-600 mb-1">
                   <strong>{DOC_TYPE_LABELS[doc.documentType] ?? doc.documentType}</strong> 문서의 내용을 확인했으며, 이에 동의하여 서명합니다.
                 </p>

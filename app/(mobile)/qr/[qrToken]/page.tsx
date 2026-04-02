@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -110,7 +110,7 @@ export default function QrCheckInPage() {
   if (stage === 'loading') {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-[15px] text-[#6B7280]">확인 중...</p>
+        <p className="text-[15px] text-muted-brand">확인 중...</p>
       </div>
     )
   }
@@ -123,8 +123,8 @@ export default function QrCheckInPage() {
         <div className="mobile-content">
           <div className="bg-card rounded-2xl p-6 text-center">
             <div className="text-[48px] mb-4">📋</div>
-            <div className="text-[17px] font-bold text-[#0F172A] mb-2">QR 출근</div>
-            <p className="text-[14px] text-[#6B7280] mb-5">출근을 위해 먼저 로그인이 필요합니다.</p>
+            <div className="text-[17px] font-bold text-title-brand mb-2">QR 출근</div>
+            <p className="text-[14px] text-muted-brand mb-5">출근을 위해 먼저 로그인이 필요합니다.</p>
             <button
               onClick={() => router.push(`/login?redirect=${encodeURIComponent(`/qr/${qrToken}`)}`)}
               className="w-full py-3 bg-accent text-white border-none rounded-xl text-[15px] font-bold cursor-pointer"
@@ -133,7 +133,7 @@ export default function QrCheckInPage() {
             </button>
             <button
               onClick={() => router.push(`/register?redirect=${encodeURIComponent(`/qr/${qrToken}`)}`)}
-              className="w-full py-3 mt-2 bg-transparent border border-[#E5E7EB] text-[#6B7280] rounded-xl text-[14px] cursor-pointer"
+              className="w-full py-3 mt-2 bg-transparent border border-brand text-muted-brand rounded-xl text-[14px] cursor-pointer"
             >
               회원가입
             </button>
@@ -152,8 +152,8 @@ export default function QrCheckInPage() {
         <div className="mobile-content">
           <div className="bg-card rounded-2xl p-6 text-center">
             <div className="text-[48px] mb-4">⚠️</div>
-            <div className="text-[17px] font-bold text-[#0F172A] mb-2">유효하지 않은 QR 코드</div>
-            <p className="text-[14px] text-[#6B7280] mb-5">이 QR 코드는 등록된 현장과 일치하지 않습니다.</p>
+            <div className="text-[17px] font-bold text-title-brand mb-2">유효하지 않은 QR 코드</div>
+            <p className="text-[14px] text-muted-brand mb-5">이 QR 코드는 등록된 현장과 일치하지 않습니다.</p>
             <button
               onClick={() => router.push('/attendance')}
               className="w-full py-3 bg-accent text-white border-none rounded-xl text-[15px] font-bold cursor-pointer"
@@ -174,8 +174,8 @@ export default function QrCheckInPage() {
         {/* 현장 정보 카드 */}
         <div className="bg-card rounded-2xl p-6 mb-4">
           <div className="text-[13px] text-muted-brand mb-2">QR 출근</div>
-          <div className="text-[18px] font-bold text-[#0F172A] mb-1">{site?.name}</div>
-          <div className="text-[13px] text-[#6B7280]">{site?.address}</div>
+          <div className="text-[18px] font-bold text-title-brand mb-1">{site?.name}</div>
+          <div className="text-[13px] text-muted-brand">{site?.address}</div>
         </div>
 
         {/* 메시지 */}
@@ -192,9 +192,9 @@ export default function QrCheckInPage() {
         {stage === 'success' && (
           <div className="bg-card rounded-2xl p-6 text-center mb-4">
             <div className="text-[48px] mb-3">✅</div>
-            <div className="text-[17px] font-bold text-[#16a34a] mb-2">출근 완료</div>
+            <div className="text-[17px] font-bold text-status-working mb-2">출근 완료</div>
             {distance != null && (
-              <div className="text-[13px] text-[#6B7280]">
+              <div className="text-[13px] text-muted-brand">
                 현장까지 거리: {Math.round(distance)}m {withinRadius ? '(반경 내)' : '(반경 외)'}
               </div>
             )}
@@ -211,8 +211,8 @@ export default function QrCheckInPage() {
         {stage === 'gps_denied' && (
           <div className="bg-card rounded-2xl p-6 text-center mb-4">
             <div className="text-[48px] mb-3">📍</div>
-            <div className="text-[15px] font-bold text-[#ea580c] mb-2">위치 권한이 필요합니다</div>
-            <p className="text-[13px] text-[#6B7280] mb-4">브라우저 설정에서 위치 권한을 허용한 후 다시 시도해 주세요.</p>
+            <div className="text-[15px] font-bold text-accent-hover mb-2">위치 권한이 필요합니다</div>
+            <p className="text-[13px] text-muted-brand mb-4">브라우저 설정에서 위치 권한을 허용한 후 다시 시도해 주세요.</p>
             <button
               onClick={() => { setStage('ready'); setMessage('') }}
               className="w-full py-3 bg-accent text-white border-none rounded-xl text-[15px] font-bold cursor-pointer"
@@ -225,8 +225,8 @@ export default function QrCheckInPage() {
         {/* GPS 오류 */}
         {stage === 'gps_error' && (
           <div className="bg-card rounded-2xl p-6 text-center mb-4">
-            <div className="text-[15px] font-bold text-[#ea580c] mb-2">위치를 가져올 수 없습니다</div>
-            <p className="text-[13px] text-[#6B7280] mb-4">실외로 이동한 후 다시 시도해 주세요.</p>
+            <div className="text-[15px] font-bold text-accent-hover mb-2">위치를 가져올 수 없습니다</div>
+            <p className="text-[13px] text-muted-brand mb-4">실외로 이동한 후 다시 시도해 주세요.</p>
             <button
               onClick={() => { setStage('ready'); setMessage('') }}
               className="w-full py-3 bg-accent text-white border-none rounded-xl text-[15px] font-bold cursor-pointer"
@@ -257,7 +257,7 @@ export default function QrCheckInPage() {
         <div className="text-center">
           <button
             onClick={() => router.push('/attendance')}
-            className="bg-transparent border-none text-[13px] text-[#6B7280] cursor-pointer underline"
+            className="bg-transparent border-none text-[13px] text-muted-brand cursor-pointer underline"
           >
             직접 출퇴근 페이지로 이동
           </button>
