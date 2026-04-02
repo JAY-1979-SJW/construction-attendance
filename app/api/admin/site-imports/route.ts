@@ -121,6 +121,19 @@ export async function POST(request: NextRequest) {
       const radiusRaw  = radiusCol ? raw[radiusCol] : null
       const allowedRadius = radiusRaw && !isNaN(Number(radiusRaw)) ? Math.round(Number(radiusRaw)) : null
 
+      // 문자 깨짐 검사 (U+FFFD)
+      const brokenRe = /\uFFFD/
+      if (brokenRe.test(siteName) || brokenRe.test(rawAddress)) {
+        await prisma.bulkSiteImportRow.create({
+          data: {
+            jobId: job.id, rowNumber, siteName: siteName || '(깨짐)', rawAddress,
+            validationStatus: 'FAILED',
+            validationMessage: '문자 깨짐 감지: 파일 인코딩을 UTF-8로 저장 후 다시 업로드하세요.',
+          },
+        })
+        continue
+      }
+
       // 필수 값 검증
       if (!siteName) {
         await prisma.bulkSiteImportRow.create({

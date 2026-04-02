@@ -148,6 +148,24 @@ export async function POST(request: NextRequest) {
       const phoneRaw = String(raw[phoneCol] ?? '').trim()
       const jobTitle = String(raw[jobCol] ?? '').trim()
 
+      // 문자 깨짐 검사 (U+FFFD 또는 EUC-KR 잔해)
+      const brokenRe = /\uFFFD/
+      const brokenFields = [
+        brokenRe.test(name) && '이름',
+        brokenRe.test(jobTitle) && '직종',
+      ].filter(Boolean)
+      if (brokenFields.length > 0) {
+        await prisma.bulkWorkerImportRow.create({
+          data: {
+            jobId: job.id, rowNumber, name: name || '(깨짐)', phone: phoneRaw, jobTitle: jobTitle || '',
+            dedupeStatus: 'PENDING',
+            validationStatus: 'FAILED',
+            validationMessage: `문자 깨짐 감지 (${brokenFields.join(', ')}): 파일 인코딩을 UTF-8로 저장 후 다시 업로드하세요.`,
+          },
+        })
+        continue
+      }
+
       // 필수 검증
       if (!name || !phoneRaw || !jobTitle) {
         const missing = [!name && '이름', !phoneRaw && '연락처', !jobTitle && '직종'].filter(Boolean).join(', ')
@@ -211,6 +229,20 @@ export async function POST(request: NextRequest) {
       const skillLevel = skillCol ? String(raw[skillCol] ?? '').trim() || null : null
       const subcontractorName = subconCol ? String(raw[subconCol] ?? '').trim() || null : null
       const note = noteCol ? String(raw[noteCol] ?? '').trim() || null : null
+
+      // 선택 필드 문자 깨짐 검사
+      const allTextValues = [name, jobTitle, subcontractorName, note, empTypeRaw, orgRaw].filter(Boolean)
+      if (allTextValues.some(v => brokenRe.test(v!))) {
+        await prisma.bulkWorkerImportRow.create({
+          data: {
+            jobId: job.id, rowNumber, name, phone, jobTitle,
+            dedupeStatus: 'PENDING',
+            validationStatus: 'FAILED',
+            validationMessage: '선택 필드에 문자 깨짐 감지: 파일 인코딩을 UTF-8로 저장 후 다시 업로드하세요.',
+          },
+        })
+        continue
+      }
 
       // DB 기존 근로자와 중복 비교
       const dedupe = classifyWorker(
