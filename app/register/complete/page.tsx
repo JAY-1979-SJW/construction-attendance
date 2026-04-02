@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -33,11 +33,11 @@ function StepBar({ current }: { current: number }) {
         return (
           <div key={label} className="flex flex-col items-center flex-1">
             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold mb-1 ${
-              done ? 'bg-[#16a34a] text-white' : active ? 'bg-[#F97316] text-white' : 'bg-[#E5E7EB] text-[#9CA3AF]'
+              done ? 'bg-[#16a34a] text-white' : active ? 'bg-brand-accent text-white' : 'bg-brand-deeper text-muted2-brand'
             }`}>
               {done ? '✓' : step}
             </div>
-            <span className={`text-[10px] ${active ? 'text-[#F97316] font-semibold' : done ? 'text-[#16a34a]' : 'text-[#9CA3AF]'}`}>{label}</span>
+            <span className={`text-[10px] ${active ? 'text-accent font-semibold' : done ? 'text-status-working' : 'text-muted2-brand'}`}>{label}</span>
           </div>
         )
       })}
@@ -140,14 +140,14 @@ export default function RegisterCompletePage() {
   }
 
   if (loading) {
-    return <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center"><p className="text-[#6B7280]">로딩 중...</p></div>
+    return <div className="min-h-screen bg-brand flex items-center justify-center"><p className="text-muted-brand">로딩 중...</p></div>
   }
 
   const subJobs = category ? (JOB_CATEGORIES[category] ?? []) : []
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center p-6">
-      <div className="bg-white rounded-2xl px-8 py-8 w-full max-w-[440px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#E5E7EB] border-t-[3px] border-t-[#F97316]">
+    <div className="min-h-screen bg-brand flex items-center justify-center p-6">
+      <div className="bg-card rounded-2xl px-8 py-8 w-full max-w-[440px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-brand border-t-[3px] border-t-accent">
         <div className="text-center mb-3">
           <Image src="/logo/logo_main.png" alt="해한Ai" width={240} height={180} className="w-[120px] h-auto mx-auto block rounded-2xl" priority />
         </div>
@@ -156,28 +156,28 @@ export default function RegisterCompletePage() {
 
         {email && (
           <div className="flex items-center gap-2 mb-4 px-3 py-[7px] bg-[#F0FDF4] border border-[#BBF7D0] rounded-lg">
-            <span className="text-[#16a34a] text-[13px]">✓</span>
-            <span className="text-[13px] text-[#374151]">{email}</span>
+            <span className="text-status-working text-[13px]">✓</span>
+            <span className="text-[13px] text-body-brand">{email}</span>
           </div>
         )}
 
         {error && (
-          <div className="bg-[rgba(220,38,38,0.08)] border border-[rgba(220,38,38,0.3)] rounded-[10px] px-4 py-[10px] mb-4 text-[#dc2626] text-[13px]">
+          <div className="bg-[rgba(220,38,38,0.08)] border border-[rgba(220,38,38,0.3)] rounded-[10px] px-4 py-[10px] mb-4 text-status-rejected text-[13px]">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           {/* 이름 */}
-          <label className="block text-[13px] font-semibold text-[#374151] mb-[5px]">이름 <span className="text-[#F97316]">*</span></label>
+          <label className="block text-[13px] font-semibold text-body-brand mb-[5px]">이름 <span className="text-accent">*</span></label>
           <input
-            className="w-full px-3 py-[10px] border border-[#E5E7EB] rounded-[10px] text-[15px] bg-white text-[#111827] outline-none focus:border-[#F97316] mb-4 box-border"
+            className="w-full px-3 py-[10px] border border-brand rounded-[10px] text-[15px] bg-card text-fore-brand outline-none focus:border-accent mb-4 box-border"
             value={name} onChange={e => setName(e.target.value)}
             required minLength={2} maxLength={30} placeholder="실명"
           />
 
           {/* 직종: 대분류 → 세부 */}
-          <label className="block text-[13px] font-semibold text-[#374151] mb-[5px]">직종 <span className="text-[#F97316]">*</span></label>
+          <label className="block text-[13px] font-semibold text-body-brand mb-[5px]">직종 <span className="text-accent">*</span></label>
           <div className="flex gap-2 flex-wrap mb-2">
             {CATEGORIES.map(cat => (
               <button
@@ -185,8 +185,8 @@ export default function RegisterCompletePage() {
                 onClick={() => { setCategory(cat); setJobTitle(''); setCustomJob('') }}
                 className={`px-3 py-[6px] rounded-full text-[13px] font-medium border transition-colors ${
                   category === cat
-                    ? 'bg-[#F97316] text-white border-[#F97316]'
-                    : 'bg-white text-[#374151] border-[#E5E7EB] hover:border-[#F97316]'
+                    ? 'bg-brand-accent text-white border-accent'
+                    : 'bg-white text-body-brand border-brand hover:border-accent'
                 }`}
               >
                 {cat}
@@ -202,8 +202,8 @@ export default function RegisterCompletePage() {
                   onClick={() => { setJobTitle(job); setCustomJob('') }}
                   className={`px-[10px] py-[5px] rounded-lg text-[12px] border transition-colors ${
                     jobTitle === job
-                      ? 'bg-[#FFF7ED] text-[#F97316] border-[#F97316] font-semibold'
-                      : 'bg-[#F9FAFB] text-[#4B5563] border-[#E5E7EB] hover:border-[#F97316]'
+                      ? 'bg-accent-light text-accent border-accent font-semibold'
+                      : 'bg-surface text-body-brand border-brand hover:border-accent'
                   }`}
                 >
                   {job}
@@ -214,8 +214,8 @@ export default function RegisterCompletePage() {
                 onClick={() => { setJobTitle('__custom__'); setCustomJob('') }}
                 className={`px-[10px] py-[5px] rounded-lg text-[12px] border transition-colors ${
                   jobTitle === '__custom__'
-                    ? 'bg-[#FFF7ED] text-[#F97316] border-[#F97316] font-semibold'
-                    : 'bg-[#F9FAFB] text-[#9CA3AF] border-[#E5E7EB] hover:border-[#F97316]'
+                    ? 'bg-accent-light text-accent border-accent font-semibold'
+                    : 'bg-surface text-muted2-brand border-brand hover:border-accent'
                 }`}
               >
                 직접입력
@@ -225,7 +225,7 @@ export default function RegisterCompletePage() {
 
           {jobTitle === '__custom__' && (
             <input
-              className="w-full px-3 py-[10px] border border-[#E5E7EB] rounded-[10px] text-[14px] bg-white text-[#111827] outline-none focus:border-[#F97316] mt-1 box-border"
+              className="w-full px-3 py-[10px] border border-brand rounded-[10px] text-[14px] bg-card text-fore-brand outline-none focus:border-accent mt-1 box-border"
               value={customJob} onChange={e => setCustomJob(e.target.value)}
               required maxLength={50} placeholder="직종명 입력" autoFocus
             />
@@ -233,35 +233,35 @@ export default function RegisterCompletePage() {
           <div className="mb-4" />
 
           {/* 전화번호 (선택) */}
-          <label className="block text-[13px] font-semibold text-[#374151] mb-[5px]">
-            전화번호 <span className="text-[#9CA3AF] font-normal text-[11px]">선택</span>
+          <label className="block text-[13px] font-semibold text-body-brand mb-[5px]">
+            전화번호 <span className="text-muted2-brand font-normal text-[11px]">선택</span>
           </label>
           <input
-            className="w-full px-3 py-[10px] border border-[#E5E7EB] rounded-[10px] text-[15px] bg-white text-[#111827] outline-none focus:border-[#F97316] mb-1 box-border"
+            className="w-full px-3 py-[10px] border border-brand rounded-[10px] text-[15px] bg-card text-fore-brand outline-none focus:border-accent mb-1 box-border"
             value={displayPhone(phone)} onChange={e => setPhone(formatPhone(e.target.value))}
             placeholder="010-1234-5678" maxLength={13} inputMode="numeric"
           />
-          <p className="text-[11px] text-[#9CA3AF] mb-5">나중에 입력해도 됩니다.</p>
+          <p className="text-[11px] text-muted2-brand mb-5">나중에 입력해도 됩니다.</p>
 
           {/* 생년월일 */}
-          <label className="block text-[13px] font-semibold text-[#374151] mb-[5px]">
-            생년월일 <span className="text-[#9CA3AF] font-normal text-[11px]">선택</span>
+          <label className="block text-[13px] font-semibold text-body-brand mb-[5px]">
+            생년월일 <span className="text-muted2-brand font-normal text-[11px]">선택</span>
           </label>
           <input
             type="date"
-            className="w-full px-3 py-[10px] border border-[#E5E7EB] rounded-[10px] text-[15px] bg-white text-[#111827] outline-none focus:border-[#F97316] mb-4 box-border"
+            className="w-full px-3 py-[10px] border border-brand rounded-[10px] text-[15px] bg-card text-fore-brand outline-none focus:border-accent mb-4 box-border"
             value={birthDate} onChange={e => setBirthDate(e.target.value)}
           />
 
           {/* 외국인 여부 */}
           <label className="flex items-center gap-2 mb-4 cursor-pointer">
             <input type="checkbox" checked={foreignerYn} onChange={e => setForeignerYn(e.target.checked)}
-              className="w-4 h-4 accent-[#F97316]" />
-            <span className="text-[13px] text-[#374151]">외국인 근로자입니다</span>
+              className="w-4 h-4 accent-brand-accent" />
+            <span className="text-[13px] text-body-brand">외국인 근로자입니다</span>
           </label>
 
           {/* 소속 구분 */}
-          <label className="block text-[13px] font-semibold text-[#374151] mb-[5px]">소속 구분</label>
+          <label className="block text-[13px] font-semibold text-body-brand mb-[5px]">소속 구분</label>
           <div className="flex gap-2 flex-wrap mb-4">
             {([
               { value: 'DIRECT', label: '직영' },
@@ -274,8 +274,8 @@ export default function RegisterCompletePage() {
                 onClick={() => setOrgType(opt.value)}
                 className={`px-3 py-[6px] rounded-full text-[13px] font-medium border transition-colors ${
                   orgType === opt.value
-                    ? 'bg-[#F97316] text-white border-[#F97316]'
-                    : 'bg-white text-[#374151] border-[#E5E7EB] hover:border-[#F97316]'
+                    ? 'bg-brand-accent text-white border-accent'
+                    : 'bg-white text-body-brand border-brand hover:border-accent'
                 }`}
               >
                 {opt.label}
@@ -284,18 +284,18 @@ export default function RegisterCompletePage() {
           </div>
 
           {/* 주소 */}
-          <label className="block text-[13px] font-semibold text-[#374151] mb-[5px]">
-            주소 <span className="text-[#9CA3AF] font-normal text-[11px]">선택</span>
+          <label className="block text-[13px] font-semibold text-body-brand mb-[5px]">
+            주소 <span className="text-muted2-brand font-normal text-[11px]">선택</span>
           </label>
           <input
-            className="w-full px-3 py-[10px] border border-[#E5E7EB] rounded-[10px] text-[15px] bg-white text-[#111827] outline-none focus:border-[#F97316] mb-5 box-border"
+            className="w-full px-3 py-[10px] border border-brand rounded-[10px] text-[15px] bg-card text-fore-brand outline-none focus:border-accent mb-5 box-border"
             value={address} onChange={e => setAddress(e.target.value)}
             placeholder="시/군/구 까지 입력" maxLength={200}
           />
 
           <button
             type="submit" disabled={submitting}
-            className="block w-full py-[12px] bg-[#F97316] text-white border-none rounded-[10px] text-[15px] font-bold cursor-pointer shadow-[0_4px_14px_rgba(249,115,22,0.25)] disabled:opacity-60"
+            className="block w-full py-[12px] bg-brand-accent text-white border-none rounded-[10px] text-[15px] font-bold cursor-pointer shadow-[0_4px_14px_rgba(249,115,22,0.25)] disabled:opacity-60"
           >
             {submitting ? '처리 중...' : '가입 완료'}
           </button>

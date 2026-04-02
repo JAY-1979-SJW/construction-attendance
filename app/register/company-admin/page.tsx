@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -128,28 +128,28 @@ export default function CompanyAdminRegisterPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-6 p-4 bg-brand rounded-lg border border-[rgba(91,164,217,0.2)]">
-            <div className="text-[13px] font-bold text-[#CBD5E0] mb-3">신청인 정보</div>
+            <div className="text-[13px] font-bold text-dim-brand mb-3">신청인 정보</div>
 
-            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">신청인 이름 <span className="text-[#e53935]">*</span></label>
+            <label className="block text-[13px] font-semibold text-dim-brand mb-[6px] mt-3">신청인 이름 <span className="text-[#e53935]">*</span></label>
             <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={applicantName} onChange={e => setApplicantName(e.target.value)} required maxLength={30} placeholder="홍길동" />
 
-            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">연락처 <span className="text-[#e53935]">*</span></label>
+            <label className="block text-[13px] font-semibold text-dim-brand mb-[6px] mt-3">연락처 <span className="text-[#e53935]">*</span></label>
             <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={phone} onChange={e => setPhone(e.target.value)} required pattern="^010\d{8}$" placeholder="01012345678" maxLength={11} inputMode="numeric" />
 
-            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">이메일 (선택 — 로그인 계정으로 사용될 수 있습니다)</label>
+            <label className="block text-[13px] font-semibold text-dim-brand mb-[6px] mt-3">이메일 (선택 — 로그인 계정으로 사용될 수 있습니다)</label>
             <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={email} onChange={e => setEmail(e.target.value)} type="email" maxLength={100} placeholder="company@example.com" />
 
-            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">직책 (선택)</label>
+            <label className="block text-[13px] font-semibold text-dim-brand mb-[6px] mt-3">직책 (선택)</label>
             <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={jobTitle} onChange={e => setJobTitle(e.target.value)} maxLength={50} placeholder="대표, 현장소장, 총무팀장 등" />
           </div>
 
           <div className="mb-6 p-4 bg-brand rounded-lg border border-[rgba(91,164,217,0.2)]">
-            <div className="text-[13px] font-bold text-[#CBD5E0] mb-3">업체 정보</div>
+            <div className="text-[13px] font-bold text-dim-brand mb-3">업체 정보</div>
 
-            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">업체명 <span className="text-[#e53935]">*</span></label>
+            <label className="block text-[13px] font-semibold text-dim-brand mb-[6px] mt-3">업체명 <span className="text-[#e53935]">*</span></label>
             <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={companyName} onChange={e => setCompanyName(e.target.value)} required maxLength={100} placeholder="(주)해한건설" />
 
-            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">사업자등록번호 <span className="text-[#e53935]">*</span></label>
+            <label className="block text-[13px] font-semibold text-dim-brand mb-[6px] mt-3">사업자등록번호 <span className="text-[#e53935]">*</span></label>
             <input
               className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none"
               value={formatBizNum(businessNumber)}
@@ -160,23 +160,23 @@ export default function CompanyAdminRegisterPage() {
               inputMode="numeric"
             />
 
-            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">대표자명 (선택)</label>
+            <label className="block text-[13px] font-semibold text-dim-brand mb-[6px] mt-3">대표자명 (선택)</label>
             <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={representativeName} onChange={e => setRepresentativeName(e.target.value)} maxLength={30} placeholder="홍길동" />
 
-            <label className="block text-[13px] font-semibold text-[#CBD5E0] mb-[6px] mt-3">업체 연락처 (선택)</label>
+            <label className="block text-[13px] font-semibold text-dim-brand mb-[6px] mt-3">업체 연락처 (선택)</label>
             <input className="w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none" value={contactPhone} onChange={e => setContactPhone(e.target.value)} maxLength={20} placeholder="02-1234-5678" />
           </div>
 
           <div className="mb-6 p-4 bg-brand rounded-lg border border-[rgba(91,164,217,0.2)]">
-            <div className="text-[13px] font-bold text-[#CBD5E0] mb-3">동의</div>
+            <div className="text-[13px] font-bold text-dim-brand mb-3">동의</div>
 
             <label className="flex items-start gap-2 text-[13px] text-[#444] mb-2 cursor-pointer">
               <input type="checkbox" checked={consentTerms} onChange={e => setConsentTerms(e.target.checked)} />
-              <span className="text-[#CBD5E0]"><span className="text-[#e53935]">[필수]</span> 서비스 이용약관 동의</span>
+              <span className="text-dim-brand"><span className="text-[#e53935]">[필수]</span> 서비스 이용약관 동의</span>
             </label>
             <label className="flex items-start gap-2 text-[13px] text-[#444] mb-2 cursor-pointer">
               <input type="checkbox" checked={consentPrivacy} onChange={e => setConsentPrivacy(e.target.checked)} />
-              <span className="text-[#CBD5E0]"><span className="text-[#e53935]">[필수]</span> 개인정보 수집·이용 동의</span>
+              <span className="text-dim-brand"><span className="text-[#e53935]">[필수]</span> 개인정보 수집·이용 동의</span>
             </label>
 
             <div className="mt-3 px-3 py-[10px] bg-[#fffde7] border border-[#ffe082] rounded-md">
@@ -198,8 +198,8 @@ export default function CompanyAdminRegisterPage() {
         </form>
 
         <div className="flex flex-col gap-2 mt-5 text-center">
-          <Link href="/register" className="text-[#5BA4D9] text-[13px] no-underline">근로자로 가입하기</Link>
-          <Link href="/login" className="text-[#5BA4D9] text-[13px] no-underline">이미 계정이 있으신가요? 로그인</Link>
+          <Link href="/register" className="text-secondary-brand text-[13px] no-underline">근로자로 가입하기</Link>
+          <Link href="/login" className="text-secondary-brand text-[13px] no-underline">이미 계정이 있으신가요? 로그인</Link>
         </div>
       </div>
     </div>

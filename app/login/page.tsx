@@ -38,10 +38,10 @@ function LoginContent() {
           <button
             onClick={() => handleSignIn('google')}
             disabled={!!loading}
-            className="w-full h-12 rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all border border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB] disabled:opacity-60 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
+            className="w-full h-12 rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all border border-brand bg-card text-fore-brand hover:bg-surface disabled:opacity-60 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
           >
             {loading === 'google'
-              ? <span className="w-5 h-5 border-2 border-[#E5E7EB] border-t-[#6B7280] rounded-full animate-spin" />
+              ? <span className="w-5 h-5 border-2 border-brand border-t-muted-brand rounded-full animate-spin" />
               : <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -69,7 +69,7 @@ function LoginContent() {
           </button>
         </div>
 
-        <p className="text-center text-[11px] text-[#9CA3AF] mt-5">
+        <p className="text-center text-[11px] text-muted2-brand mt-5">
           위치 정보는 출퇴근 판정에만 사용됩니다
         </p>
 

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -85,31 +85,31 @@ export default function WageMyPayslipPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] p-4">
+    <div className="min-h-screen bg-brand p-4">
       <div className="max-w-[600px] mx-auto">
 
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-5 pt-2">
           <div>
-            <h1 className="text-xl font-bold text-[#111827] m-0">노임 명세</h1>
-            <p className="text-[12px] text-[#6B7280] mt-0.5 m-0">
-              {workerName && <span className="font-semibold text-[#F97316]">{workerName}</span>}
-              {jobTitle && <span className="text-[#6B7280]"> · {jobTitle}</span>}
+            <h1 className="text-xl font-bold text-fore-brand m-0">노임 명세</h1>
+            <p className="text-[12px] text-muted-brand mt-0.5 m-0">
+              {workerName && <span className="font-semibold text-accent">{workerName}</span>}
+              {jobTitle && <span className="text-muted-brand"> · {jobTitle}</span>}
             </p>
           </div>
           <button
             onClick={() => router.back()}
-            className="text-[#6B7280] text-sm bg-white border border-[#E5E7EB] px-3 py-1.5 rounded-md cursor-pointer"
+            className="text-muted-brand text-sm bg-card border border-brand px-3 py-1.5 rounded-md cursor-pointer"
           >
             ← 뒤로
           </button>
         </div>
 
         {/* 월 선택 */}
-        <div className="bg-white rounded-2xl px-4 py-4 mb-4 border border-[#E5E7EB] flex items-center gap-3 justify-between">
+        <div className="bg-card rounded-2xl px-4 py-4 mb-4 border border-brand flex items-center gap-3 justify-between">
           <button
             onClick={prevMonth}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-[#FFF7ED] text-[#F97316] border-none cursor-pointer text-lg"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-accent-light text-accent border-none cursor-pointer text-lg"
           >
             ‹
           </button>
@@ -117,11 +117,11 @@ export default function WageMyPayslipPage() {
             type="month"
             value={monthKey}
             onChange={(e) => setMonthKey(e.target.value)}
-            className="text-center text-[#111827] font-bold text-base bg-transparent border-none outline-none"
+            className="text-center text-fore-brand font-bold text-base bg-transparent border-none outline-none"
           />
           <button
             onClick={nextMonth}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-[#FFF7ED] text-[#F97316] border-none cursor-pointer text-lg"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-accent-light text-accent border-none cursor-pointer text-lg"
           >
             ›
           </button>
@@ -138,38 +138,38 @@ export default function WageMyPayslipPage() {
             ].map((c) => (
               <div
                 key={c.label}
-                className="bg-white rounded-xl px-4 py-4 border border-[#E5E7EB]"
+                className="bg-card rounded-xl px-4 py-4 border border-brand"
                 style={{ borderTop: `3px solid ${c.color}` }}
               >
-                <div className="text-[18px] font-bold text-[#111827]">{c.value}</div>
-                <div className="text-[11px] text-[#6B7280] mt-0.5">{c.label}</div>
+                <div className="text-[18px] font-bold text-fore-brand">{c.value}</div>
+                <div className="text-[11px] text-muted-brand mt-0.5">{c.label}</div>
               </div>
             ))}
           </div>
         )}
 
         {/* 일자별 명세 */}
-        <div className="bg-white rounded-2xl border border-[#E5E7EB] overflow-hidden">
-          <div className="px-4 py-3 border-b border-[#E5E7EB]">
-            <span className="text-[13px] font-bold text-[#111827]">일자별 명세</span>
+        <div className="bg-card rounded-2xl border border-brand overflow-hidden">
+          <div className="px-4 py-3 border-b border-brand">
+            <span className="text-[13px] font-bold text-fore-brand">일자별 명세</span>
           </div>
 
           {loading ? (
-            <div className="py-8 text-center text-[#6B7280]">로딩 중...</div>
+            <div className="py-8 text-center text-muted-brand">로딩 중...</div>
           ) : days.length === 0 ? (
-            <div className="py-8 text-center text-[#6B7280] text-sm">
+            <div className="py-8 text-center text-muted-brand text-sm">
               이 월에 근무 기록이 없습니다.
             </div>
           ) : (
-            <div className="divide-y divide-[#F3F4F6]">
+            <div className="divide-y divide-brand">
               {days.map((d) => (
                 <div key={`${d.workDate}-${d.siteName}`} className="px-4 py-3 flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[13px] font-semibold text-[#111827]">
+                      <span className="text-[13px] font-semibold text-fore-brand">
                         {d.workDate.slice(5)}
                       </span>
-                      <span className="text-[11px] text-[#6B7280] truncate">{d.siteName}</span>
+                      <span className="text-[11px] text-muted-brand truncate">{d.siteName}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {d.workType && (
@@ -183,20 +183,20 @@ export default function WageMyPayslipPage() {
                           {WORK_TYPE_LABEL[d.workType] ?? d.workType}
                         </span>
                       )}
-                      <span className="text-[11px] text-[#9CA3AF]">
+                      <span className="text-[11px] text-muted2-brand">
                         {fmtMinutes(d.workMinutes)}
                       </span>
                       {d.status === 'DRAFT' && (
-                        <span className="text-[10px] text-[#e65100] bg-[#fff3e0] px-1.5 py-0.5 rounded">집계중</span>
+                        <span className="text-[10px] text-accent-hover bg-[#fff3e0] px-1.5 py-0.5 rounded">집계중</span>
                       )}
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="text-[13px] font-bold text-[#111827]">
+                    <div className="text-[13px] font-bold text-fore-brand">
                       {fmtWon(d.totalAmount)}
                     </div>
                     {d.allowanceAmount > 0 && (
-                      <div className="text-[11px] text-[#6B7280]">수당 {fmtWon(d.allowanceAmount)}</div>
+                      <div className="text-[11px] text-muted-brand">수당 {fmtWon(d.allowanceAmount)}</div>
                     )}
                   </div>
                 </div>
@@ -206,15 +206,15 @@ export default function WageMyPayslipPage() {
 
           {/* 합계 */}
           {summary && summary.totalAmount > 0 && (
-            <div className="px-4 py-3 border-t border-[#E5E7EB] bg-[#F9FAFB] flex justify-between items-center">
-              <span className="text-[13px] font-bold text-[#6B7280]">월 합계</span>
-              <span className="text-[16px] font-bold text-[#F97316]">{fmtWon(summary.totalAmount)}</span>
+            <div className="px-4 py-3 border-t border-brand bg-surface flex justify-between items-center">
+              <span className="text-[13px] font-bold text-muted-brand">월 합계</span>
+              <span className="text-[16px] font-bold text-accent">{fmtWon(summary.totalAmount)}</span>
             </div>
           )}
         </div>
 
         {/* 안내 */}
-        <p className="text-[11px] text-[#9CA3AF] text-center mt-4 leading-relaxed">
+        <p className="text-[11px] text-muted2-brand text-center mt-4 leading-relaxed">
           * 집계중(주황색) 항목은 관리자 확정 전 예상 금액입니다.
           <br />
           최종 노임은 관리자 검토 후 확정됩니다.

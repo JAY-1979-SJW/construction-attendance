@@ -1,14 +1,14 @@
-// 외부회사 인증 대기 안내 페이지 (ops layout 밖에 위치)
+﻿// 외부회사 인증 대기 안내 페이지 (ops layout 밖에 위치)
 // EXTERNAL_SITE_ADMIN이 소속 회사 인증 전 /ops 접근 시 리다이렉트됨
 export default function CompanyPendingVerificationPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f5f6f8] font-sans">
-      <div className="bg-card border border-[#e5e7eb] rounded-2xl px-10 py-12 max-w-[480px] w-full text-center">
+      <div className="bg-card border border-brand rounded-2xl px-10 py-12 max-w-[480px] w-full text-center">
         <div className="text-[48px] mb-4">🔒</div>
-        <h1 className="text-[20px] font-bold text-[#111827] mb-3">
+        <h1 className="text-[20px] font-bold text-fore-brand mb-3">
           회사 인증 대기 중
         </h1>
-        <p className="text-[14px] text-[#6b7280] leading-relaxed mb-6">
+        <p className="text-[14px] text-muted-brand leading-relaxed mb-6">
           소속 회사의 사업자 인증이 완료되지 않았습니다.
           <br />
           인증이 완료되면 현장 운영 기능을 이용하실 수 있습니다.

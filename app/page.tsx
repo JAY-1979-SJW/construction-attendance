@@ -1,38 +1,38 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 
 export default function LandingPage() {
   return (
-    <div className="font-sans min-h-screen bg-white text-[#111827]">
+    <div className="font-sans min-h-screen bg-card text-fore-brand">
 
       {/* ── 헤더 (오렌지 라인 포함) ───────────────────────── */}
       <header className="sticky top-0 z-50">
-        <div className="h-1 bg-[#F97316]" />
-        <div className="bg-white border-b border-[#F3F4F6]">
-          <div className="max-w-[1100px] mx-auto px-6 h-15 flex items-center justify-between" style={{ height: '60px' }}>
+        <div className="h-1 bg-brand-accent" />
+        <div className="bg-card border-b border-footer">
+          <div className="max-w-[1100px] mx-auto px-6 flex items-center justify-between" style={{ height: '60px' }}>
             {/* 로고 */}
             <Link href="/" className="flex items-center gap-2 no-underline">
-              <div className="w-8 h-8 bg-[#FFF7ED] rounded-[9px] flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 bg-accent-light rounded-[9px] flex items-center justify-center shrink-0">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <span className="text-[15px] font-bold text-[#0F172A]">해한<span className="text-[#F97316]">AI</span> 출퇴근</span>
+              <span className="text-[15px] font-bold text-title-brand">해한<span className="text-accent">AI</span> 출퇴근</span>
             </Link>
 
             {/* 네비게이션 */}
             <nav className="flex items-center gap-2">
-              <a href="#features" className="hidden sm:block text-[13px] text-[#6B7280] hover:text-[#111827] transition-colors px-3 py-1.5 no-underline">
+              <a href="#features" className="hidden sm:block text-[13px] text-muted-brand hover:text-fore-brand transition-colors px-3 py-1.5 no-underline">
                 기능 소개
               </a>
               <Link href="/admin/login"
-                className="text-[13px] font-medium text-[#374151] border border-[#E5E7EB] rounded-[8px] px-4 py-[7px] no-underline hover:border-[#D1D5DB] transition-colors">
+                className="text-[13px] font-medium text-body-brand border border-brand rounded-[8px] px-4 py-[7px] no-underline hover:border-[#D1D5DB] transition-colors">
                 관리자 로그인
               </Link>
               <Link href="/login"
-                className="text-[13px] font-semibold text-white bg-[#F97316] hover:bg-[#EA580C] rounded-[8px] px-4 py-2 no-underline transition-colors">
+                className="text-[13px] font-semibold text-white bg-brand-accent hover:bg-brand-accent-hover rounded-[8px] px-4 py-2 no-underline transition-colors">
                 근로자 시작하기
               </Link>
             </nav>
@@ -41,31 +41,31 @@ export default function LandingPage() {
       </header>
 
       {/* ── 히어로 ──────────────────────────────────────────── */}
-      <section className="bg-[#F9FAFB] border-b border-[#F3F4F6] px-6 pt-16 pb-20">
+      <section className="bg-surface border-b border-footer px-6 pt-16 pb-20">
         <div className="max-w-[1100px] mx-auto flex items-center gap-14 flex-wrap lg:flex-nowrap">
 
           {/* 좌측: 텍스트 + CTA */}
           <div className="flex-1 min-w-[280px]">
-            <div className="inline-block bg-[#FFF7ED] text-[#F97316] text-[12px] font-semibold px-3 py-1 rounded-full mb-5 tracking-wide">
+            <div className="inline-block bg-accent-light text-accent text-[12px] font-semibold px-3 py-1 rounded-full mb-5 tracking-wide">
               건설현장 출퇴근 관리
             </div>
-            <h1 className="text-[40px] sm:text-[44px] font-bold text-[#0F172A] leading-[1.25] mb-5 tracking-[-0.5px]">
+            <h1 className="text-[40px] sm:text-[44px] font-bold text-title-brand leading-[1.25] mb-5 tracking-[-0.5px]">
               건설현장 출퇴근을<br />
               단순하고 정확하게<br />
               관리하세요
             </h1>
-            <p className="text-[16px] text-[#4B5563] leading-[1.85] mb-8">
+            <p className="text-[16px] text-body-brand leading-[1.85] mb-8">
               근로자는 빠르게 출퇴근을 기록하고,<br />
               관리자는 현장별 출근 현황과 근무일수를<br />
               한눈에 확인할 수 있습니다.
             </p>
             <div className="flex gap-3 flex-wrap">
               <Link href="/login"
-                className="inline-block py-3 px-7 bg-[#F97316] hover:bg-[#EA580C] text-white rounded-[12px] no-underline text-[15px] font-semibold shadow-[0_2px_10px_rgba(249,115,22,0.25)] transition-colors">
+                className="inline-block py-3 px-7 bg-brand-accent hover:bg-brand-accent-hover text-white rounded-[12px] no-underline text-[15px] font-semibold shadow-[0_2px_10px_rgba(249,115,22,0.25)] transition-colors">
                 근로자 시작하기
               </Link>
               <Link href="/admin/login"
-                className="inline-block py-3 px-7 border border-[#E5E7EB] text-[#374151] hover:border-[#D1D5DB] bg-white rounded-[12px] no-underline text-[15px] font-medium transition-colors">
+                className="inline-block py-3 px-7 border border-brand text-body-brand hover:border-[#D1D5DB] bg-card rounded-[12px] no-underline text-[15px] font-medium transition-colors">
                 관리자 로그인
               </Link>
             </div>
@@ -73,41 +73,41 @@ export default function LandingPage() {
 
           {/* 우측: 대시보드 미리보기 */}
           <div className="w-full lg:w-[420px] shrink-0">
-            <div className="bg-white rounded-[16px] border border-[#E5E7EB] shadow-[0_4px_24px_rgba(0,0,0,0.07)] overflow-hidden">
+            <div className="bg-card rounded-[16px] border border-brand shadow-[0_4px_24px_rgba(0,0,0,0.07)] overflow-hidden">
               {/* 미리보기 상단 */}
-              <div className="bg-[#F5F7FA] px-5 py-3 flex items-center gap-2 border-b border-[#E5E7EB]">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#F97316]" />
-                <span className="text-[12px] text-[#6B7280]">관리자 대시보드 — 오늘 현황</span>
+              <div className="bg-brand px-5 py-3 flex items-center gap-2 border-b border-brand">
+                <div className="w-2.5 h-2.5 rounded-full bg-brand-accent" />
+                <span className="text-[12px] text-muted-brand">관리자 대시보드 — 오늘 현황</span>
               </div>
               {/* 수치 요약 */}
-              <div className="grid grid-cols-3 border-b border-[#F3F4F6]">
+              <div className="grid grid-cols-3 border-b border-footer">
                 {[
                   { label: '오늘 출근', value: '12명' },
                   { label: '현재 근무중', value: '8명' },
                   { label: '관리 현장', value: '3개' },
                 ].map((item) => (
-                  <div key={item.label} className="px-4 py-4 border-r border-[#F3F4F6] last:border-r-0 text-center">
-                    <div className="text-[20px] font-bold text-[#F97316]">{item.value}</div>
-                    <div className="text-[11px] text-[#9CA3AF] mt-0.5">{item.label}</div>
+                  <div key={item.label} className="px-4 py-4 border-r border-footer last:border-r-0 text-center">
+                    <div className="text-[20px] font-bold text-accent">{item.value}</div>
+                    <div className="text-[11px] text-muted2-brand mt-0.5">{item.label}</div>
                   </div>
                 ))}
               </div>
               {/* 출근 목록 */}
               <div className="px-5 py-4">
-                <div className="text-[12px] font-semibold text-[#6B7280] mb-3">오늘 출근 기록</div>
+                <div className="text-[12px] font-semibold text-muted-brand mb-3">오늘 출근 기록</div>
                 {[
                   { name: '김철수', site: '1공구 현장', time: '08:12', status: '근무중', on: true },
                   { name: '이영희', site: '2공구 현장', time: '08:35', status: '근무중', on: true },
                   { name: '박민준', site: '1공구 현장', time: '09:01', status: '퇴근', on: false },
                 ].map((r) => (
-                  <div key={r.name} className="flex items-center justify-between py-2.5 border-b border-[#F9FAFB] last:border-b-0">
+                  <div key={r.name} className="flex items-center justify-between py-2.5 border-b border-surface last:border-b-0">
                     <div>
-                      <div className="text-[13px] font-medium text-[#111827]">{r.name}</div>
-                      <div className="text-[11px] text-[#9CA3AF]">{r.site}</div>
+                      <div className="text-[13px] font-medium text-fore-brand">{r.name}</div>
+                      <div className="text-[11px] text-muted2-brand">{r.site}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[12px] text-[#6B7280]">{r.time}</div>
-                      <div className={`text-[11px] font-semibold mt-0.5 ${r.on ? 'text-[#16A34A]' : 'text-[#9CA3AF]'}`}>
+                      <div className="text-[12px] text-muted-brand">{r.time}</div>
+                      <div className={`text-[11px] font-semibold mt-0.5 ${r.on ? 'text-status-working' : 'text-muted2-brand'}`}>
                         {r.status}
                       </div>
                     </div>
@@ -120,11 +120,11 @@ export default function LandingPage() {
       </section>
 
       {/* ── 핵심 기능 ───────────────────────────────────────── */}
-      <section id="features" className="py-20 px-6 bg-white">
+      <section id="features" className="py-20 px-6 bg-card">
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-12">
-            <p className="text-[11px] font-semibold text-[#F97316] tracking-[2px] uppercase mb-3">핵심 기능</p>
-            <h2 className="text-[28px] font-bold text-[#0F172A] tracking-[-0.3px]">꼭 필요한 기능만 담았습니다</h2>
+            <p className="text-[11px] font-semibold text-accent tracking-[2px] uppercase mb-3">핵심 기능</p>
+            <h2 className="text-[28px] font-bold text-title-brand tracking-[-0.3px]">꼭 필요한 기능만 담았습니다</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
@@ -149,12 +149,12 @@ export default function LandingPage() {
                 desc: '근로자, 현장, 승인 대기 항목을 한 화면에서 관리할 수 있습니다.',
               },
             ].map((f) => (
-              <div key={f.title} className="bg-[#F9FAFB] rounded-[14px] border border-[#F3F4F6] p-6 hover:border-[#E5E7EB] hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all">
-                <div className="w-10 h-10 bg-[#FFF7ED] rounded-[10px] flex items-center justify-center mb-4">
+              <div key={f.title} className="bg-surface rounded-[14px] border border-footer p-6 hover:border-brand hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all">
+                <div className="w-10 h-10 bg-accent-light rounded-[10px] flex items-center justify-center mb-4">
                   <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">{f.svg}</svg>
                 </div>
-                <h3 className="text-[14px] font-semibold text-[#111827] mb-2 leading-snug">{f.title}</h3>
-                <p className="text-[13px] text-[#6B7280] leading-[1.7] m-0">{f.desc}</p>
+                <h3 className="text-[14px] font-semibold text-fore-brand mb-2 leading-snug">{f.title}</h3>
+                <p className="text-[13px] text-muted-brand leading-[1.7] m-0">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -162,66 +162,66 @@ export default function LandingPage() {
       </section>
 
       {/* ── 사용 대상 ───────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-[#F9FAFB] border-t border-[#F3F4F6]">
+      <section className="py-20 px-6 bg-surface border-t border-footer">
         <div className="max-w-[860px] mx-auto">
           <div className="text-center mb-12">
-            <p className="text-[11px] font-semibold text-[#F97316] tracking-[2px] uppercase mb-3">사용 대상</p>
-            <h2 className="text-[28px] font-bold text-[#0F172A] tracking-[-0.3px]">누가 사용하는 서비스인가요?</h2>
+            <p className="text-[11px] font-semibold text-accent tracking-[2px] uppercase mb-3">사용 대상</p>
+            <h2 className="text-[28px] font-bold text-title-brand tracking-[-0.3px]">누가 사용하는 서비스인가요?</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* 근로자 카드 */}
-            <div className="bg-white rounded-[16px] border border-[#E5E7EB] p-7 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+            <div className="bg-card rounded-[16px] border border-brand p-7 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 bg-[#FFF7ED] rounded-[10px] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 bg-accent-light rounded-[10px] flex items-center justify-center shrink-0">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <circle cx="12" cy="8" r="4" stroke="#F97316" strokeWidth="2"/>
                     <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#F97316" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                 </div>
                 <div>
-                  <div className="text-[15px] font-bold text-[#111827]">근로자</div>
-                  <div className="text-[12px] text-[#9CA3AF]">현장에서 일하는 직원</div>
+                  <div className="text-[15px] font-bold text-fore-brand">근로자</div>
+                  <div className="text-[12px] text-muted2-brand">현장에서 일하는 직원</div>
                 </div>
               </div>
               <ul className="space-y-2.5 m-0 p-0 list-none mb-6">
                 {['빠른 출근 / 퇴근 기록', '내 출근 기록 확인', '현장 이동 기록', '월별 근무일수 조회'].map((item) => (
-                  <li key={item} className="flex items-center gap-2.5 text-[14px] text-[#374151]">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#F97316] shrink-0" />
+                  <li key={item} className="flex items-center gap-2.5 text-[14px] text-body-brand">
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand-accent shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
               <Link href="/login"
-                className="block text-center py-2.5 bg-[#F97316] hover:bg-[#EA580C] text-white text-[14px] font-semibold rounded-[9px] no-underline transition-colors">
+                className="block text-center py-2.5 bg-brand-accent hover:bg-brand-accent-hover text-white text-[14px] font-semibold rounded-[9px] no-underline transition-colors">
                 근로자 시작하기
               </Link>
             </div>
 
             {/* 관리자 카드 */}
-            <div className="bg-white rounded-[16px] border border-[#E5E7EB] p-7 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+            <div className="bg-card rounded-[16px] border border-brand p-7 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 bg-[#F0FDF4] rounded-[10px] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 bg-green-light rounded-[10px] flex items-center justify-center shrink-0">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <rect x="2" y="7" width="20" height="14" rx="3" stroke="#16A34A" strokeWidth="2"/>
                     <path d="M16 7V5a4 4 0 00-8 0v2" stroke="#16A34A" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                 </div>
                 <div>
-                  <div className="text-[15px] font-bold text-[#111827]">관리자</div>
-                  <div className="text-[12px] text-[#9CA3AF]">현장 및 운영 담당자</div>
+                  <div className="text-[15px] font-bold text-fore-brand">관리자</div>
+                  <div className="text-[12px] text-muted2-brand">현장 및 운영 담당자</div>
                 </div>
               </div>
               <ul className="space-y-2.5 m-0 p-0 list-none mb-6">
                 {['오늘 출근 현황 확인', '근로자 관리 및 승인', '현장별 인원 관리', '월별 근무일수 집계'].map((item) => (
-                  <li key={item} className="flex items-center gap-2.5 text-[14px] text-[#374151]">
+                  <li key={item} className="flex items-center gap-2.5 text-[14px] text-body-brand">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#16A34A] shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
               <Link href="/admin/login"
-                className="block text-center py-2.5 border border-[#E5E7EB] hover:border-[#D1D5DB] text-[#374151] text-[14px] font-medium rounded-[9px] no-underline transition-colors">
+                className="block text-center py-2.5 border border-brand hover:border-[#D1D5DB] text-body-brand text-[14px] font-medium rounded-[9px] no-underline transition-colors">
                 관리자 로그인
               </Link>
             </div>
@@ -231,21 +231,21 @@ export default function LandingPage() {
       </section>
 
       {/* ── 하단 CTA ────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-[#FFF7ED] border-t border-[#FEE2C0] text-center">
+      <section className="py-20 px-6 bg-accent-light border-t border-accent-pale text-center">
         <div className="max-w-[560px] mx-auto">
-          <h2 className="text-[28px] sm:text-[30px] font-bold text-[#0F172A] mb-4 leading-[1.35]">
+          <h2 className="text-[28px] sm:text-[30px] font-bold text-title-brand mb-4 leading-[1.35]">
             현장 출퇴근 관리를<br />바로 시작해보세요
           </h2>
-          <p className="text-[15px] text-[#6B7280] mb-8 leading-[1.7]">
+          <p className="text-[15px] text-muted-brand mb-8 leading-[1.7]">
             스마트폰 브라우저로 별도 설치 없이 바로 사용할 수 있습니다.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
             <Link href="/login"
-              className="inline-block py-3 px-7 bg-[#F97316] hover:bg-[#EA580C] text-white rounded-[10px] no-underline text-[15px] font-semibold transition-colors shadow-[0_2px_10px_rgba(249,115,22,0.25)]">
+              className="inline-block py-3 px-7 bg-brand-accent hover:bg-brand-accent-hover text-white rounded-[10px] no-underline text-[15px] font-semibold transition-colors shadow-[0_2px_10px_rgba(249,115,22,0.25)]">
               근로자 시작하기
             </Link>
             <Link href="/admin/login"
-              className="inline-block py-3 px-7 border border-[#E5E7EB] bg-white text-[#374151] hover:border-[#D1D5DB] rounded-[12px] no-underline text-[15px] font-medium transition-colors">
+              className="inline-block py-3 px-7 border border-brand bg-card text-body-brand hover:border-[#D1D5DB] rounded-[12px] no-underline text-[15px] font-medium transition-colors">
               관리자 로그인
             </Link>
           </div>
@@ -253,20 +253,20 @@ export default function LandingPage() {
       </section>
 
       {/* ── 푸터 ────────────────────────────────────────────── */}
-      <footer className="bg-[#F9FAFB] border-t border-[#E5E7EB] px-6 py-7">
+      <footer className="bg-surface border-t border-brand px-6 py-7">
         <div className="max-w-[1100px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#FFF7ED] rounded-[6px] flex items-center justify-center">
+            <div className="w-6 h-6 bg-accent-light rounded-[6px] flex items-center justify-center">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span className="text-[14px] font-semibold text-[#0F172A]">해한<span className="text-[#F97316]">AI</span> 출퇴근</span>
+            <span className="text-[14px] font-semibold text-title-brand">해한<span className="text-accent">AI</span> 출퇴근</span>
           </div>
-          <div className="flex items-center gap-5 text-[13px] text-[#9CA3AF] flex-wrap justify-center">
-            <a href="#features" className="no-underline hover:text-[#6B7280] transition-colors">기능 소개</a>
-            <Link href="/admin/login" className="no-underline hover:text-[#6B7280] transition-colors">관리자 로그인</Link>
+          <div className="flex items-center gap-5 text-[13px] text-muted2-brand flex-wrap justify-center">
+            <a href="#features" className="no-underline hover:text-muted-brand transition-colors">기능 소개</a>
+            <Link href="/admin/login" className="no-underline hover:text-muted-brand transition-colors">관리자 로그인</Link>
             <span>© 2026 해한AI Engineering</span>
           </div>
         </div>

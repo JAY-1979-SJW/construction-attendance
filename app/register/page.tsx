@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { signIn } from 'next-auth/react'
 import { useState, useEffect, Suspense } from 'react'
@@ -27,11 +27,11 @@ function StepBar({ current }: { current: number }) {
         return (
           <div key={label} className="flex flex-col items-center flex-1">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold mb-1 transition-colors ${
-              done ? 'bg-[#16a34a] text-white' : active ? 'bg-[#F97316] text-white' : 'bg-[#E5E7EB] text-[#9CA3AF]'
+              done ? 'bg-green-600 text-white' : active ? 'bg-brand-accent text-white' : 'bg-brand-deeper text-muted2-brand'
             }`}>
               {done ? '✓' : step}
             </div>
-            <span className={`text-[11px] ${active ? 'text-[#F97316] font-semibold' : 'text-[#9CA3AF]'}`}>{label}</span>
+            <span className={`text-[11px] ${active ? 'text-accent font-semibold' : 'text-muted2-brand'}`}>{label}</span>
           </div>
         )
       })}
@@ -109,29 +109,29 @@ function RegisterContent() {
   const marketingDoc = getDoc('MARKETING_NOTICE')
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center p-6">
-      <div className="bg-white rounded-2xl px-8 py-9 w-full max-w-[480px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#E5E7EB] border-t-[3px] border-t-[#F97316]">
+    <div className="min-h-screen bg-brand flex items-center justify-center p-6">
+      <div className="bg-card rounded-2xl px-8 py-9 w-full max-w-[480px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-brand border-t-[3px] border-t-accent">
         <div className="text-center mb-4">
           <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} className="w-[140px] h-auto mx-auto block rounded-2xl" priority />
         </div>
 
         <StepBar current={1} />
 
-        <h1 className="text-[20px] font-extrabold text-[#111827] tracking-[-0.5px] mb-1">근로자 회원가입</h1>
-        <p className="text-[13px] text-[#6B7280] leading-[1.6] mb-5">약관에 동의한 후 카카오 또는 Google로 가입합니다.</p>
+        <h1 className="text-[20px] font-extrabold text-fore-brand tracking-[-0.5px] mb-1">근로자 회원가입</h1>
+        <p className="text-[13px] text-muted-brand leading-[1.6] mb-5">약관에 동의한 후 카카오 또는 Google로 가입합니다.</p>
 
         {(error || errorKey) && (
-          <div className="bg-[rgba(220,38,38,0.08)] border border-[rgba(220,38,38,0.3)] rounded-[10px] px-4 py-3 mb-4 text-[#dc2626] text-[13px]">
+          <div className="alert-danger mb-4">
             {error || ERROR_MSG[errorKey] || '가입 중 오류가 발생했습니다.'}
           </div>
         )}
 
         {/* 약관 동의 */}
-        <div className="mb-5 p-4 bg-[#F9FAFB] rounded-xl border border-[#E5E7EB]">
+        <div className="mb-5 p-4 bg-surface rounded-xl border border-brand">
           {/* 전체 동의 */}
-          <label className="flex items-center gap-2 cursor-pointer pb-3 mb-3 border-b border-[#E5E7EB]">
-            <input type="checkbox" checked={allChecked} onChange={e => handleCheckAll(e.target.checked)} className="w-[18px] h-[18px] accent-[#F97316]" />
-            <span className="text-[14px] font-bold text-[#111827]">전체 동의</span>
+          <label className="flex items-center gap-2 cursor-pointer pb-3 mb-3 border-b border-brand">
+            <input type="checkbox" checked={allChecked} onChange={e => handleCheckAll(e.target.checked)} className="w-[18px] h-[18px] accent-brand-accent" />
+            <span className="text-[14px] font-bold text-fore-brand">전체 동의</span>
           </label>
 
           {[
@@ -141,22 +141,22 @@ function RegisterContent() {
             { key: 'MARKETING_NOTICE', label: '마케팅 정보 수신 동의', doc: marketingDoc, checked: consentMarketing, set: setConsentMarketing, required: false },
           ].map(item => (
             <div key={item.key} className="mb-2">
-              <div className="flex items-center justify-between gap-2 text-[13px] text-[#374151]">
+              <div className="flex items-center justify-between gap-2 text-[13px] text-body-brand">
                 <label className="flex items-center gap-2 cursor-pointer flex-1">
-                  <input type="checkbox" checked={item.checked} onChange={e => item.set(e.target.checked)} className="w-4 h-4 accent-[#F97316]" />
+                  <input type="checkbox" checked={item.checked} onChange={e => item.set(e.target.checked)} className="w-4 h-4 accent-brand-accent" />
                   <span>
-                    <span className={item.required ? 'text-[#F97316] font-semibold' : 'text-[#9CA3AF]'}>{item.required ? '필수' : '선택'}</span>{' '}
+                    <span className={item.required ? 'text-accent font-semibold' : 'text-muted2-brand'}>{item.required ? '필수' : '선택'}</span>{' '}
                     {item.doc ? item.doc.title : item.label}
                   </span>
                 </label>
                 {item.doc && (
-                  <button type="button" className="text-[11px] text-[#6B7280] underline cursor-pointer bg-transparent border-0 p-0" onClick={() => setExpandedDoc(expandedDoc === item.key ? null : item.key)}>
+                  <button type="button" className="text-[11px] text-muted-brand underline cursor-pointer bg-transparent border-0 p-0" onClick={() => setExpandedDoc(expandedDoc === item.key ? null : item.key)}>
                     {expandedDoc === item.key ? '닫기' : '보기'}
                   </button>
                 )}
               </div>
               {expandedDoc === item.key && item.doc && (
-                <div className="mt-1 ml-6 text-[11px] text-[#4B5563] bg-white border border-[#E5E7EB] rounded-lg p-3 max-h-[150px] overflow-y-auto whitespace-pre-wrap leading-[1.6]">{item.doc.contentMd}</div>
+                <div className="mt-1 ml-6 text-[11px] text-body-brand bg-card border border-brand rounded-lg p-3 max-h-[150px] overflow-y-auto whitespace-pre-wrap leading-[1.6]">{item.doc.contentMd}</div>
               )}
             </div>
           ))}
@@ -180,10 +180,10 @@ function RegisterContent() {
           <button
             onClick={() => handleSignUp('google')}
             disabled={!!loading || !allRequired}
-            className="w-full h-[48px] rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all border border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F9FAFB] disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
+            className="w-full h-[48px] rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all border border-brand bg-card text-fore-brand hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
           >
             {loading === 'google'
-              ? <span className="w-5 h-5 border-2 border-[#E5E7EB] border-t-[#6B7280] rounded-full animate-spin" />
+              ? <span className="w-5 h-5 border-2 border-brand border-t-muted-brand rounded-full animate-spin" />
               : <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -196,12 +196,12 @@ function RegisterContent() {
         </div>
 
         {!allRequired && (
-          <p className="text-[11px] text-[#9CA3AF] text-center mt-3">필수 약관에 동의하면 가입 버튼이 활성화됩니다.</p>
+          <p className="text-[11px] text-muted2-brand text-center mt-3">필수 약관에 동의하면 가입 버튼이 활성화됩니다.</p>
         )}
 
         <div className="flex flex-col gap-2 mt-5 text-center">
-          <Link href="/login" className="text-[#F97316] text-[13px] no-underline font-medium">이미 계정이 있으신가요? 로그인</Link>
-          <Link href="/register/company-admin" className="text-[#6B7280] text-[12px] no-underline hover:text-[#F97316]">업체 관리자로 신청</Link>
+          <Link href="/login" className="text-accent text-[13px] no-underline font-medium">이미 계정이 있으신가요? 로그인</Link>
+          <Link href="/register/company-admin" className="text-muted-brand text-[12px] no-underline hover:text-accent">업체 관리자로 신청</Link>
         </div>
       </div>
     </div>
