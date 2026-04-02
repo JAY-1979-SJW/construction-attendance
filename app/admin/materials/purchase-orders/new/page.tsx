@@ -147,7 +147,7 @@ function NewPurchaseOrderInner() {
             {/* 기본 정보 */}
             <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
               <div className="text-sm font-semibold mb-4 text-white">발주 정보</div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-[6px]">
                   <label className="text-[12px] text-muted-brand font-medium">납품 요청일</label>
                   <input type="date" value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} className="px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-brand text-white" />

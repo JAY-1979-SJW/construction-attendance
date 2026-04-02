@@ -239,7 +239,7 @@ function SiteCard({ site }: { site: SiteSummary }) {
         </div>
 
         {/* 노임 현황 */}
-        <div className="border-t border-brand pt-2 grid grid-cols-3 gap-1 text-center">
+        <div className="border-t border-brand pt-2 grid grid-cols-1 sm:grid-cols-3 gap-1 text-center">
           <div>
             <div className="text-[11px] text-muted2-brand mb-0.5">오늘</div>
             <div className="text-[12px] font-semibold text-body-brand tabular-nums">{fmtWageShort(site.todayWage)}</div>

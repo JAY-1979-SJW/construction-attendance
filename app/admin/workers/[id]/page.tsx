@@ -933,7 +933,7 @@ function InsuranceTab({ statuses, onAdd }: { statuses: InsuranceStatus[]; onAdd:
             <strong>{st.company.companyName}</strong>
             <span className="text-xs text-muted-brand">최종 수정: {fmtDate(st.updatedAt)}</span>
           </div>
-          <div className="grid grid-cols-4 gap-2 mb-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-2.5">
             {ins4(st).map(([label, val]) => (
               <div key={label} className="bg-surface rounded-md p-2.5 text-center">
                 <div className="text-[11px] text-muted-brand mb-1">{label}</div>
@@ -1318,7 +1318,7 @@ function ProfileTab({ workerId }: { workerId: string }) {
       )}
 
       {editing && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
             { label: '근로자 구분', key: 'workerClass', options: [['EMPLOYEE','근로자'],['CONTRACTOR','외주/용역']] },
             { label: '근무형태', key: 'employmentMode', options: [['DAILY','일용직'],['REGULAR','상용직'],['TEMP','단기계약'],['OFFICE_SUPPORT','사무보조']] },
@@ -1780,7 +1780,7 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
                       )}
                     </div>
                     {item.issued && (
-                      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1.5">
                         <div>
                           <label className="text-[11px] text-muted-brand block mb-0.5">수량</label>
                           <input type="number" min={1} value={item.qty}

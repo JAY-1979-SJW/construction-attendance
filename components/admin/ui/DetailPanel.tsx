@@ -35,8 +35,8 @@ export function DetailPanel({
 
       {/* 패널 */}
       <div
-        className="fixed top-0 right-0 h-screen bg-card z-50 flex flex-col shadow-xl"
-        style={{ width }}
+        className="fixed top-0 right-0 h-screen bg-card z-50 flex flex-col shadow-xl w-full sm:w-auto"
+        style={{ maxWidth: width }}
       >
         {/* 4px 오렌지 상단 라인 */}
         <div className="h-1 bg-brand-accent shrink-0" />

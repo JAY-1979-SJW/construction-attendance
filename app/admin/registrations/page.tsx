@@ -278,7 +278,7 @@ export default function RegistrationsPage() {
       <PageHeader title="회원가입 승인" description="신규 가입 요청을 확인하고 승인합니다" />
 
       {/* ── 요약 카드 ── */}
-      <div className="grid grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-5">
         {(['PENDING', 'APPROVED', 'REJECTED', 'SUSPENDED'] as const).map(st => (
           <button key={st} onClick={() => { setFilter(st); setSelected(null) }}
             className={`rounded-xl px-4 py-3 text-left border transition-colors cursor-pointer ${

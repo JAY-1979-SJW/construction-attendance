@@ -153,7 +153,7 @@ function EvidencePageContent() {
       <div className="border-2 border-[rgba(91,164,217,0.25)] rounded-[12px] p-5 mb-6 text-center">
         <h1 className="text-2xl font-bold mb-1">종료 증빙 패키지</h1>
         <p className="text-[#718096] text-sm mb-4">Termination Evidence Package</p>
-        <div className="grid grid-cols-2 gap-2 text-sm text-left max-w-sm mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-left max-w-sm mx-auto">
           <span className="text-dim-brand font-medium">근로자명</span><span className="font-bold">{cover.workerName}</span>
           <span className="text-dim-brand font-medium">소속 회사</span><span>{cover.companyName}</span>
           <span className="text-dim-brand font-medium">소속 현장</span><span>{cover.siteName}</span>

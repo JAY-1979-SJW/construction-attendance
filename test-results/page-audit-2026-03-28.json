@@ -1,0 +1,4368 @@
+{
+  "timestamp": "2026-03-28T17:26:22.927Z",
+  "duration": "1001.9s",
+  "base": "https://attendance.haehan-ai.kr",
+  "summary": {
+    "grandTotal": {
+      "404": 0,
+      "PASS": 409,
+      "REDIRECT": 72,
+      "ERROR": 0,
+      "FAIL": 0,
+      "TIMEOUT": 0,
+      "SKIP": 0
+    },
+    "byRole": {
+      "PUBLIC": {
+        "PASS": 11
+      },
+      "SUPER_ADMIN": {
+        "PASS": 65,
+        "REDIRECT": 12
+      },
+      "ADMIN": {
+        "PASS": 65,
+        "REDIRECT": 12
+      },
+      "VIEWER": {
+        "PASS": 59,
+        "REDIRECT": 18
+      },
+      "COMPANY_ADMIN": {
+        "PASS": 71,
+        "REDIRECT": 6
+      },
+      "SITE_ADMIN": {
+        "PASS": 65,
+        "REDIRECT": 12
+      },
+      "EXTERNAL_SITE_ADMIN": {
+        "PASS": 65,
+        "REDIRECT": 12
+      },
+      "WORKER": {
+        "PASS": 8
+      }
+    }
+  },
+  "results": [
+    {
+      "role": "PUBLIC",
+      "path": "/",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 748,
+      "note": ""
+    },
+    {
+      "role": "PUBLIC",
+      "path": "/login",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 562,
+      "note": ""
+    },
+    {
+      "role": "PUBLIC",
+      "path": "/admin/login",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 602,
+      "note": ""
+    },
+    {
+      "role": "PUBLIC",
+      "path": "/register",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 663,
+      "note": ""
+    },
+    {
+      "role": "PUBLIC",
+      "path": "/register/company-admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 587,
+      "note": ""
+    },
+    {
+      "role": "PUBLIC",
+      "path": "/register/complete",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 583,
+      "note": ""
+    },
+    {
+      "role": "PUBLIC",
+      "path": "/register/pending",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 586,
+      "note": ""
+    },
+    {
+      "role": "PUBLIC",
+      "path": "/guide",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 594,
+      "note": ""
+    },
+    {
+      "role": "PUBLIC",
+      "path": "/device/register",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 586,
+      "note": ""
+    },
+    {
+      "role": "PUBLIC",
+      "path": "/device/change",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 571,
+      "note": ""
+    },
+    {
+      "role": "PUBLIC",
+      "path": "/company-pending-verification",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 575,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 720,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/sites",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 687,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/site-locations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 647,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/site-admin-assignments",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 621,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/site-access-groups",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 603,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/site-join-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 664,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/site-imports",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 670,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/companies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 673,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/company-admins",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 659,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/company-admin-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/workers",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 631,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/workers/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 598,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/registrations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 622,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/corrections",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 663,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/contracts",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 720,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/contracts/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 693,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/attendance",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 648,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 627,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/presence-checks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 615,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/presence-report",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/device-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 630,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/devices",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 646,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/devices-anomaly",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 650,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/document-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/document-packages",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/materials",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15038,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/materials/inventory",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15046,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/materials/requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15054,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/materials/purchase-orders",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15043,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/wage",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 807,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/wage-calculations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 636,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/labor",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 646,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/labor-cost-summaries",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/month-closings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/retirement-mutual",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/work-confirmations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 631,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/insurance-eligibility",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/insurance-rates",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 651,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/insurance-rates/calculate",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/insurance-rates/sources",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 652,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/subcontractor-settlements",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 633,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/approvals",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/audit-logs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 633,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/settings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/policies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 641,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/super-users",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/safety-docs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 603,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/pilot",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/operations/attendance-exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15043,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/operations/labor-review",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15040,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/operations/print-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15056,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/admin/operations/today-tasks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15045,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 620,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company/profile",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 644,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company/workers",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 630,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company/attendance",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 609,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company/devices",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 637,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company/documents",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 607,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company/insurance",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 604,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company/payroll",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 606,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company/managers",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 635,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company/notices",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 605,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company/approvals",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 605,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/company/worklogs",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 615,
+      "note": "/admin"
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/labor",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 706,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/labor/sites",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/labor/documents",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 615,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/labor/reports",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 599,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/labor/insurance",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 614,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/labor/wages",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 613,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/labor/settings",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 602,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/ops",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 708,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/ops/sites",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/ops/workers",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 732,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/ops/worklogs",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 637,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/ops/attendance",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 633,
+      "note": ""
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "path": "/ops/notices",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 740,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/sites",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 657,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/site-locations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 613,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/site-admin-assignments",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 642,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/site-access-groups",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/site-join-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 626,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/site-imports",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 650,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/companies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 651,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/company-admins",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 607,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/company-admin-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/workers",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/workers/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 606,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/registrations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/corrections",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 649,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/contracts",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 677,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/contracts/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 676,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/attendance",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 610,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/presence-checks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 638,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/presence-report",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 611,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/device-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 599,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/devices",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 627,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/devices-anomaly",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/document-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 603,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/document-packages",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 592,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/materials",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15046,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/materials/inventory",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15048,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/materials/requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15035,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/materials/purchase-orders",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15040,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/wage",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 720,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/wage-calculations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 627,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/labor",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 671,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/labor-cost-summaries",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 609,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/month-closings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 628,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/retirement-mutual",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 854,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/work-confirmations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 800,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/insurance-eligibility",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/insurance-rates",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/insurance-rates/calculate",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 637,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/insurance-rates/sources",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 630,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/subcontractor-settlements",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 634,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/approvals",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 607,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/audit-logs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 729,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/settings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/policies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 664,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/super-users",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/safety-docs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 600,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/pilot",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 648,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/operations/attendance-exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15046,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/operations/labor-review",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15034,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/operations/print-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15043,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/admin/operations/today-tasks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15045,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 629,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company/profile",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 615,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company/workers",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 602,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company/attendance",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 618,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company/devices",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 619,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company/documents",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 601,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company/insurance",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 614,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company/payroll",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 631,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company/managers",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 605,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company/notices",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 618,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company/approvals",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 611,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/company/worklogs",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 614,
+      "note": "/admin"
+    },
+    {
+      "role": "ADMIN",
+      "path": "/labor",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/labor/sites",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 592,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/labor/documents",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/labor/reports",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 588,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/labor/insurance",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 591,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/labor/wages",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 652,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/labor/settings",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 603,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/ops",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 631,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/ops/sites",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 601,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/ops/workers",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 678,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/ops/worklogs",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/ops/attendance",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 606,
+      "note": ""
+    },
+    {
+      "role": "ADMIN",
+      "path": "/ops/notices",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 728,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/sites",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 658,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/site-locations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/site-admin-assignments",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 636,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/site-access-groups",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/site-join-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 633,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/site-imports",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 637,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/companies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 650,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/company-admins",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 606,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/company-admin-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 601,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/workers",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 627,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/workers/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 594,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/registrations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/corrections",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 639,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/contracts",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 668,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/contracts/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 653,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/attendance",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 622,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 623,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/presence-checks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/presence-report",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 615,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/device-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 605,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/devices",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 639,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/devices-anomaly",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 621,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/document-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 605,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/document-packages",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 591,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/materials",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15038,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/materials/inventory",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15046,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/materials/requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15050,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/materials/purchase-orders",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15038,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/wage",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 708,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/wage-calculations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 647,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/labor",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 663,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/labor-cost-summaries",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 602,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/month-closings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/retirement-mutual",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/work-confirmations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 636,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/insurance-eligibility",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/insurance-rates",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 602,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/insurance-rates/calculate",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 654,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/insurance-rates/sources",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/subcontractor-settlements",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 615,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/approvals",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 592,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/audit-logs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 660,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/settings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/policies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 647,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/super-users",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/safety-docs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 608,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/pilot",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 603,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/operations/attendance-exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15032,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/operations/labor-review",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15049,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/operations/print-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15037,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/admin/operations/today-tasks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15046,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 647,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company/profile",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 623,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company/workers",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 615,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company/attendance",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 615,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company/devices",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 617,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company/documents",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 646,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company/insurance",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 642,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company/payroll",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 616,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company/managers",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 603,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company/notices",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 603,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company/approvals",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 618,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/company/worklogs",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 605,
+      "note": "/admin"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/labor",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 629,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/labor/sites",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 588,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/labor/documents",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 599,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/labor/reports",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 601,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/labor/insurance",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 602,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/labor/wages",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/labor/settings",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "VIEWER",
+      "path": "/ops",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 678,
+      "note": "/admin/login"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/ops/sites",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 663,
+      "note": "/admin/login"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/ops/workers",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 651,
+      "note": "/admin/login"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/ops/worklogs",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 648,
+      "note": "/admin/login"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/ops/attendance",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 652,
+      "note": "/admin/login"
+    },
+    {
+      "role": "VIEWER",
+      "path": "/ops/notices",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 653,
+      "note": "/admin/login"
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 732,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/sites",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 629,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/site-locations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/site-admin-assignments",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/site-access-groups",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/site-join-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 603,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/site-imports",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/companies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 646,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/company-admins",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 625,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/company-admin-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/workers",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/workers/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 595,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/registrations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 612,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/corrections",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 645,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/contracts",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 678,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/contracts/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 691,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/attendance",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 600,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 607,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/presence-checks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 605,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/presence-report",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/device-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/devices",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 633,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/devices-anomaly",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 635,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/document-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 613,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/document-packages",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 598,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/materials",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15032,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/materials/inventory",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15056,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/materials/requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15042,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/materials/purchase-orders",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15051,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/wage",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 646,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/wage-calculations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 612,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/labor",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 664,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/labor-cost-summaries",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/month-closings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 602,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/retirement-mutual",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/work-confirmations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 605,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/insurance-eligibility",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 613,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/insurance-rates",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/insurance-rates/calculate",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 608,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/insurance-rates/sources",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 609,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/subcontractor-settlements",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/approvals",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/audit-logs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 707,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/settings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/policies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 661,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/super-users",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 601,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/safety-docs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 588,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/pilot",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/operations/attendance-exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15040,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/operations/labor-review",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15037,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/operations/print-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15041,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/admin/operations/today-tasks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15046,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 794,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company/profile",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company/workers",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company/attendance",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company/devices",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company/documents",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 636,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company/insurance",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company/payroll",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 663,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company/managers",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 621,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company/notices",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 633,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company/approvals",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/company/worklogs",
+      "portal": "company",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 621,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/labor",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 636,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/labor/sites",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 591,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/labor/documents",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 590,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/labor/reports",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 595,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/labor/insurance",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 589,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/labor/wages",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/labor/settings",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/ops",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 680,
+      "note": "/admin/login"
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/ops/sites",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 648,
+      "note": "/admin/login"
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/ops/workers",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 650,
+      "note": "/admin/login"
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/ops/worklogs",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 646,
+      "note": "/admin/login"
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/ops/attendance",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 635,
+      "note": "/admin/login"
+    },
+    {
+      "role": "COMPANY_ADMIN",
+      "path": "/ops/notices",
+      "portal": "ops",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 652,
+      "note": "/admin/login"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 741,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/sites",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 637,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/site-locations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/site-admin-assignments",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 614,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/site-access-groups",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/site-join-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 623,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/site-imports",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 638,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/companies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 650,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/company-admins",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 608,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/company-admin-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/workers",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 597,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/workers/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/registrations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/corrections",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 667,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/contracts",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 684,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/contracts/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 684,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/attendance",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 600,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/presence-checks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 609,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/presence-report",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/device-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 590,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/devices",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/devices-anomaly",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/document-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 611,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/document-packages",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/materials",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15037,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/materials/inventory",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15049,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/materials/requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15058,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/materials/purchase-orders",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15050,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/wage",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 680,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/wage-calculations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/labor",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 676,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/labor-cost-summaries",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/month-closings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 648,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/retirement-mutual",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 624,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/work-confirmations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 648,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/insurance-eligibility",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 623,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/insurance-rates",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 636,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/insurance-rates/calculate",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/insurance-rates/sources",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 638,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/subcontractor-settlements",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 631,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/approvals",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/audit-logs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 664,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/settings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/policies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 650,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/super-users",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/safety-docs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/pilot",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 623,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/operations/attendance-exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15045,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/operations/labor-review",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15042,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/operations/print-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15035,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/admin/operations/today-tasks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15049,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 642,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company/profile",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 620,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company/workers",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 608,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company/attendance",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 618,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company/devices",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 618,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company/documents",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 601,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company/insurance",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 616,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company/payroll",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 613,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company/managers",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 647,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company/notices",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 620,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company/approvals",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 607,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/company/worklogs",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 619,
+      "note": "/admin"
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/labor",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 621,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/labor/sites",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 601,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/labor/documents",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 602,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/labor/reports",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 602,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/labor/insurance",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 603,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/labor/wages",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 598,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/labor/settings",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/ops",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/ops/sites",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 621,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/ops/workers",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 621,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/ops/worklogs",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/ops/attendance",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "SITE_ADMIN",
+      "path": "/ops/notices",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 623,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 714,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/sites",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/site-locations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 609,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/site-admin-assignments",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 608,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/site-access-groups",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/site-join-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 630,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/site-imports",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 628,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/companies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 644,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/company-admins",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 597,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/company-admin-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 607,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/workers",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/workers/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 588,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/registrations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 620,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/corrections",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/contracts",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 677,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/contracts/new",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 647,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/attendance",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 601,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/presence-checks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 600,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/presence-report",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 616,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/device-requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 604,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/devices",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/devices-anomaly",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 621,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/document-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 599,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/document-packages",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 586,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/materials",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15035,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/materials/inventory",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15028,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/materials/requests",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15032,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/materials/purchase-orders",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15039,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/wage",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 661,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/wage-calculations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 614,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/labor",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 647,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/labor-cost-summaries",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 591,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/month-closings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 617,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/retirement-mutual",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 602,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/work-confirmations",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 621,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/insurance-eligibility",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/insurance-rates",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 605,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/insurance-rates/calculate",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 614,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/insurance-rates/sources",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 636,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/subcontractor-settlements",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/approvals",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 606,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/audit-logs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 696,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/settings",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 609,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/policies",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 632,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/super-users",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 601,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/safety-docs",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 587,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/pilot",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 607,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/operations/attendance-exceptions",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15031,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/operations/labor-review",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15044,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/operations/print-center",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15054,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/admin/operations/today-tasks",
+      "portal": "admin",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 15047,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 646,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company/profile",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 646,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company/workers",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 614,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company/attendance",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 602,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company/devices",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 613,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company/documents",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 617,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company/insurance",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 618,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company/payroll",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 630,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company/managers",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 604,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company/notices",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 615,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company/approvals",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 618,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/company/worklogs",
+      "portal": "company",
+      "result": "REDIRECT",
+      "status": 200,
+      "elapsed": 630,
+      "note": "/admin"
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/labor",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 653,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/labor/sites",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 601,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/labor/documents",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 597,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/labor/reports",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 600,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/labor/insurance",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 619,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/labor/wages",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/labor/settings",
+      "portal": "labor",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 585,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/ops",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 652,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/ops/sites",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 643,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/ops/workers",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 631,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/ops/worklogs",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 638,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/ops/attendance",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 636,
+      "note": ""
+    },
+    {
+      "role": "EXTERNAL_SITE_ADMIN",
+      "path": "/ops/notices",
+      "portal": "ops",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 627,
+      "note": ""
+    },
+    {
+      "role": "WORKER",
+      "path": "/attendance",
+      "portal": "worker",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 760,
+      "note": ""
+    },
+    {
+      "role": "WORKER",
+      "path": "/my/sites",
+      "portal": "worker",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 583,
+      "note": ""
+    },
+    {
+      "role": "WORKER",
+      "path": "/my/onboarding",
+      "portal": "worker",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 618,
+      "note": ""
+    },
+    {
+      "role": "WORKER",
+      "path": "/my/documents",
+      "portal": "worker",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 585,
+      "note": ""
+    },
+    {
+      "role": "WORKER",
+      "path": "/my/status",
+      "portal": "worker",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 634,
+      "note": ""
+    },
+    {
+      "role": "WORKER",
+      "path": "/my/requests",
+      "portal": "worker",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 583,
+      "note": ""
+    },
+    {
+      "role": "WORKER",
+      "path": "/daily-report",
+      "portal": "worker",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 601,
+      "note": ""
+    },
+    {
+      "role": "WORKER",
+      "path": "/wage",
+      "portal": "worker",
+      "result": "PASS",
+      "status": 200,
+      "elapsed": 572,
+      "note": ""
+    }
+  ]
+}

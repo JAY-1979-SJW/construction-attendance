@@ -216,7 +216,7 @@ export default function WorkConfirmationsPage() {
       <Modal open={!!editTarget} onClose={() => setEditTarget(null)} title={editTarget ? `${editTarget.workDate} — ${editTarget.worker.name}` : ''}>
         {editTarget && (
           <>
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               <div>
                 <label className="block text-[12px] text-muted-brand mb-1 font-semibold">근무 유형</label>
                 <select value={editForm.workType} onChange={(e) => setEditForm({ ...editForm, workType: e.target.value })} className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-card w-full">

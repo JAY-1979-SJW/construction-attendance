@@ -196,7 +196,7 @@ export default function AttendanceExceptionsPage() {
               {detectionLoading ? '...' : '갱신'}
             </button>
           </div>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {([
               { key: 'missingCheckout', label: '퇴근 누락',      icon: '⏰', color: '#e65100' },
               { key: 'outsideGeofence', label: '지오펜스 밖 출근', icon: '📍', color: '#c62828' },

@@ -912,7 +912,7 @@ function NewContractPage() {
               )}
               <span className="text-xs text-[#718096]">— 아래 값이 입력칸에 자동 반영됨 (수정 가능)</span>
             </div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs">
               {[
                 { label: '현장명', value: pdfParsed.siteName, key: 'siteName' },
                 { label: '현장주소', value: pdfParsed.siteAddress, key: 'siteAddress' },
@@ -1196,7 +1196,7 @@ function NewContractPage() {
           <h2 className="font-semibold text-white">외주팀 분류 확인</h2>
 
           {isSubcontractBiz && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="col-span-2">
                 <label className="text-xs font-medium text-dim-brand block mb-1">사업자등록번호 *</label>
                 <input type="text" value={biz.businessRegistrationNo}
@@ -1305,7 +1305,7 @@ function NewContractPage() {
       {isDirectEmployment && (
         <div className="bg-card border rounded-lg p-5 space-y-4">
           <h2 className="font-semibold text-white">2단계: 공사 및 직종 정보</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="col-span-2">
               <label className="text-xs font-medium text-dim-brand block mb-1">공사명</label>
               <input type="text" value={form.projectName} onChange={e => set('projectName', e.target.value)}
@@ -1353,7 +1353,7 @@ function NewContractPage() {
       {/* Step 3: 계약서 기본 정보 */}
       <div className="bg-card border rounded-lg p-5 space-y-4">
         <h2 className="font-semibold text-white">3단계: 기본 정보</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="col-span-2">
             <label className="text-xs font-medium text-dim-brand block mb-1">회사 (자동채움용)</label>
             <select value={selectedCompanyId} onChange={e => handleCompanyChange(e.target.value)}
@@ -1598,7 +1598,7 @@ function NewContractPage() {
       {isDirectEmployment && (
         <div className="bg-card border rounded-lg p-5 space-y-4">
           <h2 className="font-semibold text-white">4단계: 근무 조건</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-medium text-dim-brand block mb-1">시업 시각</label>
               <input type="time" value={form.checkInTime} onChange={e => set('checkInTime', e.target.value)}
@@ -1679,7 +1679,7 @@ function NewContractPage() {
       {/* Step 5: 금액 및 지급 조건 */}
       <div className="bg-card border rounded-lg p-5 space-y-4">
         <h2 className="font-semibold text-white">5단계: 금액 및 지급 조건</h2>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {isDirectEmployment && isEmployment && (
             <>
               {/* 일용직: 일당 */}
@@ -1693,7 +1693,7 @@ function NewContractPage() {
               )}
               {/* 일용직: 자동계산 참고값 */}
               {isDailyType && form.dailyWage && (
-                <div className="col-span-3 bg-blue-50 border border-blue-100 rounded p-3 text-sm text-blue-800 grid grid-cols-3 gap-2">
+                <div className="col-span-3 bg-blue-50 border border-blue-100 rounded p-3 text-sm text-blue-800 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                   <div>
                     <div className="text-xs text-blue-500">반공수</div>
                     <div className="font-semibold">{halfDayWage.toLocaleString('ko-KR')}원</div>
@@ -1751,7 +1751,7 @@ function NewContractPage() {
         <div className="bg-blue-50 border border-blue-200 rounded p-3 text-blue-800 text-xs">
           <strong>중요:</strong> 법정 가입요건에 해당하면 체크 여부와 무관하게 법령에 따라 처리됩니다.
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {[
             { key: 'nationalPensionYn',     label: '국민연금' },
             { key: 'healthInsuranceYn',     label: '건강보험' },
@@ -1774,7 +1774,7 @@ function NewContractPage() {
       {isDirectEmployment && isRegularType && (
         <div className="bg-card border rounded-lg p-5 space-y-4">
           <h2 className="font-semibold text-white">상용직 추가 조건</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="col-span-2">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={form.probationYn}

@@ -174,7 +174,7 @@ export default function CorrectionsPage() {
                       {expandedId === item.id && (
                         <tr key={`${item.id}-expand`}>
                           <td colSpan={7} className="p-0 bg-brand border-b border-[rgba(91,164,217,0.08)]">
-                            <div className="grid grid-cols-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2">
                               <div className="p-4 border-r border-[rgba(91,164,217,0.15)]">
                                 <div className="text-[11px] font-bold text-[#c62828] mb-2 uppercase">
                                   변경 전 (Before)

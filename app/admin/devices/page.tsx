@@ -93,7 +93,7 @@ export default function DevicesPage() {
           </div>
         )}
 
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-col sm:flex-row gap-2 mb-4">
           {([['all', '전체'], ['blocked', '차단됨'], ['normal', '정상']] as const).map(([v, label]) => (
             <button
               key={v}

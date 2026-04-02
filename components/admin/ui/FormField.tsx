@@ -138,8 +138,9 @@ export function FormGrid({ children, cols = 2, className }: {
   cols?: 2 | 3
   className?: string
 }) {
+  const colClass = cols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : 'sm:grid-cols-2'
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-${cols} gap-x-4 gap-y-0 ${className ?? ''}`}>
+    <div className={`grid grid-cols-1 ${colClass} gap-x-4 gap-y-0 ${className ?? ''}`}>
       {children}
     </div>
   )

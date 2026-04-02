@@ -707,7 +707,7 @@ export default function SiteDetailPage() {
             ) : infoEditing ? (
               <div className="bg-blue-light border border-blue-500/30 rounded-[12px] p-5 space-y-4">
                 <h3 className="text-sm font-semibold text-blue-600">기본정보 수정</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="col-span-2">
                     <label className="text-xs text-body-brand block mb-1">현장명 *</label>
                     <input className="w-full border border-[#D1D5DB] rounded px-2 py-1.5 text-sm bg-card text-fore-brand"
@@ -893,7 +893,7 @@ export default function SiteDetailPage() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* 회사 선택 또는 신규 입력 */}
                   {companyMode === 'existing' ? (
                     <div className="col-span-2">
@@ -1154,7 +1154,7 @@ export default function SiteDetailPage() {
             {showAssignForm && (
               <div className="bg-blue-light border border-blue-500/30 rounded-[12px] p-5 space-y-4 mb-4">
                 <h3 className="text-sm font-semibold text-blue-600">근로자 현장 배치</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* 근로자 검색 */}
                   <div className="col-span-2">
                     <label className="text-xs text-body-brand block mb-1">근로자 검색 (이름/전화번호) *</label>
@@ -1320,7 +1320,7 @@ export default function SiteDetailPage() {
             {showNoticeForm && (
               <div className="bg-blue-light border border-blue-500/30 rounded-lg p-4 mb-4">
                 <h3 className="text-sm font-semibold text-blue-600 mb-3">새 공지 등록</h3>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="col-span-2">
                     <label className="text-xs text-body-brand block mb-1">제목</label>
                     <input
@@ -1465,7 +1465,7 @@ export default function SiteDetailPage() {
             {showSchedForm && (
               <div className="bg-blue-light border border-green-500/30 rounded-lg p-4 mb-4">
                 <h3 className="text-sm font-semibold text-green-400 mb-3">일정 등록 — {selectedDate}</h3>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="col-span-2">
                     <label className="text-xs text-body-brand block mb-1">제목</label>
                     <input

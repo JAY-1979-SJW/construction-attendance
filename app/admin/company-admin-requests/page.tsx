@@ -88,7 +88,7 @@ export default function CompanyAdminRequestsPage() {
     <div className="px-6 py-8 max-w-[1100px] mx-auto font-['Malgun_Gothic',sans-serif]">
       <h1 className="text-[22px] font-bold mb-6 text-white">업체 관리자 신청 관리</h1>
 
-      <div className="flex gap-2 mb-5">
+      <div className="flex flex-col sm:flex-row gap-2 mb-5">
         {['PENDING', 'APPROVED', 'REJECTED'].map(st => (
           <button
             key={st}

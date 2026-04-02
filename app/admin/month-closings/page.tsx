@@ -208,7 +208,7 @@ export default function MonthClosingsPage() {
             <div className="p-5">
 
               {/* 요약 카드 */}
-              <div className="grid grid-cols-3 gap-3 mb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-5">
                 {[
                   { label: '전체 근로자', value: precheck.summary.totalWorkers, warn: false },
                   { label: '미확정 근무', value: precheck.summary.draftConfirmations, warn: precheck.summary.draftConfirmations > 0 },

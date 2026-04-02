@@ -210,7 +210,7 @@ export default function WorkerSensitivePage() {
                 <p className="bg-[rgba(91,164,217,0.1)] border border-[#90caf9] rounded-md px-3.5 py-2 text-[13px] text-secondary-brand mb-4">
                   신분증 파일은 시스템에 저장하지 않습니다. 필요 시 본사 보안 채널로 별도 처리하세요.
                 </p>
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <F label="법적 성명" value={sensForm.legalName} onChange={v => setSensForm(f => ({ ...f, legalName: v }))} />
                   <F label="주민등록번호 (13자리)" value={sensForm.rrn} onChange={v => setSensForm(f => ({ ...f, rrn: v }))} type="password" placeholder="갱신 시에만 입력" />
                   <F label="휴대폰 원문 (하이픈 제외)" value={sensForm.phone} onChange={v => setSensForm(f => ({ ...f, phone: v }))} placeholder="갱신 시에만 입력" />
@@ -255,7 +255,7 @@ export default function WorkerSensitivePage() {
               <>
                 <hr className="my-5 border-brand" />
                 <h3 className="text-[15px] font-bold mt-0 mb-3">계좌 입력/수정</h3>
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <F label="은행 코드" value={bankForm.bankCode} onChange={v => setBankForm(f => ({ ...f, bankCode: v }))} placeholder="예: 004 (국민은행)" />
                   <F label="은행명" value={bankForm.bankName} onChange={v => setBankForm(f => ({ ...f, bankName: v }))} />
                   <F label="계좌번호 (숫자만)" value={bankForm.accountNumber} onChange={v => setBankForm(f => ({ ...f, accountNumber: v }))} type="password" placeholder="갱신 시에만 입력" />
@@ -282,7 +282,7 @@ export default function WorkerSensitivePage() {
                   <Row k="주소 수집" v={compliance.addressCollected ? '완료' : '미완료'} />
                   <Row k="계좌 수집" v={compliance.bankInfoCollected ? '완료' : '미완료'} />
                 </div>
-                <div className="grid grid-cols-2 gap-2 mt-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
                   {[['국민연금', 'nationalPensionStatus'], ['건강보험', 'healthInsuranceStatus'],
                     ['고용보험', 'employmentInsuranceStatus'], ['산재보험', 'industrialAccidentStatus'],
                     ['퇴직공제', 'retirementMutualStatus']].map(([label, key]) => (
@@ -301,7 +301,7 @@ export default function WorkerSensitivePage() {
               <>
                 <hr className="my-5 border-brand" />
                 <h3 className="text-[15px] font-bold mt-0 mb-3">상태 갱신</h3>
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   {[['nationalPensionStatus', '국민연금'], ['healthInsuranceStatus', '건강보험'],
                     ['employmentInsuranceStatus', '고용보험'], ['industrialAccidentStatus', '산재보험'],
                     ['retirementMutualStatus', '퇴직공제']].map(([key, label]) => (

@@ -77,7 +77,7 @@ export default function InventoryPage() {
         </div>
 
         {/* 요약 카드 */}
-        <div className="grid grid-cols-5 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-6">
           {[
             { label: '총 청구량',    value: total.requestedQty,     color: '#5BA4D9' },
             { label: '총 발주량',    value: total.orderedQty,       color: '#F47920' },

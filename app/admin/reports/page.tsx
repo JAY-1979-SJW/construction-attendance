@@ -216,7 +216,7 @@ function ReportsPageInner() {
 
       {/* ── KPI ────────────────────────────────────────── */}
       {summary && (
-        <div className="grid grid-cols-5 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-4">
           {[
             { label: '출근 인원', value: summary.totalAttendance, color: '#6B7280' },
             { label: '일보 작성', value: summary.totalReports, color: '#3B82F6' },
@@ -375,7 +375,7 @@ function ReportsPageInner() {
 
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
               {/* 근로자 기본정보 */}
-              <div className="grid grid-cols-2 gap-3 text-[13px]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[13px]">
                 <InfoCell label="근로자" value={selected.worker.name} />
                 <InfoCell label="직종" value={selected.jobTitle} />
                 <InfoCell label="현장" value={selected.site.name} />
@@ -414,7 +414,7 @@ function ReportsPageInner() {
               <div>
                 <div className="text-[12px] font-semibold text-body-brand mb-2">첨부 사진</div>
                 {selected.photos && selected.photos.length > 0 ? (
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                     {selected.photos.map((p, i) => (
                       <button key={i} onClick={() => setPreviewPhoto(p)}
                         className="aspect-square rounded-xl overflow-hidden border border-brand hover:border-accent transition-colors">

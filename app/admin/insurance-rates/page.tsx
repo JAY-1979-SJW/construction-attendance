@@ -213,7 +213,7 @@ export default function InsuranceRatesPage() {
       {showForm && (
         <div className="border rounded-lg p-4 bg-gray-50 space-y-3">
           <h3 className="font-semibold text-sm">신규 요율 버전 등록 (DRAFT 생성)</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-medium">보험 종류</label>
               <select

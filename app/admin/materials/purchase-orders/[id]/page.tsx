@@ -282,7 +282,7 @@ export default function PurchaseOrderDetailPage() {
         <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           {editMode ? (
             <div>
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div className="flex flex-col gap-[6px]">
                   <label className="text-[12px] text-muted-brand font-medium">납품 요청일</label>
                   <input type="date" value={editDelivery} onChange={e => setEditDelivery(e.target.value)} className="px-3 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-brand text-white" />
@@ -299,7 +299,7 @@ export default function PurchaseOrderDetailPage() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <InfoField label="청구서" value={po.materialRequest.requestNo} />
               <InfoField label="현장" value={po.site?.name ?? '-'} />
               <InfoField label="납품 요청일" value={po.deliveryRequestedDate ? fmtDateOnly(po.deliveryRequestedDate) : '-'} />

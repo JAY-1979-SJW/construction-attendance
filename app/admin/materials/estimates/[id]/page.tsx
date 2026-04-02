@@ -191,7 +191,7 @@ function OverrideModal({ row, docId, onClose, onSaved }: OverrideModalProps) {
           <div>품명: {row.rawItemName || '-'} / 규격: {row.rawSpec || '-'} / 단위: {row.rawUnit || '-'} / 수량: {row.rawQuantity || '-'}</div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           <div>
             <label className="text-[12px] text-muted-brand block mb-1">수동 품명</label>
             <input value={itemName} onChange={e => setItemName(e.target.value)} placeholder={row.normalized?.normalizedItemName ?? row.rawItemName ?? ''} className="w-full px-[10px] py-[7px] border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] bg-brand text-white box-border" />
@@ -664,7 +664,7 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                         </div>
                       </div>
                       {/* 원문 vs 보정값 비교 */}
-                      <div className="grid grid-cols-2 gap-1 text-[11px] mb-[6px]">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px] mb-[6px]">
                         <div className="text-muted-brand">
                           <div>원문 품명: {row.rawItemName || '-'}</div>
                           <div>원문 규격: {row.rawSpec || '-'}</div>

@@ -689,7 +689,7 @@ export default function SitesPage() {
         {/* C. 운영현황 */}
         <SectionCard>
           <div className="text-[11px] font-bold text-muted2-brand tracking-wide uppercase mb-2">오늘 운영현황</div>
-          <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-center">
             <div className="bg-surface rounded-[8px] py-2">
               <div className="text-[18px] font-bold text-title-brand">{s.assignedWorkerCount}</div>
               <div className="text-[11px] text-muted2-brand mt-[1px]">배정</div>

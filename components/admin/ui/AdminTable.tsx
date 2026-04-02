@@ -66,7 +66,7 @@ export function AdminTd({
   className?: string
 }) {
   return (
-    <td className={`px-3 py-[10px] text-[13px] text-body-brand whitespace-nowrap ${className ?? ''}`}>
+    <td className={`px-3 py-[10px] text-[13px] text-body-brand md:whitespace-nowrap ${className ?? ''}`}>
       {children}
     </td>
   )

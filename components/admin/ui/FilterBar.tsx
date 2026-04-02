@@ -1,32 +1,32 @@
-﻿// FilterBar — 필터 영역 래퍼
+﻿// FilterBar — 필터 영역 래퍼 (모바일: 세로 스택, 데스크: 가로 정렬)
 export function FilterBar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex gap-2 mb-4 items-center flex-wrap">
+    <div className="flex flex-col sm:flex-row gap-2 mb-4 sm:items-center flex-wrap">
       {children}
     </div>
   )
 }
 
-// FilterInput — 텍스트/날짜/숫자 입력 (h-9 고정)
+// FilterInput — 텍스트/날짜/숫자 입력 (모바일: full-width, 데스크: auto)
 export function FilterInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   const { className, ...rest } = props
   return (
     <input
       {...rest}
       className={`h-9 px-3 border border-brand rounded-[8px] text-[13px] text-fore-brand bg-white
-        focus:outline-none focus:border-accent placeholder:text-muted2-brand ${className ?? ''}`}
+        focus:outline-none focus:border-accent placeholder:text-muted2-brand w-full sm:w-auto ${className ?? ''}`}
     />
   )
 }
 
-// FilterSelect — 드롭다운 (h-9 고정)
+// FilterSelect — 드롭다운 (모바일: full-width, 데스크: auto)
 export function FilterSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   const { className, ...rest } = props
   return (
     <select
       {...rest}
       className={`h-9 px-3 border border-brand rounded-[8px] text-[13px] text-fore-brand bg-white
-        cursor-pointer focus:outline-none focus:border-accent ${className ?? ''}`}
+        cursor-pointer focus:outline-none focus:border-accent w-full sm:w-auto ${className ?? ''}`}
     />
   )
 }

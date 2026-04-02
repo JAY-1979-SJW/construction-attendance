@@ -1,0 +1,14 @@
+import { defineConfig } from '@playwright/test'
+
+export default defineConfig({
+  testDir: '.',
+  timeout: 30000,
+  use: {
+    baseURL: process.env.BASE_URL || 'https://attendance.haehan-ai.kr',
+    headless: true,
+    screenshot: 'only-on-failure',
+  },
+  projects: [
+    { name: 'chromium', use: { browserName: 'chromium' } },
+  ],
+})

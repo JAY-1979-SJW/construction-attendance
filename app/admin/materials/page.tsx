@@ -157,7 +157,7 @@ export default function MaterialsPage() {
         </div>
 
         {/* 빠른 링크 */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6">
           {[
             { href: '/admin/materials/requests',        label: '자재청구', desc: '청구서 작성 · 승인',   color: '#5BA4D9' },
             { href: '/admin/materials/purchase-orders', label: '발주관리', desc: '발주서 생성 · 발행',   color: '#F47920' },

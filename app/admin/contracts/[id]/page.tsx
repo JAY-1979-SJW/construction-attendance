@@ -342,7 +342,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {/* 계약 정보 */}
         <div className="col-span-1 space-y-4">
           <div className="bg-card border rounded-[12px] p-5">

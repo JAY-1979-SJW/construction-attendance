@@ -167,7 +167,7 @@ export default function DocumentCenterPage() {
 
       <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-5">
         {/* 귀속연월 + 현장 */}
-        <div className="grid grid-cols-2 gap-4 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           <div>
             <label className="block text-xs text-muted-brand mb-1 font-semibold">귀속연월</label>
             <input
@@ -207,7 +207,7 @@ export default function DocumentCenterPage() {
               </span>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {DOC_TYPES.map(d => (
               <button
                 key={d.value}
@@ -247,7 +247,7 @@ export default function DocumentCenterPage() {
         )}
 
         {/* 사전검사 버튼 */}
-        <div className="flex gap-2.5 mb-4">
+        <div className="flex flex-col sm:flex-row gap-2.5 mb-4">
           <button
             onClick={handlePreflight}
             disabled={preflightLoading}

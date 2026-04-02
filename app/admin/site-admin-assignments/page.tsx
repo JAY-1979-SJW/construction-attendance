@@ -144,7 +144,7 @@ export default function SiteAdminAssignmentsPage() {
               ⚠ 대상 사용자의 역할이 <strong>SITE_ADMIN</strong>이어야 합니다.
               역할이 다른 경우 먼저 슈퍼유저 관리에서 역할을 변경하세요.
             </p>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-xs text-gray-600 block mb-1">현장 관리자 (SITE_ADMIN) *</label>
                 <select

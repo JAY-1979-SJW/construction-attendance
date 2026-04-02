@@ -126,7 +126,7 @@ export default function PoliciesPage() {
         {showForm && isSuperAdmin && (
           <div className="bg-card rounded-[12px] p-5 mb-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <h3 className="mt-0 mb-4 text-[16px]">새 정책 문서 버전 등록</h3>
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-[12px] text-muted-brand mb-1 font-semibold">문서 유형</label>
                 <select value={form.documentType} onChange={e => setForm(f => ({ ...f, documentType: e.target.value }))} className="w-full px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[14px] box-border bg-brand">

@@ -198,7 +198,7 @@ export default function SiteAccessGroupsPage() {
         {showCreate && (
           <div className="bg-purple-50 border border-purple-200 rounded-xl p-5 mb-6">
             <h3 className="text-sm font-semibold text-purple-800 mb-3">새 접근 그룹 생성</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-gray-600 block mb-1">그룹 이름 *</label>
                 <input

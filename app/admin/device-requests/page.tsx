@@ -75,7 +75,7 @@ export default function DeviceRequestsPage() {
         )}
 
         {/* 상태 탭 */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-col sm:flex-row gap-2 mb-4">
           {[['PENDING', '대기중'], ['APPROVED', '승인'], ['REJECTED', '반려']].map(([s, label]) => (
             <button
               key={s}

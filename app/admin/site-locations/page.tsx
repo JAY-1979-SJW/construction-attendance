@@ -106,7 +106,7 @@ export default function SiteLocationsPage() {
           {/* 템플릿 생성 */}
           <SectionCard className="mb-4">
             <div className="text-[14px] font-semibold text-body-brand mb-3">템플릿 자동생성</div>
-            <div className="grid grid-cols-2 gap-3 text-[13px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[13px]">
               <div>
                 <div className="text-[11px] text-muted2-brand mb-1">동 (쉼표 구분)</div>
                 <input type="text" value={genBuildings} onChange={(e) => setGenBuildings(e.target.value)}

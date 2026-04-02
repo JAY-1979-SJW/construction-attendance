@@ -190,7 +190,7 @@ export default function InsuranceCalculatePage() {
             <div className="text-sm font-semibold text-blue-800 mb-3">
               {result.referenceDate} 기준 계산 결과 — 월급여 {won(result.monthlyWage ?? 0)}
             </div>
-            <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-center">
               <div>
                 <div className="text-xs text-gray-500 mb-1">근로자 부담 합계</div>
                 <div className="text-xl font-bold text-blue-700">{won(result.summary?.employeeTotalAmount ?? 0)}</div>
