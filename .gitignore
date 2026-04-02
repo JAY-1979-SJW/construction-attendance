@@ -59,3 +59,12 @@ ecosystem.config.js.bak
 
 # uploads (if any local)
 public/uploads/
+
+# secrets & credentials
+client_secret*.json
+googleclient_secret*.json
+*credential*.json
+secrets/
+
+# backup files
+*.bak
