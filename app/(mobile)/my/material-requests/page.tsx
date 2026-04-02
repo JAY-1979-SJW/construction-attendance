@@ -209,8 +209,8 @@ export default function MaterialRequestsPage() {
               <input className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-base bg-white outline-none focus:border-accent box-border"
                 value={title} onChange={e => setTitle(e.target.value)} placeholder="예: 3층 창호 자재 요청" />
             </div>
-            <div className="flex gap-2 mb-3">
-              <div className="flex-1">
+            <div className="space-y-3 mb-3">
+              <div>
                 <label className="block text-[13px] font-semibold text-gray-600 mb-1">현장</label>
                 <select className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-base bg-white outline-none focus:border-accent box-border"
                   value={siteId} onChange={e => setSiteId(e.target.value)}>
@@ -218,7 +218,7 @@ export default function MaterialRequestsPage() {
                   {mySites.map(s => <option key={s.siteId} value={s.siteId}>{s.siteName}</option>)}
                 </select>
               </div>
-              <div className="flex-1">
+              <div>
                 <label className="block text-[13px] font-semibold text-gray-600 mb-1">납품 요청일</label>
                 <input type="date" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-base bg-white outline-none focus:border-accent box-border"
                   value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} />

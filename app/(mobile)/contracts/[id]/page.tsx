@@ -229,7 +229,7 @@ export default function WorkerContractConfirmPage() {
               {guide?.title ?? '계약 정보'}
             </span>
           </div>
-          <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-[13px]">
+          <div className="space-y-0">
             {[
               { label: '이름',   value: contract.workerName },
               { label: '회사',   value: contract.companyName || '-' },
@@ -238,9 +238,9 @@ export default function WorkerContractConfirmPage() {
               { label: '시작일', value: contract.startDate },
               { label: '종료일', value: contract.endDate || '별도 없음' },
             ].map(({ label, value }) => (
-              <div key={label}>
-                <div className="text-[13px] text-muted-brand mb-[2px]">{label}</div>
-                <div className="font-semibold text-[#222]">{value}</div>
+              <div key={label} className="flex items-start justify-between gap-3 py-[7px] border-b border-[#F3F4F6] last:border-b-0">
+                <span className="text-[13px] text-muted-brand shrink-0">{label}</span>
+                <span className="text-[13px] font-semibold text-[#222] text-right">{value}</span>
               </div>
             ))}
           </div>
