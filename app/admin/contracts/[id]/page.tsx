@@ -477,49 +477,24 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
           {/* 근로시간 상세 */}
           {(contract.breakStartTime || contract.weeklyWorkDays || contract.holidayRule) && (
-            <div className="bg-card border rounded-[12px] p-5 space-y-2">
-              <h2 className="font-semibold text-dim-brand text-sm">근로시간 상세</h2>
-              <dl className="space-y-1.5 text-xs">
-                {contract.breakStartTime && (
-                  <div className="flex justify-between">
-                    <dt className="text-[#718096]">휴게시간</dt>
-                    <dd>{contract.breakStartTime} ~ {contract.breakEndTime || '—'}</dd>
-                  </div>
-                )}
-                {contract.weeklyWorkDays != null && (
-                  <div className="flex justify-between">
-                    <dt className="text-[#718096]">주 소정근로일</dt>
-                    <dd>{contract.weeklyWorkDays}일</dd>
-                  </div>
-                )}
-                {contract.weeklyWorkHours != null && (
-                  <div className="flex justify-between">
-                    <dt className="text-[#718096]">주 소정근로시간</dt>
-                    <dd>{contract.weeklyWorkHours}시간</dd>
-                  </div>
-                )}
-                {contract.holidayRule && (
-                  <div className="flex justify-between">
-                    <dt className="text-[#718096]">주휴일</dt>
-                    <dd>{contract.holidayRule}</dd>
-                  </div>
-                )}
-              </dl>
+            <div className="bg-card border rounded-[12px] p-5">
+              <InfoSection title="근로시간 상세">
+                {contract.breakStartTime && <InfoRow label="휴게시간" value={`${contract.breakStartTime} ~ ${contract.breakEndTime || '—'}`} mono />}
+                {contract.weeklyWorkDays != null && <InfoRow label="주 소정근로일" value={`${contract.weeklyWorkDays}일`} mono />}
+                {contract.weeklyWorkHours != null && <InfoRow label="주 소정근로시간" value={`${contract.weeklyWorkHours}시간`} mono />}
+                {contract.holidayRule && <InfoRow label="주휴일" value={contract.holidayRule} />}
+              </InfoSection>
             </div>
           )}
 
           {/* 수당 */}
           {contract.allowanceJson && contract.allowanceJson.length > 0 && (
-            <div className="bg-card border rounded-[12px] p-5 space-y-2">
-              <h2 className="font-semibold text-dim-brand text-sm">수당 항목</h2>
-              <dl className="space-y-1.5 text-xs">
-                {contract.allowanceJson.map((a, i) => (
-                  <div key={i} className="flex justify-between">
-                    <dt className="text-[#718096]">{a.name}</dt>
-                    <dd className="font-mono">{a.amount.toLocaleString()}원</dd>
-                  </div>
+            <div className="bg-card border rounded-[12px] p-5">
+              <InfoSection title="수당 항목">
+                {contract.allowanceJson.map((a: { name: string; amount: number }, i: number) => (
+                  <InfoRow key={i} label={a.name} value={`${a.amount.toLocaleString()}원`} mono />
                 ))}
-              </dl>
+              </InfoSection>
             </div>
           )}
 
