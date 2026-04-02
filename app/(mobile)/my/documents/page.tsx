@@ -135,7 +135,7 @@ export default function MyDocumentsPage() {
                 <Link key={d.id} href={`/my/documents/${d.id}`}
                   className="flex items-center justify-between py-1 no-underline">
                   <span className="text-[13px] text-red-600">{DOC_TYPE_LABELS[d.documentType] ?? d.documentType}</span>
-                  <span className="text-[11px] text-red-400">재제출 &rarr;</span>
+                  <span className="text-[13px] text-red-400">재제출 &rarr;</span>
                 </Link>
               ))}
             </div>
@@ -157,7 +157,7 @@ export default function MyDocumentsPage() {
                   {expired.map(d => (
                     <Link key={d.id} href={`/my/documents/${d.id}`} className="flex items-center justify-between py-1 no-underline">
                       <span className="text-[13px] text-red-600">{DOC_TYPE_LABELS[d.documentType] ?? d.documentType}</span>
-                      <span className="text-[11px] text-red-400">{d.expiresAt!.slice(0, 10)} 만료</span>
+                      <span className="text-[13px] text-red-400">{d.expiresAt!.slice(0, 10)} 만료</span>
                     </Link>
                   ))}
                 </div>
@@ -170,7 +170,7 @@ export default function MyDocumentsPage() {
                     return (
                       <Link key={d.id} href={`/my/documents/${d.id}`} className="flex items-center justify-between py-1 no-underline">
                         <span className="text-[13px] text-orange-600">{DOC_TYPE_LABELS[d.documentType] ?? d.documentType}</span>
-                        <span className="text-[11px] text-orange-400">{d.expiresAt!.slice(0, 10)} ({days}일 남음)</span>
+                        <span className="text-[13px] text-orange-400">{d.expiresAt!.slice(0, 10)} ({days}일 남음)</span>
                       </Link>
                     )
                   })}

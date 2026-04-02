@@ -136,7 +136,7 @@ export default function DocumentDetailPage() {
                 )}
               </div>
 
-              <div className="space-y-1.5 text-[13px]">
+              <div className="space-y-1.5 text-sm">
                 <div className="flex">
                   <span className="text-gray-400 w-20 shrink-0">현장</span>
                   <span className="text-gray-700">{doc.site?.name ?? '-'}</span>
@@ -179,7 +179,7 @@ export default function DocumentDetailPage() {
                   <h2 className="text-[14px] font-semibold text-body-brand m-0">문서 내용</h2>
                 </div>
                 <div className="p-4 max-h-[400px] overflow-y-auto">
-                  <pre className="text-[12px] text-gray-600 whitespace-pre-wrap m-0 font-[inherit] leading-relaxed">
+                  <pre className="text-[13px] text-gray-600 whitespace-pre-wrap m-0 font-[inherit] leading-relaxed">
                     {doc.contentText}
                   </pre>
                 </div>
@@ -243,7 +243,7 @@ export default function DocumentDetailPage() {
                 <p className="text-[13px] text-gray-600 mb-1">
                   <strong>{DOC_TYPE_LABELS[doc.documentType] ?? doc.documentType}</strong> 문서의 내용을 확인했으며, 이에 동의하여 서명합니다.
                 </p>
-                <p className="text-[12px] text-gray-400 mb-5">
+                <p className="text-[13px] leading-5 text-gray-400 mb-5">
                   서명 후에는 취소할 수 없습니다.
                 </p>
                 <div className="flex gap-3">

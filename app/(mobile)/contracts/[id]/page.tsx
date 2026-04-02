@@ -212,7 +212,7 @@ export default function WorkerContractConfirmPage() {
     <div className="min-h-screen bg-brand pb-24">
       {/* 헤더 */}
       <div style={{ background: accent }} className="text-white px-5 pt-5 pb-4 sticky top-0 z-10">
-        <p className="text-[11px] opacity-80 mb-1">
+        <p className="text-[13px] opacity-80 mb-1">
           {step === 'view' ? '1 / 3단계' : step === 'body' ? '2 / 3단계' : '3 / 3단계'}
         </p>
         <h1 className="text-[17px] font-bold m-0">
@@ -239,7 +239,7 @@ export default function WorkerContractConfirmPage() {
               { label: '종료일', value: contract.endDate || '별도 없음' },
             ].map(({ label, value }) => (
               <div key={label}>
-                <div className="text-[11px] text-muted-brand mb-[2px]">{label}</div>
+                <div className="text-[13px] text-muted-brand mb-[2px]">{label}</div>
                 <div className="font-semibold text-[#222]">{value}</div>
               </div>
             ))}
@@ -253,9 +253,9 @@ export default function WorkerContractConfirmPage() {
               <h3 className="text-[14px] font-bold text-[#222] mb-2">근로유형 안내</h3>
               <p className="text-[13px] text-muted-brand leading-[1.7] mb-3">{guide.description}</p>
               <div className="bg-[#f8f8f8] rounded-lg p-3">
-                <div className="text-[12px] font-semibold text-[#444] mb-[6px]">확인사항</div>
+                <div className="text-[13px] font-semibold text-[#444] mb-[6px]">확인사항</div>
                 {guide.checkPoints.map((pt, i) => (
-                  <div key={i} className="text-[12px] text-muted-brand mb-1">• {pt}</div>
+                  <div key={i} className="text-[13px] text-muted-brand mb-1">• {pt}</div>
                 ))}
               </div>
             </div>
@@ -305,8 +305,8 @@ export default function WorkerContractConfirmPage() {
                 {/* 문서 제목 */}
                 <div className="px-[18px] pt-[18px] pb-2">
                   <h2 className="text-[16px] font-bold text-[#222] mb-1">{renderedDoc.title}</h2>
-                  <p className="text-[12px] text-muted-brand">{renderedDoc.subtitle}</p>
-                  <div className="mt-2 px-3 py-[6px] bg-[#f0f4f8] rounded text-[11px] text-[#555]">
+                  <p className="text-[13px] text-muted-brand">{renderedDoc.subtitle}</p>
+                  <div className="mt-2 px-3 py-[6px] bg-[#f0f4f8] rounded text-[13px] text-[#555]">
                     법적 근거: {renderedDoc.legalBasis}
                   </div>
                 </div>
@@ -316,7 +316,7 @@ export default function WorkerContractConfirmPage() {
                   {renderedDoc.sections.map((section, i) => (
                     <div key={i} className="mt-4">
                       <h4 className="text-[13px] font-bold text-[#333] mb-[6px]">{section.title}</h4>
-                      <div className="text-[12px] text-[#555] leading-[1.8] whitespace-pre-wrap">
+                      <div className="text-[13px] text-[#555] leading-[1.8] whitespace-pre-wrap">
                         {section.content}
                       </div>
                     </div>
@@ -325,7 +325,7 @@ export default function WorkerContractConfirmPage() {
                   {/* 서명란 */}
                   {renderedDoc.signatureBlock && (
                     <div className="mt-6 pt-4 border-t border-brand">
-                      <div className="text-[12px] text-[#555] leading-[1.8] whitespace-pre-wrap">
+                      <div className="text-[13px] text-[#555] leading-[1.8] whitespace-pre-wrap">
                         {renderedDoc.signatureBlock}
                       </div>
                     </div>
@@ -345,7 +345,7 @@ export default function WorkerContractConfirmPage() {
             <div className="bg-card rounded-xl p-[18px] shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
               <div className="bg-[#fff8e1] border border-[#ffe082] rounded-lg p-3 mb-3">
                 <div className="text-[13px] font-bold text-accent-hover mb-[6px]">서명 전 최종 확인</div>
-                <p className="text-[12px] text-[#5d4037] leading-[1.6] m-0">
+                <p className="text-[13px] text-[#5d4037] leading-[1.6] m-0">
                   위 계약서 내용을 모두 읽고 확인하였으며, 동의 후에는 내용 변경이 어려울 수 있습니다.
                 </p>
               </div>
@@ -385,7 +385,7 @@ export default function WorkerContractConfirmPage() {
           <>
             <div className="bg-green-light border border-[#a5d6a7] rounded-xl p-4">
               <div className="text-[13px] font-bold text-[#2e7d32] mb-[6px]">전자서명 안내</div>
-              <p className="text-[12px] text-[#33691e] leading-[1.6] m-0">
+              <p className="text-[13px] text-[#33691e] leading-[1.6] m-0">
                 아래 서명란에 본인의 서명을 입력해 주세요.<br />
                 서명이 완료되면 관리자에게 검토 요청이 전송됩니다.
               </p>

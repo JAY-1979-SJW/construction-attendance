@@ -53,6 +53,7 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: "Pretendard", "Inter", system-ui, sans-serif;
+  font-size: 0.875rem; /* 14px — 모바일 본문 최소 기준 */
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

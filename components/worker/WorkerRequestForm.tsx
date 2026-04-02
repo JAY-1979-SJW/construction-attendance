@@ -116,7 +116,7 @@ export default function WorkerRequestForm() {
           className="w-full border border-[rgba(91,164,217,0.25)] rounded-lg px-3 py-[10px] text-[14px] resize-y outline-none box-border bg-[rgba(255,255,255,0.06)] text-white"
         />
         <div
-          className="text-right text-[11px] mt-1"
+          className="text-right text-[13px] leading-5 mt-1"
           style={{ color: content.length >= MAX_CONTENT ? '#e53935' : '#718096' }}
         >
           {content.length} / {MAX_CONTENT}

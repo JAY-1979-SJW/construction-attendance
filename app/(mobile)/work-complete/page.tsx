@@ -92,8 +92,8 @@ export default function WorkCompletePage() {
     <div className="min-h-screen bg-gray-50 pb-24">
       <WorkerTopBar />
       <div className="px-4 pt-4">
-        <h2 className="text-[16px] font-bold text-gray-800 mb-1">작업완료 보고</h2>
-        <p className="text-[12px] text-gray-500 mb-4">퇴근 전 작업 완료 사진을 촬영하고, 건강 이상 없음을 확인합니다.</p>
+        <h2 className="text-lg font-bold text-gray-800 mb-1">작업완료 보고</h2>
+        <p className="text-[13px] leading-5 text-gray-500 mb-4">퇴근 전 작업 완료 사진을 촬영하고, 건강 이상 없음을 확인합니다.</p>
 
         {loading ? (
           <div className="text-center py-16 text-sm text-gray-400">불러오는 중...</div>
@@ -101,28 +101,28 @@ export default function WorkCompletePage() {
           <div className="bg-green-50 rounded-2xl p-5 border border-green-200">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-green-600 text-[18px]">✓</span>
-              <span className="text-[15px] font-bold text-green-700">오늘 작업완료 보고 완료</span>
+              <span className="text-base font-bold text-green-700">오늘 작업완료 보고 완료</span>
             </div>
             {doneAt && (
-              <div className="text-[12px] text-green-600">
+              <div className="text-[13px] leading-5 text-green-600">
                 확인 시각: {new Date(doneAt).toLocaleString('ko-KR')}
               </div>
             )}
             <button onClick={() => router.push('/attendance')}
-              className="w-full mt-4 py-3 rounded-xl text-[14px] font-bold bg-green-600 text-white border-none cursor-pointer">
+              className="w-full mt-4 h-11 rounded-xl text-sm font-bold bg-green-600 text-white border-none cursor-pointer">
               출퇴근 화면으로 이동
             </button>
           </div>
         ) : (
           <div>
-            {error && <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-3 text-[12px] text-red-700">{error}</div>}
-            {success && <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-3 text-[12px] text-green-700">{success}</div>}
+            {error && <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-3 text-[13px] leading-5 text-red-700">{error}</div>}
+            {success && <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-3 text-[13px] leading-5 text-green-700">{success}</div>}
 
             {/* 현장 선택 */}
             {sites.length > 1 && (
               <div className="mb-4">
-                <label className="block text-[13px] font-semibold text-gray-700 mb-1">현장</label>
-                <select className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[13px] bg-white outline-none focus:border-[#F97316] box-border"
+                <label className="block text-sm font-semibold text-gray-700 mb-1">현장</label>
+                <select className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-base bg-white outline-none focus:border-[#F97316] box-border"
                   value={siteId} onChange={e => setSiteId(e.target.value)}>
                   <option value="">현장 선택</option>
                   {sites.map(s => <option key={s.siteId} value={s.siteId}>{s.siteName}</option>)}
@@ -133,8 +133,8 @@ export default function WorkCompletePage() {
             {/* 작업완료 사진 */}
             <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
               <div className="flex justify-between items-center mb-3">
-                <label className="text-[13px] font-semibold text-gray-700">작업완료 사진</label>
-                <span className="text-[11px] text-gray-400">{photos.length}/5장</span>
+                <label className="text-sm font-semibold text-gray-700">작업완료 사진</label>
+                <span className="text-[13px] leading-5 text-gray-400">{photos.length}/5장</span>
               </div>
 
               <div className="flex gap-2 flex-wrap mb-3">
@@ -142,7 +142,7 @@ export default function WorkCompletePage() {
                   <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
                     <img src={p.preview} alt="" className="w-full h-full object-cover" />
                     <button onClick={() => removePhoto(idx)}
-                      className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-[10px] rounded-bl-lg border-none cursor-pointer">X</button>
+                      className="absolute top-0 right-0 w-6 h-6 bg-red-500 text-white text-xs rounded-bl-lg border-none cursor-pointer">X</button>
                   </div>
                 ))}
                 {photos.length < 5 && (
@@ -152,14 +152,14 @@ export default function WorkCompletePage() {
                   </button>
                 )}
               </div>
-              <p className="text-[11px] text-gray-400">작업 완료 상태를 촬영하여 첨부하세요.</p>
+              <p className="text-[13px] leading-5 text-gray-400">작업 완료 상태를 촬영하여 첨부하세요.</p>
             </div>
 
             {/* 작업 이상 없음 확인서 */}
             <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
-              <label className="text-[13px] font-semibold text-gray-700 block mb-3">작업 완료 확인서</label>
+              <label className="text-sm font-semibold text-gray-700 block mb-3">작업 완료 확인서</label>
 
-              <div className="bg-blue-50 rounded-xl p-4 mb-3 text-[12px] text-gray-600 leading-relaxed">
+              <div className="bg-blue-50 rounded-xl p-4 mb-3 text-[13px] text-gray-600 leading-relaxed">
                 <p className="font-semibold text-gray-700 mb-2">본인은 금일 담당 작업을 완료하며 아래 사항을 확인합니다.</p>
                 <ul className="list-none p-0 m-0 space-y-1.5">
                   <li>1. 작업 중 안전사고가 발생하지 않았습니다.</li>
@@ -167,7 +167,7 @@ export default function WorkCompletePage() {
                   <li>3. 자재·장비의 파손 또는 분실이 없습니다.</li>
                   <li>4. 작업 구역 정리정돈을 완료했습니다.</li>
                 </ul>
-                <p className="mt-2 text-[11px] text-gray-400">이상이 있는 경우 체크하지 마시고 관리자에게 즉시 보고하세요.</p>
+                <p className="mt-2 text-[13px] leading-5 text-gray-400">이상이 있는 경우 체크하지 마시고 관리자에게 즉시 보고하세요.</p>
               </div>
 
               <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border-2 transition-colors"
@@ -181,16 +181,16 @@ export default function WorkCompletePage() {
                   <div className={`text-[14px] font-bold ${workNoIssue ? 'text-blue-700' : 'text-gray-600'}`}>
                     작업 완료 시 이상 없음을 확인합니다
                   </div>
-                  <div className="text-[11px] text-gray-400 mt-0.5">사고·하자·파손·분실이 있으면 체크하지 마세요.</div>
+                  <div className="text-[13px] leading-5 text-gray-400 mt-0.5">사고·하자·파손·분실이 있으면 체크하지 마세요.</div>
                 </div>
               </label>
             </div>
 
             {/* 건강이상 없음 확인 */}
             <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
-              <label className="text-[13px] font-semibold text-gray-700 block mb-3">건강이상 없음 확인</label>
+              <label className="text-sm font-semibold text-gray-700 block mb-3">건강이상 없음 확인</label>
 
-              <div className="bg-gray-50 rounded-xl p-4 mb-3 text-[12px] text-gray-600 leading-relaxed">
+              <div className="bg-gray-50 rounded-xl p-4 mb-3 text-[13px] text-gray-600 leading-relaxed">
                 <p>본인은 금일 작업을 마치며, 작업 중 및 현재 시점에서 건강에 이상이 없음을 확인합니다.</p>
                 <p className="mt-2">두통, 어지러움, 호흡곤란, 근골격계 통증, 피부 이상 등 이상 증상이 있는 경우 반드시 관리자에게 즉시 보고하세요.</p>
               </div>
@@ -206,7 +206,7 @@ export default function WorkCompletePage() {
                   <div className={`text-[14px] font-bold ${healthChecked ? 'text-green-700' : 'text-gray-600'}`}>
                     건강이상 없음을 확인합니다
                   </div>
-                  <div className="text-[11px] text-gray-400 mt-0.5">이상 증상이 있으면 체크하지 마시고 관리자에게 보고하세요.</div>
+                  <div className="text-[13px] leading-5 text-gray-400 mt-0.5">이상 증상이 있으면 체크하지 마시고 관리자에게 보고하세요.</div>
                 </div>
               </label>
             </div>
@@ -214,8 +214,8 @@ export default function WorkCompletePage() {
             {/* 서명 */}
             {workNoIssue && healthChecked && (
               <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
-                <label className="text-[13px] font-semibold text-gray-700 block mb-2">작업완료 + 건강확인 서명</label>
-                <p className="text-[11px] text-gray-500 mb-3">
+                <label className="text-sm font-semibold text-gray-700 block mb-2">작업완료 + 건강확인 서명</label>
+                <p className="text-[13px] leading-5 text-gray-500 mb-3">
                   본인은 금일 작업 완료 시 이상이 없었으며, 건강에도 이상이 없음을 아래 서명으로 확인합니다.
                 </p>
                 <SignatureCanvas
@@ -226,7 +226,7 @@ export default function WorkCompletePage() {
                   disabled={submitting}
                 />
                 {signatureData && (
-                  <div className="text-[11px] text-green-600 mt-2 text-center">서명 완료</div>
+                  <div className="text-[13px] leading-5 text-green-600 mt-2 text-center">서명 완료</div>
                 )}
               </div>
             )}
@@ -235,7 +235,7 @@ export default function WorkCompletePage() {
             <button
               onClick={handleSubmit}
               disabled={submitting || !workNoIssue || !healthChecked || !signatureData}
-              className="w-full py-3.5 rounded-xl text-[15px] font-bold text-white border-none cursor-pointer disabled:bg-gray-300"
+              className="w-full h-12 rounded-xl text-sm font-bold text-white border-none cursor-pointer disabled:bg-gray-300"
               style={{ background: workNoIssue && healthChecked && signatureData ? '#16A34A' : '#9CA3AF' }}
             >
               {submitting ? '제출 중...' : !workNoIssue ? '작업확인을 체크하세요' : !healthChecked ? '건강확인을 체크하세요' : !signatureData ? '서명을 해주세요' : '작업완료 확인서 제출'}

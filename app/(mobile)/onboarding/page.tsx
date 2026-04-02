@@ -107,7 +107,7 @@ export default function OnboardingPage() {
           </div>
 
           {/* 하단 안내 */}
-          <p className="text-center text-[11px] text-muted2-brand mt-5">
+          <p className="text-center text-[13px] leading-5 text-muted2-brand mt-5">
             {step + 1} / {STEPS.length}단계 · 언제든 사용 가이드에서 다시 볼 수 있습니다
           </p>
         </div>

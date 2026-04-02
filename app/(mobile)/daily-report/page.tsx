@@ -126,11 +126,11 @@ function Sel({ label, value, onChange, options, placeholder }: {
 }) {
   return (
     <div className="flex-1 min-w-0">
-      <div className="text-[11px] text-muted2-brand mb-1">{label}</div>
+      <div className="text-[13px] leading-5 text-muted2-brand mb-1">{label}</div>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full text-[13px] border border-brand rounded-lg px-3 py-2.5 bg-card focus:outline-none focus:border-accent"
+        className="w-full text-base border border-brand rounded-lg px-3 py-2.5 bg-card focus:outline-none focus:border-accent"
       >
         <option value="">{placeholder || `${label} 선택`}</option>
         {options.map((o) => (
@@ -178,9 +178,9 @@ function DropSel({ label, value, onChange, options, placeholder }: {
 
   return (
     <div className="flex-1 min-w-0 relative" ref={ref}>
-      <div className="text-[11px] text-muted2-brand mb-1">{label}</div>
+      <div className="text-[13px] leading-5 text-muted2-brand mb-1">{label}</div>
       <button type="button" onClick={handleToggle}
-        className="w-full text-left text-[13px] border border-brand rounded-lg px-3 py-2.5 bg-card focus:outline-none focus:border-accent truncate">
+        className="w-full text-left text-sm border border-brand rounded-lg px-3 py-2.5 bg-card focus:outline-none focus:border-accent truncate">
         <span className={selectedLabel ? 'text-body-brand' : 'text-muted2-brand'}>
           {selectedLabel || placeholder || `${label} 선택`}
         </span>
@@ -190,13 +190,13 @@ function DropSel({ label, value, onChange, options, placeholder }: {
           openUp ? 'bottom-full mb-1' : 'mt-1'
         }`}>
           <button type="button" onClick={() => { onChange(''); setOpen(false) }}
-            className="w-full text-left px-3 py-2 text-[13px] text-muted2-brand border-b border-brand">
+            className="w-full text-left px-3 py-2 text-sm text-muted2-brand border-b border-brand">
             {placeholder || `${label} 선택`}
           </button>
           {options.map((o) => (
             <button key={o.value} type="button"
               onClick={() => { onChange(o.value); setOpen(false) }}
-              className={`w-full text-left px-3 py-2.5 text-[13px] border-b border-brand last:border-0 transition-colors ${
+              className={`w-full text-left px-3 py-2.5 text-sm border-b border-brand last:border-0 transition-colors ${
                 o.value === value ? 'bg-accent-light text-accent font-medium' : 'text-body-brand active:bg-surface'
               }`}>
               <div className="line-clamp-2">{o.label}</div>
@@ -261,7 +261,7 @@ function FloorSel({ value, onChange, floors, building }: {
 
   return (
     <div className="flex-1 min-w-0 relative" ref={ref}>
-      <div className="text-[11px] text-muted2-brand mb-1">층</div>
+      <div className="text-[13px] leading-5 text-muted2-brand mb-1">층</div>
       <button type="button" onClick={() => {
           if (disabled) return
           if (!open && ref.current) {
@@ -270,7 +270,7 @@ function FloorSel({ value, onChange, floors, building }: {
           }
           setOpen(!open)
         }} disabled={disabled}
-        className={`w-full text-left text-[13px] border rounded-lg px-3 py-2.5 truncate ${
+        className={`w-full text-left text-sm border rounded-lg px-3 py-2.5 truncate ${
           disabled
             ? 'bg-surface border-brand text-[#D1D5DB]'
             : 'bg-white border-brand focus:outline-none focus:border-accent text-body-brand'
@@ -286,17 +286,17 @@ function FloorSel({ value, onChange, floors, building }: {
             <div className="sticky top-0 z-10 bg-card border-b border-brand p-2">
               <input type="text" placeholder="층 검색..." value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full text-[13px] border border-brand rounded px-2 py-1.5 focus:outline-none focus:border-accent"
+                className="w-full text-sm border border-brand rounded px-2 py-1.5 focus:outline-none focus:border-accent"
               />
             </div>
           )}
           {orderedGroups.map(({ group, items }) => (
             <div key={group}>
-              <div className="px-3 py-1 text-[10px] text-muted2-brand bg-surface font-medium">{group}</div>
+              <div className="px-3 py-1 text-xs text-muted2-brand bg-surface font-medium">{group}</div>
               {items.map((f) => (
                 <button key={`${group}-${f}`} type="button"
                   onClick={() => { onChange(f); setOpen(false); setSearch('') }}
-                  className={`w-full text-left px-3 py-2 text-[13px] border-b border-brand last:border-0 transition-colors ${
+                  className={`w-full text-left px-3 py-2 text-sm border-b border-brand last:border-0 transition-colors ${
                     f === value ? 'bg-accent-light text-accent font-medium' : 'text-body-brand active:bg-surface'
                   }`}>
                   {f}
@@ -305,7 +305,7 @@ function FloorSel({ value, onChange, floors, building }: {
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="px-3 py-4 text-[13px] text-muted2-brand text-center">검색 결과 없음</div>
+            <div className="px-3 py-4 text-sm text-muted2-brand text-center">검색 결과 없음</div>
           )}
         </div>
       )}
@@ -596,7 +596,7 @@ export default function DailyReportPage() {
       <div className="mobile-content">
         <div className="bg-card rounded-xl p-6 mt-4 text-center">
           <div className="text-body-brand font-semibold text-[15px] mb-1">작업일보</div>
-          <div className="text-muted2-brand text-[13px]">
+          <div className="text-muted2-brand text-sm leading-6">
             오늘 출근 기록이 없습니다.<br />출근 후 작업일보를 작성할 수 있습니다.
           </div>
         </div>
@@ -613,17 +613,17 @@ export default function DailyReportPage() {
         {/* ── 현장 + 작업일자 ─────────────────────────────── */}
         <div className="bg-card rounded-xl p-4 mt-3">
           <div className="text-[16px] font-bold text-title-brand">작업일보</div>
-          <div className="mt-1.5 text-[13px] text-muted-brand">
+          <div className="mt-1.5 text-sm leading-6 text-muted-brand">
             {attendance.checkInSite.name}
           </div>
-          <div className="text-[13px] text-muted-brand">
+          <div className="text-sm leading-6 text-muted-brand">
             {todayStr} · {workerName} · {workerJobTitle}
           </div>
         </div>
 
         {/* ── 공종 / 작업사항 ────────────────────────────── */}
         <div className="bg-card rounded-xl p-4 mt-3">
-          <div className="text-[13px] font-semibold text-body-brand mb-3">공종 / 작업사항</div>
+          <div className="text-sm font-semibold text-body-brand mb-3">공종 / 작업사항</div>
           <div className="space-y-2.5">
             <DropSel label="공종계열" value={familyCode}
               onChange={(v) => { setFamilyCode(v); setTradeCode(''); setTaskCode('') }}
@@ -640,7 +640,7 @@ export default function DailyReportPage() {
               />
             </div>
             {tradeSummary && (
-              <div className="text-[12px] text-muted-brand bg-surface rounded-xl px-3 py-1.5">
+              <div className="text-[13px] leading-5 text-muted-brand bg-surface rounded-xl px-3 py-1.5">
                 {tradeSummary}
               </div>
             )}
@@ -656,7 +656,7 @@ export default function DailyReportPage() {
 
         {/* ── 근무시간 ───────────────────────────────────── */}
         <div className="bg-card rounded-xl p-4 mt-3">
-          <div className="text-[13px] font-semibold text-body-brand mb-2">근무시간</div>
+          <div className="text-sm font-semibold text-body-brand mb-2">근무시간</div>
           <div className="flex gap-2 items-center">
             <input type="time" value={workStart} onChange={(e) => setWorkStart(e.target.value)}
               className="flex-1 text-[14px] border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent" />
@@ -669,8 +669,8 @@ export default function DailyReportPage() {
         {/* ── 사진 ───────────────────────────────────────── */}
         <div className="bg-card rounded-xl p-4 mt-3">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-[13px] font-semibold text-body-brand">사진</div>
-            <span className="text-[11px] text-muted2-brand">{photos.length}/3</span>
+            <div className="text-sm font-semibold text-body-brand">사진</div>
+            <span className="text-[13px] leading-5 text-muted2-brand">{photos.length}/3</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             {photos.map((p, i) => (
@@ -691,14 +691,14 @@ export default function DailyReportPage() {
                 <input type="file" accept="image/*" capture="environment" className="hidden"
                   onChange={handlePhotoUpload} disabled={uploading} />
                 {uploading ? (
-                  <div className="text-[12px] text-muted2-brand">업로드 중...</div>
+                  <div className="text-[13px] text-muted2-brand">업로드 중...</div>
                 ) : (
                   <>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[#D1D5DB]">
                       <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/>
                       <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5"/>
                     </svg>
-                    <div className="text-[11px] text-muted2-brand mt-1">사진 추가</div>
+                    <div className="text-[13px] text-muted2-brand mt-1">사진 추가</div>
                   </>
                 )}
               </label>
@@ -708,7 +708,7 @@ export default function DailyReportPage() {
 
         {/* ── 메모 / 특이사항 ────────────────────────────── */}
         <div className="bg-card rounded-xl p-4 mt-3">
-          <div className="text-[13px] font-semibold text-body-brand mb-2">메모 / 특이사항</div>
+          <div className="text-sm font-semibold text-body-brand mb-2">메모 / 특이사항</div>
           <textarea
             placeholder="메모나 특이사항을 입력하세요"
             value={notes}
@@ -719,11 +719,11 @@ export default function DailyReportPage() {
         </div>
 
         {/* ── 메시지 ─────────────────────────────────────── */}
-        {msg && <div className="mt-3 text-center text-[13px] text-accent font-medium">{msg}</div>}
+        {msg && <div className="mt-3 text-center text-sm text-accent font-medium">{msg}</div>}
 
         {/* ── 저장 버튼 ──────────────────────────────────── */}
         <button onClick={handleSave} disabled={saving}
-          className="w-full mt-4 py-3.5 rounded-xl text-white text-[15px] font-bold transition-colors"
+          className="w-full mt-4 h-12 rounded-xl text-white text-sm font-bold transition-colors"
           style={{ background: saving ? '#FDBA74' : '#F97316' }}>
           {saving ? '저장 중...' : report ? '수정 저장' : '저장'}
         </button>

@@ -175,31 +175,31 @@ export default function MyOnboardingPage() {
             <div className={`rounded-2xl p-5 mb-5 ${overall.bg}`}>
               <div className="flex items-center justify-between mb-3">
                 <span className={`text-lg font-bold ${overall.color}`}>{overall.text}</span>
-                {pkg?.site && <span className="text-xs text-gray-500">{pkg.site.name}</span>}
+                {pkg?.site && <span className="text-[13px] leading-5 text-gray-500">{pkg.site.name}</span>}
               </div>
               <div className="flex gap-3">
                 <div className="flex-1 bg-white/70 rounded-xl p-3 text-center">
                   <div className="text-2xl font-bold text-green-600">{pkg?.approvedDocCount ?? 0}</div>
-                  <div className="text-[11px] text-gray-500 mt-0.5">승인</div>
+                  <div className="text-[13px] leading-5 text-gray-500 mt-0.5">승인</div>
                 </div>
                 <div className="flex-1 bg-white/70 rounded-xl p-3 text-center">
                   <div className="text-2xl font-bold text-amber-600">{pkg?.pendingDocCount ?? 0}</div>
-                  <div className="text-[11px] text-gray-500 mt-0.5">검토중</div>
+                  <div className="text-[13px] leading-5 text-gray-500 mt-0.5">검토중</div>
                 </div>
                 <div className="flex-1 bg-white/70 rounded-xl p-3 text-center">
                   <div className="text-2xl font-bold text-gray-400">{pkg?.missingDocCount ?? 0}</div>
-                  <div className="text-[11px] text-gray-500 mt-0.5">미제출</div>
+                  <div className="text-[13px] leading-5 text-gray-500 mt-0.5">미제출</div>
                 </div>
                 {(pkg?.rejectedDocCount ?? 0) > 0 && (
                   <div className="flex-1 bg-white/70 rounded-xl p-3 text-center">
                     <div className="text-2xl font-bold text-red-600">{pkg?.rejectedDocCount}</div>
-                    <div className="text-[11px] text-gray-500 mt-0.5">반려</div>
+                    <div className="text-[13px] leading-5 text-gray-500 mt-0.5">반려</div>
                   </div>
                 )}
                 {(pkg?.expiredDocCount ?? 0) > 0 && (
                   <div className="flex-1 bg-white/70 rounded-xl p-3 text-center">
                     <div className="text-2xl font-bold text-orange-600">{pkg?.expiredDocCount}</div>
-                    <div className="text-[11px] text-gray-500 mt-0.5">만료</div>
+                    <div className="text-[13px] leading-5 text-gray-500 mt-0.5">만료</div>
                   </div>
                 )}
               </div>
@@ -208,7 +208,7 @@ export default function MyOnboardingPage() {
                 <div className="h-full bg-green-500 rounded-full transition-all"
                   style={{ width: `${((pkg?.approvedDocCount ?? 0) / (pkg?.requiredDocCount ?? 5)) * 100}%` }} />
               </div>
-              <div className="text-[11px] text-gray-500 mt-1 text-right">{pkg?.approvedDocCount ?? 0} / {pkg?.requiredDocCount ?? 5} 완료</div>
+              <div className="text-[13px] leading-5 text-gray-500 mt-1 text-right">{pkg?.approvedDocCount ?? 0} / {pkg?.requiredDocCount ?? 5} 완료</div>
             </div>
 
             {/* 문서 카드 리스트 */}
@@ -222,28 +222,28 @@ export default function MyOnboardingPage() {
                   <div key={doc.id} className="bg-card rounded-2xl p-4 shadow-sm border border-gray-100">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <div className="font-bold text-[15px] text-gray-800">{doc.label}</div>
+                        <div className="font-bold text-base leading-snug text-gray-800">{doc.label}</div>
                         {doc.submittedAt && (
-                          <div className="text-[11px] text-gray-400 mt-0.5">
+                          <div className="text-[13px] leading-5 text-gray-400 mt-0.5">
                             제출: {new Date(doc.submittedAt).toLocaleDateString('ko-KR')}
                           </div>
                         )}
                       </div>
-                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${st.bg} ${st.color}`}>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${st.bg} ${st.color}`}>
                         {st.text}
                       </span>
                     </div>
 
                     {/* 반려 사유 */}
                     {doc.rejectionReason && doc.status === 'REJECTED' && (
-                      <div className="bg-red-50 rounded-lg px-3 py-2 mb-2 text-[12px] text-red-700">
+                      <div className="bg-red-50 rounded-lg px-3 py-2 mb-2 text-[13px] leading-5 text-red-700">
                         반려 사유: {doc.rejectionReason}
                       </div>
                     )}
 
                     {/* 만료 경고 */}
                     {doc.expiresAt && doc.status !== 'EXPIRED' && (
-                      <div className="text-[11px] text-orange-600 mb-2">
+                      <div className="text-[13px] leading-5 text-orange-600 mb-2">
                         유효기간: {new Date(doc.expiresAt).toLocaleDateString('ko-KR')}까지
                       </div>
                     )}
@@ -263,14 +263,14 @@ export default function MyOnboardingPage() {
                           }
                         }}
                         disabled={submitting}
-                        className={`w-full py-3 rounded-xl text-[14px] font-bold border-none cursor-pointer mt-1 ${action.style}`}>
+                        className={`w-full h-11 rounded-xl text-sm font-bold border-none cursor-pointer mt-1 ${action.style}`}>
                         {action.label}
                       </button>
                     )}
 
                     {/* 승인 완료 표시 */}
                     {doc.status === 'APPROVED' && (
-                      <div className="flex items-center gap-1.5 mt-1 text-green-600 text-[12px]">
+                      <div className="flex items-center gap-1.5 mt-1 text-green-600 text-[13px] leading-5">
                         <span>✓</span> 승인 완료
                         {doc.approvedAt && <span className="text-gray-400">({new Date(doc.approvedAt).toLocaleDateString('ko-KR')})</span>}
                       </div>
@@ -278,7 +278,7 @@ export default function MyOnboardingPage() {
 
                     {/* 검토중 표시 */}
                     {doc.status === 'SUBMITTED' && (
-                      <div className="text-center py-2 text-[12px] text-amber-600 mt-1">
+                      <div className="text-center py-2 text-[13px] leading-5 text-amber-600 mt-1">
                         관리자 검토 대기 중입니다
                       </div>
                     )}
@@ -298,11 +298,11 @@ export default function MyOnboardingPage() {
             <h3 className="text-lg font-bold text-gray-800 mb-2">
               {docs.find(d => d.docType === activeDoc)?.label}
             </h3>
-            <p className="text-[13px] text-gray-500 mb-4">
+            <p className="text-sm text-gray-500 mb-4">
               아래 내용을 확인하고 서명해 주세요.
             </p>
 
-            <div className="bg-gray-50 rounded-xl p-4 mb-4 text-[13px] text-gray-600 leading-relaxed max-h-[30vh] overflow-y-auto">
+            <div className="bg-gray-50 rounded-xl p-4 mb-4 text-sm text-gray-600 leading-relaxed max-h-[30vh] overflow-y-auto">
               {activeDoc === 'PRIVACY_CONSENT' && (
                 <div>
                   <p className="font-bold mb-2">개인정보 수집·이용 동의서</p>
@@ -351,7 +351,7 @@ export default function MyOnboardingPage() {
 
             <div className="flex gap-3">
               <button onClick={() => { setActiveDoc(null); setSignatureData(null) }}
-                className="flex-1 py-3.5 rounded-xl text-[14px] font-bold border border-gray-300 bg-card text-gray-600 cursor-pointer">
+                className="flex-1 h-11 rounded-xl text-sm font-bold border border-gray-300 bg-card text-gray-600 cursor-pointer">
                 취소
               </button>
               <button onClick={() => {
@@ -360,7 +360,7 @@ export default function MyOnboardingPage() {
                 handleSign(activeDoc, isResubmit, signatureData ?? undefined)
               }}
                 disabled={submitting || !signatureData}
-                className="flex-1 py-3.5 rounded-xl text-[14px] font-bold border-none bg-blue-500 text-white cursor-pointer disabled:bg-gray-300">
+                className="flex-1 h-11 rounded-xl text-sm font-bold border-none bg-blue-500 text-white cursor-pointer disabled:bg-gray-300">
                 {submitting ? '처리 중...' : '동의 및 제출'}
               </button>
             </div>

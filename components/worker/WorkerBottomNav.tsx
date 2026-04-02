@@ -48,7 +48,7 @@ export default function WorkerBottomNav() {
           >
             <span className="text-[20px] leading-none">{item.icon}</span>
             <span
-              className="text-[10px] tracking-[0.3px]"
+              className="text-xs tracking-[0.3px]"
               style={{ fontWeight: isActive ? 700 : 400 }}
             >
               {item.label}
