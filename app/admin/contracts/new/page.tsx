@@ -225,6 +225,7 @@ function NewContractPage() {
 
   // ─── PDF 계약서 파싱 ─────────────────────────────────────────────
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const siteSelectRef = useRef<HTMLDivElement>(null)
   const [pdfParsing, setPdfParsing] = useState(false)
   const [pdfError, setPdfError] = useState('')
   const [pdfParsed, setPdfParsed] = useState<Record<string, unknown> | null>(null)
@@ -232,6 +233,17 @@ function NewContractPage() {
   const [pdfMethod, setPdfMethod] = useState<'text' | 'vision' | ''>('')
   const [siteCreating, setSiteCreating] = useState(false)
   const [siteCreateResult, setSiteCreateResult] = useState<'created' | 'failed' | ''>('')
+  const [siteCreateFailReason, setSiteCreateFailReason] = useState('')
+
+  // 현장 검색 + 인라인 생성
+  const [siteSearch, setSiteSearch] = useState('')
+  const [siteDropdownOpen, setSiteDropdownOpen] = useState(false)
+  const [showSiteCreate, setShowSiteCreate] = useState(false)
+  const [newSiteForm, setNewSiteForm] = useState({ name: '', address: '' })
+  const [newSiteGeoResult, setNewSiteGeoResult] = useState<{ lat: number; lng: number } | null>(null)
+  const [newSiteGeoLoading, setNewSiteGeoLoading] = useState(false)
+  const [newSiteGeoError, setNewSiteGeoError] = useState('')
+  const [newSiteCreating, setNewSiteCreating] = useState(false)
 
   async function handlePdfUpload(file: File) {
     setPdfError('')
@@ -321,6 +333,7 @@ function NewContractPage() {
     if (!siteName || !siteAddr) return
     setSiteCreating(true)
     setSiteCreateResult('')
+    setSiteCreateFailReason('')
     try {
       // 1. geocode로 좌표 조회
       const geoRes = await fetch(`/api/admin/geocode?address=${encodeURIComponent(siteAddr)}`)
@@ -329,6 +342,7 @@ function NewContractPage() {
       // geocode 실패 시 자동 생성 금지
       if (!geoJson.success || !geoJson.data?.lat || !geoJson.data?.lng) {
         setSiteCreateResult('failed')
+        setSiteCreateFailReason('주소 좌표 변환 실패 — 주소가 정확한지 확인 후 아래에서 직접 선택하세요.')
         return
       }
       const lat = geoJson.data.lat
@@ -367,9 +381,11 @@ function NewContractPage() {
         setSiteCreateResult('created')
       } else {
         setSiteCreateResult('failed')
+        setSiteCreateFailReason('현장 등록 API 오류 — 아래에서 기존 현장을 선택하거나 직접 등록하세요.')
       }
     } catch {
       setSiteCreateResult('failed')
+      setSiteCreateFailReason('네트워크 오류 — 아래에서 기존 현장을 선택하거나 직접 등록하세요.')
     } finally {
       setSiteCreating(false)
     }
@@ -523,6 +539,96 @@ function NewContractPage() {
     set('siteId', siteId)
     const s = sites.find(s => s.id === siteId)
     if (s?.address) set('siteAddress', s.address)
+    setSiteSearch('')
+    setSiteDropdownOpen(false)
+  }
+
+  // 현장 검색 필터
+  const filteredSites = useMemo(() => {
+    if (!siteSearch.trim()) return sites
+    const q = siteSearch.trim().toLowerCase()
+    return sites.filter(s =>
+      s.name.toLowerCase().includes(q) || (s.address || '').toLowerCase().includes(q)
+    )
+  }, [sites, siteSearch])
+
+  // 인라인 현장 생성: geocode 조회
+  async function handleNewSiteGeocode() {
+    if (!newSiteForm.address.trim()) return
+    setNewSiteGeoLoading(true)
+    setNewSiteGeoError('')
+    setNewSiteGeoResult(null)
+    try {
+      const r = await fetch(`/api/admin/geocode?address=${encodeURIComponent(newSiteForm.address)}`)
+      const j = await r.json()
+      if (j.success && j.data?.lat && j.data?.lng) {
+        setNewSiteGeoResult({ lat: j.data.lat, lng: j.data.lng })
+      } else {
+        setNewSiteGeoError('좌표 변환 실패 — 주소를 더 구체적으로 입력해주세요.')
+      }
+    } catch {
+      setNewSiteGeoError('네트워크 오류')
+    } finally {
+      setNewSiteGeoLoading(false)
+    }
+  }
+
+  // 인라인 현장 생성: 저장
+  async function handleNewSiteCreate() {
+    if (!newSiteForm.name.trim() || !newSiteGeoResult) return
+    setNewSiteCreating(true)
+    try {
+      const r = await fetch('/api/admin/sites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newSiteForm.name.trim(),
+          address: newSiteForm.address.trim(),
+          latitude: newSiteGeoResult.lat,
+          longitude: newSiteGeoResult.lng,
+          allowedRadius: 100,
+          notes: '계약 등록 중 직접 생성',
+        }),
+      })
+      const j = await r.json()
+      if (j.success && j.data?.id) {
+        const newSite = { id: j.data.id, name: newSiteForm.name.trim(), address: newSiteForm.address.trim() }
+        setSites(prev => [newSite, ...prev])
+        setForm(f => ({ ...f, siteId: j.data.id, siteAddress: newSiteForm.address.trim() }))
+        setShowSiteCreate(false)
+        setNewSiteForm({ name: '', address: '' })
+        setNewSiteGeoResult(null)
+      } else {
+        setNewSiteGeoError(j.error || '현장 등록 실패')
+      }
+    } catch {
+      setNewSiteGeoError('네트워크 오류')
+    } finally {
+      setNewSiteCreating(false)
+    }
+  }
+
+  // PDF 기간 이상 검증
+  function getDateWarnings(parsed: Record<string, unknown> | null): string[] {
+    if (!parsed) return []
+    const warnings: string[] = []
+    const start = parsed.startDate ? String(parsed.startDate) : ''
+    const end = parsed.endDate ? String(parsed.endDate) : ''
+    if (start && end) {
+      const s = new Date(start)
+      const e = new Date(end)
+      if (e < s) warnings.push('종료일이 시작일보다 이전입니다.')
+      const diffYears = (e.getTime() - s.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+      if (diffYears > 5) warnings.push(`계약 기간이 ${Math.round(diffYears)}년으로 비정상적으로 깁니다.`)
+      if (diffYears < 0) warnings.push('계약 기간이 음수입니다.')
+    }
+    if (start && !/^\d{4}-\d{2}-\d{2}$/.test(start)) warnings.push(`시작일 형식 이상: ${start}`)
+    if (end && !/^\d{4}-\d{2}-\d{2}$/.test(end)) warnings.push(`종료일 형식 이상: ${end}`)
+    return warnings
+  }
+
+  function scrollToSiteSelect() {
+    siteSelectRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   // 유형 변경 시 template 자동 선택
@@ -784,7 +890,7 @@ function NewContractPage() {
                 { label: '일당', value: pdfParsed.dailyWage ? `${Number(pdfParsed.dailyWage).toLocaleString('ko-KR')}원` : null, key: 'dailyWage' },
                 { label: '계약형태', value: pdfParsed.contractType, key: 'contractType' },
               ].map(({ label, value, key }) => (
-                <div key={key} className="flex gap-2">
+                <div key={key} className="flex gap-2 items-center">
                   <span className="text-[#718096] w-16 shrink-0">{label}</span>
                   <span className={value ? 'text-teal-200 font-medium' : 'text-[#718096]'}>
                     {value ? String(value) : '(미추출)'}
@@ -794,17 +900,38 @@ function NewContractPage() {
                     const conf = (pdfParsed.confidence as Record<string, number>)[key]
                     if (typeof conf !== 'number') return null
                     return (
-                      <span className={`ml-1 ${conf >= 0.8 ? 'text-green-400' : 'text-amber-400'}`}>
+                      <span className={`ml-1 ${conf >= 0.8 ? 'text-green-400' : conf >= 0.5 ? 'text-amber-400' : 'text-red-400'}`}>
                         ({String(Math.round(conf * 100))}%)
                       </span>
                     )
                   })()}
+                  {/* confidence 낮은 필드 경고 */}
+                  {(() => {
+                    if (!value || !pdfParsed.confidence) return null
+                    const conf = (pdfParsed.confidence as Record<string, number>)[key]
+                    if (typeof conf === 'number' && conf < 0.7) {
+                      return <span className="text-amber-400 text-[10px]">확인 필요</span>
+                    }
+                    return null
+                  })()}
                 </div>
               ))}
             </div>
+
+            {/* 기간 이상 경고 */}
+            {getDateWarnings(pdfParsed).length > 0 && (
+              <div className="bg-amber-950/30 border border-amber-400/40 rounded p-2 mt-2 space-y-1">
+                {getDateWarnings(pdfParsed).map((w, i) => (
+                  <div key={i} className="text-xs text-amber-400">
+                    기간 경고: {w} (자동 보정하지 않음 — 아래 입력칸에서 직접 수정하세요.)
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* 현장 매칭/생성 결과 */}
             {!!pdfParsed.siteName && (
-              <div className="text-xs mt-2">
+              <div className="text-xs mt-2 space-y-1">
                 {siteCreating ? (
                   <span className="text-teal-400 animate-pulse">현장 자동 개설 중...</span>
                 ) : siteCreateResult === 'created' ? (
@@ -812,17 +939,35 @@ function NewContractPage() {
                     현장 자동 개설 완료: {String(pdfParsed.siteName)} — 현장 드롭다운에 추가됨
                   </span>
                 ) : siteCreateResult === 'failed' ? (
-                  <span className="text-red-400">
-                    현장 자동 개설 실패 — 현장 드롭다운에서 직접 선택하거나, 현장 관리에서 등록하세요.
-                  </span>
+                  <div className="space-y-1">
+                    <span className="text-red-400 block">
+                      현장 자동 개설 실패{siteCreateFailReason ? ` — ${siteCreateFailReason}` : ''}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={scrollToSiteSelect}
+                      className="text-teal-400 underline hover:text-teal-300"
+                    >
+                      아래에서 현장 직접 선택/등록하기 ↓
+                    </button>
+                  </div>
                 ) : form.siteId && sites.find(s => s.id === form.siteId) ? (
                   <span className="text-green-400">
                     기존 현장 매칭됨: {String(sites.find(s => s.id === form.siteId)?.name ?? '')}
                   </span>
                 ) : (
-                  <span className="text-amber-400">
-                    현장 주소 없음 — 현장 드롭다운에서 직접 선택하세요.
-                  </span>
+                  <div className="space-y-1">
+                    <span className="text-amber-400 block">
+                      현장 주소 없음 — 현장을 직접 선택해주세요.
+                    </span>
+                    <button
+                      type="button"
+                      onClick={scrollToSiteSelect}
+                      className="text-teal-400 underline hover:text-teal-300"
+                    >
+                      아래에서 현장 직접 선택/등록하기 ↓
+                    </button>
+                  </div>
                 )}
               </div>
             )}
@@ -1216,15 +1361,138 @@ function NewContractPage() {
             })()}
           </div>
 
-          <div className="col-span-2">
+          <div className="col-span-2" ref={siteSelectRef}>
             <label className="text-xs font-medium text-dim-brand block mb-1">현장 (선택)</label>
-            <select value={form.siteId} onChange={e => handleSiteChange(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm">
-              <option value="">현장 미지정</option>
-              {sites.map(s => (
-                <option key={s.id} value={s.id}>{s.name}{s.address ? ` — ${s.address}` : ''}</option>
-              ))}
-            </select>
+
+            {/* 검색 가능한 현장 선택 */}
+            <div className="relative">
+              {/* 선택된 현장 표시 또는 검색 입력 */}
+              {form.siteId && !siteDropdownOpen ? (
+                <div className="w-full border rounded px-3 py-2 text-sm flex items-center justify-between bg-[rgba(255,255,255,0.04)]">
+                  <span>
+                    {sites.find(s => s.id === form.siteId)?.name ?? ''}
+                    {(() => { const s = sites.find(s => s.id === form.siteId); return s?.address ? ` — ${s.address}` : '' })()}
+                  </span>
+                  <div className="flex gap-1">
+                    <button type="button" onClick={() => { setSiteDropdownOpen(true); setSiteSearch('') }}
+                      className="text-xs text-teal-400 hover:text-teal-300">변경</button>
+                    <button type="button" onClick={() => { set('siteId', ''); set('siteAddress', '') }}
+                      className="text-xs text-red-400 hover:text-red-300 ml-1">해제</button>
+                  </div>
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="현장명 또는 주소로 검색..."
+                  value={siteSearch}
+                  onChange={e => { setSiteSearch(e.target.value); setSiteDropdownOpen(true) }}
+                  onFocus={() => setSiteDropdownOpen(true)}
+                  className="w-full border rounded px-3 py-2 text-sm"
+                />
+              )}
+
+              {/* 드롭다운 목록 */}
+              {siteDropdownOpen && (
+                <div className="absolute z-20 mt-1 w-full bg-card border border-[rgba(91,164,217,0.25)] rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  <button
+                    type="button"
+                    onClick={() => { handleSiteChange(''); setSiteDropdownOpen(false) }}
+                    className="w-full text-left px-3 py-2 text-sm text-[#718096] hover:bg-[rgba(255,255,255,0.04)] border-b border-[rgba(91,164,217,0.1)]"
+                  >
+                    현장 미지정
+                  </button>
+                  {filteredSites.length === 0 ? (
+                    <div className="px-3 py-3 text-xs text-[#718096] text-center">
+                      검색 결과 없음
+                      <button type="button" onClick={() => { setShowSiteCreate(true); setSiteDropdownOpen(false); setNewSiteForm({ name: siteSearch, address: '' }) }}
+                        className="block mx-auto mt-1 text-teal-400 underline hover:text-teal-300">
+                        새 현장 직접 등록하기
+                      </button>
+                    </div>
+                  ) : (
+                    filteredSites.map(s => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => handleSiteChange(s.id)}
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-[rgba(255,255,255,0.06)] ${form.siteId === s.id ? 'bg-teal-900/30 text-teal-200' : ''}`}
+                      >
+                        {s.name}
+                        {s.address && <span className="text-[#718096] text-xs ml-2">— {s.address}</span>}
+                      </button>
+                    ))
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => { setShowSiteCreate(true); setSiteDropdownOpen(false); setNewSiteForm({ name: '', address: '' }) }}
+                    className="w-full text-left px-3 py-2 text-xs text-teal-400 hover:bg-[rgba(255,255,255,0.04)] border-t border-[rgba(91,164,217,0.1)] font-medium"
+                  >
+                    + 새 현장 직접 등록
+                  </button>
+                </div>
+              )}
+
+              {/* 드롭다운 외부 클릭 닫기 */}
+              {siteDropdownOpen && (
+                <div className="fixed inset-0 z-10" onClick={() => setSiteDropdownOpen(false)} />
+              )}
+            </div>
+
+            {/* 인라인 현장 생성 폼 */}
+            {showSiteCreate && (
+              <div className="mt-2 border border-teal-400/30 rounded-lg p-3 bg-teal-950/20 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-teal-300">새 현장 등록</span>
+                  <button type="button" onClick={() => { setShowSiteCreate(false); setNewSiteGeoError(''); setNewSiteGeoResult(null) }}
+                    className="text-xs text-[#718096] hover:text-white">닫기</button>
+                </div>
+                <div>
+                  <label className="text-xs text-[#718096] block mb-1">현장명 *</label>
+                  <input
+                    type="text"
+                    value={newSiteForm.name}
+                    onChange={e => setNewSiteForm(f => ({ ...f, name: e.target.value }))}
+                    placeholder="예: OO 아파트 신축공사"
+                    className="w-full border rounded px-3 py-1.5 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-[#718096] block mb-1">주소 *</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newSiteForm.address}
+                      onChange={e => { setNewSiteForm(f => ({ ...f, address: e.target.value })); setNewSiteGeoResult(null); setNewSiteGeoError('') }}
+                      placeholder="예: 서울특별시 강남구 역삼동 123"
+                      className="flex-1 border rounded px-3 py-1.5 text-sm"
+                    />
+                    <button type="button" onClick={handleNewSiteGeocode} disabled={newSiteGeoLoading || !newSiteForm.address.trim()}
+                      className="px-3 py-1.5 text-xs border border-teal-400 text-teal-300 rounded hover:bg-teal-900/20 disabled:opacity-40 shrink-0">
+                      {newSiteGeoLoading ? '확인 중...' : '좌표 확인'}
+                    </button>
+                  </div>
+                  {newSiteGeoResult && (
+                    <div className="text-xs text-green-400 mt-1">
+                      좌표 확인됨: {newSiteGeoResult.lat.toFixed(6)}, {newSiteGeoResult.lng.toFixed(6)}
+                    </div>
+                  )}
+                  {newSiteGeoError && (
+                    <div className="text-xs text-red-400 mt-1">{newSiteGeoError}</div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleNewSiteCreate}
+                  disabled={!newSiteForm.name.trim() || !newSiteGeoResult || newSiteCreating}
+                  className="w-full py-2 text-sm bg-teal-600 text-white rounded font-medium hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {newSiteCreating ? '등록 중...' : '현장 등록'}
+                </button>
+                {!newSiteGeoResult && newSiteForm.address.trim() && !newSiteGeoLoading && !newSiteGeoError && (
+                  <div className="text-xs text-amber-400">주소 입력 후 &apos;좌표 확인&apos; 버튼을 먼저 눌러주세요.</div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* 근로일 (일용직 전용) */}
