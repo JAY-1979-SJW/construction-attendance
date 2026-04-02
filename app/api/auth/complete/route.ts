@@ -31,8 +31,8 @@ export async function GET(req: Request) {
 
   const ua = req.headers.get('user-agent') ?? ''
   const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)
-  const workerTokenExpiry = isMobile ? '3650d' : undefined
-  const workerCookieMaxAge = isMobile ? 60 * 60 * 24 * 3650 : 60 * 60 * 24 * 7
+  const workerTokenExpiry = isMobile ? '3650d' : '30d'
+  const workerCookieMaxAge = isMobile ? 60 * 60 * 24 * 3650 : 60 * 60 * 24 * 30
 
   // 쿠키에서 가입 의도 확인
   const cookieStore = await cookies()
