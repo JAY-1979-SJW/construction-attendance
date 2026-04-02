@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { InfoRow, InfoSection } from '@/components/admin/ui'
+import { InfoRow, InfoSection, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -836,32 +836,49 @@ function CompanyTab({ assignments, onAdd }: { assignments: CompanyAssignment[]; 
         <h3 className="mt-0 mb-0 text-sm font-bold text-dim-brand">회사 배정 이력</h3>
         <button onClick={onAdd} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold">+ 회사 배정</button>
       </div>
-      {assignments.length === 0 ? (
-        <p className="text-[#718096] py-6 text-center text-[13px]">배정된 회사가 없습니다.</p>
-      ) : (
-        <table className="w-full border-collapse text-[13px]">
-          <thead>
-            <tr>
-              {['회사명', '유형', '고용형태', '시작일', '종료일', '주소속', '메모'].map(h => (
-                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-brand text-muted-brand">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {assignments.map(a => (
-              <tr key={a.id}>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.company.companyName}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand"><span className="bg-accent/12 text-accent px-2 py-0.5 rounded text-[11px]">{a.company.companyType ?? '—'}</span></td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.employmentType}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.validFrom)}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.validTo)}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.isPrimary ? <span className="bg-green-light text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주소속</span> : '—'}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.notes ?? '—'}</td>
+      <MobileCardList
+        items={assignments}
+        keyExtractor={(a) => a.id}
+        emptyMessage="배정된 회사가 없습니다."
+        renderCard={(a) => (
+          <MobileCard
+            title={a.company.companyName}
+            badge={a.isPrimary ? <span className="bg-green-light text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주소속</span> : undefined}
+          >
+            <MobileCardFields>
+              {a.company.companyType && <MobileCardField label="유형" value={a.company.companyType} />}
+              <MobileCardField label="고용형태" value={a.employmentType} />
+              <MobileCardField label="시작일" value={fmtDate(a.validFrom)} />
+              <MobileCardField label="종료일" value={fmtDate(a.validTo)} />
+              {a.notes && <MobileCardField label="메모" value={a.notes} />}
+            </MobileCardFields>
+          </MobileCard>
+        )}
+        renderTable={() => (
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr>
+                {['회사명', '유형', '고용형태', '시작일', '종료일', '주소속', '메모'].map(h => (
+                  <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-brand text-muted-brand">{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {assignments.map(a => (
+                <tr key={a.id}>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.company.companyName}</td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand"><span className="bg-accent/12 text-accent px-2 py-0.5 rounded text-[11px]">{a.company.companyType ?? '—'}</span></td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.employmentType}</td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.validFrom)}</td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.validTo)}</td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.isPrimary ? <span className="bg-green-light text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주소속</span> : '—'}</td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.notes ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      />
     </div>
   )
 }
@@ -875,36 +892,57 @@ function SiteTab({ assignments, onAdd }: { assignments: SiteAssignment[]; onAdd:
         <h3 className="mt-0 mb-0 text-sm font-bold text-dim-brand">현장 배정 이력</h3>
         <button onClick={onAdd} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold">+ 현장 배정</button>
       </div>
-      {assignments.length === 0 ? (
-        <p className="text-[#718096] py-6 text-center text-[13px]">배정된 현장이 없습니다.</p>
-      ) : (
-        <table className="w-full border-collapse text-[13px]">
-          <thead>
-            <tr>
-              {['현장명', '소속회사', '직종/공종', '배정일', '종료일', '상태', '주현장'].map(h => (
-                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-brand text-muted-brand">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {assignments.map(a => (
-              <tr key={a.id} style={{ opacity: a.isActive ? 1 : 0.6 }}>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.site.name}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.company.companyName}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.tradeType ?? '—'}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.assignedFrom)}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.assignedTo)}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
-                  <span className={`text-xs font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>
-                    {a.isActive ? '활성' : '비활성'}
-                  </span>
-                </td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.isPrimary ? <span className="bg-green-light text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주현장</span> : '—'}</td>
+      <MobileCardList
+        items={assignments}
+        keyExtractor={(a) => a.id}
+        emptyMessage="배정된 현장이 없습니다."
+        renderCard={(a) => (
+          <MobileCard
+            title={a.site.name}
+            subtitle={a.company.companyName}
+            badge={
+              a.isPrimary
+                ? <span className="bg-green-light text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주현장</span>
+                : <span className={`text-[11px] font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>{a.isActive ? '활성' : '비활성'}</span>
+            }
+            style={a.isActive ? undefined : { opacity: 0.6 }}
+          >
+            <MobileCardFields>
+              {a.tradeType && <MobileCardField label="직종/공종" value={a.tradeType} />}
+              <MobileCardField label="배정일" value={fmtDate(a.assignedFrom)} />
+              <MobileCardField label="종료일" value={fmtDate(a.assignedTo)} />
+            </MobileCardFields>
+          </MobileCard>
+        )}
+        renderTable={() => (
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr>
+                {['현장명', '소속회사', '직종/공종', '배정일', '종료일', '상태', '주현장'].map(h => (
+                  <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-brand text-muted-brand">{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {assignments.map(a => (
+                <tr key={a.id} style={{ opacity: a.isActive ? 1 : 0.6 }}>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.site.name}</td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.company.companyName}</td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.tradeType ?? '—'}</td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.assignedFrom)}</td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{fmtDate(a.assignedTo)}</td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
+                    <span className={`text-xs font-semibold ${a.isActive ? 'text-[#2e7d32]' : 'text-[#999]'}`}>
+                      {a.isActive ? '활성' : '비활성'}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2.5 border-b border-brand text-dim-brand">{a.isPrimary ? <span className="bg-green-light text-[#2e7d32] px-2 py-0.5 rounded text-[11px] font-semibold">주현장</span> : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      />
     </div>
   )
 }
@@ -1134,79 +1172,94 @@ function DocsTab({ workerId }: { workerId: string }) {
       </div>
 
       {/* 문서 목록 */}
-      {loading ? <p className="text-[#718096] py-6 text-center text-[13px]">로딩 중...</p> : docs.length === 0 ? (
-        <p className="text-[#718096] py-6 text-center text-[13px]">문서가 없습니다.</p>
-      ) : (
-        <table className="w-full border-collapse text-[13px]">
-          <thead>
-            <tr>
-              {['유형', '파일명', '크기', '업로드일', '만료일', '상태', '검토자/일', '비고', '열람', '다운로드', '상태변경'].map((h) => (
-                <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-brand text-muted-brand">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {docs.map((doc) => (
-              <tr key={doc.id}>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
+      {loading ? <p className="text-[#718096] py-6 text-center text-[13px]">로딩 중...</p> : (
+        <MobileCardList
+          items={docs}
+          keyExtractor={(doc) => doc.id}
+          emptyMessage="문서가 없습니다."
+          renderCard={(doc) => (
+            <MobileCard
+              title={doc.file.originalFilename}
+              badge={
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
+                  style={{ color: DOC_STATUS_COLOR[doc.status], background: DOC_STATUS_BG[doc.status] }}>
+                  {DOC_STATUS_LABEL[doc.status] ?? doc.status}
+                </span>
+              }
+            >
+              <MobileCardFields>
+                <MobileCardField label="유형" value={
                   <span className="text-[11px] font-bold bg-accent/12 text-accent px-2 py-0.5 rounded-lg">
                     {DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
                   </span>
-                </td>
-                <td className="px-3 py-2.5 border-b border-brand max-w-[180px] text-xs text-dim-brand break-all">
-                  {/* 파일명만 노출 — 민감문서는 내용 미노출 */}
-                  {doc.file.originalFilename}
-                </td>
-                <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand">{fmtBytes(doc.file.sizeBytes)}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand whitespace-nowrap">
-                  {new Date(doc.file.uploadedAt).toLocaleDateString('ko-KR')}
-                </td>
-                <td className={`px-3 py-2.5 border-b border-brand text-[11px] ${doc.expiresAt && new Date(doc.expiresAt) < new Date() ? 'text-[#b71c1c]' : 'text-[#555]'}`}>
-                  {doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString('ko-KR') : '—'}
-                </td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
-                    style={{ color: DOC_STATUS_COLOR[doc.status], background: DOC_STATUS_BG[doc.status] }}>
-                    {DOC_STATUS_LABEL[doc.status] ?? doc.status}
-                  </span>
-                </td>
-                <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand whitespace-nowrap">
-                  {doc.reviewedBy ? `${doc.reviewedBy.slice(-6)} / ${doc.reviewedAt ? new Date(doc.reviewedAt).toLocaleDateString('ko-KR') : '—'}` : '—'}
-                </td>
-                <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand max-w-[120px]">{doc.notes ?? '—'}</td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
-                  <a
-                    href={`/api/admin/workers/${workerId}/documents/${doc.id}/download?inline=1`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-secondary-brand underline"
-                  >
-                    열람
-                  </a>
-                </td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
-                  <a
-                    href={`/api/admin/workers/${workerId}/documents/${doc.id}/download`}
-                    className="text-xs text-muted-brand underline"
-                  >
-                    다운로드
-                  </a>
-                </td>
-                <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
-                  <select
-                    value={doc.status}
-                    onChange={(e) => changeStatus(doc.id, e.target.value)}
-                    className="text-xs px-1.5 py-1 border border-secondary-brand/30 rounded"
-                  >
-                    {Object.entries(DOC_STATUS_LABEL).map(([v, l]) => (
-                      <option key={v} value={v}>{l}</option>
-                    ))}
-                  </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                } />
+                <MobileCardField label="크기" value={fmtBytes(doc.file.sizeBytes)} />
+                <MobileCardField label="업로드일" value={new Date(doc.file.uploadedAt).toLocaleDateString('ko-KR')} />
+                {doc.expiresAt && (
+                  <MobileCardField label="만료일" value={
+                    <span style={{ color: new Date(doc.expiresAt) < new Date() ? '#b71c1c' : undefined }}>
+                      {new Date(doc.expiresAt).toLocaleDateString('ko-KR')}
+                    </span>
+                  } />
+                )}
+                {doc.notes && <MobileCardField label="비고" value={doc.notes} />}
+              </MobileCardFields>
+              <MobileCardActions>
+                <a href={`/api/admin/workers/${workerId}/documents/${doc.id}/download?inline=1`} target="_blank" rel="noopener noreferrer" className="text-xs text-secondary-brand underline">열람</a>
+                <a href={`/api/admin/workers/${workerId}/documents/${doc.id}/download`} className="text-xs text-muted-brand underline">다운로드</a>
+                <select value={doc.status} onChange={(e) => changeStatus(doc.id, e.target.value)} className="text-xs px-1.5 py-1 border border-secondary-brand/30 rounded">
+                  {Object.entries(DOC_STATUS_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+              </MobileCardActions>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse text-[13px]">
+              <thead>
+                <tr>
+                  {['유형', '파일명', '크기', '업로드일', '만료일', '상태', '검토자/일', '비고', '열람', '다운로드', '상태변경'].map((h) => (
+                    <th key={h} className="px-3 py-2.5 bg-[#f8f8f8] text-left font-semibold border-b border-brand text-muted-brand">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {docs.map((doc) => (
+                  <tr key={doc.id}>
+                    <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
+                      <span className="text-[11px] font-bold bg-accent/12 text-accent px-2 py-0.5 rounded-lg">{DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}</span>
+                    </td>
+                    <td className="px-3 py-2.5 border-b border-brand max-w-[180px] text-xs text-dim-brand break-all">{doc.file.originalFilename}</td>
+                    <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand">{fmtBytes(doc.file.sizeBytes)}</td>
+                    <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand whitespace-nowrap">{new Date(doc.file.uploadedAt).toLocaleDateString('ko-KR')}</td>
+                    <td className={`px-3 py-2.5 border-b border-brand text-[11px] ${doc.expiresAt && new Date(doc.expiresAt) < new Date() ? 'text-[#b71c1c]' : 'text-[#555]'}`}>
+                      {doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString('ko-KR') : '—'}
+                    </td>
+                    <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]" style={{ color: DOC_STATUS_COLOR[doc.status], background: DOC_STATUS_BG[doc.status] }}>
+                        {DOC_STATUS_LABEL[doc.status] ?? doc.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand whitespace-nowrap">
+                      {doc.reviewedBy ? `${doc.reviewedBy.slice(-6)} / ${doc.reviewedAt ? new Date(doc.reviewedAt).toLocaleDateString('ko-KR') : '—'}` : '—'}
+                    </td>
+                    <td className="px-3 py-2.5 border-b border-brand text-[11px] text-muted-brand max-w-[120px]">{doc.notes ?? '—'}</td>
+                    <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
+                      <a href={`/api/admin/workers/${workerId}/documents/${doc.id}/download?inline=1`} target="_blank" rel="noopener noreferrer" className="text-xs text-secondary-brand underline">열람</a>
+                    </td>
+                    <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
+                      <a href={`/api/admin/workers/${workerId}/documents/${doc.id}/download`} className="text-xs text-muted-brand underline">다운로드</a>
+                    </td>
+                    <td className="px-3 py-2.5 border-b border-brand text-dim-brand">
+                      <select value={doc.status} onChange={(e) => changeStatus(doc.id, e.target.value)} className="text-xs px-1.5 py-1 border border-secondary-brand/30 rounded">
+                        {Object.entries(DOC_STATUS_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       )}
     </div>
   )
@@ -1409,63 +1462,83 @@ function ContractsTab({ workerId, onDocChange }: { workerId: string; onDocChange
           + 신규 계약
         </a>
       </div>
-      {contracts.length === 0 ? (
-        <p className="text-[#aaa] text-[14px] text-center py-8">계약 이력이 없습니다.</p>
-      ) : (
-        <table className="w-full border-collapse text-[13px]">
-          <thead>
-            <tr className="bg-brand border-b border-brand">
-              <th className="px-3 py-2 text-left">유형</th>
-              <th className="px-3 py-2 text-left">현장</th>
-              <th className="px-3 py-2 text-left">기간</th>
-              <th className="px-3 py-2 text-right">일당/월급</th>
-              <th className="px-3 py-2 text-center">상태</th>
-              <th className="px-3 py-2 text-center">서명</th>
-              <th className="px-3 py-2 text-center">교부</th>
-              <th className="px-3 py-2 text-center"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {contracts.map(c => (
-              <tr key={c.id} className="border-b border-brand">
-                <td className="px-3 py-2">
-                  {CONTRACT_TYPE_LABEL[c.contractType] || c.contractType}
-                  {c.currentVersion && c.currentVersion > 1 && (
-                    <span className="ml-1 text-[11px] text-muted-brand">v{c.currentVersion}</span>
-                  )}
-                </td>
-                <td className="px-3 py-2 text-muted-brand">{c.site?.name || '—'}</td>
-                <td className="px-3 py-2 text-muted-brand">
-                  {c.startDate} ~ {c.endDate || '무기한'}
-                </td>
-                <td className="px-3 py-2 text-right">
-                  {c.dailyWage ? c.dailyWage.toLocaleString() + '원' : c.monthlySalary ? c.monthlySalary.toLocaleString() + '원' : '—'}
-                </td>
-                <td className="px-3 py-2 text-center">
-                  <span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${
-                    c.contractStatus === 'ACTIVE' ? 'bg-[#dcfce7] text-[#166534]'
-                    : c.contractStatus === 'REJECTED' ? 'bg-red-light text-status-rejected'
-                    : c.contractStatus === 'REVIEW_REQUESTED' || c.contractStatus === 'SIGNED' ? 'bg-[#fef9c3] text-[#854d0e]'
-                    : c.contractStatus === 'DRAFT' ? 'bg-footer text-muted-brand'
-                    : 'bg-footer text-muted-brand'
-                  }`}>
-                    {CONTRACT_STATUS_LABEL[c.contractStatus] || c.contractStatus}
-                  </span>
-                </td>
-                <td className={`px-3 py-2 text-center ${c.signedAt ? 'text-status-working' : 'text-[#d1d5db]'}`}>
-                  {c.signedAt ? '✓' : '—'}
-                </td>
-                <td className={`px-3 py-2 text-center ${c.deliveredAt ? 'text-status-working' : 'text-[#d1d5db]'}`}>
-                  {c.deliveredAt ? '✓' : '—'}
-                </td>
-                <td className="px-3 py-2 text-center">
-                  <a href={`/admin/contracts/${c.id}`} className="text-status-info text-[12px] no-underline">상세</a>
-                </td>
+      <MobileCardList
+        items={contracts}
+        keyExtractor={(c) => c.id}
+        emptyMessage="계약 이력이 없습니다."
+        renderCard={(c) => (
+          <MobileCard
+            title={`${CONTRACT_TYPE_LABEL[c.contractType] || c.contractType}${c.currentVersion && c.currentVersion > 1 ? ` v${c.currentVersion}` : ''}`}
+            subtitle={c.site?.name || undefined}
+            badge={
+              <span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${
+                c.contractStatus === 'ACTIVE' ? 'bg-[#dcfce7] text-[#166534]'
+                : c.contractStatus === 'REJECTED' ? 'bg-red-light text-status-rejected'
+                : c.contractStatus === 'REVIEW_REQUESTED' || c.contractStatus === 'SIGNED' ? 'bg-[#fef9c3] text-[#854d0e]'
+                : 'bg-footer text-muted-brand'
+              }`}>
+                {CONTRACT_STATUS_LABEL[c.contractStatus] || c.contractStatus}
+              </span>
+            }
+          >
+            <MobileCardFields>
+              <MobileCardField label="기간" value={`${c.startDate} ~ ${c.endDate || '무기한'}`} />
+              <MobileCardField label="임금" value={c.dailyWage ? c.dailyWage.toLocaleString() + '원' : c.monthlySalary ? c.monthlySalary.toLocaleString() + '원' : '—'} />
+              <MobileCardField label="서명" value={c.signedAt ? '✓' : '—'} />
+              <MobileCardField label="교부" value={c.deliveredAt ? '✓' : '—'} />
+            </MobileCardFields>
+            <MobileCardActions>
+              <a href={`/admin/contracts/${c.id}`} className="text-status-info text-[12px] no-underline px-3 py-1.5 border border-status-info/30 rounded">상세</a>
+            </MobileCardActions>
+          </MobileCard>
+        )}
+        renderTable={() => (
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="bg-brand border-b border-brand">
+                <th className="px-3 py-2 text-left">유형</th>
+                <th className="px-3 py-2 text-left">현장</th>
+                <th className="px-3 py-2 text-left">기간</th>
+                <th className="px-3 py-2 text-right">일당/월급</th>
+                <th className="px-3 py-2 text-center">상태</th>
+                <th className="px-3 py-2 text-center">서명</th>
+                <th className="px-3 py-2 text-center">교부</th>
+                <th className="px-3 py-2 text-center"></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {contracts.map(c => (
+                <tr key={c.id} className="border-b border-brand">
+                  <td className="px-3 py-2">
+                    {CONTRACT_TYPE_LABEL[c.contractType] || c.contractType}
+                    {c.currentVersion && c.currentVersion > 1 && <span className="ml-1 text-[11px] text-muted-brand">v{c.currentVersion}</span>}
+                  </td>
+                  <td className="px-3 py-2 text-muted-brand">{c.site?.name || '—'}</td>
+                  <td className="px-3 py-2 text-muted-brand">{c.startDate} ~ {c.endDate || '무기한'}</td>
+                  <td className="px-3 py-2 text-right">
+                    {c.dailyWage ? c.dailyWage.toLocaleString() + '원' : c.monthlySalary ? c.monthlySalary.toLocaleString() + '원' : '—'}
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    <span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${
+                      c.contractStatus === 'ACTIVE' ? 'bg-[#dcfce7] text-[#166534]'
+                      : c.contractStatus === 'REJECTED' ? 'bg-red-light text-status-rejected'
+                      : c.contractStatus === 'REVIEW_REQUESTED' || c.contractStatus === 'SIGNED' ? 'bg-[#fef9c3] text-[#854d0e]'
+                      : 'bg-footer text-muted-brand'
+                    }`}>
+                      {CONTRACT_STATUS_LABEL[c.contractStatus] || c.contractStatus}
+                    </span>
+                  </td>
+                  <td className={`px-3 py-2 text-center ${c.signedAt ? 'text-status-working' : 'text-[#d1d5db]'}`}>{c.signedAt ? '✓' : '—'}</td>
+                  <td className={`px-3 py-2 text-center ${c.deliveredAt ? 'text-status-working' : 'text-[#d1d5db]'}`}>{c.deliveredAt ? '✓' : '—'}</td>
+                  <td className="px-3 py-2 text-center">
+                    <a href={`/admin/contracts/${c.id}`} className="text-status-info text-[12px] no-underline">상세</a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      />
     </div>
   )
 }
@@ -1631,82 +1704,87 @@ function SafetyDocsTab({ workerId, initialDocType, onInitialDocTypeConsumed, onD
       </div>
 
       {/* 문서 목록 */}
-      {docs.length === 0 ? (
-        <p className="text-[#aaa] text-[14px] text-center py-8">안전문서 이력이 없습니다.</p>
-      ) : (
-        <table className="w-full border-collapse text-[13px]">
-          <thead>
-            <tr className="bg-brand border-b border-brand">
-              <th className="px-3 py-2 text-left">문서 종류</th>
-              <th className="px-3 py-2 text-left">현장</th>
-              <th className="px-3 py-2 text-left">문서일</th>
-              <th className="px-3 py-2 text-center">상태</th>
-              <th className="px-3 py-2 text-center">서명일</th>
-              <th className="px-3 py-2 text-center">동작</th>
-            </tr>
-          </thead>
-          <tbody>
-            {docs.map(d => (
-              <tr key={d.id} className="border-b border-brand">
-                <td className="px-3 py-2">{SAFETY_DOC_LABELS[d.documentType] || d.documentType}</td>
-                <td className="px-3 py-2 text-muted-brand">{d.site?.name || '—'}</td>
-                <td className="px-3 py-2 text-muted-brand">{d.educationDate || d.documentDate || '—'}</td>
-                <td className="px-3 py-2 text-center">
-                  <span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${
-                    d.status === 'APPROVED' ? 'bg-[#dcfce7] text-[#166534]'
-                    : d.status === 'REJECTED' ? 'bg-red-light text-status-rejected'
-                    : d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED' ? 'bg-[#dbeafe] text-[#1e40af]'
-                    : d.status === 'ISSUED' ? 'bg-footer text-muted-brand'
-                    : 'bg-[#fef9c3] text-[#854d0e]'
-                  }`}>
-                    {d.status === 'APPROVED' ? '승인' : d.status === 'REJECTED' ? '반려' : d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED' ? '검토대기' : d.status === 'ISSUED' ? '발행' : '초안'}
-                  </span>
-                </td>
-                <td className="px-3 py-2 text-center text-[12px] text-muted-brand">
-                  {d.signedAt ? new Date(d.signedAt).toLocaleDateString('ko-KR') : '—'}
-                </td>
-                <td className="px-3 py-2 text-center flex flex-wrap gap-1 justify-center">
-                  <button onClick={() => handlePreview(d.id)}
-                    className="px-2 py-0.5 text-[11px] border border-secondary-brand/30 rounded cursor-pointer bg-card">
-                    미리보기
-                  </button>
-                  {(d.status === 'DRAFT' || d.status === 'ISSUED') && (
-                    <button onClick={() => {
-                      if (confirm(`"${SAFETY_DOC_LABELS[d.documentType] || d.documentType}" 문서에 서명 처리하시겠습니까?`)) {
-                        handleSign(d.id, '')
-                      }
-                    }}
-                      className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#2563eb] text-white">
-                      서명처리
-                    </button>
-                  )}
-                  {(d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED') && (
-                    <>
-                      <button onClick={() => handleReview(d.id, 'APPROVE')}
-                        className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#16a34a] text-white">
-                        승인
-                      </button>
-                      <button onClick={() => {
-                        const reason = prompt('반려 사유:')
-                        if (reason) handleReview(d.id, 'REJECT', reason)
-                      }}
-                        className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#dc2626] text-white">
-                        반려
-                      </button>
-                    </>
-                  )}
-                  {d.status === 'REJECTED' && (
-                    <button onClick={() => onNavigateDoc?.({ key: '', label: '', actionType: 'SAFETY_DOC', docType: d.documentType })}
-                      className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#d97706] text-white">
-                      재작성
-                    </button>
-                  )}
-                </td>
+      <MobileCardList
+        items={docs}
+        keyExtractor={(d) => d.id}
+        emptyMessage="안전문서 이력이 없습니다."
+        renderCard={(d) => {
+          const statusLabel = d.status === 'APPROVED' ? '승인' : d.status === 'REJECTED' ? '반려' : d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED' ? '검토대기' : d.status === 'ISSUED' ? '발행' : '초안'
+          const statusClass = d.status === 'APPROVED' ? 'bg-[#dcfce7] text-[#166534]' : d.status === 'REJECTED' ? 'bg-red-light text-status-rejected' : d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED' ? 'bg-[#dbeafe] text-[#1e40af]' : d.status === 'ISSUED' ? 'bg-footer text-muted-brand' : 'bg-[#fef9c3] text-[#854d0e]'
+          return (
+            <MobileCard
+              title={SAFETY_DOC_LABELS[d.documentType] || d.documentType}
+              subtitle={d.site?.name || undefined}
+              badge={<span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${statusClass}`}>{statusLabel}</span>}
+            >
+              <MobileCardFields>
+                <MobileCardField label="문서일" value={d.educationDate || d.documentDate || '—'} />
+                <MobileCardField label="서명일" value={d.signedAt ? new Date(d.signedAt).toLocaleDateString('ko-KR') : '—'} />
+              </MobileCardFields>
+              <MobileCardActions>
+                <button onClick={() => handlePreview(d.id)} className="px-2 py-1 text-[11px] border border-secondary-brand/30 rounded cursor-pointer bg-card">미리보기</button>
+                {(d.status === 'DRAFT' || d.status === 'ISSUED') && (
+                  <button onClick={() => { if (confirm(`"${SAFETY_DOC_LABELS[d.documentType] || d.documentType}" 서명 처리하시겠습니까?`)) handleSign(d.id, '') }}
+                    className="px-2 py-1 text-[11px] border-none rounded cursor-pointer bg-[#2563eb] text-white">서명처리</button>
+                )}
+                {(d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED') && (
+                  <>
+                    <button onClick={() => handleReview(d.id, 'APPROVE')} className="px-2 py-1 text-[11px] border-none rounded cursor-pointer bg-[#16a34a] text-white">승인</button>
+                    <button onClick={() => { const r = prompt('반려 사유:'); if (r) handleReview(d.id, 'REJECT', r) }} className="px-2 py-1 text-[11px] border-none rounded cursor-pointer bg-[#dc2626] text-white">반려</button>
+                  </>
+                )}
+                {d.status === 'REJECTED' && (
+                  <button onClick={() => onNavigateDoc?.({ key: '', label: '', actionType: 'SAFETY_DOC', docType: d.documentType })} className="px-2 py-1 text-[11px] border-none rounded cursor-pointer bg-[#d97706] text-white">재작성</button>
+                )}
+              </MobileCardActions>
+            </MobileCard>
+          )
+        }}
+        renderTable={() => (
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="bg-brand border-b border-brand">
+                <th className="px-3 py-2 text-left">문서 종류</th>
+                <th className="px-3 py-2 text-left">현장</th>
+                <th className="px-3 py-2 text-left">문서일</th>
+                <th className="px-3 py-2 text-center">상태</th>
+                <th className="px-3 py-2 text-center">서명일</th>
+                <th className="px-3 py-2 text-center">동작</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {docs.map(d => (
+                <tr key={d.id} className="border-b border-brand">
+                  <td className="px-3 py-2">{SAFETY_DOC_LABELS[d.documentType] || d.documentType}</td>
+                  <td className="px-3 py-2 text-muted-brand">{d.site?.name || '—'}</td>
+                  <td className="px-3 py-2 text-muted-brand">{d.educationDate || d.documentDate || '—'}</td>
+                  <td className="px-3 py-2 text-center">
+                    <span className={`px-2 py-0.5 rounded-xl text-[11px] font-semibold ${d.status === 'APPROVED' ? 'bg-[#dcfce7] text-[#166534]' : d.status === 'REJECTED' ? 'bg-red-light text-status-rejected' : d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED' ? 'bg-[#dbeafe] text-[#1e40af]' : d.status === 'ISSUED' ? 'bg-footer text-muted-brand' : 'bg-[#fef9c3] text-[#854d0e]'}`}>
+                      {d.status === 'APPROVED' ? '승인' : d.status === 'REJECTED' ? '반려' : d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED' ? '검토대기' : d.status === 'ISSUED' ? '발행' : '초안'}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 text-center text-[12px] text-muted-brand">{d.signedAt ? new Date(d.signedAt).toLocaleDateString('ko-KR') : '—'}</td>
+                  <td className="px-3 py-2 text-center flex flex-wrap gap-1 justify-center">
+                    <button onClick={() => handlePreview(d.id)} className="px-2 py-0.5 text-[11px] border border-secondary-brand/30 rounded cursor-pointer bg-card">미리보기</button>
+                    {(d.status === 'DRAFT' || d.status === 'ISSUED') && (
+                      <button onClick={() => { if (confirm(`"${SAFETY_DOC_LABELS[d.documentType] || d.documentType}" 문서에 서명 처리하시겠습니까?`)) handleSign(d.id, '') }} className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#2563eb] text-white">서명처리</button>
+                    )}
+                    {(d.status === 'REVIEW_REQUESTED' || d.status === 'SIGNED') && (
+                      <>
+                        <button onClick={() => handleReview(d.id, 'APPROVE')} className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#16a34a] text-white">승인</button>
+                        <button onClick={() => { const reason = prompt('반려 사유:'); if (reason) handleReview(d.id, 'REJECT', reason) }} className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#dc2626] text-white">반려</button>
+                      </>
+                    )}
+                    {d.status === 'REJECTED' && (
+                      <button onClick={() => onNavigateDoc?.({ key: '', label: '', actionType: 'SAFETY_DOC', docType: d.documentType })} className="px-2 py-0.5 text-[11px] border-none rounded cursor-pointer bg-[#d97706] text-white">재작성</button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      />
 
       {/* 생성 폼 모달 */}
       {showForm && (
@@ -2339,68 +2417,78 @@ function OnboardingDocsTab({ workerId }: { workerId: string }) {
           </div>
 
           {/* 문서 목록 */}
-          <table className="w-full text-[13px] border-collapse">
-            <thead>
-              <tr className="text-left text-xs text-[#718096] border-b border-brand">
-                <th className="py-2 px-2">문서명</th>
-                <th className="py-2 px-2">상태</th>
-                <th className="py-2 px-2">제출일</th>
-                <th className="py-2 px-2">검토일</th>
-                <th className="py-2 px-2">반려사유</th>
-                <th className="py-2 px-2">액션</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pkg.onboardingDocs.map((doc: any) => (
-                <tr key={doc.id} className="border-b border-brand hover:bg-surface">
-                  <td className="py-2.5 px-2 font-medium">{doc.title || doc.docType}</td>
-                  <td className="py-2.5 px-2">
-                    <span className="px-2 py-0.5 rounded text-white text-[11px] font-bold"
-                      style={{ background: ONBOARDING_STATUS_COLORS[doc.status] || '#9e9e9e' }}>
-                      {ONBOARDING_STATUS_LABELS[doc.status] || doc.status}
-                    </span>
-                  </td>
-                  <td className="py-2.5 px-2 text-xs text-[#718096]">
-                    {doc.submittedAt ? new Date(doc.submittedAt).toLocaleDateString('ko-KR') : '—'}
-                  </td>
-                  <td className="py-2.5 px-2 text-xs text-[#718096]">
-                    {doc.reviewedAt ? new Date(doc.reviewedAt).toLocaleDateString('ko-KR') : '—'}
-                  </td>
-                  <td className="py-2.5 px-2 text-xs text-[#c62828]">
-                    {doc.rejectionReason ? doc.rejectionReason.slice(0, 30) + (doc.rejectionReason.length > 30 ? '...' : '') : '—'}
-                  </td>
-                  <td className="py-2.5 px-2">
-                    <div className="flex gap-1">
-                      {doc.status === 'SUBMITTED' && (
-                        <>
-                          <button onClick={() => setReviewModal({ docType: doc.docType, action: 'APPROVE' })}
-                            className="px-2.5 py-1 bg-[#2e7d32] text-white border-none rounded text-[11px] font-bold cursor-pointer">
-                            승인
-                          </button>
-                          <button onClick={() => { setReviewModal({ docType: doc.docType, action: 'REJECT' }); setReason('') }}
-                            className="px-2.5 py-1 bg-[#c62828] text-white border-none rounded text-[11px] font-bold cursor-pointer">
-                            반려
-                          </button>
-                        </>
-                      )}
-                      {doc.docType === 'HEALTH_CERTIFICATE' && doc.status !== 'NOT_SUBMITTED' && doc.submissions?.some((s: any) => s.fileId) && (
-                        <button
-                          onClick={() => window.open(`/api/admin/workers/${workerId}/onboarding-docs/${doc.docType}/file?inline=1`, '_blank')}
-                          className="px-2 py-1 bg-[#e3f2fd] border border-[#90caf9] rounded text-[11px] text-secondary-brand cursor-pointer">
-                          파일보기
-                        </button>
-                      )}
-                      {doc.submissions?.length > 0 && (
-                        <button className="px-2 py-1 bg-surface border border-brand rounded text-[11px] cursor-pointer">
-                          이력({doc.submissions.length})
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <MobileCardList
+            items={pkg.onboardingDocs}
+            keyExtractor={(doc: any) => doc.id}
+            emptyMessage="등록된 문서가 없습니다."
+            renderCard={(doc: any) => (
+              <MobileCard
+                title={doc.title || doc.docType}
+                badge={<span className="px-2 py-0.5 rounded text-white text-[11px] font-bold" style={{ background: ONBOARDING_STATUS_COLORS[doc.status] || '#9e9e9e' }}>{ONBOARDING_STATUS_LABELS[doc.status] || doc.status}</span>}
+              >
+                <MobileCardFields>
+                  {doc.submittedAt && <MobileCardField label="제출일" value={new Date(doc.submittedAt).toLocaleDateString('ko-KR')} />}
+                  {doc.reviewedAt && <MobileCardField label="검토일" value={new Date(doc.reviewedAt).toLocaleDateString('ko-KR')} />}
+                  {doc.rejectionReason && <MobileCardField label="반려사유" value={<span className="text-[#c62828]">{doc.rejectionReason.slice(0, 60)}</span>} />}
+                </MobileCardFields>
+                <MobileCardActions>
+                  {doc.status === 'SUBMITTED' && (
+                    <>
+                      <button onClick={() => setReviewModal({ docType: doc.docType, action: 'APPROVE' })} className="px-2.5 py-1 bg-[#2e7d32] text-white border-none rounded text-[11px] font-bold cursor-pointer">승인</button>
+                      <button onClick={() => { setReviewModal({ docType: doc.docType, action: 'REJECT' }); setReason('') }} className="px-2.5 py-1 bg-[#c62828] text-white border-none rounded text-[11px] font-bold cursor-pointer">반려</button>
+                    </>
+                  )}
+                  {doc.docType === 'HEALTH_CERTIFICATE' && doc.status !== 'NOT_SUBMITTED' && doc.submissions?.some((s: any) => s.fileId) && (
+                    <button onClick={() => window.open(`/api/admin/workers/${workerId}/onboarding-docs/${doc.docType}/file?inline=1`, '_blank')} className="px-2 py-1 bg-[#e3f2fd] border border-[#90caf9] rounded text-[11px] text-secondary-brand cursor-pointer">파일보기</button>
+                  )}
+                  {doc.submissions?.length > 0 && (
+                    <button className="px-2 py-1 bg-surface border border-brand rounded text-[11px] cursor-pointer">이력({doc.submissions.length})</button>
+                  )}
+                </MobileCardActions>
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <table className="w-full text-[13px] border-collapse">
+                <thead>
+                  <tr className="text-left text-xs text-[#718096] border-b border-brand">
+                    <th className="py-2 px-2">문서명</th>
+                    <th className="py-2 px-2">상태</th>
+                    <th className="py-2 px-2">제출일</th>
+                    <th className="py-2 px-2">검토일</th>
+                    <th className="py-2 px-2">반려사유</th>
+                    <th className="py-2 px-2">액션</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pkg.onboardingDocs.map((doc: any) => (
+                    <tr key={doc.id} className="border-b border-brand hover:bg-surface">
+                      <td className="py-2.5 px-2 font-medium">{doc.title || doc.docType}</td>
+                      <td className="py-2.5 px-2"><span className="px-2 py-0.5 rounded text-white text-[11px] font-bold" style={{ background: ONBOARDING_STATUS_COLORS[doc.status] || '#9e9e9e' }}>{ONBOARDING_STATUS_LABELS[doc.status] || doc.status}</span></td>
+                      <td className="py-2.5 px-2 text-xs text-[#718096]">{doc.submittedAt ? new Date(doc.submittedAt).toLocaleDateString('ko-KR') : '—'}</td>
+                      <td className="py-2.5 px-2 text-xs text-[#718096]">{doc.reviewedAt ? new Date(doc.reviewedAt).toLocaleDateString('ko-KR') : '—'}</td>
+                      <td className="py-2.5 px-2 text-xs text-[#c62828]">{doc.rejectionReason ? doc.rejectionReason.slice(0, 30) + (doc.rejectionReason.length > 30 ? '...' : '') : '—'}</td>
+                      <td className="py-2.5 px-2">
+                        <div className="flex gap-1">
+                          {doc.status === 'SUBMITTED' && (
+                            <>
+                              <button onClick={() => setReviewModal({ docType: doc.docType, action: 'APPROVE' })} className="px-2.5 py-1 bg-[#2e7d32] text-white border-none rounded text-[11px] font-bold cursor-pointer">승인</button>
+                              <button onClick={() => { setReviewModal({ docType: doc.docType, action: 'REJECT' }); setReason('') }} className="px-2.5 py-1 bg-[#c62828] text-white border-none rounded text-[11px] font-bold cursor-pointer">반려</button>
+                            </>
+                          )}
+                          {doc.docType === 'HEALTH_CERTIFICATE' && doc.status !== 'NOT_SUBMITTED' && doc.submissions?.some((s: any) => s.fileId) && (
+                            <button onClick={() => window.open(`/api/admin/workers/${workerId}/onboarding-docs/${doc.docType}/file?inline=1`, '_blank')} className="px-2 py-1 bg-[#e3f2fd] border border-[#90caf9] rounded text-[11px] text-secondary-brand cursor-pointer">파일보기</button>
+                          )}
+                          {doc.submissions?.length > 0 && (
+                            <button className="px-2 py-1 bg-surface border border-brand rounded text-[11px] cursor-pointer">이력({doc.submissions.length})</button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          />
         </div>
       ))}
 

@@ -126,7 +126,7 @@ const MENU: MenuItem[] = [
       { href: '/admin/materials/requests',        label: '자재 청구' },
       { href: '/admin/materials/purchase-orders',  label: '발주 관리' },
       { href: '/admin/materials/inventory',        label: '자재 재고' },
-      { href: '/admin/materials',                    label: '내역서 분석' },
+      { href: '/admin/materials/estimates',            label: '내역서 분석' },
     ],
   },
 

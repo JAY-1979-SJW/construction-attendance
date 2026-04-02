@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface Worker {
   id: string
@@ -81,49 +82,72 @@ export default function OpsWorkersPage() {
           <p>배정된 작업자가 없습니다.</p>
         </div>
       ) : (
-        <div className="bg-card rounded-lg border border-brand overflow-auto">
-          <table className="w-full border-collapse text-[13px]">
-            <thead className="bg-surface">
-              <tr>
-                {['이름', '직종', '고용형태', '배정 현장', '상태', ''].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {workers.map(w => {
-                const st = ACCOUNT_STATUS_MAP[w.accountStatus] ?? { label: w.accountStatus, bg: '#f3f4f6', color: '#6b7280' }
-                return (
-                  <tr key={w.id} className="border-b border-brand hover:bg-[rgba(91,164,217,0.04)]">
-                    <td className="px-4 py-[13px] font-semibold text-[#1f2937]">{w.name}</td>
-                    <td className="px-4 py-[13px] text-body-brand">{w.jobTitle || '—'}</td>
-                    <td className="px-4 py-[13px] text-body-brand">{EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType}</td>
-                    <td className="px-4 py-[13px] text-body-brand">
-                      {w.activeSites && w.activeSites.length > 0
-                        ? w.activeSites.map(s => s.name).join(', ')
-                        : '—'}
-                    </td>
-                    <td className="px-4 py-[13px]">
-                      <span
-                        className="text-[11px] px-2 py-[3px] rounded font-medium"
-                        style={{ background: st.bg, color: st.color }}
-                      >
-                        {st.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-[13px]">
-                      <Link
-                        href={`/admin/workers/${w.id}`}
-                        className="px-3 py-[5px] bg-blue-light text-[#1d4ed8] rounded-[5px] no-underline text-[12px] font-medium"
-                      >
-                        상세 보기
-                      </Link>
-                    </td>
+        <div className="bg-card rounded-lg border border-brand overflow-hidden">
+          <MobileCardList
+            items={workers}
+            keyExtractor={(w) => w.id}
+            emptyMessage="배정된 작업자가 없습니다."
+            renderCard={(w) => {
+              const st = ACCOUNT_STATUS_MAP[w.accountStatus] ?? { label: w.accountStatus, bg: '#f3f4f6', color: '#6b7280' }
+              return (
+                <MobileCard
+                  title={w.name}
+                  subtitle={w.jobTitle || undefined}
+                  badge={
+                    <span className="text-[11px] px-2 py-[3px] rounded font-medium" style={{ background: st.bg, color: st.color }}>
+                      {st.label}
+                    </span>
+                  }
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="고용형태" value={EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType} />
+                    <MobileCardField label="배정 현장" value={w.activeSites && w.activeSites.length > 0 ? w.activeSites.map(s => s.name).join(', ') : '—'} />
+                  </MobileCardFields>
+                  <MobileCardActions>
+                    <Link href={`/admin/workers/${w.id}`} className="px-3 py-1.5 bg-blue-light text-[#1d4ed8] rounded-[5px] no-underline text-[12px] font-medium">
+                      상세 보기
+                    </Link>
+                  </MobileCardActions>
+                </MobileCard>
+              )
+            }}
+            renderTable={() => (
+              <table className="w-full border-collapse text-[13px]">
+                <thead className="bg-surface">
+                  <tr>
+                    {['이름', '직종', '고용형태', '배정 현장', '상태', ''].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
+                    ))}
                   </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {workers.map(w => {
+                    const st = ACCOUNT_STATUS_MAP[w.accountStatus] ?? { label: w.accountStatus, bg: '#f3f4f6', color: '#6b7280' }
+                    return (
+                      <tr key={w.id} className="border-b border-brand hover:bg-[rgba(91,164,217,0.04)]">
+                        <td className="px-4 py-[13px] font-semibold text-[#1f2937]">{w.name}</td>
+                        <td className="px-4 py-[13px] text-body-brand">{w.jobTitle || '—'}</td>
+                        <td className="px-4 py-[13px] text-body-brand">{EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType}</td>
+                        <td className="px-4 py-[13px] text-body-brand">
+                          {w.activeSites && w.activeSites.length > 0 ? w.activeSites.map(s => s.name).join(', ') : '—'}
+                        </td>
+                        <td className="px-4 py-[13px]">
+                          <span className="text-[11px] px-2 py-[3px] rounded font-medium" style={{ background: st.bg, color: st.color }}>
+                            {st.label}
+                          </span>
+                        </td>
+                        <td className="px-4 py-[13px]">
+                          <Link href={`/admin/workers/${w.id}`} className="px-3 py-[5px] bg-blue-light text-[#1d4ed8] rounded-[5px] no-underline text-[12px] font-medium">
+                            상세 보기
+                          </Link>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+          />
         </div>
       )}
     </div>

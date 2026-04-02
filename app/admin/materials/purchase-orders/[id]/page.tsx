@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { Modal } from '@/components/admin/ui'
+import { Modal, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface PODetail {
   id: string
@@ -319,37 +319,58 @@ export default function PurchaseOrderDetailPage() {
           </div>
 
           {po.items.length === 0 ? (
-            <div className="text-center py-8 text-muted-brand text-sm">
-              발주 항목이 없습니다.
-            </div>
+            <div className="text-center py-8 text-muted-brand text-sm">발주 항목이 없습니다.</div>
           ) : (
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  {['품목명', '규격', '단위', '청구수량', '발주수량', '입고수량', '비고', isDraft ? '삭제' : ''].map(h => (
-                    <th key={h} className="text-left px-3 py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {po.items.map(item => (
-                  <tr key={item.id}>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white font-medium">{item.itemNameSnapshot}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.specSnapshot ?? '-'}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.unitSnapshot ?? '-'}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right text-muted-brand">{Number(item.requestQuantitySnapshot).toLocaleString()}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right font-semibold">{Number(item.orderedQuantity).toLocaleString()}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right text-[#66bb6a]">{Number(item.receivedQuantity).toLocaleString()}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.note ?? '-'}</td>
-                    {isDraft && (
-                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
-                        <button onClick={() => handleDeleteItem(item.id)} className="px-[10px] py-[3px] bg-[rgba(183,28,28,0.15)] text-[#ef5350] border border-[rgba(183,28,28,0.3)] rounded cursor-pointer text-[12px]">삭제</button>
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <MobileCardList
+              items={po.items}
+              keyExtractor={(item) => item.id}
+              emptyMessage="발주 항목이 없습니다."
+              renderCard={(item) => (
+                <MobileCard title={item.itemNameSnapshot} subtitle={item.specSnapshot ?? undefined}>
+                  <MobileCardFields>
+                    <MobileCardField label="단위" value={item.unitSnapshot ?? '-'} />
+                    <MobileCardField label="청구수량" value={Number(item.requestQuantitySnapshot).toLocaleString()} />
+                    <MobileCardField label="발주수량" value={Number(item.orderedQuantity).toLocaleString()} />
+                    <MobileCardField label="입고수량" value={<span className="text-[#66bb6a]">{Number(item.receivedQuantity).toLocaleString()}</span>} />
+                    {item.note && <MobileCardField label="비고" value={item.note} />}
+                  </MobileCardFields>
+                  {isDraft && (
+                    <MobileCardActions>
+                      <button onClick={() => handleDeleteItem(item.id)} className="px-[10px] py-[3px] bg-[rgba(183,28,28,0.15)] text-[#ef5350] border border-[rgba(183,28,28,0.3)] rounded cursor-pointer text-[12px]">삭제</button>
+                    </MobileCardActions>
+                  )}
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      {['품목명', '규격', '단위', '청구수량', '발주수량', '입고수량', '비고', isDraft ? '삭제' : ''].map(h => (
+                        <th key={h} className="text-left px-3 py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {po.items.map(item => (
+                      <tr key={item.id}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white font-medium">{item.itemNameSnapshot}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.specSnapshot ?? '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.unitSnapshot ?? '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right text-muted-brand">{Number(item.requestQuantitySnapshot).toLocaleString()}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right font-semibold">{Number(item.orderedQuantity).toLocaleString()}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right text-[#66bb6a]">{Number(item.receivedQuantity).toLocaleString()}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.note ?? '-'}</td>
+                        {isDraft && (
+                          <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
+                            <button onClick={() => handleDeleteItem(item.id)} className="px-[10px] py-[3px] bg-[rgba(183,28,28,0.15)] text-[#ef5350] border border-[rgba(183,28,28,0.3)] rounded cursor-pointer text-[12px]">삭제</button>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            />
           )}
         </div>
 
@@ -367,25 +388,41 @@ export default function PurchaseOrderDetailPage() {
                     <span className="text-[12px] text-muted-brand">{fmtDate(gr.receivedAt)}</span>
                   </div>
                   {gr.memo && <div className="text-[12px] text-muted-brand mb-2">{gr.memo}</div>}
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr>
-                        {['품목명', '단위', '입고수량', '검수메모'].map(h => (
-                          <th key={h} className="text-left px-2 py-[6px] text-[11px] text-muted-brand border-b border-[rgba(91,164,217,0.12)]">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {gr.items.map(item => (
-                        <tr key={item.id}>
-                          <td className="px-2 py-[6px] text-[12px] text-white border-b border-[rgba(91,164,217,0.06)]">{item.poItem.itemNameSnapshot}</td>
-                          <td className="px-2 py-[6px] text-[12px] text-muted-brand border-b border-[rgba(91,164,217,0.06)]">{item.poItem.unitSnapshot ?? '-'}</td>
-                          <td className="px-2 py-[6px] text-[12px] text-[#66bb6a] font-semibold border-b border-[rgba(91,164,217,0.06)] text-right">{Number(item.quantity).toLocaleString()}</td>
-                          <td className="px-2 py-[6px] text-[12px] text-muted-brand border-b border-[rgba(91,164,217,0.06)]">{item.inspectionNote ?? '-'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <MobileCardList
+                    items={gr.items}
+                    keyExtractor={(item) => item.id}
+                    emptyMessage=""
+                    renderCard={(item) => (
+                      <MobileCard title={item.poItem.itemNameSnapshot}>
+                        <MobileCardFields>
+                          <MobileCardField label="단위" value={item.poItem.unitSnapshot ?? '-'} />
+                          <MobileCardField label="입고수량" value={<span className="text-[#66bb6a] font-semibold">{Number(item.quantity).toLocaleString()}</span>} />
+                          {item.inspectionNote && <MobileCardField label="검수메모" value={item.inspectionNote} />}
+                        </MobileCardFields>
+                      </MobileCard>
+                    )}
+                    renderTable={() => (
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr>
+                            {['품목명', '단위', '입고수량', '검수메모'].map(h => (
+                              <th key={h} className="text-left px-2 py-[6px] text-[11px] text-muted-brand border-b border-[rgba(91,164,217,0.12)]">{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {gr.items.map(item => (
+                            <tr key={item.id}>
+                              <td className="px-2 py-[6px] text-[12px] text-white border-b border-[rgba(91,164,217,0.06)]">{item.poItem.itemNameSnapshot}</td>
+                              <td className="px-2 py-[6px] text-[12px] text-muted-brand border-b border-[rgba(91,164,217,0.06)]">{item.poItem.unitSnapshot ?? '-'}</td>
+                              <td className="px-2 py-[6px] text-[12px] text-[#66bb6a] font-semibold border-b border-[rgba(91,164,217,0.06)] text-right">{Number(item.quantity).toLocaleString()}</td>
+                              <td className="px-2 py-[6px] text-[12px] text-muted-brand border-b border-[rgba(91,164,217,0.06)]">{item.inspectionNote ?? '-'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  />
                 </div>
               ))}
             </div>
@@ -442,57 +479,79 @@ export default function PurchaseOrderDetailPage() {
       {/* 입고 처리 모달 */}
       <Modal open={showReceiveModal} onClose={() => setShowReceiveModal(false)} title="입고 처리" width={680}>
             <div className="overflow-y-auto flex-1">
-              <table className="w-full border-collapse mb-4">
-                <thead>
-                  <tr>
-                    {['품목명', '단위', '발주수량', '기입고', '잔량', '이번입고수량', '검수메모'].map(h => (
-                      <th key={h} className="text-left px-2 py-[8px] text-[11px] text-muted-brand border-b border-[rgba(91,164,217,0.2)]">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {receiveItems.map((item, idx) => {
-                    const remaining = item.orderedQuantity - item.receivedQuantity
-                    return (
-                      <tr key={item.poItemId}>
-                        <td className="px-2 py-[8px] text-[12px] text-white border-b border-[rgba(91,164,217,0.06)]">{item.itemName}</td>
-                        <td className="px-2 py-[8px] text-[12px] text-muted-brand border-b border-[rgba(91,164,217,0.06)]">{item.unit ?? '-'}</td>
-                        <td className="px-2 py-[8px] text-[12px] text-white text-right border-b border-[rgba(91,164,217,0.06)]">{item.orderedQuantity.toLocaleString()}</td>
-                        <td className="px-2 py-[8px] text-[12px] text-muted-brand text-right border-b border-[rgba(91,164,217,0.06)]">{item.receivedQuantity.toLocaleString()}</td>
-                        <td className="px-2 py-[8px] text-[12px] text-[#66bb6a] text-right border-b border-[rgba(91,164,217,0.06)] font-semibold">{remaining.toLocaleString()}</td>
-                        <td className="px-2 py-[8px] border-b border-[rgba(91,164,217,0.06)]">
-                          <input
-                            type="number"
-                            min={0}
-                            max={remaining}
-                            step="any"
-                            value={item.quantity}
-                            onChange={e => {
-                              const updated = [...receiveItems]
-                              updated[idx] = { ...updated[idx], quantity: e.target.value }
-                              setReceiveItems(updated)
-                            }}
-                            className="w-[80px] px-2 py-[5px] border border-[rgba(91,164,217,0.3)] rounded text-[12px] bg-brand text-white text-right"
+              <MobileCardList
+                items={receiveItems}
+                keyExtractor={(item) => item.poItemId}
+                emptyMessage=""
+                renderCard={(item, idx) => {
+                  const remaining = item.orderedQuantity - item.receivedQuantity
+                  return (
+                    <MobileCard title={item.itemName}>
+                      <MobileCardFields>
+                        <MobileCardField label="단위" value={item.unit ?? '-'} />
+                        <MobileCardField label="발주수량" value={item.orderedQuantity.toLocaleString()} />
+                        <MobileCardField label="기입고" value={item.receivedQuantity.toLocaleString()} />
+                        <MobileCardField label="잔량" value={<span className="text-[#66bb6a] font-semibold">{remaining.toLocaleString()}</span>} />
+                      </MobileCardFields>
+                      <div className="px-1 pt-2 flex flex-col gap-2">
+                        <div>
+                          <label className="text-[11px] text-muted-brand block mb-1">이번 입고수량</label>
+                          <input type="number" min={0} max={remaining} step="any" value={item.quantity}
+                            onChange={e => { const u = [...receiveItems]; u[idx as number] = { ...u[idx as number], quantity: e.target.value }; setReceiveItems(u) }}
+                            className="w-full px-2 py-[5px] border border-[rgba(91,164,217,0.3)] rounded text-[12px] bg-brand text-white"
                           />
-                        </td>
-                        <td className="px-2 py-[8px] border-b border-[rgba(91,164,217,0.06)]">
-                          <input
-                            type="text"
-                            value={item.inspectionNote}
-                            onChange={e => {
-                              const updated = [...receiveItems]
-                              updated[idx] = { ...updated[idx], inspectionNote: e.target.value }
-                              setReceiveItems(updated)
-                            }}
+                        </div>
+                        <div>
+                          <label className="text-[11px] text-muted-brand block mb-1">검수메모</label>
+                          <input type="text" value={item.inspectionNote}
+                            onChange={e => { const u = [...receiveItems]; u[idx as number] = { ...u[idx as number], inspectionNote: e.target.value }; setReceiveItems(u) }}
                             placeholder="선택"
                             className="w-full px-2 py-[5px] border border-[rgba(91,164,217,0.3)] rounded text-[12px] bg-brand text-white"
                           />
-                        </td>
+                        </div>
+                      </div>
+                    </MobileCard>
+                  )
+                }}
+                renderTable={() => (
+                  <table className="w-full border-collapse mb-4">
+                    <thead>
+                      <tr>
+                        {['품목명', '단위', '발주수량', '기입고', '잔량', '이번입고수량', '검수메모'].map(h => (
+                          <th key={h} className="text-left px-2 py-[8px] text-[11px] text-muted-brand border-b border-[rgba(91,164,217,0.2)]">{h}</th>
+                        ))}
                       </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      {receiveItems.map((item, idx) => {
+                        const remaining = item.orderedQuantity - item.receivedQuantity
+                        return (
+                          <tr key={item.poItemId}>
+                            <td className="px-2 py-[8px] text-[12px] text-white border-b border-[rgba(91,164,217,0.06)]">{item.itemName}</td>
+                            <td className="px-2 py-[8px] text-[12px] text-muted-brand border-b border-[rgba(91,164,217,0.06)]">{item.unit ?? '-'}</td>
+                            <td className="px-2 py-[8px] text-[12px] text-white text-right border-b border-[rgba(91,164,217,0.06)]">{item.orderedQuantity.toLocaleString()}</td>
+                            <td className="px-2 py-[8px] text-[12px] text-muted-brand text-right border-b border-[rgba(91,164,217,0.06)]">{item.receivedQuantity.toLocaleString()}</td>
+                            <td className="px-2 py-[8px] text-[12px] text-[#66bb6a] text-right border-b border-[rgba(91,164,217,0.06)] font-semibold">{remaining.toLocaleString()}</td>
+                            <td className="px-2 py-[8px] border-b border-[rgba(91,164,217,0.06)]">
+                              <input type="number" min={0} max={remaining} step="any" value={item.quantity}
+                                onChange={e => { const u = [...receiveItems]; u[idx] = { ...u[idx], quantity: e.target.value }; setReceiveItems(u) }}
+                                className="w-[80px] px-2 py-[5px] border border-[rgba(91,164,217,0.3)] rounded text-[12px] bg-brand text-white text-right"
+                              />
+                            </td>
+                            <td className="px-2 py-[8px] border-b border-[rgba(91,164,217,0.06)]">
+                              <input type="text" value={item.inspectionNote}
+                                onChange={e => { const u = [...receiveItems]; u[idx] = { ...u[idx], inspectionNote: e.target.value }; setReceiveItems(u) }}
+                                placeholder="선택"
+                                className="w-full px-2 py-[5px] border border-[rgba(91,164,217,0.3)] rounded text-[12px] bg-brand text-white"
+                              />
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              />
 
               <div className="flex flex-col gap-[6px]">
                 <label className="text-[12px] text-muted-brand">메모 (선택)</label>

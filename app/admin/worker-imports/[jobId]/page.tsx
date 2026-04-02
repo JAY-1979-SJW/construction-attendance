@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface Candidate {
   id: string
@@ -221,97 +222,134 @@ export default function WorkerImportReviewPage() {
         ))}
       </div>
 
-      {/* 테이블 */}
-      <div className="bg-card rounded-[12px] hidden sm:block overflow-x-auto shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              {['행', '이름', '연락처', '직종', '생년월일', '판정', '사유', '기존 후보', '처리'].map(h => (
-                <th key={h} className="text-left px-3 py-2.5 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] bg-surface whitespace-nowrap">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRows.length === 0 ? (
-              <tr><td colSpan={9} className="text-center py-8 text-[#999]">해당 항목이 없습니다.</td></tr>
-            ) : filteredRows.map(row => (
-              <tr key={row.id} className="border-b border-[rgba(91,164,217,0.05)]">
-                <td className="px-3 py-2.5 text-[11px] text-muted-brand text-center">{row.rowNumber}</td>
-                <td className="px-3 py-2.5 text-[13px] font-semibold">{row.name}</td>
-                <td className="px-3 py-2.5 text-[13px]">{row.phone}</td>
-                <td className="px-3 py-2.5 text-[12px]">{row.jobTitle}</td>
-                <td className="px-3 py-2.5 text-[11px] text-muted-brand">{row.birthDate ?? '-'}</td>
-                <td className="px-3 py-2.5">
-                  <span
-                    className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
-                    style={{ color: DEDUPE_COLOR[row.dedupeStatus] ?? '#757575', background: DEDUPE_BG[row.dedupeStatus] ?? '#f5f5f5' }}
-                  >
-                    {DEDUPE_LABEL[row.dedupeStatus] ?? row.dedupeStatus}
-                  </span>
-                </td>
-                <td className="px-3 py-2.5 text-[11px] text-[#999] max-w-[200px]">{row.dedupeReason ?? row.validationMessage ?? ''}</td>
-                <td className="px-3 py-2.5 text-[11px]">
-                  {row.candidatesJson && Array.isArray(row.candidatesJson) && row.candidatesJson.length > 0 ? (
-                    <div className="space-y-1">
-                      {(row.candidatesJson as Candidate[]).map((c, ci) => (
-                        <div key={ci} className="bg-[rgba(91,164,217,0.08)] rounded px-2 py-1">
-                          <span className="font-semibold">{c.name}</span>
-                          <span className="text-[#999] ml-1">{c.phone ?? ''}</span>
-                          {c.birthDate && <span className="text-[#999] ml-1">({c.birthDate})</span>}
-                          <span className="text-[#999] ml-1">{c.jobTitle}</span>
+      {/* 목록 */}
+      <MobileCardList
+        items={filteredRows}
+        keyExtractor={(row) => row.id}
+        emptyMessage="해당 항목이 없습니다."
+        renderCard={(row) => (
+          <MobileCard
+            title={`${row.rowNumber}행 · ${row.name}`}
+            subtitle={`${row.phone} · ${row.jobTitle}`}
+            badge={
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
+                style={{ color: DEDUPE_COLOR[row.dedupeStatus] ?? '#757575', background: DEDUPE_BG[row.dedupeStatus] ?? '#f5f5f5' }}>
+                {DEDUPE_LABEL[row.dedupeStatus] ?? row.dedupeStatus}
+              </span>
+            }
+          >
+            <MobileCardFields>
+              {row.birthDate && <MobileCardField label="생년월일" value={row.birthDate} />}
+              {(row.dedupeReason || row.validationMessage) && (
+                <MobileCardField label="사유" value={row.dedupeReason ?? row.validationMessage ?? ''} />
+              )}
+              {row.matchedWorkerName && <MobileCardField label="기존 후보" value={row.matchedWorkerName} />}
+              {row.importedWorkerId && <MobileCardField label="처리" value="등록됨" />}
+              {!row.importedWorkerId && row.userDecision === 'USE_EXISTING' && <MobileCardField label="처리" value="기존 사용" />}
+              {!row.importedWorkerId && row.userDecision === 'CANCEL' && <MobileCardField label="처리" value="취소됨" />}
+            </MobileCardFields>
+            {!row.importedWorkerId && !row.userDecision && row.validationStatus === 'NEEDS_REVIEW' && (
+              <MobileCardActions>
+                {row.matchedWorkerId && (
+                  <button onClick={() => handleDecision(row.id, 'USE_EXISTING')} disabled={saving}
+                    className="px-2 py-1 bg-[#e3f2fd] text-[#1565c0] border-0 rounded text-[11px] cursor-pointer font-semibold">
+                    기존 사용
+                  </button>
+                )}
+                <button onClick={() => handleDecision(row.id, 'REGISTER_NEW')} disabled={saving}
+                  className="px-2 py-1 bg-[#e8f5e9] text-[#2e7d32] border-0 rounded text-[11px] cursor-pointer font-semibold">
+                  신규 등록
+                </button>
+                <button onClick={() => handleDecision(row.id, 'CANCEL')} disabled={saving}
+                  className="px-2 py-1 bg-[#f5f5f5] text-[#757575] border-0 rounded text-[11px] cursor-pointer font-semibold">
+                  취소
+                </button>
+              </MobileCardActions>
+            )}
+          </MobileCard>
+        )}
+        renderTable={() => (
+          <div className="bg-card rounded-[12px] overflow-x-auto shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  {['행', '이름', '연락처', '직종', '생년월일', '판정', '사유', '기존 후보', '처리'].map(h => (
+                    <th key={h} className="text-left px-3 py-2.5 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] bg-surface whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRows.length === 0 ? (
+                  <tr><td colSpan={9} className="text-center py-8 text-[#999]">해당 항목이 없습니다.</td></tr>
+                ) : filteredRows.map(row => (
+                  <tr key={row.id} className="border-b border-[rgba(91,164,217,0.05)]">
+                    <td className="px-3 py-2.5 text-[11px] text-muted-brand text-center">{row.rowNumber}</td>
+                    <td className="px-3 py-2.5 text-[13px] font-semibold">{row.name}</td>
+                    <td className="px-3 py-2.5 text-[13px]">{row.phone}</td>
+                    <td className="px-3 py-2.5 text-[12px]">{row.jobTitle}</td>
+                    <td className="px-3 py-2.5 text-[11px] text-muted-brand">{row.birthDate ?? '-'}</td>
+                    <td className="px-3 py-2.5">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
+                        style={{ color: DEDUPE_COLOR[row.dedupeStatus] ?? '#757575', background: DEDUPE_BG[row.dedupeStatus] ?? '#f5f5f5' }}>
+                        {DEDUPE_LABEL[row.dedupeStatus] ?? row.dedupeStatus}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5 text-[11px] text-[#999] max-w-[200px]">{row.dedupeReason ?? row.validationMessage ?? ''}</td>
+                    <td className="px-3 py-2.5 text-[11px]">
+                      {row.candidatesJson && Array.isArray(row.candidatesJson) && row.candidatesJson.length > 0 ? (
+                        <div className="space-y-1">
+                          {(row.candidatesJson as Candidate[]).map((c, ci) => (
+                            <div key={ci} className="bg-[rgba(91,164,217,0.08)] rounded px-2 py-1">
+                              <span className="font-semibold">{c.name}</span>
+                              <span className="text-[#999] ml-1">{c.phone ?? ''}</span>
+                              {c.birthDate && <span className="text-[#999] ml-1">({c.birthDate})</span>}
+                              <span className="text-[#999] ml-1">{c.jobTitle}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  ) : row.matchedWorkerName ? (
-                    <span className="text-[#999]">{row.matchedWorkerName}</span>
-                  ) : '-'}
-                </td>
-                <td className="px-3 py-2.5">
-                  {row.importedWorkerId ? (
-                    <span className="text-[11px] text-[#4a148c]">등록됨</span>
-                  ) : row.userDecision === 'USE_EXISTING' ? (
-                    <span className="text-[11px] text-[#1565c0]">기존 사용</span>
-                  ) : row.userDecision === 'CANCEL' ? (
-                    <span className="text-[11px] text-[#757575]">취소됨</span>
-                  ) : row.validationStatus === 'NEEDS_REVIEW' ? (
-                    <div className="flex gap-1 flex-wrap">
-                      {row.matchedWorkerId && (
-                        <button
-                          onClick={() => handleDecision(row.id, 'USE_EXISTING')}
-                          disabled={saving}
-                          className="px-2 py-1 bg-[#e3f2fd] text-[#1565c0] border-0 rounded text-[11px] cursor-pointer font-semibold"
-                        >
-                          기존 사용
-                        </button>
+                      ) : row.matchedWorkerName ? (
+                        <span className="text-[#999]">{row.matchedWorkerName}</span>
+                      ) : '-'}
+                    </td>
+                    <td className="px-3 py-2.5">
+                      {row.importedWorkerId ? (
+                        <span className="text-[11px] text-[#4a148c]">등록됨</span>
+                      ) : row.userDecision === 'USE_EXISTING' ? (
+                        <span className="text-[11px] text-[#1565c0]">기존 사용</span>
+                      ) : row.userDecision === 'CANCEL' ? (
+                        <span className="text-[11px] text-[#757575]">취소됨</span>
+                      ) : row.validationStatus === 'NEEDS_REVIEW' ? (
+                        <div className="flex gap-1 flex-wrap">
+                          {row.matchedWorkerId && (
+                            <button onClick={() => handleDecision(row.id, 'USE_EXISTING')} disabled={saving}
+                              className="px-2 py-1 bg-[#e3f2fd] text-[#1565c0] border-0 rounded text-[11px] cursor-pointer font-semibold">
+                              기존 사용
+                            </button>
+                          )}
+                          <button onClick={() => handleDecision(row.id, 'REGISTER_NEW')} disabled={saving}
+                            className="px-2 py-1 bg-[#e8f5e9] text-[#2e7d32] border-0 rounded text-[11px] cursor-pointer font-semibold">
+                            신규 등록
+                          </button>
+                          <button onClick={() => handleDecision(row.id, 'CANCEL')} disabled={saving}
+                            className="px-2 py-1 bg-[#f5f5f5] text-[#757575] border-0 rounded text-[11px] cursor-pointer font-semibold">
+                            취소
+                          </button>
+                        </div>
+                      ) : row.validationStatus === 'FAILED' ? (
+                        <span className="text-[11px] text-[#b71c1c]">실패</span>
+                      ) : row.validationStatus === 'IMPORTED' ? (
+                        <span className="text-[11px] text-[#4a148c]">자동등록</span>
+                      ) : (
+                        <span className="text-[11px] text-[#999]">{row.validationStatus}</span>
                       )}
-                      <button
-                        onClick={() => handleDecision(row.id, 'REGISTER_NEW')}
-                        disabled={saving}
-                        className="px-2 py-1 bg-[#e8f5e9] text-[#2e7d32] border-0 rounded text-[11px] cursor-pointer font-semibold"
-                      >
-                        신규 등록
-                      </button>
-                      <button
-                        onClick={() => handleDecision(row.id, 'CANCEL')}
-                        disabled={saving}
-                        className="px-2 py-1 bg-[#f5f5f5] text-[#757575] border-0 rounded text-[11px] cursor-pointer font-semibold"
-                      >
-                        취소
-                      </button>
-                    </div>
-                  ) : row.validationStatus === 'FAILED' ? (
-                    <span className="text-[11px] text-[#b71c1c]">실패</span>
-                  ) : row.validationStatus === 'IMPORTED' ? (
-                    <span className="text-[11px] text-[#4a148c]">자동등록</span>
-                  ) : (
-                    <span className="text-[11px] text-[#999]">{row.validationStatus}</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      />
     </div>
   )
 }

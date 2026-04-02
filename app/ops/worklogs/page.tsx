@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface Site {
   id: string
@@ -285,55 +286,77 @@ export default function OpsWorklogsPage() {
         </div>
       ) : loading ? (
         <p className="text-muted-brand text-center py-10">불러오는 중...</p>
-      ) : logs.length === 0 ? (
-        <div className="text-center text-muted2-brand py-12 bg-card border border-brand rounded-lg text-[14px]">
-          해당 기간에 작업일보가 없습니다.
-        </div>
       ) : (
-        <div className="bg-card border border-brand rounded-lg overflow-auto">
-          <table className="w-full border-collapse text-[13px]">
-            <thead className="bg-surface">
-              <tr>
-                {['날짜', '전체', '정상', '결근', '날씨', '안전사고', '상태', '요약'].map(h => (
-                  <th key={h} className="px-[14px] py-[10px] text-left text-[12px] text-muted-brand font-semibold border-b border-brand">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map(log => (
-                <tr key={log.id} className="border-b border-brand hover:bg-[rgba(91,164,217,0.04)]">
-                  <td className="px-[14px] py-[10px] text-body-brand whitespace-nowrap">{fmtDate(log.workDate)}</td>
-                  <td className="px-[14px] py-[10px] text-body-brand text-center">{log.totalWorkers}</td>
-                  <td className="px-[14px] py-[10px] text-body-brand text-center">{log.normalWorkers}</td>
-                  <td className="px-[14px] py-[10px] text-body-brand text-center">{log.absentWorkers}</td>
-                  <td className="px-[14px] py-[10px] text-body-brand">
-                    {log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '—'}
-                  </td>
-                  <td className="px-[14px] py-[10px]">
-                    {log.safetyIncident ? (
-                      <span className="text-status-rejected text-[12px] font-semibold">발생</span>
-                    ) : (
-                      <span className="text-muted2-brand text-[12px]">없음</span>
-                    )}
-                  </td>
-                  <td className="px-[14px] py-[10px]">
-                    <span
-                      className="text-[11px] px-2 py-[2px] rounded"
-                      style={{
-                        background: log.isFinalized ? '#d1fae5' : '#fef3c7',
-                        color: log.isFinalized ? '#065f46' : '#92400e',
-                      }}
-                    >
-                      {log.isFinalized ? '마감' : '작성중'}
-                    </span>
-                  </td>
-                  <td className="px-[14px] py-[10px] text-body-brand max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
-                    {log.workSummary ?? '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="bg-card border border-brand rounded-lg overflow-hidden">
+          <MobileCardList
+            items={logs}
+            keyExtractor={(log) => log.id}
+            emptyMessage="해당 기간에 작업일보가 없습니다."
+            renderCard={(log) => (
+              <MobileCard
+                title={fmtDate(log.workDate)}
+                badge={
+                  <span className="text-[11px] px-2 py-[2px] rounded" style={{
+                    background: log.isFinalized ? '#d1fae5' : '#fef3c7',
+                    color: log.isFinalized ? '#065f46' : '#92400e',
+                  }}>
+                    {log.isFinalized ? '마감' : '작성중'}
+                  </span>
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField label="전체 인원" value={`${log.totalWorkers}명`} />
+                  <MobileCardField label="정상" value={`${log.normalWorkers}명`} />
+                  <MobileCardField label="결근" value={`${log.absentWorkers}명`} />
+                  <MobileCardField label="날씨" value={log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '—'} />
+                  <MobileCardField label="안전사고" value={log.safetyIncident ? '발생' : '없음'} />
+                  {log.workSummary && <MobileCardField label="요약" value={log.workSummary} />}
+                </MobileCardFields>
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <table className="w-full border-collapse text-[13px]">
+                <thead className="bg-surface">
+                  <tr>
+                    {['날짜', '전체', '정상', '결근', '날씨', '안전사고', '상태', '요약'].map(h => (
+                      <th key={h} className="px-[14px] py-[10px] text-left text-[12px] text-muted-brand font-semibold border-b border-brand">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {logs.map(log => (
+                    <tr key={log.id} className="border-b border-brand hover:bg-[rgba(91,164,217,0.04)]">
+                      <td className="px-[14px] py-[10px] text-body-brand whitespace-nowrap">{fmtDate(log.workDate)}</td>
+                      <td className="px-[14px] py-[10px] text-body-brand text-center">{log.totalWorkers}</td>
+                      <td className="px-[14px] py-[10px] text-body-brand text-center">{log.normalWorkers}</td>
+                      <td className="px-[14px] py-[10px] text-body-brand text-center">{log.absentWorkers}</td>
+                      <td className="px-[14px] py-[10px] text-body-brand">
+                        {log.weatherCondition ? (WEATHER_LABELS[log.weatherCondition] ?? log.weatherCondition) : '—'}
+                      </td>
+                      <td className="px-[14px] py-[10px]">
+                        {log.safetyIncident ? (
+                          <span className="text-status-rejected text-[12px] font-semibold">발생</span>
+                        ) : (
+                          <span className="text-muted2-brand text-[12px]">없음</span>
+                        )}
+                      </td>
+                      <td className="px-[14px] py-[10px]">
+                        <span className="text-[11px] px-2 py-[2px] rounded" style={{
+                          background: log.isFinalized ? '#d1fae5' : '#fef3c7',
+                          color: log.isFinalized ? '#065f46' : '#92400e',
+                        }}>
+                          {log.isFinalized ? '마감' : '작성중'}
+                        </span>
+                      </td>
+                      <td className="px-[14px] py-[10px] text-body-brand max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                        {log.workSummary ?? '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          />
         </div>
       )}
     </div>

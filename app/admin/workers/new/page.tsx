@@ -6,6 +6,7 @@ import {
   PageShell, SectionCard, PageHeader,
   FormInput, FormSelect, FormGrid,
   Btn, Toast,
+  MobileCardList, MobileCard, MobileCardField, MobileCardFields,
 } from '@/components/admin/ui'
 
 // ── 고용형태 옵션 ───────────────────────────────────────────────────────────
@@ -340,31 +341,51 @@ export default function WorkersNewPage() {
             등록 후 아래 서류를 제출해야 현장 투입이 가능합니다. 승인(APPROVED)과 투입 가능은 별도로 관리됩니다.
           </p>
           <div className="border border-brand rounded-[8px] overflow-hidden">
-            <table className="w-full text-[12px]">
-              <thead>
-                <tr className="bg-surface">
-                  <th className="text-left px-3 py-2 font-semibold text-muted-brand">서류명</th>
-                  <th className="text-left px-3 py-2 font-semibold text-muted-brand">구분</th>
-                  <th className="text-left px-3 py-2 font-semibold text-muted-brand">제출 시점</th>
-                </tr>
-              </thead>
-              <tbody>
-                {DOC_GUIDE.map(d => {
-                  const t = TIMING_LABELS[d.timing]
-                  return (
-                    <tr key={d.name} className="border-t border-brand">
-                      <td className="px-3 py-2 text-body-brand">{d.name}</td>
-                      <td className="px-3 py-2 text-muted2-brand">{d.rule}</td>
-                      <td className="px-3 py-2">
-                        <span className="inline-block px-2 py-0.5 rounded text-[11px] font-medium" style={{ color: t.color, backgroundColor: t.bg }}>
-                          {t.label}
-                        </span>
-                      </td>
+            <MobileCardList
+              items={DOC_GUIDE}
+              keyExtractor={(d) => d.name}
+              emptyMessage=""
+              renderCard={(d) => {
+                const t = TIMING_LABELS[d.timing]
+                return (
+                  <MobileCard
+                    title={d.name}
+                    badge={<span className="inline-block px-2 py-0.5 rounded text-[11px] font-medium" style={{ color: t.color, backgroundColor: t.bg }}>{t.label}</span>}
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="구분" value={d.rule} />
+                    </MobileCardFields>
+                  </MobileCard>
+                )
+              }}
+              renderTable={() => (
+                <table className="w-full text-[12px]">
+                  <thead>
+                    <tr className="bg-surface">
+                      <th className="text-left px-3 py-2 font-semibold text-muted-brand">서류명</th>
+                      <th className="text-left px-3 py-2 font-semibold text-muted-brand">구분</th>
+                      <th className="text-left px-3 py-2 font-semibold text-muted-brand">제출 시점</th>
                     </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody>
+                    {DOC_GUIDE.map(d => {
+                      const t = TIMING_LABELS[d.timing]
+                      return (
+                        <tr key={d.name} className="border-t border-brand">
+                          <td className="px-3 py-2 text-body-brand">{d.name}</td>
+                          <td className="px-3 py-2 text-muted2-brand">{d.rule}</td>
+                          <td className="px-3 py-2">
+                            <span className="inline-block px-2 py-0.5 rounded text-[11px] font-medium" style={{ color: t.color, backgroundColor: t.bg }}>
+                              {t.label}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              )}
+            />
           </div>
         </SectionCard>
 

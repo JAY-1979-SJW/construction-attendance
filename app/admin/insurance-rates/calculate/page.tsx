@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useState } from 'react'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 const RATE_TYPE_LABEL: Record<string, string> = {
   NATIONAL_PENSION:     '국민연금',
@@ -208,43 +209,72 @@ export default function InsuranceCalculatePage() {
 
           {/* 보험별 상세 */}
           <div className="bg-card border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-xs text-gray-600">
-                <tr>
-                  <th className="px-4 py-3 text-left">보험 종류</th>
-                  <th className="px-4 py-3 text-right">근로자 요율(%)</th>
-                  <th className="px-4 py-3 text-right">사업주 요율(%)</th>
-                  <th className="px-4 py-3 text-right text-blue-700">근로자 부담</th>
-                  <th className="px-4 py-3 text-right text-orange-600">사업주 부담</th>
-                  <th className="px-4 py-3 text-left text-gray-400">요율 ID</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {MONTHLY_ITEMS.map(([key, label]) => {
-                  const item = result.details![key] as SingleResult | null
-                  if (!item) {
-                    return (
-                      <tr key={key} className="bg-red-50">
-                        <td className="px-4 py-3 font-medium text-red-600">{label}</td>
-                        <td colSpan={5} className="px-4 py-3 text-red-500 text-xs">
-                          승인된 요율 없음 — 보험요율 관리에서 등록·승인 필요
-                        </td>
-                      </tr>
-                    )
-                  }
+            <MobileCardList
+              items={MONTHLY_ITEMS}
+              keyExtractor={([key]) => key as string}
+              emptyMessage=""
+              renderCard={([key, label]) => {
+                const item = result.details![key as keyof NonNullable<CalcResult['details']>] as SingleResult | null
+                if (!item) {
                   return (
-                    <tr key={key} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium">{label}</td>
-                      <td className="px-4 py-3 text-right font-mono">{item.employeeRatePct}%</td>
-                      <td className="px-4 py-3 text-right font-mono">{item.employerRatePct}%</td>
-                      <td className="px-4 py-3 text-right font-mono text-blue-700">{won(item.employeeAmount)}</td>
-                      <td className="px-4 py-3 text-right font-mono text-orange-600">{won(item.employerAmount)}</td>
-                      <td className="px-4 py-3 text-gray-400 text-xs truncate max-w-[120px]">{item.versionId.slice(0, 12)}…</td>
-                    </tr>
+                    <MobileCard title={label as string} badge={<span className="text-[11px] text-red-600 bg-red-50 px-2 py-0.5 rounded">요율없음</span>}>
+                      <MobileCardFields>
+                        <MobileCardField label="상태" value="승인된 요율 없음 — 보험요율 관리에서 등록·승인 필요" />
+                      </MobileCardFields>
+                    </MobileCard>
                   )
-                })}
-              </tbody>
-            </table>
+                }
+                return (
+                  <MobileCard title={label as string}>
+                    <MobileCardFields>
+                      <MobileCardField label="근로자 요율" value={`${item.employeeRatePct}%`} />
+                      <MobileCardField label="사업주 요율" value={`${item.employerRatePct}%`} />
+                      <MobileCardField label="근로자 부담" value={won(item.employeeAmount)} />
+                      <MobileCardField label="사업주 부담" value={won(item.employerAmount)} />
+                    </MobileCardFields>
+                  </MobileCard>
+                )
+              }}
+              renderTable={() => (
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 text-xs text-gray-600">
+                    <tr>
+                      <th className="px-4 py-3 text-left">보험 종류</th>
+                      <th className="px-4 py-3 text-right">근로자 요율(%)</th>
+                      <th className="px-4 py-3 text-right">사업주 요율(%)</th>
+                      <th className="px-4 py-3 text-right text-blue-700">근로자 부담</th>
+                      <th className="px-4 py-3 text-right text-orange-600">사업주 부담</th>
+                      <th className="px-4 py-3 text-left text-gray-400">요율 ID</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {MONTHLY_ITEMS.map(([key, label]) => {
+                      const item = result.details![key as keyof NonNullable<CalcResult['details']>] as SingleResult | null
+                      if (!item) {
+                        return (
+                          <tr key={key as string} className="bg-red-50">
+                            <td className="px-4 py-3 font-medium text-red-600">{label as string}</td>
+                            <td colSpan={5} className="px-4 py-3 text-red-500 text-xs">
+                              승인된 요율 없음 — 보험요율 관리에서 등록·승인 필요
+                            </td>
+                          </tr>
+                        )
+                      }
+                      return (
+                        <tr key={key as string} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 font-medium">{label as string}</td>
+                          <td className="px-4 py-3 text-right font-mono">{item.employeeRatePct}%</td>
+                          <td className="px-4 py-3 text-right font-mono">{item.employerRatePct}%</td>
+                          <td className="px-4 py-3 text-right font-mono text-blue-700">{won(item.employeeAmount)}</td>
+                          <td className="px-4 py-3 text-right font-mono text-orange-600">{won(item.employerAmount)}</td>
+                          <td className="px-4 py-3 text-gray-400 text-xs truncate max-w-[120px]">{item.versionId.slice(0, 12)}…</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              )}
+            />
           </div>
 
           {result.details.unavailable.length > 0 && (

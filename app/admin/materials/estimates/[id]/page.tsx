@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -317,6 +318,53 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
 
       {loading ? <div className="py-10 text-center text-muted-brand">로딩 중...</div> : (
         <div>
+          {/* 모바일 카드 */}
+          <div className="sm:hidden">
+            {!result || result.items.length === 0 ? (
+              <div className="py-8 text-center text-[#999]">데이터가 없습니다</div>
+            ) : (
+              <MobileCardList
+                items={result.items}
+                renderCard={(row) => {
+                  const isExcluded = row.excludeFromAggregation
+                  const isOverridden = !!row.overriddenAt
+                  return (
+                    <MobileCard
+                      title={isOverridden && row.manualItemName ? row.manualItemName : (row.rawItemName ?? '-')}
+                      subtitle={row.sheetName}
+                      badge={ROW_TYPE_LABEL[row.rowType] ?? row.rowType}
+                      style={{ opacity: isExcluded ? 0.6 : 1 }}
+                    >
+                      <MobileCardFields>
+                        <MobileCardField label="행번호" value={String(row.rowNo + 1)} />
+                        <MobileCardField label="규격" value={isOverridden && row.manualSpec ? row.manualSpec : (row.rawSpec ?? '-')} />
+                        <MobileCardField label="단위" value={isOverridden && row.manualUnit ? row.manualUnit : (row.rawUnit ?? '-')} />
+                        <MobileCardField label="수량" value={isOverridden && row.manualQuantity ? row.manualQuantity : (row.rawQuantity ?? '-')} />
+                        <MobileCardField label="그룹키" value={row.manualGroupKey ?? row.normalized?.groupKey ?? '-'} />
+                      </MobileCardFields>
+                      {isExcluded && <div className="text-[11px] text-[#b71c1c] font-bold mt-1">집계 제외됨</div>}
+                      {isOverridden && <div className="text-[11px] text-secondary-brand font-semibold mt-1">보정됨{row.overrideReason ? ` — ${row.overrideReason}` : ''}</div>}
+                      {row.reviewRequired && <div className="text-[11px] text-accent-hover mt-1">검토 필요</div>}
+                      <MobileCardActions>
+                        <button
+                          onClick={() => handleToggleExclude(row)}
+                          disabled={togglingId === row.id}
+                          style={{ padding: '4px 10px', fontSize: '12px', fontWeight: 600, borderRadius: '4px', cursor: 'pointer', border: isExcluded ? '1px solid #a5d6a7' : '1px solid #ef9a9a', background: isExcluded ? '#e8f5e9' : '#ffebee', color: isExcluded ? '#2e7d32' : '#b71c1c' }}>
+                          {isExcluded ? '제외해제' : '제외'}
+                        </button>
+                        <button
+                          onClick={() => setEditingRow(row)}
+                          className="px-3 py-[4px] text-[12px] font-semibold rounded cursor-pointer border border-[#F47920] bg-[rgba(244,121,32,0.12)] text-accent">
+                          보정
+                        </button>
+                      </MobileCardActions>
+                    </MobileCard>
+                  )
+                }}
+              />
+            )}
+          </div>
+          {/* 데스크탑 테이블 */}
           <div className="hidden sm:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -398,6 +446,7 @@ function ParseReviewTab({ docId, sheets }: { docId: string; sheets: SheetSummary
                 })}
               </tbody>
             </table>
+          </div>
           </div>
           {result && result.totalPages > 1 && (
             <div className="flex gap-2 justify-center mt-4 items-center">
@@ -553,6 +602,49 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
         {/* Aggregate list */}
         <div className="flex-1 min-w-0">
           {loading ? <div className="py-10 text-center text-muted-brand">로딩 중...</div> : (
+            <>
+            {/* 모바일 카드 */}
+            <div className="sm:hidden">
+              {items.length === 0 ? (
+                <div className="py-8 text-center text-[#999]">집계 결과가 없습니다. 재집계를 실행하세요.</div>
+              ) : (
+                <MobileCardList
+                  items={items}
+                  renderCard={(row) => {
+                    const isConfirmed = row.aggregationStatus === 'CONFIRMED'
+                    return (
+                      <MobileCard
+                        title={row.normalizedItemName}
+                        subtitle={row.normalizedSpec ?? undefined}
+                        badge={AGG_STATUS_LABEL[row.aggregationStatus] ?? row.aggregationStatus}
+                        style={{ background: selectedAgg?.id === row.id ? 'rgba(25,118,210,0.12)' : undefined }}
+                      >
+                        <MobileCardFields>
+                          <MobileCardField label="단위" value={row.normalizedUnit ?? '-'} />
+                          <MobileCardField label="총수량" value={fmtNum(row.totalQuantity)} />
+                          <MobileCardField label="총금액" value={fmtNum(row.totalAmount)} />
+                          <MobileCardField label="출처행" value={`${row.sourceRowCount}행`} />
+                        </MobileCardFields>
+                        {row.manualOverrideUsed && <div className="text-[11px] text-[#7b1fa2] font-bold mt-1">보정 사용됨</div>}
+                        {row.reviewRequired && <div className="text-[11px] text-accent-hover mt-1">검토 필요</div>}
+                        <MobileCardActions>
+                          <button onClick={() => handleRowClick(row)} className="px-3 py-[5px] text-[12px] font-semibold rounded cursor-pointer border border-[rgba(91,164,217,0.3)] bg-brand text-muted-brand">출처보기</button>
+                          {!isConfirmed ? (
+                            <>
+                              <button onClick={() => handleSingleStatus(row, 'REVIEWED')} className="px-3 py-[5px] text-[12px] rounded cursor-pointer border border-[#F47920] bg-[rgba(244,121,32,0.12)] text-accent font-semibold">검토</button>
+                              <button onClick={() => handleSingleStatus(row, 'CONFIRMED')} className="px-3 py-[5px] text-[12px] rounded cursor-pointer border border-[#a5d6a7] bg-green-light text-[#2e7d32] font-semibold">확정</button>
+                            </>
+                          ) : (
+                            <button onClick={() => handleSingleStatus(row, 'REVIEWED')} className="px-3 py-[5px] text-[12px] rounded cursor-pointer border border-[#ffcc80] bg-[#fff3e0] text-accent-hover">해제</button>
+                          )}
+                        </MobileCardActions>
+                      </MobileCard>
+                    )
+                  }}
+                />
+              )}
+            </div>
+            {/* 데스크탑 테이블 */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
@@ -613,6 +705,7 @@ function MaterialAggregateTab({ docId }: { docId: string }) {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
 
@@ -864,6 +957,38 @@ export default function EstimateDetailPage() {
           {/* Tab: Sheet List */}
           {activeTab === 'sheets' && (
             sheetsLoading ? <div className="py-10 text-center text-muted-brand">로딩 중...</div> : (
+              <>
+              {/* 모바일 카드 */}
+              <div className="sm:hidden">
+                {sheets.length === 0 ? (
+                  <div className="py-8 text-center text-[#999]">파싱 후 시트 목록이 표시됩니다</div>
+                ) : (
+                  <MobileCardList
+                    items={sheets}
+                    renderCard={(sheet) => (
+                      <MobileCard
+                        title={sheet.sheetName}
+                        subtitle={SHEET_TYPE_LABEL[sheet.sheetType] ?? sheet.sheetType}
+                        badge={STATUS_LABEL[sheet.parseStatus] ?? sheet.parseStatus}
+                        style={{ opacity: sheet.isHidden ? 0.6 : 1 }}
+                      >
+                        <MobileCardFields>
+                          <MobileCardField label="#" value={String(sheet.sheetIndex + 1)} />
+                          <MobileCardField label="공종" value={sheet.discipline ?? '-'} />
+                          <MobileCardField label="행수" value={String(sheet.maxRows)} />
+                          <MobileCardField label="열수" value={String(sheet.maxCols)} />
+                        </MobileCardFields>
+                        {sheet.isHidden && <div className="text-[11px] text-muted-brand mt-1">(숨김 시트)</div>}
+                        {sheet.needsReview && <div className="text-[11px] text-accent-hover mt-1">검토필요</div>}
+                        <MobileCardActions>
+                          <button onClick={() => { setActiveTab('raw'); setSelectedSheetId(sheet.id) }} className="px-3 py-[6px] bg-green-light text-[#2e7d32] border border-[#a5d6a7] rounded cursor-pointer text-[12px] font-semibold">원문보기</button>
+                        </MobileCardActions>
+                      </MobileCard>
+                    )}
+                  />
+                )}
+              </div>
+              {/* 데스크탑 테이블 */}
               <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead><tr>{['#', '시트명', '유형', '공종', '행수', '열수', '검토필요', '상태', '보기'].map(h => (
@@ -888,6 +1013,7 @@ export default function EstimateDetailPage() {
                   </tbody>
                 </table>
               </div>
+              </>
             )
           )}
 

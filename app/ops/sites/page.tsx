@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface Site {
   id: string
@@ -63,49 +64,69 @@ export default function OpsSiteList() {
         </div>
       ) : (
         <div className="bg-card rounded-lg border border-brand overflow-hidden">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-surface">
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">현장명</th>
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">주소</th>
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">상태</th>
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">작업자 수</th>
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {sites.map(site => {
-                const s = STATUS_LABELS[site.status] ?? { label: site.status, bg: '#f3f4f6', color: '#6b7280' }
-                return (
-                  <tr key={site.id} className="border-b border-brand">
-                    <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
-                      <span className="font-semibold">{site.name}</span>
-                    </td>
-                    <td className="px-4 py-[14px] text-[13px] text-muted-brand">
-                      {site.address ?? '—'}
-                    </td>
-                    <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
-                      <span
-                        className="text-[11px] px-2 py-[3px] rounded font-medium"
-                        style={{ background: s.bg, color: s.color }}
-                      >
-                        {s.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-[14px] text-[14px] text-[#1f2937] text-center">{site.workerCount ?? '—'}</td>
-                    <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
-                      <Link
-                        href={`/ops/sites/${site.id}`}
-                        className="px-3 py-[5px] bg-blue-light text-[#1d4ed8] rounded-[5px] no-underline text-[13px] font-medium"
-                      >
-                        상세 보기
-                      </Link>
-                    </td>
+          <MobileCardList
+            items={sites}
+            keyExtractor={(site) => site.id}
+            emptyMessage="배정된 현장이 없습니다."
+            renderCard={(site) => {
+              const s = STATUS_LABELS[site.status] ?? { label: site.status, bg: '#f3f4f6', color: '#6b7280' }
+              return (
+                <MobileCard
+                  title={site.name}
+                  subtitle={site.address ?? undefined}
+                  badge={
+                    <span className="text-[11px] px-2 py-[3px] rounded font-medium" style={{ background: s.bg, color: s.color }}>
+                      {s.label}
+                    </span>
+                  }
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="작업자 수" value={`${site.workerCount ?? '—'}명`} />
+                  </MobileCardFields>
+                  <MobileCardActions>
+                    <Link href={`/ops/sites/${site.id}`} className="px-3 py-1.5 bg-blue-light text-[#1d4ed8] rounded-[5px] no-underline text-[12px] font-medium">
+                      상세 보기
+                    </Link>
+                  </MobileCardActions>
+                </MobileCard>
+              )
+            }}
+            renderTable={() => (
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-surface">
+                    <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">현장명</th>
+                    <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">주소</th>
+                    <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">상태</th>
+                    <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand">작업자 수</th>
+                    <th className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand"></th>
                   </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {sites.map(site => {
+                    const s = STATUS_LABELS[site.status] ?? { label: site.status, bg: '#f3f4f6', color: '#6b7280' }
+                    return (
+                      <tr key={site.id} className="border-b border-brand">
+                        <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
+                          <span className="font-semibold">{site.name}</span>
+                        </td>
+                        <td className="px-4 py-[14px] text-[13px] text-muted-brand">{site.address ?? '—'}</td>
+                        <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
+                          <span className="text-[11px] px-2 py-[3px] rounded font-medium" style={{ background: s.bg, color: s.color }}>{s.label}</span>
+                        </td>
+                        <td className="px-4 py-[14px] text-[14px] text-[#1f2937] text-center">{site.workerCount ?? '—'}</td>
+                        <td className="px-4 py-[14px] text-[14px] text-[#1f2937]">
+                          <Link href={`/ops/sites/${site.id}`} className="px-3 py-[5px] bg-blue-light text-[#1d4ed8] rounded-[5px] no-underline text-[13px] font-medium">
+                            상세 보기
+                          </Link>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+          />
         </div>
       )}
     </div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import MaterialPickerModal from '@/components/admin/MaterialPickerModal'
-import { Modal } from '@/components/admin/ui'
+import { Modal, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface OrderableItem {
   id: string
@@ -168,7 +168,7 @@ export default function MaterialRequestDetailPage() {
       setShowPicker(false)
       load()
     } else {
-      alert(d.error ?? '품목 추가 실패')
+      alert(d.message ?? '품목 추가 실패')
     }
   }
 
@@ -177,7 +177,7 @@ export default function MaterialRequestDetailPage() {
     const res = await fetch(`/api/admin/materials/requests/${id}/items/${itemId}`, { method: 'DELETE' })
     const d = await res.json()
     if (d.success) load()
-    else alert(d.error ?? '삭제 실패')
+    else alert(d.message ?? '삭제 실패')
   }
 
   const handleAction = async (action: 'submit' | 'approve' | 'cancel') => {
@@ -192,7 +192,7 @@ export default function MaterialRequestDetailPage() {
     const d = await res.json()
     setActionLoading(false)
     if (d.success) load()
-    else alert(d.error ?? '처리 실패')
+    else alert(d.message ?? '처리 실패')
   }
 
   const handleReject = async () => {
@@ -206,7 +206,7 @@ export default function MaterialRequestDetailPage() {
     const d = await res.json()
     setActionLoading(false)
     if (d.success) { setShowRejectModal(false); setRejectReason(''); load() }
-    else alert(d.error ?? '반려 실패')
+    else alert(d.message ?? '반려 실패')
   }
 
   const handleSaveEdit = async () => {
@@ -223,7 +223,7 @@ export default function MaterialRequestDetailPage() {
     const d = await res.json()
     setActionLoading(false)
     if (d.success) { setEditMode(false); load() }
-    else alert(d.error ?? '수정 실패')
+    else alert(d.message ?? '수정 실패')
   }
 
   const startEdit = () => {
@@ -360,39 +360,67 @@ export default function MaterialRequestDetailPage() {
               {isDraft ? '품목을 추가하세요.' : '등록된 품목이 없습니다.'}
             </div>
           ) : (
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  {['품목코드', '품목명', '규격', '단위', '수량', '공종', '긴급', '대체허용', '비고', isDraft ? '삭제' : ''].map(h => (
-                    <th key={h} className="text-left px-3 py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {req.items.map(item => (
-                  <tr key={item.id}>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.itemCode}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white font-medium">{item.itemName}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.spec ?? '-'}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.unit ?? '-'}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right">{Number(item.requestedQty).toLocaleString()}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.disciplineCode ?? '-'}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-center">
-                      {item.isUrgent ? <span className="text-[#ef5350] text-[12px]">긴급</span> : '-'}
-                    </td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-center">
-                      {item.allowSubstitute ? <span className="text-[#66bb6a] text-[12px]">허용</span> : '-'}
-                    </td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.notes ?? '-'}</td>
-                    {isDraft && (
-                      <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
-                        <button onClick={() => handleDeleteItem(item.id)} className="px-[10px] py-[3px] bg-[rgba(183,28,28,0.15)] text-[#ef5350] border border-[rgba(183,28,28,0.3)] rounded cursor-pointer text-[12px]">삭제</button>
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <MobileCardList
+              items={req.items}
+              keyExtractor={(item) => item.id}
+              emptyMessage="등록된 품목이 없습니다."
+              renderCard={(item) => (
+                <MobileCard
+                  title={item.itemName}
+                  subtitle={item.itemCode}
+                  badge={item.isUrgent ? <span className="text-[11px] text-[#ef5350] bg-[rgba(183,28,28,0.1)] px-2 py-0.5 rounded">긴급</span> : undefined}
+                >
+                  <MobileCardFields>
+                    {item.spec && <MobileCardField label="규격" value={item.spec} />}
+                    <MobileCardField label="단위" value={item.unit ?? '-'} />
+                    <MobileCardField label="수량" value={Number(item.requestedQty).toLocaleString()} />
+                    {item.disciplineCode && <MobileCardField label="공종" value={item.disciplineCode} />}
+                    {item.allowSubstitute && <MobileCardField label="대체" value="허용" />}
+                    {item.notes && <MobileCardField label="비고" value={item.notes} />}
+                  </MobileCardFields>
+                  {isDraft && (
+                    <MobileCardActions>
+                      <button onClick={() => handleDeleteItem(item.id)} className="px-[10px] py-[3px] bg-[rgba(183,28,28,0.15)] text-[#ef5350] border border-[rgba(183,28,28,0.3)] rounded cursor-pointer text-[12px]">삭제</button>
+                    </MobileCardActions>
+                  )}
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      {['품목코드', '품목명', '규격', '단위', '수량', '공종', '긴급', '대체허용', '비고', isDraft ? '삭제' : ''].map(h => (
+                        <th key={h} className="text-left px-3 py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {req.items.map(item => (
+                      <tr key={item.id}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.itemCode}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white font-medium">{item.itemName}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.spec ?? '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.unit ?? '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right">{Number(item.requestedQty).toLocaleString()}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.disciplineCode ?? '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-center">
+                          {item.isUrgent ? <span className="text-[#ef5350] text-[12px]">긴급</span> : '-'}
+                        </td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-center">
+                          {item.allowSubstitute ? <span className="text-[#66bb6a] text-[12px]">허용</span> : '-'}
+                        </td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.notes ?? '-'}</td>
+                        {isDraft && (
+                          <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
+                            <button onClick={() => handleDeleteItem(item.id)} className="px-[10px] py-[3px] bg-[rgba(183,28,28,0.15)] text-[#ef5350] border border-[rgba(183,28,28,0.3)] rounded cursor-pointer text-[12px]">삭제</button>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            />
           )}
         </div>
 
@@ -407,40 +435,74 @@ export default function MaterialRequestDetailPage() {
                 + 발주 생성
               </button>
             </div>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  {['품목명', '규격', '단위', '청구수량', '발주수량', '잔량', '발주상태'].map(h => (
-                    <th key={h} className="text-left px-3 py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {orderableItems.map(item => (
-                  <tr key={item.id}>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white font-medium">{item.itemName}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.spec ?? '-'}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.unit ?? '-'}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right">{Number(item.requestedQty).toLocaleString()}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right text-secondary-brand">{Number(item.orderedQty).toLocaleString()}</td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right font-semibold"
-                      style={{ color: Number(item.remainingQty) <= 0 ? '#607d8b' : '#66bb6a' }}>
-                      {Number(item.remainingQty).toLocaleString()}
-                    </td>
-                    <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
-                      <span style={{
-                        padding: '2px 8px', borderRadius: '10px', fontSize: '11px',
-                        background: ORDER_STATUS_COLOR[item.orderStatus] + '22',
-                        color: ORDER_STATUS_COLOR[item.orderStatus],
-                        border: `1px solid ${ORDER_STATUS_COLOR[item.orderStatus]}44`,
-                      }}>
-                        {ORDER_STATUS_LABEL[item.orderStatus]}
+            <MobileCardList
+              items={orderableItems}
+              keyExtractor={(item) => item.id}
+              emptyMessage="발주 품목이 없습니다."
+              renderCard={(item) => (
+                <MobileCard
+                  title={item.itemName}
+                  subtitle={item.spec ?? undefined}
+                  badge={
+                    <span style={{
+                      padding: '2px 8px', borderRadius: '10px', fontSize: '11px',
+                      background: ORDER_STATUS_COLOR[item.orderStatus] + '22',
+                      color: ORDER_STATUS_COLOR[item.orderStatus],
+                      border: `1px solid ${ORDER_STATUS_COLOR[item.orderStatus]}44`,
+                    }}>
+                      {ORDER_STATUS_LABEL[item.orderStatus]}
+                    </span>
+                  }
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="단위" value={item.unit ?? '-'} />
+                    <MobileCardField label="청구수량" value={Number(item.requestedQty).toLocaleString()} />
+                    <MobileCardField label="발주수량" value={Number(item.orderedQty).toLocaleString()} />
+                    <MobileCardField label="잔량" value={
+                      <span style={{ color: Number(item.remainingQty) <= 0 ? '#607d8b' : '#66bb6a', fontWeight: 600 }}>
+                        {Number(item.remainingQty).toLocaleString()}
                       </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    } />
+                  </MobileCardFields>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      {['품목명', '규격', '단위', '청구수량', '발주수량', '잔량', '발주상태'].map(h => (
+                        <th key={h} className="text-left px-3 py-[10px] text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)]">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orderableItems.map(item => (
+                      <tr key={item.id}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white font-medium">{item.itemName}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-[12px] text-muted-brand">{item.spec ?? '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">{item.unit ?? '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right">{Number(item.requestedQty).toLocaleString()}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right text-secondary-brand">{Number(item.orderedQty).toLocaleString()}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white text-right font-semibold"
+                          style={{ color: Number(item.remainingQty) <= 0 ? '#607d8b' : '#66bb6a' }}>
+                          {Number(item.remainingQty).toLocaleString()}
+                        </td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-[rgba(91,164,217,0.08)] text-white">
+                          <span style={{
+                            padding: '2px 8px', borderRadius: '10px', fontSize: '11px',
+                            background: ORDER_STATUS_COLOR[item.orderStatus] + '22',
+                            color: ORDER_STATUS_COLOR[item.orderStatus],
+                            border: `1px solid ${ORDER_STATUS_COLOR[item.orderStatus]}44`,
+                          }}>
+                            {ORDER_STATUS_LABEL[item.orderStatus]}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            />
           </div>
         )}
 

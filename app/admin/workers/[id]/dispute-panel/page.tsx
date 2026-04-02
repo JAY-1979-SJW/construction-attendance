@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { Modal } from '@/components/admin/ui'
+import { Modal, MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 /**
  * 관리자 분쟁방어 패널
@@ -383,31 +383,43 @@ export default function DisputePanelPage() {
               문서 교부 이력이 없습니다. 분쟁 발생 시 불리할 수 있습니다.
             </div>
           ) : (
-            <table className="w-full border-collapse text-[13px]">
-              <thead>
-                <tr className="bg-surface">
-                  {['문서 유형', '교부 방법', '상태', '교부일'].map(h => (
-                    <th key={h} className="px-4 py-2.5 text-left font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)]">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {deliveryLogs.map(log => (
-                  <tr key={log.id} className="border-b border-brand">
-                    <td className="px-4 py-2.5">{log.documentType}</td>
-                    <td className="px-4 py-2.5 text-muted-brand">{log.deliveryMethod}</td>
-                    <td className="px-4 py-2.5">
-                      <span className="text-[12px] font-bold" style={{ color: DELIVERY_STATUS_COLOR[log.status] ?? '#666' }}>
-                        {DELIVERY_STATUS_LABEL[log.status] ?? log.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5 text-[#718096] text-[12px]">
-                      {log.deliveredAt ? new Date(log.deliveredAt).toLocaleDateString('ko-KR') : '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <MobileCardList
+              items={deliveryLogs}
+              keyExtractor={(log) => log.id}
+              emptyMessage="문서 교부 이력이 없습니다."
+              renderCard={(log) => (
+                <MobileCard
+                  title={log.documentType}
+                  subtitle={log.deliveryMethod}
+                  badge={<span className="text-[12px] font-bold" style={{ color: DELIVERY_STATUS_COLOR[log.status] ?? '#666' }}>{DELIVERY_STATUS_LABEL[log.status] ?? log.status}</span>}
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="교부일" value={log.deliveredAt ? new Date(log.deliveredAt).toLocaleDateString('ko-KR') : '-'} />
+                  </MobileCardFields>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <table className="w-full border-collapse text-[13px]">
+                  <thead>
+                    <tr className="bg-surface">
+                      {['문서 유형', '교부 방법', '상태', '교부일'].map(h => (
+                        <th key={h} className="px-4 py-2.5 text-left font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)]">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {deliveryLogs.map(log => (
+                      <tr key={log.id} className="border-b border-brand">
+                        <td className="px-4 py-2.5">{log.documentType}</td>
+                        <td className="px-4 py-2.5 text-muted-brand">{log.deliveryMethod}</td>
+                        <td className="px-4 py-2.5"><span className="text-[12px] font-bold" style={{ color: DELIVERY_STATUS_COLOR[log.status] ?? '#666' }}>{DELIVERY_STATUS_LABEL[log.status] ?? log.status}</span></td>
+                        <td className="px-4 py-2.5 text-[#718096] text-[12px]">{log.deliveredAt ? new Date(log.deliveredAt).toLocaleDateString('ko-KR') : '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            />
           )}
         </div>
       )}
@@ -421,25 +433,43 @@ export default function DisputePanelPage() {
           {recentAttendance.length === 0 ? (
             <div className="p-10 text-center text-[#718096] text-[14px]">출퇴근 기록이 없습니다.</div>
           ) : (
-            <table className="w-full border-collapse text-[13px]">
-              <thead>
-                <tr className="bg-surface">
-                  {['날짜', '출근', '퇴근', '상태'].map(h => (
-                    <th key={h} className="px-4 py-2.5 text-left font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)]">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {recentAttendance.map(rec => (
-                  <tr key={rec.id} className="border-b border-brand">
-                    <td className="px-4 py-2.5 font-semibold">{rec.workDate}</td>
-                    <td className="px-4 py-2.5 text-muted-brand">{rec.checkInAt ? new Date(rec.checkInAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
-                    <td className="px-4 py-2.5 text-muted-brand">{rec.checkOutAt ? new Date(rec.checkOutAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
-                    <td className="px-4 py-2.5 text-[12px]" style={{ color: rec.status === 'ADJUSTED' ? '#f57f17' : '#666' }}>{rec.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <MobileCardList
+              items={recentAttendance}
+              keyExtractor={(rec) => rec.id}
+              emptyMessage="출퇴근 기록이 없습니다."
+              renderCard={(rec) => (
+                <MobileCard
+                  title={rec.workDate}
+                  badge={<span className="text-[12px]" style={{ color: rec.status === 'ADJUSTED' ? '#f57f17' : '#666' }}>{rec.status}</span>}
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="출근" value={rec.checkInAt ? new Date(rec.checkInAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'} />
+                    <MobileCardField label="퇴근" value={rec.checkOutAt ? new Date(rec.checkOutAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'} />
+                  </MobileCardFields>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <table className="w-full border-collapse text-[13px]">
+                  <thead>
+                    <tr className="bg-surface">
+                      {['날짜', '출근', '퇴근', '상태'].map(h => (
+                        <th key={h} className="px-4 py-2.5 text-left font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)]">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentAttendance.map(rec => (
+                      <tr key={rec.id} className="border-b border-brand">
+                        <td className="px-4 py-2.5 font-semibold">{rec.workDate}</td>
+                        <td className="px-4 py-2.5 text-muted-brand">{rec.checkInAt ? new Date(rec.checkInAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                        <td className="px-4 py-2.5 text-muted-brand">{rec.checkOutAt ? new Date(rec.checkOutAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                        <td className="px-4 py-2.5 text-[12px]" style={{ color: rec.status === 'ADJUSTED' ? '#f57f17' : '#666' }}>{rec.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            />
           )}
         </div>
       )}

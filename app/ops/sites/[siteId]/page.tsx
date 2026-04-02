@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 // ops 현장 상세 — /admin/sites/[id] 의 read-only 버전
 // EXTERNAL_SITE_ADMIN: 수정 불가, 출퇴근 수정 불가
@@ -181,36 +182,50 @@ function AttendanceTab({ siteId, canMutate }: { siteId: string; canMutate: boole
         )}
       </div>
       {loading ? <p className="text-muted-brand text-[14px]">로딩 중...</p> : (
-        items.length === 0 ? (
-          <p className="text-muted-brand text-[14px]">출퇴근 기록이 없습니다.</p>
-        ) : (
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-surface">
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">작업자</th>
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">출근</th>
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">퇴근</th>
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">상태</th>
-                {canMutate && <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand"></th>}
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id as string} className="border-b border-brand">
-                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{item.workerName as string}</td>
-                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{formatTime(item.checkInAt as string | null)}</td>
-                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{formatTime(item.checkOutAt as string | null)}</td>
-                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]"><AttStatusBadge status={item.status as string} /></td>
-                  {canMutate && (
-                    <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">
-                      <Link href={`/admin/attendance/${item.id}`} className="text-[#1d4ed8] text-[13px] no-underline">수정</Link>
-                    </td>
-                  )}
+        <MobileCardList
+          items={items}
+          keyExtractor={(item) => item.id as string}
+          emptyMessage="출퇴근 기록이 없습니다."
+          renderCard={(item) => (
+            <MobileCard
+              title={item.workerName as string}
+              badge={<AttStatusBadge status={item.status as string} />}
+            >
+              <MobileCardFields>
+                <MobileCardField label="출근" value={formatTime(item.checkInAt as string | null)} />
+                <MobileCardField label="퇴근" value={formatTime(item.checkOutAt as string | null)} />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-surface">
+                  <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">작업자</th>
+                  <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">출근</th>
+                  <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">퇴근</th>
+                  <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">상태</th>
+                  {canMutate && <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand"></th>}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id as string} className="border-b border-brand">
+                    <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{item.workerName as string}</td>
+                    <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{formatTime(item.checkInAt as string | null)}</td>
+                    <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{formatTime(item.checkOutAt as string | null)}</td>
+                    <td className="px-[14px] py-3 text-[14px] text-[#1f2937]"><AttStatusBadge status={item.status as string} /></td>
+                    {canMutate && (
+                      <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">
+                        <Link href={`/admin/attendance/${item.id}`} className="text-[#1d4ed8] text-[13px] no-underline">수정</Link>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       )}
     </div>
   )
@@ -287,28 +302,38 @@ function SchedulesTab({ siteId, isReadOnly }: { siteId: string; isReadOnly: bool
   return (
     <div>
       {loading ? <p className="text-muted-brand text-[14px]">로딩 중...</p> : (
-        schedules.length === 0 ? (
-          <p className="text-muted-brand text-[14px]">등록된 일정이 없습니다.</p>
-        ) : (
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-surface">
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">날짜</th>
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">구분</th>
-                <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">제목</th>
-              </tr>
-            </thead>
-            <tbody>
-              {schedules.map(s => (
-                <tr key={s.id as string} className="border-b border-brand">
-                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{(s.scheduleDate as string)?.slice(0, 10)}</td>
-                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{s.scheduleType as string}</td>
-                  <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{s.title as string}</td>
+        <MobileCardList
+          items={schedules}
+          keyExtractor={(s) => s.id as string}
+          emptyMessage="등록된 일정이 없습니다."
+          renderCard={(s) => (
+            <MobileCard title={s.title as string} subtitle={(s.scheduleDate as string)?.slice(0, 10)}>
+              <MobileCardFields>
+                <MobileCardField label="구분" value={s.scheduleType as string} />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-surface">
+                  <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">날짜</th>
+                  <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">구분</th>
+                  <th className="px-[14px] py-[10px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">제목</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )
+              </thead>
+              <tbody>
+                {schedules.map(s => (
+                  <tr key={s.id as string} className="border-b border-brand">
+                    <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{(s.scheduleDate as string)?.slice(0, 10)}</td>
+                    <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{s.scheduleType as string}</td>
+                    <td className="px-[14px] py-3 text-[14px] text-[#1f2937]">{s.title as string}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       )}
       {!isReadOnly && (
         <div className="mt-3">

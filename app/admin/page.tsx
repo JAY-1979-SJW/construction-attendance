@@ -527,8 +527,8 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-4 items-start">
 
             {/* 좌: 근로자 현황 테이블 */}
-            <div>
-              <div className="flex items-center justify-between px-5 py-3">
+            <div className="bg-card rounded-[12px] border border-brand overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-brand">
                 <div className="flex items-center gap-2">
                   <span className="text-[14px] font-semibold text-fore-brand">오늘 근로자 현황</span>
                   <span className="text-[11px] text-muted2-brand">문제 인원 우선</span>

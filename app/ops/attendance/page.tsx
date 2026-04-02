@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface Site {
   id: string
@@ -196,109 +197,174 @@ export default function OpsAttendancePage() {
           해당 날짜의 출퇴근 기록이 없습니다.
         </div>
       ) : (
-        <div className="bg-card rounded-lg border border-brand overflow-auto">
-          <table className="w-full border-collapse text-[13px]">
-            <thead className="bg-surface">
-              <tr>
-                {['근로자명', '현장', '출근', '퇴근', '공수', '상태', ...(isReadOnly ? [] : [''])].map((h, i) => (
-                  <th key={i} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {records.map(r => {
-                const st = STATUS_MAP[r.status] ?? { label: r.status, bg: '#f3f4f6', color: '#6b7280' }
-                const isEditing = editingId === r.id
-                const canEdit = !isReadOnly && !!r.attendanceDayId && EDITABLE_STATUSES.has(r.status)
-                const displayMinutes = r.workedMinutesRawFinal ?? r.workedMinutesRaw
-
-                return (
-                  <>
-                    <tr key={r.id} className="border-b border-brand hover:bg-surface">
-                      <td className="px-4 py-[13px] font-semibold text-[#1f2937]">{r.workerName}</td>
-                      <td className="px-4 py-[13px] text-body-brand">{r.siteName || '—'}</td>
-                      <td className="px-4 py-[13px] text-body-brand whitespace-nowrap">{fmtTime(r.checkInAt)}</td>
-                      <td className="px-4 py-[13px] text-body-brand whitespace-nowrap">{fmtTime(r.checkOutAt)}</td>
-                      <td className="px-4 py-[13px] text-body-brand whitespace-nowrap">
-                        <span>{calcManDay(displayMinutes)}</span>
+        <div className="bg-card rounded-lg border border-brand overflow-hidden">
+          <MobileCardList
+            items={records}
+            keyExtractor={(r) => r.id}
+            emptyMessage="해당 날짜의 출퇴근 기록이 없습니다."
+            renderCard={(r) => {
+              const st = STATUS_MAP[r.status] ?? { label: r.status, bg: '#f3f4f6', color: '#6b7280' }
+              const isEditing = editingId === r.id
+              const canEdit = !isReadOnly && !!r.attendanceDayId && EDITABLE_STATUSES.has(r.status)
+              const displayMinutes = r.workedMinutesRawFinal ?? r.workedMinutesRaw
+              return (
+                <MobileCard
+                  title={r.workerName}
+                  subtitle={r.siteName || undefined}
+                  badge={
+                    <span className="text-[11px] px-2 py-[3px] rounded font-medium" style={{ background: st.bg, color: st.color }}>
+                      {st.label}
+                    </span>
+                  }
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="출근" value={fmtTime(r.checkInAt)} />
+                    <MobileCardField label="퇴근" value={fmtTime(r.checkOutAt)} />
+                    <MobileCardField label="공수" value={
+                      <span>
+                        {calcManDay(displayMinutes)}
                         {r.manualAdjustedYn && (
                           <span className="ml-1.5 px-1.5 py-0.5 rounded text-[11px] font-semibold bg-yellow-light text-status-pending">수동</span>
                         )}
-                      </td>
-                      <td className="px-4 py-[13px]">
-                        <span
-                          className="text-[11px] px-2 py-[3px] rounded font-medium"
-                          style={{ background: st.bg, color: st.color }}
+                      </span>
+                    } />
+                  </MobileCardFields>
+                  {canEdit && (
+                    <MobileCardActions>
+                      <button
+                        onClick={() => isEditing ? cancelEdit() : openEdit(r)}
+                        className="px-3 py-1.5 bg-brand-accent text-white border-none rounded-[5px] cursor-pointer text-[12px]"
+                      >
+                        {isEditing ? '취소' : '수정'}
+                      </button>
+                    </MobileCardActions>
+                  )}
+                  {isEditing && (
+                    <div className="px-1 pt-3 pb-1 border-t border-[rgba(91,164,217,0.2)]">
+                      <div className="flex flex-col gap-2">
+                        <div className="text-[13px] text-muted-brand">
+                          자동 계산: <strong>{calcManDay(r.workedMinutesAuto ?? r.workedMinutesRaw)}</strong>
+                        </div>
+                        <div>
+                          <label className="text-[12px] font-semibold text-body-brand block mb-1">분 (0~1440)</label>
+                          <input
+                            type="number" min={0} max={1440}
+                            value={editMinutes}
+                            onChange={e => setEditMinutes(e.target.value)}
+                            className="px-2.5 py-1.5 border border-[#d1d5db] rounded-md text-[13px] w-full outline-none"
+                            placeholder="예: 480"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[12px] font-semibold text-body-brand block mb-1">수정 사유</label>
+                          <input
+                            type="text"
+                            value={editReason}
+                            onChange={e => setEditReason(e.target.value)}
+                            className="px-2.5 py-1.5 border border-[#d1d5db] rounded-md text-[13px] w-full outline-none"
+                            placeholder="사유 입력 (2자 이상)"
+                            maxLength={200}
+                          />
+                        </div>
+                        <button
+                          onClick={() => saveEdit(r.id)}
+                          disabled={editSaving}
+                          className="px-3.5 py-1.5 text-[13px] font-semibold bg-[#059669] text-white border-none rounded-md cursor-pointer disabled:opacity-50"
                         >
-                          {st.label}
-                        </span>
-                      </td>
-                      {!isReadOnly && (
-                        <td className="px-4 py-[13px]">
-                          {canEdit && !isEditing && (
-                            <button
-                              onClick={() => openEdit(r)}
-                              className="px-3 py-[5px] bg-brand-accent text-white border-none rounded-[5px] cursor-pointer text-[12px]"
-                            >
-                              수정
-                            </button>
-                          )}
-                          {isEditing && (
-                            <button
-                              onClick={cancelEdit}
-                              className="px-3 py-[5px] bg-muted-brand text-white border-none rounded-[5px] cursor-pointer text-[12px]"
-                            >
-                              취소
-                            </button>
-                          )}
-                        </td>
-                      )}
-                    </tr>
-                    {isEditing && (
-                      <tr key={`${r.id}-edit`} className="bg-[#fffde7]">
-                        <td colSpan={7} className="px-4 py-3">
-                          <div className="flex items-center gap-2.5 flex-wrap">
-                            <span className="text-[13px] text-muted-brand">
-                              자동 계산: <strong>{calcManDay(r.workedMinutesAuto ?? r.workedMinutesRaw)}</strong>
+                          {editSaving ? '저장 중...' : '저장'}
+                        </button>
+                        {editError && <p className="text-[12px] text-status-rejected m-0">{editError}</p>}
+                      </div>
+                    </div>
+                  )}
+                </MobileCard>
+              )
+            }}
+            renderTable={() => (
+              <table className="w-full border-collapse text-[13px]">
+                <thead className="bg-surface">
+                  <tr>
+                    {['근로자명', '현장', '출근', '퇴근', '공수', '상태', ...(isReadOnly ? [] : [''])].map((h, i) => (
+                      <th key={i} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {records.map(r => {
+                    const st = STATUS_MAP[r.status] ?? { label: r.status, bg: '#f3f4f6', color: '#6b7280' }
+                    const isEditing = editingId === r.id
+                    const canEdit = !isReadOnly && !!r.attendanceDayId && EDITABLE_STATUSES.has(r.status)
+                    const displayMinutes = r.workedMinutesRawFinal ?? r.workedMinutesRaw
+                    return (
+                      <>
+                        <tr key={r.id} className="border-b border-brand hover:bg-surface">
+                          <td className="px-4 py-[13px] font-semibold text-[#1f2937]">{r.workerName}</td>
+                          <td className="px-4 py-[13px] text-body-brand">{r.siteName || '—'}</td>
+                          <td className="px-4 py-[13px] text-body-brand whitespace-nowrap">{fmtTime(r.checkInAt)}</td>
+                          <td className="px-4 py-[13px] text-body-brand whitespace-nowrap">{fmtTime(r.checkOutAt)}</td>
+                          <td className="px-4 py-[13px] text-body-brand whitespace-nowrap">
+                            <span>{calcManDay(displayMinutes)}</span>
+                            {r.manualAdjustedYn && (
+                              <span className="ml-1.5 px-1.5 py-0.5 rounded text-[11px] font-semibold bg-yellow-light text-status-pending">수동</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-[13px]">
+                            <span className="text-[11px] px-2 py-[3px] rounded font-medium" style={{ background: st.bg, color: st.color }}>
+                              {st.label}
                             </span>
-                            <label className="text-[12px] font-semibold text-body-brand">분 (0~1440)</label>
-                            <input
-                              type="number"
-                              min={0}
-                              max={1440}
-                              value={editMinutes}
-                              onChange={e => setEditMinutes(e.target.value)}
-                              className="px-2.5 py-1.5 border border-[#d1d5db] rounded-md text-[13px] w-[90px] outline-none"
-                              placeholder="예: 480"
-                            />
-                            <label className="text-[12px] font-semibold text-body-brand">수정 사유</label>
-                            <input
-                              type="text"
-                              value={editReason}
-                              onChange={e => setEditReason(e.target.value)}
-                              className="px-2.5 py-1.5 border border-[#d1d5db] rounded-md text-[13px] outline-none w-[200px]"
-                              placeholder="사유 입력 (2자 이상)"
-                              maxLength={200}
-                            />
-                            <button
-                              onClick={() => saveEdit(r.id)}
-                              disabled={editSaving}
-                              className="px-3.5 py-1.5 text-[13px] font-semibold bg-[#059669] text-white border-none rounded-md cursor-pointer disabled:opacity-50"
-                            >
-                              {editSaving ? '저장 중...' : '저장'}
-                            </button>
-                          </div>
-                          {editError && (
-                            <p className="mt-2 mb-0 text-[12px] text-status-rejected">{editError}</p>
+                          </td>
+                          {!isReadOnly && (
+                            <td className="px-4 py-[13px]">
+                              {canEdit && !isEditing && (
+                                <button onClick={() => openEdit(r)} className="px-3 py-[5px] bg-brand-accent text-white border-none rounded-[5px] cursor-pointer text-[12px]">수정</button>
+                              )}
+                              {isEditing && (
+                                <button onClick={cancelEdit} className="px-3 py-[5px] bg-muted-brand text-white border-none rounded-[5px] cursor-pointer text-[12px]">취소</button>
+                              )}
+                            </td>
                           )}
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                )
-              })}
-            </tbody>
-          </table>
+                        </tr>
+                        {isEditing && (
+                          <tr key={`${r.id}-edit`} className="bg-[#fffde7]">
+                            <td colSpan={7} className="px-4 py-3">
+                              <div className="flex items-center gap-2.5 flex-wrap">
+                                <span className="text-[13px] text-muted-brand">자동 계산: <strong>{calcManDay(r.workedMinutesAuto ?? r.workedMinutesRaw)}</strong></span>
+                                <label className="text-[12px] font-semibold text-body-brand">분 (0~1440)</label>
+                                <input
+                                  type="number" min={0} max={1440}
+                                  value={editMinutes}
+                                  onChange={e => setEditMinutes(e.target.value)}
+                                  className="px-2.5 py-1.5 border border-[#d1d5db] rounded-md text-[13px] w-[90px] outline-none"
+                                  placeholder="예: 480"
+                                />
+                                <label className="text-[12px] font-semibold text-body-brand">수정 사유</label>
+                                <input
+                                  type="text"
+                                  value={editReason}
+                                  onChange={e => setEditReason(e.target.value)}
+                                  className="px-2.5 py-1.5 border border-[#d1d5db] rounded-md text-[13px] outline-none w-[200px]"
+                                  placeholder="사유 입력 (2자 이상)"
+                                  maxLength={200}
+                                />
+                                <button
+                                  onClick={() => saveEdit(r.id)}
+                                  disabled={editSaving}
+                                  className="px-3.5 py-1.5 text-[13px] font-semibold bg-[#059669] text-white border-none rounded-md cursor-pointer disabled:opacity-50"
+                                >
+                                  {editSaving ? '저장 중...' : '저장'}
+                                </button>
+                              </div>
+                              {editError && <p className="mt-2 mb-0 text-[12px] text-status-rejected">{editError}</p>}
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+          />
         </div>
       )}
     </div>

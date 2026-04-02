@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface SiteCandidate {
   id: string
@@ -240,192 +241,322 @@ export default function SiteImportReviewPage() {
           })}
         </div>
 
-        {/* 테이블 */}
-        <div className="bg-card rounded-[12px] hidden sm:block overflow-x-auto shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                {['행', '현장명', '원본 주소', '정제 주소', '위도', '경도', '반경(m)', '상태', '중복판정', '기존후보', '메시지', '수정', '처리'].map((h) => (
-                  <th key={h} className="text-left px-3 py-2.5 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] bg-surface whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRows.length === 0 ? (
-                <tr><td colSpan={13} className="text-center py-8 text-[#999]">해당 상태의 행이 없습니다.</td></tr>
-              ) : filteredRows.map((row) => (
-                <>
-                  <tr key={row.id} style={{ background: editingId === row.id ? '#f0f7ff' : 'white' }}>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center text-muted-brand text-[11px]">{row.rowNumber}</td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><span className="font-semibold text-white">{row.siteName}</span></td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] text-[11px] text-muted-brand">{row.rawAddress}</td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[200px] text-[11px] text-muted-brand">
-                      {row.normalizedAddress ?? <span className="text-[#ccc]">-</span>}
-                    </td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-[11px] font-mono">
-                      {row.latitude != null ? row.latitude.toFixed(5) : <span className="text-accent-hover">없음</span>}
-                    </td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-[11px] font-mono">
-                      {row.longitude != null ? row.longitude.toFixed(5) : <span className="text-accent-hover">없음</span>}
-                    </td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
-                      {row.allowedRadiusMeters ?? <span className="text-accent-hover">-</span>}
-                    </td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
-                        style={{ color: STATUS_COLOR[row.validationStatus], background: STATUS_BG[row.validationStatus] }}>
-                        {STATUS_LABEL[row.validationStatus]}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
-                      {row.dedupeStatus && row.dedupeStatus !== 'OK' ? (
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
-                          style={{
-                            color: row.dedupeStatus === 'BLOCK' ? '#b71c1c' : '#e65100',
-                            background: row.dedupeStatus === 'BLOCK' ? '#ffebee' : '#fff3e0',
-                          }}>
-                          {row.dedupeStatus}
-                        </span>
-                      ) : row.dedupeStatus === 'OK' ? (
-                        <span className="text-[11px] text-[#2e7d32]">OK</span>
-                      ) : '-'}
-                    </td>
-                    <td className="px-3 py-2.5 text-[11px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[200px]">
-                      {row.candidatesJson && Array.isArray(row.candidatesJson) && row.candidatesJson.length > 0 ? (
-                        <div className="space-y-1">
-                          {(row.candidatesJson as SiteCandidate[]).map((c, ci) => (
-                            <div key={ci} className="bg-[rgba(91,164,217,0.08)] rounded px-2 py-1">
-                              <div className="font-semibold">{c.name}</div>
-                              <div className="text-[#999] text-[11px]">{c.address}</div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : row.matchedSiteName ? (
-                        <span className="text-[#999]">{row.matchedSiteName}</span>
-                      ) : '-'}
-                    </td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] text-[11px] text-accent-hover">
-                      {row.dedupeReason ?? row.validationMessage ?? ''}
-                    </td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
-                      {!row.importedSiteId && (
-                        <button onClick={() => editingId === row.id ? setEditingId(null) : startEdit(row)}
-                          className="px-3 py-1 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-xs text-muted-brand">
-                          {editingId === row.id ? '닫기' : '수정'}
-                        </button>
-                      )}
-                    </td>
-                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
-                      {row.importedSiteId ? (
-                        <span className="text-[11px] text-[#4a148c]">등록됨</span>
-                      ) : row.dedupeStatus === 'BLOCK' || row.dedupeStatus === 'REVIEW' ? (
-                        <div className="flex gap-1 flex-col">
-                          <button
-                            onClick={() => patchRow(row.id, { validationStatus: 'APPROVED', userDecision: 'REGISTER_NEW' })}
-                            disabled={saving}
-                            className="px-2 py-1 bg-[#e8f5e9] text-[#2e7d32] border-0 rounded text-[11px] cursor-pointer font-semibold"
-                          >
-                            신규 등록
-                          </button>
-                          <button
-                            onClick={() => patchRow(row.id, { validationStatus: 'FAILED', userDecision: 'CANCEL' })}
-                            disabled={saving}
-                            className="px-2 py-1 bg-[#f5f5f5] text-[#757575] border-0 rounded text-[11px] cursor-pointer font-semibold"
-                          >
-                            취소
-                          </button>
-                        </div>
-                      ) : (
+        {/* 테이블 / 카드 */}
+        <MobileCardList
+          items={filteredRows}
+          keyExtractor={(row) => row.id}
+          emptyMessage="해당 상태의 행이 없습니다."
+          renderCard={(row) => (
+            <MobileCard
+              title={`${row.rowNumber}행 · ${row.siteName}`}
+              subtitle={row.rawAddress}
+              badge={
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
+                  style={{ color: STATUS_COLOR[row.validationStatus], background: STATUS_BG[row.validationStatus] }}>
+                  {STATUS_LABEL[row.validationStatus]}
+                </span>
+              }
+            >
+              <MobileCardFields>
+                {row.normalizedAddress && <MobileCardField label="정제주소" value={row.normalizedAddress} />}
+                <MobileCardField label="위도" value={row.latitude != null ? row.latitude.toFixed(5) : '없음'} />
+                <MobileCardField label="경도" value={row.longitude != null ? row.longitude.toFixed(5) : '없음'} />
+                {row.allowedRadiusMeters != null && <MobileCardField label="반경" value={`${row.allowedRadiusMeters}m`} />}
+                {row.dedupeStatus && <MobileCardField label="중복판정" value={row.dedupeStatus} />}
+                {(row.candidatesJson && Array.isArray(row.candidatesJson) && row.candidatesJson.length > 0) && (
+                  <MobileCardField label="기존후보" value={(row.candidatesJson as SiteCandidate[]).map(c => c.name).join(', ')} />
+                )}
+                {!row.candidatesJson && row.matchedSiteName && (
+                  <MobileCardField label="기존후보" value={row.matchedSiteName} />
+                )}
+                {(row.dedupeReason || row.validationMessage) && (
+                  <MobileCardField label="메시지" value={row.dedupeReason ?? row.validationMessage ?? ''} />
+                )}
+              </MobileCardFields>
+              <MobileCardActions>
+                {row.importedSiteId ? (
+                  <span className="text-[11px] text-[#4a148c]">등록됨</span>
+                ) : row.dedupeStatus === 'BLOCK' || row.dedupeStatus === 'REVIEW' ? (
+                  <>
+                    <button
+                      onClick={() => patchRow(row.id, { validationStatus: 'APPROVED', userDecision: 'REGISTER_NEW' })}
+                      disabled={saving}
+                      className="px-3 py-1.5 bg-[#e8f5e9] text-[#2e7d32] border-0 rounded text-[12px] cursor-pointer font-semibold"
+                    >신규 등록</button>
+                    <button
+                      onClick={() => patchRow(row.id, { validationStatus: 'FAILED', userDecision: 'CANCEL' })}
+                      disabled={saving}
+                      className="px-3 py-1.5 bg-[#f5f5f5] text-[#757575] border-0 rounded text-[12px] cursor-pointer font-semibold"
+                    >취소</button>
+                  </>
+                ) : (
+                  <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={row.validationStatus === 'APPROVED'}
+                      onChange={() => toggleApprove(row)}
+                      disabled={saving || row.validationStatus === 'FAILED'}
+                      className="cursor-pointer w-4 h-4"
+                    />
+                    {row.validationStatus === 'APPROVED' ? '승인됨' : '승인'}
+                  </label>
+                )}
+                {!row.importedSiteId && (
+                  <button
+                    onClick={() => editingId === row.id ? setEditingId(null) : startEdit(row)}
+                    className="px-3 py-1.5 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[12px] text-muted-brand"
+                  >{editingId === row.id ? '닫기' : '수정'}</button>
+                )}
+              </MobileCardActions>
+              {editingId === row.id && (
+                <div className="px-1 pt-3 pb-1 border-t border-[rgba(91,164,217,0.2)]">
+                  <div className="flex gap-2 flex-col">
+                    <div>
+                      <div className="text-[11px] text-muted-brand mb-1">현장명</div>
+                      <input
+                        value={editForm.siteName ?? ''}
+                        onChange={(e) => setEditForm((f) => ({ ...f, siteName: e.target.value }))}
+                        className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-full"
+                        placeholder="현장명"
+                      />
+                    </div>
+                    <div>
+                      <div className="text-[11px] text-muted-brand mb-1">정제 주소</div>
+                      <input
+                        value={editForm.normalizedAddress ?? ''}
+                        onChange={(e) => setEditForm((f) => ({ ...f, normalizedAddress: e.target.value }))}
+                        className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-full"
+                        placeholder="주소"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <div className="text-[11px] text-muted-brand mb-1">위도</div>
                         <input
-                          type="checkbox"
-                          checked={row.validationStatus === 'APPROVED'}
-                          onChange={() => toggleApprove(row)}
-                          disabled={saving || row.validationStatus === 'FAILED'}
-                          className="cursor-pointer w-4 h-4"
+                          type="number" step="0.00001"
+                          value={editForm.latitude ?? ''}
+                          onChange={(e) => setEditForm((f) => ({ ...f, latitude: parseFloat(e.target.value) || undefined }))}
+                          className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-full"
+                          placeholder="37.12345"
                         />
-                      )}
-                    </td>
+                      </div>
+                      <div>
+                        <div className="text-[11px] text-muted-brand mb-1">경도</div>
+                        <input
+                          type="number" step="0.00001"
+                          value={editForm.longitude ?? ''}
+                          onChange={(e) => setEditForm((f) => ({ ...f, longitude: parseFloat(e.target.value) || undefined }))}
+                          className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-full"
+                          placeholder="126.12345"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[11px] text-muted-brand mb-1">허용반경(m)</div>
+                      <input
+                        type="number" min={10} max={5000}
+                        value={editForm.allowedRadiusMeters ?? ''}
+                        onChange={(e) => setEditForm((f) => ({ ...f, allowedRadiusMeters: parseInt(e.target.value) || undefined }))}
+                        className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-full"
+                        placeholder="100"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={saveEdit} disabled={saving}
+                        className="px-4 py-2 bg-brand-accent text-white border-0 rounded-lg cursor-pointer text-[13px] font-semibold">
+                        {saving ? '저장 중...' : '저장'}
+                      </button>
+                      <button onClick={() => setEditingId(null)}
+                        className="px-3 py-2 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[12px] text-muted-brand">
+                        취소
+                      </button>
+                    </div>
+                    <div className="text-[11px] text-muted-brand">
+                      * 좌표 수정 후 저장하면 NEEDS_REVIEW → READY로 자동 격상됩니다.
+                    </div>
+                  </div>
+                </div>
+              )}
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    {['행', '현장명', '원본 주소', '정제 주소', '위도', '경도', '반경(m)', '상태', '중복판정', '기존후보', '메시지', '수정', '처리'].map((h) => (
+                      <th key={h} className="text-left px-3 py-2.5 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] bg-surface whitespace-nowrap">{h}</th>
+                    ))}
                   </tr>
-
-                  {/* 인라인 수정 폼 */}
-                  {editingId === row.id && (
-                    <tr key={`${row.id}-edit`} className="bg-[#f0f7ff]">
-                      <td colSpan={13} className="px-5 py-4 border-b-2 border-[#bbdefb]">
-                        <div className="flex gap-3 flex-wrap items-end">
-                          <div>
-                            <div className="text-[11px] text-muted-brand mb-1">현장명</div>
-                            <input
-                              value={editForm.siteName ?? ''}
-                              onChange={(e) => setEditForm((f) => ({ ...f, siteName: e.target.value }))}
-                              className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-40"
-                              placeholder="현장명"
-                            />
-                          </div>
-                          <div>
-                            <div className="text-[11px] text-muted-brand mb-1">정제 주소</div>
-                            <input
-                              value={editForm.normalizedAddress ?? ''}
-                              onChange={(e) => setEditForm((f) => ({ ...f, normalizedAddress: e.target.value }))}
-                              className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-60"
-                              placeholder="주소"
-                            />
-                          </div>
-                          <div>
-                            <div className="text-[11px] text-muted-brand mb-1">위도</div>
-                            <input
-                              type="number"
-                              step="0.00001"
-                              value={editForm.latitude ?? ''}
-                              onChange={(e) => setEditForm((f) => ({ ...f, latitude: parseFloat(e.target.value) || undefined }))}
-                              className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-28"
-                              placeholder="37.12345"
-                            />
-                          </div>
-                          <div>
-                            <div className="text-[11px] text-muted-brand mb-1">경도</div>
-                            <input
-                              type="number"
-                              step="0.00001"
-                              value={editForm.longitude ?? ''}
-                              onChange={(e) => setEditForm((f) => ({ ...f, longitude: parseFloat(e.target.value) || undefined }))}
-                              className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-28"
-                              placeholder="126.12345"
-                            />
-                          </div>
-                          <div>
-                            <div className="text-[11px] text-muted-brand mb-1">허용반경(m)</div>
-                            <input
-                              type="number"
-                              min={10}
-                              max={5000}
-                              value={editForm.allowedRadiusMeters ?? ''}
-                              onChange={(e) => setEditForm((f) => ({ ...f, allowedRadiusMeters: parseInt(e.target.value) || undefined }))}
-                              className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-20"
-                              placeholder="100"
-                            />
-                          </div>
-                          <div className="flex gap-2">
-                            <button onClick={saveEdit} disabled={saving}
-                              className="px-4 py-2 bg-brand-accent text-white border-0 rounded-lg cursor-pointer text-[13px] font-semibold">
-                              {saving ? '저장 중...' : '저장'}
-                            </button>
-                            <button onClick={() => setEditingId(null)}
+                </thead>
+                <tbody>
+                  {filteredRows.length === 0 ? (
+                    <tr><td colSpan={13} className="text-center py-8 text-[#999]">해당 상태의 행이 없습니다.</td></tr>
+                  ) : filteredRows.map((row) => (
+                    <>
+                      <tr key={row.id} style={{ background: editingId === row.id ? '#f0f7ff' : 'white' }}>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center text-muted-brand text-[11px]">{row.rowNumber}</td>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top"><span className="font-semibold text-white">{row.siteName}</span></td>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] text-[11px] text-muted-brand">{row.rawAddress}</td>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[200px] text-[11px] text-muted-brand">
+                          {row.normalizedAddress ?? <span className="text-[#ccc]">-</span>}
+                        </td>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-[11px] font-mono">
+                          {row.latitude != null ? row.latitude.toFixed(5) : <span className="text-accent-hover">없음</span>}
+                        </td>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-[11px] font-mono">
+                          {row.longitude != null ? row.longitude.toFixed(5) : <span className="text-accent-hover">없음</span>}
+                        </td>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                          {row.allowedRadiusMeters ?? <span className="text-accent-hover">-</span>}
+                        </td>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
+                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
+                            style={{ color: STATUS_COLOR[row.validationStatus], background: STATUS_BG[row.validationStatus] }}>
+                            {STATUS_LABEL[row.validationStatus]}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
+                          {row.dedupeStatus && row.dedupeStatus !== 'OK' ? (
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
+                              style={{
+                                color: row.dedupeStatus === 'BLOCK' ? '#b71c1c' : '#e65100',
+                                background: row.dedupeStatus === 'BLOCK' ? '#ffebee' : '#fff3e0',
+                              }}>
+                              {row.dedupeStatus}
+                            </span>
+                          ) : row.dedupeStatus === 'OK' ? (
+                            <span className="text-[11px] text-[#2e7d32]">OK</span>
+                          ) : '-'}
+                        </td>
+                        <td className="px-3 py-2.5 text-[11px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[200px]">
+                          {row.candidatesJson && Array.isArray(row.candidatesJson) && row.candidatesJson.length > 0 ? (
+                            <div className="space-y-1">
+                              {(row.candidatesJson as SiteCandidate[]).map((c, ci) => (
+                                <div key={ci} className="bg-[rgba(91,164,217,0.08)] rounded px-2 py-1">
+                                  <div className="font-semibold">{c.name}</div>
+                                  <div className="text-[#999] text-[11px]">{c.address}</div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : row.matchedSiteName ? (
+                            <span className="text-[#999]">{row.matchedSiteName}</span>
+                          ) : '-'}
+                        </td>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] text-[11px] text-accent-hover">
+                          {row.dedupeReason ?? row.validationMessage ?? ''}
+                        </td>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
+                          {!row.importedSiteId && (
+                            <button onClick={() => editingId === row.id ? setEditingId(null) : startEdit(row)}
                               className="px-3 py-1 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-xs text-muted-brand">
-                              취소
+                              {editingId === row.id ? '닫기' : '수정'}
                             </button>
-                          </div>
-                        </div>
-                        <div className="mt-2 text-[11px] text-muted-brand">
-                          * 좌표 수정 후 저장하면 NEEDS_REVIEW → READY로 자동 격상됩니다.
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                          )}
+                        </td>
+                        <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                          {row.importedSiteId ? (
+                            <span className="text-[11px] text-[#4a148c]">등록됨</span>
+                          ) : row.dedupeStatus === 'BLOCK' || row.dedupeStatus === 'REVIEW' ? (
+                            <div className="flex gap-1 flex-col">
+                              <button
+                                onClick={() => patchRow(row.id, { validationStatus: 'APPROVED', userDecision: 'REGISTER_NEW' })}
+                                disabled={saving}
+                                className="px-2 py-1 bg-[#e8f5e9] text-[#2e7d32] border-0 rounded text-[11px] cursor-pointer font-semibold"
+                              >신규 등록</button>
+                              <button
+                                onClick={() => patchRow(row.id, { validationStatus: 'FAILED', userDecision: 'CANCEL' })}
+                                disabled={saving}
+                                className="px-2 py-1 bg-[#f5f5f5] text-[#757575] border-0 rounded text-[11px] cursor-pointer font-semibold"
+                              >취소</button>
+                            </div>
+                          ) : (
+                            <input
+                              type="checkbox"
+                              checked={row.validationStatus === 'APPROVED'}
+                              onChange={() => toggleApprove(row)}
+                              disabled={saving || row.validationStatus === 'FAILED'}
+                              className="cursor-pointer w-4 h-4"
+                            />
+                          )}
+                        </td>
+                      </tr>
+                      {editingId === row.id && (
+                        <tr key={`${row.id}-edit`} className="bg-[#f0f7ff]">
+                          <td colSpan={13} className="px-5 py-4 border-b-2 border-[#bbdefb]">
+                            <div className="flex gap-3 flex-wrap items-end">
+                              <div>
+                                <div className="text-[11px] text-muted-brand mb-1">현장명</div>
+                                <input
+                                  value={editForm.siteName ?? ''}
+                                  onChange={(e) => setEditForm((f) => ({ ...f, siteName: e.target.value }))}
+                                  className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-40"
+                                  placeholder="현장명"
+                                />
+                              </div>
+                              <div>
+                                <div className="text-[11px] text-muted-brand mb-1">정제 주소</div>
+                                <input
+                                  value={editForm.normalizedAddress ?? ''}
+                                  onChange={(e) => setEditForm((f) => ({ ...f, normalizedAddress: e.target.value }))}
+                                  className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-60"
+                                  placeholder="주소"
+                                />
+                              </div>
+                              <div>
+                                <div className="text-[11px] text-muted-brand mb-1">위도</div>
+                                <input
+                                  type="number" step="0.00001"
+                                  value={editForm.latitude ?? ''}
+                                  onChange={(e) => setEditForm((f) => ({ ...f, latitude: parseFloat(e.target.value) || undefined }))}
+                                  className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-28"
+                                  placeholder="37.12345"
+                                />
+                              </div>
+                              <div>
+                                <div className="text-[11px] text-muted-brand mb-1">경도</div>
+                                <input
+                                  type="number" step="0.00001"
+                                  value={editForm.longitude ?? ''}
+                                  onChange={(e) => setEditForm((f) => ({ ...f, longitude: parseFloat(e.target.value) || undefined }))}
+                                  className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-28"
+                                  placeholder="126.12345"
+                                />
+                              </div>
+                              <div>
+                                <div className="text-[11px] text-muted-brand mb-1">허용반경(m)</div>
+                                <input
+                                  type="number" min={10} max={5000}
+                                  value={editForm.allowedRadiusMeters ?? ''}
+                                  onChange={(e) => setEditForm((f) => ({ ...f, allowedRadiusMeters: parseInt(e.target.value) || undefined }))}
+                                  className="px-2.5 py-1.5 border border-[#90caf9] rounded-md text-[13px] w-20"
+                                  placeholder="100"
+                                />
+                              </div>
+                              <div className="flex gap-2">
+                                <button onClick={saveEdit} disabled={saving}
+                                  className="px-4 py-2 bg-brand-accent text-white border-0 rounded-lg cursor-pointer text-[13px] font-semibold">
+                                  {saving ? '저장 중...' : '저장'}
+                                </button>
+                                <button onClick={() => setEditingId(null)}
+                                  className="px-3 py-1 bg-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-xs text-muted-brand">
+                                  취소
+                                </button>
+                              </div>
+                            </div>
+                            <div className="mt-2 text-[11px] text-muted-brand">
+                              * 좌표 수정 후 저장하면 NEEDS_REVIEW → READY로 자동 격상됩니다.
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
     </div>
   )
 }
