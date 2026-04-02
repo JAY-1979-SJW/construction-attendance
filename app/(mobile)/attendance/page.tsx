@@ -645,7 +645,7 @@ export default function AttendancePage() {
                       value={exceptionReason}
                       onChange={e => setExceptionReason(e.target.value)}
                       rows={3}
-                      className="w-full px-[10px] py-[10px] rounded-lg border border-brand text-[14px] resize-none box-border"
+                      className="w-full px-[10px] py-[10px] rounded-lg border border-brand text-base resize-none box-border"
                     />
                     <button
                       onClick={() => handleDirectCheckOut(exceptionReason)}

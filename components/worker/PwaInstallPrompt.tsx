@@ -82,7 +82,7 @@ export default function PwaInstallPrompt() {
           </div>
           <button
             onClick={handleInstall}
-            className="w-full mt-3 py-3 text-[15px] font-bold text-white bg-[#F47920] border-none rounded-xl cursor-pointer"
+            className="w-full mt-3 h-11 text-sm font-bold text-white bg-[#F47920] border-none rounded-xl cursor-pointer"
             style={{ boxShadow: '0 4px 12px rgba(244,121,32,0.3)' }}
           >
             설치하기

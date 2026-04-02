@@ -99,7 +99,7 @@ export default function OnboardingPage() {
             {!isLast && (
               <button
                 onClick={handleSkip}
-                className="w-full h-10 text-[13px] text-muted-brand bg-transparent border border-brand rounded-[10px] cursor-pointer hover:bg-surface transition-colors"
+                className="w-full h-11 text-sm text-muted-brand bg-transparent border border-brand rounded-[10px] cursor-pointer hover:bg-surface transition-colors"
               >
                 건너뛰기
               </button>

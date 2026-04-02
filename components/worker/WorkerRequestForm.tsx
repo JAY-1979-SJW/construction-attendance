@@ -113,7 +113,7 @@ export default function WorkerRequestForm() {
           onChange={(e) => setContent(e.target.value.slice(0, MAX_CONTENT))}
           placeholder="구체적인 상황을 간략히 입력해 주세요."
           rows={4}
-          className="w-full border border-[rgba(91,164,217,0.25)] rounded-lg px-3 py-[10px] text-[14px] resize-y outline-none box-border bg-[rgba(255,255,255,0.06)] text-white"
+          className="w-full border border-[rgba(91,164,217,0.25)] rounded-lg px-3 py-[10px] text-base resize-y outline-none box-border bg-[rgba(255,255,255,0.06)] text-white"
         />
         <div
           className="text-right text-[13px] leading-5 mt-1"

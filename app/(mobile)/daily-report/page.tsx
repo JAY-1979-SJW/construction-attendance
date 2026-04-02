@@ -649,7 +649,7 @@ export default function DailyReportPage() {
               value={workDetail}
               onChange={(e) => setWorkDetail(e.target.value)}
               rows={2}
-              className="w-full text-[14px] border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent resize-none"
+              className="w-full text-base border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent resize-none"
             />
           </div>
         </div>
@@ -659,10 +659,10 @@ export default function DailyReportPage() {
           <div className="text-sm font-semibold text-body-brand mb-2">근무시간</div>
           <div className="flex gap-2 items-center">
             <input type="time" value={workStart} onChange={(e) => setWorkStart(e.target.value)}
-              className="flex-1 text-[14px] border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent" />
+              className="flex-1 text-base border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent" />
             <span className="text-[14px] text-muted2-brand">~</span>
             <input type="time" value={workEnd} onChange={(e) => setWorkEnd(e.target.value)}
-              className="flex-1 text-[14px] border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent" />
+              className="flex-1 text-base border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent" />
           </div>
         </div>
 
@@ -714,7 +714,7 @@ export default function DailyReportPage() {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full text-[14px] border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent resize-none"
+            className="w-full text-base border border-brand rounded-xl px-3 py-2.5 bg-card focus:outline-none focus:border-accent resize-none"
           />
         </div>
 
