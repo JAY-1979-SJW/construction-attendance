@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -35,7 +35,7 @@ const EMP_LABEL: Record<string, string> = {
 }
 
 function EligibleBadge({ eligible, reason }: { eligible: boolean | null; reason: string }) {
-  if (eligible === null) return <span className="text-[11px] text-[#9CA3AF]" title={reason}>미판정</span>
+  if (eligible === null) return <span className="text-[11px] text-muted2-brand" title={reason}>미판정</span>
   return (
     <span
       title={reason}
@@ -104,10 +104,10 @@ export default function CompanyInsurancePage() {
           <p className="text-[13px] text-muted-brand mt-1 mb-0">국민연금 · 건강보험 · 고용보험 · 산재보험 대상 여부를 월별로 확인합니다.</p>
         </div>
         <div className="flex gap-[10px] items-center">
-          <select value={monthKey} onChange={e => setMonthKey(e.target.value)} className="px-3 py-2 rounded-md border border-[#E5E7EB] text-[14px] cursor-pointer">
+          <select value={monthKey} onChange={e => setMonthKey(e.target.value)} className="px-3 py-2 rounded-md border border-brand text-[14px] cursor-pointer">
             {months.map(m => <option key={m} value={m}>{m}</option>)}
           </select>
-          <button onClick={load} disabled={loading} className="px-5 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[14px] font-semibold">
+          <button onClick={load} disabled={loading} className="px-5 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[14px] font-semibold">
             {loading ? '조회중...' : '조회'}
           </button>
         </div>
@@ -152,14 +152,14 @@ export default function CompanyInsurancePage() {
 
       <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
         {loading ? (
-          <div className="px-12 py-12 text-center text-[#9CA3AF]">조회 중...</div>
+          <div className="px-12 py-12 text-center text-muted2-brand">조회 중...</div>
         ) : blocked ? (
-          <div className="px-12 py-12 text-center text-[#9CA3AF]">
+          <div className="px-12 py-12 text-center text-muted2-brand">
             <div className="text-[32px] mb-[10px]">🔒</div>
             <div className="font-semibold">4대보험 서류 기능이 비활성화되어 있습니다.</div>
           </div>
         ) : items.length === 0 ? (
-          <div className="px-12 py-12 text-center text-[#9CA3AF]">
+          <div className="px-12 py-12 text-center text-muted2-brand">
             <div className="font-semibold">{monthKey} 소속 근로자가 없습니다.</div>
           </div>
         ) : (
@@ -168,19 +168,19 @@ export default function CompanyInsurancePage() {
               <thead>
                 <tr>
                   {['근로자명', '고용형태', '4보험대상', '퇴직공제', '근무일수', '확정금액', '국민연금', '건강보험', '고용보험', '산재보험'].map(h => (
-                    <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-[#e0e0e0] whitespace-nowrap">{h}</th>
+                    <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {items.map((row, i) => (
                   <tr key={row.workerId} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                    <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle font-semibold">{row.workerName}</td>
-                    <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle">{EMP_LABEL[row.employmentType] ?? row.employmentType}</td>
-                    <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle">
+                    <td className="px-3 py-[10px] border-b border-brand align-middle font-semibold">{row.workerName}</td>
+                    <td className="px-3 py-[10px] border-b border-brand align-middle">{EMP_LABEL[row.employmentType] ?? row.employmentType}</td>
+                    <td className="px-3 py-[10px] border-b border-brand align-middle">
                       <EligibleBadge eligible={row.fourInsurancesEligibleYn} reason="근로자 기본 설정" />
                     </td>
-                    <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle">
+                    <td className="px-3 py-[10px] border-b border-brand align-middle">
                       <span
                         className="text-[11px] px-2 py-[2px] rounded-lg"
                         style={{
@@ -191,16 +191,16 @@ export default function CompanyInsurancePage() {
                         {row.retirementMutualTargetYn ? '대상' : '제외'}
                       </span>
                     </td>
-                    <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">
+                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right">
                       {row.totalWorkDays != null ? `${row.totalWorkDays}일` : '-'}
                     </td>
-                    <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle text-right">
+                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right">
                       {row.totalConfirmedAmount != null ? row.totalConfirmedAmount.toLocaleString('ko-KR') + '원' : '-'}
                     </td>
-                    <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle"><EligibleBadge eligible={row.nationalPension.eligible} reason={row.nationalPension.reason} /></td>
-                    <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle"><EligibleBadge eligible={row.healthInsurance.eligible} reason={row.healthInsurance.reason} /></td>
-                    <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle"><EligibleBadge eligible={row.employmentInsurance.eligible} reason={row.employmentInsurance.reason} /></td>
-                    <td className="px-3 py-[10px] border-b border-[#E5E7EB] align-middle"><EligibleBadge eligible={row.industrialAccident.eligible} reason={row.industrialAccident.reason} /></td>
+                    <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.nationalPension.eligible} reason={row.nationalPension.reason} /></td>
+                    <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.healthInsurance.eligible} reason={row.healthInsurance.reason} /></td>
+                    <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.employmentInsurance.eligible} reason={row.employmentInsurance.reason} /></td>
+                    <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.industrialAccident.eligible} reason={row.industrialAccident.reason} /></td>
                   </tr>
                 ))}
               </tbody>

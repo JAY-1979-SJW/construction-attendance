@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 
@@ -83,7 +83,7 @@ export default function CompanyManagersPage() {
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-[22px] font-bold text-[#111827] m-0">관리자 관리</h1>
+        <h1 className="text-[22px] font-bold text-fore-brand m-0">관리자 관리</h1>
         <button className="px-4 py-2 bg-[#1d4ed8] text-white border-none rounded-md cursor-pointer text-[14px] font-semibold" onClick={() => setShowInvite(true)}>+ 관리자 추가</button>
       </div>
 
@@ -99,9 +99,9 @@ export default function CompanyManagersPage() {
         </div>
       )}
 
-      <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-lg px-4 py-[14px] mb-5 text-[14px] text-[#1e40af]">
+      <div className="bg-blue-light border border-[#bfdbfe] rounded-lg px-4 py-[14px] mb-5 text-[14px] text-[#1e40af]">
         <strong>관리 범위 안내</strong>
-        <ul className="mt-[6px] mb-0 pl-[18px] text-[13px] text-[#374151]">
+        <ul className="mt-[6px] mb-0 pl-[18px] text-[13px] text-body-brand">
           <li><strong>전체 현장 관리</strong> — 회사 전체 현장 접근</li>
           <li><strong>담당 현장 관리</strong> — 배정된 현장만 접근</li>
           <li><strong>지정 현장 운영형</strong> — 그룹 지정 현장 접근 (읽기 위주)</li>
@@ -109,14 +109,14 @@ export default function CompanyManagersPage() {
       </div>
 
       {loading ? (
-        <p className="text-[#6b7280]">로딩 중...</p>
+        <p className="text-muted-brand">로딩 중...</p>
       ) : (
-        <div className="border border-[#e5e7eb] rounded-lg overflow-hidden">
+        <div className="border border-brand rounded-lg overflow-hidden">
           <table className="w-full border-collapse">
-            <thead className="bg-[#f9fafb]">
+            <thead className="bg-surface">
               <tr>
                 {['이름', '이메일', '관리 범위', '최근 로그인', '상태', ''].map(h => (
-                  <th key={h} className="px-[14px] py-[11px] text-left text-[12px] font-semibold text-[#6b7280] border-b border-[#e5e7eb]">{h}</th>
+                  <th key={h} className="px-[14px] py-[11px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -124,9 +124,9 @@ export default function CompanyManagersPage() {
               {managers.map(m => {
                 const rc = ROLE_COLOR[m.role] ?? { bg: '#f3f4f6', color: '#6b7280' }
                 return (
-                  <tr key={m.id} className="border-b border-[#f3f4f6]">
+                  <tr key={m.id} className="border-b border-brand">
                     <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle"><span className="font-semibold">{m.name}</span></td>
-                    <td className="px-[14px] py-[13px] text-[13px] text-[#6b7280] align-middle">{m.email}</td>
+                    <td className="px-[14px] py-[13px] text-[13px] text-muted-brand align-middle">{m.email}</td>
                     <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
                       <span
                         className="text-[11px] px-2 py-[3px] rounded font-medium"
@@ -135,7 +135,7 @@ export default function CompanyManagersPage() {
                         {ROLE_LABEL[m.role] ?? m.role}
                       </span>
                     </td>
-                    <td className="px-[14px] py-[13px] text-[12px] text-[#9ca3af] align-middle">
+                    <td className="px-[14px] py-[13px] text-[12px] text-muted2-brand align-middle">
                       {m.lastLoginAt ? new Date(m.lastLoginAt).toLocaleDateString('ko-KR') : '없음'}
                     </td>
                     <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
@@ -152,7 +152,7 @@ export default function CompanyManagersPage() {
                     <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
                       {m.isActive && (
                         <button
-                          className="px-[10px] py-1 bg-white border border-[#E5E7EB] rounded-[5px] cursor-pointer text-[12px] text-[#6b7280]"
+                          className="px-[10px] py-1 bg-card border border-brand rounded-[5px] cursor-pointer text-[12px] text-muted-brand"
                           onClick={() => handleDeactivate(m.id, m.name)}
                         >
                           비활성화
@@ -170,21 +170,21 @@ export default function CompanyManagersPage() {
       {/* 관리자 추가 모달 */}
       {showInvite && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]">
-          <div className="bg-white rounded-[10px] px-7 py-7 w-[380px] max-w-[90vw]">
-            <h3 className="text-[16px] font-bold text-[#111827] mb-5 mt-0">관리자 추가</h3>
+          <div className="bg-card rounded-[10px] px-7 py-7 w-[380px] max-w-[90vw]">
+            <h3 className="text-[16px] font-bold text-fore-brand mb-5 mt-0">관리자 추가</h3>
             <div className="mb-4">
-              <label className="block text-[13px] font-medium text-[#374151] mb-[6px]">이름 *</label>
+              <label className="block text-[13px] font-medium text-body-brand mb-[6px]">이름 *</label>
               <input
-                className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-md text-[14px] box-border"
+                className="w-full px-3 py-[9px] border border-brand rounded-md text-[14px] box-border"
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="담당자명"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-[13px] font-medium text-[#374151] mb-[6px]">이메일 *</label>
+              <label className="block text-[13px] font-medium text-body-brand mb-[6px]">이메일 *</label>
               <input
-                className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-md text-[14px] box-border"
+                className="w-full px-3 py-[9px] border border-brand rounded-md text-[14px] box-border"
                 type="email"
                 value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
@@ -192,9 +192,9 @@ export default function CompanyManagersPage() {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-[13px] font-medium text-[#374151] mb-[6px]">관리 범위</label>
+              <label className="block text-[13px] font-medium text-body-brand mb-[6px]">관리 범위</label>
               <select
-                className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-md text-[14px] box-border"
+                className="w-full px-3 py-[9px] border border-brand rounded-md text-[14px] box-border"
                 value={form.role}
                 onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
               >
@@ -205,7 +205,7 @@ export default function CompanyManagersPage() {
             </div>
             <div className="flex gap-2 justify-end mt-5">
               <button
-                className="px-4 py-[7px] border border-[#E5E7EB] rounded-md bg-white cursor-pointer text-[14px]"
+                className="px-4 py-[7px] border border-brand rounded-md bg-card cursor-pointer text-[14px]"
                 onClick={() => setShowInvite(false)}
               >
                 취소

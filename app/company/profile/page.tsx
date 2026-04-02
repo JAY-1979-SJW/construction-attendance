@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 
@@ -90,7 +90,7 @@ export default function CompanyProfilePage() {
     } finally { setSaving(false) }
   }
 
-  if (loading) return <div className="p-8 max-w-[800px] mx-auto font-sans"><p className="text-[#9ca3af]">불러오는 중...</p></div>
+  if (loading) return <div className="p-8 max-w-[800px] mx-auto font-sans"><p className="text-muted2-brand">불러오는 중...</p></div>
   if (!profile) return <div className="p-8 max-w-[800px] mx-auto font-sans"><p className="text-[#ef4444]">회사 정보를 불러올 수 없습니다.</p></div>
 
   const vs = profile.externalVerificationStatus
@@ -98,11 +98,11 @@ export default function CompanyProfilePage() {
   return (
     <div className="p-8 max-w-[800px] mx-auto font-sans">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-[22px] font-bold text-[#111827] m-0">내 회사 정보</h1>
+        <h1 className="text-[22px] font-bold text-fore-brand m-0">내 회사 정보</h1>
         {!editing && (
           <button
             onClick={startEdit}
-            className="px-4 py-2 bg-card border border-[#E5E7EB] rounded-md cursor-pointer text-[13px] text-[#374151]"
+            className="px-4 py-2 bg-card border border-brand rounded-md cursor-pointer text-[13px] text-body-brand"
           >
             수정
           </button>
@@ -138,11 +138,11 @@ export default function CompanyProfilePage() {
         </div>
       )}
 
-      <div className="bg-card border border-[#e5e7eb] rounded-xl p-6">
+      <div className="bg-card border border-brand rounded-xl p-6">
         {editing ? (
           <div>
-            <h2 className="text-[15px] font-semibold text-[#111827] mb-4 mt-0">연락처 정보 수정</h2>
-            <p className="text-[12px] text-[#6b7280] mb-4">
+            <h2 className="text-[15px] font-semibold text-fore-brand mb-4 mt-0">연락처 정보 수정</h2>
+            <p className="text-[12px] text-muted-brand mb-4">
               회사명·사업자번호 등 공식 정보는 관리자에게 수정을 요청하세요.
             </p>
             <div className="grid grid-cols-2 gap-4">
@@ -153,19 +153,19 @@ export default function CompanyProfilePage() {
                 { key: 'address', label: '주소' },
               ].map(({ key, label }) => (
                 <div key={key}>
-                  <label className="block text-[12px] text-[#6b7280] mb-1">{label}</label>
+                  <label className="block text-[12px] text-muted-brand mb-1">{label}</label>
                   <input
-                    className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border"
+                    className="w-full border border-brand rounded-md px-[10px] py-2 text-[13px] box-border"
                     value={(form as Record<string, string>)[key]}
                     onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
                   />
                 </div>
               ))}
               <div className="col-span-2">
-                <label className="block text-[12px] text-[#6b7280] mb-1">메모</label>
+                <label className="block text-[12px] text-muted-brand mb-1">메모</label>
                 <textarea
                   rows={3}
-                  className="w-full border border-[#E5E7EB] rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
+                  className="w-full border border-brand rounded-md px-[10px] py-2 text-[13px] box-border resize-y"
                   value={form.notes}
                   onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
                 />
@@ -175,13 +175,13 @@ export default function CompanyProfilePage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-5 py-2 bg-[#F97316] text-white border-none rounded-md cursor-pointer text-[13px]"
+                className="px-5 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[13px]"
               >
                 {saving ? '저장 중...' : '저장'}
               </button>
               <button
                 onClick={() => setEditing(false)}
-                className="px-4 py-2 bg-card border border-[#E5E7EB] rounded-md cursor-pointer text-[13px] text-[#374151]"
+                className="px-4 py-2 bg-card border border-brand rounded-md cursor-pointer text-[13px] text-body-brand"
               >
                 취소
               </button>
@@ -189,7 +189,7 @@ export default function CompanyProfilePage() {
           </div>
         ) : (
           <div>
-            <h2 className="text-[15px] font-semibold text-[#111827] mb-4 mt-0">회사 기본정보</h2>
+            <h2 className="text-[15px] font-semibold text-fore-brand mb-4 mt-0">회사 기본정보</h2>
             <div className="grid grid-cols-2 gap-4">
               <InfoRow label="회사명" value={profile.companyName} />
               <InfoRow label="사업자번호" value={profile.businessNumber} />
@@ -203,7 +203,7 @@ export default function CompanyProfilePage() {
               <InfoRow label="주소" value={profile.address} fullWidth />
               {profile.notes && <InfoRow label="메모" value={profile.notes} fullWidth />}
               <div>
-                <span className="block text-[11px] text-[#9ca3af] mb-1">인증 상태</span>
+                <span className="block text-[11px] text-muted2-brand mb-1">인증 상태</span>
                 {vs ? (
                   <span
                     className="text-[12px] px-2 py-[2px] rounded font-semibold"
@@ -211,7 +211,7 @@ export default function CompanyProfilePage() {
                   >
                     {VERIFICATION_STATUS_LABELS[vs] ?? vs}
                   </span>
-                ) : <span className="block text-[14px] text-[#374151]">해당 없음</span>}
+                ) : <span className="block text-[14px] text-body-brand">해당 없음</span>}
               </div>
               <InfoRow label="등록일" value={fmtDate(profile.createdAt)} />
             </div>
@@ -236,8 +236,8 @@ function vsStyle(vs: string): React.CSSProperties {
 function InfoRow({ label, value, fullWidth }: { label: string; value: string | null | undefined; fullWidth?: boolean }) {
   return (
     <div className={fullWidth ? 'col-span-2' : ''}>
-      <span className="block text-[11px] text-[#9ca3af] mb-1">{label}</span>
-      <span className="block text-[14px] text-[#374151]">{value ?? '—'}</span>
+      <span className="block text-[11px] text-muted2-brand mb-1">{label}</span>
+      <span className="block text-[14px] text-body-brand">{value ?? '—'}</span>
     </div>
   )
 }

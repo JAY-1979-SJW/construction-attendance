@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -47,15 +47,15 @@ function CompanyApprovalsContent() {
   return (
     <div className="p-8 max-w-[900px] mx-auto">
       <h1 className="text-[22px] font-bold mb-5">승인 대기</h1>
-      <div className="flex gap-1 mb-5 border-b border-[#e5e7eb]">
+      <div className="flex gap-1 mb-5 border-b border-brand">
         {TABS.map(t => (
           <button
             key={t.key}
             className={[
               'px-4 py-2 border-0 bg-transparent cursor-pointer text-[13px] border-b-2 -mb-px',
               activeTab === t.key
-                ? 'text-[#F97316] border-b-[#F97316] font-semibold'
-                : 'text-[#6b7280] border-b-transparent',
+                ? 'text-accent border-b-accent font-semibold'
+                : 'text-muted-brand border-b-transparent',
             ].join(' ')}
             onClick={() => switchTab(t.key)}
           >
@@ -165,21 +165,21 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
       )}
 
       {loading ? (
-        <p className="text-[#9ca3af] text-center py-10">불러오는 중...</p>
+        <p className="text-muted2-brand text-center py-10">불러오는 중...</p>
       ) : items.length === 0 ? (
-        <div className="text-center text-[#9ca3af] py-12 bg-card border border-[#e5e7eb] rounded-lg">대기 중인 항목이 없습니다.</div>
+        <div className="text-center text-muted2-brand py-12 bg-card border border-brand rounded-lg">대기 중인 항목이 없습니다.</div>
       ) : (
         <div className="flex flex-col gap-2">
           {items.map(item => (
-            <div key={item.id} className="bg-card border border-[#e5e7eb] rounded-lg p-4 flex items-start gap-3">
+            <div key={item.id} className="bg-card border border-brand rounded-lg p-4 flex items-start gap-3">
               <div className="flex-1">
-                <div className="text-[14px] font-semibold text-[#111827] mb-[2px]">{item.name}</div>
-                <div className="text-[12px] text-[#6b7280]">{item.sub}</div>
-                {item.detail && <div className="text-[12px] text-[#9ca3af] mt-[2px]">{item.detail}</div>}
+                <div className="text-[14px] font-semibold text-fore-brand mb-[2px]">{item.name}</div>
+                <div className="text-[12px] text-muted-brand">{item.sub}</div>
+                {item.detail && <div className="text-[12px] text-muted2-brand mt-[2px]">{item.detail}</div>}
                 <div className="text-[11px] text-[#d1d5db] mt-1">{fmtDate(item.requestedAt)}</div>
               </div>
               <div className="flex flex-col items-end gap-[6px]">
-                <span className="text-[11px] px-2 py-[2px] rounded bg-[#fef3c7]" style={{ color: STATUS_COLOR[item.status] ?? '#374151' }}>
+                <span className="text-[11px] px-2 py-[2px] rounded bg-yellow-light" style={{ color: STATUS_COLOR[item.status] ?? '#374151' }}>
                   {STATUS_LABEL[item.status] ?? item.status}
                 </span>
                 {item.status === 'PENDING_REVIEW' || item.status === 'PENDING' ? (
@@ -213,14 +213,14 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
             <h3 className="m-0 mb-3 text-[15px] font-semibold">반려 사유</h3>
             <textarea
               rows={4}
-              className="w-full border border-[#E5E7EB] rounded-md p-2 text-[13px] box-border"
+              className="w-full border border-brand rounded-md p-2 text-[13px] box-border"
               placeholder="반려 사유를 입력하세요"
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
             />
             <div className="flex gap-2 mt-3">
               <button onClick={rejectSubmit} className="px-3 py-[5px] bg-[#dc2626] text-white border-0 rounded-[5px] cursor-pointer text-[12px]">반려 확정</button>
-              <button onClick={() => setRejectTarget(null)} className="px-3 py-[5px] bg-card text-[#374151] border border-[#E5E7EB] rounded-[5px] cursor-pointer text-[12px]">취소</button>
+              <button onClick={() => setRejectTarget(null)} className="px-3 py-[5px] bg-card text-body-brand border border-brand rounded-[5px] cursor-pointer text-[12px]">취소</button>
             </div>
           </div>
         </div>
