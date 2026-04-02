@@ -10,8 +10,8 @@ export function AdminTable({
 }) {
   return (
     <div className={`bg-card rounded-[12px] border border-brand overflow-hidden ${className ?? ''}`}>
-      <div className="overflow-x-auto max-h-[calc(100vh-220px)] overflow-y-auto">
-        <table className="w-full border-collapse">
+      <div className="overflow-x-auto max-h-[calc(100vh-220px)] overflow-y-auto -webkit-overflow-scrolling-touch">
+        <table className="w-full border-collapse min-w-[600px] sm:min-w-0">
           <thead className="sticky top-0 z-10">
             <tr className="bg-footer">
               {headers.map((h, i) => (

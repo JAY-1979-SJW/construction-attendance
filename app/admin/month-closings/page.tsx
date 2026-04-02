@@ -166,7 +166,7 @@ export default function MonthClosingsPage() {
         )}
 
         {/* 액션 버튼 */}
-        <div className="flex gap-3 mb-5">
+        <div className="flex flex-col sm:flex-row gap-3 mb-5">
           <button
             onClick={runPrecheck}
             disabled={loading}

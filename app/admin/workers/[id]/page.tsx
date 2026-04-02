@@ -303,7 +303,7 @@ export default function WorkerDetailPage() {
         </div>
 
         {/* 탭 */}
-        <div className="flex gap-1 mb-4 border-b border-brand pb-0">
+        <div className="flex gap-1 mb-4 border-b border-brand pb-0 overflow-x-auto">
           {([['info', '기본정보'], ['profile', '분류정보'], ['company', '회사배정'], ['site', '현장배정'], ['insurance', '보험상태'], ['contracts', '계약서'], ['safety', '안전문서'], ['onboarding', '투입문서'], ['docs', '문서'], ['hrActions', '경고·소명']] as [Tab, string][]).map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)} className={`px-[18px] py-2 bg-transparent border-none border-b-2 cursor-pointer text-[13px] font-medium flex items-center gap-1.5 -mb-px ${tab === key ? 'border-[#1976d2] text-secondary-brand font-bold' : 'border-transparent text-muted-brand'}`}>
               {label}

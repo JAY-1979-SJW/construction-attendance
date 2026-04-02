@@ -71,7 +71,7 @@ export default function SiteJoinRequestsPage() {
     <div className="px-6 py-8 max-w-[1000px] mx-auto">
       <h1 className="text-[22px] font-bold mb-6 text-white">현장 참여 신청 관리</h1>
 
-      <div className="flex gap-2 mb-5">
+      <div className="flex flex-col sm:flex-row gap-2 mb-5">
         {['PENDING', 'APPROVED', 'REJECTED'].map(st => (
           <button key={st} onClick={() => setFilter(st)} className={[
             'px-[18px] py-2 rounded-[20px] text-sm cursor-pointer',

@@ -383,7 +383,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
         </div>
 
         {/* 문서 패키지 */}
-        <div className="col-span-2 space-y-4">
+        <div className="col-span-1 md:col-span-2 space-y-4">
           <div className="bg-card border rounded-[12px] p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-white">문서 패키지 — {

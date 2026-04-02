@@ -171,7 +171,7 @@ export default function WorkerSensitivePage() {
           </div>
         )}
 
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-col sm:flex-row gap-2 mb-4">
           {[['sensitive', '민감정보'], ['bank', '계좌정보'], ['compliance', '노무/보험 상태'],
             ...(isSuperAdmin ? [['decrypt', '원문 복호화']] : [])
           ].map(([v, label]) => (

@@ -288,7 +288,7 @@ export default function AttendanceExceptionsPage() {
       )}
 
       {/* 타입 탭 */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-col sm:flex-row gap-2 mb-4">
         {(['ALL', 'EXCEPTION', 'MISSING_CHECKOUT'] as const).map(t => (
           <button
             key={t}

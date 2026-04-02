@@ -271,7 +271,7 @@ export default function SiteAccessGroupsPage() {
               {/* 현장 목록 */}
               <div className="bg-card border border-brand rounded-[12px] p-5">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">현장 목록 ({selected.sites.length}개)</h3>
-                <div className="flex gap-2 mb-3">
+                <div className="flex flex-col sm:flex-row gap-2 mb-3">
                   <select
                     className="flex-1 border rounded px-2 py-1.5 text-sm bg-card"
                     value={addSiteId}
@@ -317,7 +317,7 @@ export default function SiteAccessGroupsPage() {
               {/* 사용자 목록 */}
               <div className="bg-card border border-brand rounded-[12px] p-5">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">할당된 사용자 ({selected.activeUsers.length}명)</h3>
-                <div className="flex gap-2 mb-3">
+                <div className="flex flex-col sm:flex-row gap-2 mb-3">
                   <select
                     className="flex-1 border rounded px-2 py-1.5 text-sm bg-card"
                     value={addUserId}

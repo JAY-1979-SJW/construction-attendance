@@ -234,7 +234,7 @@ export default function TerminationPage() {
 
       {/* 단계 표시 */}
       {!done && (
-        <div className="flex gap-0 mb-6">
+        <div className="flex gap-0 mb-6 overflow-x-auto">
           {(['기본정보', '자동점검', '보완액션', '최종확인', '완료'] as const).map((label, i) => {
             const n = (i + 1) as Step
             const active  = step === n

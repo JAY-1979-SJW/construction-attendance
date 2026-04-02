@@ -242,7 +242,7 @@ export default function WagePage() {
       )}
 
       {/* 탭 */}
-      <div className="flex gap-0 mb-4 border-b-2 border-[rgba(91,164,217,0.15)]">
+      <div className="flex gap-0 mb-4 border-b overflow-x-auto-2 border-[rgba(91,164,217,0.15)]">
         {([
           { key: 'summary', label: '노임 집계' },
           { key: 'rates',   label: '단가 관리' },

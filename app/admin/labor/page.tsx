@@ -181,7 +181,7 @@ export default function LaborPage() {
       )}
 
       {/* 탭 */}
-      <div className="flex gap-0 mb-4 border-b-2 border-brand">
+      <div className="flex gap-0 mb-4 border-b-2 border-b overflow-x-autorand">
         {(['detail', 'summary'] as const).map((t) => (
           <button
             key={t}

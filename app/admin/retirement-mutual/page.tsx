@@ -180,7 +180,7 @@ export default function RetirementMutualPage() {
         <h1 className="text-2xl font-bold mb-6">퇴직공제 관리</h1>
 
         {/* 탭 */}
-        <div className="flex gap-0 mb-6 border-b-2 border-brand">
+        <div className="flex gap-0 mb-6 border-b-2 border-b overflow-x-autorand">
           {(Object.keys(TAB_LABELS) as Tab[]).map((t) => (
             <button
               key={t}
