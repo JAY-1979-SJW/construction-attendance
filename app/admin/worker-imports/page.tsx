@@ -52,7 +52,7 @@ export default function WorkerImportsPage() {
         loadJobs()
       }
     } catch {
-      setError('네트워�� 오류')
+      setError('네트워크 오류')
     } finally {
       setUploading(false)
       if (fileRef.current) fileRef.current.value = ''
