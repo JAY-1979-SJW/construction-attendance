@@ -230,6 +230,8 @@ function NewContractPage() {
   const [pdfParsed, setPdfParsed] = useState<Record<string, unknown> | null>(null)
   const [pdfFilledFields, setPdfFilledFields] = useState<string[]>([])
   const [pdfMethod, setPdfMethod] = useState<'text' | 'vision' | ''>('')
+  const [siteCreating, setSiteCreating] = useState(false)
+  const [siteCreateResult, setSiteCreateResult] = useState<'created' | 'failed' | ''>('')
 
   async function handlePdfUpload(file: File) {
     setPdfError('')
@@ -268,6 +270,48 @@ function NewContractPage() {
     }
   }
 
+  async function autoCreateSite(siteName: string, siteAddr: string) {
+    if (!siteName || !siteAddr) return
+    setSiteCreating(true)
+    setSiteCreateResult('')
+    try {
+      // 1. geocode로 좌표 조회
+      const geoRes = await fetch(`/api/admin/geocode?address=${encodeURIComponent(siteAddr)}`)
+      const geoJson = await geoRes.json()
+      const lat = geoJson.data?.lat ?? 37.5665 // 서울시청 기본값
+      const lng = geoJson.data?.lng ?? 126.9780
+
+      // 2. 현장 생성
+      const siteRes = await fetch('/api/admin/sites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: siteName,
+          address: siteAddr,
+          latitude: lat,
+          longitude: lng,
+          allowedRadius: 100,
+          notes: 'PDF 계약서에서 자동 개설',
+        }),
+      })
+      const siteJson = await siteRes.json()
+      if (siteJson.success && siteJson.data?.id) {
+        const newSiteId = siteJson.data.id
+        // sites 목록 갱신
+        setSites(prev => [{ id: newSiteId, name: siteName, address: siteAddr }, ...prev])
+        // form에 siteId 세팅
+        setForm(f => ({ ...f, siteId: newSiteId, siteAddress: siteAddr }))
+        setSiteCreateResult('created')
+      } else {
+        setSiteCreateResult('failed')
+      }
+    } catch {
+      setSiteCreateResult('failed')
+    } finally {
+      setSiteCreating(false)
+    }
+  }
+
   function applyPdfFieldsToForm(fields: Record<string, unknown>) {
     const filled: string[] = []
     const updates: Record<string, unknown> = {}
@@ -284,6 +328,11 @@ function NewContractPage() {
         updates.siteId = matched.id
         updates.siteAddress = matched.address || siteAddr
         filled.push('siteId')
+      } else if (siteAddr) {
+        // 매칭 안 됨 + 주소 있음 → 자동 현장 개설
+        updates.siteAddress = siteAddr
+        updates.projectName = siteName
+        autoCreateSite(siteName, siteAddr)
       } else {
         updates.siteAddress = siteAddr
         updates.projectName = siteName
@@ -691,16 +740,26 @@ function NewContractPage() {
                 </div>
               ))}
             </div>
-            {/* 현장 매칭 결과 */}
+            {/* 현장 매칭/생성 결과 */}
             {!!pdfParsed.siteName && (
               <div className="text-xs mt-2">
-                {form.siteId && sites.find(s => s.id === form.siteId) ? (
+                {siteCreating ? (
+                  <span className="text-teal-400 animate-pulse">현장 자동 개설 중...</span>
+                ) : siteCreateResult === 'created' ? (
+                  <span className="text-green-400">
+                    현장 자동 개설 완료: {String(pdfParsed.siteName)} — 현장 드롭다운에 추가됨
+                  </span>
+                ) : siteCreateResult === 'failed' ? (
+                  <span className="text-red-400">
+                    현장 자동 개설 실패 — 현장 드롭다운에서 직접 선택하거나, 현장 관리에서 등록하세요.
+                  </span>
+                ) : form.siteId && sites.find(s => s.id === form.siteId) ? (
                   <span className="text-green-400">
                     기존 현장 매칭됨: {String(sites.find(s => s.id === form.siteId)?.name ?? '')}
                   </span>
                 ) : (
                   <span className="text-amber-400">
-                    기존 현장에 일치하는 항목 없음 — 현장 드롭다운에서 직접 선택하거나, 저장 후 별도 현장 등록이 필요합니다.
+                    현장 주소 없음 — 현장 드롭다운에서 직접 선택하세요.
                   </span>
                 )}
               </div>
