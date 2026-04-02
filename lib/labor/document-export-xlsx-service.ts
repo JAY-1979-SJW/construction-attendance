@@ -3,6 +3,7 @@
  */
 import ExcelJS from 'exceljs'
 import { prisma } from '@/lib/db/prisma'
+import { calculateDailyWorkerInsurance } from '@/lib/insurance/calculate'
 
 export type XlsxDocumentType =
   | 'WAGE_LEDGER'
@@ -85,12 +86,30 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
       .map(w => [w.workerId, w])
   )
 
+  // 4대보험 계산 (근로자별 일급 기준)
+  const refDate = new Date(`${opts.monthKey}-15`)
+  const insuranceMap = new Map<string, { eiEmployee: number; eiEmployer: number; iaEmployer: number }>()
+  for (const wid of workerIds) {
+    const workerConfs = confirmations.filter(c => c.workerId === wid)
+    let eiEmpTotal = 0, eiErTotal = 0, iaErTotal = 0
+    for (const c of workerConfs) {
+      const ins = await calculateDailyWorkerInsurance(c.confirmedBaseAmount, refDate)
+      eiEmpTotal += ins.employmentInsurance?.employeeAmount ?? 0
+      eiErTotal  += ins.employmentInsurance?.employerAmount ?? 0
+      iaErTotal  += ins.industrialAccident?.employerAmount ?? 0
+    }
+    insuranceMap.set(wid, { eiEmployee: eiEmpTotal, eiEmployer: eiErTotal, iaEmployer: iaErTotal })
+  }
+
   const wb = new ExcelJS.Workbook()
   wb.creator = '해한 출퇴근 시스템'
   const ws = wb.addWorksheet('노임대장')
 
-  const headers = ['현장명', '성명', '주민등록번호', '직종', '근무일자', '공수', '일급', '제수당', '지급총액', '소득세', '지방소득세', '비고']
-  const colWidths = [16, 10, 16, 10, 12, 8, 10, 10, 12, 10, 10, 15]
+  const headers = [
+    '현장명', '성명', '주민등록번호', '직종', '근무일자', '공수', '일급', '제수당', '지급총액',
+    '소득세', '지방소득세', '고용보험(근로자)', '고용보험(사업주)', '산재보험(사업주)', '공제합계', '실수령액', '비고',
+  ]
+  const colWidths = [16, 10, 16, 10, 12, 8, 10, 10, 12, 10, 10, 12, 12, 12, 12, 12, 12]
 
   addTitleRow(ws, `${opts.monthKey} 노임대장`, headers.length)
 
@@ -103,6 +122,11 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
   })
 
   let totalGross = 0, totalTax = 0, totalLocal = 0
+  let totalEiEmp = 0, totalEiEr = 0, totalIa = 0
+
+  // 근로자별 마지막 행 기준으로 보험 금액 배분
+  const workerLastRow = new Map<string, number>()
+  confirmations.forEach((c, idx) => workerLastRow.set(c.workerId, idx))
 
   confirmations.forEach((c, idx) => {
     const wh = withholdingMap.get(c.workerId)
@@ -111,24 +135,54 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
     const local = wh?.localIncomeTaxAmount ?? 0
     totalGross += gross; totalTax += tax; totalLocal += local
 
+    // 보험 금액은 근로자의 마지막 행에만 표시
+    const isLastRow = workerLastRow.get(c.workerId) === idx
+    const ins = isLastRow ? insuranceMap.get(c.workerId) : null
+    const eiEmp = ins?.eiEmployee ?? 0
+    const eiEr  = ins?.eiEmployer ?? 0
+    const ia    = ins?.iaEmployer ?? 0
+    if (isLastRow) { totalEiEmp += eiEmp; totalEiEr += eiEr; totalIa += ia }
+
+    const deductTotal = tax + local + eiEmp
+    const netPay = gross - deductTotal
+
     const row = ws.addRow([
       c.site.name, c.worker.name, c.worker.residentIdMasked ?? '', c.worker.jobTitle,
       c.workDate, Number(c.confirmedWorkUnits), c.confirmedBaseAmount, c.confirmedAllowanceAmount,
-      gross, tax, local, c.notes ?? '',
+      gross, tax, local,
+      isLastRow ? eiEmp : '', isLastRow ? eiEr : '', isLastRow ? ia : '',
+      isLastRow ? deductTotal : '', isLastRow ? netPay : '',
+      c.notes ?? '',
     ])
     styleDataRow(row, idx % 2 === 1)
     formatAmount(ws.getRow(ws.rowCount).getCell(7), c.confirmedBaseAmount)
     formatAmount(ws.getRow(ws.rowCount).getCell(9), gross)
     formatAmount(ws.getRow(ws.rowCount).getCell(10), tax)
     formatAmount(ws.getRow(ws.rowCount).getCell(11), local)
+    if (isLastRow) {
+      formatAmount(ws.getRow(ws.rowCount).getCell(12), eiEmp)
+      formatAmount(ws.getRow(ws.rowCount).getCell(13), eiEr)
+      formatAmount(ws.getRow(ws.rowCount).getCell(14), ia)
+      formatAmount(ws.getRow(ws.rowCount).getCell(15), deductTotal)
+      formatAmount(ws.getRow(ws.rowCount).getCell(16), netPay)
+    }
   })
 
-  // 합계 행 (데이터가 없어도 합계 행 추가)
-  const totalRow = ws.addRow(['합계', '', '', '', '', '', '', '', totalGross, totalTax, totalLocal, ''])
+  const totalDeduct = totalTax + totalLocal + totalEiEmp
+  const totalNet = totalGross - totalDeduct
+  const totalRow = ws.addRow([
+    '합계', '', '', '', '', '', '', '', totalGross, totalTax, totalLocal,
+    totalEiEmp, totalEiEr, totalIa, totalDeduct, totalNet, '',
+  ])
   styleHeader(totalRow, 'FFFFE0B2')
   formatAmount(totalRow.getCell(9), totalGross)
   formatAmount(totalRow.getCell(10), totalTax)
   formatAmount(totalRow.getCell(11), totalLocal)
+  formatAmount(totalRow.getCell(12), totalEiEmp)
+  formatAmount(totalRow.getCell(13), totalEiEr)
+  formatAmount(totalRow.getCell(14), totalIa)
+  formatAmount(totalRow.getCell(15), totalDeduct)
+  formatAmount(totalRow.getCell(16), totalNet)
 
   ws.views = [{ state: 'frozen', xSplit: 0, ySplit: 2 }]
 
