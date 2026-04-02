@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useEffect, useState } from 'react'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface DocumentRow {
   id: string
@@ -97,21 +98,11 @@ export default function DocumentsPage() {
       </div>
 
       {/* 테이블 */}
-      <div className="rounded-[10px] overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-        <table className="w-full text-[12px]">
-          <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-            <tr>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">근로자명</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">서류 유형</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">검토 상태</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">업로드일</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">만료일</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">검토 완료</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
+      {loading ? (
+        <div className="rounded-[10px] overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+          <table className="w-full text-[12px]">
+            <tbody>
+              {Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
                   {Array.from({ length: 6 }).map((__, j) => (
                     <td key={j} className="px-3 py-3">
@@ -119,40 +110,72 @@ export default function DocumentsPage() {
                     </td>
                   ))}
                 </tr>
-              ))
-            ) : filtered.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-[13px] text-muted2-brand">
-                  서류 데이터가 없습니다.
-                </td>
-              </tr>
-            ) : (
-              filtered.map((row) => {
-                const ss = STATUS_STYLE[row.status]
-                return (
-                  <tr key={row.id} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-surface">
-                    <td className="px-3 py-2.5 font-medium text-title-brand">{row.workerName}</td>
-                    <td className="px-3 py-2.5 text-body-brand">{DOC_TYPE_LABEL[row.documentType]}</td>
-                    <td className="px-3 py-2.5">
-                      <span
-                        className="inline-block text-[11px] font-medium px-2 py-0.5 rounded-full"
-                        style={{ background: ss.bg, color: ss.color }}
-                      >
-                        {STATUS_LABEL[row.status]}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5 text-muted-brand">{row.uploadedAt.slice(0, 10)}</td>
-                    <td className="px-3 py-2.5 text-muted-brand">{row.expiresAt?.slice(0, 10) ?? '-'}</td>
-                    <td className="px-3 py-2.5 text-muted-brand">
-                      {row.reviewedAt ? `${row.reviewedAt.slice(0, 10)} (${row.reviewedBy ?? ''})` : '-'}
-                    </td>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <MobileCardList
+          items={filtered}
+          keyExtractor={(row) => row.id}
+          emptyMessage="서류 데이터가 없습니다."
+          renderCard={(row) => {
+            const ss = STATUS_STYLE[row.status]
+            return (
+              <MobileCard
+                title={row.workerName}
+                subtitle={DOC_TYPE_LABEL[row.documentType]}
+                badge={
+                  <span className="inline-block text-[11px] font-medium px-2 py-0.5 rounded-full" style={{ background: ss.bg, color: ss.color }}>
+                    {STATUS_LABEL[row.status]}
+                  </span>
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField label="업로드일" value={row.uploadedAt.slice(0, 10)} />
+                  <MobileCardField label="만료일" value={row.expiresAt?.slice(0, 10) ?? '-'} />
+                  <MobileCardField label="검토 완료" value={row.reviewedAt ? `${row.reviewedAt.slice(0, 10)} (${row.reviewedBy ?? ''})` : '-'} />
+                </MobileCardFields>
+              </MobileCard>
+            )
+          }}
+          renderTable={() => (
+            <div className="rounded-[10px] overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+              <table className="w-full text-[12px]">
+                <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+                  <tr>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">근로자명</th>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">서류 유형</th>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">검토 상태</th>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">업로드일</th>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">만료일</th>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">검토 완료</th>
                   </tr>
-                )
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                </thead>
+                <tbody>
+                  {filtered.map((row) => {
+                    const ss = STATUS_STYLE[row.status]
+                    return (
+                      <tr key={row.id} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-surface">
+                        <td className="px-3 py-2.5 font-medium text-title-brand">{row.workerName}</td>
+                        <td className="px-3 py-2.5 text-body-brand">{DOC_TYPE_LABEL[row.documentType]}</td>
+                        <td className="px-3 py-2.5">
+                          <span className="inline-block text-[11px] font-medium px-2 py-0.5 rounded-full" style={{ background: ss.bg, color: ss.color }}>
+                            {STATUS_LABEL[row.status]}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 text-muted-brand">{row.uploadedAt.slice(0, 10)}</td>
+                        <td className="px-3 py-2.5 text-muted-brand">{row.expiresAt?.slice(0, 10) ?? '-'}</td>
+                        <td className="px-3 py-2.5 text-muted-brand">{row.reviewedAt ? `${row.reviewedAt.slice(0, 10)} (${row.reviewedBy ?? ''})` : '-'}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
+      )}
     </div>
   )
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface InsuranceRow {
   workerId: string
@@ -163,49 +164,67 @@ export default function CompanyInsurancePage() {
             <div className="font-semibold">{monthKey} 소속 근로자가 없습니다.</div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-[13px]">
-              <thead>
-                <tr>
-                  {['근로자명', '고용형태', '4보험대상', '퇴직공제', '근무일수', '확정금액', '국민연금', '건강보험', '고용보험', '산재보험'].map(h => (
-                    <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((row, i) => (
-                  <tr key={row.workerId} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle font-semibold">{row.workerName}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle">{EMP_LABEL[row.employmentType] ?? row.employmentType}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle">
-                      <EligibleBadge eligible={row.fourInsurancesEligibleYn} reason="근로자 기본 설정" />
-                    </td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle">
-                      <span
-                        className="text-[11px] px-2 py-[2px] rounded-lg"
-                        style={{
-                          background: row.retirementMutualTargetYn ? '#e3f2fd' : '#f5f5f5',
-                          color: row.retirementMutualTargetYn ? '#1565c0' : '#999',
-                        }}
-                      >
-                        {row.retirementMutualTargetYn ? '대상' : '제외'}
-                      </span>
-                    </td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right">
-                      {row.totalWorkDays != null ? `${row.totalWorkDays}일` : '-'}
-                    </td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right">
-                      {row.totalConfirmedAmount != null ? row.totalConfirmedAmount.toLocaleString('ko-KR') + '원' : '-'}
-                    </td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.nationalPension.eligible} reason={row.nationalPension.reason} /></td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.healthInsurance.eligible} reason={row.healthInsurance.reason} /></td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.employmentInsurance.eligible} reason={row.employmentInsurance.reason} /></td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.industrialAccident.eligible} reason={row.industrialAccident.reason} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <MobileCardList
+            items={items}
+            keyExtractor={(row) => row.workerId}
+            emptyMessage="소속 근로자가 없습니다."
+            renderCard={(row) => (
+              <MobileCard
+                title={row.workerName}
+                subtitle={EMP_LABEL[row.employmentType] ?? row.employmentType}
+                badge={<EligibleBadge eligible={row.fourInsurancesEligibleYn} reason="근로자 기본 설정" />}
+              >
+                <MobileCardFields>
+                  <MobileCardField label="퇴직공제" value={
+                    <span className="text-[11px] px-2 py-[2px] rounded-lg" style={{ background: row.retirementMutualTargetYn ? '#e3f2fd' : '#f5f5f5', color: row.retirementMutualTargetYn ? '#1565c0' : '#999' }}>
+                      {row.retirementMutualTargetYn ? '대상' : '제외'}
+                    </span>
+                  } />
+                  <MobileCardField label="근무일수" value={row.totalWorkDays != null ? `${row.totalWorkDays}일` : '-'} />
+                  <MobileCardField label="확정금액" value={row.totalConfirmedAmount != null ? row.totalConfirmedAmount.toLocaleString('ko-KR') + '원' : '-'} />
+                  <MobileCardField label="국민연금" value={<EligibleBadge eligible={row.nationalPension.eligible} reason={row.nationalPension.reason} />} />
+                  <MobileCardField label="건강보험" value={<EligibleBadge eligible={row.healthInsurance.eligible} reason={row.healthInsurance.reason} />} />
+                  <MobileCardField label="고용보험" value={<EligibleBadge eligible={row.employmentInsurance.eligible} reason={row.employmentInsurance.reason} />} />
+                  <MobileCardField label="산재보험" value={<EligibleBadge eligible={row.industrialAccident.eligible} reason={row.industrialAccident.reason} />} />
+                </MobileCardFields>
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-[13px]">
+                  <thead>
+                    <tr>
+                      {['근로자명', '고용형태', '4보험대상', '퇴직공제', '근무일수', '확정금액', '국민연금', '건강보험', '고용보험', '산재보험'].map(h => (
+                        <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((row, i) => (
+                      <tr key={row.workerId} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle font-semibold">{row.workerName}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle">{EMP_LABEL[row.employmentType] ?? row.employmentType}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle">
+                          <EligibleBadge eligible={row.fourInsurancesEligibleYn} reason="근로자 기본 설정" />
+                        </td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle">
+                          <span className="text-[11px] px-2 py-[2px] rounded-lg" style={{ background: row.retirementMutualTargetYn ? '#e3f2fd' : '#f5f5f5', color: row.retirementMutualTargetYn ? '#1565c0' : '#999' }}>
+                            {row.retirementMutualTargetYn ? '대상' : '제외'}
+                          </span>
+                        </td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.totalWorkDays != null ? `${row.totalWorkDays}일` : '-'}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.totalConfirmedAmount != null ? row.totalConfirmedAmount.toLocaleString('ko-KR') + '원' : '-'}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.nationalPension.eligible} reason={row.nationalPension.reason} /></td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.healthInsurance.eligible} reason={row.healthInsurance.reason} /></td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.employmentInsurance.eligible} reason={row.employmentInsurance.reason} /></td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle"><EligibleBadge eligible={row.industrialAccident.eligible} reason={row.industrialAccident.reason} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          />
         )}
       </div>
     </div>

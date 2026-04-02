@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface LaborSummary {
   id: string
@@ -151,25 +152,41 @@ export default function CompanyDocumentsPage() {
               </div>
             ) : (
               <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
-                <table className="w-full border-collapse text-[13px]">
-                  <thead>
-                    <tr>
-                      {['월', '확정 건수', '총 공수', '총 금액'].map(h => (
-                        <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.confirmationSummary.map((row, i) => (
-                      <tr key={row.monthKey} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                        <td className="px-3 py-[10px] border-b border-brand align-middle font-semibold">{row.monthKey}</td>
-                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.confirmedCount}건</td>
-                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.totalWorkUnits.toFixed(2)}일</td>
-                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(row.totalAmount)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <MobileCardList
+                  items={data.confirmationSummary}
+                  keyExtractor={(row) => row.monthKey}
+                  emptyMessage="확정된 근무 기록이 없습니다."
+                  renderCard={(row) => (
+                    <MobileCard title={row.monthKey}>
+                      <MobileCardFields>
+                        <MobileCardField label="확정 건수" value={`${row.confirmedCount}건`} />
+                        <MobileCardField label="총 공수" value={`${row.totalWorkUnits.toFixed(2)}일`} />
+                        <MobileCardField label="총 금액" value={fmt(row.totalAmount)} />
+                      </MobileCardFields>
+                    </MobileCard>
+                  )}
+                  renderTable={() => (
+                    <table className="w-full border-collapse text-[13px]">
+                      <thead>
+                        <tr>
+                          {['월', '확정 건수', '총 공수', '총 금액'].map(h => (
+                            <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.confirmationSummary.map((row, i) => (
+                          <tr key={row.monthKey} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
+                            <td className="px-3 py-[10px] border-b border-brand align-middle font-semibold">{row.monthKey}</td>
+                            <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.confirmedCount}건</td>
+                            <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.totalWorkUnits.toFixed(2)}일</td>
+                            <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(row.totalAmount)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                />
               </div>
             )}
           </div>
@@ -184,44 +201,62 @@ export default function CompanyDocumentsPage() {
               </div>
             ) : (
               <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse text-[13px]">
-                    <thead>
-                      <tr>
-                        {['월', '현장', '구분', '근로자수', '공수', '지급총액', '원천세', '퇴직공제(일)', '생성일'].map(h => (
-                          <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.laborSummaries.map((row, i) => (
-                        <tr key={row.id} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                          <td className="px-3 py-[10px] border-b border-brand align-middle font-semibold">{row.monthKey}</td>
-                          <td className="px-3 py-[10px] border-b border-brand align-middle">{row.siteName}</td>
-                          <td className="px-3 py-[10px] border-b border-brand align-middle">
-                            <span
-                              className="text-[11px] px-2 py-[2px] rounded-lg"
-                              style={{
-                                background: row.organizationType === 'DIRECT' ? '#e3f2fd' : '#fce4ec',
-                                color: row.organizationType === 'DIRECT' ? '#1565c0' : '#880e4f',
-                              }}
-                            >
-                              {ORG_LABEL[row.organizationType] ?? row.organizationType}
-                            </span>
-                          </td>
-                          <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.workerCount}명</td>
-                          <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.confirmedWorkUnits.toFixed(2)}</td>
-                          <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(row.grossAmount)}</td>
-                          <td className="px-3 py-[10px] border-b border-brand align-middle text-right text-[#c62828]">{fmt(row.withholdingTaxAmount)}</td>
-                          <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.retirementMutualTargetDays}일</td>
-                          <td className="px-3 py-[10px] border-b border-brand align-middle text-[12px] text-muted-brand">
-                            {new Date(row.createdAt).toLocaleDateString('ko-KR')}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <MobileCardList
+                  items={data.laborSummaries}
+                  keyExtractor={(row) => row.id}
+                  emptyMessage="노임비 집계 데이터가 없습니다."
+                  renderCard={(row) => (
+                    <MobileCard
+                      title={row.siteName}
+                      subtitle={row.monthKey}
+                      badge={
+                        <span className="text-[11px] px-2 py-[2px] rounded-lg" style={{ background: row.organizationType === 'DIRECT' ? '#e3f2fd' : '#fce4ec', color: row.organizationType === 'DIRECT' ? '#1565c0' : '#880e4f' }}>
+                          {ORG_LABEL[row.organizationType] ?? row.organizationType}
+                        </span>
+                      }
+                    >
+                      <MobileCardFields>
+                        <MobileCardField label="근로자수" value={`${row.workerCount}명`} />
+                        <MobileCardField label="공수" value={row.confirmedWorkUnits.toFixed(2)} />
+                        <MobileCardField label="지급총액" value={fmt(row.grossAmount)} />
+                        <MobileCardField label="원천세" value={<span className="text-[#c62828]">{fmt(row.withholdingTaxAmount)}</span>} />
+                        <MobileCardField label="퇴직공제(일)" value={`${row.retirementMutualTargetDays}일`} />
+                      </MobileCardFields>
+                    </MobileCard>
+                  )}
+                  renderTable={() => (
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse text-[13px]">
+                        <thead>
+                          <tr>
+                            {['월', '현장', '구분', '근로자수', '공수', '지급총액', '원천세', '퇴직공제(일)', '생성일'].map(h => (
+                              <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {data.laborSummaries.map((row, i) => (
+                            <tr key={row.id} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
+                              <td className="px-3 py-[10px] border-b border-brand align-middle font-semibold">{row.monthKey}</td>
+                              <td className="px-3 py-[10px] border-b border-brand align-middle">{row.siteName}</td>
+                              <td className="px-3 py-[10px] border-b border-brand align-middle">
+                                <span className="text-[11px] px-2 py-[2px] rounded-lg" style={{ background: row.organizationType === 'DIRECT' ? '#e3f2fd' : '#fce4ec', color: row.organizationType === 'DIRECT' ? '#1565c0' : '#880e4f' }}>
+                                  {ORG_LABEL[row.organizationType] ?? row.organizationType}
+                                </span>
+                              </td>
+                              <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.workerCount}명</td>
+                              <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.confirmedWorkUnits.toFixed(2)}</td>
+                              <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(row.grossAmount)}</td>
+                              <td className="px-3 py-[10px] border-b border-brand align-middle text-right text-[#c62828]">{fmt(row.withholdingTaxAmount)}</td>
+                              <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.retirementMutualTargetDays}일</td>
+                              <td className="px-3 py-[10px] border-b border-brand align-middle text-[12px] text-muted-brand">{new Date(row.createdAt).toLocaleDateString('ko-KR')}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                />
               </div>
             )}
           </div>

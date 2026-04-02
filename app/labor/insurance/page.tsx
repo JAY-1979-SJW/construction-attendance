@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useEffect, useState } from 'react'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -169,127 +170,152 @@ export default function InsurancePage() {
           </div>
 
           {/* 테이블 */}
-          <div className="rounded-[10px] overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-            <table className="w-full text-[12px]">
-              <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-                <tr>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">근로자명</th>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">근무일수</th>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">국민연금</th>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">건강보험</th>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">고용보험</th>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">산재보험</th>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">취득일</th>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">상실일</th>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">신고 상태</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
-                      {Array.from({ length: 9 }).map((__, j) => (
-                        <td key={j} className="px-3 py-3">
-                          <div className="h-3.5 bg-footer rounded animate-pulse" style={{ width: j === 0 ? 64 : 36 }} />
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                ) : targets.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="px-4 py-10 text-center text-[13px] text-muted2-brand">
-                      신고 대상자가 없습니다.
-                    </td>
+          {loading ? (
+            <div className="rounded-[10px] overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+              <table className="w-full text-[12px]"><tbody>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
+                    {Array.from({ length: 5 }).map((__, j) => (
+                      <td key={j} className="px-3 py-3"><div className="h-3.5 bg-footer rounded animate-pulse" style={{ width: j === 0 ? 64 : 36 }} /></td>
+                    ))}
                   </tr>
-                ) : (
-                  targets.map((t) => {
-                    const rs = REPORTING_STYLE[t.reportingStatus]
-                    return (
-                      <tr
-                        key={t.workerId}
-                        style={{ borderBottom: '1px solid #F3F4F6' }}
-                        className="hover:bg-surface"
-                      >
-                        <td className="px-3 py-2.5 font-medium text-title-brand">{t.workerName}</td>
-                        <td className="px-3 py-2.5 text-center text-body-brand">{t.workDays}일</td>
-                        <td className="px-3 py-2.5 text-center"><Check v={t.nationalPensionEligible} /></td>
-                        <td className="px-3 py-2.5 text-center"><Check v={t.healthInsuranceEligible} /></td>
-                        <td className="px-3 py-2.5 text-center"><Check v={t.employmentInsuranceEligible} /></td>
-                        <td className="px-3 py-2.5 text-center"><Check v={t.industrialAccidentEligible} /></td>
-                        <td className="px-3 py-2.5 text-muted-brand">{t.acquisitionDate ?? '-'}</td>
-                        <td className="px-3 py-2.5 text-muted-brand">{t.lossDate ?? '-'}</td>
-                        <td className="px-3 py-2.5">
-                          <Badge label={REPORTING_LABEL[t.reportingStatus]} bg={rs.bg} color={rs.color} />
-                        </td>
+                ))}
+              </tbody></table>
+            </div>
+          ) : (
+            <MobileCardList
+              items={targets}
+              keyExtractor={(t) => t.workerId}
+              emptyMessage="신고 대상자가 없습니다."
+              renderCard={(t) => {
+                const rs = REPORTING_STYLE[t.reportingStatus]
+                return (
+                  <MobileCard
+                    title={t.workerName}
+                    subtitle={`근무 ${t.workDays}일`}
+                    badge={<Badge label={REPORTING_LABEL[t.reportingStatus]} bg={rs.bg} color={rs.color} />}
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="국민연금" value={<Check v={t.nationalPensionEligible} />} />
+                      <MobileCardField label="건강보험" value={<Check v={t.healthInsuranceEligible} />} />
+                      <MobileCardField label="고용보험" value={<Check v={t.employmentInsuranceEligible} />} />
+                      <MobileCardField label="산재보험" value={<Check v={t.industrialAccidentEligible} />} />
+                      <MobileCardField label="취득일" value={t.acquisitionDate ?? '-'} />
+                      <MobileCardField label="상실일" value={t.lossDate ?? '-'} />
+                    </MobileCardFields>
+                  </MobileCard>
+                )
+              }}
+              renderTable={() => (
+                <div className="rounded-[10px] overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                  <table className="w-full text-[12px]">
+                    <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+                      <tr>
+                        <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">근로자명</th>
+                        <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">근무일수</th>
+                        <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">국민연금</th>
+                        <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">건강보험</th>
+                        <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">고용보험</th>
+                        <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">산재보험</th>
+                        <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">취득일</th>
+                        <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">상실일</th>
+                        <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">신고 상태</th>
                       </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                    </thead>
+                    <tbody>
+                      {targets.map((t) => {
+                        const rs = REPORTING_STYLE[t.reportingStatus]
+                        return (
+                          <tr key={t.workerId} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-surface">
+                            <td className="px-3 py-2.5 font-medium text-title-brand">{t.workerName}</td>
+                            <td className="px-3 py-2.5 text-center text-body-brand">{t.workDays}일</td>
+                            <td className="px-3 py-2.5 text-center"><Check v={t.nationalPensionEligible} /></td>
+                            <td className="px-3 py-2.5 text-center"><Check v={t.healthInsuranceEligible} /></td>
+                            <td className="px-3 py-2.5 text-center"><Check v={t.employmentInsuranceEligible} /></td>
+                            <td className="px-3 py-2.5 text-center"><Check v={t.industrialAccidentEligible} /></td>
+                            <td className="px-3 py-2.5 text-muted-brand">{t.acquisitionDate ?? '-'}</td>
+                            <td className="px-3 py-2.5 text-muted-brand">{t.lossDate ?? '-'}</td>
+                            <td className="px-3 py-2.5"><Badge label={REPORTING_LABEL[t.reportingStatus]} bg={rs.bg} color={rs.color} /></td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            />
+          )}
         </>
       )}
 
       {tab === 'history' && (
-        <div className="rounded-[10px] overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-          <table className="w-full text-[12px]">
-            <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-              <tr>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">신고월</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">신고 유형</th>
-                <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">대상 인원</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">제출자</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">제출일시</th>
-                <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">처리 상태</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
-                    {Array.from({ length: 6 }).map((__, j) => (
-                      <td key={j} className="px-3 py-3">
-                        <div className="h-3.5 bg-footer rounded animate-pulse" style={{ width: 72 }} />
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              ) : history.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-[13px] text-muted2-brand">
-                    제출 이력이 없습니다.
-                  </td>
+        loading ? (
+          <div className="rounded-[10px] overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+            <table className="w-full text-[12px]"><tbody>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
+                  {Array.from({ length: 4 }).map((__, j) => (
+                    <td key={j} className="px-3 py-3"><div className="h-3.5 bg-footer rounded animate-pulse" style={{ width: 72 }} /></td>
+                  ))}
                 </tr>
-              ) : (
-                history.map((h) => (
-                  <tr key={h.id} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-surface">
-                    <td className="px-3 py-2.5 text-body-brand">{h.monthKey}</td>
-                    <td className="px-3 py-2.5 text-body-brand">{h.type}</td>
-                    <td className="px-3 py-2.5 text-center text-body-brand">{h.targetCount}명</td>
-                    <td className="px-3 py-2.5 text-muted-brand">{h.submittedBy}</td>
-                    <td className="px-3 py-2.5 text-muted-brand">{h.submittedAt}</td>
-                    <td className="px-3 py-2.5">
-                      <span
-                        className="text-[11px] font-medium"
-                        style={{
-                          color:
-                            h.status === '제출완료'
-                              ? '#16A34A'
-                              : h.status === '반려'
-                              ? '#DC2626'
-                              : '#D97706',
-                        }}
-                      >
-                        {h.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+              ))}
+            </tbody></table>
+          </div>
+        ) : (
+          <MobileCardList
+            items={history}
+            keyExtractor={(h) => h.id}
+            emptyMessage="제출 이력이 없습니다."
+            renderCard={(h) => (
+              <MobileCard
+                title={`${h.monthKey} · ${h.type}`}
+                badge={
+                  <span className="text-[11px] font-medium" style={{ color: h.status === '제출완료' ? '#16A34A' : h.status === '반려' ? '#DC2626' : '#D97706' }}>
+                    {h.status}
+                  </span>
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField label="대상 인원" value={`${h.targetCount}명`} />
+                  <MobileCardField label="제출자" value={h.submittedBy} />
+                  <MobileCardField label="제출일시" value={h.submittedAt} />
+                </MobileCardFields>
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <div className="rounded-[10px] overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                <table className="w-full text-[12px]">
+                  <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+                    <tr>
+                      <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">신고월</th>
+                      <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">신고 유형</th>
+                      <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">대상 인원</th>
+                      <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">제출자</th>
+                      <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">제출일시</th>
+                      <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">처리 상태</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {history.map((h) => (
+                      <tr key={h.id} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-surface">
+                        <td className="px-3 py-2.5 text-body-brand">{h.monthKey}</td>
+                        <td className="px-3 py-2.5 text-body-brand">{h.type}</td>
+                        <td className="px-3 py-2.5 text-center text-body-brand">{h.targetCount}명</td>
+                        <td className="px-3 py-2.5 text-muted-brand">{h.submittedBy}</td>
+                        <td className="px-3 py-2.5 text-muted-brand">{h.submittedAt}</td>
+                        <td className="px-3 py-2.5">
+                          <span className="text-[11px] font-medium" style={{ color: h.status === '제출완료' ? '#16A34A' : h.status === '반려' ? '#DC2626' : '#D97706' }}>
+                            {h.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          />
+        )
       )}
     </div>
   )

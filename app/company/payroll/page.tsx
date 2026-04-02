@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface PayrollRow {
   workerId: string
@@ -153,57 +154,78 @@ export default function CompanyPayrollPage() {
             <div className="text-[13px] text-muted2-brand mt-1">근무 확정 후 조회 가능합니다.</div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-[13px]">
-              <thead>
-                <tr>
-                  {['근로자명', '고용형태', '소득유형', '근무일수', '공수(일)', '지급총액', '소득세', '지방세', '실지급액', '임금계산'].map(h => (
-                    <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((row, i) => (
-                  <tr key={row.workerId} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle font-semibold">{row.workerName}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle">{EMP_LABEL[row.employmentType] ?? row.employmentType}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle">{INCOME_LABEL[row.incomeType] ?? row.incomeType}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.workDays}일</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.workUnits.toFixed(2)}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(row.grossAmount)}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right text-[#c62828]">{fmt(row.incomeTax)}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right text-[#c62828]">{fmt(row.localTax)}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right font-semibold">{fmt(row.netAmount)}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle">
-                      <span
-                        className="text-[11px] px-2 py-[2px] rounded-lg"
-                        style={{
-                          background: row.hasWageCalc ? '#e8f5e9' : '#f5f5f5',
-                          color: row.hasWageCalc ? '#2e7d32' : '#999',
-                        }}
-                      >
-                        {row.hasWageCalc ? '계산 완료' : '미계산'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              {totals && (
-                <tfoot>
-                  <tr className="bg-[#f0f4ff] font-bold">
-                    <td className="px-3 py-[10px] border-b border-brand align-middle" colSpan={3}>합계</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right"></td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{totals.workUnits.toFixed(2)}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(totals.grossAmount)}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right text-[#c62828]">{fmt(totals.taxAmount)}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right text-[#c62828]"></td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(totals.netAmount)}</td>
-                    <td className="px-3 py-[10px] border-b border-brand align-middle"></td>
-                  </tr>
-                </tfoot>
-              )}
-            </table>
-          </div>
+          <MobileCardList
+            items={items}
+            keyExtractor={(row) => row.workerId}
+            emptyMessage="공수 데이터가 없습니다."
+            renderCard={(row) => (
+              <MobileCard
+                title={row.workerName}
+                subtitle={`${EMP_LABEL[row.employmentType] ?? row.employmentType} · ${INCOME_LABEL[row.incomeType] ?? row.incomeType}`}
+                badge={
+                  <span className="text-[11px] px-2 py-[2px] rounded-lg" style={{ background: row.hasWageCalc ? '#e8f5e9' : '#f5f5f5', color: row.hasWageCalc ? '#2e7d32' : '#999' }}>
+                    {row.hasWageCalc ? '계산 완료' : '미계산'}
+                  </span>
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField label="근무일수" value={`${row.workDays}일`} />
+                  <MobileCardField label="공수" value={row.workUnits.toFixed(2)} />
+                  <MobileCardField label="지급총액" value={fmt(row.grossAmount)} />
+                  <MobileCardField label="소득세" value={<span className="text-[#c62828]">{fmt(row.incomeTax)}</span>} />
+                  <MobileCardField label="지방세" value={<span className="text-[#c62828]">{fmt(row.localTax)}</span>} />
+                  <MobileCardField label="실지급액" value={<span className="font-semibold">{fmt(row.netAmount)}</span>} />
+                </MobileCardFields>
+              </MobileCard>
+            )}
+            renderTable={() => (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-[13px]">
+                  <thead>
+                    <tr>
+                      {['근로자명', '고용형태', '소득유형', '근무일수', '공수(일)', '지급총액', '소득세', '지방세', '실지급액', '임금계산'].map(h => (
+                        <th key={h} className="bg-brand px-3 py-[10px] text-left font-semibold text-muted-brand border-b border-brand whitespace-nowrap">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((row, i) => (
+                      <tr key={row.workerId} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle font-semibold">{row.workerName}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle">{EMP_LABEL[row.employmentType] ?? row.employmentType}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle">{INCOME_LABEL[row.incomeType] ?? row.incomeType}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.workDays}일</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{row.workUnits.toFixed(2)}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(row.grossAmount)}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right text-[#c62828]">{fmt(row.incomeTax)}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right text-[#c62828]">{fmt(row.localTax)}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right font-semibold">{fmt(row.netAmount)}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle">
+                          <span className="text-[11px] px-2 py-[2px] rounded-lg" style={{ background: row.hasWageCalc ? '#e8f5e9' : '#f5f5f5', color: row.hasWageCalc ? '#2e7d32' : '#999' }}>
+                            {row.hasWageCalc ? '계산 완료' : '미계산'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  {totals && (
+                    <tfoot>
+                      <tr className="bg-[#f0f4ff] font-bold">
+                        <td className="px-3 py-[10px] border-b border-brand align-middle" colSpan={3}>합계</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right"></td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{totals.workUnits.toFixed(2)}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(totals.grossAmount)}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right text-[#c62828]">{fmt(totals.taxAmount)}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right text-[#c62828]"></td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle text-right">{fmt(totals.netAmount)}</td>
+                        <td className="px-3 py-[10px] border-b border-brand align-middle"></td>
+                      </tr>
+                    </tfoot>
+                  )}
+                </table>
+              </div>
+            )}
+          />
         )}
       </div>
     </div>

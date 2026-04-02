@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Modal, Toast } from '@/components/admin/ui'
+import { Modal, Toast, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface Site {
   id: string
@@ -232,53 +232,77 @@ export default function MaterialsPage() {
           {loading ? (
             <div className="py-10 text-center text-muted-brand">로딩 중...</div>
           ) : (
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    {['파일명', '현장', '유형', '상태', '시트수', '업로드일', '액션'].map(h => (
-                      <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {docs.length === 0 ? (
-                    <tr><td colSpan={7} className="text-center py-10 text-[#999]">업로드된 내역서가 없습니다</td></tr>
-                  ) : docs.map(doc => (
-                    <tr key={doc.id}>
-                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
-                        <div className="font-semibold text-sm">{doc.fileName}</div>
-                        <div className="text-[12px] text-muted-brand">{formatFileSize(doc.fileSize)}{doc.notes ? ` · ${doc.notes}` : ''}</div>
-                      </td>
-                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">{doc.site?.name ?? '-'}</td>
-                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
-                        <span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-green-light text-[#2e7d32]">
-                          {DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
-                        </span>
-                      </td>
-                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
-                        <span className="inline-block px-[10px] py-[2px] rounded-[20px] text-[12px] font-semibold"
-                          style={{
-                            background: `${STATUS_COLOR[doc.parseStatus]}20`,
-                            color: STATUS_COLOR[doc.parseStatus],
-                          }}>
-                          {STATUS_LABEL[doc.parseStatus] ?? doc.parseStatus}
-                        </span>
-                      </td>
-                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">{doc.sheetCount}</td>
-                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(doc.uploadedAt).toLocaleDateString('ko-KR')}</td>
-                      <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
-                        <div className="flex gap-2">
-                          <Link href={`/admin/materials/estimates/${doc.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
-                          <button onClick={() => handleReparse(doc.id)} className="px-[10px] py-1 bg-[#f3e5f5] text-[#7b1fa2] border border-[#ce93d8] rounded cursor-pointer text-[12px] font-semibold">재파싱</button>
-                          <button onClick={() => handleDelete(doc.id)} className="px-[10px] py-1 bg-red-light text-[#b71c1c] border border-[#ef9a9a] rounded cursor-pointer text-[12px] font-semibold">삭제</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <MobileCardList
+              items={docs}
+              keyExtractor={(doc) => doc.id}
+              emptyMessage="업로드된 내역서가 없습니다"
+              renderCard={(doc) => (
+                <MobileCard
+                  title={doc.fileName}
+                  subtitle={`${doc.site?.name ?? '-'} · ${formatFileSize(doc.fileSize)}`}
+                  badge={
+                    <span className="inline-block px-[10px] py-[2px] rounded-[20px] text-[12px] font-semibold" style={{ background: `${STATUS_COLOR[doc.parseStatus]}20`, color: STATUS_COLOR[doc.parseStatus] }}>
+                      {STATUS_LABEL[doc.parseStatus] ?? doc.parseStatus}
+                    </span>
+                  }
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="유형" value={<span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-green-light text-[#2e7d32]">{DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}</span>} />
+                    <MobileCardField label="시트수" value={`${doc.sheetCount}개`} />
+                    <MobileCardField label="업로드일" value={new Date(doc.uploadedAt).toLocaleDateString('ko-KR')} />
+                    {doc.notes && <MobileCardField label="메모" value={doc.notes} />}
+                  </MobileCardFields>
+                  <MobileCardActions>
+                    <Link href={`/admin/materials/estimates/${doc.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
+                    <button onClick={() => handleReparse(doc.id)} className="px-[10px] py-1 bg-[#f3e5f5] text-[#7b1fa2] border border-[#ce93d8] rounded cursor-pointer text-[12px] font-semibold">재파싱</button>
+                    <button onClick={() => handleDelete(doc.id)} className="px-[10px] py-1 bg-red-light text-[#b71c1c] border border-[#ef9a9a] rounded cursor-pointer text-[12px] font-semibold">삭제</button>
+                  </MobileCardActions>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        {['파일명', '현장', '유형', '상태', '시트수', '업로드일', '액션'].map(h => (
+                          <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {docs.map(doc => (
+                        <tr key={doc.id}>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
+                            <div className="font-semibold text-sm">{doc.fileName}</div>
+                            <div className="text-[12px] text-muted-brand">{formatFileSize(doc.fileSize)}{doc.notes ? ` · ${doc.notes}` : ''}</div>
+                          </td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">{doc.site?.name ?? '-'}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
+                            <span className="text-[12px] px-2 py-[2px] rounded-[10px] bg-green-light text-[#2e7d32]">
+                              {DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
+                            <span className="inline-block px-[10px] py-[2px] rounded-[20px] text-[12px] font-semibold" style={{ background: `${STATUS_COLOR[doc.parseStatus]}20`, color: STATUS_COLOR[doc.parseStatus] }}>
+                              {STATUS_LABEL[doc.parseStatus] ?? doc.parseStatus}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">{doc.sheetCount}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(doc.uploadedAt).toLocaleDateString('ko-KR')}</td>
+                          <td className="px-3 py-3 text-sm border-b border-[rgba(91,164,217,0.1)] align-top">
+                            <div className="flex gap-2">
+                              <Link href={`/admin/materials/estimates/${doc.id}`} className="px-[10px] py-1 bg-[rgba(91,164,217,0.12)] text-secondary-brand border border-[#90caf9] rounded cursor-pointer text-[12px] font-semibold no-underline inline-block">보기</Link>
+                              <button onClick={() => handleReparse(doc.id)} className="px-[10px] py-1 bg-[#f3e5f5] text-[#7b1fa2] border border-[#ce93d8] rounded cursor-pointer text-[12px] font-semibold">재파싱</button>
+                              <button onClick={() => handleDelete(doc.id)} className="px-[10px] py-1 bg-red-light text-[#b71c1c] border border-[#ef9a9a] rounded cursor-pointer text-[12px] font-semibold">삭제</button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            />
           )}
 
           {/* Pagination */}
