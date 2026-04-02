@@ -60,8 +60,8 @@ export async function POST(req: NextRequest) {
 
     const ua = req.headers.get('user-agent') ?? ''
     const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)
-    const tokenExpiry = isMobile ? '365d' : undefined
-    const cookieMaxAge = isMobile ? 60 * 60 * 24 * 365 : 60 * 60 * 24 * 7
+    const tokenExpiry = isMobile ? '3650d' : undefined
+    const cookieMaxAge = isMobile ? 60 * 60 * 24 * 3650 : 60 * 60 * 24 * 7
 
     const token = await signToken({ sub: worker.id, type: 'worker' }, tokenExpiry)
 
