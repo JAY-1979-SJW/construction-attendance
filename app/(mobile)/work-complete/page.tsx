@@ -15,6 +15,7 @@ export default function WorkCompletePage() {
   const [sites, setSites] = useState<SiteInfo[]>([])
   const [siteId, setSiteId] = useState('')
   const [healthChecked, setHealthChecked] = useState(false)
+  const [workNoIssue, setWorkNoIssue] = useState(false)
   const [signatureData, setSignatureData] = useState<string | null>(null)
   const [alreadyDone, setAlreadyDone] = useState(false)
   const [doneAt, setDoneAt] = useState<string | null>(null)
@@ -59,6 +60,7 @@ export default function WorkCompletePage() {
   const handleSubmit = async () => {
     setError(''); setSuccess('')
     if (!siteId) { setError('현장을 선택하세요.'); return }
+    if (!workNoIssue) { setError('작업 이상 없음을 확인해 주세요.'); return }
     if (!healthChecked) { setError('건강이상 없음을 확인해 주세요.'); return }
     if (!signatureData) { setError('서명을 해주세요.'); return }
 
@@ -153,13 +155,44 @@ export default function WorkCompletePage() {
               <p className="text-[11px] text-gray-400">작업 완료 상태를 촬영하여 첨부하세요.</p>
             </div>
 
+            {/* 작업 이상 없음 확인서 */}
+            <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
+              <label className="text-[13px] font-semibold text-gray-700 block mb-3">작업 완료 확인서</label>
+
+              <div className="bg-blue-50 rounded-xl p-4 mb-3 text-[12px] text-gray-600 leading-relaxed">
+                <p className="font-semibold text-gray-700 mb-2">본인은 금일 담당 작업을 완료하며 아래 사항을 확인합니다.</p>
+                <ul className="list-none p-0 m-0 space-y-1.5">
+                  <li>1. 작업 중 안전사고가 발생하지 않았습니다.</li>
+                  <li>2. 작업 결과물에 하자 또는 이상이 없습니다.</li>
+                  <li>3. 자재·장비의 파손 또는 분실이 없습니다.</li>
+                  <li>4. 작업 구역 정리정돈을 완료했습니다.</li>
+                </ul>
+                <p className="mt-2 text-[11px] text-gray-400">이상이 있는 경우 체크하지 마시고 관리자에게 즉시 보고하세요.</p>
+              </div>
+
+              <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border-2 transition-colors"
+                style={{
+                  borderColor: workNoIssue ? '#1565C0' : '#E5E7EB',
+                  background: workNoIssue ? '#EFF6FF' : 'white',
+                }}>
+                <input type="checkbox" checked={workNoIssue} onChange={e => setWorkNoIssue(e.target.checked)}
+                  className="w-5 h-5 accent-blue-600" />
+                <div>
+                  <div className={`text-[14px] font-bold ${workNoIssue ? 'text-blue-700' : 'text-gray-600'}`}>
+                    작업 완료 시 이상 없음을 확인합니다
+                  </div>
+                  <div className="text-[11px] text-gray-400 mt-0.5">사고·하자·파손·분실이 있으면 체크하지 마세요.</div>
+                </div>
+              </label>
+            </div>
+
             {/* 건강이상 없음 확인 */}
             <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
               <label className="text-[13px] font-semibold text-gray-700 block mb-3">건강이상 없음 확인</label>
 
               <div className="bg-gray-50 rounded-xl p-4 mb-3 text-[12px] text-gray-600 leading-relaxed">
                 <p>본인은 금일 작업을 마치며, 작업 중 및 현재 시점에서 건강에 이상이 없음을 확인합니다.</p>
-                <p className="mt-2">두통, 어지러움, 호흡곤란, 근골격계 통증, 피부 이상 등 신체적 이상 증상이 있는 경우 반드시 관리자에게 즉시 보고하여야 합니다.</p>
+                <p className="mt-2">두통, 어지러움, 호흡곤란, 근골격계 통증, 피부 이상 등 이상 증상이 있는 경우 반드시 관리자에게 즉시 보고하세요.</p>
               </div>
 
               <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border-2 transition-colors"
@@ -179,11 +212,11 @@ export default function WorkCompletePage() {
             </div>
 
             {/* 서명 */}
-            {healthChecked && (
+            {workNoIssue && healthChecked && (
               <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
-                <label className="text-[13px] font-semibold text-gray-700 block mb-2">건강이상 없음 서명</label>
+                <label className="text-[13px] font-semibold text-gray-700 block mb-2">작업완료 + 건강확인 서명</label>
                 <p className="text-[11px] text-gray-500 mb-3">
-                  본인은 금일 작업 중 건강에 이상이 없었음을 아래 서명으로 확인합니다.
+                  본인은 금일 작업 완료 시 이상이 없었으며, 건강에도 이상이 없음을 아래 서명으로 확인합니다.
                 </p>
                 <SignatureCanvas
                   onSave={(dataUri) => setSignatureData(dataUri)}
@@ -201,11 +234,11 @@ export default function WorkCompletePage() {
             {/* 제출 버튼 */}
             <button
               onClick={handleSubmit}
-              disabled={submitting || !healthChecked || !signatureData}
+              disabled={submitting || !workNoIssue || !healthChecked || !signatureData}
               className="w-full py-3.5 rounded-xl text-[15px] font-bold text-white border-none cursor-pointer disabled:bg-gray-300"
-              style={{ background: healthChecked && signatureData ? '#16A34A' : '#9CA3AF' }}
+              style={{ background: workNoIssue && healthChecked && signatureData ? '#16A34A' : '#9CA3AF' }}
             >
-              {submitting ? '제출 중...' : !healthChecked ? '건강확인을 체크하세요' : !signatureData ? '서명을 해주세요' : '작업완료 보고 제출'}
+              {submitting ? '제출 중...' : !workNoIssue ? '작업확인을 체크하세요' : !healthChecked ? '건강확인을 체크하세요' : !signatureData ? '서명을 해주세요' : '작업완료 확인서 제출'}
             </button>
           </div>
         )}
