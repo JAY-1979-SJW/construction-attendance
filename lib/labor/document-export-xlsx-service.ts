@@ -86,6 +86,19 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
       .map(w => [w.workerId, w])
   )
 
+  // 퇴직공제 월별 집계 조회
+  const retirementSummaries = await prisma.retirementMutualMonthlySummary.findMany({
+    where: { monthKey: opts.monthKey, workerId: { in: workerIds } },
+    select: { workerId: true, recognizedWorkDays: true, eligibleYn: true },
+  })
+  const retirementMap = new Map(retirementSummaries.map(r => [r.workerId, r]))
+
+  // 퇴직공제 부금 요율 조회 (RETIREMENT_MUTUAL)
+  const retirementRate = await prisma.insuranceRateVersion.findFirst({
+    where: { rateType: 'RETIREMENT_MUTUAL', effectiveYear: parseInt(opts.monthKey.slice(0, 4)), status: 'APPROVED_FOR_USE' },
+    select: { employerRatePct: true },
+  })
+
   // 4대보험 계산 (근로자별 일급 기준)
   const refDate = new Date(`${opts.monthKey}-15`)
   const insuranceMap = new Map<string, { eiEmployee: number; eiEmployer: number; iaEmployer: number }>()
@@ -107,9 +120,10 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
 
   const headers = [
     '현장명', '성명', '주민등록번호', '직종', '근무일자', '공수', '일급', '제수당', '지급총액',
-    '소득세', '지방소득세', '고용보험(근로자)', '고용보험(사업주)', '산재보험(사업주)', '공제합계', '실수령액', '비고',
+    '소득세', '지방소득세', '고용보험(근로자)', '고용보험(사업주)', '산재보험(사업주)', '퇴직공제(사업주)',
+    '공제합계', '실수령액', '사업주부담합계', '비고',
   ]
-  const colWidths = [16, 10, 16, 10, 12, 8, 10, 10, 12, 10, 10, 12, 12, 12, 12, 12, 12]
+  const colWidths = [16, 10, 16, 10, 12, 8, 10, 10, 12, 10, 10, 12, 12, 12, 12, 12, 12, 14, 12]
 
   addTitleRow(ws, `${opts.monthKey} 노임대장`, headers.length)
 
@@ -122,7 +136,7 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
   })
 
   let totalGross = 0, totalTax = 0, totalLocal = 0
-  let totalEiEmp = 0, totalEiEr = 0, totalIa = 0
+  let totalEiEmp = 0, totalEiEr = 0, totalIa = 0, totalRetirement = 0
 
   // 근로자별 마지막 행 기준으로 보험 금액 배분
   const workerLastRow = new Map<string, number>()
@@ -141,17 +155,25 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
     const eiEmp = ins?.eiEmployee ?? 0
     const eiEr  = ins?.eiEmployer ?? 0
     const ia    = ins?.iaEmployer ?? 0
-    if (isLastRow) { totalEiEmp += eiEmp; totalEiEr += eiEr; totalIa += ia }
 
-    const deductTotal = tax + local + eiEmp
+    // 퇴직공제: 근로자별 총 지급액 × 요율 (사업주 부담)
+    const ret = isLastRow ? retirementMap.get(c.workerId) : null
+    const retirementAmt = (ret?.eligibleYn && retirementRate?.employerRatePct)
+      ? Math.floor(confirmations.filter(x => x.workerId === c.workerId).reduce((s, x) => s + x.confirmedTotalAmount, 0) * (retirementRate.employerRatePct / 100))
+      : 0
+
+    if (isLastRow) { totalEiEmp += eiEmp; totalEiEr += eiEr; totalIa += ia; totalRetirement += retirementAmt }
+
+    const deductTotal = tax + local + eiEmp // 근로자 공제: 소득세+지방소득세+고용보험(근로자)
     const netPay = gross - deductTotal
+    const employerTotal = eiEr + ia + retirementAmt // 사업주 부담 합계
 
     const row = ws.addRow([
       c.site.name, c.worker.name, c.worker.residentIdMasked ?? '', c.worker.jobTitle,
       c.workDate, Number(c.confirmedWorkUnits), c.confirmedBaseAmount, c.confirmedAllowanceAmount,
       gross, tax, local,
-      isLastRow ? eiEmp : '', isLastRow ? eiEr : '', isLastRow ? ia : '',
-      isLastRow ? deductTotal : '', isLastRow ? netPay : '',
+      isLastRow ? eiEmp : '', isLastRow ? eiEr : '', isLastRow ? ia : '', isLastRow ? retirementAmt : '',
+      isLastRow ? deductTotal : '', isLastRow ? netPay : '', isLastRow ? employerTotal : '',
       c.notes ?? '',
     ])
     styleDataRow(row, idx % 2 === 1)
@@ -163,16 +185,19 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
       formatAmount(ws.getRow(ws.rowCount).getCell(12), eiEmp)
       formatAmount(ws.getRow(ws.rowCount).getCell(13), eiEr)
       formatAmount(ws.getRow(ws.rowCount).getCell(14), ia)
-      formatAmount(ws.getRow(ws.rowCount).getCell(15), deductTotal)
-      formatAmount(ws.getRow(ws.rowCount).getCell(16), netPay)
+      formatAmount(ws.getRow(ws.rowCount).getCell(15), retirementAmt)
+      formatAmount(ws.getRow(ws.rowCount).getCell(16), deductTotal)
+      formatAmount(ws.getRow(ws.rowCount).getCell(17), netPay)
+      formatAmount(ws.getRow(ws.rowCount).getCell(18), employerTotal)
     }
   })
 
   const totalDeduct = totalTax + totalLocal + totalEiEmp
   const totalNet = totalGross - totalDeduct
+  const totalEmployer = totalEiEr + totalIa + totalRetirement
   const totalRow = ws.addRow([
     '합계', '', '', '', '', '', '', '', totalGross, totalTax, totalLocal,
-    totalEiEmp, totalEiEr, totalIa, totalDeduct, totalNet, '',
+    totalEiEmp, totalEiEr, totalIa, totalRetirement, totalDeduct, totalNet, totalEmployer, '',
   ])
   styleHeader(totalRow, 'FFFFE0B2')
   formatAmount(totalRow.getCell(9), totalGross)
@@ -181,8 +206,10 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
   formatAmount(totalRow.getCell(12), totalEiEmp)
   formatAmount(totalRow.getCell(13), totalEiEr)
   formatAmount(totalRow.getCell(14), totalIa)
-  formatAmount(totalRow.getCell(15), totalDeduct)
-  formatAmount(totalRow.getCell(16), totalNet)
+  formatAmount(totalRow.getCell(15), totalRetirement)
+  formatAmount(totalRow.getCell(16), totalDeduct)
+  formatAmount(totalRow.getCell(17), totalNet)
+  formatAmount(totalRow.getCell(18), totalEmployer)
 
   ws.views = [{ state: 'frozen', xSplit: 0, ySplit: 2 }]
 
