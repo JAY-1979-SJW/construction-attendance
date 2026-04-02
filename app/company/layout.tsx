@@ -1,5 +1,6 @@
 ﻿import Link from 'next/link'
 import LogoutButton from './LogoutButton'
+import BusinessFooter from '@/components/BusinessFooter'
 
 const NAV_ITEMS = [
   { href: '/company', label: '대시보드' },
@@ -45,6 +46,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
         {/* 콘텐츠 독립 스크롤 */}
         <div className="flex-1 overflow-auto">
           {children}
+          <BusinessFooter />
         </div>
       </main>
     </div>

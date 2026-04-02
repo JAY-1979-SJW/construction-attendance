@@ -1,20 +1,33 @@
 import { NextRequest } from 'next/server'
 import { requireCompanyAdmin } from '@/lib/auth/guards'
+import { prisma } from '@/lib/db/prisma'
 import { ok, unauthorized, forbidden, internalError } from '@/lib/utils/response'
 
 // GET /api/labor/insurance/history?month=YYYY-MM
-// 현재 InsuranceSubmissionHistory 모델이 없으므로 빈 배열 반환 (추후 모델 추가 시 교체)
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
+    let session: Awaited<ReturnType<typeof requireCompanyAdmin>>
     try {
-      await requireCompanyAdmin()
+      session = await requireCompanyAdmin()
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : ''
       return msg === 'UNAUTHORIZED' ? unauthorized() : forbidden()
     }
 
-    // TODO: InsuranceSubmissionHistory 모델 추가 후 실제 조회로 교체
-    return ok([])
+    const month = req.nextUrl.searchParams.get('month')
+    const where: Record<string, unknown> = { companyId: session.companyId }
+    if (month) where.monthKey = month
+
+    const items = await prisma.insuranceSubmissionHistory.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+      include: {
+        worker: { select: { id: true, name: true, jobTitle: true } },
+      },
+    })
+
+    return ok(items)
   } catch (err) {
     console.error('[labor/insurance/history GET]', err)
     return internalError()

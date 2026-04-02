@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { jwtVerify } from 'jose'
 import { prisma } from '@/lib/db/prisma'
 import OpsTopNav from './OpsTopNav'
+import BusinessFooter from '@/components/BusinessFooter'
 
 const ALLOWED_ROLES = ['SITE_ADMIN', 'EXTERNAL_SITE_ADMIN', 'SUPER_ADMIN', 'ADMIN']
 
@@ -57,6 +58,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
       />
       <main className="flex-1 overflow-auto">
         {children}
+        <BusinessFooter />
       </main>
     </div>
   )

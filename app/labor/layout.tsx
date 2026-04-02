@@ -1,4 +1,5 @@
 ﻿import LaborSidebar from './LaborSidebar'
+import BusinessFooter from '@/components/BusinessFooter'
 
 export default function LaborLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -15,6 +16,7 @@ export default function LaborLayout({ children }: { children: React.ReactNode })
         {/* 콘텐츠 독립 스크롤 */}
         <div className="flex-1 overflow-auto">
           {children}
+          <BusinessFooter />
         </div>
       </main>
     </div>

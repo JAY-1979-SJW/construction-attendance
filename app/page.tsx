@@ -1,6 +1,8 @@
 ﻿'use client'
 
 import Link from 'next/link'
+import BusinessFooter from '@/components/BusinessFooter'
+import PublicChatWidget from '@/components/PublicChatWidget'
 
 export default function LandingPage() {
   return (
@@ -24,16 +26,16 @@ export default function LandingPage() {
 
             {/* 네비게이션 */}
             <nav className="flex items-center gap-2">
-              <a href="#features" className="hidden sm:block text-[13px] text-muted-brand hover:text-fore-brand transition-colors px-3 py-1.5 no-underline">
-                기능 소개
-              </a>
-              <Link href="/admin/login"
-                className="text-[13px] font-medium text-body-brand border border-brand rounded-[8px] px-4 py-[7px] no-underline hover:border-[#D1D5DB] transition-colors">
-                관리자 로그인
+              <Link href="/guide" className="hidden sm:block text-[13px] text-muted-brand hover:text-fore-brand transition-colors px-3 py-1.5 no-underline">
+                둘러보기
               </Link>
               <Link href="/login"
+                className="text-[13px] font-medium text-body-brand border border-brand rounded-[8px] px-4 py-[7px] no-underline hover:border-[#D1D5DB] transition-colors">
+                로그인
+              </Link>
+              <Link href="/register"
                 className="text-[13px] font-semibold text-white bg-brand-accent hover:bg-brand-accent-hover rounded-[8px] px-4 py-2 no-underline transition-colors">
-                근로자 시작하기
+                무료 시작하기
               </Link>
             </nav>
           </div>
@@ -60,13 +62,13 @@ export default function LandingPage() {
               한눈에 확인할 수 있습니다.
             </p>
             <div className="flex gap-3 flex-wrap">
-              <Link href="/login"
+              <Link href="/register"
                 className="inline-block py-3 px-7 bg-brand-accent hover:bg-brand-accent-hover text-white rounded-[12px] no-underline text-[15px] font-semibold shadow-[0_2px_10px_rgba(249,115,22,0.25)] transition-colors">
-                근로자 시작하기
+                무료 시작하기
               </Link>
-              <Link href="/admin/login"
+              <Link href="/guide"
                 className="inline-block py-3 px-7 border border-brand text-body-brand hover:border-[#D1D5DB] bg-card rounded-[12px] no-underline text-[15px] font-medium transition-colors">
-                관리자 로그인
+                둘러보기
               </Link>
             </div>
           </div>
@@ -192,9 +194,9 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/login"
+              <Link href="/register"
                 className="block text-center py-2.5 bg-brand-accent hover:bg-brand-accent-hover text-white text-[14px] font-semibold rounded-[9px] no-underline transition-colors">
-                근로자 시작하기
+                무료 가입하기
               </Link>
             </div>
 
@@ -220,9 +222,9 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/admin/login"
+              <Link href="/login"
                 className="block text-center py-2.5 border border-brand hover:border-[#D1D5DB] text-body-brand text-[14px] font-medium rounded-[9px] no-underline transition-colors">
-                관리자 로그인
+                로그인
               </Link>
             </div>
 
@@ -240,13 +242,13 @@ export default function LandingPage() {
             스마트폰 브라우저로 별도 설치 없이 바로 사용할 수 있습니다.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <Link href="/login"
+            <Link href="/register"
               className="inline-block py-3 px-7 bg-brand-accent hover:bg-brand-accent-hover text-white rounded-[10px] no-underline text-[15px] font-semibold transition-colors shadow-[0_2px_10px_rgba(249,115,22,0.25)]">
-              근로자 시작하기
+              무료 시작하기
             </Link>
-            <Link href="/admin/login"
+            <Link href="/guide"
               className="inline-block py-3 px-7 border border-brand bg-card text-body-brand hover:border-[#D1D5DB] rounded-[12px] no-underline text-[15px] font-medium transition-colors">
-              관리자 로그인
+              둘러보기
             </Link>
           </div>
         </div>
@@ -254,23 +256,26 @@ export default function LandingPage() {
 
       {/* ── 푸터 ────────────────────────────────────────────── */}
       <footer className="bg-surface border-t border-brand px-6 py-7">
-        <div className="max-w-[1100px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-accent-light rounded-[6px] flex items-center justify-center">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+        <div className="max-w-[1100px] mx-auto flex flex-col gap-5">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-accent-light rounded-[6px] flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 22V12h6v10" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <span className="text-[14px] font-semibold text-title-brand">해한<span className="text-accent">AI</span> 출퇴근</span>
             </div>
-            <span className="text-[14px] font-semibold text-title-brand">해한<span className="text-accent">AI</span> 출퇴근</span>
-          </div>
-          <div className="flex items-center gap-5 text-[13px] text-muted2-brand flex-wrap justify-center">
-            <a href="#features" className="no-underline hover:text-muted-brand transition-colors">기능 소개</a>
-            <Link href="/admin/login" className="no-underline hover:text-muted-brand transition-colors">관리자 로그인</Link>
-            <span>© 2026 해한AI Engineering</span>
+            <div className="flex items-center gap-5 text-[13px] text-muted2-brand flex-wrap justify-center">
+              <Link href="/guide" className="no-underline hover:text-muted-brand transition-colors">둘러보기</Link>
+              <Link href="/login" className="no-underline hover:text-muted-brand transition-colors">로그인</Link>
+            </div>
           </div>
         </div>
       </footer>
+      <BusinessFooter />
+      <PublicChatWidget />
 
     </div>
   )

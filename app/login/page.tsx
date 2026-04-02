@@ -2,9 +2,11 @@
 
 import { signIn } from 'next-auth/react'
 import { useState, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { AuthPageShell } from '@/components/auth/AuthPageShell'
 import { AuthCard, AuthBrand, AuthTitle, AuthError, AuthFooter } from '@/components/auth/AuthCard'
+
+type Role = null | 'worker' | 'business'
 
 const ERROR_MSG: Record<string, string> = {
   no_email: '이메일 정보를 가져올 수 없습니다.',
@@ -13,33 +15,198 @@ const ERROR_MSG: Record<string, string> = {
 }
 
 function LoginContent() {
-  const [loading, setLoading] = useState<string | null>(null)
+  const router = useRouter()
   const params = useSearchParams()
   const errorKey = params.get('error') ?? ''
 
-  const handleSignIn = (provider: string) => {
+  const [role, setRole] = useState<Role>(null)
+  const [loading, setLoading] = useState<string | null>(null)
+
+  // 이메일/비번 상태
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+
+  const handleOAuth = (provider: string) => {
     setLoading(provider)
     signIn(provider, { callbackUrl: '/api/auth/complete' })
   }
 
+  const handleEmailLogin = async () => {
+    if (!email || !password) { setError('이메일과 비밀번호를 입력하세요.'); return }
+    setLoading('email')
+    setError('')
+    try {
+      const res = await fetch('/api/auth/worker-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setError(json.message || '로그인에 실패했습니다.')
+        setLoading(null)
+        return
+      }
+      // 승인 대기 중인 경우
+      if (json.data?.accountStatus === 'PENDING') {
+        router.push('/register/pending')
+        return
+      }
+      router.push('/attendance')
+    } catch {
+      setError('서버 오류가 발생했습니다.')
+      setLoading(null)
+    }
+  }
+
+  const handleBusinessLogin = async () => {
+    if (!email || !password) { setError('이메일과 비밀번호를 입력하세요.'); return }
+    setLoading('business')
+    setError('')
+    try {
+      const res = await fetch('/api/admin/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setError(json.message || '로그인에 실패했습니다.')
+        setLoading(null)
+        return
+      }
+      router.push(json.portal || '/admin')
+    } catch {
+      setError('서버 오류가 발생했습니다.')
+      setLoading(null)
+    }
+  }
+
+  // ── 역할 미선택: 역할 선택 화면 ──
+  if (!role) {
+    return (
+      <AuthPageShell>
+        <AuthCard>
+          <AuthBrand />
+          <AuthTitle title="로그인" description="근로자 또는 사업자를 선택해 주세요." />
+          <AuthError message={ERROR_MSG[errorKey] ?? (errorKey ? '로그인 중 오류가 발생했습니다.' : '')} />
+
+          <div className="space-y-3">
+            <button
+              onClick={() => setRole('worker')}
+              className="w-full py-5 rounded-[14px] border-2 border-brand bg-card text-left px-5 hover:border-accent hover:bg-accent-light transition-all cursor-pointer"
+            >
+              <div className="text-[16px] font-bold text-fore-brand mb-1">근로자</div>
+              <div className="text-[12px] text-muted-brand">현장 출퇴근, 작업일보, 서류 제출</div>
+            </button>
+            <button
+              onClick={() => setRole('business')}
+              className="w-full py-5 rounded-[14px] border-2 border-brand bg-card text-left px-5 hover:border-accent hover:bg-accent-light transition-all cursor-pointer"
+            >
+              <div className="text-[16px] font-bold text-fore-brand mb-1">사업자 (업체 관리자)</div>
+              <div className="text-[12px] text-muted-brand">근로자 관리, 출퇴근 현황, 급여·보험</div>
+            </button>
+          </div>
+
+          <div className="mt-5 text-center">
+            <a href="/guide" className="text-[13px] text-accent font-medium no-underline hover:underline">
+              가입 없이 둘러보기 →
+            </a>
+          </div>
+
+          <AuthFooter links={[
+            { label: '회원가입', href: '/register' },
+            { label: '메인으로 돌아가기', href: '/' },
+          ]} />
+        </AuthCard>
+      </AuthPageShell>
+    )
+  }
+
+  // ── 사업자 로그인 ──
+  if (role === 'business') {
+    return (
+      <AuthPageShell>
+        <AuthCard>
+          <AuthBrand />
+          <div className="mb-5">
+            <button onClick={() => { setRole(null); setError('') }} className="text-[12px] text-muted-brand hover:text-accent bg-transparent border-none cursor-pointer p-0">← 뒤로</button>
+          </div>
+          <AuthTitle title="사업자 로그인" description="업체 관리자 이메일과 비밀번호로 로그인합니다." />
+          <AuthError message={error} />
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[13px] font-semibold text-body-brand mb-[6px]">이메일</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="company@example.com" autoComplete="email"
+                className="w-full h-12 px-4 text-[15px] text-fore-brand bg-card border border-brand rounded-[10px] outline-none placeholder:text-muted2-brand focus:border-accent focus:ring-2 focus:ring-[rgba(249,115,22,0.12)]" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-semibold text-body-brand mb-[6px]">비밀번호</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                placeholder="비밀번호 입력" autoComplete="current-password"
+                onKeyDown={e => e.key === 'Enter' && handleBusinessLogin()}
+                className="w-full h-12 px-4 text-[15px] text-fore-brand bg-card border border-brand rounded-[10px] outline-none placeholder:text-muted2-brand focus:border-accent focus:ring-2 focus:ring-[rgba(249,115,22,0.12)]" />
+            </div>
+            <button onClick={handleBusinessLogin} disabled={!!loading}
+              className="w-full h-12 text-[15px] font-semibold text-white bg-brand-accent hover:bg-brand-accent-hover rounded-[12px] transition-colors shadow-[0_2px_10px_rgba(249,115,22,0.25)] disabled:opacity-50 border-none cursor-pointer">
+              {loading === 'business' ? '로그인 중...' : '로그인'}
+            </button>
+          </div>
+
+          <AuthFooter links={[
+            { label: '사업자 가입 신청', href: '/register/company-admin' },
+          ]} />
+        </AuthCard>
+      </AuthPageShell>
+    )
+  }
+
+  // ── 근로자 로그인 (이메일/비번 + OAuth) ──
   return (
     <AuthPageShell>
       <AuthCard>
         <AuthBrand />
-        <AuthTitle
-          title="근로자 로그인"
-          description="Google 또는 카카오 계정으로 로그인 후 출퇴근을 진행합니다."
-        />
+        <div className="mb-5">
+          <button onClick={() => { setRole(null); setError('') }} className="text-[12px] text-muted-brand hover:text-accent bg-transparent border-none cursor-pointer p-0">← 뒤로</button>
+        </div>
+        <AuthTitle title="근로자 로그인" description="이메일/비밀번호 또는 소셜 계정으로 로그인합니다." />
+        <AuthError message={error || (ERROR_MSG[errorKey] ?? (errorKey ? '로그인 중 오류가 발생했습니다.' : ''))} />
 
-        <AuthError message={ERROR_MSG[errorKey] ?? (errorKey ? '로그인 중 오류가 발생했습니다.' : '')} />
+        {/* 이메일/비밀번호 */}
+        <div className="space-y-3 mb-5">
+          <div>
+            <label className="block text-[13px] font-semibold text-body-brand mb-[6px]">이메일</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="name@example.com" autoComplete="email"
+              className="w-full h-12 px-4 text-[15px] text-fore-brand bg-card border border-brand rounded-[10px] outline-none placeholder:text-muted2-brand focus:border-accent focus:ring-2 focus:ring-[rgba(249,115,22,0.12)]" />
+          </div>
+          <div>
+            <label className="block text-[13px] font-semibold text-body-brand mb-[6px]">비밀번호</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+              placeholder="비밀번호 입력" autoComplete="current-password"
+              onKeyDown={e => e.key === 'Enter' && handleEmailLogin()}
+              className="w-full h-12 px-4 text-[15px] text-fore-brand bg-card border border-brand rounded-[10px] outline-none placeholder:text-muted2-brand focus:border-accent focus:ring-2 focus:ring-[rgba(249,115,22,0.12)]" />
+          </div>
+          <button onClick={handleEmailLogin} disabled={!!loading}
+            className="w-full h-12 text-[15px] font-semibold text-white bg-brand-accent hover:bg-brand-accent-hover rounded-[12px] transition-colors shadow-[0_2px_10px_rgba(249,115,22,0.25)] disabled:opacity-50 border-none cursor-pointer">
+            {loading === 'email' ? '로그인 중...' : '이메일로 로그인'}
+          </button>
+        </div>
 
+        {/* 구분선 */}
+        <div className="flex items-center gap-3 my-5">
+          <div className="flex-1 h-px bg-brand" />
+          <span className="text-[11px] text-muted2-brand">또는</span>
+          <div className="flex-1 h-px bg-brand" />
+        </div>
+
+        {/* OAuth */}
         <div className="space-y-3">
-          {/* Google */}
-          <button
-            onClick={() => handleSignIn('google')}
-            disabled={!!loading}
-            className="w-full h-12 rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all border border-brand bg-card text-fore-brand hover:bg-surface disabled:opacity-60 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
-          >
+          <button onClick={() => handleOAuth('google')} disabled={!!loading}
+            className="w-full h-12 rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all border border-brand bg-card text-fore-brand hover:bg-surface disabled:opacity-60 shadow-[0_1px_3px_rgba(0,0,0,0.06)] cursor-pointer">
             {loading === 'google'
               ? <span className="w-5 h-5 border-2 border-brand border-t-muted-brand rounded-full animate-spin" />
               : <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
@@ -52,13 +219,9 @@ function LoginContent() {
             Google로 로그인
           </button>
 
-          {/* 카카오 */}
-          <button
-            onClick={() => handleSignIn('kakao')}
-            disabled={!!loading}
-            className="w-full h-12 rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all disabled:opacity-60"
-            style={{ background: '#FEE500', color: '#191919' }}
-          >
+          <button onClick={() => handleOAuth('kakao')} disabled={!!loading}
+            className="w-full h-12 rounded-[10px] font-semibold text-[14px] flex items-center justify-center gap-3 transition-all disabled:opacity-60 cursor-pointer border-none"
+            style={{ background: '#FEE500', color: '#191919' }}>
             {loading === 'kakao'
               ? <span className="w-5 h-5 border-2 border-yellow-400 border-t-yellow-700 rounded-full animate-spin" />
               : <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="#191919">
@@ -74,8 +237,8 @@ function LoginContent() {
         </p>
 
         <AuthFooter links={[
-          { label: '메인으로 돌아가기', href: '/' },
-          { label: '관리자 로그인', href: '/admin/login' },
+          { label: '회원가입', href: '/register' },
+          { label: '사용 가이드', href: '/guide' },
         ]} />
       </AuthCard>
     </AuthPageShell>

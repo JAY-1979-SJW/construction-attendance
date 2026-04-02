@@ -893,7 +893,10 @@ function NewContractPage() {
           )}
         </div>
         {pdfError && (
-          <div className="bg-red-50 border border-red-200 rounded p-2 text-red-700 text-xs">{pdfError}</div>
+          <div className="bg-red-50 border border-red-200 rounded p-3 text-xs space-y-1">
+            <p className="text-red-700 font-medium m-0">{pdfError}</p>
+            <p className="text-red-600 m-0">PDF 자동 채움에 실패했습니다. 아래 입력란에 직접 입력해 주세요.</p>
+          </div>
         )}
 
         {/* 파싱 결과 미리보기 */}

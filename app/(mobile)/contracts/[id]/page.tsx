@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import SignatureCanvas from '@/components/common/SignatureCanvas'
+import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
 
 // ─── 타입 ──────────────────────────────────────────────────────
 interface WorkerConfirmationGuide {
@@ -208,7 +209,7 @@ export default function WorkerContractConfirmPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand pb-10">
+    <div className="min-h-screen bg-brand pb-24">
       {/* 헤더 */}
       <div style={{ background: accent }} className="text-white px-5 pt-5 pb-4 sticky top-0 z-10">
         <p className="text-[11px] opacity-80 mb-1">
@@ -409,6 +410,7 @@ export default function WorkerContractConfirmPage() {
         )}
 
       </div>
+      <WorkerBottomNav />
     </div>
   )
 }

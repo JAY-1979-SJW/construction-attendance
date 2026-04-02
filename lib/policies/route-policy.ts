@@ -41,6 +41,8 @@ export const WORKER_PROTECTED_PAGES = [
   '/daily-report',
   '/contracts',
   '/my',
+  '/onboarding',
+  '/wage',
 ]
 
 /** worker_token이 필요한 API 경로 접두사 */

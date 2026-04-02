@@ -1,30 +1,35 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import PublicChatWidget from '@/components/PublicChatWidget'
 
-type Step = 'login' | 'pending' | 'home-empty' | 'checkin' | 'home-working' | 'checkout' | 'completed'
+// ─── 섹션 정의 ──────────────────────────────────────────────
 
-const STEPS: { key: Step; label: string; desc: string }[] = [
-  { key: 'login',        label: '1. 로그인',       desc: '전화번호 입력' },
-  { key: 'pending',      label: '2. 승인 대기',     desc: '최초 1회 기기 승인' },
-  { key: 'home-empty',   label: '3. 홈 화면',       desc: '출근 전 상태' },
-  { key: 'checkin',      label: '4. 출근 QR',       desc: 'QR 스캔 후 화면' },
-  { key: 'home-working', label: '5. 근무 중',        desc: '출근 완료 상태' },
-  { key: 'checkout',     label: '6. 퇴근 QR',       desc: 'QR 스캔 후 화면' },
-  { key: 'completed',    label: '7. 퇴근 완료',      desc: '오늘 완료' },
+type Section = 'install' | 'register' | 'approve' | 'checkin' | 'checkout' | 'daily' | 'docs' | 'preview' | 'faq'
+
+const SECTIONS: { key: Section; label: string; icon: string; desc: string }[] = [
+  { key: 'install',  icon: '📱', label: '1. 앱 설치',      desc: '홈 화면에 추가' },
+  { key: 'register', icon: '✍️', label: '2. 회원가입',      desc: '이메일/소셜 가입' },
+  { key: 'approve',  icon: '⏳', label: '3. 기기 승인',     desc: '최초 1회' },
+  { key: 'checkin',  icon: '🏗️', label: '4. 출근하기',      desc: 'GPS 출근' },
+  { key: 'checkout', icon: '🏠', label: '5. 퇴근하기',      desc: 'GPS 퇴근' },
+  { key: 'daily',    icon: '📋', label: '6. 작업일보',      desc: '일일 작업 기록' },
+  { key: 'docs',     icon: '📄', label: '7. 서류 제출',     desc: '계약서·안전교육' },
+  { key: 'preview',  icon: '🖥️', label: '화면 미리보기',    desc: '관리자 화면' },
+  { key: 'faq',      icon: '❓', label: '자주 묻는 질문',    desc: 'FAQ' },
 ]
 
 export default function GuidePage() {
-  const [step, setStep] = useState<Step>('login')
+  const [section, setSection] = useState<Section>('install')
 
-  const currentIdx = STEPS.findIndex((s) => s.key === step)
+  const currentIdx = SECTIONS.findIndex((s) => s.key === section)
   const canPrev = currentIdx > 0
-  const canNext = currentIdx < STEPS.length - 1
+  const canNext = currentIdx < SECTIONS.length - 1
 
-  const prev = () => canPrev && setStep(STEPS[currentIdx - 1].key)
-  const next = () => canNext && setStep(STEPS[currentIdx + 1].key)
+  const prev = () => canPrev && setSection(SECTIONS[currentIdx - 1].key)
+  const next = () => canNext && setSection(SECTIONS[currentIdx + 1].key)
 
   return (
     <div className="font-sans text-fore-brand min-h-screen bg-brand">
@@ -44,7 +49,7 @@ export default function GuidePage() {
             priority
           />
           <span className="text-brand-muted2 text-[13px]">|</span>
-          <span className="text-base font-bold text-fore-brand">앱 사용 미리보기</span>
+          <span className="text-base font-bold text-fore-brand">사용 가이드</span>
         </div>
         <Link href="/login"
           className="py-[9px] px-5 bg-brand-accent text-white rounded-lg no-underline text-[13px] font-bold shadow-[0_2px_8px_rgba(244,121,32,0.3)]">
@@ -52,44 +57,31 @@ export default function GuidePage() {
         </Link>
       </header>
 
-      <div className="flex gap-7 p-7 px-6 max-w-[1100px] mx-auto flex-wrap">
+      <div className="flex flex-col lg:flex-row gap-5 lg:gap-7 p-5 lg:p-7 px-4 lg:px-6 max-w-[1200px] mx-auto">
 
-        {/* 스텝 탭 */}
-        <div className="flex flex-col gap-1.5 min-w-[190px] flex-none">
-          {STEPS.map((s) => (
+        {/* 스텝 탭 — 모바일: 가로 스크롤 / 데스크탑: 세로 사이드바 */}
+        <div className="flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 lg:min-w-[200px] lg:flex-none shrink-0">
+          {SECTIONS.map((s) => (
             <button
               key={s.key}
-              onClick={() => setStep(s.key)}
-              className="rounded-xl px-4 py-3 cursor-pointer text-left transition-all duration-150"
+              onClick={() => setSection(s.key)}
+              className="rounded-xl px-4 py-3 cursor-pointer text-left transition-all duration-150 whitespace-nowrap lg:whitespace-normal shrink-0"
               style={
-                s.key === step
-                  ? {
-                      background: 'rgba(244,121,32,0.1)',
-                      border: '1px solid #F47920',
-                      borderLeft: '3px solid #F47920',
-                    }
-                  : {
-                      background: '#F9FAFB',
-                      border: '1px solid #E5E7EB',
-                    }
+                s.key === section
+                  ? { background: 'rgba(244,121,32,0.1)', border: '1px solid #F47920', borderLeft: '3px solid #F47920' }
+                  : { background: '#F9FAFB', border: '1px solid #E5E7EB' }
               }
             >
-              <span className="block text-[13px] font-bold text-fore-brand mb-0.5">{s.label}</span>
+              <span className="block text-[13px] font-bold text-fore-brand mb-0.5">{s.icon} {s.label}</span>
               <span className="block text-[11px] text-brand-muted2">{s.desc}</span>
             </button>
           ))}
         </div>
 
-        {/* 폰 프레임 + 화면 */}
+        {/* 콘텐츠 영역 */}
         <div className="flex-1 flex flex-col items-center gap-5">
-          <div
-            className="w-[300px] rounded-[40px] p-3.5 bg-[#0d1520] shadow-[0_24px_60px_rgba(0,0,0,0.5),inset_0_0_0_1px_rgba(255,255,255,0.06)] border border-brand"
-          >
-            <div className="w-[50px] h-[5px] bg-[#222] rounded-[3px] mx-auto mb-2.5" />
-            <div className="bg-brand rounded-[28px] min-h-[540px] overflow-hidden relative">
-              <ScreenContent step={step} onNext={next} />
-            </div>
-            <div className="w-9 h-9 bg-[#222] rounded-full mx-auto mt-2.5 border border-[#333]" />
+          <div className="w-full max-w-[600px]">
+            <SectionContent section={section} onNext={next} />
           </div>
 
           {/* 이전/다음 버튼 */}
@@ -103,7 +95,7 @@ export default function GuidePage() {
               ← 이전
             </button>
             <span className="text-sm text-brand-muted2 min-w-12 text-center">
-              {currentIdx + 1} / {STEPS.length}
+              {currentIdx + 1} / {SECTIONS.length}
             </span>
             <button
               onClick={next}
@@ -120,246 +112,408 @@ export default function GuidePage() {
       {/* 하단 CTA */}
       <div className="text-center py-12 px-6 bg-brand-dark">
         <p className="text-muted-brand mb-5 text-base">직접 사용해 보려면?</p>
-        <Link href="/login"
-          className="inline-block py-4 px-11 bg-brand-accent text-white rounded-xl no-underline text-[17px] font-bold shadow-[0_4px_16px_rgba(244,121,32,0.4)]">
-          출퇴근 앱 시작하기
-        </Link>
+        <div className="flex gap-3 justify-center flex-wrap">
+          <Link href="/register"
+            className="inline-block py-4 px-11 bg-brand-accent text-white rounded-xl no-underline text-[17px] font-bold shadow-[0_4px_16px_rgba(244,121,32,0.4)]">
+            회원가입
+          </Link>
+          <Link href="/login"
+            className="inline-block py-4 px-11 bg-card text-fore-brand rounded-xl no-underline text-[17px] font-bold border border-brand">
+            로그인
+          </Link>
+        </div>
       </div>
+      <PublicChatWidget />
     </div>
   )
 }
 
 /* ──────────────────────────────────────────────
-   화면 콘텐츠 (스텝별)
+   섹션별 콘텐츠
 ────────────────────────────────────────────── */
-function ScreenContent({ step, onNext }: { step: Step; onNext: () => void }) {
-  const [processing, setProcessing] = useState(false)
 
-  const fakeProcess = () => {
-    setProcessing(true)
-    setTimeout(() => { setProcessing(false); onNext() }, 1200)
-  }
+function SectionContent({ section, onNext }: { section: Section; onNext: () => void }) {
+  switch (section) {
 
-  switch (step) {
-    /* ── 1. 로그인 ── */
-    case 'login':
+    // ── 1. 앱 설치 ──────────────────────────────
+    case 'install':
       return (
-        <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand">
-          <div className="text-center pt-10 mb-2">
-            <Image
-              src="/logo/logo_main.png"
-              alt="해한Ai Engineering"
-              width={120}
-              height={90}
-              className="w-[100px] h-auto mx-auto block rounded-[10px]"
-              priority
-            />
-          </div>
-          <div className="text-xs text-brand-muted2 text-center mb-7">현장 출퇴근 관리 시스템</div>
-          <div className="bg-card rounded-2xl p-[22px] border border-brand">
-            <div className="text-xs text-muted-brand mb-1.5">전화번호</div>
-            <input
-              className="w-full px-3 py-3 text-[15px] border border-[#D1D5DB] rounded-lg box-border mb-3 bg-card text-fore-brand"
-              defaultValue="010-1234-5678"
-              readOnly
-            />
-            <button
-              onClick={fakeProcess}
-              disabled={processing}
-              className="w-full py-[13px] text-[15px] font-bold bg-brand-accent text-white border-none rounded-[10px] cursor-pointer mb-3 shadow-[0_3px_10px_rgba(244,121,32,0.3)]"
-            >
-              {processing ? '확인 중...' : '로그인'}
-            </button>
-            <div className="text-[11px] text-[#5a6a7e] text-center leading-[1.5]">
-              ※ 처음 사용 시 관리자 기기 승인이 필요합니다.
-            </div>
-          </div>
-        </div>
-      )
+        <div className="space-y-5">
+          <h2 className="text-xl font-bold text-fore-brand">앱 설치 (홈 화면에 추가)</h2>
+          <p className="text-sm text-muted-brand">별도 앱스토어 설치 없이, 브라우저에서 홈 화면에 추가하면 앱처럼 사용할 수 있습니다.</p>
 
-    /* ── 2. 기기 승인 대기 ── */
-    case 'pending':
-      return (
-        <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand flex flex-col justify-center items-center">
-          <div className="text-[48px] mb-4">⏳</div>
-          <div className="text-lg font-bold text-fore-brand mb-2">기기 승인 대기 중</div>
-          <div className="text-[13px] text-muted-brand text-center leading-[1.7] mb-6">
-            현장 관리자가 이 기기를<br />승인하면 자동으로 로그인됩니다.<br /><br />
-            <strong>최초 1회만</strong> 필요합니다.
-          </div>
-          <div className="bg-[rgba(91,164,217,0.1)] rounded-[10px] py-[14px] px-[18px] text-[13px] text-secondary-brand text-center">
-            📱 승인 완료 후<br />다시 로그인하세요
-          </div>
-          <button
-            onClick={onNext}
-            className="w-full py-[13px] text-[15px] font-bold bg-footer text-body-brand border-none rounded-[10px] cursor-pointer mt-6 shadow-[0_3px_10px_rgba(244,121,32,0.3)]"
-          >
-            (승인됨 — 다음 보기)
-          </button>
-        </div>
-      )
-
-    /* ── 3. 홈 (출근 전) ── */
-    case 'home-empty':
-      return (
-        <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand">
-          <div className="flex justify-between items-center mb-4 pt-2">
+          <div className="bg-card rounded-2xl p-5 border border-brand space-y-5">
             <div>
-              <div className="text-base font-bold text-fore-brand">홍길동</div>
-              <div className="text-[11px] text-brand-muted2 mt-0.5">해한Ai Engineering · 철근공</div>
+              <div className="text-xs font-bold text-accent uppercase tracking-wider mb-3">iPhone (Safari)</div>
+              <div className="flex flex-col gap-3">
+                {[
+                  'Safari에서 attendance.haehan-ai.kr 접속',
+                  '하단 공유 버튼 (↑) 탭',
+                  '"홈 화면에 추가" 선택',
+                  '"추가" 탭 → 완료',
+                ].map((text, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-brand-accent text-white text-[12px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                    <span className="text-[13px] text-body-brand">{text}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <button className="bg-footer border border-brand rounded-md py-[5px] px-2.5 text-[11px] cursor-pointer text-muted-brand">
-              로그아웃
-            </button>
-          </div>
-          <div className="bg-card rounded-[14px] p-[18px] mb-2.5 border border-brand">
-            <div className="text-[11px] text-brand-muted2 mb-2.5 uppercase tracking-[0.5px]">오늘의 출퇴근</div>
-            <div className="text-center py-5 text-muted-brand">
-              <p>오늘 출근 기록이 없습니다.</p>
-              <p className="text-[13px] text-muted-brand">현장 QR코드를 스캔하여 출근하세요.</p>
+
+            <div className="border-t border-brand pt-4">
+              <div className="text-xs font-bold text-accent uppercase tracking-wider mb-3">Android (Chrome)</div>
+              <div className="flex flex-col gap-3">
+                {[
+                  'Chrome에서 attendance.haehan-ai.kr 접속',
+                  '우측 상단 ⋮ 메뉴 탭',
+                  '"홈 화면에 추가" 또는 "앱 설치" 선택',
+                  '"설치" 탭 → 완료',
+                ].map((text, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-brand-accent text-white text-[12px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                    <span className="text-[13px] text-body-brand">{text}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="bg-[rgba(91,164,217,0.08)] border border-brand rounded-xl p-3.5 mb-2.5">
-            <div className="text-xs font-bold text-secondary-brand mb-2">출퇴근 방법</div>
-            <div className="text-[11px] text-secondary-brand mb-1 flex gap-1.5">1. 현장에 부착된 QR코드를 스캔하세요</div>
-            <div className="text-[11px] text-secondary-brand mb-1 flex gap-1.5">2. 위치 권한을 허용하세요</div>
-            <div className="text-[11px] text-secondary-brand mb-1 flex gap-1.5">3. 출근 / 퇴근 버튼을 누르세요</div>
+
+          <div className="bg-[rgba(91,164,217,0.08)] border border-brand rounded-xl p-4 text-xs text-secondary-brand">
+            관리자가 카톡으로 보낸 초대 링크를 열면 이 페이지로 바로 이동합니다.
           </div>
-          <button
-            onClick={onNext}
-            className="w-full py-[11px] text-xs bg-[rgba(244,121,32,0.1)] text-accent border border-[rgba(244,121,32,0.3)] rounded-[9px] cursor-pointer font-semibold"
-          >
-            → QR 스캔 시뮬레이션
+
+          <button onClick={onNext} className="w-full py-3 text-sm bg-[rgba(244,121,32,0.1)] text-accent border border-[rgba(244,121,32,0.3)] rounded-[10px] cursor-pointer font-semibold">
+            다음: 회원가입 →
           </button>
         </div>
       )
 
-    /* ── 4. QR 스캔 → 출근 ── */
+    // ── 2. 회원가입 ─────────────────────────────
+    case 'register':
+      return (
+        <div className="space-y-5">
+          <h2 className="text-xl font-bold text-fore-brand">회원가입</h2>
+          <p className="text-sm text-muted-brand">이메일/비밀번호 또는 Google/카카오로 가입합니다.</p>
+
+          <div className="bg-card rounded-2xl p-5 border border-brand space-y-4">
+            <div className="text-xs font-bold text-accent uppercase tracking-wider mb-3">방법 1: 이메일 가입</div>
+            <div className="flex flex-col gap-3">
+              <StepCard step={1} title="가입 유형 선택" desc="회원가입 페이지에서 '이메일 가입'을 선택합니다." />
+              <StepCard step={2} title="정보 입력" desc={<>이메일, 비밀번호, <strong>실명</strong>, 직종을 입력합니다.</>} />
+              <StepCard step={3} title="약관 동의" desc="서비스 이용약관, 개인정보 수집·이용에 동의합니다." />
+              <StepCard step={4} title="승인 대기" desc="관리자 승인 후 사용 가능합니다." />
+            </div>
+          </div>
+
+          <div className="bg-card rounded-2xl p-5 border border-brand space-y-4">
+            <div className="text-xs font-bold text-accent uppercase tracking-wider mb-3">방법 2: 소셜 가입 (Google/카카오)</div>
+            <div className="flex flex-col gap-3">
+              <StepCard step={1} title="약관 동의" desc="서비스 이용약관, 개인정보 처리방침에 동의합니다." />
+              <StepCard step={2} title="소셜 인증" desc="Google 또는 카카오 버튼으로 본인 인증합니다." />
+              <StepCard step={3} title="정보 입력" desc="이름, 전화번호, 직종을 추가 입력합니다." />
+              <StepCard step={4} title="승인 대기" desc="관리자 승인 후 사용 가능합니다." />
+            </div>
+          </div>
+
+          <div className="bg-card rounded-2xl p-5 border border-brand space-y-3">
+            <div className="text-xs font-bold text-[#16A34A] uppercase tracking-wider mb-2">사업자 (업체 관리자) 가입</div>
+            <p className="text-[13px] text-muted-brand m-0">사업자등록번호를 가진 업체 관리자는 별도 양식으로 가입 신청합니다.</p>
+            <p className="text-[13px] text-muted-brand m-0">가입 승인 후 이메일/비밀번호가 발급됩니다.</p>
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-800 space-y-1">
+            <p className="font-bold m-0">주의사항</p>
+            <p className="m-0">- 이름은 반드시 <strong>실명</strong>으로 입력하세요 (급여·보험 신고에 사용)</p>
+            <p className="m-0">- 생년월일은 <strong>YYYYMMDD</strong> 형식 (예: 19850315)</p>
+            <p className="m-0">- 전화번호는 본인 번호만 가능 (기기 인증에 사용)</p>
+          </div>
+
+          <button onClick={onNext} className="w-full py-3 text-sm bg-[rgba(244,121,32,0.1)] text-accent border border-[rgba(244,121,32,0.3)] rounded-[10px] cursor-pointer font-semibold">
+            다음: 기기 승인 →
+          </button>
+        </div>
+      )
+
+    // ── 3. 기기 승인 ────────────────────────────
+    case 'approve':
+      return (
+        <div className="space-y-5">
+          <h2 className="text-xl font-bold text-fore-brand">기기 승인 (최초 1회)</h2>
+          <p className="text-sm text-muted-brand">가입 후 처음 로그인하면 "기기 승인 대기" 화면이 나타납니다. 현장 관리자가 승인하면 자동으로 앱을 사용할 수 있습니다.</p>
+
+          <div className="bg-card rounded-2xl p-6 border border-brand text-center space-y-4">
+            <div className="text-[48px]">⏳</div>
+            <div className="text-lg font-bold text-fore-brand">기기 승인 대기 중</div>
+            <div className="text-[13px] text-muted-brand leading-[1.7]">
+              현장 관리자가 이 기기를 승인하면<br />자동으로 사용 가능합니다.
+            </div>
+            <div className="bg-[rgba(91,164,217,0.1)] rounded-[10px] py-3 px-4 text-[13px] text-secondary-brand">
+              승인 완료 후 다시 로그인하세요
+            </div>
+          </div>
+
+          <div className="bg-card rounded-2xl p-5 border border-brand space-y-3">
+            <div className="text-sm font-bold text-fore-brand">승인이 안 되면?</div>
+            <ul className="text-[13px] text-muted-brand space-y-2 list-none p-0 m-0">
+              <li>- 현장 관리자에게 직접 연락하세요</li>
+              <li>- 관리자가 <strong>관리자 포털 → 기기 승인</strong>에서 승인합니다</li>
+              <li>- 기기 변경 시에도 관리자 재승인이 필요합니다</li>
+            </ul>
+          </div>
+
+          <button onClick={onNext} className="w-full py-3 text-sm bg-[rgba(244,121,32,0.1)] text-accent border border-[rgba(244,121,32,0.3)] rounded-[10px] cursor-pointer font-semibold">
+            다음: 출근하기 →
+          </button>
+        </div>
+      )
+
+    // ── 4. 출근 ─────────────────────────────────
     case 'checkin':
       return (
-        <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand">
-          <div className="bg-card rounded-xl p-3.5 mb-2.5 border border-brand">
-            <div className="text-[10px] text-[#5a6a7e] mb-1 uppercase tracking-[0.5px]">스캔한 현장</div>
-            <div className="text-[17px] font-bold text-fore-brand mb-0.5">해한 A현장</div>
-            <div className="text-xs text-muted-brand">서울시 강남구 테헤란로 123</div>
+        <div className="space-y-5">
+          <h2 className="text-xl font-bold text-fore-brand">출근하기</h2>
+          <p className="text-sm text-muted-brand">현장에 도착하면 GPS 위치 기반으로 출근 처리합니다.</p>
+
+          <div className="bg-card rounded-2xl p-5 border border-brand space-y-4">
+            <div className="flex flex-col gap-4">
+              <StepCard step={1} title="앱 열기" desc="홈 화면에서 앱을 실행합니다." />
+              <StepCard step={2} title="출근 버튼 클릭" desc="현장 근처(100m 이내)에서 '출근' 버튼을 누릅니다." />
+              <StepCard step={3} title="위치 권한 허용" desc="브라우저에서 위치 권한을 요청하면 '허용'을 누릅니다." />
+              <StepCard step={4} title="출근 완료" desc="GPS 확인 후 출근이 자동 기록됩니다." />
+            </div>
           </div>
-          <div className="bg-card rounded-[14px] py-7 px-5 text-center border border-brand mb-2.5">
-            <div className="text-[48px] mb-3">🏗️</div>
-            <div className="text-lg font-bold text-fore-brand mb-1.5">출근 처리</div>
-            <div className="text-[13px] text-muted-brand mb-[18px]">현재 위치를 확인 후 출근 처리합니다.</div>
-            <button
-              onClick={fakeProcess}
-              disabled={processing}
-              style={{ opacity: processing ? 0.6 : 1 }}
-              className="w-full py-[15px] text-base font-bold bg-[linear-gradient(135deg,#2e7d32,#43a047)] text-white border-none rounded-xl cursor-pointer shadow-[0_3px_10px_rgba(46,125,50,0.3)]"
-            >
-              {processing ? '위치 확인 중...' : '출근하기'}
-            </button>
+
+          <div className="bg-card rounded-2xl p-5 border border-brand space-y-3">
+            <div className="text-sm font-bold text-fore-brand">출근이 안 되면?</div>
+            <ul className="text-[13px] text-muted-brand space-y-2 list-none p-0 m-0">
+              <li>- <strong>GPS가 꺼져있으면</strong>: 설정에서 위치 서비스를 켜세요</li>
+              <li>- <strong>현장에서 너무 멀면</strong>: 현장 100m 이내로 이동하세요</li>
+              <li>- <strong>그래도 안 되면</strong>: "GPS 예외 신청" 버튼을 눌러 관리자에게 요청하세요</li>
+            </ul>
           </div>
-          <button className="w-full py-2.5 text-xs bg-transparent border border-brand rounded-[9px] cursor-pointer text-brand-muted2">
-            GPS 오류 또는 예외 신청
+
+          <button onClick={onNext} className="w-full py-3 text-sm bg-[rgba(244,121,32,0.1)] text-accent border border-[rgba(244,121,32,0.3)] rounded-[10px] cursor-pointer font-semibold">
+            다음: 퇴근하기 →
           </button>
         </div>
       )
 
-    /* ── 5. 홈 (근무 중) ── */
-    case 'home-working':
-      return (
-        <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand">
-          <div className="flex justify-between items-center mb-4 pt-2">
-            <div>
-              <div className="text-base font-bold text-fore-brand">홍길동</div>
-              <div className="text-[11px] text-brand-muted2 mt-0.5">해한Ai Engineering · 철근공</div>
-            </div>
-            <button className="bg-footer border border-brand rounded-md py-[5px] px-2.5 text-[11px] cursor-pointer text-muted-brand">
-              로그아웃
-            </button>
-          </div>
-          <div className="bg-card rounded-[14px] p-[18px] mb-2.5 border border-brand">
-            <div className="text-[11px] text-brand-muted2 mb-2.5 uppercase tracking-[0.5px]">오늘의 출퇴근</div>
-            <div className="inline-block bg-[#2e7d32] text-white text-[13px] font-bold py-1 px-3 rounded-[20px] mb-3">
-              근무 중
-            </div>
-            <div className="text-base font-bold text-fore-brand mb-1">해한 A현장</div>
-            <div className="text-[13px] text-muted-brand mb-5">서울시 강남구 테헤란로 123</div>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 text-center">
-                <div className="text-xs text-brand-muted2 mb-1">출근</div>
-                <div className="text-[22px] font-bold">08:30</div>
-                <div className="text-[11px] text-[#aaa] mt-1">45m</div>
-              </div>
-              <div className="text-lg text-[#ccc]">→</div>
-              <div className="flex-1 text-center">
-                <div className="text-xs text-brand-muted2 mb-1">퇴근</div>
-                <div className="text-[22px] font-bold text-[#bbb]">--:--</div>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[rgba(91,164,217,0.08)] border border-brand rounded-xl p-3.5 mb-2.5">
-            <div className="text-xs font-bold text-secondary-brand mb-2">출퇴근 방법</div>
-            <div className="text-[11px] text-secondary-brand mb-1 flex gap-1.5">1. 현장에 부착된 QR코드를 스캔하세요</div>
-            <div className="text-[11px] text-secondary-brand mb-1 flex gap-1.5">2. 위치 권한을 허용하세요</div>
-            <div className="text-[11px] text-secondary-brand mb-1 flex gap-1.5">3. 출근 / 퇴근 버튼을 누르세요</div>
-          </div>
-          <button
-            onClick={onNext}
-            className="w-full py-[11px] text-xs bg-[rgba(244,121,32,0.1)] text-accent border border-[rgba(244,121,32,0.3)] rounded-[9px] cursor-pointer font-semibold"
-          >
-            → 퇴근 QR 스캔 시뮬레이션
-          </button>
-        </div>
-      )
-
-    /* ── 6. QR 스캔 → 퇴근 ── */
+    // ── 5. 퇴근 ─────────────────────────────────
     case 'checkout':
       return (
-        <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand">
-          <div className="bg-card rounded-xl p-3.5 mb-2.5 border border-brand">
-            <div className="text-[10px] text-[#5a6a7e] mb-1 uppercase tracking-[0.5px]">스캔한 현장</div>
-            <div className="text-[17px] font-bold text-fore-brand mb-0.5">해한 A현장</div>
-            <div className="text-xs text-muted-brand">서울시 강남구 테헤란로 123</div>
+        <div className="space-y-5">
+          <h2 className="text-xl font-bold text-fore-brand">퇴근하기</h2>
+          <p className="text-sm text-muted-brand">작업이 끝나면 출근과 동일한 방식으로 퇴근 처리합니다.</p>
+
+          <div className="bg-card rounded-2xl p-5 border border-brand space-y-4">
+            <div className="flex flex-col gap-4">
+              <StepCard step={1} title="앱 열기" desc="홈 화면에서 앱을 실행합니다." />
+              <StepCard step={2} title="퇴근 버튼 클릭" desc="현장 근처에서 '퇴근' 버튼을 누릅니다." />
+              <StepCard step={3} title="퇴근 완료" desc="오늘의 근무 시간이 자동 계산됩니다." />
+            </div>
           </div>
-          <div className="bg-card rounded-[14px] py-7 px-5 text-center border border-brand mb-2.5">
-            <div className="text-[48px] mb-3">🏠</div>
-            <div className="text-lg font-bold text-fore-brand mb-1.5">퇴근 처리</div>
-            <div className="text-[13px] text-muted-brand mb-[18px]">현재 위치를 확인 후 퇴근 처리합니다.</div>
-            <button
-              onClick={fakeProcess}
-              disabled={processing}
-              style={{ opacity: processing ? 0.6 : 1 }}
-              className="w-full py-[15px] text-base font-bold bg-[linear-gradient(135deg,#E06810,#F47920)] text-white border-none rounded-xl cursor-pointer shadow-[0_3px_10px_rgba(244,121,32,0.3)]"
-            >
-              {processing ? '위치 확인 중...' : '퇴근하기'}
-            </button>
+
+          <div className="bg-green-light rounded-xl p-4 text-sm text-[#2e7d32]">
+            퇴근을 잊었을 경우 새벽 4시에 자동 퇴근 처리됩니다. 단, 근무 시간이 정확하지 않을 수 있으니 꼭 직접 퇴근 처리해 주세요.
           </div>
-          <button className="w-full py-2.5 text-xs bg-transparent border border-brand rounded-[9px] cursor-pointer text-brand-muted2">
-            GPS 오류 또는 예외 신청
+
+          <button onClick={onNext} className="w-full py-3 text-sm bg-[rgba(244,121,32,0.1)] text-accent border border-[rgba(244,121,32,0.3)] rounded-[10px] cursor-pointer font-semibold">
+            다음: 작업일보 →
           </button>
         </div>
       )
 
-    /* ── 7. 퇴근 완료 ── */
-    case 'completed':
+    // ── 6. 작업일보 ─────────────────────────────
+    case 'daily':
       return (
-        <div className="max-w-[480px] mx-auto px-5 py-5 min-h-[540px] bg-brand">
-          <div className="bg-card rounded-xl p-3.5 mb-2.5 border border-brand">
-            <div className="text-[10px] text-[#5a6a7e] mb-1 uppercase tracking-[0.5px]">스캔한 현장</div>
-            <div className="text-[17px] font-bold text-fore-brand mb-0.5">해한 A현장</div>
-            <div className="text-xs text-muted-brand">서울시 강남구 테헤란로 123</div>
+        <div className="space-y-5">
+          <h2 className="text-xl font-bold text-fore-brand">작업일보 작성</h2>
+          <p className="text-sm text-muted-brand">매일 퇴근 전/후에 오늘 한 작업을 기록합니다.</p>
+
+          <div className="bg-card rounded-2xl p-5 border border-brand space-y-4">
+            <div className="text-xs font-bold text-muted2-brand uppercase tracking-wider mb-1">작성 항목</div>
+            <div className="flex flex-col gap-3">
+              {[
+                { label: '공종/작업', desc: '전기 → 배관 → 지하1층 배관 설치' },
+                { label: '작업 위치', desc: '동/층/상세 위치' },
+                { label: '오늘 작업 내용', desc: '구체적인 작업 내용 기록' },
+                { label: '작업 시간', desc: '시작~종료 시간' },
+                { label: '공수', desc: '오늘 투입 공수 (기본 1.0)' },
+                { label: '사진', desc: '작업 현장 사진 (최대 3장)' },
+                { label: '특이사항', desc: '메모, 안전 이슈 등' },
+              ].map(item => (
+                <div key={item.label} className="flex items-start gap-3">
+                  <span className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
+                  <div>
+                    <span className="text-[13px] font-bold text-fore-brand">{item.label}</span>
+                    <span className="text-[12px] text-muted-brand ml-2">{item.desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="bg-card rounded-[14px] py-7 px-5 text-center border border-brand mb-2.5">
-            <div className="text-[48px] mb-3">✅</div>
-            <div className="text-lg font-bold text-[#2e7d32] mb-1.5">퇴근이 완료되었습니다.</div>
-            <div className="text-[13px] text-muted-brand mb-[18px]">현장까지 거리: 32m</div>
-            <button className="w-full py-[13px] text-sm font-semibold bg-footer text-body-brand border border-brand rounded-[10px] cursor-pointer">
-              내 출퇴근 현황 보기
-            </button>
+
+          <div className="bg-[rgba(91,164,217,0.08)] border border-brand rounded-xl p-4 text-xs text-secondary-brand space-y-1">
+            <p className="font-bold m-0">편의 기능</p>
+            <p className="m-0">- 전날 작업 내용을 자동으로 불러와 수정할 수 있습니다</p>
+            <p className="m-0">- 자주 하는 작업이 추천 목록으로 표시됩니다</p>
+            <p className="m-0">- 내일 작업 예정도 미리 입력해둘 수 있습니다</p>
           </div>
-          <div className="bg-green-light rounded-xl p-4 mt-2 text-center text-sm text-[#2e7d32]">
-            🎉 오늘 근무 완료!<br />
-            <span className="text-[13px] text-[#388e3c] font-bold">08:30 → 17:45</span>
+
+          <button onClick={onNext} className="w-full py-3 text-sm bg-[rgba(244,121,32,0.1)] text-accent border border-[rgba(244,121,32,0.3)] rounded-[10px] cursor-pointer font-semibold">
+            다음: 서류 제출 →
+          </button>
+        </div>
+      )
+
+    // ── 7. 서류 제출 ────────────────────────────
+    case 'docs':
+      return (
+        <div className="space-y-5">
+          <h2 className="text-xl font-bold text-fore-brand">서류 제출</h2>
+          <p className="text-sm text-muted-brand">현장 투입 전 필요한 서류를 모바일에서 제출합니다.</p>
+
+          <div className="bg-card rounded-2xl p-5 border border-brand space-y-4">
+            <div className="text-xs font-bold text-muted2-brand uppercase tracking-wider mb-1">제출 서류 예시</div>
+            <div className="flex flex-col gap-3">
+              {[
+                { icon: '📝', label: '근로계약서', desc: '전자 서명으로 간편 체결' },
+                { icon: '🛡️', label: '안전교육 확인서', desc: '안전교육 수료 후 확인' },
+                { icon: '🏥', label: '건강진단서', desc: '건강진단 결과 사진 업로드' },
+                { icon: '📋', label: '개인정보 동의서', desc: '모바일에서 서명 후 제출' },
+              ].map(item => (
+                <div key={item.label} className="flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-xl bg-[#FFF7ED] flex items-center justify-center text-[18px] shrink-0">{item.icon}</span>
+                  <div>
+                    <div className="text-[13px] font-bold text-fore-brand">{item.label}</div>
+                    <div className="text-[11px] text-muted-brand">{item.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-card rounded-2xl p-5 border border-brand">
+            <div className="text-sm font-bold text-fore-brand mb-2">제출 방법</div>
+            <div className="flex flex-col gap-3">
+              <StepCard step={1} title="앱 → 내 서류" desc="하단 메뉴에서 '서류 제출' 메뉴를 선택합니다." />
+              <StepCard step={2} title="미제출 서류 확인" desc="빨간색 '미제출' 표시된 서류를 탭합니다." />
+              <StepCard step={3} title="서명 또는 업로드" desc="전자 서명을 하거나, 서류 사진을 업로드합니다." />
+              <StepCard step={4} title="제출 완료" desc="관리자가 확인하면 상태가 '확인완료'로 변경됩니다." />
+            </div>
+          </div>
+
+          <button onClick={onNext} className="w-full py-3 text-sm bg-[rgba(244,121,32,0.1)] text-accent border border-[rgba(244,121,32,0.3)] rounded-[10px] cursor-pointer font-semibold">
+            다음: 자주 묻는 질문 →
+          </button>
+        </div>
+      )
+
+    // ── 화면 미리보기 ─────────────────────────────
+    case 'preview':
+      return (
+        <div className="space-y-5">
+          <h2 className="text-xl font-bold text-fore-brand">관리자 화면 미리보기</h2>
+          <p className="text-sm text-muted-brand">가입 전에 관리자 포털의 주요 화면을 확인해 보세요.</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { src: '/guide/01-_admin.png', label: '대시보드' },
+              { src: '/guide/06-_admin_attendance.png', label: '출퇴근 관리' },
+              { src: '/guide/02-_admin_sites.png', label: '현장 관리' },
+              { src: '/guide/07-_admin_work-confirmations.png', label: '공수 확인' },
+              { src: '/guide/12-_admin_contracts.png', label: '근로계약서' },
+              { src: '/guide/08-_admin_wage.png', label: '노임 관리' },
+              { src: '/guide/09-_admin_insurance-eligibility.png', label: '보험 자격 판정' },
+              { src: '/guide/11-_admin_materials_requests.png', label: '자재 관리' },
+            ].map(item => (
+              <div key={item.label} className="bg-card rounded-xl border border-brand overflow-hidden">
+                <img src={item.src} alt={item.label} className="w-full h-auto" loading="lazy" />
+                <div className="px-3 py-2 text-[13px] font-semibold text-fore-brand border-t border-brand">{item.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-accent-light border border-accent-pale rounded-xl p-4 text-center">
+            <div className="text-sm font-bold text-accent mb-2">직접 사용해 보고 싶다면?</div>
+            <div className="flex gap-3 justify-center flex-wrap mt-3">
+              <a href="/register" className="inline-block py-2.5 px-6 bg-brand-accent text-white rounded-lg no-underline text-[14px] font-bold">무료 가입하기</a>
+              <a href="/login" className="inline-block py-2.5 px-6 border border-brand text-body-brand rounded-lg no-underline text-[14px]">로그인</a>
+            </div>
+          </div>
+
+          <button onClick={onNext} className="w-full py-3 text-sm bg-[rgba(244,121,32,0.1)] text-accent border border-[rgba(244,121,32,0.3)] rounded-[10px] cursor-pointer font-semibold">
+            다음: 자주 묻는 질문 →
+          </button>
+        </div>
+      )
+
+    // ── FAQ ──────────────────────────────────────
+    case 'faq':
+      return (
+        <div className="space-y-5">
+          <h2 className="text-xl font-bold text-fore-brand">자주 묻는 질문</h2>
+
+          <div className="space-y-3">
+            {[
+              {
+                q: '앱스토어에서 앱을 못 찾겠어요',
+                a: '별도 앱스토어 다운로드가 아닙니다. 브라우저에서 attendance.haehan-ai.kr 접속 후 "홈 화면에 추가"를 해주세요.',
+              },
+              {
+                q: '기기 승인은 얼마나 걸리나요?',
+                a: '관리자가 승인하면 바로 사용 가능합니다. 보통 당일 내 처리됩니다.',
+              },
+              {
+                q: '출근 버튼이 안 눌려요',
+                a: '① 위치 서비스가 켜져있는지 확인 ② 현장 100m 이내인지 확인 ③ 안 되면 "GPS 예외 신청" 버튼을 이용해주세요.',
+              },
+              {
+                q: '퇴근을 깜빡했어요',
+                a: '새벽 4시에 자동 퇴근 처리됩니다. 다만 정확한 시간 기록을 위해 직접 퇴근 처리를 권장합니다.',
+              },
+              {
+                q: '휴대폰을 바꿨어요',
+                a: '새 휴대폰에서 로그인하면 "기기 변경 요청"이 관리자에게 전달됩니다. 승인 후 사용 가능합니다.',
+              },
+              {
+                q: '작업일보를 수정하고 싶어요',
+                a: '당일 내에는 같은 화면에서 수정 후 저장하면 됩니다. 관리자 확정 전까지 수정 가능합니다.',
+              },
+              {
+                q: '내 출퇴근 기록을 보고 싶어요',
+                a: '앱 홈 화면에서 "내 출퇴근 현황 보기"를 눌러 이력을 확인할 수 있습니다.',
+              },
+            ].map(({ q, a }) => (
+              <div key={q} className="bg-card rounded-xl p-4 border border-brand">
+                <div className="text-[14px] font-bold text-fore-brand mb-2">Q. {q}</div>
+                <div className="text-[13px] text-muted-brand leading-[1.7]">{a}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-brand-accent/10 border border-accent rounded-xl p-5 text-center">
+            <div className="text-sm font-bold text-accent mb-2">더 궁금한 점이 있으면?</div>
+            <div className="text-[13px] text-muted-brand mb-3">현장 관리자 또는 회사 담당자에게 문의해 주세요.</div>
+            <div className="text-[13px] text-fore-brand">
+              전화: <strong>02-562-6652</strong> &nbsp;|&nbsp; 이메일: <strong>jay@haehan-ai.kr</strong>
+            </div>
           </div>
         </div>
       )
   }
+}
+
+/* ── 재사용 컴포넌트 ─────────────────────────── */
+
+function StepCard({ step, title, desc }: { step: number; title: string; desc: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="w-7 h-7 rounded-full bg-brand-accent text-white text-[13px] font-bold flex items-center justify-center shrink-0">{step}</span>
+      <div>
+        <div className="text-[14px] font-bold text-fore-brand">{title}</div>
+        <div className="text-[12px] text-muted-brand leading-[1.6] mt-0.5">{desc}</div>
+      </div>
+    </div>
+  )
 }

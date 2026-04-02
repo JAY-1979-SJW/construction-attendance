@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import WorkerTopBar from '@/components/worker/WorkerTopBar'
+import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
 
 interface PayslipDay {
   workDate: string
@@ -85,24 +87,17 @@ export default function WageMyPayslipPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand p-4">
+    <div className="min-h-screen bg-brand pt-[60px] pb-24 px-4">
+      <WorkerTopBar />
       <div className="max-w-[600px] mx-auto">
 
         {/* 헤더 */}
-        <div className="flex items-center justify-between mb-5 pt-2">
-          <div>
-            <h1 className="text-xl font-bold text-fore-brand m-0">노임 명세</h1>
-            <p className="text-[12px] text-muted-brand mt-0.5 m-0">
-              {workerName && <span className="font-semibold text-accent">{workerName}</span>}
-              {jobTitle && <span className="text-muted-brand"> · {jobTitle}</span>}
-            </p>
-          </div>
-          <button
-            onClick={() => router.back()}
-            className="text-muted-brand text-sm bg-card border border-brand px-3 py-1.5 rounded-md cursor-pointer"
-          >
-            ← 뒤로
-          </button>
+        <div className="mb-5 pt-2">
+          <h1 className="text-xl font-bold text-fore-brand m-0">공수 / 급여</h1>
+          <p className="text-[12px] text-muted-brand mt-0.5 m-0">
+            {workerName && <span className="font-semibold text-accent">{workerName}</span>}
+            {jobTitle && <span className="text-muted-brand"> · {jobTitle}</span>}
+          </p>
         </div>
 
         {/* 월 선택 */}
@@ -220,6 +215,7 @@ export default function WageMyPayslipPage() {
           최종 노임은 관리자 검토 후 확정됩니다.
         </p>
       </div>
+      <WorkerBottomNav />
     </div>
   )
 }

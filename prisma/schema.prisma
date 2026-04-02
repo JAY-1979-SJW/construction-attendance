@@ -607,6 +607,7 @@ model Company {
   noticeRecords         WorkerNoticeRecord[]
   terminationReviews    WorkerTerminationReview[]
   terminationSnapshots  WorkerTerminationSnapshot[]
+  insuranceSubmissions  InsuranceSubmissionHistory[]
 
   @@map("companies")
 }
@@ -621,7 +622,8 @@ model Worker {
   // ── 회원가입·승인 상태 ────────────────────────────────────
   accountStatus WorkerAccountStatus @default(APPROVED)  // 기존 어드민 생성 계정은 APPROVED
   username      String?             @unique              // 자가 회원가입 시 아이디 (선택)
-  email         String?             @unique              // 이메일 (OAuth 로그인 기준)
+  email         String?             @unique              // 이메일 (OAuth 또는 이메일/비번 로그인)
+  passwordHash  String?                                  // 이메일/비번 로그인용 (OAuth 사용 시 null)
   birthDate     String?                                  // 생년월일 YYYYMMDD (선택)
   // 반려 사유
   rejectReason  String?
@@ -735,6 +737,7 @@ model Worker {
   documentPackages           WorkerDocumentPackage[]
   onboardingDocuments        OnboardingDocument[]
   bulkImportRows             BulkWorkerImportRow[]
+  insuranceSubmissions       InsuranceSubmissionHistory[]
 
   @@map("workers")
 }
@@ -1425,13 +1428,13 @@ model AppSettings {
   presenceCheckPmEnd                String   @default("16:30")
   // === 출퇴근 운영 기준 ===
   checkInStart                      String   @default("07:00")
-  checkOutEnd                       String   @default("17:00")
+  checkOutEnd                       String   @default("16:30")
   tardyMinutes                      Int      @default(0)
   earlyLeaveMinutes                 Int      @default(30)
   absentMarkHour                    String   @default("12:00")
   reviewOnException                 Boolean  @default(true)
   // === 공수 기준 ===
-  mandayFullMinutes                 Int      @default(600)
+  mandayFullMinutes                 Int      @default(510)
   mandayPartialOk                   Boolean  @default(false)
   mandayManualOk                    Boolean  @default(true)
   mandayAutoReview                  Boolean  @default(true)
@@ -1863,10 +1866,63 @@ model FilingExport {
   lastPreflightStatus   String?
 
   monthClosing MonthClosing? @relation(fields: [monthClosingId], references: [id], onDelete: SetNull)
+  insuranceSubmissions InsuranceSubmissionHistory[]
 
   @@index([monthKey])
   @@index([exportType])
   @@map("filing_exports")
+}
+
+// ─── 보험 제출 이력 ──────────────────────────────────────
+model InsuranceSubmissionHistory {
+  id                    String                   @id @default(cuid())
+  workerId              String
+  companyId             String
+  siteId                String?
+  monthKey              String                   // 'YYYY-MM'
+  submissionType        InsuranceSubmissionType
+  insuranceType         InsuranceSubmissionTarget
+  status                InsuranceSubmissionStatus @default(PENDING)
+  submittedAt           DateTime?
+  confirmedAt           DateTime?
+  rejectedAt            DateTime?
+  rejectionReason       String?
+  filingExportId        String?
+  referenceNumber       String?                  // 접수번호
+  notes                 String?
+  submittedBy           String?
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+
+  worker       Worker        @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  company      Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  filingExport FilingExport? @relation(fields: [filingExportId], references: [id], onDelete: SetNull)
+
+  @@index([workerId, monthKey])
+  @@index([companyId, monthKey])
+  @@index([submissionType, status])
+  @@map("insurance_submission_histories")
+}
+
+enum InsuranceSubmissionType {
+  ACQUISITION    // 취득신고
+  LOSS           // 상실신고
+  CHANGE         // 변경신고
+  MONTHLY_REPORT // 월별 신고
+}
+
+enum InsuranceSubmissionTarget {
+  NATIONAL_PENSION       // 국민연금
+  HEALTH_INSURANCE       // 건강보험
+  EMPLOYMENT_INSURANCE   // 고용보험
+  INDUSTRIAL_ACCIDENT    // 산재보험
+}
+
+enum InsuranceSubmissionStatus {
+  PENDING    // 제출 대기
+  SUBMITTED  // 제출 완료
+  CONFIRMED  // 접수 확인
+  REJECTED   // 반려
 }
 
 model MonthClosing {

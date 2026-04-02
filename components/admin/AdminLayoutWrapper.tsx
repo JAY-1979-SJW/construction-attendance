@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import AdminSidebar from './AdminSidebar'
+import BusinessFooter from '@/components/BusinessFooter'
 
 // 사이드바 폭과 동기화
 const SIDEBAR_WIDTH = 220
@@ -256,6 +257,7 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
         {/* 콘텐츠 (독립 스크롤) */}
         <div className="flex-1 overflow-auto bg-brand">
           {children}
+          <BusinessFooter />
         </div>
       </div>
     </div>

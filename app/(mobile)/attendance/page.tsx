@@ -111,6 +111,12 @@ export default function AttendancePage() {
 
   // ── 초기 데이터 로딩 ─────────────────────────────────────────
   useEffect(() => {
+    // 온보딩 미완료 시 온보딩 페이지로 이동
+    if (typeof window !== 'undefined' && !localStorage.getItem('onboarding_done')) {
+      router.push('/onboarding')
+      return
+    }
+
     Promise.all([
       fetch('/api/auth/me').then((r) => r.json()),
       fetch('/api/attendance/today').then((r) => r.json()),

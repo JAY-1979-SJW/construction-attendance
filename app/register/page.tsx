@@ -2,7 +2,7 @@
 
 import { signIn } from 'next-auth/react'
 import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -39,20 +39,65 @@ function StepBar({ current }: { current: number }) {
   )
 }
 
+type RegMethod = 'select' | 'oauth' | 'email'
+
 function RegisterContent() {
+  const router = useRouter()
   const [loading, setLoading] = useState<string | null>(null)
   const params = useSearchParams()
   const errorKey = params.get('error') ?? ''
 
+  const [method, setMethod] = useState<RegMethod>('select')
   const [policyDocs, setPolicyDocs] = useState<PolicyDoc[]>([])
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null)
   const [consentTerms, setConsentTerms] = useState(false)
   const [consentPrivacy, setConsentPrivacy] = useState(false)
-  const [consentLocation, setConsentLocation] = useState(false)
   const [consentMarketing, setConsentMarketing] = useState(false)
   const [error, setError] = useState('')
 
-  const allRequired = consentTerms && consentPrivacy && consentLocation
+  // 이메일/비번 가입 폼
+  const [regEmail, setRegEmail] = useState('')
+  const [regPassword, setRegPassword] = useState('')
+  const [regPasswordConfirm, setRegPasswordConfirm] = useState('')
+  const [regName, setRegName] = useState('')
+  const [regPhone, setRegPhone] = useState('')
+  const [regJobTitle, setRegJobTitle] = useState('')
+  const [regBirthDate, setRegBirthDate] = useState('')
+
+  const allRequired = consentTerms && consentPrivacy
+
+  const handleEmailRegister = async () => {
+    if (!allRequired) { setError('필수 동의 항목을 모두 체크해 주세요.'); return }
+    if (!regEmail || !regPassword || !regName || !regJobTitle) { setError('필수 항목을 모두 입력하세요.'); return }
+    if (regPassword.length < 6) { setError('비밀번호는 6자 이상이어야 합니다.'); return }
+    if (regPassword !== regPasswordConfirm) { setError('비밀번호가 일치하지 않습니다.'); return }
+    setError('')
+    setLoading('email')
+    try {
+      const res = await fetch('/api/auth/worker-register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: regEmail,
+          password: regPassword,
+          name: regName,
+          phone: regPhone || undefined,
+          jobTitle: regJobTitle,
+          birthDate: regBirthDate || undefined,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setError(json.message || '가입에 실패했습니다.')
+        setLoading(null)
+        return
+      }
+      router.push('/register/pending')
+    } catch {
+      setError('서버 오류가 발생했습니다.')
+      setLoading(null)
+    }
+  }
 
   useEffect(() => {
     fetch('/api/policies/active')
@@ -81,7 +126,7 @@ function RegisterContent() {
     setLoading(provider)
     const consent = JSON.stringify({
       terms: consentTerms, privacy: consentPrivacy,
-      location: consentLocation, marketing: consentMarketing,
+      marketing: consentMarketing,
       documentIds: Object.fromEntries(policyDocs.map(d => [d.documentType, d.id])),
     })
     // httpOnly 쿠키로 서버 발급 후 OAuth 진행
@@ -97,27 +142,147 @@ function RegisterContent() {
   function handleCheckAll(checked: boolean) {
     setConsentTerms(checked)
     setConsentPrivacy(checked)
-    setConsentLocation(checked)
     setConsentMarketing(checked)
   }
 
-  const allChecked = consentTerms && consentPrivacy && consentLocation && consentMarketing
+  const allChecked = consentTerms && consentPrivacy && consentMarketing
 
   const termsDoc = getDoc('TERMS_OF_SERVICE')
   const privacyDoc = getDoc('PRIVACY_POLICY')
-  const locationDoc = getDoc('LOCATION_POLICY')
   const marketingDoc = getDoc('MARKETING_NOTICE')
 
+  // ── 가입 방법 선택 화면 ──
+  if (method === 'select') {
+    return (
+      <div className="min-h-screen bg-brand flex items-center justify-center p-6">
+        <div className="bg-card rounded-2xl px-8 py-9 w-full max-w-[480px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-brand border-t-[3px] border-t-accent">
+          <div className="text-center mb-4">
+            <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} className="w-[140px] h-auto mx-auto block rounded-2xl" priority />
+          </div>
+          <h1 className="text-[20px] font-extrabold text-fore-brand tracking-[-0.5px] mb-1">회원가입</h1>
+          <p className="text-[13px] text-muted-brand leading-[1.6] mb-6">가입 유형을 선택해 주세요.</p>
+
+          <div className="space-y-3 mb-5">
+            <button onClick={() => setMethod('oauth')}
+              className="w-full py-5 rounded-[14px] border-2 border-brand bg-card text-left px-5 hover:border-accent hover:bg-accent-light transition-all cursor-pointer">
+              <div className="text-[15px] font-bold text-fore-brand mb-1">근로자 — 소셜 가입</div>
+              <div className="text-[12px] text-muted-brand">Google 또는 카카오 계정으로 간편 가입</div>
+            </button>
+            <button onClick={() => setMethod('email')}
+              className="w-full py-5 rounded-[14px] border-2 border-brand bg-card text-left px-5 hover:border-accent hover:bg-accent-light transition-all cursor-pointer">
+              <div className="text-[15px] font-bold text-fore-brand mb-1">근로자 — 이메일 가입</div>
+              <div className="text-[12px] text-muted-brand">이메일과 비밀번호로 직접 가입</div>
+            </button>
+            <Link href="/register/company-admin"
+              className="block w-full py-5 rounded-[14px] border-2 border-brand bg-card text-left px-5 hover:border-accent hover:bg-accent-light transition-all no-underline">
+              <div className="text-[15px] font-bold text-fore-brand mb-1">사업자 (업체 관리자)</div>
+              <div className="text-[12px] text-muted-brand">사업자등록번호로 업체 관리자 신청</div>
+            </Link>
+          </div>
+
+          <div className="text-center">
+            <Link href="/login" className="text-accent text-[13px] no-underline font-medium">이미 계정이 있으신가요? 로그인</Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── 이메일/비번 가입 ──
+  if (method === 'email') {
+    return (
+      <div className="min-h-screen bg-brand flex items-center justify-center p-6">
+        <div className="bg-card rounded-2xl px-8 py-9 w-full max-w-[480px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-brand border-t-[3px] border-t-accent">
+          <div className="text-center mb-4">
+            <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} className="w-[140px] h-auto mx-auto block rounded-2xl" priority />
+          </div>
+          <button onClick={() => setMethod('select')} className="text-[12px] text-muted-brand hover:text-accent bg-transparent border-none cursor-pointer p-0 mb-3">← 뒤로</button>
+          <h1 className="text-[20px] font-extrabold text-fore-brand tracking-[-0.5px] mb-1">이메일로 가입</h1>
+          <p className="text-[13px] text-muted-brand leading-[1.6] mb-5">정보를 입력하고 약관에 동의하면 가입됩니다.</p>
+
+          {error && <div className="alert-danger mb-4">{error}</div>}
+
+          <div className="space-y-3 mb-5">
+            <div>
+              <label className="block text-[13px] font-semibold text-body-brand mb-1">이메일 *</label>
+              <input type="email" value={regEmail} onChange={e => setRegEmail(e.target.value)} placeholder="name@example.com"
+                className="w-full h-11 px-3 text-[14px] border border-brand rounded-lg bg-card text-fore-brand outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-semibold text-body-brand mb-1">비밀번호 * (6자 이상)</label>
+              <input type="password" value={regPassword} onChange={e => setRegPassword(e.target.value)} placeholder="비밀번호"
+                className="w-full h-11 px-3 text-[14px] border border-brand rounded-lg bg-card text-fore-brand outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-semibold text-body-brand mb-1">비밀번호 확인 *</label>
+              <input type="password" value={regPasswordConfirm} onChange={e => setRegPasswordConfirm(e.target.value)} placeholder="비밀번호 다시 입력"
+                className="w-full h-11 px-3 text-[14px] border border-brand rounded-lg bg-card text-fore-brand outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-semibold text-body-brand mb-1">이름 (실명) *</label>
+              <input type="text" value={regName} onChange={e => setRegName(e.target.value)} placeholder="홍길동"
+                className="w-full h-11 px-3 text-[14px] border border-brand rounded-lg bg-card text-fore-brand outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-semibold text-body-brand mb-1">직종 *</label>
+              <input type="text" value={regJobTitle} onChange={e => setRegJobTitle(e.target.value)} placeholder="형틀목공, 전기공 등"
+                className="w-full h-11 px-3 text-[14px] border border-brand rounded-lg bg-card text-fore-brand outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-semibold text-body-brand mb-1">전화번호</label>
+              <input type="text" value={regPhone} onChange={e => setRegPhone(e.target.value)} placeholder="01012345678" maxLength={11} inputMode="numeric"
+                className="w-full h-11 px-3 text-[14px] border border-brand rounded-lg bg-card text-fore-brand outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-semibold text-body-brand mb-1">생년월일</label>
+              <input type="date" value={regBirthDate} onChange={e => setRegBirthDate(e.target.value)}
+                className="w-full h-11 px-3 text-[14px] border border-brand rounded-lg bg-card text-fore-brand outline-none focus:border-accent" />
+            </div>
+          </div>
+
+          {/* 약관 동의 (간소화) */}
+          <div className="mb-5 p-4 bg-surface rounded-xl border border-brand">
+            <label className="flex items-center gap-2 cursor-pointer pb-3 mb-3 border-b border-brand">
+              <input type="checkbox" checked={allChecked} onChange={e => handleCheckAll(e.target.checked)} className="w-[18px] h-[18px] accent-brand-accent" />
+              <span className="text-[14px] font-bold text-fore-brand">전체 동의</span>
+            </label>
+            {[
+              { label: '서비스 이용약관 (필수)', checked: consentTerms, set: setConsentTerms },
+              { label: '개인정보 수집·이용 동의 (필수)', checked: consentPrivacy, set: setConsentPrivacy },
+              { label: '마케팅 정보 수신 동의 (선택)', checked: consentMarketing, set: setConsentMarketing },
+            ].map(item => (
+              <label key={item.label} className="flex items-center gap-2 cursor-pointer mb-1 text-[13px] text-body-brand">
+                <input type="checkbox" checked={item.checked} onChange={e => item.set(e.target.checked)} className="w-4 h-4 accent-brand-accent" />
+                {item.label}
+              </label>
+            ))}
+          </div>
+
+          <button onClick={handleEmailRegister} disabled={!!loading || !allRequired}
+            className="w-full h-12 text-[15px] font-semibold text-white bg-brand-accent hover:bg-brand-accent-hover rounded-[12px] transition-colors shadow-[0_2px_10px_rgba(249,115,22,0.25)] disabled:opacity-50 border-none cursor-pointer">
+            {loading === 'email' ? '가입 처리 중...' : '가입하기'}
+          </button>
+
+          <div className="text-center mt-4">
+            <Link href="/login" className="text-accent text-[13px] no-underline font-medium">이미 계정이 있으신가요? 로그인</Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── OAuth 가입 (기존 흐름) ──
   return (
     <div className="min-h-screen bg-brand flex items-center justify-center p-6">
       <div className="bg-card rounded-2xl px-8 py-9 w-full max-w-[480px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-brand border-t-[3px] border-t-accent">
         <div className="text-center mb-4">
           <Image src="/logo/logo_main.png" alt="해한Ai Engineering" width={240} height={180} className="w-[140px] h-auto mx-auto block rounded-2xl" priority />
         </div>
+        <button onClick={() => setMethod('select')} className="text-[12px] text-muted-brand hover:text-accent bg-transparent border-none cursor-pointer p-0 mb-3">← 뒤로</button>
 
         <StepBar current={1} />
 
-        <h1 className="text-[20px] font-extrabold text-fore-brand tracking-[-0.5px] mb-1">근로자 회원가입</h1>
+        <h1 className="text-[20px] font-extrabold text-fore-brand tracking-[-0.5px] mb-1">소셜 계정으로 가입</h1>
         <p className="text-[13px] text-muted-brand leading-[1.6] mb-5">약관에 동의한 후 카카오 또는 Google로 가입합니다.</p>
 
         {(error || errorKey) && (
@@ -137,7 +302,6 @@ function RegisterContent() {
           {[
             { key: 'TERMS_OF_SERVICE', label: '서비스 이용약관', doc: termsDoc, checked: consentTerms, set: setConsentTerms, required: true },
             { key: 'PRIVACY_POLICY', label: '개인정보 수집·이용 동의', doc: privacyDoc, checked: consentPrivacy, set: setConsentPrivacy, required: true },
-            { key: 'LOCATION_POLICY', label: '위치정보 이용 동의', doc: locationDoc, checked: consentLocation, set: setConsentLocation, required: true },
             { key: 'MARKETING_NOTICE', label: '마케팅 정보 수신 동의', doc: marketingDoc, checked: consentMarketing, set: setConsentMarketing, required: false },
           ].map(item => (
             <div key={item.key} className="mb-2">
@@ -201,7 +365,6 @@ function RegisterContent() {
 
         <div className="flex flex-col gap-2 mt-5 text-center">
           <Link href="/login" className="text-accent text-[13px] no-underline font-medium">이미 계정이 있으신가요? 로그인</Link>
-          <Link href="/register/company-admin" className="text-muted-brand text-[12px] no-underline hover:text-accent">업체 관리자로 신청</Link>
         </div>
       </div>
     </div>
