@@ -565,7 +565,7 @@ export default function SitesPage() {
     const days = daysUntil(s.closedAt)
 
     return (
-      <div className="w-[360px] flex-shrink-0 flex flex-col gap-3 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto pb-4">
+      <div className="w-full sm:w-[360px] flex-shrink-0 flex flex-col gap-3 sm:sticky sm:top-4 sm:max-h-[calc(100vh-2rem)] overflow-y-auto pb-4">
 
         {/* 헤더: 현장명 + 두 상태 배지 */}
         <SectionCard>
@@ -847,13 +847,13 @@ export default function SitesPage() {
     >
 
       {/* ── 2컬럼: 목록 + 패널 ──────────────────────────────── */}
-      <div className="flex gap-4 items-start">
+      <div className="flex flex-col sm:flex-row gap-4 items-start">
 
         {/* 현장 목록 */}
         <div className="flex-1 min-w-0">
           <SectionCard padding={false}>
-            {/* 헤더: 운영상태 + 계약상태 분리 */}
-            <div className="grid grid-cols-[minmax(0,1fr)_76px_100px_70px_56px_80px_80px] gap-2 px-4 py-2 bg-surface border-b border-brand text-[11px] font-bold text-muted2-brand uppercase tracking-wide">
+            {/* 헤더: 운영상태 + 계약상태 분리 (데스크톱만) */}
+            <div className="hidden sm:grid grid-cols-[minmax(0,1fr)_76px_100px_70px_56px_80px_80px] gap-2 px-4 py-2 bg-surface border-b border-brand text-[11px] font-bold text-muted2-brand uppercase tracking-wide">
               <span>현장명</span>
               <span className="text-center">운영</span>
               <span className="text-center">계약기간</span>
@@ -880,57 +880,68 @@ export default function SitesPage() {
                     <div
                       key={s.id}
                       onClick={() => setSelected(isSelected ? null : s)}
-                      className={`grid grid-cols-[minmax(0,1fr)_76px_100px_70px_56px_80px_80px] gap-2 px-4 py-3 cursor-pointer transition-colors items-center ${
+                      className={`cursor-pointer transition-colors ${
                         isSelected
                           ? 'bg-accent-light border-l-[3px] border-accent'
                           : 'hover:bg-surface border-l-[3px] border-l-transparent'
                       } ${!s.isActive ? 'opacity-60' : ''}`}
                     >
-                      {/* 현장명 + 확인필요 사유 힌트 */}
-                      <div className="min-w-0">
-                        <div className="font-semibold text-[13px] text-fore-brand truncate">{s.name}</div>
-                        {s.reasons.length > 0 ? (
-                          <div className="text-[11px] text-status-rejected truncate">{s.reasons[0]}{s.reasons.length > 1 ? ` 외 ${s.reasons.length - 1}건` : ''}</div>
-                        ) : (
-                          <div className="text-[11px] text-muted2-brand truncate">{s.address}</div>
-                        )}
+                      {/* 데스크톱: 그리드 행 */}
+                      <div className="hidden sm:grid grid-cols-[minmax(0,1fr)_76px_100px_70px_56px_80px_80px] gap-2 px-4 py-3 items-center">
+                        <div className="min-w-0">
+                          <div className="font-semibold text-[13px] text-fore-brand truncate">{s.name}</div>
+                          {s.reasons.length > 0 ? (
+                            <div className="text-[11px] text-status-rejected truncate">{s.reasons[0]}{s.reasons.length > 1 ? ` 외 ${s.reasons.length - 1}건` : ''}</div>
+                          ) : (
+                            <div className="text-[11px] text-muted2-brand truncate">{s.address}</div>
+                          )}
+                        </div>
+                        <div className="text-center">
+                          <span className={`inline-block px-[6px] py-[2px] rounded-[5px] text-[11px] font-bold ${OP_COLOR[s.opStatus]}`}>{OP_LABEL[s.opStatus]}</span>
+                        </div>
+                        <div className="text-center">
+                          <span className={`inline-block px-[5px] py-[1px] rounded-[4px] text-[11px] font-bold mb-[1px] ${CP_COLOR[s.cpStatus]}`}>{CP_LABEL[s.cpStatus]}</span>
+                          {days !== null && (
+                            <div className={`text-[11px] ${days < 0 ? 'text-status-rejected font-bold' : days <= 30 ? 'text-accent-hover font-semibold' : 'text-muted2-brand'}`}>
+                              {days < 0 ? `${Math.abs(days)}일 경과` : `${days}일 남음`}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right text-[13px] font-semibold text-body-brand">
+                          {s.todayCheckInCount}<span className="text-[11px] text-muted2-brand font-normal">/{s.assignedWorkerCount}</span>
+                        </div>
+                        <div className={`text-right text-[13px] font-semibold ${s.absentCount >= ABSENT_ALERT_THRESHOLD ? 'text-status-rejected' : 'text-muted2-brand'}`}>
+                          {s.absentCount > 0 ? s.absentCount : '—'}
+                        </div>
+                        <div className="text-right text-[12px] text-body-brand">{fmtWon(s.todayWage)}</div>
+                        <div className="text-right text-[12px] font-semibold text-body-brand">{fmtWon(s.totalWage)}</div>
                       </div>
 
-                      {/* 운영 상태 배지 */}
-                      <div className="text-center">
-                        <span className={`inline-block px-[6px] py-[2px] rounded-[5px] text-[11px] font-bold ${OP_COLOR[s.opStatus]}`}>
-                          {OP_LABEL[s.opStatus]}
-                        </span>
-                      </div>
-
-                      {/* 계약기간: 계약 상태 배지 + 남은 일수 */}
-                      <div className="text-center">
-                        <span className={`inline-block px-[5px] py-[1px] rounded-[4px] text-[11px] font-bold mb-[1px] ${CP_COLOR[s.cpStatus]}`}>
-                          {CP_LABEL[s.cpStatus]}
-                        </span>
-                        {days !== null && (
-                          <div className={`text-[11px] ${days < 0 ? 'text-status-rejected font-bold' : days <= 30 ? 'text-accent-hover font-semibold' : 'text-muted2-brand'}`}>
-                            {days < 0 ? `${Math.abs(days)}일 경과` : `${days}일 남음`}
+                      {/* 모바일: 카드형 */}
+                      <div className="sm:hidden px-4 py-3">
+                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <div className="min-w-0 flex-1">
+                            <div className="font-semibold text-[14px] text-fore-brand truncate">{s.name}</div>
+                            {s.reasons.length > 0 ? (
+                              <div className="text-[11px] text-status-rejected truncate mt-0.5">{s.reasons[0]}{s.reasons.length > 1 ? ` 외 ${s.reasons.length - 1}건` : ''}</div>
+                            ) : (
+                              <div className="text-[11px] text-muted2-brand truncate mt-0.5">{s.address}</div>
+                            )}
                           </div>
-                        )}
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className={`px-[6px] py-[2px] rounded-[5px] text-[11px] font-bold ${OP_COLOR[s.opStatus]}`}>{OP_LABEL[s.opStatus]}</span>
+                            <span className={`px-[5px] py-[1px] rounded-[4px] text-[11px] font-bold ${CP_COLOR[s.cpStatus]}`}>{CP_LABEL[s.cpStatus]}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 text-[12px] text-muted2-brand flex-wrap">
+                          <span>출근 <strong className="text-body-brand">{s.todayCheckInCount}</strong>/{s.assignedWorkerCount}명</span>
+                          {s.absentCount >= ABSENT_ALERT_THRESHOLD && (
+                            <span className="text-status-rejected font-semibold">미출근 {s.absentCount}명</span>
+                          )}
+                          <span>오늘 {fmtWon(s.todayWage)}</span>
+                          <span>누계 {fmtWon(s.totalWage)}</span>
+                        </div>
                       </div>
-
-                      {/* 인원 (출근/배정) */}
-                      <div className="text-right text-[13px] font-semibold text-body-brand">
-                        {s.todayCheckInCount}
-                        <span className="text-[11px] text-muted2-brand font-normal">/{s.assignedWorkerCount}</span>
-                      </div>
-
-                      {/* 미출근 */}
-                      <div className={`text-right text-[13px] font-semibold ${s.absentCount >= ABSENT_ALERT_THRESHOLD ? 'text-status-rejected' : 'text-muted2-brand'}`}>
-                        {s.absentCount > 0 ? s.absentCount : '—'}
-                      </div>
-
-                      {/* 오늘 노임 */}
-                      <div className="text-right text-[12px] text-body-brand">{fmtWon(s.todayWage)}</div>
-
-                      {/* 총 누계 */}
-                      <div className="text-right text-[12px] font-semibold text-body-brand">{fmtWon(s.totalWage)}</div>
                     </div>
                   )
                 })}

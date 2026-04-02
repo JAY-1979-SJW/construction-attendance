@@ -114,7 +114,7 @@ export function MobileCardField({
   return (
     <div className={`flex items-center justify-between text-[12px] ${className ?? ''}`}>
       <span className="text-muted2-brand shrink-0">{label}</span>
-      <span className="text-body-brand font-medium text-right ml-2 truncate">{value}</span>
+      <span className="text-body-brand font-medium text-right ml-2 truncate min-w-0">{value}</span>
     </div>
   )
 }

@@ -1,6 +1,7 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface SiteLaborRow {
   siteId: string
@@ -56,23 +57,11 @@ export default function LaborSitesPage() {
         </div>
       </div>
 
-      <div className="rounded-[10px] overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-        <table className="w-full text-[12px]">
-          <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-            <tr>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">현장명</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">총 인원</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">출근 인원</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">공수 합계</th>
-              <th className="px-3 py-2.5 text-right text-[11px] font-semibold text-muted-brand">월 노임</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">확정</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">미확정</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">보험 대상</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
+      {loading ? (
+        <div className="rounded-[10px] overflow-hidden border border-brand">
+          <table className="w-full text-[12px]">
+            <tbody>
+              {Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
                   {Array.from({ length: 8 }).map((__, j) => (
                     <td key={j} className="px-3 py-3">
@@ -80,30 +69,69 @@ export default function LaborSitesPage() {
                     </td>
                   ))}
                 </tr>
-              ))
-            ) : rows.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-[13px] text-muted2-brand">
-                  현장 노무 데이터가 없습니다.
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) => (
-                <tr key={row.siteId} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-surface">
-                  <td className="px-3 py-2.5 font-medium text-title-brand">{row.siteName}</td>
-                  <td className="px-3 py-2.5 text-center text-body-brand">{row.totalWorkers}명</td>
-                  <td className="px-3 py-2.5 text-center text-body-brand">{row.workedWorkers}명</td>
-                  <td className="px-3 py-2.5 text-center font-medium text-body-brand">{row.totalManday.toFixed(2)}</td>
-                  <td className="px-3 py-2.5 text-right font-semibold text-title-brand">{row.totalWage.toLocaleString()}원</td>
-                  <td className="px-3 py-2.5 text-center text-status-working">{row.confirmedCount}</td>
-                  <td className="px-3 py-2.5 text-center text-status-exception">{row.pendingCount}</td>
-                  <td className="px-3 py-2.5 text-center text-body-brand">{row.insuranceTargets}명</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <MobileCardList
+          items={rows}
+          keyExtractor={(row) => row.siteId}
+          emptyMessage="현장 노무 데이터가 없습니다."
+          renderCard={(row) => (
+            <MobileCard
+              title={row.siteName}
+              subtitle={row.monthKey}
+              badge={
+                <span className="text-[12px] font-semibold text-title-brand">
+                  {row.totalWage.toLocaleString()}원
+                </span>
+              }
+            >
+              <MobileCardFields>
+                <MobileCardField label="총 인원" value={`${row.totalWorkers}명`} />
+                <MobileCardField label="출근 인원" value={`${row.workedWorkers}명`} />
+                <MobileCardField label="공수 합계" value={row.totalManday.toFixed(2)} />
+                <MobileCardField label="확정" value={<span className="text-status-working">{row.confirmedCount}</span>} />
+                <MobileCardField label="미확정" value={<span className="text-status-exception">{row.pendingCount}</span>} />
+                <MobileCardField label="보험 대상" value={`${row.insuranceTargets}명`} />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <div className="rounded-[10px] overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+              <table className="w-full text-[12px]">
+                <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+                  <tr>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-muted-brand">현장명</th>
+                    <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">총 인원</th>
+                    <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">출근 인원</th>
+                    <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">공수 합계</th>
+                    <th className="px-3 py-2.5 text-right text-[11px] font-semibold text-muted-brand">월 노임</th>
+                    <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">확정</th>
+                    <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">미확정</th>
+                    <th className="px-3 py-2.5 text-center text-[11px] font-semibold text-muted-brand">보험 대상</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row) => (
+                    <tr key={row.siteId} style={{ borderBottom: '1px solid #F3F4F6' }} className="hover:bg-surface">
+                      <td className="px-3 py-2.5 font-medium text-title-brand">{row.siteName}</td>
+                      <td className="px-3 py-2.5 text-center text-body-brand">{row.totalWorkers}명</td>
+                      <td className="px-3 py-2.5 text-center text-body-brand">{row.workedWorkers}명</td>
+                      <td className="px-3 py-2.5 text-center font-medium text-body-brand">{row.totalManday.toFixed(2)}</td>
+                      <td className="px-3 py-2.5 text-right font-semibold text-title-brand">{row.totalWage.toLocaleString()}원</td>
+                      <td className="px-3 py-2.5 text-center text-status-working">{row.confirmedCount}</td>
+                      <td className="px-3 py-2.5 text-center text-status-exception">{row.pendingCount}</td>
+                      <td className="px-3 py-2.5 text-center text-body-brand">{row.insuranceTargets}명</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
+      )}
     </div>
   )
 }

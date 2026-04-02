@@ -1,6 +1,7 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface Manager {
   id: string
@@ -111,60 +112,103 @@ export default function CompanyManagersPage() {
       {loading ? (
         <p className="text-muted-brand">로딩 중...</p>
       ) : (
-        <div className="border border-brand rounded-lg overflow-hidden">
-          <table className="w-full border-collapse">
-            <thead className="bg-surface">
-              <tr>
-                {['이름', '이메일', '관리 범위', '최근 로그인', '상태', ''].map(h => (
-                  <th key={h} className="px-[14px] py-[11px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {managers.map(m => {
-                const rc = ROLE_COLOR[m.role] ?? { bg: '#f3f4f6', color: '#6b7280' }
-                return (
-                  <tr key={m.id} className="border-b border-brand">
-                    <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle"><span className="font-semibold">{m.name}</span></td>
-                    <td className="px-[14px] py-[13px] text-[13px] text-muted-brand align-middle">{m.email}</td>
-                    <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
-                      <span
-                        className="text-[11px] px-2 py-[3px] rounded font-medium"
-                        style={{ background: rc.bg, color: rc.color }}
-                      >
+        <MobileCardList
+          items={managers}
+          keyExtractor={(m) => m.id}
+          emptyMessage="관리자가 없습니다."
+          renderCard={(m) => {
+            const rc = ROLE_COLOR[m.role] ?? { bg: '#f3f4f6', color: '#6b7280' }
+            return (
+              <MobileCard
+                title={m.name}
+                subtitle={m.email}
+                badge={
+                  <span
+                    className="text-[11px] px-2 py-[3px] rounded font-medium"
+                    style={{ background: m.isActive ? '#d1fae5' : '#f3f4f6', color: m.isActive ? '#065f46' : '#9ca3af' }}
+                  >
+                    {m.isActive ? '활성' : '비활성'}
+                  </span>
+                }
+              >
+                <MobileCardFields>
+                  <MobileCardField
+                    label="관리 범위"
+                    value={
+                      <span className="text-[11px] px-2 py-[3px] rounded font-medium" style={{ background: rc.bg, color: rc.color }}>
                         {ROLE_LABEL[m.role] ?? m.role}
                       </span>
-                    </td>
-                    <td className="px-[14px] py-[13px] text-[12px] text-muted2-brand align-middle">
-                      {m.lastLoginAt ? new Date(m.lastLoginAt).toLocaleDateString('ko-KR') : '없음'}
-                    </td>
-                    <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
-                      <span
-                        className="text-[11px] px-2 py-[3px] rounded font-medium"
-                        style={{
-                          background: m.isActive ? '#d1fae5' : '#f3f4f6',
-                          color: m.isActive ? '#065f46' : '#9ca3af',
-                        }}
-                      >
-                        {m.isActive ? '활성' : '비활성'}
-                      </span>
-                    </td>
-                    <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
-                      {m.isActive && (
-                        <button
-                          className="px-[10px] py-1 bg-card border border-brand rounded-[5px] cursor-pointer text-[12px] text-muted-brand"
-                          onClick={() => handleDeactivate(m.id, m.name)}
-                        >
-                          비활성화
-                        </button>
-                      )}
-                    </td>
+                    }
+                  />
+                  <MobileCardField
+                    label="최근 로그인"
+                    value={m.lastLoginAt ? new Date(m.lastLoginAt).toLocaleDateString('ko-KR') : '없음'}
+                  />
+                </MobileCardFields>
+                {m.isActive && (
+                  <MobileCardActions>
+                    <button
+                      className="px-[10px] py-1 bg-card border border-brand rounded-[5px] cursor-pointer text-[12px] text-muted-brand"
+                      onClick={() => handleDeactivate(m.id, m.name)}
+                    >
+                      비활성화
+                    </button>
+                  </MobileCardActions>
+                )}
+              </MobileCard>
+            )
+          }}
+          renderTable={() => (
+            <div className="border border-brand rounded-lg overflow-hidden">
+              <table className="w-full border-collapse">
+                <thead className="bg-surface">
+                  <tr>
+                    {['이름', '이메일', '관리 범위', '최근 로그인', '상태', ''].map(h => (
+                      <th key={h} className="px-[14px] py-[11px] text-left text-[12px] font-semibold text-muted-brand border-b border-brand">{h}</th>
+                    ))}
                   </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {managers.map(m => {
+                    const rc = ROLE_COLOR[m.role] ?? { bg: '#f3f4f6', color: '#6b7280' }
+                    return (
+                      <tr key={m.id} className="border-b border-brand">
+                        <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle"><span className="font-semibold">{m.name}</span></td>
+                        <td className="px-[14px] py-[13px] text-[13px] text-muted-brand align-middle">{m.email}</td>
+                        <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
+                          <span className="text-[11px] px-2 py-[3px] rounded font-medium" style={{ background: rc.bg, color: rc.color }}>
+                            {ROLE_LABEL[m.role] ?? m.role}
+                          </span>
+                        </td>
+                        <td className="px-[14px] py-[13px] text-[12px] text-muted2-brand align-middle">
+                          {m.lastLoginAt ? new Date(m.lastLoginAt).toLocaleDateString('ko-KR') : '없음'}
+                        </td>
+                        <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
+                          <span
+                            className="text-[11px] px-2 py-[3px] rounded font-medium"
+                            style={{ background: m.isActive ? '#d1fae5' : '#f3f4f6', color: m.isActive ? '#065f46' : '#9ca3af' }}
+                          >
+                            {m.isActive ? '활성' : '비활성'}
+                          </span>
+                        </td>
+                        <td className="px-[14px] py-[13px] text-[14px] text-[#1f2937] align-middle">
+                          {m.isActive && (
+                            <button
+                              className="px-[10px] py-1 bg-card border border-brand rounded-[5px] cursor-pointer text-[12px] text-muted-brand"
+                              onClick={() => handleDeactivate(m.id, m.name)}
+                            >
+                              비활성화
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
       )}
 
       {/* 관리자 추가 모달 */}

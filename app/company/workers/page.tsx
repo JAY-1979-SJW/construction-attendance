@@ -1,7 +1,8 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 interface Worker {
   id: string
@@ -112,46 +113,70 @@ export default function CompanyWorkersPage() {
       {loading ? (
         <p className="text-muted-brand text-[15px]">불러오는 중...</p>
       ) : (
-        <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] overflow-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                {['이름', '연락처', '직종', '고용형태', '출근현장', '상태'].map((h) => (
-                  <th
-                    key={h}
-                    className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand bg-surface whitespace-nowrap"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {workers.length === 0 ? (
-                <tr><td colSpan={6} className="p-8 text-center text-muted2-brand text-sm">근로자가 없습니다.</td></tr>
-              ) : workers.map((w) => (
-                <tr key={w.id} className="border-b border-brand">
-                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{w.name}</td>
-                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{formatPhone(w.phone)}</td>
-                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{w.jobTitle}</td>
-                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType}</td>
-                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{w.activeSites?.map((s) => s.name).join(', ') || '-'}</td>
-                  <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">
-                    <span
-                      className="px-2 py-0.5 rounded text-[12px] font-semibold"
-                      style={{
-                        background: w.isActive ? '#e8f5e9' : '#fafafa',
-                        color: w.isActive ? '#2e7d32' : '#888',
-                      }}
-                    >
-                      {w.isActive ? '활성' : '비활성'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <MobileCardList
+          items={workers}
+          keyExtractor={(w) => w.id}
+          emptyMessage="근로자가 없습니다."
+          renderCard={(w) => (
+            <MobileCard
+              title={w.name}
+              subtitle={`${w.jobTitle} · ${formatPhone(w.phone)}`}
+              badge={
+                <span
+                  className="px-2 py-0.5 rounded text-[12px] font-semibold"
+                  style={{ background: w.isActive ? '#e8f5e9' : '#fafafa', color: w.isActive ? '#2e7d32' : '#888' }}
+                >
+                  {w.isActive ? '활성' : '비활성'}
+                </span>
+              }
+            >
+              <MobileCardFields>
+                <MobileCardField label="고용형태" value={EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType} />
+                <MobileCardField
+                  label="출근현장"
+                  value={w.activeSites?.map((s) => s.name).join(', ') || '-'}
+                />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    {['이름', '연락처', '직종', '고용형태', '출근현장', '상태'].map((h) => (
+                      <th
+                        key={h}
+                        className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand bg-surface whitespace-nowrap"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {workers.map((w) => (
+                    <tr key={w.id} className="border-b border-brand">
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{w.name}</td>
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{formatPhone(w.phone)}</td>
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{w.jobTitle}</td>
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{EMPLOYMENT_TYPE_LABEL[w.employmentType] ?? w.employmentType}</td>
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">{w.activeSites?.map((s) => s.name).join(', ') || '-'}</td>
+                      <td className="px-4 py-3 text-sm text-body-brand whitespace-nowrap">
+                        <span
+                          className="px-2 py-0.5 rounded text-[12px] font-semibold"
+                          style={{ background: w.isActive ? '#e8f5e9' : '#fafafa', color: w.isActive ? '#2e7d32' : '#888' }}
+                        >
+                          {w.isActive ? '활성' : '비활성'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
       )}
 
       {showForm && (

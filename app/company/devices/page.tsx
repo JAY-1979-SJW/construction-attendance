@@ -1,7 +1,8 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface DeviceRequest {
   id: string
@@ -83,7 +84,7 @@ export default function CompanyDevicesPage() {
         </p>
       )}
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 flex-wrap">
         {[['PENDING', '대기중'], ['APPROVED', '승인'], ['REJECTED', '반려'], ['ALL', '전체']].map(([val, label]) => (
           <button
             key={val}
@@ -102,61 +103,101 @@ export default function CompanyDevicesPage() {
       {loading ? (
         <p className="text-muted-brand text-[15px]">불러오는 중...</p>
       ) : (
-        <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] overflow-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                {['근로자명', '기기명', '요청일시', '상태', '처리'].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand bg-surface whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
-                <tr><td colSpan={5} className="p-8 text-center text-muted2-brand text-[14px]">기기 요청이 없습니다.</td></tr>
-              ) : items.map((item) => (
-                <tr key={item.id} className="border-b border-brand">
-                  <td className="px-4 py-3 text-[14px] text-body-brand whitespace-nowrap">{item.workerName}</td>
-                  <td className="px-4 py-3 text-[14px] text-body-brand whitespace-nowrap">{item.deviceName}</td>
-                  <td className="px-4 py-3 text-[14px] text-body-brand whitespace-nowrap">{formatDt(item.createdAt)}</td>
-                  <td className="px-4 py-3 text-[14px] text-body-brand whitespace-nowrap">
-                    <span
-                      className="px-2 py-[3px] rounded text-[12px] font-semibold"
-                      style={{
-                        background: STATUS_BG[item.status] ?? '#f5f5f5',
-                        color: STATUS_COLOR[item.status] ?? '#555',
-                      }}
-                    >
-                      {STATUS_LABEL[item.status] ?? item.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-[14px] text-body-brand whitespace-nowrap">
-                    {item.status === 'PENDING' && (
-                      <div className="flex gap-[6px]">
-                        <button
-                          onClick={() => handleAction(item.id, 'approve')}
-                          disabled={processing === item.id}
-                          className="px-3 py-[5px] bg-[#2e7d32] text-white border-none rounded-[5px] cursor-pointer text-[13px] font-semibold"
-                          style={{ opacity: processing === item.id ? 0.6 : 1 }}
+        <MobileCardList
+          items={items}
+          keyExtractor={(item) => item.id}
+          emptyMessage="기기 요청이 없습니다."
+          renderCard={(item) => (
+            <MobileCard
+              title={item.workerName}
+              subtitle={item.deviceName}
+              badge={
+                <span
+                  className="px-2 py-[3px] rounded text-[12px] font-semibold"
+                  style={{ background: STATUS_BG[item.status] ?? '#f5f5f5', color: STATUS_COLOR[item.status] ?? '#555' }}
+                >
+                  {STATUS_LABEL[item.status] ?? item.status}
+                </span>
+              }
+            >
+              <MobileCardFields>
+                <MobileCardField label="요청일시" value={formatDt(item.createdAt)} />
+              </MobileCardFields>
+              {item.status === 'PENDING' && (
+                <MobileCardActions>
+                  <button
+                    onClick={() => handleAction(item.id, 'approve')}
+                    disabled={processing === item.id}
+                    className="px-3 py-[5px] bg-[#2e7d32] text-white border-none rounded-[5px] cursor-pointer text-[13px] font-semibold"
+                    style={{ opacity: processing === item.id ? 0.6 : 1 }}
+                  >
+                    승인
+                  </button>
+                  <button
+                    onClick={() => handleAction(item.id, 'reject')}
+                    disabled={processing === item.id}
+                    className="px-3 py-[5px] bg-[#b71c1c] text-white border-none rounded-[5px] cursor-pointer text-[13px] font-semibold"
+                    style={{ opacity: processing === item.id ? 0.6 : 1 }}
+                  >
+                    반려
+                  </button>
+                </MobileCardActions>
+              )}
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <div className="bg-card rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    {['근로자명', '기기명', '요청일시', '상태', '처리'].map((h) => (
+                      <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-brand bg-surface whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item) => (
+                    <tr key={item.id} className="border-b border-brand">
+                      <td className="px-4 py-3 text-[14px] text-body-brand whitespace-nowrap">{item.workerName}</td>
+                      <td className="px-4 py-3 text-[14px] text-body-brand whitespace-nowrap">{item.deviceName}</td>
+                      <td className="px-4 py-3 text-[14px] text-body-brand whitespace-nowrap">{formatDt(item.createdAt)}</td>
+                      <td className="px-4 py-3 text-[14px] text-body-brand whitespace-nowrap">
+                        <span
+                          className="px-2 py-[3px] rounded text-[12px] font-semibold"
+                          style={{ background: STATUS_BG[item.status] ?? '#f5f5f5', color: STATUS_COLOR[item.status] ?? '#555' }}
                         >
-                          승인
-                        </button>
-                        <button
-                          onClick={() => handleAction(item.id, 'reject')}
-                          disabled={processing === item.id}
-                          className="px-3 py-[5px] bg-[#b71c1c] text-white border-none rounded-[5px] cursor-pointer text-[13px] font-semibold"
-                          style={{ opacity: processing === item.id ? 0.6 : 1 }}
-                        >
-                          반려
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                          {STATUS_LABEL[item.status] ?? item.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-[14px] text-body-brand whitespace-nowrap">
+                        {item.status === 'PENDING' && (
+                          <div className="flex gap-[6px]">
+                            <button
+                              onClick={() => handleAction(item.id, 'approve')}
+                              disabled={processing === item.id}
+                              className="px-3 py-[5px] bg-[#2e7d32] text-white border-none rounded-[5px] cursor-pointer text-[13px] font-semibold"
+                              style={{ opacity: processing === item.id ? 0.6 : 1 }}
+                            >
+                              승인
+                            </button>
+                            <button
+                              onClick={() => handleAction(item.id, 'reject')}
+                              disabled={processing === item.id}
+                              className="px-3 py-[5px] bg-[#b71c1c] text-white border-none rounded-[5px] cursor-pointer text-[13px] font-semibold"
+                              style={{ opacity: processing === item.id ? 0.6 : 1 }}
+                            >
+                              반려
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        />
       )}
     </div>
   )
