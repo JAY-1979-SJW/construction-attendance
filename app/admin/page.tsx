@@ -276,6 +276,7 @@ export default function AdminDashboard() {
   const [siteOptions,    setSiteOptions]    = useState<SiteOption[]>([])
   const [loading,        setLoading]        = useState(true)
   const [loadError,      setLoadError]      = useState('')
+  const [inviteCopied,   setInviteCopied]   = useState(false)
 
   const load = useCallback(() => {
     setLoading(true)
@@ -353,6 +354,18 @@ export default function AdminDashboard() {
                   stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               새로고침
+            </Btn>
+            <Btn
+              variant="primary" size="sm"
+              onClick={() => {
+                const url = `${window.location.origin}/invite`
+                navigator.clipboard.writeText(url).then(() => {
+                  setInviteCopied(true)
+                  setTimeout(() => setInviteCopied(false), 2000)
+                })
+              }}
+            >
+              {inviteCopied ? '복사됨!' : '근로자 초대 링크'}
             </Btn>
           </>
         }

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import WorkerDisclaimerBanner from '@/components/worker/WorkerDisclaimerBanner'
 import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
 import WorkerTopBar from '@/components/worker/WorkerTopBar'
+import PwaInstallPrompt from '@/components/worker/PwaInstallPrompt'
 
 interface TodayStatus {
   id: string
@@ -859,6 +860,7 @@ export default function AttendancePage() {
         </div>
       )}
 
+      {!isPreview && <PwaInstallPrompt />}
       {!isPreview && <WorkerBottomNav />}
     </div>
     </>
