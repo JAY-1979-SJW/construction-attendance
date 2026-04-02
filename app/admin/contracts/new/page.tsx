@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { Suspense, useEffect, useState, useMemo } from 'react'
+import { Suspense, useEffect, useState, useMemo, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   ADMIN_TYPE_GUIDES,
@@ -222,6 +222,143 @@ function NewContractPage() {
     probationMonths:      '',
     annualLeaveRule:      '',
   })
+
+  // ─── PDF 계약서 파싱 ─────────────────────────────────────────────
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [pdfParsing, setPdfParsing] = useState(false)
+  const [pdfError, setPdfError] = useState('')
+  const [pdfParsed, setPdfParsed] = useState<Record<string, unknown> | null>(null)
+  const [pdfFilledFields, setPdfFilledFields] = useState<string[]>([])
+
+  async function handlePdfUpload(file: File) {
+    setPdfError('')
+    setPdfParsed(null)
+    setPdfFilledFields([])
+
+    if (file.type !== 'application/pdf') {
+      setPdfError('PDF 파일만 지원합니다.')
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setPdfError('파일 크기는 10MB 이하만 지원합니다.')
+      return
+    }
+
+    setPdfParsing(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/admin/documents/parse-pdf', { method: 'POST', body: fd })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        setPdfError(json.error || 'PDF 파싱 실패')
+        setPdfParsing(false)
+        return
+      }
+      const fields = json.fields || json
+      setPdfParsed(fields)
+      applyPdfFieldsToForm(fields)
+    } catch (e) {
+      setPdfError('PDF 파싱 중 오류가 발생했습니다.')
+    } finally {
+      setPdfParsing(false)
+    }
+  }
+
+  function applyPdfFieldsToForm(fields: Record<string, unknown>) {
+    const filled: string[] = []
+    const updates: Record<string, unknown> = {}
+
+    // 현장명 → sites 에서 매칭 시도
+    if (fields.siteName) {
+      const siteName = String(fields.siteName)
+      const siteAddr = fields.siteAddress ? String(fields.siteAddress) : ''
+      // name+address 조합 매칭 우선, name만 매칭 차선
+      const exactMatch = sites.find(s => s.name === siteName && s.address === siteAddr)
+      const nameMatch = !exactMatch ? sites.find(s => s.name === siteName) : null
+      const matched = exactMatch || nameMatch
+      if (matched) {
+        updates.siteId = matched.id
+        updates.siteAddress = matched.address || siteAddr
+        filled.push('siteId')
+      } else {
+        updates.siteAddress = siteAddr
+        updates.projectName = siteName
+      }
+      if (siteAddr) filled.push('siteAddress')
+      filled.push('siteName')
+    }
+
+    // 회사명 → companies 에서 매칭
+    if (fields.companyName) {
+      const cn = String(fields.companyName)
+      const coMatch = companies.find(c => c.companyName === cn)
+      if (coMatch) {
+        updates.companyName = coMatch.companyName
+        updates.companyBizNo = coMatch.businessNumber || ''
+        updates.companyAddress = coMatch.address || ''
+        updates.companyRepName = coMatch.representativeName || ''
+        updates.companyPhone = coMatch.contactPhone || ''
+        filled.push('companyName')
+      } else {
+        updates.companyName = cn
+        if (fields.companyBizNo) updates.companyBizNo = String(fields.companyBizNo)
+        if (fields.companyAddress) updates.companyAddress = String(fields.companyAddress)
+        if (fields.companyCeo) updates.companyRepName = String(fields.companyCeo)
+        filled.push('companyName')
+      }
+    }
+
+    // 근로자명 → workers 에서 매칭
+    if (fields.workerName) {
+      const wn = String(fields.workerName)
+      const wMatch = workers.find(w => w.name === wn)
+      if (wMatch) {
+        updates.workerId = wMatch.id
+        updates.workerBirthDate = wMatch.birthDate || ''
+        filled.push('workerId')
+      }
+      filled.push('workerName')
+    }
+
+    // 날짜 필드
+    if (fields.startDate) { updates.startDate = String(fields.startDate); filled.push('startDate') }
+    if (fields.endDate) { updates.endDate = String(fields.endDate); filled.push('endDate') }
+
+    // 금액
+    if (fields.dailyWage) { updates.dailyWage = String(fields.dailyWage); filled.push('dailyWage') }
+    if (fields.monthlySalary) { updates.monthlySalary = String(fields.monthlySalary); filled.push('monthlySalary') }
+
+    // 근무 시간
+    if (fields.checkInTime) { updates.checkInTime = String(fields.checkInTime); filled.push('checkInTime') }
+    if (fields.checkOutTime) { updates.checkOutTime = String(fields.checkOutTime); filled.push('checkOutTime') }
+    if (fields.breakHours) { updates.breakHours = String(fields.breakHours); filled.push('breakHours') }
+
+    // 계약형태
+    if (fields.contractType) {
+      const ct = String(fields.contractType).toUpperCase()
+      if (ct === 'DAILY' || ct.includes('일용')) {
+        updates.contractTemplateType = 'DAILY_EMPLOYMENT'
+        updates.contractKind = 'EMPLOYMENT'
+      } else if (ct === 'REGULAR' || ct.includes('상용')) {
+        updates.contractTemplateType = 'REGULAR_EMPLOYMENT'
+        updates.contractKind = 'EMPLOYMENT'
+      } else if (ct === 'FIXED_TERM' || ct.includes('기간제')) {
+        updates.contractTemplateType = 'FIXED_TERM_EMPLOYMENT'
+        updates.contractKind = 'EMPLOYMENT'
+      }
+      filled.push('contractType')
+    }
+
+    // 특약사항
+    if (fields.specialTerms) { updates.specialTerms = String(fields.specialTerms); filled.push('specialTerms') }
+
+    // 직종
+    if (fields.jobTitle) { updates.taskDescription = String(fields.jobTitle); filled.push('jobTitle') }
+
+    setForm(f => ({ ...f, ...updates }))
+    setPdfFilledFields(filled)
+  }
 
   useEffect(() => {
     Promise.all([
@@ -470,6 +607,102 @@ function NewContractPage() {
       <div className="flex items-center gap-3">
         <button onClick={() => router.back()} className="text-[#718096] hover:text-dim-brand text-sm">← 뒤로</button>
         <h1 className="text-2xl font-bold">신규 계약 등록</h1>
+      </div>
+
+      {/* PDF 계약서 업로드 → 자동 채움 */}
+      <div className="bg-card border-2 border-teal-200 rounded-lg p-5 space-y-3">
+        <div className="flex items-center gap-2">
+          <h2 className="font-semibold text-white">PDF 계약서 업로드 (자동 채움)</h2>
+          <span className="text-xs bg-teal-100 text-teal-700 rounded-full px-2 py-0.5 font-medium">선택사항</span>
+        </div>
+        <p className="text-xs text-[#718096]">
+          기존 계약서 PDF를 업로드하면 AI가 현장명, 근로자명, 일당 등을 자동으로 추출합니다.
+          추출값은 아래 입력칸에 미리 채워지며, 직접 수정할 수 있습니다.
+        </p>
+        <div className="flex items-center gap-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/pdf"
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handlePdfUpload(f)
+            }}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={pdfParsing}
+            className="px-4 py-2 border-2 border-teal-400 text-teal-300 rounded-lg text-sm font-medium hover:bg-teal-900/20 disabled:opacity-50"
+          >
+            {pdfParsing ? 'AI 분석 중...' : 'PDF 파일 선택'}
+          </button>
+          {pdfParsing && (
+            <span className="text-xs text-teal-400 animate-pulse">PDF에서 계약 정보를 추출하고 있습니다...</span>
+          )}
+        </div>
+        {pdfError && (
+          <div className="bg-red-50 border border-red-200 rounded p-2 text-red-700 text-xs">{pdfError}</div>
+        )}
+
+        {/* 파싱 결과 미리보기 */}
+        {pdfParsed && (
+          <div className="bg-teal-950/30 border border-teal-400/30 rounded-lg p-4 space-y-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-bold text-teal-300">PDF 추출 결과 미리보기</span>
+              <span className="text-xs text-[#718096]">— 아래 값이 입력칸에 자동 반영됨 (수정 가능)</span>
+            </div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
+              {[
+                { label: '현장명', value: pdfParsed.siteName, key: 'siteName' },
+                { label: '현장주소', value: pdfParsed.siteAddress, key: 'siteAddress' },
+                { label: '회사명', value: pdfParsed.companyName, key: 'companyName' },
+                { label: '근로자명', value: pdfParsed.workerName, key: 'workerName' },
+                { label: '시작일', value: pdfParsed.startDate, key: 'startDate' },
+                { label: '종료일', value: pdfParsed.endDate, key: 'endDate' },
+                { label: '일당', value: pdfParsed.dailyWage ? `${Number(pdfParsed.dailyWage).toLocaleString('ko-KR')}원` : null, key: 'dailyWage' },
+                { label: '계약형태', value: pdfParsed.contractType, key: 'contractType' },
+              ].map(({ label, value, key }) => (
+                <div key={key} className="flex gap-2">
+                  <span className="text-[#718096] w-16 shrink-0">{label}</span>
+                  <span className={value ? 'text-teal-200 font-medium' : 'text-[#718096]'}>
+                    {value ? String(value) : '(미추출)'}
+                  </span>
+                  {(() => {
+                    if (!value || !pdfParsed.confidence) return null
+                    const conf = (pdfParsed.confidence as Record<string, number>)[key]
+                    if (typeof conf !== 'number') return null
+                    return (
+                      <span className={`ml-1 ${conf >= 0.8 ? 'text-green-400' : 'text-amber-400'}`}>
+                        ({String(Math.round(conf * 100))}%)
+                      </span>
+                    )
+                  })()}
+                </div>
+              ))}
+            </div>
+            {/* 현장 매칭 결과 */}
+            {!!pdfParsed.siteName && (
+              <div className="text-xs mt-2">
+                {form.siteId && sites.find(s => s.id === form.siteId) ? (
+                  <span className="text-green-400">
+                    기존 현장 매칭됨: {String(sites.find(s => s.id === form.siteId)?.name ?? '')}
+                  </span>
+                ) : (
+                  <span className="text-amber-400">
+                    기존 현장에 일치하는 항목 없음 — 현장 드롭다운에서 직접 선택하거나, 저장 후 별도 현장 등록이 필요합니다.
+                  </span>
+                )}
+              </div>
+            )}
+            {pdfFilledFields.length > 0 && (
+              <div className="text-xs text-teal-400 mt-1">
+                자동 채움된 항목: {pdfFilledFields.length}개 — 각 입력칸에서 직접 수정 가능합니다.
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {error && (
