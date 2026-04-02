@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -36,8 +36,8 @@ function getMonthKey() {
 const statusBadgeClass: Record<string, string> = {
   OPEN:     'bg-[rgba(91,164,217,0.1)] text-muted-brand',
   CLOSING:  'bg-[#fff8e1] text-[#f9a825]',
-  CLOSED:   'bg-[#e8f5e9] text-[#2e7d32]',
-  REOPENED: 'bg-[#fff3e0] text-[#e65100]',
+  CLOSED:   'bg-green-light text-[#2e7d32]',
+  REOPENED: 'bg-[#fff3e0] text-accent-hover',
 }
 
 const statusLabel: Record<string, string> = {
@@ -152,13 +152,13 @@ export default function MonthClosingsPage() {
 
         {/* 마감 정보 박스 */}
         {closing?.status === 'CLOSED' && (
-          <div className="px-4 py-3 rounded-lg border border-[#a5d6a7] bg-[#e8f5e9] text-[#2e7d32] text-[13px] leading-relaxed mb-4">
+          <div className="px-4 py-3 rounded-lg border border-[#a5d6a7] bg-green-light text-[#2e7d32] text-[13px] leading-relaxed mb-4">
             마감일시: {closing.closedAt ? new Date(closing.closedAt).toLocaleString('ko-KR') : '-'}
             {closing.closedBy && <span className="ml-4 text-[12px]">처리자: {closing.closedBy}</span>}
           </div>
         )}
         {closing?.status === 'REOPENED' && (
-          <div className="px-4 py-3 rounded-lg border border-[#ffcc80] bg-[#fff3e0] text-[#e65100] text-[13px] leading-relaxed mb-4">
+          <div className="px-4 py-3 rounded-lg border border-[#ffcc80] bg-[#fff3e0] text-accent-hover text-[13px] leading-relaxed mb-4">
             재오픈 사유: {closing.reopenReason}
             <br />
             재오픈 일시: {closing.reopenedAt ? new Date(closing.reopenedAt).toLocaleString('ko-KR') : '-'}
@@ -194,15 +194,15 @@ export default function MonthClosingsPage() {
         </div>
 
         {msg && (
-          <div className={`px-4 py-3 rounded-lg mb-4 text-[14px] ${msg.startsWith('오류') ? 'bg-[#ffebee] text-[#c62828]' : 'bg-[#e8f5e9] text-[#2e7d32]'}`}>
+          <div className={`px-4 py-3 rounded-lg mb-4 text-[14px] ${msg.startsWith('오류') ? 'bg-red-light text-[#c62828]' : 'bg-green-light text-[#2e7d32]'}`}>
             {msg}
           </div>
         )}
 
         {/* 사전검사 결과 */}
         {precheck && (
-          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">
+          <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">
               사전검사 결과
             </div>
             <div className="p-5">
@@ -217,7 +217,7 @@ export default function MonthClosingsPage() {
                   { label: '퇴직공제 미생성', value: precheck.summary.missingRetirement, warn: precheck.summary.missingRetirement > 0 },
                   { label: '신고자료 미생성', value: precheck.summary.missingExports, warn: precheck.summary.missingExports > 0 },
                 ].map((card) => (
-                  <div key={card.label} className="bg-white rounded-[12px] px-3 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)] text-center"
+                  <div key={card.label} className="bg-card rounded-[12px] px-3 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)] text-center"
                     style={{ borderTop: `4px solid ${card.warn ? '#e53935' : '#e0e0e0'}` }}>
                     <div className="text-[28px] font-bold" style={{ color: card.warn ? '#e53935' : '#333' }}>
                       {card.value}
@@ -234,7 +234,7 @@ export default function MonthClosingsPage() {
                     오류 (마감 불가)
                   </div>
                   {precheck.errors.map((e, i) => (
-                    <div key={i} className="text-[13px] text-[#c62828] bg-[#ffebee] px-3 py-2 rounded-md mb-1">
+                    <div key={i} className="text-[13px] text-[#c62828] bg-red-light px-3 py-2 rounded-md mb-1">
                       x {e}
                     </div>
                   ))}
@@ -256,7 +256,7 @@ export default function MonthClosingsPage() {
               )}
 
               {precheck.canClose && (
-                <div className="text-[13px] text-[#2e7d32] bg-[#e8f5e9] px-4 py-2.5 rounded-md">
+                <div className="text-[13px] text-[#2e7d32] bg-green-light px-4 py-2.5 rounded-md">
                   모든 필수 조건이 충족되었습니다. 마감을 진행할 수 있습니다.
                 </div>
               )}

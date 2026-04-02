@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 import { Modal } from '@/components/admin/ui'
@@ -134,13 +134,13 @@ export default function AttendanceExceptionsPage() {
       </div>
 
       {error && (
-        <div className="bg-[#ffebee] border border-[#ef9a9a] rounded-lg p-3 mb-3 text-[#c62828] text-[13px]">
+        <div className="bg-red-light border border-[#ef9a9a] rounded-lg p-3 mb-3 text-[#c62828] text-[13px]">
           {error}
         </div>
       )}
 
       {/* 목록 */}
-      <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
+      <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
         <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr className="bg-[#263238] text-white">
@@ -165,16 +165,16 @@ export default function AttendanceExceptionsPage() {
             ) : (
               items.map((item, i) => (
                 <tr key={item.id} style={{ background: i % 2 === 1 ? '#fafafa' : '#fff' }}>
-                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">
+                  <td className="px-3 py-[10px] border-b border-brand align-top">
                     <div className="font-bold">{item.workerName}</div>
                     <div className="text-[11px] text-muted-brand">{item.workerPhone}</div>
                   </td>
-                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">{item.company || '—'}</td>
-                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">{item.siteName}</td>
-                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">{item.workDate}</td>
-                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">{fmtTime(item.checkInAt)}</td>
-                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">{fmtTime(item.checkOutAt)}</td>
-                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">
+                  <td className="px-3 py-[10px] border-b border-brand align-top">{item.company || '—'}</td>
+                  <td className="px-3 py-[10px] border-b border-brand align-top">{item.siteName}</td>
+                  <td className="px-3 py-[10px] border-b border-brand align-top">{item.workDate}</td>
+                  <td className="px-3 py-[10px] border-b border-brand align-top">{fmtTime(item.checkInAt)}</td>
+                  <td className="px-3 py-[10px] border-b border-brand align-top">{fmtTime(item.checkOutAt)}</td>
+                  <td className="px-3 py-[10px] border-b border-brand align-top">
                     <span style={{ color: STATUS_COLOR[item.status] ?? '#333', fontWeight: 700 }}>
                       {STATUS_LABEL[item.status] ?? item.status}
                     </span>
@@ -182,12 +182,12 @@ export default function AttendanceExceptionsPage() {
                       <div className="text-[11px] text-muted-brand">{item.exceptionReason}</div>
                     )}
                   </td>
-                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top text-center">
+                  <td className="px-3 py-[10px] border-b border-brand align-top text-center">
                     <span style={{ color: item.daysBehind > 3 ? '#c62828' : item.daysBehind > 0 ? '#e65100' : '#333', fontWeight: item.daysBehind > 3 ? 700 : 400 }}>
                       {item.daysBehind}일
                     </span>
                   </td>
-                  <td className="px-3 py-[10px] border-b border-[#f0f0f0] align-top">
+                  <td className="px-3 py-[10px] border-b border-brand align-top">
                     <button
                       onClick={() => { setTarget(item); setAction(''); setCheckOut(''); setNote('') }}
                       className="px-3 py-1 bg-[#E06810] text-white border-0 rounded text-[12px] cursor-pointer font-bold"
@@ -225,7 +225,7 @@ export default function AttendanceExceptionsPage() {
 
             <div className="mb-[14px]">
               <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">처리 유형 *</label>
-              <select value={action} onChange={e => setAction(e.target.value)} className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-[7px] text-sm outline-none box-border">
+              <select value={action} onChange={e => setAction(e.target.value)} className="w-full px-3 py-[9px] border border-brand rounded-[7px] text-sm outline-none box-border">
                 <option value="">선택하세요</option>
                 {target.status === 'MISSING_CHECKOUT' && (
                   <option value="SET_CHECKOUT">퇴근시간 설정</option>
@@ -247,7 +247,7 @@ export default function AttendanceExceptionsPage() {
                   type="datetime-local"
                   value={checkOut}
                   onChange={e => setCheckOut(e.target.value)}
-                  className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-[7px] text-sm outline-none box-border"
+                  className="w-full px-3 py-[9px] border border-brand rounded-[7px] text-sm outline-none box-border"
                 />
               </div>
             )}
@@ -259,12 +259,12 @@ export default function AttendanceExceptionsPage() {
                 onChange={e => setNote(e.target.value)}
                 placeholder="처리 사유를 입력하세요 (감사로그에 기록됨)"
                 rows={3}
-                className="w-full px-3 py-[9px] border border-[#E5E7EB] rounded-[7px] text-sm outline-none box-border resize-y"
+                className="w-full px-3 py-[9px] border border-brand rounded-[7px] text-sm outline-none box-border resize-y"
               />
             </div>
 
             <div className="flex gap-[10px]">
-              <button onClick={() => setTarget(null)} className="flex-1 py-3 border border-[#E5E7EB] rounded-lg bg-white cursor-pointer text-sm">
+              <button onClick={() => setTarget(null)} className="flex-1 py-3 border border-brand rounded-lg bg-card cursor-pointer text-sm">
                 취소
               </button>
               <button

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -180,7 +180,7 @@ export default function RetirementMutualPage() {
         <h1 className="text-2xl font-bold mb-6">퇴직공제 관리</h1>
 
         {/* 탭 */}
-        <div className="flex gap-0 mb-6 border-b-2 border-[#e0e0e0]">
+        <div className="flex gap-0 mb-6 border-b-2 border-brand">
           {(Object.keys(TAB_LABELS) as Tab[]).map((t) => (
             <button
               key={t}
@@ -205,7 +205,7 @@ export default function RetirementMutualPage() {
               type="month"
               value={monthKey}
               onChange={(e) => setMonthKey(e.target.value)}
-              className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-white"
+              className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-card"
             />
             {tab === 'daily' && (
               <input
@@ -213,22 +213,22 @@ export default function RetirementMutualPage() {
                 placeholder="현장 ID 필터"
                 value={dailySiteFilter}
                 onChange={(e) => setDailySiteFilter(e.target.value)}
-                className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-white w-40"
+                className="px-[10px] py-2 border border-[rgba(91,164,217,0.2)] rounded-md text-[14px] bg-card w-40"
               />
             )}
           </div>
         )}
 
         {msg && (
-          <div className={`px-4 py-3 rounded-lg mb-4 text-[14px] ${msg.startsWith('오류') ? 'bg-[#ffebee] text-[#c62828]' : 'bg-[#e8f5e9] text-[#2e7d32]'}`}>
+          <div className={`px-4 py-3 rounded-lg mb-4 text-[14px] ${msg.startsWith('오류') ? 'bg-red-light text-[#c62828]' : 'bg-green-light text-[#2e7d32]'}`}>
             {msg}
           </div>
         )}
 
         {/* 현장설정 탭 */}
         {tab === 'sites' && (
-          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">퇴직공제 대상 현장</div>
+          <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">퇴직공제 대상 현장</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
@@ -244,12 +244,12 @@ export default function RetirementMutualPage() {
                       <tr><td colSpan={4} className="text-center py-6 text-[#999]">등록된 현장 없음</td></tr>
                     ) : sites.map((site) => (
                       <tr key={site.id}>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
                           {site.siteName}<br /><span className="text-[11px] text-[#999]">{site.siteId}</span>
                         </td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{site.contractNumber ?? '-'}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(site.createdAt).toLocaleDateString('ko-KR')}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{site.contractNumber ?? '-'}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(site.createdAt).toLocaleDateString('ko-KR')}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
                           <button
                             onClick={() => toggleSite(site.id, site.enabledYn)}
                             className="px-3 py-1 text-white border-none rounded-full cursor-pointer text-[12px] font-semibold"
@@ -269,8 +269,8 @@ export default function RetirementMutualPage() {
 
         {/* 근로자설정 탭 */}
         {tab === 'workers' && (
-          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">퇴직공제 대상 근로자</div>
+          <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">퇴직공제 대상 근로자</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
@@ -286,13 +286,13 @@ export default function RetirementMutualPage() {
                       <tr><td colSpan={5} className="text-center py-6 text-[#999]">등록된 근로자 없음</td></tr>
                     ) : workers.map((w) => (
                       <tr key={w.id}>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
                           {w.workerName}<br /><span className="text-[11px] text-[#999]">{w.workerId}</span>
                         </td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{w.company}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{w.joinDate ? new Date(w.joinDate).toLocaleDateString('ko-KR') : '-'}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{w.company}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{w.joinDate ? new Date(w.joinDate).toLocaleDateString('ko-KR') : '-'}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{new Date(w.createdAt).toLocaleDateString('ko-KR')}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
                           <button
                             onClick={() => toggleWorker(w.id, w.enabledYn)}
                             className="px-3 py-1 text-white border-none rounded-full cursor-pointer text-[12px] font-semibold"
@@ -312,8 +312,8 @@ export default function RetirementMutualPage() {
 
         {/* 일별내역 탭 */}
         {tab === 'daily' && (
-          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">일별 퇴직공제 내역</div>
+          <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">일별 퇴직공제 내역</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
@@ -329,16 +329,16 @@ export default function RetirementMutualPage() {
                       <tr><td colSpan={7} className="text-center py-6 text-[#999]">데이터 없음</td></tr>
                     ) : dailyRecords.map((r) => (
                       <tr key={r.id}>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{r.date}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{r.workerName}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{r.siteName}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.date}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.workerName}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.siteName}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
                           <span style={{ color: r.recognizedYn ? '#2e7d32' : '#9e9e9e' }} className="font-semibold text-[12px]">
                             {r.recognizedYn ? '인정' : '미인정'}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedMandays}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedMandays}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
                           <span style={{ color: r.manualOverride ? '#e65100' : '#9e9e9e' }} className="text-[12px]">
                             {r.manualOverride ? '보정' : '-'}
                           </span>
@@ -355,8 +355,8 @@ export default function RetirementMutualPage() {
 
         {/* 월별요약 탭 */}
         {tab === 'monthly' && (
-          <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#f0f0f0] font-bold text-[14px]">월별 퇴직공제 요약</div>
+          <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-brand font-bold text-[14px]">월별 퇴직공제 요약</div>
             {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
@@ -372,12 +372,12 @@ export default function RetirementMutualPage() {
                       <tr><td colSpan={6} className="text-center py-6 text-[#999]">데이터 없음</td></tr>
                     ) : monthlyRecords.map((r) => (
                       <tr key={r.id}>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{r.monthKey}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{r.workerName}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{r.siteName}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedDays}일</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedMandays}</td>
-                        <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.monthKey}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.workerName}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{r.siteName}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedDays}일</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">{r.recognizedMandays}</td>
+                        <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
                           <span style={{
                             color: r.status === 'CONFIRMED' ? '#2e7d32' : r.status === 'EXPORTED' ? '#1565c0' : '#888',
                           }} className="text-[12px] font-semibold">
@@ -395,7 +395,7 @@ export default function RetirementMutualPage() {
 
         {/* Export 탭 */}
         {tab === 'export' && (
-          <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+          <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <div className="font-bold text-[14px] mb-4">퇴직공제 자료 생성</div>
             <p className="text-[13px] text-muted-brand mb-5">
               선택한 귀속연월의 퇴직공제 신고 기초자료를 생성합니다.
@@ -410,7 +410,7 @@ export default function RetirementMutualPage() {
             </button>
 
             {exportResult && (
-              <div className="mt-5 p-4 bg-[#e8f5e9] rounded-lg text-[13px] text-[#2e7d32]">
+              <div className="mt-5 p-4 bg-green-light rounded-lg text-[13px] text-[#2e7d32]">
                 생성 완료 — {exportResult.count}건 / {exportResult.message}
               </div>
             )}

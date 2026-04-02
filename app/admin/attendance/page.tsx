@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -187,15 +187,15 @@ function isNeedsReview(r: AttendanceRecord): boolean {
 function GpsBadge({ within }: { within: boolean | null }) {
   if (within === null) return <span className="text-[11px] text-[#D1D5DB]">-</span>
   return within
-    ? <span className="text-[11px] font-semibold text-[#16A34A]">범위내</span>
-    : <span className="text-[11px] font-semibold text-[#DC2626]">범위외</span>
+    ? <span className="text-[11px] font-semibold text-status-working">범위내</span>
+    : <span className="text-[11px] font-semibold text-status-rejected">범위외</span>
 }
 
 // ── 사진 상태 아이콘 ──────────────────────────────────────────────────────────
 function PhotoIcon({ has }: { has: boolean }) {
   if (has) {
     return (
-      <span title="사진 있음" className="text-[#2563EB]">
+      <span title="사진 있음" className="text-status-info">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
           <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="2"/>
           <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
@@ -242,7 +242,7 @@ function SiteSelect({
       <button
         type="button"
         onClick={() => { setOpen(o => !o); setQuery('') }}
-        className="h-9 px-3 text-[13px] rounded-[8px] border border-[#E5E7EB] bg-white text-[#374151] hover:border-[#F97316] transition-colors flex items-center gap-2 min-w-[160px] max-w-[220px]"
+        className="h-9 px-3 text-[13px] rounded-[8px] border border-brand bg-card text-body-brand hover:border-accent transition-colors flex items-center gap-2 min-w-[160px] max-w-[220px]"
       >
         <span className="flex-1 text-left truncate">{selected ? selected.name : '전체 현장'}</span>
         <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
@@ -250,15 +250,15 @@ function SiteSelect({
         </svg>
       </button>
       {open && (
-        <div className="absolute left-0 top-full mt-1 w-[240px] bg-white border border-[#E5E7EB] rounded-[12px] shadow-xl z-50 overflow-hidden">
-          <div className="p-2 border-b border-[#F3F4F6]">
+        <div className="absolute left-0 top-full mt-1 w-[240px] bg-card border border-brand rounded-[12px] shadow-xl z-50 overflow-hidden">
+          <div className="p-2 border-b border-brand">
             <input
               autoFocus
               type="text"
               placeholder="현장 검색..."
               value={query}
               onChange={e => setQuery(e.target.value)}
-              className="w-full h-9 px-3 text-[13px] rounded-[6px] border border-[#E5E7EB] outline-none focus:border-[#F97316]"
+              className="w-full h-9 px-3 text-[13px] rounded-[6px] border border-brand outline-none focus:border-accent"
             />
           </div>
           <ul className="max-h-[220px] overflow-y-auto py-1">
@@ -266,7 +266,7 @@ function SiteSelect({
               <button
                 type="button"
                 onClick={() => { onChange(''); setOpen(false); setQuery('') }}
-                className={`w-full text-left px-3 py-2 text-[13px] hover:bg-[#F9FAFB] ${!value ? 'text-[#F97316] font-semibold' : 'text-[#374151]'}`}
+                className={`w-full text-left px-3 py-2 text-[13px] hover:bg-surface ${!value ? 'text-accent font-semibold' : 'text-body-brand'}`}
               >
                 전체 현장
               </button>
@@ -276,14 +276,14 @@ function SiteSelect({
                 <button
                   type="button"
                   onClick={() => { onChange(o.id); setOpen(false); setQuery('') }}
-                  className={`w-full text-left px-3 py-2 text-[13px] hover:bg-[#F9FAFB] ${value === o.id ? 'text-[#F97316] font-semibold' : 'text-[#374151]'}`}
+                  className={`w-full text-left px-3 py-2 text-[13px] hover:bg-surface ${value === o.id ? 'text-accent font-semibold' : 'text-body-brand'}`}
                 >
                   {o.name}
                 </button>
               </li>
             ))}
             {filtered.length === 0 && (
-              <li className="px-3 py-2 text-[12px] text-[#9CA3AF]">검색 결과 없음</li>
+              <li className="px-3 py-2 text-[12px] text-muted2-brand">검색 결과 없음</li>
             )}
           </ul>
         </div>
@@ -308,15 +308,15 @@ function KpiCard({
       onClick={onClick}
       className={`flex-1 min-w-0 rounded-[10px] border px-4 py-3 text-left transition-all ${
         active
-          ? 'border-[#F97316] bg-[#FFF7ED]'
-          : 'border-[#E5E7EB] bg-white hover:border-[#F97316]/50'
+          ? 'border-accent bg-accent-light'
+          : 'border-brand bg-card hover:border-accent/50'
       } ${onClick ? 'cursor-pointer' : 'cursor-default'}`}
     >
-      <div className="text-[11px] font-semibold text-[#6B7280] mb-1">{label}</div>
+      <div className="text-[11px] font-semibold text-muted-brand mb-1">{label}</div>
       <div className="text-[22px] font-bold tabular-nums leading-none" style={{ color: color ?? '#0F172A' }}>
         {value}
       </div>
-      {sub && <div className="text-[11px] text-[#9CA3AF] mt-1">{sub}</div>}
+      {sub && <div className="text-[11px] text-muted2-brand mt-1">{sub}</div>}
     </button>
   )
 }
@@ -329,7 +329,7 @@ function PanelSection({ label, children, warn }: {
 }) {
   return (
     <div className="mb-5">
-      <div className={`text-[11px] font-bold uppercase tracking-wider mb-2.5 ${warn ? 'text-[#DC2626]' : 'text-[#9CA3AF]'}`}>
+      <div className={`text-[11px] font-bold uppercase tracking-wider mb-2.5 ${warn ? 'text-status-rejected' : 'text-muted2-brand'}`}>
         {label}
       </div>
       {children}
@@ -344,8 +344,8 @@ function PanelRow({ label, value, warn }: {
 }) {
   return (
     <div className="flex items-start gap-2 mb-2">
-      <span className="text-[12px] text-[#9CA3AF] w-[80px] shrink-0 pt-[1px]">{label}</span>
-      <span className={`text-[13px] font-medium flex-1 ${warn ? 'text-[#DC2626]' : 'text-[#374151]'}`}>
+      <span className="text-[12px] text-muted2-brand w-[80px] shrink-0 pt-[1px]">{label}</span>
+      <span className={`text-[13px] font-medium flex-1 ${warn ? 'text-status-rejected' : 'text-body-brand'}`}>
         {value}
       </span>
     </div>
@@ -617,7 +617,7 @@ function AttendancePageInner() {
       {/* ── 필터 바 ── */}
       <SectionCard padding={false}>
         {/* 1행: 조회 컨트롤 */}
-        <div className="px-5 pt-4 pb-3 flex items-center gap-3 flex-wrap border-b border-[#F3F4F6]">
+        <div className="px-5 pt-4 pb-3 flex items-center gap-3 flex-wrap border-b border-brand">
           <FilterInput
             type="date"
             value={date}
@@ -672,7 +672,7 @@ function AttendancePageInner() {
               {opt.label}
             </FilterPill>
           ))}
-          <span className="text-[12px] text-[#6B7280] ml-1">총 {total}명</span>
+          <span className="text-[12px] text-muted-brand ml-1">총 {total}명</span>
         </div>
       </SectionCard>
 
@@ -721,34 +721,34 @@ function AttendancePageInner() {
 
       {/* ── 현장 보조 정보 (현장 선택 시) ── */}
       {siteId && selectedSite && summary && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[12px] px-5 py-3 flex items-center gap-6 flex-wrap">
+        <div className="bg-card border border-brand rounded-[12px] px-5 py-3 flex items-center gap-6 flex-wrap">
           <div>
-            <span className="text-[11px] text-[#9CA3AF] block">선택 현장</span>
-            <span className="text-[14px] font-bold text-[#0F172A]">{selectedSite.name}</span>
+            <span className="text-[11px] text-muted2-brand block">선택 현장</span>
+            <span className="text-[14px] font-bold text-title-brand">{selectedSite.name}</span>
           </div>
-          <div className="h-8 w-px bg-[#F3F4F6]" />
+          <div className="h-8 w-px bg-footer" />
           <div>
-            <span className="text-[11px] text-[#9CA3AF] block">오늘 출근</span>
-            <span className="text-[14px] font-semibold text-[#16A34A]">
+            <span className="text-[11px] text-muted2-brand block">오늘 출근</span>
+            <span className="text-[14px] font-semibold text-status-working">
               {summary.working + summary.completed}명
             </span>
           </div>
           <div>
-            <span className="text-[11px] text-[#9CA3AF] block">미출근</span>
-            <span className={`text-[14px] font-semibold ${summary.missing > 0 ? 'text-[#D97706]' : 'text-[#6B7280]'}`}>
+            <span className="text-[11px] text-muted2-brand block">미출근</span>
+            <span className={`text-[14px] font-semibold ${summary.missing > 0 ? 'text-status-exception' : 'text-muted-brand'}`}>
               {summary.missing}명
             </span>
           </div>
           <div>
-            <span className="text-[11px] text-[#9CA3AF] block">확인필요</span>
-            <span className={`text-[14px] font-semibold ${summary.exception > 0 ? 'text-[#DC2626]' : 'text-[#6B7280]'}`}>
+            <span className="text-[11px] text-muted2-brand block">확인필요</span>
+            <span className={`text-[14px] font-semibold ${summary.exception > 0 ? 'text-status-rejected' : 'text-muted-brand'}`}>
               {summary.exception}건
             </span>
           </div>
-          <div className="h-8 w-px bg-[#F3F4F6]" />
+          <div className="h-8 w-px bg-footer" />
           <div>
-            <span className="text-[11px] text-[#9CA3AF] block">오늘 현장 총 노임</span>
-            <span className="text-[14px] font-bold text-[#F97316]">{fmtWageFull(summary.todayWage)}</span>
+            <span className="text-[11px] text-muted2-brand block">오늘 현장 총 노임</span>
+            <span className="text-[14px] font-bold text-accent">{fmtWageFull(summary.todayWage)}</span>
           </div>
         </div>
       )}
@@ -760,7 +760,7 @@ function AttendancePageInner() {
         <div className={`flex-1 min-w-0 transition-all ${hasPanelOpen ? 'max-w-[calc(100%-444px)]' : ''}`}>
           <SectionCard padding={false}>
             {loading ? (
-              <div className="py-12 text-center text-[13px] text-[#9CA3AF]">로딩 중...</div>
+              <div className="py-12 text-center text-[13px] text-muted2-brand">로딩 중...</div>
             ) : sorted.length === 0 ? (
               <AdminTable headers={['이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
                 <EmptyRow colSpan={8} message="조회된 기록이 없습니다" />
@@ -773,8 +773,8 @@ function AttendancePageInner() {
                       const cs = getConfirmStatus(item, allWorkers)
                       const isSelected = item.id === selectedId
                       const rowBg =
-                        isSelected        ? 'bg-[#FFF7ED] hover:bg-[#FFF7ED]' :
-                        isNeedsReview(item) ? 'bg-[#FEF2F2] hover:bg-[#FEE2E2]' :
+                        isSelected        ? 'bg-accent-light hover:bg-accent-light' :
+                        isNeedsReview(item) ? 'bg-red-light hover:bg-red-light' :
                         (item.manualAdjustedYn || item.status === 'ADJUSTED') ? 'bg-[#FAF5FF] hover:bg-[#F3E8FF]' :
                         ''
                       return (
@@ -784,37 +784,37 @@ function AttendancePageInner() {
                           className={rowBg}
                         >
                           <AdminTd>
-                            <div className="font-semibold text-[#111827]">{item.workerName}</div>
+                            <div className="font-semibold text-fore-brand">{item.workerName}</div>
                           </AdminTd>
-                          <AdminTd className="text-[12px] text-[#6B7280]">{item.jobTitle}</AdminTd>
+                          <AdminTd className="text-[12px] text-muted-brand">{item.jobTitle}</AdminTd>
                           <AdminTd className="max-w-[100px]">
                             {(() => {
                               const w = allWorkers.find(w2 => w2.id === item.workerId)
                               const primary = w?.activeSites.find(s => s.isPrimary)
-                              if (primary) return <div className="text-[12px] text-[#374151] truncate">{primary.name}</div>
-                              if (w && w.activeSites.length > 0) return <div className="text-[12px] text-[#374151] truncate">{w.activeSites[0].name}</div>
+                              if (primary) return <div className="text-[12px] text-body-brand truncate">{primary.name}</div>
+                              if (w && w.activeSites.length > 0) return <div className="text-[12px] text-body-brand truncate">{w.activeSites[0].name}</div>
                               return <StatusBadge status="PENDING" label="미배정" />
                             })()}
                           </AdminTd>
                           <AdminTd className="max-w-[100px]">
-                            <div className="text-[12px] text-[#374151] truncate">{item.siteName}</div>
+                            <div className="text-[12px] text-body-brand truncate">{item.siteName}</div>
                             {(() => {
                               const w = allWorkers.find(w2 => w2.id === item.workerId)
                               const primary = w?.activeSites.find(s => s.isPrimary)
                               if (primary && primary.id !== item.siteId) {
-                                return <span className="text-[10px] font-bold text-[#D97706] bg-[#FEF3C7] px-1 py-[1px] rounded">불일치</span>
+                                return <span className="text-[10px] font-bold text-status-exception bg-yellow-light px-1 py-[1px] rounded">불일치</span>
                               }
                               return null
                             })()}
                           </AdminTd>
                           <AdminTd className="tabular-nums">
-                            <span className={item.checkInWithinRadius === false ? 'text-[#DC2626]' : 'text-[#374151]'}>
+                            <span className={item.checkInWithinRadius === false ? 'text-status-rejected' : 'text-body-brand'}>
                               {fmtTime(item.checkInAt)}
                             </span>
                           </AdminTd>
                           <AdminTd className="tabular-nums">
                             {item.checkOutAt ? (
-                              <span className="text-[#374151]">{fmtTime(item.checkOutAt)}</span>
+                              <span className="text-body-brand">{fmtTime(item.checkOutAt)}</span>
                             ) : (
                               <span className="text-[#D1D5DB]">-</span>
                             )}
@@ -830,7 +830,7 @@ function AttendancePageInner() {
                               {cs.label}{cs.reason && ` · ${cs.reason}`}
                             </span>
                             {item.adminNote && (
-                              <div className="text-[10px] text-[#6B7280] mt-[2px] max-w-[120px] truncate" title={item.adminNote}>📝 {item.adminNote}</div>
+                              <div className="text-[10px] text-muted-brand mt-[2px] max-w-[120px] truncate" title={item.adminNote}>📝 {item.adminNote}</div>
                             )}
                           </AdminTd>
                         </AdminTr>
@@ -841,10 +841,10 @@ function AttendancePageInner() {
                       if (statusFilter === '' && items.length > 0) return null // 전체 모드에서는 출근자만 표시
                       const primary = w.activeSites.find(s => s.isPrimary) ?? w.activeSites[0]
                       return (
-                        <AdminTr key={`nc-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} className="bg-[#FFFBEB] hover:bg-[#FEF3C7]">
-                          <AdminTd className="font-semibold text-[#111827]">{w.name}</AdminTd>
-                          <AdminTd className="text-[12px] text-[#6B7280]">{w.jobTitle}</AdminTd>
-                          <AdminTd className="text-[12px] text-[#374151]">{primary?.name ?? '-'}</AdminTd>
+                        <AdminTr key={`nc-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} className="bg-yellow-light hover:bg-yellow-light">
+                          <AdminTd className="font-semibold text-fore-brand">{w.name}</AdminTd>
+                          <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
+                          <AdminTd className="text-[12px] text-body-brand">{primary?.name ?? '-'}</AdminTd>
                           <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
                           <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
                           <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
@@ -855,9 +855,9 @@ function AttendancePageInner() {
                     })}
                     {/* 미배정 행 */}
                     {statusFilter === 'UNASSIGNED' && unassignedWorkers.map(w => (
-                      <AdminTr key={`ua-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} highlighted className="bg-[#FEF2F2] hover:bg-[#FEE2E2]">
-                        <AdminTd className="font-semibold text-[#111827]">{w.name}</AdminTd>
-                        <AdminTd className="text-[12px] text-[#6B7280]">{w.jobTitle}</AdminTd>
+                      <AdminTr key={`ua-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} highlighted className="bg-red-light hover:bg-red-light">
+                        <AdminTd className="font-semibold text-fore-brand">{w.name}</AdminTd>
+                        <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
                         <AdminTd><StatusBadge status="PENDING" label="미배정" /></AdminTd>
                         <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
                         <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
@@ -876,30 +876,30 @@ function AttendancePageInner() {
           <div className="w-[420px] shrink-0 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
             <SectionCard padding={false} className="overflow-hidden">
               {/* 오렌지 4px 라인 */}
-              <div className="h-1 bg-[#F97316]" />
+              <div className="h-1 bg-brand-accent" />
 
               {/* 패널 헤더 */}
-              <div className="px-5 py-3.5 flex items-start justify-between border-b border-[#E5E7EB]">
+              <div className="px-5 py-3.5 flex items-start justify-between border-b border-brand">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-[15px] font-bold text-[#0F172A] leading-snug shrink-0">
+                    <h3 className="text-[15px] font-bold text-title-brand leading-snug shrink-0">
                       {selected.workerName}
                     </h3>
                     <StatusBadge status={selected.status} label={STATUS_LABEL[selected.status] ?? selected.status} />
                     {selected.isAutoCheckout && (
-                      <span className="text-[10px] bg-[#FEE2E2] text-[#B91C1C] px-1.5 py-[2px] rounded font-bold">AUTO</span>
+                      <span className="text-[10px] bg-red-light text-status-missing px-1.5 py-[2px] rounded font-bold">AUTO</span>
                     )}
                     {selected.manualAdjustedYn && (
-                      <span className="text-[10px] bg-[#F3E8FF] text-[#7C3AED] px-1.5 py-[2px] rounded font-bold">수동보정</span>
+                      <span className="text-[10px] bg-[#F3E8FF] text-status-adjusted px-1.5 py-[2px] rounded font-bold">수동보정</span>
                     )}
                   </div>
-                  <p className="text-[12px] text-[#9CA3AF] mt-0.5">
+                  <p className="text-[12px] text-muted2-brand mt-0.5">
                     {selected.workDate} · {selected.siteName}
                   </p>
                 </div>
                 <button
                   onClick={closePanel}
-                  className="w-7 h-7 flex items-center justify-center rounded-[6px] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#374151] transition-colors shrink-0 ml-2 mt-0.5"
+                  className="w-7 h-7 flex items-center justify-center rounded-[6px] text-muted2-brand hover:bg-footer hover:text-body-brand transition-colors shrink-0 ml-2 mt-0.5"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                     <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -920,9 +920,9 @@ function AttendancePageInner() {
                     const primary = w?.activeSites.find(s => s.isPrimary) ?? w?.activeSites[0]
                     return (
                       <>
-                        <PanelRow label="주배정" value={primary?.name ?? <span className="text-[#D97706]">미배정</span>} warn={!primary} />
+                        <PanelRow label="주배정" value={primary?.name ?? <span className="text-status-exception">미배정</span>} warn={!primary} />
                         {primary && primary.id !== selected.siteId && (
-                          <div className="mb-2 text-[11px] text-[#D97706] bg-[#FEF3C7] rounded px-2 py-1">⚠ 주배정 현장과 다른 곳에 출근</div>
+                          <div className="mb-2 text-[11px] text-status-exception bg-yellow-light rounded px-2 py-1">⚠ 주배정 현장과 다른 곳에 출근</div>
                         )}
                       </>
                     )
@@ -932,8 +932,8 @@ function AttendancePageInner() {
                 {/* B. 운영 메모 */}
                 <PanelSection label="B. 운영 메모">
                   {selected.adminNote && !memoText && (
-                    <div className="mb-2 p-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg">
-                      <div className="text-[12px] text-[#374151]">{selected.adminNote}</div>
+                    <div className="mb-2 p-2 bg-surface border border-brand rounded-lg">
+                      <div className="text-[12px] text-body-brand">{selected.adminNote}</div>
                     </div>
                   )}
                   <FormTextarea
@@ -957,19 +957,19 @@ function AttendancePageInner() {
                         load()
                       }}
                       disabled={!memoText.trim() || memoSaving}
-                      className="px-3 py-[5px] bg-[#F97316] text-white border-none rounded-[6px] text-[11px] font-semibold cursor-pointer disabled:opacity-40"
+                      className="px-3 py-[5px] bg-brand-accent text-white border-none rounded-[6px] text-[11px] font-semibold cursor-pointer disabled:opacity-40"
                     >
                       {memoSaving ? '저장중...' : '메모 저장'}
                     </button>
-                    <button onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(selected.workerName)}`)} className="px-3 py-[5px] text-[11px] text-[#F97316] border border-[#F97316] bg-transparent rounded-[6px] cursor-pointer font-semibold hover:bg-[rgba(249,115,22,0.06)]">근로자 상세</button>
+                    <button onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(selected.workerName)}`)} className="px-3 py-[5px] text-[11px] text-accent border border-accent bg-transparent rounded-[6px] cursor-pointer font-semibold hover:bg-[rgba(249,115,22,0.06)]">근로자 상세</button>
                   </div>
                 </PanelSection>
 
                 {/* C. 출퇴근 정보 */}
                 <PanelSection label="B. 출퇴근 정보" warn={isNeedsReview(selected)}>
                   {selected.exceptionReason && (
-                    <div className="mb-3 rounded-[8px] bg-[#FEF2F2] border border-[#FCA5A5] px-3 py-2">
-                      <div className="text-[11px] font-bold text-[#DC2626] mb-0.5">예외 사유</div>
+                    <div className="mb-3 rounded-[8px] bg-red-light border border-[#FCA5A5] px-3 py-2">
+                      <div className="text-[11px] font-bold text-status-rejected mb-0.5">예외 사유</div>
                       <div className="text-[13px] text-[#7F1D1D]">{selected.exceptionReason}</div>
                     </div>
                   )}
@@ -983,14 +983,14 @@ function AttendancePageInner() {
                     value={selected.checkOutAt ? fmtDateTime(selected.checkOutAt) : '미기록'}
                     warn={!selected.checkOutAt}
                   />
-                  <div className="h-px bg-[#F3F4F6] my-2" />
+                  <div className="h-px bg-footer my-2" />
                   <PanelRow
                     label="출근 GPS"
                     value={
                       <span className="flex items-center gap-2">
                         <GpsBadge within={selected.checkInWithinRadius} />
                         {selected.checkInDistance != null && (
-                          <span className="text-[11px] text-[#6B7280]">({selected.checkInDistance}m)</span>
+                          <span className="text-[11px] text-muted-brand">({selected.checkInDistance}m)</span>
                         )}
                       </span>
                     }
@@ -1001,7 +1001,7 @@ function AttendancePageInner() {
                       <span className="flex items-center gap-2">
                         <GpsBadge within={selected.checkOutWithinRadius} />
                         {selected.checkOutDistance != null && (
-                          <span className="text-[11px] text-[#6B7280]">({selected.checkOutDistance}m)</span>
+                          <span className="text-[11px] text-muted-brand">({selected.checkOutDistance}m)</span>
                         )}
                       </span>
                     }
@@ -1012,7 +1012,7 @@ function AttendancePageInner() {
                   />
                   {selected.hasSiteMove && (
                     <>
-                      <div className="h-px bg-[#F3F4F6] my-2" />
+                      <div className="h-px bg-footer my-2" />
                       <PanelRow
                         label="현장 이동"
                         value={<span className="text-[12px] leading-relaxed">{selected.movePath}</span>}
@@ -1021,12 +1021,12 @@ function AttendancePageInner() {
                   )}
                   {selected.manualAdjustedYn && (
                     <>
-                      <div className="h-px bg-[#F3F4F6] my-2" />
+                      <div className="h-px bg-footer my-2" />
                       <PanelRow
                         label="수정 이력"
                         value={
                           <span className="flex items-center gap-2">
-                            <span className="text-[#7C3AED]">있음 — {selected.manualAdjustedReason || '사유 없음'}</span>
+                            <span className="text-status-adjusted">있음 — {selected.manualAdjustedReason || '사유 없음'}</span>
                             <a
                               href={`/admin/corrections?targetId=${selected.id}`}
                               target="_blank"
@@ -1045,45 +1045,45 @@ function AttendancePageInner() {
                 {/* C. 사진 증빙 */}
                 <PanelSection label="C. 사진 증빙">
                   {photosLoading ? (
-                    <div className="text-[12px] text-[#9CA3AF] py-2">사진 로딩 중...</div>
+                    <div className="text-[12px] text-muted2-brand py-2">사진 로딩 중...</div>
                   ) : (
                     <div className="flex gap-3">
                       {/* 출근 사진 */}
                       <div className="flex-1">
-                        <div className="text-[11px] text-[#6B7280] mb-1.5 font-medium">출근 사진</div>
+                        <div className="text-[11px] text-muted-brand mb-1.5 font-medium">출근 사진</div>
                         {checkInPhoto ? (
-                          <div className="rounded-[8px] overflow-hidden border border-[#E5E7EB]">
+                          <div className="rounded-[8px] overflow-hidden border border-brand">
                             <img
                               src={`/api/admin/attendance/photos/${checkInPhoto.id}/file`}
                               alt="출근 사진"
                               className="w-full h-[100px] object-cover"
                             />
-                            <div className="px-2 py-1 text-[11px] text-[#6B7280] bg-[#F9FAFB]">
+                            <div className="px-2 py-1 text-[11px] text-muted-brand bg-surface">
                               {fmtDateTime(checkInPhoto.capturedAt)}
                             </div>
                           </div>
                         ) : (
-                          <div className="rounded-[8px] border border-dashed border-[#E5E7EB] h-[80px] flex items-center justify-center text-[12px] text-[#D1D5DB] bg-[#F9FAFB]">
+                          <div className="rounded-[8px] border border-dashed border-brand h-[80px] flex items-center justify-center text-[12px] text-[#D1D5DB] bg-surface">
                             없음
                           </div>
                         )}
                       </div>
                       {/* 퇴근 사진 */}
                       <div className="flex-1">
-                        <div className="text-[11px] text-[#6B7280] mb-1.5 font-medium">퇴근 사진</div>
+                        <div className="text-[11px] text-muted-brand mb-1.5 font-medium">퇴근 사진</div>
                         {checkOutPhoto ? (
-                          <div className="rounded-[8px] overflow-hidden border border-[#E5E7EB]">
+                          <div className="rounded-[8px] overflow-hidden border border-brand">
                             <img
                               src={`/api/admin/attendance/photos/${checkOutPhoto.id}/file`}
                               alt="퇴근 사진"
                               className="w-full h-[100px] object-cover"
                             />
-                            <div className="px-2 py-1 text-[11px] text-[#6B7280] bg-[#F9FAFB]">
+                            <div className="px-2 py-1 text-[11px] text-muted-brand bg-surface">
                               {fmtDateTime(checkOutPhoto.capturedAt)}
                             </div>
                           </div>
                         ) : (
-                          <div className="rounded-[8px] border border-dashed border-[#E5E7EB] h-[80px] flex items-center justify-center text-[12px] text-[#D1D5DB] bg-[#F9FAFB]">
+                          <div className="rounded-[8px] border border-dashed border-brand h-[80px] flex items-center justify-center text-[12px] text-[#D1D5DB] bg-surface">
                             없음
                           </div>
                         )}
@@ -1091,9 +1091,9 @@ function AttendancePageInner() {
                     </div>
                   )}
                   {selected.adminNote && (
-                    <div className="mt-3 rounded-[8px] bg-[#FFF7ED] border border-[#FDE68A] px-3 py-2">
-                      <div className="text-[11px] font-bold text-[#9CA3AF] mb-0.5">관리자 메모</div>
-                      <div className="text-[13px] text-[#374151]">{selected.adminNote}</div>
+                    <div className="mt-3 rounded-[8px] bg-accent-light border border-yellow px-3 py-2">
+                      <div className="text-[11px] font-bold text-muted2-brand mb-0.5">관리자 메모</div>
+                      <div className="text-[13px] text-body-brand">{selected.adminNote}</div>
                     </div>
                   )}
                 </PanelSection>
@@ -1121,13 +1121,13 @@ function AttendancePageInner() {
                         {selected.manualAdjustedYn && selected.manualAdjustedReason && (
                           <PanelRow
                             label="보정 사유"
-                            value={<span className="text-[#7C3AED]">{selected.manualAdjustedReason}</span>}
+                            value={<span className="text-status-adjusted">{selected.manualAdjustedReason}</span>}
                           />
                         )}
-                        <div className="h-px bg-[#F3F4F6] my-2" />
+                        <div className="h-px bg-footer my-2" />
                         <PanelRow
                           label="일 노임"
-                          value={<span className="font-bold text-[#F97316]">{fmtWageFull(selected.dayWage)}</span>}
+                          value={<span className="font-bold text-accent">{fmtWageFull(selected.dayWage)}</span>}
                         />
                         <PanelRow label="월 누적" value={fmtWageFull(selected.monthWage)} />
                         <PanelRow label="전체 누적" value={fmtWageFull(selected.totalWage)} />
@@ -1143,13 +1143,13 @@ function AttendancePageInner() {
                     <div className="flex flex-col gap-2">
                       {/* 미퇴근 빠른 보정 */}
                       {selected.status === 'MISSING_CHECKOUT' && (
-                        <div className="rounded-[8px] bg-[#FEF2F2] border border-[#FCA5A5] px-3 py-3">
-                          <div className="text-[11px] font-bold text-[#DC2626] mb-2">퇴근 누락 빠른 보정</div>
+                        <div className="rounded-[8px] bg-red-light border border-[#FCA5A5] px-3 py-3">
+                          <div className="text-[11px] font-bold text-status-rejected mb-2">퇴근 누락 빠른 보정</div>
                           <div className="flex items-center gap-2">
                             <input
                               ref={quickCheckoutRef}
                               type="time"
-                              className="h-9 px-2 text-[13px] border border-[#E5E7EB] rounded-[6px] outline-none focus:border-[#DC2626] bg-white w-[110px]"
+                              className="h-9 px-2 text-[13px] border border-brand rounded-[6px] outline-none focus:border-[#DC2626] bg-card w-[110px]"
                               defaultValue="17:00"
                             />
                             <button
@@ -1174,8 +1174,8 @@ function AttendancePageInner() {
                   )}
 
                   {correcting && (
-                    <div className="rounded-[10px] bg-[#F5F3FF] border border-[#DDD6FE] px-4 py-4">
-                      <div className="text-[11px] font-bold text-[#7C3AED] mb-3">수동 보정</div>
+                    <div className="rounded-[10px] bg-[#F5F3FF] border border-purple px-4 py-4">
+                      <div className="text-[11px] font-bold text-status-adjusted mb-3">수동 보정</div>
 
                       <FormInput
                         label="출근"
@@ -1221,7 +1221,7 @@ function AttendancePageInner() {
                         placeholder="관리자 메모 (선택)"
                       />
 
-                      <div className="text-[11px] text-[#9CA3AF] mb-3 flex items-center justify-between">
+                      <div className="text-[11px] text-muted2-brand mb-3 flex items-center justify-between">
                         <span>보정 이력은 감사 로그에 기록됩니다.</span>
                         <a
                           href={`/admin/corrections?targetId=${selected.id}`}
@@ -1234,7 +1234,7 @@ function AttendancePageInner() {
                       </div>
 
                       {correctError && (
-                        <div className="mb-3 rounded-[8px] bg-[#FEF2F2] border border-[#FCA5A5] px-3 py-2 text-[12px] text-[#DC2626]">
+                        <div className="mb-3 rounded-[8px] bg-red-light border border-[#FCA5A5] px-3 py-2 text-[12px] text-status-rejected">
                           {correctError}
                         </div>
                       )}

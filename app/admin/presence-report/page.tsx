@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -96,12 +96,12 @@ export default function PresenceReportPage() {
             <p className="text-sm text-muted-brand m-0">일자별 완료율·미응답률·위치이탈률·검토필요 비율 집계</p>
           </div>
           <div className="flex gap-[10px] items-center">
-            <select value={days} onChange={(e) => setDays(Number(e.target.value))} className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-white">
+            <select value={days} onChange={(e) => setDays(Number(e.target.value))} className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-card">
               <option value={7}>최근 7일</option>
               <option value={14}>최근 14일</option>
               <option value={30}>최근 30일</option>
             </select>
-            <select value={siteId} onChange={(e) => setSiteId(e.target.value)} className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-white">
+            <select value={siteId} onChange={(e) => setSiteId(e.target.value)} className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-lg text-[13px] bg-card">
               <option value="">전체 현장</option>
               {data?.sites.map((site) => (
                 <option key={site.id} value={site.id}>{site.name}</option>
@@ -126,7 +126,7 @@ export default function PresenceReportPage() {
                 { label: '검토필요 비율', value: data.totals.reviewRate,   unit: '%',   color: pctColor(data.totals.reviewRate, true) },
                 { label: '수동 처리율', value: data.totals.manualRate,     unit: '%',   color: '#546e7a' },
               ].map((c) => (
-                <div key={c.label} className="bg-white rounded-[12px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]" style={{ borderTop: `4px solid ${c.color}` }}>
+                <div key={c.label} className="bg-card rounded-[12px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]" style={{ borderTop: `4px solid ${c.color}` }}>
                   <div className="text-[26px] font-bold mb-1" style={{ color: c.color }}>
                     {c.value != null ? `${c.value}${c.unit}` : '-'}
                   </div>
@@ -136,7 +136,7 @@ export default function PresenceReportPage() {
             </div>
 
             {/* 일자별 표 */}
-            <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+            <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
               <div className="text-[15px] font-bold mb-4">일자별 체류확인 현황</div>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
@@ -150,38 +150,38 @@ export default function PresenceReportPage() {
                   <tbody>
                     {data.daily.map((row) => (
                       <tr key={row.date} className={row.date === data.today ? 'bg-[#f3f8ff] font-semibold' : ''}>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
+                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
                           {row.date}
                           {row.date === data.today && <span className="ml-[6px] text-[11px] bg-[rgba(244,121,32,0.12)] text-accent px-[6px] py-[1px] rounded-[8px]">오늘</span>}
                         </td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{row.total || '-'}</td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{row.completed || '-'}</td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center"><RateCell rate={row.completedRate} /></td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{row.noResponse || '-'}</td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center"><RateCell rate={row.noResponseRate} inverse /></td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{row.outOfFence || '-'}</td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center"><RateCell rate={row.outOfFenceRate} inverse /></td>
-                        <td className={`px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center${row.review > 0 ? ' text-[#f57f17] font-bold' : ''}`}>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.total || '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.completed || '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={row.completedRate} /></td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.noResponse || '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={row.noResponseRate} inverse /></td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.outOfFence || '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={row.outOfFenceRate} inverse /></td>
+                        <td className={`px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center${row.review > 0 ? ' text-[#f57f17] font-bold' : ''}`}>
                           {row.review || '-'}
                         </td>
-                        <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{(row.manualConfirmed + row.manualRejected) || '-'}</td>
+                        <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{(row.manualConfirmed + row.manualRejected) || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
                     <tr className="bg-brand font-bold">
-                      <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">합계</td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{data.totals.total}</td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{data.totals.completed}</td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center"><RateCell rate={data.totals.completedRate} /></td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{data.totals.noResponse}</td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center"><RateCell rate={data.totals.noResponseRate} inverse /></td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{data.totals.outOfFence}</td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center"><RateCell rate={data.totals.outOfFenceRate} inverse /></td>
-                      <td className={`px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center${data.totals.review > 0 ? ' text-[#f57f17]' : ''}`}>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap">합계</td>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.total}</td>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.completed}</td>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={data.totals.completedRate} /></td>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.noResponse}</td>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={data.totals.noResponseRate} inverse /></td>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.outOfFence}</td>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center"><RateCell rate={data.totals.outOfFenceRate} inverse /></td>
+                      <td className={`px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center${data.totals.review > 0 ? ' text-[#f57f17]' : ''}`}>
                         {data.totals.review}
                       </td>
-                      <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{data.totals.manualConfirmed + data.totals.manualRejected}</td>
+                      <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{data.totals.manualConfirmed + data.totals.manualRejected}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -190,7 +190,7 @@ export default function PresenceReportPage() {
 
             {/* 현장별 비교 */}
             {data.siteBreakdown.length > 1 && (
-              <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-5">
+              <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mt-5">
                 <div className="text-[15px] font-bold mb-4">현장별 완료율 비교</div>
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
@@ -204,9 +204,9 @@ export default function PresenceReportPage() {
                     <tbody>
                       {data.siteBreakdown.map((row) => (
                         <tr key={row.siteId}>
-                          <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{row.siteName}</td>
-                          <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">{row.total}</td>
-                          <td className="px-3 py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-center">
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{row.siteName}</td>
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">{row.total}</td>
+                          <td className="px-3 py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-center">
                             <div className="flex items-center gap-2 justify-center">
                               <div
                                 className="h-2 rounded transition-[width] duration-300"

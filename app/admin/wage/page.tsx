@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -167,13 +167,13 @@ export default function WagePage() {
   }, {})
 
   return (
-    <div className="p-5 md:p-6 bg-[#F5F7FA]">
-      <p className="text-[12px] text-[#9CA3AF] mb-4 m-0">
+    <div className="p-5 md:p-6 bg-brand">
+      <p className="text-[12px] text-muted2-brand mb-4 m-0">
         출퇴근 기록 → 공수 → 노임 집계 / 공수 기준: 점심 제외 8시간 이상=1.0공수, 4~8시간=0.5공수
       </p>
 
       {/* 필터 */}
-      <div className="bg-white rounded-[12px] p-5 mb-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] flex gap-3 flex-wrap items-end">
+      <div className="bg-card rounded-[12px] p-5 mb-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] flex gap-3 flex-wrap items-end">
         <div>
           <label className="block text-xs text-muted-brand mb-1 font-semibold">귀속연월</label>
           <input
@@ -214,7 +214,7 @@ export default function WagePage() {
           </span>
           <button
             onClick={() => router.push('/admin/month-closings')}
-            className="text-xs text-[#5BA4D9] underline cursor-pointer bg-transparent border-none"
+            className="text-xs text-secondary-brand underline cursor-pointer bg-transparent border-none"
           >
             월마감 →
           </button>
@@ -231,7 +231,7 @@ export default function WagePage() {
           ].map((c) => (
             <div
               key={c.label}
-              className="bg-white rounded-[12px] p-5 min-w-[140px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+              className="bg-card rounded-[12px] p-5 min-w-[140px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
               style={{ borderTop: `4px solid ${c.color}` }}
             >
               <div className="text-[22px] font-bold" style={{ color: c.color }}>{c.value}</div>
@@ -263,7 +263,7 @@ export default function WagePage() {
 
       {/* ── 탭1: 노임 집계 ─────────────────────────────────── */}
       {tab === 'summary' && (
-        <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
+        <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
           {loading ? (
             <div className="py-10 text-center text-[#999]">집계 중...</div>
           ) : (
@@ -316,10 +316,10 @@ export default function WagePage() {
                               <td className="px-4 py-3 text-[13px] font-bold whitespace-nowrap text-center">
                                 {fmt(row.totalUnits)}
                               </td>
-                              <td className="px-4 py-3 text-[13px] text-[#1565c0] whitespace-nowrap text-center">
+                              <td className="px-4 py-3 text-[13px] text-secondary-brand whitespace-nowrap text-center">
                                 {fmt(row.confirmedUnits)}
                               </td>
-                              <td className="px-4 py-3 text-[13px] text-[#e65100] whitespace-nowrap text-center">
+                              <td className="px-4 py-3 text-[13px] text-accent-hover whitespace-nowrap text-center">
                                 {row.draftUnits > 0 ? fmt(row.draftUnits) : '-'}
                               </td>
                               <td className="px-4 py-3 text-[13px] whitespace-nowrap text-right">
@@ -357,7 +357,7 @@ export default function WagePage() {
 
       {/* ── 탭2: 단가 관리 ─────────────────────────────────── */}
       {tab === 'rates' && (
-        <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
+        <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
           <div className="px-5 py-3.5 border-b border-[rgba(91,164,217,0.15)]">
             <p className="text-xs text-muted-brand m-0">
               * 단가는 근로자 계약서의 일당(dailyWage)을 기준으로 합니다.
@@ -414,9 +414,9 @@ export default function WagePage() {
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           {item.hasContract ? (
-                            <span className="text-[11px] text-[#2e7d32] bg-[#e8f5e9] px-2 py-0.5 rounded-full">계약서 있음</span>
+                            <span className="text-[11px] text-[#2e7d32] bg-green-light px-2 py-0.5 rounded-full">계약서 있음</span>
                           ) : (
-                            <span className="text-[11px] text-[#b71c1c] bg-[#ffebee] px-2 py-0.5 rounded-full">계약서 없음</span>
+                            <span className="text-[11px] text-[#b71c1c] bg-red-light px-2 py-0.5 rounded-full">계약서 없음</span>
                           )}
                         </td>
                       </tr>
@@ -430,7 +430,7 @@ export default function WagePage() {
       )}
 
       {/* 집계 기준 안내 */}
-      <div className="mt-5 bg-white rounded-[12px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+      <div className="mt-5 bg-card rounded-[12px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
         <div className="text-xs font-semibold text-muted-brand mb-2 uppercase">공수 계산 기준</div>
         <div className="grid grid-cols-1 gap-1.5 text-xs text-muted-brand">
           <div>· 근무 경과 4시간 초과 시 점심 60분 자동 차감 → 실근로 시간 산출</div>

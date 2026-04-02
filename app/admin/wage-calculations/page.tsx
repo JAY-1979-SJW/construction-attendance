@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -91,7 +91,7 @@ export default function WageCalculationsPage() {
           </button>
         </div>
 
-        {msg && <div className="px-4 py-3 bg-[rgba(91,164,217,0.1)] rounded-lg mb-4 text-[14px] text-[#4A93C8]">{msg}</div>}
+        {msg && <div className="px-4 py-3 bg-[rgba(91,164,217,0.1)] rounded-lg mb-4 text-[14px] text-secondary-brand">{msg}</div>}
 
         {/* 합계 */}
         {totals && (
@@ -103,7 +103,7 @@ export default function WageCalculationsPage() {
               { label: '소득세',    value: fmt(totals.incomeTax) + '원',  color: '#b71c1c' },
               { label: '지방소득세', value: fmt(totals.localTax) + '원',  color: '#7b1fa2' },
             ].map((c) => (
-              <div key={c.label} className="bg-white rounded-[12px] px-5 py-4 min-w-[140px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]" style={{ borderTop: `4px solid ${c.color}` }}>
+              <div key={c.label} className="bg-card rounded-[12px] px-5 py-4 min-w-[140px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]" style={{ borderTop: `4px solid ${c.color}` }}>
                 <div className="text-[18px] font-bold" style={{ color: c.color }}>{c.value}</div>
                 <div className="text-[12px] text-muted-brand">{c.label}</div>
               </div>
@@ -111,7 +111,7 @@ export default function WageCalculationsPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
+        <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
           {loading ? <div className="py-8 text-center text-[#999]">로딩 중...</div> : (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
@@ -127,18 +127,18 @@ export default function WageCalculationsPage() {
                     <tr><td colSpan={9} className="text-center py-6 text-[#999]">데이터 없음 — 세금계산 실행을 먼저 하세요</td></tr>
                   ) : items.map((item) => (
                     <tr key={item.id} className="cursor-default">
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">{item.worker.name}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top">
+                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.worker.name}</td>
+                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
                         <span className="font-semibold text-[12px]" style={{ color: INCOME_COLOR[item.incomeType] }}>
                           {INCOME_LABEL[item.incomeType] ?? item.incomeType}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
+                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-center">
                         {Number(item.regularDays) + Number(item.halfDays)}일
                       </td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.grossAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.nonTaxableAmount)}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#CBD5E0] border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.taxableAmount)}</td>
+                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.grossAmount)}</td>
+                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.nonTaxableAmount)}</td>
+                      <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top text-right">{fmt(item.taxableAmount)}</td>
                       <td className="px-4 py-3 text-[13px] text-[#b71c1c] border-b border-[rgba(91,164,217,0.1)] align-top text-right">
                         {fmt(item.withholding?.incomeTaxAmount ?? 0)}
                       </td>

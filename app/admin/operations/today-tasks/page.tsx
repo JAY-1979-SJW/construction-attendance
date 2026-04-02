@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -74,7 +74,7 @@ export default function TodayTasksPage() {
       </div>
 
       {error && (
-        <div className="bg-[#ffebee] border border-[#ef9a9a] rounded-lg px-4 py-3 mb-4 text-[#c62828] text-sm">
+        <div className="bg-red-light border border-[#ef9a9a] rounded-lg px-4 py-3 mb-4 text-[#c62828] text-sm">
           {error}
         </div>
       )}
@@ -144,8 +144,8 @@ export default function TodayTasksPage() {
           </div>
 
           {/* 출력물 센터 링크 */}
-          <div className="mt-6 px-5 py-4 bg-brand rounded-[10px] border border-[#e0e0e0]">
-            <div className="text-sm font-bold text-[#CBD5E0] mb-[10px]">관련 화면 바로가기</div>
+          <div className="mt-6 px-5 py-4 bg-brand rounded-[10px] border border-brand">
+            <div className="text-sm font-bold text-dim-brand mb-[10px]">관련 화면 바로가기</div>
             <div className="flex gap-[10px] flex-wrap">
               <Link href="/admin/operations/attendance-exceptions" className="inline-block px-4 py-2 bg-[#37474f] text-white rounded-md text-[13px] font-bold no-underline">출퇴근 처리 센터</Link>
               <Link href="/admin/operations/labor-review" className="inline-block px-4 py-2 bg-[#1b5e20] text-white rounded-md text-[13px] font-bold no-underline">공수 검토 화면</Link>

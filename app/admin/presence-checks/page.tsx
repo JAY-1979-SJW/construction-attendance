@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -307,12 +307,12 @@ export default function PresenceChecksPage() {
         {/* Filter row */}
         <div className="flex gap-2.5 flex-wrap mb-4 items-center">
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#111827] bg-white focus:outline-none focus:border-[#F97316]">
+            className="px-3 py-2 border border-brand rounded-[8px] text-[13px] text-fore-brand bg-card focus:outline-none focus:border-accent">
             <option value="">전체 상태</option>
             {Object.entries(STATUS_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
           <select value={siteFilter} onChange={(e) => setSiteFilter(e.target.value)}
-            className="px-3 py-2 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#111827] bg-white focus:outline-none focus:border-[#F97316]">
+            className="px-3 py-2 border border-brand rounded-[8px] text-[13px] text-fore-brand bg-card focus:outline-none focus:border-accent">
             <option value="">전체 현장</option>
             {sites.map((site) => <option key={site.id} value={site.id}>{site.name}</option>)}
           </select>
@@ -321,7 +321,7 @@ export default function PresenceChecksPage() {
             placeholder="근로자 검색"
             value={workerSearch}
             onChange={(e) => setWorkerSearch(e.target.value)}
-            className="px-3 py-2 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#111827] w-[140px] focus:outline-none focus:border-[#F97316] placeholder:text-[#9CA3AF]"
+            className="px-3 py-2 border border-brand rounded-[8px] text-[13px] text-fore-brand w-[140px] focus:outline-none focus:border-accent placeholder:text-muted2-brand"
           />
           <label className="flex items-center text-[13px] cursor-pointer text-[#444] whitespace-nowrap">
             <input type="checkbox" checked={onlyReview} onChange={(e) => setOnlyReview(e.target.checked)} />
@@ -344,7 +344,7 @@ export default function PresenceChecksPage() {
               { label: '위치이탈', value: summary.outOfFence,  color: '#e65100' },
               { label: '검토필요', value: summary.review,      color: '#f57f17' },
             ].map((c) => (
-              <div key={c.label} className="bg-white rounded-[12px] p-[14px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+              <div key={c.label} className="bg-card rounded-[12px] p-[14px] shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
                 style={{ borderTop: `4px solid ${c.color}` }}>
                 <div className="text-[26px] font-bold mb-0.5" style={{ color: c.color }}>{c.value}</div>
                 <div className="text-[12px] text-muted-brand">{c.label}</div>
@@ -354,11 +354,11 @@ export default function PresenceChecksPage() {
         )}
 
         {/* Table */}
-        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           <div className="text-[15px] font-bold mb-[14px] flex items-center gap-2.5">
             {date} 체류확인 목록
             {summary && summary.review > 0 && (
-              <span className="bg-[#fff3e0] text-[#e65100] text-[12px] font-semibold px-[10px] py-[3px] rounded-xl border border-[#ffcc80]">
+              <span className="bg-[#fff3e0] text-accent-hover text-[12px] font-semibold px-[10px] py-[3px] rounded-xl border border-[#ffcc80]">
                 {summary.review}건 검토필요
               </span>
             )}
@@ -389,12 +389,12 @@ export default function PresenceChecksPage() {
                         transition:   'background 0.1s',
                       }}
                     >
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
                         <div className="font-semibold">{item.workerName}</div>
                         <div className="text-[11px] text-[#999]">{item.workerCompany}</div>
                       </td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{item.siteName}</td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{item.siteName}</td>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
                         <span style={{
                           padding: '2px 7px',
                           borderRadius: '10px',
@@ -406,24 +406,24 @@ export default function PresenceChecksPage() {
                           {item.slot === 'AM' ? '오전' : '오후'}
                         </span>
                       </td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{fmt(item.scheduledAt)}</td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{fmt(item.expiresAt)}</td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">{fmt(item.respondedAt)}</td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-right">
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{fmt(item.scheduledAt)}</td>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{fmt(item.expiresAt)}</td>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">{fmt(item.respondedAt)}</td>
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-right">
                         {item.distanceMeters != null ? (
                           <span style={{ color: item.distanceMeters > 100 ? '#b71c1c' : undefined }}>
                             {Math.round(item.distanceMeters)}
                           </span>
                         ) : '-'}
                       </td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap text-right">
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap text-right">
                         {item.accuracyMeters != null ? (
                           <span style={{ color: item.accuracyMeters >= 80 ? '#e65100' : undefined }}>
                             {item.accuracyMeters >= 80 && '⚠ '}{Math.round(item.accuracyMeters)}
                           </span>
                         ) : '-'}
                       </td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
                         <span style={{ color: STATUS_COLOR[item.status] ?? '#333', fontWeight: 600, fontSize: '13px' }}>
                           {STATUS_LABEL[item.status] ?? item.status}
                         </span>
@@ -433,7 +433,7 @@ export default function PresenceChecksPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-[10px] py-[10px] text-[13px] border-b border-[#f5f5f5] whitespace-nowrap">
+                      <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
                         {item.adminNote && (
                           <span className="inline-block mr-1 bg-[rgba(244,121,32,0.12)] text-accent text-[11px] px-1.5 py-[1px] rounded-lg">
                             메모
@@ -456,8 +456,8 @@ export default function PresenceChecksPage() {
 
       {/* ── Detail Panel ── */}
       {(selected || detailLoading) && (
-        <aside className="fixed right-0 top-0 w-[420px] h-screen bg-white border-l border-[#e0e0e0] shadow-[-4px_0_20px_rgba(0,0,0,0.08)] flex flex-col z-[100] overflow-hidden">
-          <div className="flex justify-between items-center px-5 py-4 border-b border-[#f0f0f0] flex-shrink-0">
+        <aside className="fixed right-0 top-0 w-[420px] h-screen bg-card border-l border-brand shadow-[-4px_0_20px_rgba(0,0,0,0.08)] flex flex-col z-[100] overflow-hidden">
+          <div className="flex justify-between items-center px-5 py-4 border-b border-brand flex-shrink-0">
             <span className="text-base font-bold">체류확인 상세</span>
             <button onClick={() => setSelected(null)}
               className="bg-transparent border-none cursor-pointer text-[18px] text-muted-brand px-2 py-1">
@@ -616,9 +616,9 @@ export default function PresenceChecksPage() {
               {selected.auditLogs.length > 0 && (
                 <Section title="이력">
                   {selected.auditLogs.map((log) => (
-                    <div key={log.id} className="py-2 border-b border-[#f0f0f0] text-[12px]">
+                    <div key={log.id} className="py-2 border-b border-brand text-[12px]">
                       <div className="flex justify-between mb-0.5">
-                        <span className="font-semibold text-[#CBD5E0]">{ACTION_LABEL[log.action] ?? log.action}</span>
+                        <span className="font-semibold text-dim-brand">{ACTION_LABEL[log.action] ?? log.action}</span>
                         <span className="text-[#aaa]">{fmtFull(log.createdAt)}</span>
                       </div>
                       {log.message && <div className="text-muted-brand">{log.message}</div>}
@@ -652,7 +652,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex justify-between py-[5px] border-b border-[#f0f0f0] text-[13px]">
+    <div className="flex justify-between py-[5px] border-b border-brand text-[13px]">
       <span className="text-muted-brand flex-shrink-0 mr-2">{label}</span>
       <span className="font-medium text-right break-all">{value ?? '-'}</span>
     </div>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 import { Modal } from '@/components/admin/ui'
@@ -182,8 +182,8 @@ export default function InsuranceRatesPage() {
       {/* 서브 네비게이션 */}
       <div className="flex gap-2 text-sm border-b pb-3">
         <a href="/admin/insurance-rates" className="px-3 py-1.5 bg-blue-600 text-white rounded font-medium">요율 버전 관리</a>
-        <a href="/admin/insurance-rates/sources" className="px-3 py-1.5 bg-white border rounded text-gray-600 hover:bg-gray-50">고시 소스 관리</a>
-        <a href="/admin/insurance-rates/calculate" className="px-3 py-1.5 bg-white border rounded text-gray-600 hover:bg-gray-50">보험료 계산기</a>
+        <a href="/admin/insurance-rates/sources" className="px-3 py-1.5 bg-card border rounded text-gray-600 hover:bg-gray-50">고시 소스 관리</a>
+        <a href="/admin/insurance-rates/calculate" className="px-3 py-1.5 bg-card border rounded text-gray-600 hover:bg-gray-50">보험료 계산기</a>
       </div>
 
       <div className="flex items-center justify-between">

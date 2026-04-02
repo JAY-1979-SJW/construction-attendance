@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 
@@ -155,13 +155,13 @@ export default function LaborReviewPage() {
       )}
 
       {error && (
-        <div className="bg-[#ffebee] border border-[#ef9a9a] rounded-lg p-3 mb-3 text-[#c62828] text-[13px]">
+        <div className="bg-red-light border border-[#ef9a9a] rounded-lg p-3 mb-3 text-[#c62828] text-[13px]">
           {error}
         </div>
       )}
 
       {/* 목록 */}
-      <div className="bg-white border border-[#E5E7EB] rounded-[12px] overflow-hidden">
+      <div className="bg-card border border-brand rounded-[12px] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-[13px] min-w-[900px]">
             <thead>
@@ -189,25 +189,25 @@ export default function LaborReviewPage() {
                   const isConfirming = confirming.has(item.id)
                   return (
                     <tr key={item.id} style={{ background: item.isZeroMinutes ? '#fff8e1' : item.hasOverride ? '#f3e5f5' : i % 2 === 1 ? '#fafafa' : '#fff' }}>
-                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">
+                      <td className="px-3 py-[9px] border-b border-brand align-top">
                         <div className="font-bold">{item.workerName}</div>
                         <div className="text-[11px] text-muted-brand">{item.workerPhone}</div>
                       </td>
-                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">{item.siteName}</td>
-                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">{item.workDate}</td>
-                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">
+                      <td className="px-3 py-[9px] border-b border-brand align-top">{item.siteName}</td>
+                      <td className="px-3 py-[9px] border-b border-brand align-top">{item.workDate}</td>
+                      <td className="px-3 py-[9px] border-b border-brand align-top">
                         <span className="font-bold">{item.confirmedWorkUnits > 0 ? `${item.confirmedWorkUnits}공수` : '—'}</span>
                         {item.confirmedWorkType && (
                           <div className="text-[11px] text-muted-brand">{item.confirmedWorkType}</div>
                         )}
                       </td>
-                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">{fmtMinutes(item.workedMinutesAuto)}</td>
-                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top" style={{ color: item.isZeroMinutes ? '#c62828' : item.hasOverride ? '#6a1b9a' : '#333', fontWeight: item.isZeroMinutes ? 700 : 400 }}>
+                      <td className="px-3 py-[9px] border-b border-brand align-top">{fmtMinutes(item.workedMinutesAuto)}</td>
+                      <td className="px-3 py-[9px] border-b border-brand align-top" style={{ color: item.isZeroMinutes ? '#c62828' : item.hasOverride ? '#6a1b9a' : '#333', fontWeight: item.isZeroMinutes ? 700 : 400 }}>
                         {fmtMinutes(item.workedMinutesFinal)}
                         {item.isZeroMinutes && <span className="text-[10px] ml-1">⚠️0</span>}
                       </td>
-                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">{fmtAmount(item.confirmedBaseAmount)}</td>
-                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">
+                      <td className="px-3 py-[9px] border-b border-brand align-top">{fmtAmount(item.confirmedBaseAmount)}</td>
+                      <td className="px-3 py-[9px] border-b border-brand align-top">
                         {item.hasOverride ? (
                           <span className="text-[#6a1b9a] text-[11px] font-bold">수동수정</span>
                         ) : (
@@ -219,7 +219,7 @@ export default function LaborReviewPage() {
                           </div>
                         )}
                       </td>
-                      <td className="px-3 py-[9px] border-b border-[#f0f0f0] align-top">
+                      <td className="px-3 py-[9px] border-b border-brand align-top">
                         <button
                           onClick={() => confirmOne(item.id)}
                           disabled={isConfirming}
@@ -240,9 +240,9 @@ export default function LaborReviewPage() {
       {/* 페이지네이션 */}
       {totalPages > 1 && (
         <div className="flex gap-2 justify-center mt-4">
-          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className={`px-[14px] py-[6px] border border-[rgba(91,164,217,0.2)] rounded-md text-[13px] ${page === 1 ? 'bg-[#f5f5f5] text-[#bbb] cursor-not-allowed' : 'bg-white text-[#333] cursor-pointer'}`}>이전</button>
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className={`px-[14px] py-[6px] border border-[rgba(91,164,217,0.2)] rounded-md text-[13px] ${page === 1 ? 'bg-surface text-[#bbb] cursor-not-allowed' : 'bg-white text-[#333] cursor-pointer'}`}>이전</button>
           <span className="text-[13px] self-center text-muted-brand">{page} / {totalPages}</span>
-          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className={`px-[14px] py-[6px] border border-[rgba(91,164,217,0.2)] rounded-md text-[13px] ${page === totalPages ? 'bg-[#f5f5f5] text-[#bbb] cursor-not-allowed' : 'bg-white text-[#333] cursor-pointer'}`}>다음</button>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className={`px-[14px] py-[6px] border border-[rgba(91,164,217,0.2)] rounded-md text-[13px] ${page === totalPages ? 'bg-surface text-[#bbb] cursor-not-allowed' : 'bg-white text-[#333] cursor-pointer'}`}>다음</button>
         </div>
       )}
     </div>
@@ -251,7 +251,7 @@ export default function LaborReviewPage() {
 
 function SummaryCard({ label, value, color = '#1565c0' }: { label: string; value: number; color?: string }) {
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-[12px] px-4 py-[10px] min-w-[100px]">
+    <div className="bg-card border border-brand rounded-[12px] px-4 py-[10px] min-w-[100px]">
       <div className="text-[11px] text-muted-brand">{label}</div>
       <div style={{ fontSize: '22px', fontWeight: 800, color }}>{value}</div>
     </div>

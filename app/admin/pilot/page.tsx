@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -77,10 +77,10 @@ export default function PilotMonitorPage() {
             <p className="text-[13px] text-muted-brand m-0">
               {data?.targetDate} &nbsp;|&nbsp; 마지막 갱신: {lastRefresh ? formatTime(lastRefresh.toISOString()) : '-'}
               &nbsp;
-              <span className="bg-[rgba(244,121,32,0.12)] text-[#F47920] rounded px-[6px] py-[2px] text-[11px]">1분 자동 갱신</span>
+              <span className="bg-[rgba(244,121,32,0.12)] text-accent rounded px-[6px] py-[2px] text-[11px]">1분 자동 갱신</span>
             </p>
           </div>
-          <button onClick={load} disabled={loading} className="px-5 py-[10px] bg-[#F47920] text-white border-none rounded-lg cursor-pointer text-[14px] font-semibold">
+          <button onClick={load} disabled={loading} className="px-5 py-[10px] bg-brand-accent text-white border-none rounded-lg cursor-pointer text-[14px] font-semibold">
             {loading ? '갱신 중...' : '지금 갱신'}
           </button>
         </div>
@@ -96,7 +96,7 @@ export default function PilotMonitorPage() {
                 return (
                   <div
                     key={key}
-                    className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] relative"
+                    className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] relative"
                     style={{
                       borderTop: `4px solid ${isAlert ? '#d32f2f' : color}`,
                       background: isAlert ? '#fff8f8' : undefined,
@@ -114,7 +114,7 @@ export default function PilotMonitorPage() {
             </div>
 
             {/* 운영 기준 안내 */}
-            <div className="bg-white rounded-[12px] px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+            <div className="bg-card rounded-[12px] px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
               <div className="text-[14px] font-bold mb-3 text-[#444]">운영 기준</div>
               <ul className="m-0 pl-5 text-[13px] text-muted-brand leading-[2]">
                 <li>승인 대기 30분 이상 방치 금지 — <strong>pendingDevices &gt; 0</strong> 즉시 처리</li>

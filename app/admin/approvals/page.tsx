@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -134,7 +134,7 @@ function ApprovalsContent() {
 }
 
 export default function ApprovalsPage() {
-  return <Suspense fallback={<div className="p-8 text-[#9CA3AF]">로딩 중...</div>}><ApprovalsContent /></Suspense>
+  return <Suspense fallback={<div className="p-8 text-muted2-brand">로딩 중...</div>}><ApprovalsContent /></Suspense>
 }
 
 // ─── 개별 탭 컴포넌트 ─────────────────────────────────────────────────────────
@@ -226,7 +226,7 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
   const pendingCount = items.filter(i => i.status === 'PENDING').length
 
   return (
-    <div className="bg-white rounded-b-[12px] border border-[#E5E7EB] border-t-0 p-5">
+    <div className="bg-card rounded-b-[12px] border border-brand border-t-0 p-5">
       {/* 상태 필터 — 공용 FilterBar + FilterPill */}
       <FilterBar>
         {tab !== 'ext-companies' && ['PENDING', 'APPROVED', 'REJECTED'].map(s => (
@@ -262,15 +262,15 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
 
       {/* 일괄 처리 바 */}
       {statusFilter === 'PENDING' && selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 px-4 py-2.5 mb-4 bg-[#FFF7ED] border border-[#FDE68A] rounded-[8px]">
-          <span className="text-[13px] font-semibold text-[#92400E]">선택 {selectedIds.size}건</span>
+        <div className="flex items-center gap-3 px-4 py-2.5 mb-4 bg-accent-light border border-yellow rounded-[8px]">
+          <span className="text-[13px] font-semibold text-status-pending">선택 {selectedIds.size}건</span>
           <Btn size="sm" variant="success" disabled={bulkProcessing} onClick={handleBulkApprove}>
             {bulkProcessing ? '처리 중...' : '일괄 승인'}
           </Btn>
           <Btn size="sm" variant="danger" disabled={bulkProcessing} onClick={handleBulkReject}>일괄 반려</Btn>
           <button
             onClick={() => setSelectedIds(new Set())}
-            className="ml-auto text-[12px] text-[#92400E] bg-transparent border-none cursor-pointer underline"
+            className="ml-auto text-[12px] text-status-pending bg-transparent border-none cursor-pointer underline"
           >
             선택 해제
           </button>
@@ -279,9 +279,9 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
 
       {/* 테이블 — 공용 AdminTable */}
       {loading ? (
-        <p className="text-[#9CA3AF] text-[13px] py-8 text-center">로딩 중...</p>
+        <p className="text-muted2-brand text-[13px] py-8 text-center">로딩 중...</p>
       ) : items.length === 0 ? (
-        <div className="text-center py-12 text-[#9CA3AF] text-[13px]">
+        <div className="text-center py-12 text-muted2-brand text-[13px]">
           {statusFilter === 'PENDING' ? '승인 대기 항목이 없습니다.' : '항목이 없습니다.'}
         </div>
       ) : (
@@ -297,12 +297,12 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
               )}
               <AdminTd className="text-[12px] align-top">{new Date(item.requestedAt).toLocaleDateString('ko-KR')}</AdminTd>
               <AdminTd className="align-top">
-                <div className="font-semibold text-[#111827]">{item.displayName}</div>
-                {item.subName && <div className="text-[12px] text-[#6B7280]">{item.subName}</div>}
+                <div className="font-semibold text-fore-brand">{item.displayName}</div>
+                {item.subName && <div className="text-[12px] text-muted-brand">{item.subName}</div>}
               </AdminTd>
-              <AdminTd className="text-[#6B7280] align-top max-w-[200px] truncate">
+              <AdminTd className="text-muted-brand align-top max-w-[200px] truncate">
                 {item.detail}
-                {item.rejectReason && <div className="text-[#DC2626] text-[12px]">사유: {item.rejectReason}</div>}
+                {item.rejectReason && <div className="text-status-rejected text-[12px]">사유: {item.rejectReason}</div>}
               </AdminTd>
               <AdminTd className="align-top"><StatusBadge status={item.status} /></AdminTd>
               {statusFilter === 'PENDING' && (

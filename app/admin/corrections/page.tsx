@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -88,7 +88,7 @@ export default function CorrectionsPage() {
       <p className="text-[13px] text-muted-brand mb-5">
         데이터 수정/정정 이력을 조회합니다
       </p>
-      <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+      <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
         <div className="flex gap-3 flex-wrap items-end">
           <div>
             <label className="block text-xs text-muted-brand mb-1 font-semibold">도메인</label>
@@ -116,7 +116,7 @@ export default function CorrectionsPage() {
   return (
     <PageShell header={filterHeader}>
         {/* 결과 테이블 */}
-        <div className="bg-white rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
+        <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
           <div className="px-5 py-4 border-b border-[rgba(91,164,217,0.15)] flex justify-between items-center">
             <span className="font-bold text-sm">정정 이력 목록</span>
             <span className="text-xs text-muted-brand">전체 {total.toLocaleString('ko-KR')}건</span>
@@ -139,16 +139,16 @@ export default function CorrectionsPage() {
                   ) : items.map((item) => (
                     <>
                       <tr key={item.id} className="border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors">
-                        <td className="px-4 py-3 text-sm text-[#CBD5E0]">{fmtDate(item.createdAt)}</td>
-                        <td className="px-4 py-3 text-sm text-[#CBD5E0]">
-                          <span className="text-xs font-semibold text-[#4A93C8] bg-[rgba(91,164,217,0.1)] px-2 py-0.5 rounded">
+                        <td className="px-4 py-3 text-sm text-dim-brand">{fmtDate(item.createdAt)}</td>
+                        <td className="px-4 py-3 text-sm text-dim-brand">
+                          <span className="text-xs font-semibold text-secondary-brand bg-[rgba(91,164,217,0.1)] px-2 py-0.5 rounded">
                             {domainLabel(item.domainType)}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-xs text-muted-brand font-mono max-w-[140px] overflow-hidden text-ellipsis whitespace-nowrap">
                           {item.targetId}
                         </td>
-                        <td className="px-4 py-3 text-sm text-[#CBD5E0]">
+                        <td className="px-4 py-3 text-sm text-dim-brand">
                           <span style={{
                             fontSize: '12px',
                             fontWeight: 600,
@@ -158,8 +158,8 @@ export default function CorrectionsPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-xs text-muted-brand max-w-[200px]">{item.reason ?? '-'}</td>
-                        <td className="px-4 py-3 text-sm text-[#CBD5E0]">{item.operatorName ?? item.operatorId ?? '-'}</td>
-                        <td className="px-4 py-3 text-sm text-[#CBD5E0]">
+                        <td className="px-4 py-3 text-sm text-dim-brand">{item.operatorName ?? item.operatorId ?? '-'}</td>
+                        <td className="px-4 py-3 text-sm text-dim-brand">
                           {(item.beforeJson || item.afterJson) && (
                             <button
                               onClick={() => toggleExpand(item.id)}
@@ -179,7 +179,7 @@ export default function CorrectionsPage() {
                                 <div className="text-[11px] font-bold text-[#c62828] mb-2 uppercase">
                                   변경 전 (Before)
                                 </div>
-                                <pre className="text-[11px] text-[#CBD5E0] m-0 whitespace-pre-wrap break-all">
+                                <pre className="text-[11px] text-dim-brand m-0 whitespace-pre-wrap break-all">
                                   {item.beforeJson ? JSON.stringify(item.beforeJson, null, 2) : '(없음)'}
                                 </pre>
                               </div>
@@ -187,7 +187,7 @@ export default function CorrectionsPage() {
                                 <div className="text-[11px] font-bold text-[#2e7d32] mb-2 uppercase">
                                   변경 후 (After)
                                 </div>
-                                <pre className="text-[11px] text-[#CBD5E0] m-0 whitespace-pre-wrap break-all">
+                                <pre className="text-[11px] text-dim-brand m-0 whitespace-pre-wrap break-all">
                                   {item.afterJson ? JSON.stringify(item.afterJson, null, 2) : '(없음)'}
                                 </pre>
                               </div>
@@ -208,7 +208,7 @@ export default function CorrectionsPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3.5 py-1.5 border border-[rgba(91,164,217,0.2)] rounded-md bg-white cursor-pointer text-[13px] disabled:opacity-40"
+                className="px-3.5 py-1.5 border border-[rgba(91,164,217,0.2)] rounded-md bg-card cursor-pointer text-[13px] disabled:opacity-40"
               >
                 이전
               </button>
@@ -216,7 +216,7 @@ export default function CorrectionsPage() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3.5 py-1.5 border border-[rgba(91,164,217,0.2)] rounded-md bg-white cursor-pointer text-[13px] disabled:opacity-40"
+                className="px-3.5 py-1.5 border border-[rgba(91,164,217,0.2)] rounded-md bg-card cursor-pointer text-[13px] disabled:opacity-40"
               >
                 다음
               </button>

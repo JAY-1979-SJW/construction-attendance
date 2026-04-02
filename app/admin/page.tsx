@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
@@ -92,29 +92,29 @@ function SiteSelect({
       <button
         type="button"
         onClick={() => { setOpen(!open); setQuery('') }}
-        className="h-9 pl-3 pr-8 border border-[#E5E7EB] rounded-[8px] text-[13px] bg-white text-[#374151] text-left min-w-[160px] relative hover:border-[#D1D5DB] focus:outline-none focus:border-[#F97316] transition-colors"
+        className="h-9 pl-3 pr-8 border border-brand rounded-[8px] text-[13px] bg-card text-body-brand text-left min-w-[160px] relative hover:border-[#D1D5DB] focus:outline-none focus:border-accent transition-colors"
       >
         <span className="truncate block">{selectedLabel}</span>
-        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" style={{ fontSize: 9 }}>▾</span>
+        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted2-brand pointer-events-none" style={{ fontSize: 9 }}>▾</span>
       </button>
 
       {open && (
-        <div className="absolute top-full mt-1 left-0 z-30 bg-white border border-[#E5E7EB] rounded-[12px] shadow-lg min-w-[220px] max-h-[300px] flex flex-col">
-          <div className="p-2 border-b border-[#F3F4F6]">
+        <div className="absolute top-full mt-1 left-0 z-30 bg-card border border-brand rounded-[12px] shadow-lg min-w-[220px] max-h-[300px] flex flex-col">
+          <div className="p-2 border-b border-brand">
             <input
               autoFocus
               type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="현장 검색..."
-              className="w-full h-9 px-3 border border-[#E5E7EB] rounded-[6px] text-[12px] text-[#111827] focus:outline-none focus:border-[#F97316] placeholder:text-[#9CA3AF]"
+              className="w-full h-9 px-3 border border-brand rounded-[6px] text-[12px] text-fore-brand focus:outline-none focus:border-accent placeholder:text-muted2-brand"
             />
           </div>
           <div className="overflow-y-auto flex-1 py-1">
             <button
               type="button"
               onClick={() => { onChange(''); setOpen(false); setQuery('') }}
-              className={`w-full text-left px-3 py-2 text-[13px] hover:bg-[#F9FAFB] transition-colors ${value === '' ? 'font-semibold text-[#F97316] bg-[#FFF7ED]' : 'text-[#374151]'}`}
+              className={`w-full text-left px-3 py-2 text-[13px] hover:bg-surface transition-colors ${value === '' ? 'font-semibold text-accent bg-accent-light' : 'text-body-brand'}`}
             >
               전체 현장
             </button>
@@ -123,13 +123,13 @@ function SiteSelect({
                 key={o.id}
                 type="button"
                 onClick={() => { onChange(o.id); setOpen(false); setQuery('') }}
-                className={`w-full text-left px-3 py-2 text-[13px] hover:bg-[#F9FAFB] transition-colors ${value === o.id ? 'font-semibold text-[#F97316] bg-[#FFF7ED]' : 'text-[#374151]'}`}
+                className={`w-full text-left px-3 py-2 text-[13px] hover:bg-surface transition-colors ${value === o.id ? 'font-semibold text-accent bg-accent-light' : 'text-body-brand'}`}
               >
                 {o.name}
               </button>
             ))}
             {filtered.length === 0 && (
-              <div className="px-3 py-3 text-[12px] text-[#9CA3AF] text-center">검색 결과 없음</div>
+              <div className="px-3 py-3 text-[12px] text-muted2-brand text-center">검색 결과 없음</div>
             )}
           </div>
         </div>
@@ -147,17 +147,17 @@ function KpiCard({
 }) {
   return (
     <div
-      className="bg-white rounded-[12px] border border-[#E5E7EB] px-4 py-4"
+      className="bg-card rounded-[12px] border border-brand px-4 py-4"
       style={{ borderTopWidth: 3, borderTopColor: accentColor }}
     >
-      <div className="text-[11px] font-semibold text-[#6B7280] mb-2 uppercase tracking-wide leading-tight">{label}</div>
+      <div className="text-[11px] font-semibold text-muted-brand mb-2 uppercase tracking-wide leading-tight">{label}</div>
       <div className="flex items-baseline gap-1 mb-1">
-        <span className={`text-[28px] font-bold leading-none tabular-nums ${alert ? 'text-[#B91C1C]' : 'text-[#0F172A]'}`}>
+        <span className={`text-[28px] font-bold leading-none tabular-nums ${alert ? 'text-status-missing' : 'text-title-brand'}`}>
           {value}
         </span>
-        {unit && <span className="text-[12px] text-[#9CA3AF]">{unit}</span>}
+        {unit && <span className="text-[12px] text-muted2-brand">{unit}</span>}
       </div>
-      {sub && <div className="text-[11px] text-[#9CA3AF] leading-snug">{sub}</div>}
+      {sub && <div className="text-[11px] text-muted2-brand leading-snug">{sub}</div>}
     </div>
   )
 }
@@ -171,7 +171,7 @@ function SiteCard({ site }: { site: SiteSummary }) {
   const isNearing = remaining !== null && remaining > 0 && remaining <= 30
 
   return (
-    <div className={`bg-white rounded-[12px] border overflow-hidden ${hasIssue ? 'border-[#F87171]' : 'border-[#E5E7EB]'}`}>
+    <div className={`bg-card rounded-[12px] border overflow-hidden ${hasIssue ? 'border-[#F87171]' : 'border-brand'}`}>
       {/* 상단 컬러 라인 */}
       <div className="h-[3px]" style={{
         background: hasIssue ? '#B91C1C' : isExpired ? '#9CA3AF' : isNearing ? '#F97316' : '#E5E7EB',
@@ -179,16 +179,16 @@ function SiteCard({ site }: { site: SiteSummary }) {
       <div className="px-4 py-3">
         {/* 현장명 + 배지 */}
         <div className="flex items-start justify-between mb-2 gap-2">
-          <span className="text-[13px] font-semibold text-[#111827] leading-snug">{site.name}</span>
+          <span className="text-[13px] font-semibold text-fore-brand leading-snug">{site.name}</span>
           <div className="flex items-center gap-1 shrink-0">
             {isExpired && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]">계약종료</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-footer text-muted-brand border border-[#D1D5DB]">계약종료</span>
             )}
             {isNearing && !isExpired && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">임박</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-light text-status-pending border border-yellow">임박</span>
             )}
             {hasIssue && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#FEE2E2] text-[#B91C1C] border border-[#F87171]">
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-light text-status-missing border border-[#F87171]">
                 확인 {site.issue}
               </span>
             )}
@@ -199,12 +199,12 @@ function SiteCard({ site }: { site: SiteSummary }) {
         {prog ? (
           <div className="mb-2">
             <div className="flex items-center justify-between mb-0.5">
-              <span className="text-[10px] text-[#9CA3AF] tabular-nums">
+              <span className="text-[10px] text-muted2-brand tabular-nums">
                 {fmtDate(site.openedAt)} ~ {fmtDate(site.closedAt)}
               </span>
-              <span className="text-[10px] text-[#6B7280] tabular-nums">{prog.pct}% · 잔여 {prog.remaining}일</span>
+              <span className="text-[10px] text-muted-brand tabular-nums">{prog.pct}% · 잔여 {prog.remaining}일</span>
             </div>
-            <div className="w-full h-1.5 bg-[#F3F4F6] rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-footer rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all"
                 style={{
@@ -225,13 +225,13 @@ function SiteCard({ site }: { site: SiteSummary }) {
         {/* 인원 현황 */}
         <div className="flex items-center gap-2 mb-2 flex-wrap text-[12px]">
           {site.working > 0 && (
-            <span className="text-[#16A34A] font-semibold">출근중 {site.working}</span>
+            <span className="text-status-working font-semibold">출근중 {site.working}</span>
           )}
           {site.completed > 0 && (
-            <span className="text-[#6B7280]">퇴근 {site.completed}</span>
+            <span className="text-muted-brand">퇴근 {site.completed}</span>
           )}
           {site.issue > 0 && (
-            <span className="text-[#B91C1C] font-semibold">확인필요 {site.issue}</span>
+            <span className="text-status-missing font-semibold">확인필요 {site.issue}</span>
           )}
           {site.working === 0 && site.completed === 0 && site.issue === 0 && (
             <span className="text-[#D1D5DB]">오늘 출근 없음</span>
@@ -239,18 +239,18 @@ function SiteCard({ site }: { site: SiteSummary }) {
         </div>
 
         {/* 노임 현황 */}
-        <div className="border-t border-[#F3F4F6] pt-2 grid grid-cols-3 gap-1 text-center">
+        <div className="border-t border-brand pt-2 grid grid-cols-3 gap-1 text-center">
           <div>
-            <div className="text-[10px] text-[#9CA3AF] mb-0.5">오늘</div>
-            <div className="text-[12px] font-semibold text-[#374151] tabular-nums">{fmtWageShort(site.todayWage)}</div>
+            <div className="text-[10px] text-muted2-brand mb-0.5">오늘</div>
+            <div className="text-[12px] font-semibold text-body-brand tabular-nums">{fmtWageShort(site.todayWage)}</div>
           </div>
           <div>
-            <div className="text-[10px] text-[#9CA3AF] mb-0.5">이번달</div>
-            <div className="text-[12px] font-semibold text-[#374151] tabular-nums">{fmtWageShort(site.monthWage)}</div>
+            <div className="text-[10px] text-muted2-brand mb-0.5">이번달</div>
+            <div className="text-[12px] font-semibold text-body-brand tabular-nums">{fmtWageShort(site.monthWage)}</div>
           </div>
           <div>
-            <div className="text-[10px] text-[#9CA3AF] mb-0.5">총 누계</div>
-            <div className="text-[12px] font-bold text-[#0F172A] tabular-nums">{fmtWageShort(site.totalWage)}</div>
+            <div className="text-[10px] text-muted2-brand mb-0.5">총 누계</div>
+            <div className="text-[12px] font-bold text-title-brand tabular-nums">{fmtWageShort(site.totalWage)}</div>
           </div>
         </div>
       </div>
@@ -360,29 +360,29 @@ export default function AdminDashboard() {
 
       {/* ── 계약기간 보조 정보 바 (특정 현장 선택 시) ────────────────────── */}
       {selectedSiteInfo && (
-        <div className="mb-4 bg-white rounded-[12px] border border-[#E5E7EB] px-5 py-3 flex flex-wrap items-center gap-x-6 gap-y-2">
+        <div className="mb-4 bg-card rounded-[12px] border border-brand px-5 py-3 flex flex-wrap items-center gap-x-6 gap-y-2">
           <div className="flex items-center gap-2">
-            <span className="text-[13px] font-semibold text-[#374151]">{selectedSiteInfo.name}</span>
+            <span className="text-[13px] font-semibold text-body-brand">{selectedSiteInfo.name}</span>
             {remainingDays !== null && remainingDays <= 0 && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FEE2E2] text-[#B91C1C] border border-[#F87171]">계약 종료</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-light text-status-missing border border-[#F87171]">계약 종료</span>
             )}
             {remainingDays !== null && remainingDays > 0 && remainingDays <= 30 && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">종료 임박</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-light text-status-pending border border-yellow">종료 임박</span>
             )}
           </div>
 
           {(selectedSiteInfo.openedAt || selectedSiteInfo.closedAt) ? (
             <>
-              <div className="text-[12px] text-[#6B7280]">
+              <div className="text-[12px] text-muted-brand">
                 계약기간
-                <span className="text-[#374151] font-medium ml-1 tabular-nums">
+                <span className="text-body-brand font-medium ml-1 tabular-nums">
                   {fmtDate(selectedSiteInfo.openedAt) ?? '미설정'} ~ {fmtDate(selectedSiteInfo.closedAt) ?? '미설정'}
                 </span>
               </div>
               {contractProg && (
                 <div className="flex items-center gap-2">
-                  <span className="text-[12px] text-[#6B7280]">진행률</span>
-                  <div className="w-28 h-2 bg-[#E5E7EB] rounded-full overflow-hidden">
+                  <span className="text-[12px] text-muted-brand">진행률</span>
+                  <div className="w-28 h-2 bg-brand-deeper rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
                       style={{
@@ -391,9 +391,9 @@ export default function AdminDashboard() {
                       }}
                     />
                   </div>
-                  <span className="text-[12px] font-semibold text-[#374151] tabular-nums">{contractProg.pct}%</span>
-                  <span className="text-[12px] text-[#9CA3AF]">·</span>
-                  <span className="text-[12px] text-[#374151]">잔여 <span className="font-semibold tabular-nums">{contractProg.remaining}</span>일</span>
+                  <span className="text-[12px] font-semibold text-body-brand tabular-nums">{contractProg.pct}%</span>
+                  <span className="text-[12px] text-muted2-brand">·</span>
+                  <span className="text-[12px] text-body-brand">잔여 <span className="font-semibold tabular-nums">{contractProg.remaining}</span>일</span>
                 </div>
               )}
             </>
@@ -404,50 +404,50 @@ export default function AdminDashboard() {
       )}
 
       {loading ? (
-        <div className="text-[#9CA3AF] text-[13px] py-20 text-center">로딩 중...</div>
+        <div className="text-muted2-brand text-[13px] py-20 text-center">로딩 중...</div>
       ) : loadError ? (
         <div className="text-center py-20">
-          <div className="text-[#DC2626] text-[14px] mb-2">{loadError}</div>
-          <button onClick={load} className="px-4 py-2 bg-[#F97316] text-white rounded-lg text-[13px] border-none cursor-pointer">다시 시도</button>
+          <div className="text-status-rejected text-[14px] mb-2">{loadError}</div>
+          <button onClick={load} className="px-4 py-2 bg-brand-accent text-white rounded-lg text-[13px] border-none cursor-pointer">다시 시도</button>
         </div>
       ) : (
         <>
           {/* ── 초기 설정 안내 (현장 또는 근로자 0건) ──────────────────── */}
           {summary && (summary.activeSites === 0 || summary.totalWorkers === 0) && (
-            <div className="mb-4 p-5 rounded-xl border-2 border-dashed border-[#F97316] bg-[#FFF7ED]">
-              <div className="text-[15px] font-bold text-[#F97316] mb-3">초기 설정이 필요합니다</div>
+            <div className="mb-4 p-5 rounded-xl border-2 border-dashed border-accent bg-accent-light">
+              <div className="text-[15px] font-bold text-accent mb-3">초기 설정이 필요합니다</div>
               <div className="space-y-2">
                 {summary.activeSites === 0 ? (
                   <div className="flex items-start gap-2">
-                    <span className="text-[14px] text-[#dc2626] mt-0.5">1</span>
+                    <span className="text-[14px] text-status-rejected mt-0.5">1</span>
                     <div>
-                      <a href="/admin/sites" className="text-[13px] font-semibold text-[#F97316] underline">현장을 개설하세요</a>
-                      <div className="text-[11px] text-[#6B7280] mt-0.5">현장명, 주소, GPS 반경을 입력하면 QR코드가 자동 생성됩니다.</div>
+                      <a href="/admin/sites" className="text-[13px] font-semibold text-accent underline">현장을 개설하세요</a>
+                      <div className="text-[11px] text-muted-brand mt-0.5">현장명, 주소, GPS 반경을 입력하면 QR코드가 자동 생성됩니다.</div>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-[13px] text-[#16a34a]">
+                  <div className="flex items-center gap-2 text-[13px] text-status-working">
                     <span>✓</span> 현장 {summary.activeSites}개 운영 중
                   </div>
                 )}
                 {summary.totalWorkers === 0 ? (
                   <div className="flex items-start gap-2">
-                    <span className="text-[14px] text-[#dc2626] mt-0.5">{summary.activeSites === 0 ? '2' : '1'}</span>
+                    <span className="text-[14px] text-status-rejected mt-0.5">{summary.activeSites === 0 ? '2' : '1'}</span>
                     <div>
-                      <a href="/admin/workers" className="text-[13px] font-semibold text-[#F97316] underline">근로자를 등록하거나 가입 승인하세요</a>
-                      <div className="text-[11px] text-[#6B7280] mt-0.5">근로자 직접 등록 또는 근로자 앱에서 회원가입 후 승인 처리합니다.</div>
+                      <a href="/admin/workers" className="text-[13px] font-semibold text-accent underline">근로자를 등록하거나 가입 승인하세요</a>
+                      <div className="text-[11px] text-muted-brand mt-0.5">근로자 직접 등록 또는 근로자 앱에서 회원가입 후 승인 처리합니다.</div>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-[13px] text-[#16a34a]">
+                  <div className="flex items-center gap-2 text-[13px] text-status-working">
                     <span>✓</span> 근로자 {summary.totalWorkers}명 등록됨
                   </div>
                 )}
                 <div className="flex items-start gap-2">
-                  <span className="text-[14px] text-[#9CA3AF] mt-0.5">3</span>
+                  <span className="text-[14px] text-muted2-brand mt-0.5">3</span>
                   <div>
-                    <a href="/admin/settings" className="text-[13px] font-semibold text-[#6B7280] underline">운영 설정 확인</a>
-                    <div className="text-[11px] text-[#9CA3AF] mt-0.5">근무시간, 기기 승인 정책, 공수 기준 등을 설정합니다.</div>
+                    <a href="/admin/settings" className="text-[13px] font-semibold text-muted-brand underline">운영 설정 확인</a>
+                    <div className="text-[11px] text-muted2-brand mt-0.5">근무시간, 기기 승인 정책, 공수 기준 등을 설정합니다.</div>
                   </div>
                 </div>
               </div>
@@ -517,10 +517,10 @@ export default function AdminDashboard() {
             <div>
               <div className="flex items-center justify-between px-5 py-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-[14px] font-semibold text-[#111827]">오늘 근로자 현황</span>
-                  <span className="text-[11px] text-[#9CA3AF]">문제 인원 우선</span>
+                  <span className="text-[14px] font-semibold text-fore-brand">오늘 근로자 현황</span>
+                  <span className="text-[11px] text-muted2-brand">문제 인원 우선</span>
                 </div>
-                <span className="text-[12px] text-[#9CA3AF] tabular-nums">{filteredRecords.length}명</span>
+                <span className="text-[12px] text-muted2-brand tabular-nums">{filteredRecords.length}명</span>
               </div>
               <AdminTable headers={['이름', '소속 현장', '출근', '퇴근', '상태', '일 노임', '월 누계', '총 누계']}>
                 {filteredRecords.length === 0 ? (
@@ -533,15 +533,15 @@ export default function AdminDashboard() {
                       onClick={() => router.push(`/admin/attendance?date=${selectedDate}&name=${encodeURIComponent(r.workerName)}`)}
                       highlighted={isIssue}
                     >
-                      <AdminTd className="font-medium text-[#111827]">{r.workerName}</AdminTd>
-                      <AdminTd className="text-[#6B7280] max-w-[120px] truncate">{r.siteName}</AdminTd>
+                      <AdminTd className="font-medium text-fore-brand">{r.workerName}</AdminTd>
+                      <AdminTd className="text-muted-brand max-w-[120px] truncate">{r.siteName}</AdminTd>
                       <AdminTd className="tabular-nums">{fmtTime(r.checkInAt)}</AdminTd>
                       <AdminTd className="tabular-nums">{fmtTime(r.checkOutAt)}</AdminTd>
                       <AdminTd><StatusBadge status={r.status} label={STATUS_LABEL[r.status]} /></AdminTd>
                       <AdminTd className="text-[12px] tabular-nums text-right">
                         {r.dayWage > 0 ? r.dayWage.toLocaleString('ko-KR') : '-'}
                       </AdminTd>
-                      <AdminTd className="text-[12px] text-[#6B7280] tabular-nums text-right">
+                      <AdminTd className="text-[12px] text-muted-brand tabular-nums text-right">
                         {r.monthWage > 0 ? r.monthWage.toLocaleString('ko-KR') : '-'}
                       </AdminTd>
                       <AdminTd className="text-[12px] font-medium tabular-nums text-right">
@@ -552,7 +552,7 @@ export default function AdminDashboard() {
                 })}
               </AdminTable>
               {filteredRecords.length > 30 && (
-                <div className="px-5 py-2.5 border-t border-[#F3F4F6] text-[12px] text-[#9CA3AF]">
+                <div className="px-5 py-2.5 border-t border-brand text-[12px] text-muted2-brand">
                   {filteredRecords.length - 30}명 더 있음 — 출퇴근관리에서 전체 확인
                 </div>
               )}
@@ -561,14 +561,14 @@ export default function AdminDashboard() {
             {/* 우: 현장별 요약 카드 */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="text-[13px] font-semibold text-[#111827]">현장별 운영 현황</span>
+                <span className="text-[13px] font-semibold text-fore-brand">현장별 운영 현황</span>
                 {!selectedSiteId && sites.length > 12 && (
-                  <span className="text-[11px] text-[#9CA3AF]">문제·노임 상위</span>
+                  <span className="text-[11px] text-muted2-brand">문제·노임 상위</span>
                 )}
               </div>
 
               {displayedSites.length === 0 ? (
-                <div className="bg-white rounded-[12px] border border-[#E5E7EB] py-12 text-center text-[13px] text-[#9CA3AF]">
+                <div className="bg-card rounded-[12px] border border-brand py-12 text-center text-[13px] text-muted2-brand">
                   오늘 운영 현황 없음
                 </div>
               ) : displayedSites.map(site => (
@@ -576,7 +576,7 @@ export default function AdminDashboard() {
               ))}
 
               {!selectedSiteId && sites.length > 12 && (
-                <div className="text-center text-[12px] text-[#9CA3AF] py-1">
+                <div className="text-center text-[12px] text-muted2-brand py-1">
                   전체 현장 {sites.length}개 — 현장관리에서 확인
                 </div>
               )}

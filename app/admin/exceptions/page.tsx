@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -66,7 +66,7 @@ export default function ExceptionsPage() {
       <h1 className="text-[22px] font-bold mb-5">예외 승인 ({total}건)</h1>
 
       {loading ? <p>로딩 중...</p> : (
-        <div className="bg-white rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
+        <div className="bg-card rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr>{['날짜', '이름', '현장', '사유', '요청일', '처리'].map((h) => (
@@ -78,12 +78,12 @@ export default function ExceptionsPage() {
                 <tr><td colSpan={6} className="text-center py-6 text-[#999]">대기 중인 예외 요청이 없습니다.</td></tr>
               ) : items.map((item) => (
                 <tr key={item.id}>
-                  <td className="px-3 py-3 text-sm border-b border-[#f5f5f5]">{item.workDate}</td>
-                  <td className="px-3 py-3 text-sm border-b border-[#f5f5f5]">{item.workerName}<br /><span className="text-xs text-[#999]">{item.company}</span></td>
-                  <td className="px-3 py-3 text-sm border-b border-[#f5f5f5]">{item.siteName}</td>
-                  <td className="px-3 py-3 text-sm border-b border-[#f5f5f5]"><span className="text-xs">{item.exceptionReason}</span></td>
-                  <td className="px-3 py-3 text-sm border-b border-[#f5f5f5]">{formatDt(item.createdAt)}</td>
-                  <td className="px-3 py-3 text-sm border-b border-[#f5f5f5]">
+                  <td className="px-3 py-3 text-sm border-b border-brand">{item.workDate}</td>
+                  <td className="px-3 py-3 text-sm border-b border-brand">{item.workerName}<br /><span className="text-xs text-[#999]">{item.company}</span></td>
+                  <td className="px-3 py-3 text-sm border-b border-brand">{item.siteName}</td>
+                  <td className="px-3 py-3 text-sm border-b border-brand"><span className="text-xs">{item.exceptionReason}</span></td>
+                  <td className="px-3 py-3 text-sm border-b border-brand">{formatDt(item.createdAt)}</td>
+                  <td className="px-3 py-3 text-sm border-b border-brand">
                     {canMutate
                       ? <button onClick={() => { setSelected(item); setApproveData({ checkInAt: item.checkInAt?.slice(0, 16) ?? '', checkOutAt: item.checkOutAt?.slice(0, 16) ?? '', note: '' }) }} className="px-3.5 py-1.5 bg-accent text-white border-none rounded-md cursor-pointer text-[13px]">처리</button>
                       : <span className="text-xs text-[#bbb]">조회 전용</span>
@@ -119,7 +119,7 @@ export default function ExceptionsPage() {
             <div className="flex gap-2 mt-4">
               {canMutate && <button onClick={() => handleAction('APPROVE')} disabled={processing} className="flex-1 py-2.5 bg-[#2e7d32] text-white border-none rounded-md cursor-pointer font-bold">승인</button>}
               {canMutate && <button onClick={() => handleAction('REJECT')} disabled={processing} className="flex-1 py-2.5 bg-[#e53935] text-white border-none rounded-md cursor-pointer font-bold">반려</button>}
-              <button onClick={() => setSelected(null)} className="flex-1 py-2.5 bg-brand text-[#CBD5E0] border-none rounded-md cursor-pointer">닫기</button>
+              <button onClick={() => setSelected(null)} className="flex-1 py-2.5 bg-brand text-dim-brand border-none rounded-md cursor-pointer">닫기</button>
             </div>
           </>
         )}
