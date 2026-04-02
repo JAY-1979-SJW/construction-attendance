@@ -1,8 +1,10 @@
 import { NextRequest } from 'next/server'
 import { AttendanceStatus } from '@prisma/client'
-import { getAdminSession, buildSiteScopeWhere, canAccessSite, siteAccessDeniedWithLog } from '@/lib/auth/guards'
+import { z } from 'zod'
+import { getAdminSession, buildSiteScopeWhere, canAccessSite, siteAccessDeniedWithLog, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
-import { ok, unauthorized, internalError } from '@/lib/utils/response'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { ok, created, unauthorized, badRequest, conflict, internalError } from '@/lib/utils/response'
 import { kstDateStringToDate, toKSTDateString } from '@/lib/utils/date'
 
 export async function GET(request: NextRequest) {
@@ -249,6 +251,160 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     console.error('[admin/attendance GET]', err)
+    return internalError()
+  }
+}
+
+// ── POST /api/admin/attendance ─ 관리자 대리 출근 등록 ──────────────────────
+
+const postSchema = z.object({
+  workerId:   z.string().min(1, '근로자를 선택해주세요.'),
+  siteId:     z.string().min(1, '현장을 선택해주세요.'),
+  workDate:   z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '날짜 형식: YYYY-MM-DD'),
+  checkInAt:  z.string().regex(/^\d{2}:\d{2}$/, '출근시간 형식: HH:MM'),
+  checkOutAt: z.string().regex(/^\d{2}:\d{2}$/, '퇴근시간 형식: HH:MM').optional(),
+  reason:     z.string().min(1, '사유를 입력해주세요.').max(200),
+  adminNote:  z.string().max(500).optional(),
+})
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getAdminSession()
+    if (!session) return unauthorized()
+    const deny = requireRole(session, [...MUTATE_ROLES, 'SITE_ADMIN'])
+    if (deny) return deny
+
+    const body = await request.json()
+    const parsed = postSchema.safeParse(body)
+    if (!parsed.success) return badRequest(parsed.error.issues[0].message)
+
+    const { workerId, siteId, workDate, checkInAt, checkOutAt, reason, adminNote } = parsed.data
+
+    // 현장 접근 권한 검증
+    if (!await canAccessSite(session, siteId)) {
+      return siteAccessDeniedWithLog(session, siteId)
+    }
+
+    // 근로자 존재 확인
+    const worker = await prisma.worker.findUnique({
+      where: { id: workerId },
+      select: {
+        id: true, name: true,
+        companyAssignments: {
+          where: { isPrimary: true },
+          select: { companyId: true, company: { select: { companyName: true } } },
+          take: 1,
+        },
+      },
+    })
+    if (!worker) return badRequest('존재하지 않는 근로자입니다.')
+    const primaryCompany = worker.companyAssignments[0] ?? null
+
+    // 현장 존재 확인
+    const site = await prisma.site.findUnique({
+      where: { id: siteId },
+      select: { id: true, name: true },
+    })
+    if (!site) return badRequest('존재하지 않는 현장입니다.')
+
+    // 중복 확인 (동일 근로자+현장+날짜)
+    const dbWorkDate = kstDateStringToDate(workDate)
+    const existing = await prisma.attendanceLog.findUnique({
+      where: { workerId_siteId_workDate: { workerId, siteId, workDate: dbWorkDate } },
+    })
+    if (existing) return conflict('해당 날짜에 이미 출퇴근 기록이 존재합니다.')
+
+    // 시간 파싱
+    const checkInDateTime = new Date(`${workDate}T${checkInAt}:00+09:00`)
+    const checkOutDateTime = checkOutAt ? new Date(`${workDate}T${checkOutAt}:00+09:00`) : null
+    const status: AttendanceStatus = checkOutDateTime ? 'ADMIN_MANUAL' : 'ADMIN_MANUAL'
+
+    // AttendanceLog 생성
+    const log = await prisma.attendanceLog.create({
+      data: {
+        workerId,
+        siteId,
+        workDate: dbWorkDate,
+        checkInAt: checkInDateTime,
+        checkOutAt: checkOutDateTime,
+        status,
+        isDirectCheckIn: false,
+        adminNote: `[대리등록] ${reason}${adminNote ? ` | ${adminNote}` : ''}`,
+        companyId: primaryCompany?.companyId ?? null,
+        companyNameSnapshot: primaryCompany?.company.companyName ?? null,
+      },
+      include: {
+        worker: { select: { name: true } },
+        checkInSite: { select: { name: true } },
+      },
+    })
+
+    // AttendanceDay 동기화
+    let workedMinutes: number | null = null
+    if (checkOutDateTime) {
+      workedMinutes = Math.max(0, Math.floor((checkOutDateTime.getTime() - checkInDateTime.getTime()) / 60000))
+    }
+    await prisma.attendanceDay.upsert({
+      where: { workerId_siteId_workDate: { workerId, siteId, workDate } },
+      create: {
+        workerId,
+        siteId,
+        workDate,
+        firstCheckInAt: checkInDateTime,
+        lastCheckOutAt: checkOutDateTime,
+        workedMinutesRaw: workedMinutes,
+        workedMinutesAuto: workedMinutes,
+        workedMinutesRawFinal: workedMinutes,
+        presenceStatus: 'NORMAL',
+        manualAdjustedYn: true,
+        manualAdjustedReason: `관리자 대리등록: ${reason}`,
+        manualAdjustedByUserId: session.sub,
+        manualAdjustedAt: new Date(),
+      },
+      update: {
+        firstCheckInAt: checkInDateTime,
+        lastCheckOutAt: checkOutDateTime,
+        workedMinutesRaw: workedMinutes,
+        workedMinutesAuto: workedMinutes,
+        workedMinutesRawFinal: workedMinutes,
+        manualAdjustedYn: true,
+        manualAdjustedReason: `관리자 대리등록: ${reason}`,
+        manualAdjustedByUserId: session.sub,
+        manualAdjustedAt: new Date(),
+      },
+    })
+
+    // 감사 로그
+    await writeAuditLog({
+      actorUserId: session.sub,
+      actorType: 'ADMIN',
+      actorRole: session.role,
+      actionType: 'ADMIN_MANUAL_ATTENDANCE',
+      targetType: 'AttendanceLog',
+      targetId: log.id,
+      summary: `대리 출근 등록: ${worker.name} / ${site.name} / ${workDate} / ${checkInAt}~${checkOutAt ?? '미퇴근'}`,
+      reason,
+      afterJson: {
+        workerId,
+        siteId,
+        workDate,
+        checkInAt,
+        checkOutAt: checkOutAt ?? null,
+        workedMinutes,
+      },
+    })
+
+    return created({
+      id: log.id,
+      workerName: log.worker.name,
+      siteName: log.checkInSite.name,
+      workDate,
+      status: log.status,
+      checkInAt: log.checkInAt?.toISOString() ?? null,
+      checkOutAt: log.checkOutAt?.toISOString() ?? null,
+    })
+  } catch (err) {
+    console.error('[admin/attendance POST]', err)
     return internalError()
   }
 }

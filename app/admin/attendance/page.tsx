@@ -8,7 +8,7 @@ import {
   AdminTable, AdminTr, AdminTd, EmptyRow,
   StatusBadge, Btn,
   FormInput, FormTextarea, ModalFooter,
-  FloatingToast,
+  FloatingToast, Modal,
 } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
@@ -403,6 +403,18 @@ function AttendancePageInner() {
   const [correctSaving, setCorrectSaving] = useState(false)
   const [correctError, setCorrectError] = useState('')
 
+  // 대리 출근 등록 모달
+  const [proxyOpen, setProxyOpen]           = useState(false)
+  const [proxyWorkerId, setProxyWorkerId]   = useState('')
+  const [proxySiteId, setProxySiteId]       = useState('')
+  const [proxyDate, setProxyDate]           = useState('')
+  const [proxyCheckIn, setProxyCheckIn]     = useState('08:00')
+  const [proxyCheckOut, setProxyCheckOut]   = useState('')
+  const [proxyReason, setProxyReason]       = useState('')
+  const [proxyNote, setProxyNote]           = useState('')
+  const [proxySaving, setProxySaving]       = useState(false)
+  const [proxyError, setProxyError]         = useState('')
+
   // 저장 토스트
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null)
   const showToast = (ok: boolean, msg: string) => {
@@ -500,6 +512,53 @@ function AttendancePageInner() {
     if (target) openDetail(target.id)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, items])
+
+  // 대리 출근 등록 모달 열기
+  const openProxyModal = () => {
+    const d = new Date(); const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000)
+    setProxyDate(kst.toISOString().slice(0, 10))
+    setProxyWorkerId('')
+    setProxySiteId(siteId || '')
+    setProxyCheckIn('08:00')
+    setProxyCheckOut('')
+    setProxyReason('')
+    setProxyNote('')
+    setProxyError('')
+    setProxyOpen(true)
+  }
+
+  // 대리 출근 등록 저장
+  const saveProxy = async () => {
+    setProxySaving(true)
+    setProxyError('')
+    try {
+      const res = await fetch('/api/admin/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workerId: proxyWorkerId,
+          siteId: proxySiteId,
+          workDate: proxyDate,
+          checkInAt: proxyCheckIn,
+          checkOutAt: proxyCheckOut || undefined,
+          reason: proxyReason,
+          adminNote: proxyNote || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setProxyOpen(false)
+        showToast(true, '대리 출근이 등록됐습니다.')
+        load()
+      } else {
+        setProxyError(data.message ?? '등록에 실패했습니다.')
+      }
+    } catch {
+      setProxyError('서버 연결 오류')
+    } finally {
+      setProxySaving(false)
+    }
+  }
 
   // 보정 저장
   const saveCorrection = async () => {
@@ -641,6 +700,7 @@ function AttendancePageInner() {
             <option value="name">이름순</option>
           </FilterSelect>
           <div className="flex-1" />
+          <Btn variant="primary" size="sm" onClick={openProxyModal}>대리 등록</Btn>
           <Btn variant="ghost" size="sm" onClick={load}>새로고침</Btn>
           <Btn
             variant="ghost" size="sm"
@@ -1269,6 +1329,130 @@ function AttendancePageInner() {
           </div>
         )}
       </div>
+
+      {/* ── 대리 출근 등록 모달 ── */}
+      <Modal open={proxyOpen} onClose={() => setProxyOpen(false)} title="대리 출근 등록">
+        <div className="text-[13px] text-muted-brand mb-5">
+          관리자가 근로자의 출퇴근을 대리 등록합니다. 감사 로그에 기록됩니다.
+        </div>
+
+        {proxyError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 text-[13px] text-red-700">
+            {proxyError}
+          </div>
+        )}
+
+        {/* 근로자 선택 */}
+        <div className="mb-[14px]">
+          <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">근로자 *</label>
+          <select
+            value={proxyWorkerId}
+            onChange={e => setProxyWorkerId(e.target.value)}
+            className="w-full px-3 py-[9px] border border-brand rounded-[7px] text-sm outline-none box-border"
+          >
+            <option value="">선택하세요</option>
+            {allWorkers.map(w => (
+              <option key={w.id} value={w.id}>
+                {w.name} ({w.phone}) {w.activeSites[0] ? `- ${w.activeSites[0].name}` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* 현장 선택 */}
+        <div className="mb-[14px]">
+          <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">현장 *</label>
+          <select
+            value={proxySiteId}
+            onChange={e => setProxySiteId(e.target.value)}
+            className="w-full px-3 py-[9px] border border-brand rounded-[7px] text-sm outline-none box-border"
+          >
+            <option value="">선택하세요</option>
+            {siteOptions.map(s => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* 날짜 */}
+        <div className="mb-[14px]">
+          <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">작업일 *</label>
+          <input
+            type="date"
+            value={proxyDate}
+            onChange={e => setProxyDate(e.target.value)}
+            className="w-full px-3 py-[9px] border border-brand rounded-[7px] text-sm outline-none box-border"
+          />
+        </div>
+
+        {/* 출퇴근 시간 */}
+        <div className="flex gap-3 mb-[14px]">
+          <div className="flex-1">
+            <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">출근 시간 *</label>
+            <input
+              type="time"
+              value={proxyCheckIn}
+              onChange={e => setProxyCheckIn(e.target.value)}
+              className="w-full px-3 py-[9px] border border-brand rounded-[7px] text-sm outline-none box-border"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">퇴근 시간</label>
+            <input
+              type="time"
+              value={proxyCheckOut}
+              onChange={e => setProxyCheckOut(e.target.value)}
+              className="w-full px-3 py-[9px] border border-brand rounded-[7px] text-sm outline-none box-border"
+            />
+          </div>
+        </div>
+
+        {/* 사유 */}
+        <div className="mb-[14px]">
+          <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">대리 등록 사유 *</label>
+          <textarea
+            value={proxyReason}
+            onChange={e => setProxyReason(e.target.value)}
+            placeholder="예: 휴대폰 고장으로 본인 출근 처리 불가"
+            rows={2}
+            className="w-full px-3 py-[9px] border border-brand rounded-[7px] text-sm outline-none box-border resize-y"
+          />
+        </div>
+
+        {/* 관리자 메모 */}
+        <div className="mb-5">
+          <label className="block text-[12px] font-bold mb-[6px] text-muted-brand">관리자 메모</label>
+          <textarea
+            value={proxyNote}
+            onChange={e => setProxyNote(e.target.value)}
+            placeholder="추가 메모 (선택)"
+            rows={2}
+            className="w-full px-3 py-[9px] border border-brand rounded-[7px] text-sm outline-none box-border resize-y"
+          />
+        </div>
+
+        <div className="flex gap-[10px]">
+          <button
+            onClick={() => setProxyOpen(false)}
+            className="flex-1 py-3 border border-brand rounded-lg bg-card cursor-pointer text-sm"
+          >
+            취소
+          </button>
+          <button
+            onClick={saveProxy}
+            disabled={!proxyWorkerId || !proxySiteId || !proxyDate || !proxyCheckIn || !proxyReason || proxySaving}
+            style={{
+              flex: 2, padding: '12px', border: 'none', borderRadius: '8px',
+              background: (!proxyWorkerId || !proxySiteId || !proxyDate || !proxyCheckIn || !proxyReason || proxySaving) ? '#bdbdbd' : '#1565c0',
+              color: '#fff',
+              cursor: (!proxyWorkerId || !proxySiteId || !proxyDate || !proxyCheckIn || !proxyReason || proxySaving) ? 'not-allowed' : 'pointer',
+              fontSize: '14px', fontWeight: 700,
+            }}
+          >
+            {proxySaving ? '등록 중...' : '대리 출근 등록'}
+          </button>
+        </div>
+      </Modal>
     </PageShell>
   )
 }
