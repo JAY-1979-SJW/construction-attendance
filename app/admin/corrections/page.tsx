@@ -6,27 +6,25 @@ import { PageShell, MobileCardList, MobileCard, MobileCardField, MobileCardField
 
 interface CorrectionRecord {
   id: string
-  createdAt: string
+  actedAt: string
   domainType: string
-  targetId: string
-  action: string
+  domainId: string
+  actionType: string
   reason: string | null
-  operatorId: string | null
-  operatorName: string | null
+  actedBy: string | null
   beforeJson: Record<string, unknown> | null
   afterJson: Record<string, unknown> | null
 }
 
 const DOMAIN_TYPES = [
   { value: '', label: '전체 도메인' },
-  { value: 'ATTENDANCE',         label: '출퇴근' },
   { value: 'WORK_CONFIRMATION',  label: '근무확정' },
   { value: 'INSURANCE',          label: '보험판정' },
   { value: 'WAGE',               label: '세금/노임' },
-  { value: 'FILING_EXPORT',      label: '신고자료' },
+  { value: 'WITHHOLDING',        label: '원천징수' },
   { value: 'RETIREMENT_MUTUAL',  label: '퇴직공제' },
-  { value: 'CONTRACT',           label: '계약' },
-  { value: 'WORKER',             label: '근로자' },
+  { value: 'EXPORT',             label: '신고자료' },
+  { value: 'MONTH_CLOSING',      label: '월마감' },
 ]
 
 function getDefaultDateRange() {
@@ -54,8 +52,8 @@ export default function CorrectionsPage() {
     setLoading(true)
     try {
       const params = new URLSearchParams({
-        dateFrom,
-        dateTo,
+        from: dateFrom,
+        to: dateTo,
         page: String(page),
         pageSize: String(PAGE_SIZE),
       })
@@ -74,8 +72,12 @@ export default function CorrectionsPage() {
     setExpandedId((prev) => (prev === id ? null : id))
   }
 
-  const fmtDate = (iso: string) =>
-    new Date(iso).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+  const fmtDate = (iso: string | undefined) => {
+    if (!iso) return '-'
+    const d = new Date(iso)
+    if (isNaN(d.getTime())) return '-'
+    return d.toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+  }
 
   const domainLabel = (type: string) =>
     DOMAIN_TYPES.find((d) => d.value === type)?.label ?? type
@@ -131,19 +133,19 @@ export default function CorrectionsPage() {
                 <MobileCard
                   key={item.id}
                   title={domainLabel(item.domainType)}
-                  subtitle={`${item.action} · ${fmtDate(item.createdAt)}`}
+                  subtitle={`${item.actionType} · ${fmtDate(item.actedAt)}`}
                   badge={
-                    <span style={{ fontSize: '12px', fontWeight: 600, color: item.action === 'DELETE' ? '#c62828' : item.action === 'CREATE' ? '#2e7d32' : '#e65100' }}>
-                      {item.action}
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: item.actionType === 'DELETE' ? '#c62828' : item.actionType === 'CREATE' ? '#2e7d32' : '#e65100' }}>
+                      {item.actionType}
                     </span>
                   }
                   onClick={(item.beforeJson || item.afterJson) ? () => toggleExpand(item.id) : undefined}
                 >
                   <MobileCardFields>
-                    <MobileCardField label="대상 ID" value={item.targetId} />
+                    <MobileCardField label="대상 ID" value={item.domainId} />
                     <MobileCardField label="사유" value={item.reason || '—'} />
-                    <MobileCardField label="처리자" value={item.operatorName || item.operatorId || '—'} />
-                    <MobileCardField label="일시" value={fmtDate(item.createdAt)} />
+                    <MobileCardField label="처리자" value={item.actedBy || '—'} />
+                    <MobileCardField label="일시" value={fmtDate(item.actedAt)} />
                   </MobileCardFields>
                   {expandedId === item.id && (item.beforeJson || item.afterJson) && (
                     <div className="mt-2 pt-2 border-t border-brand">
@@ -176,26 +178,26 @@ export default function CorrectionsPage() {
                     {items.map((item) => (
                       <>
                         <tr key={item.id} className="border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors">
-                          <td className="px-4 py-3 text-sm text-dim-brand">{fmtDate(item.createdAt)}</td>
+                          <td className="px-4 py-3 text-sm text-dim-brand">{fmtDate(item.actedAt)}</td>
                           <td className="px-4 py-3 text-sm text-dim-brand">
                             <span className="text-xs font-semibold text-secondary-brand bg-[rgba(91,164,217,0.1)] px-2 py-0.5 rounded">
                               {domainLabel(item.domainType)}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-xs text-muted-brand font-mono max-w-[140px] overflow-hidden text-ellipsis whitespace-nowrap">
-                            {item.targetId}
+                            {item.domainId}
                           </td>
                           <td className="px-4 py-3 text-sm text-dim-brand">
                             <span style={{
                               fontSize: '12px',
                               fontWeight: 600,
-                              color: item.action === 'DELETE' ? '#c62828' : item.action === 'CREATE' ? '#2e7d32' : '#e65100',
+                              color: item.actionType === 'DELETE' ? '#c62828' : item.actionType === 'CREATE' ? '#2e7d32' : '#e65100',
                             }}>
-                              {item.action}
+                              {item.actionType}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-xs text-muted-brand max-w-[200px]">{item.reason ?? '-'}</td>
-                          <td className="px-4 py-3 text-sm text-dim-brand">{item.operatorName ?? item.operatorId ?? '-'}</td>
+                          <td className="px-4 py-3 text-sm text-dim-brand">{item.actedBy ?? '-'}</td>
                           <td className="px-4 py-3 text-sm text-dim-brand">
                             {(item.beforeJson || item.afterJson) && (
                               <button

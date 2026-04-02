@@ -228,6 +228,9 @@ export default function WorkersPage() {
   // 등록 모달
   const [showRegister, setShowRegister] = useState(false)
 
+  // 체크박스 선택
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
+
   // 저장 토스트
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null)
   const showToast = (ok: boolean, msg: string) => {
@@ -379,6 +382,36 @@ export default function WorkersPage() {
     setDocSaving(false)
   }
 
+  // 체크박스 토글
+  const toggleCheck = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setCheckedIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  const toggleAll = (ids: string[]) => {
+    setCheckedIds(prev => {
+      if (ids.every(id => prev.has(id))) return new Set()
+      return new Set(ids)
+    })
+  }
+
+  // 퇴사 처리: 첫 번째 선택 근로자 퇴사 페이지로 이동
+  const handleBulkTermination = () => {
+    const ids = Array.from(checkedIds)
+    if (ids.length === 0) return
+    if (ids.length === 1) {
+      router.push(`/admin/workers/${ids[0]}/termination`)
+      return
+    }
+    const names = ids.map(id => workers.find(w => w.id === id)?.name ?? id).join(', ')
+    const ok = confirm(`선택된 ${ids.length}명: ${names}\n\n첫 번째 근로자(${workers.find(w => w.id === ids[0])?.name})부터 순서대로 처리합니다.`)
+    if (ok) router.push(`/admin/workers/${ids[0]}/termination`)
+  }
+
   // 클라이언트 필터 + 정렬
   const filtered = workers.filter(w => {
     if (statusFilter === 'active' && !w.isActive) return false
@@ -457,7 +490,12 @@ export default function WorkersPage() {
               </FilterSelect>
               <div className="flex-1" />
               <Btn variant="ghost" size="sm" onClick={load}>새로고침</Btn>
-              {canMutate && (
+              {canMutate && checkedIds.size > 0 && (
+                <Btn variant="orange" size="sm" onClick={handleBulkTermination}>
+                  선택 {checkedIds.size}명 퇴사 처리 →
+                </Btn>
+              )}
+              {canMutate && checkedIds.size === 0 && (
                 <>
                   <Btn variant="ghost" size="sm" onClick={() => router.push('/admin/worker-imports')}>엑셀 일괄 등록</Btn>
                   <Btn variant="orange" size="sm" onClick={() => router.push('/admin/workers/new')}>+ 근로자 등록</Btn>
@@ -538,11 +576,17 @@ export default function WorkersPage() {
               )
             }}
             renderTable={() => (
-              <AdminTable headers={['이름', '직종', '주배정현장', '오늘출근', '상태', '투입가능', '근로계약서', '안전교육', '안전교육증', '일당', '월 누계', '확인상태']}>
+              <AdminTable headers={[
+                  <input key="all" type="checkbox" className="cursor-pointer"
+                    checked={sorted.length > 0 && sorted.every(w => checkedIds.has(w.id))}
+                    onChange={() => toggleAll(sorted.map(w => w.id))}
+                  />,
+                  '이름', '직종', '주배정현장', '오늘출근', '상태', '투입가능', '근로계약서', '안전교육', '안전교육증', '일당', '월 누계', '확인상태'
+                ]}>
                 {loading ? (
-                  <EmptyRow colSpan={12} message="로딩 중..." />
+                  <EmptyRow colSpan={13} message="로딩 중..." />
                 ) : sorted.length === 0 ? (
-                  <EmptyRow colSpan={12} message="조회된 근로자가 없습니다" />
+                  <EmptyRow colSpan={13} message="조회된 근로자가 없습니다" />
                 ) : (
                   sorted.map(w => {
                     const elig = getEligibility(w)
@@ -560,6 +604,14 @@ export default function WorkersPage() {
                         highlighted={isSelected}
                         className={rowBg}
                       >
+                        {/* 체크박스 */}
+                        <AdminTd>
+                          <input type="checkbox" className="cursor-pointer"
+                            checked={checkedIds.has(w.id)}
+                            onClick={(e) => toggleCheck(w.id, e)}
+                            onChange={() => {}}
+                          />
+                        </AdminTd>
                         {/* 이름 */}
                         <AdminTd>
                           <div className="font-semibold text-fore-brand whitespace-nowrap">{w.name}</div>
