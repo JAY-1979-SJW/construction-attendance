@@ -7,6 +7,7 @@ import { WorklogTab } from '@/components/admin/site-ops/WorklogTab'
 import { TbmTab } from '@/components/admin/site-ops/TbmTab'
 import { DailyOpsCard } from '@/components/admin/site-ops/DailyOpsCard'
 import { DocumentPolicyTab } from '@/components/admin/site-ops/DocumentPolicyTab'
+import { InfoRow, InfoSection } from '@/components/admin/ui'
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -774,83 +775,70 @@ export default function SiteDetailPage() {
                 </div>
               </div>
             ) : siteInfo ? (
-              <div className="bg-card border border-brand rounded-[12px] p-5 space-y-4">
-                <div className="grid grid-cols-2 gap-y-3 text-sm">
-                  <div>
-                    <span className="text-xs text-[#718096] block">현장명</span>
-                    <span className="font-medium text-fore-brand">{siteInfo.name}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-[#718096] block">현장 코드</span>
-                    <span className="text-body-brand">{siteInfo.siteCode ?? '—'}</span>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-xs text-[#718096] block">주소</span>
-                    <span className="text-body-brand">{siteInfo.address}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-[#718096] block">위도 / 경도</span>
-                    <span className="text-body-brand">{siteInfo.latitude}, {siteInfo.longitude}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-[#718096] block">인증 반경</span>
-                    <span className="text-body-brand">{siteInfo.allowedRadius}m</span>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-xs text-[#718096] block">QR 출근 URL</span>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <code className="text-[13px] text-body-brand bg-footer px-2 py-1 rounded break-all">
-                        {typeof window !== 'undefined' ? `${window.location.origin}/qr/${siteInfo.qrToken}` : `/qr/${siteInfo.qrToken}`}
-                      </code>
-                      <button
-                        onClick={() => {
-                          const url = `${window.location.origin}/qr/${siteInfo.qrToken}`
-                          navigator.clipboard.writeText(url)
-                        }}
-                        className="shrink-0 text-xs px-2 py-1 bg-accent text-white rounded cursor-pointer border-none"
-                      >
-                        복사
-                      </button>
-                      <a
-                        href={`/api/admin/sites/${siteInfo.id}/qr-image?origin=${encodeURIComponent(window.location.origin)}`}
-                        download={`${siteInfo.name}-qr.png`}
-                        className="shrink-0 text-xs px-2 py-1 bg-[#374151] text-white rounded cursor-pointer border-none no-underline"
-                      >
-                        QR 다운로드
-                      </a>
-                      <button
-                        onClick={() => {
-                          const url = `/api/admin/sites/${siteInfo.id}/qr-image?format=svg&origin=${encodeURIComponent(window.location.origin)}`
-                          const w = window.open('', '_blank', 'width=500,height=600')
-                          if (w) {
-                            w.document.write(`<html><head><title>${siteInfo.name} QR</title></head><body style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif"><h2 style="margin-bottom:8px">${siteInfo.name}</h2><p style="color:#6B7280;margin-bottom:16px">QR 출근 코드</p><img src="${url}" width="400" height="400" /><button onclick="window.print()" style="margin-top:20px;padding:10px 32px;font-size:15px;cursor:pointer">인쇄</button></body></html>`)
-                          }
-                        }}
-                        className="shrink-0 text-xs px-2 py-1 bg-[#1e40af] text-white rounded cursor-pointer border-none"
-                      >
-                        인쇄
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-xs text-[#718096] block">착공일</span>
-                    <span className="text-body-brand">{fmtDate(siteInfo.openedAt)}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-[#718096] block">준공일</span>
-                    <span className="text-body-brand">{fmtDate(siteInfo.closedAt)}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-[#718096] block">활성 상태</span>
-                    <span className={`text-xs px-2 py-0.5 rounded font-medium ${siteInfo.isActive ? 'bg-green-100 text-green-700' : 'bg-surface text-[#718096]'}`}>
-                      {siteInfo.isActive ? '운영중' : '종료'}
-                    </span>
-                  </div>
+              <div className="bg-card border border-brand rounded-[12px] p-5">
+                <div className="space-y-5">
+                  <InfoSection title="기본 정보">
+                    <InfoRow label="현장명" value={siteInfo.name} />
+                    <InfoRow label="현장 코드" value={siteInfo.siteCode ?? '—'} mono />
+                    <InfoRow label="주소" value={siteInfo.address} />
+                    <InfoRow label="위도 / 경도" value={`${siteInfo.latitude}, ${siteInfo.longitude}`} mono />
+                    <InfoRow label="인증 반경" value={`${siteInfo.allowedRadius}m`} mono />
+                  </InfoSection>
+
+                  <InfoSection title="QR 출근">
+                    <InfoRow
+                      label="QR URL"
+                      value={
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <code className="text-[12px] text-body-brand bg-footer px-2 py-1 rounded break-all">
+                            {typeof window !== 'undefined' ? `${window.location.origin}/qr/${siteInfo.qrToken}` : `/qr/${siteInfo.qrToken}`}
+                          </code>
+                          <button
+                            onClick={() => navigator.clipboard.writeText(`${window.location.origin}/qr/${siteInfo.qrToken}`)}
+                            className="shrink-0 text-xs px-2 py-1 bg-accent text-white rounded cursor-pointer border-none"
+                          >복사</button>
+                          <a
+                            href={`/api/admin/sites/${siteInfo.id}/qr-image?origin=${encodeURIComponent(window.location.origin)}`}
+                            download={`${siteInfo.name}-qr.png`}
+                            className="shrink-0 text-xs px-2 py-1 bg-[#374151] text-white rounded cursor-pointer border-none no-underline"
+                          >QR 다운로드</a>
+                          <button
+                            onClick={() => {
+                              const url = `/api/admin/sites/${siteInfo.id}/qr-image?format=svg&origin=${encodeURIComponent(window.location.origin)}`
+                              const w = window.open('', '_blank', 'width=500,height=600')
+                              if (w) {
+                                w.document.write(`<html><head><title>${siteInfo.name} QR</title></head><body style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif"><h2 style="margin-bottom:8px">${siteInfo.name}</h2><p style="color:#6B7280;margin-bottom:16px">QR 출근 코드</p><img src="${url}" width="400" height="400" /><button onclick="window.print()" style="margin-top:20px;padding:10px 32px;font-size:15px;cursor:pointer">인쇄</button></body></html>`)
+                              }
+                            }}
+                            className="shrink-0 text-xs px-2 py-1 bg-[#1e40af] text-white rounded cursor-pointer border-none"
+                          >인쇄</button>
+                        </div>
+                      }
+                      noBorder
+                    />
+                  </InfoSection>
+
+                  <InfoSection title="공사 기간">
+                    <InfoRow label="착공일" value={fmtDate(siteInfo.openedAt)} mono />
+                    <InfoRow label="준공일" value={fmtDate(siteInfo.closedAt)} mono />
+                    <InfoRow
+                      label="활성 상태"
+                      value={
+                        <span className={`text-xs px-2 py-0.5 rounded font-medium ${siteInfo.isActive ? 'bg-green-100 text-green-700' : 'bg-surface text-[#718096]'}`}>
+                          {siteInfo.isActive ? '운영중' : '종료'}
+                        </span>
+                      }
+                    />
+                  </InfoSection>
+
                   {siteInfo.notes && (
-                    <div className="col-span-2">
-                      <span className="text-xs text-[#718096] block">메모</span>
-                      <span className="text-body-brand whitespace-pre-line">{siteInfo.notes}</span>
-                    </div>
+                    <InfoSection title="메모">
+                      <InfoRow
+                        label="메모"
+                        value={<span className="whitespace-pre-line">{siteInfo.notes}</span>}
+                        noBorder
+                      />
+                    </InfoSection>
                   )}
                 </div>
               </div>

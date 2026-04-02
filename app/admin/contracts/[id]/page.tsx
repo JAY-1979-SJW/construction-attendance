@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { InfoRow, InfoSection } from '@/components/admin/ui'
 import { DOC_PACKAGES, getDocPackageForTemplate } from '@/lib/contracts/index'
 import { DANGER_PHRASE_UI } from '@/lib/policies/contract-policy'
 import { FormInput, FormSelect, Modal, ModalFooter, Btn } from '@/components/admin/ui'
@@ -344,93 +345,39 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       <div className="grid grid-cols-3 gap-6">
         {/* 계약 정보 */}
         <div className="col-span-1 space-y-4">
-          <div className="bg-card border rounded-[12px] p-5 space-y-3">
-            <h2 className="font-semibold text-dim-brand text-sm">계약 기본 정보</h2>
-            <dl className="space-y-1.5 text-xs">
-              <div className="flex justify-between">
-                <dt className="text-[#718096]">근로자</dt>
-                <dd className="font-medium">
-                  <Link href={`/admin/workers/${contract.worker.id}`} className="text-blue-600 hover:underline">
-                    {contract.worker.name}
-                  </Link>
-                </dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-[#718096]">직종</dt>
-                <dd>{contract.worker.jobTitle}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-[#718096]">현장</dt>
-                <dd>{contract.site?.name || '—'}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-[#718096]">계약 유형</dt>
-                <dd>{contract.laborRelationType || '직접고용'}</dd>
-              </div>
-              {contract.businessRegistrationNo && (
-                <div className="flex justify-between">
-                  <dt className="text-[#718096]">사업자번호</dt>
-                  <dd>{contract.businessRegistrationNo}</dd>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <dt className="text-[#718096]">근무시간</dt>
-                <dd>{contract.checkInTime || '08:00'} ~ {contract.checkOutTime || '17:00'}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-[#718096]">근무요일</dt>
-                <dd>{contract.workDays || '—'}</dd>
-              </div>
-            </dl>
-          </div>
+          <div className="bg-card border rounded-[12px] p-5">
+            <div className="space-y-5">
+              <InfoSection title="계약 기본 정보">
+                <InfoRow label="근로자" value={<Link href={`/admin/workers/${contract.worker.id}`} className="text-blue-600 hover:underline">{contract.worker.name}</Link>} />
+                <InfoRow label="직종" value={contract.worker.jobTitle} />
+                <InfoRow label="현장" value={contract.site?.name || '—'} />
+                <InfoRow label="계약 유형" value={contract.laborRelationType || '직접고용'} />
+                {contract.businessRegistrationNo && <InfoRow label="사업자번호" value={contract.businessRegistrationNo} mono />}
+                <InfoRow label="근무시간" value={`${contract.checkInTime || '08:00'} ~ ${contract.checkOutTime || '17:00'}`} mono />
+                <InfoRow label="근무요일" value={contract.workDays || '—'} />
+              </InfoSection>
 
-          <div className="bg-card border rounded-[12px] p-5 space-y-3">
-            <h2 className="font-semibold text-dim-brand text-sm">임금 조건</h2>
-            <dl className="space-y-1.5 text-xs">
-              {contract.dailyWage > 0 && (
-                <div className="flex justify-between">
-                  <dt className="text-[#718096]">일당</dt>
-                  <dd className="font-mono">{won(contract.dailyWage)}</dd>
-                </div>
-              )}
-              {contract.monthlySalary && (
-                <div className="flex justify-between">
-                  <dt className="text-[#718096]">월급</dt>
-                  <dd className="font-mono">{won(contract.monthlySalary)}</dd>
-                </div>
-              )}
-              {contract.serviceFee && (
-                <div className="flex justify-between">
-                  <dt className="text-[#718096]">계약금액</dt>
-                  <dd className="font-mono">{won(contract.serviceFee)}</dd>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <dt className="text-[#718096]">지급일</dt>
-                <dd>{contract.paymentDay ? `매월 ${contract.paymentDay}일` : '—'}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-[#718096]">지급방법</dt>
-                <dd>{contract.paymentMethod || '—'}</dd>
-              </div>
-            </dl>
-          </div>
+              <InfoSection title="임금 조건">
+                {contract.dailyWage > 0 && <InfoRow label="일당" value={won(contract.dailyWage)} mono />}
+                {contract.monthlySalary && <InfoRow label="월급" value={won(contract.monthlySalary)} mono />}
+                {contract.serviceFee && <InfoRow label="계약금액" value={won(contract.serviceFee)} mono />}
+                <InfoRow label="지급일" value={contract.paymentDay ? `매월 ${contract.paymentDay}일` : '—'} />
+                <InfoRow label="지급방법" value={contract.paymentMethod || '—'} />
+              </InfoSection>
 
-          <div className="bg-card border rounded-[12px] p-5 space-y-2">
-            <h2 className="font-semibold text-dim-brand text-sm">4대보험</h2>
-            <div className="grid grid-cols-2 gap-1 text-xs">
-              {[
-                ['국민연금', contract.nationalPensionYn],
-                ['건강보험', contract.healthInsuranceYn],
-                ['고용보험', contract.employmentInsuranceYn],
-                ['산재보험', contract.industrialAccidentYn],
-                ['퇴직공제', contract.retirementMutualYn],
-              ].map(([label, yn]) => (
-                <div key={label as string} className={`flex items-center gap-1 ${yn ? 'text-green-700' : 'text-[#718096]'}`}>
-                  <span>{yn ? '✓' : '○'}</span>
-                  <span>{label}</span>
-                </div>
-              ))}
+              <InfoSection title="4대보험">
+                {([
+                  ['국민연금', contract.nationalPensionYn],
+                  ['건강보험', contract.healthInsuranceYn],
+                  ['고용보험', contract.employmentInsuranceYn],
+                  ['산재보험', contract.industrialAccidentYn],
+                  ['퇴직공제', contract.retirementMutualYn],
+                ] as [string, boolean][]).map(([label, yn]) => (
+                  <InfoRow key={label} label={label} value={
+                    <span className={yn ? 'text-green-700 font-semibold' : 'text-[#718096]'}>{yn ? '✓ 가입' : '○ 미가입'}</span>
+                  } />
+                ))}
+              </InfoSection>
             </div>
           </div>
         </div>
