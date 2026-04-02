@@ -244,13 +244,15 @@ export default function MaterialRequestsPage() {
                   </div>
                   <input className="w-full px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] mb-1.5 outline-none focus:border-accent box-border"
                     value={item.itemName} onChange={e => updateItem(idx, 'itemName', e.target.value)} placeholder="품명 * (직접 입력 또는 검색)" />
-                  <div className="flex gap-1.5 mb-1.5">
-                    <input className="flex-1 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border"
+                  <div className="flex flex-col gap-1.5 mb-1.5">
+                    <input className="w-full px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border"
                       value={item.spec} onChange={e => updateItem(idx, 'spec', e.target.value)} placeholder="규격" />
-                    <input className="w-16 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border"
-                      value={item.unit} onChange={e => updateItem(idx, 'unit', e.target.value)} placeholder="단위" />
-                    <input className="w-20 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border"
-                      value={item.requestedQty} onChange={e => updateItem(idx, 'requestedQty', e.target.value.replace(/\D/g, ''))} placeholder="수량 *" inputMode="numeric" />
+                    <div className="flex gap-1.5">
+                      <input className="flex-1 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border"
+                        value={item.unit} onChange={e => updateItem(idx, 'unit', e.target.value)} placeholder="단위" />
+                      <input className="flex-1 px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border"
+                        value={item.requestedQty} onChange={e => updateItem(idx, 'requestedQty', e.target.value.replace(/\D/g, ''))} placeholder="수량 *" inputMode="numeric" />
+                    </div>
                   </div>
                   <input className="w-full px-2.5 py-2 border border-gray-200 rounded-lg text-[13px] outline-none focus:border-accent box-border mb-1.5"
                     value={item.notes} onChange={e => updateItem(idx, 'notes', e.target.value)} placeholder="비고 (선택)" />

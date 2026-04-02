@@ -12,15 +12,29 @@ interface SignatureCanvasProps {
 
 export default function SignatureCanvas({
   onSave,
-  width = 340,
+  width: widthProp = 340,
   height = 160,
   accentColor = '#1976d2',
   disabled = false,
 }: SignatureCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
   const [hasStrokes, setHasStrokes] = useState(false)
+  const [width, setWidth] = useState(widthProp)
   const lastPoint = useRef<{ x: number; y: number } | null>(null)
+
+  // 반응형 너비 계산
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setWidth(Math.min(widthProp, containerRef.current.clientWidth))
+      }
+    }
+    updateWidth()
+    window.addEventListener('resize', updateWidth)
+    return () => window.removeEventListener('resize', updateWidth)
+  }, [widthProp])
 
   // Canvas 초기화
   useEffect(() => {
@@ -111,7 +125,7 @@ export default function SignatureCanvas({
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div ref={containerRef} className="flex flex-col gap-2">
       <div className="text-[13px] font-semibold text-[#222] mb-1">전자서명</div>
       <div
         className="border-2 border-dashed rounded-lg overflow-hidden bg-card"
