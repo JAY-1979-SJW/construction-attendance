@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { PageShell, PageHeader, StatusBadge, Btn, FilterInput, FilterSelect, AdminTable, AdminTr, AdminTd, EmptyRow } from '@/components/admin/ui'
+import { PageShell, PageHeader, StatusBadge, Btn, FilterInput, FilterSelect, AdminTable, AdminTr, AdminTd, EmptyRow, MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────
 interface Summary {
@@ -535,35 +535,62 @@ export default function AdminDashboard() {
                 </div>
                 <span className="text-[12px] text-muted2-brand tabular-nums">{filteredRecords.length}명</span>
               </div>
-              <AdminTable headers={['이름', '소속 현장', '출근', '퇴근', '상태', '일 노임', '월 누계', '총 누계']}>
-                {filteredRecords.length === 0 ? (
-                  <EmptyRow colSpan={8} message={statusFilter !== 'ALL' ? '해당 상태의 기록이 없습니다' : '오늘 출근 기록이 없습니다'} />
-                ) : filteredRecords.slice(0, 30).map(r => {
+              <MobileCardList
+                items={filteredRecords.slice(0, 30)}
+                keyExtractor={(r) => r.id}
+                emptyMessage={statusFilter !== 'ALL' ? '해당 상태의 기록이 없습니다' : '오늘 출근 기록이 없습니다'}
+                renderCard={(r) => {
                   const isIssue = r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION'
                   return (
-                    <AdminTr
-                      key={r.id}
+                    <MobileCard
+                      title={r.workerName}
+                      subtitle={r.siteName}
+                      badge={<StatusBadge status={r.status} label={STATUS_LABEL[r.status]} />}
                       onClick={() => router.push(`/admin/attendance?date=${selectedDate}&name=${encodeURIComponent(r.workerName)}`)}
-                      highlighted={isIssue}
+                      style={isIssue ? { borderColor: '#FCA5A5' } : undefined}
                     >
-                      <AdminTd className="font-medium text-fore-brand">{r.workerName}</AdminTd>
-                      <AdminTd className="text-muted-brand max-w-[120px] truncate">{r.siteName}</AdminTd>
-                      <AdminTd className="tabular-nums">{fmtTime(r.checkInAt)}</AdminTd>
-                      <AdminTd className="tabular-nums">{fmtTime(r.checkOutAt)}</AdminTd>
-                      <AdminTd><StatusBadge status={r.status} label={STATUS_LABEL[r.status]} /></AdminTd>
-                      <AdminTd className="text-[12px] tabular-nums text-right">
-                        {r.dayWage > 0 ? r.dayWage.toLocaleString('ko-KR') : '-'}
-                      </AdminTd>
-                      <AdminTd className="text-[12px] text-muted-brand tabular-nums text-right">
-                        {r.monthWage > 0 ? r.monthWage.toLocaleString('ko-KR') : '-'}
-                      </AdminTd>
-                      <AdminTd className="text-[12px] font-medium tabular-nums text-right">
-                        {r.totalWage > 0 ? r.totalWage.toLocaleString('ko-KR') : '-'}
-                      </AdminTd>
-                    </AdminTr>
+                      <MobileCardFields>
+                        <MobileCardField label="출근" value={fmtTime(r.checkInAt)} />
+                        <MobileCardField label="퇴근" value={fmtTime(r.checkOutAt)} />
+                        <MobileCardField label="일 노임" value={r.dayWage > 0 ? r.dayWage.toLocaleString('ko-KR') + '원' : '-'} />
+                        <MobileCardField label="월 누계" value={r.monthWage > 0 ? r.monthWage.toLocaleString('ko-KR') + '원' : '-'} />
+                        <MobileCardField label="총 누계" value={r.totalWage > 0 ? r.totalWage.toLocaleString('ko-KR') + '원' : '-'} />
+                      </MobileCardFields>
+                    </MobileCard>
                   )
-                })}
-              </AdminTable>
+                }}
+                renderTable={() => (
+                  <AdminTable headers={['이름', '소속 현장', '출근', '퇴근', '상태', '일 노임', '월 누계', '총 누계']}>
+                    {filteredRecords.length === 0 ? (
+                      <EmptyRow colSpan={8} message={statusFilter !== 'ALL' ? '해당 상태의 기록이 없습니다' : '오늘 출근 기록이 없습니다'} />
+                    ) : filteredRecords.slice(0, 30).map(r => {
+                      const isIssue = r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION'
+                      return (
+                        <AdminTr
+                          key={r.id}
+                          onClick={() => router.push(`/admin/attendance?date=${selectedDate}&name=${encodeURIComponent(r.workerName)}`)}
+                          highlighted={isIssue}
+                        >
+                          <AdminTd className="font-medium text-fore-brand">{r.workerName}</AdminTd>
+                          <AdminTd className="text-muted-brand max-w-[120px] truncate">{r.siteName}</AdminTd>
+                          <AdminTd className="tabular-nums">{fmtTime(r.checkInAt)}</AdminTd>
+                          <AdminTd className="tabular-nums">{fmtTime(r.checkOutAt)}</AdminTd>
+                          <AdminTd><StatusBadge status={r.status} label={STATUS_LABEL[r.status]} /></AdminTd>
+                          <AdminTd className="text-[12px] tabular-nums text-right">
+                            {r.dayWage > 0 ? r.dayWage.toLocaleString('ko-KR') : '-'}
+                          </AdminTd>
+                          <AdminTd className="text-[12px] text-muted-brand tabular-nums text-right">
+                            {r.monthWage > 0 ? r.monthWage.toLocaleString('ko-KR') : '-'}
+                          </AdminTd>
+                          <AdminTd className="text-[12px] font-medium tabular-nums text-right">
+                            {r.totalWage > 0 ? r.totalWage.toLocaleString('ko-KR') : '-'}
+                          </AdminTd>
+                        </AdminTr>
+                      )
+                    })}
+                  </AdminTable>
+                )}
+              />
               {filteredRecords.length > 30 && (
                 <div className="px-5 py-2.5 border-t border-brand text-[12px] text-muted2-brand">
                   {filteredRecords.length - 30}명 더 있음 — 출퇴근관리에서 전체 확인

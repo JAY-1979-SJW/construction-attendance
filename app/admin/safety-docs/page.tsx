@@ -9,6 +9,7 @@ import {
   AdminTable, AdminTr, AdminTd, EmptyRow,
   FormInput, FormSelect, FormGrid, ModalFooter,
   DetailPanel, Modal, Toast, MetaRow,
+  MobileCardList, MobileCard, MobileCardField, MobileCardFields,
 } from '@/components/admin/ui'
 
 /* ━━━ 기준 수치 (UI_SPEC) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -342,27 +343,52 @@ function SafetyDocsContent() {
         <Btn variant="orange" onClick={() => setShowCreate(true)}>+ 서류 생성</Btn>
       </FilterBar>
 
-      {/* 테이블 — AdminTable 자체가 카드 스타일이므로 SectionCard 래핑 불필요 */}
-      <AdminTable headers={columns}>
-        {loading ? (
+      {/* 테이블/카드 — MobileCardList로 모바일 카드형 전환 */}
+      {loading ? (
+        <AdminTable headers={columns}>
           <EmptyRow colSpan={columns.length} message="불러오는 중..." />
-        ) : docs.length === 0 ? (
-          <EmptyRow colSpan={columns.length} message="안전서류가 없습니다" />
-        ) : (
-          docs.map(doc => (
-            <AdminTr key={doc.id} onClick={() => setSelectedDoc(doc)}>
-              <AdminTd>{doc.worker.name}</AdminTd>
-              <AdminTd className="max-w-[160px] truncate">{doc.site?.name ?? '-'}</AdminTd>
-              <AdminTd className="max-w-[200px] truncate">{DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}</AdminTd>
-              <AdminTd>
-                <StatusBadge status={doc.status} />
-              </AdminTd>
-              <AdminTd>{doc.documentDate ?? '-'}</AdminTd>
-              <AdminTd>{doc.educationDate ?? '-'}</AdminTd>
-            </AdminTr>
-          ))
-        )}
-      </AdminTable>
+        </AdminTable>
+      ) : (
+        <MobileCardList
+          items={docs}
+          emptyMessage="안전서류가 없습니다"
+          keyExtractor={(doc) => doc.id}
+          renderTable={() => (
+            <AdminTable headers={columns}>
+              {docs.length === 0 ? (
+                <EmptyRow colSpan={columns.length} message="안전서류가 없습니다" />
+              ) : (
+                docs.map(doc => (
+                  <AdminTr key={doc.id} onClick={() => setSelectedDoc(doc)}>
+                    <AdminTd>{doc.worker.name}</AdminTd>
+                    <AdminTd className="max-w-[160px] truncate">{doc.site?.name ?? '-'}</AdminTd>
+                    <AdminTd className="max-w-[200px] truncate">{DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}</AdminTd>
+                    <AdminTd>
+                      <StatusBadge status={doc.status} />
+                    </AdminTd>
+                    <AdminTd>{doc.documentDate ?? '-'}</AdminTd>
+                    <AdminTd>{doc.educationDate ?? '-'}</AdminTd>
+                  </AdminTr>
+                ))
+              )}
+            </AdminTable>
+          )}
+          renderCard={(doc) => (
+            <MobileCard
+              title={doc.worker.name}
+              subtitle={DOC_TYPE_LABEL[doc.documentType] ?? doc.documentType}
+              badge={<StatusBadge status={doc.status} />}
+              onClick={() => setSelectedDoc(doc)}
+            >
+              <MobileCardFields>
+                <MobileCardField label="현장" value={doc.site?.name ?? '-'} />
+                <MobileCardField label="작성일" value={doc.documentDate ?? '-'} />
+                <MobileCardField label="교육일" value={doc.educationDate ?? '-'} />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+        />
+      )}
 
       {showCreate && (
         <CreateModal

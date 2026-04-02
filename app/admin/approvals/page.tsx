@@ -9,6 +9,7 @@ import {
   StatusBadge, Btn,
   FormTextarea, ModalFooter,
   Modal, Toast, Tabs,
+  MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions,
 } from '@/components/admin/ui'
 
 // ─── 탭 정의 ──────────────────────────────────────────────────────────────────
@@ -277,47 +278,81 @@ function ApprovalTab({ tab }: { tab: TabKey }) {
         </div>
       )}
 
-      {/* 테이블 — 공용 AdminTable */}
+      {/* 테이블 — 공용 AdminTable / 모바일 MobileCardList */}
       {loading ? (
         <p className="text-muted2-brand text-[13px] py-8 text-center">로딩 중...</p>
-      ) : items.length === 0 ? (
-        <div className="text-center py-12 text-muted2-brand text-[13px]">
-          {statusFilter === 'PENDING' ? '승인 대기 항목이 없습니다.' : '항목이 없습니다.'}
-        </div>
       ) : (
-        <AdminTable headers={[
-          ...(statusFilter === 'PENDING' ? [<input key="cb" type="checkbox" className="cursor-pointer" checked={selectedIds.size > 0 && selectedIds.size === items.filter(i => i.status === 'PENDING').length} onChange={toggleSelectAll} />] : []),
-          '신청일', '이름/업체', '상세', '상태',
-          ...(statusFilter === 'PENDING' ? ['액션'] : []),
-        ]}>
-          {items.map(item => (
-            <AdminTr key={item.id}>
+        <MobileCardList
+          items={items}
+          emptyMessage={statusFilter === 'PENDING' ? '승인 대기 항목이 없습니다.' : '항목이 없습니다.'}
+          keyExtractor={(item) => item.id}
+          renderCard={(item) => (
+            <MobileCard
+              title={item.displayName}
+              subtitle={item.subName}
+              badge={<StatusBadge status={item.status} />}
+            >
+              <MobileCardFields>
+                <MobileCardField
+                  label="신청일"
+                  value={new Date(item.requestedAt).toLocaleDateString('ko-KR')}
+                />
+                {item.detail && (
+                  <MobileCardField label="상세" value={item.detail} />
+                )}
+                {item.rejectReason && (
+                  <MobileCardField
+                    label="반려사유"
+                    value={<span className="text-status-rejected">{item.rejectReason}</span>}
+                  />
+                )}
+              </MobileCardFields>
               {statusFilter === 'PENDING' && (
-                <AdminTd><input type="checkbox" className="cursor-pointer" checked={selectedIds.has(item.id)} onChange={() => toggleSelect(item.id)} /></AdminTd>
+                <MobileCardActions>
+                  <Btn size="xs" variant="success" disabled={processing === item.id} onClick={() => handleApprove(item.id)}>
+                    {processing === item.id ? '...' : '승인'}
+                  </Btn>
+                  <Btn size="xs" variant="danger" disabled={processing === item.id} onClick={() => { setRejectTarget(item.id); setRejectReason('') }}>반려</Btn>
+                </MobileCardActions>
               )}
-              <AdminTd className="text-[12px] align-top">{new Date(item.requestedAt).toLocaleDateString('ko-KR')}</AdminTd>
-              <AdminTd className="align-top">
-                <div className="font-semibold text-fore-brand">{item.displayName}</div>
-                {item.subName && <div className="text-[12px] text-muted-brand">{item.subName}</div>}
-              </AdminTd>
-              <AdminTd className="text-muted-brand align-top max-w-[200px] truncate">
-                {item.detail}
-                {item.rejectReason && <div className="text-status-rejected text-[12px]">사유: {item.rejectReason}</div>}
-              </AdminTd>
-              <AdminTd className="align-top"><StatusBadge status={item.status} /></AdminTd>
-              {statusFilter === 'PENDING' && (
-                <AdminTd className="align-top">
-                  <div className="flex gap-1.5">
-                    <Btn size="xs" variant="success" disabled={processing === item.id} onClick={() => handleApprove(item.id)}>
-                      {processing === item.id ? '...' : '승인'}
-                    </Btn>
-                    <Btn size="xs" variant="danger" disabled={processing === item.id} onClick={() => { setRejectTarget(item.id); setRejectReason('') }}>반려</Btn>
-                  </div>
-                </AdminTd>
-              )}
-            </AdminTr>
-          ))}
-        </AdminTable>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <AdminTable headers={[
+              ...(statusFilter === 'PENDING' ? [<input key="cb" type="checkbox" className="cursor-pointer" checked={selectedIds.size > 0 && selectedIds.size === items.filter(i => i.status === 'PENDING').length} onChange={toggleSelectAll} />] : []),
+              '신청일', '이름/업체', '상세', '상태',
+              ...(statusFilter === 'PENDING' ? ['액션'] : []),
+            ]}>
+              {items.map(item => (
+                <AdminTr key={item.id}>
+                  {statusFilter === 'PENDING' && (
+                    <AdminTd><input type="checkbox" className="cursor-pointer" checked={selectedIds.has(item.id)} onChange={() => toggleSelect(item.id)} /></AdminTd>
+                  )}
+                  <AdminTd className="text-[12px] align-top">{new Date(item.requestedAt).toLocaleDateString('ko-KR')}</AdminTd>
+                  <AdminTd className="align-top">
+                    <div className="font-semibold text-fore-brand">{item.displayName}</div>
+                    {item.subName && <div className="text-[12px] text-muted-brand">{item.subName}</div>}
+                  </AdminTd>
+                  <AdminTd className="text-muted-brand align-top max-w-[200px] truncate">
+                    {item.detail}
+                    {item.rejectReason && <div className="text-status-rejected text-[12px]">사유: {item.rejectReason}</div>}
+                  </AdminTd>
+                  <AdminTd className="align-top"><StatusBadge status={item.status} /></AdminTd>
+                  {statusFilter === 'PENDING' && (
+                    <AdminTd className="align-top">
+                      <div className="flex gap-1.5">
+                        <Btn size="xs" variant="success" disabled={processing === item.id} onClick={() => handleApprove(item.id)}>
+                          {processing === item.id ? '...' : '승인'}
+                        </Btn>
+                        <Btn size="xs" variant="danger" disabled={processing === item.id} onClick={() => { setRejectTarget(item.id); setRejectReason('') }}>반려</Btn>
+                      </div>
+                    </AdminTd>
+                  )}
+                </AdminTr>
+              ))}
+            </AdminTable>
+          )}
+        />
       )}
 
       {/* 반려 사유 모달 — 공용 Modal */}

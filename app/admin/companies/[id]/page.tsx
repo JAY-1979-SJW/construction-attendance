@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FEATURE_FLAG_LABELS, DEFAULT_FEATURE_FLAGS, FeatureFlagKey } from '@/lib/feature-flags'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
 
 interface CompanyDetail {
   id: string
@@ -325,58 +326,105 @@ export default function CompanyDetailPage() {
           {admins.length === 0 ? (
             <div className="py-6 text-center text-[#718096] text-sm">등록된 관리자 계정이 없습니다.</div>
           ) : (
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-[rgba(91,164,217,0.15)]">
-                    {['이름', '이메일', '상태', '마지막 로그인', ''].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand uppercase tracking-wider">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {admins.map(admin => (
-                    <tr key={admin.id} className="border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors">
-                      <td className="px-4 py-3 text-sm text-dim-brand">{admin.name}</td>
-                      <td className="px-4 py-3 text-xs text-muted-brand">{admin.email}</td>
-                      <td className="px-4 py-3 text-sm text-dim-brand">
-                        <span style={{
-                          background: admin.isActive ? '#e8f5e9' : '#f5f5f5',
-                          color: admin.isActive ? '#2e7d32' : '#9e9e9e',
-                          padding: '3px 10px',
-                          borderRadius: '10px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                        }}>
-                          {admin.isActive ? '활성' : '비활성'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-xs text-muted-brand">
-                        {admin.lastLoginAt ? new Date(admin.lastLoginAt).toLocaleString('ko-KR') : '없음'}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-dim-brand">
-                        <button
-                          onClick={() => handleToggleAdmin(admin.id, admin.isActive)}
-                          disabled={togglingAdmin === admin.id}
-                          style={{
-                            padding: '4px 10px',
-                            background: 'none',
-                            border: '1px solid rgba(255,255,255,0.12)',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            color: admin.isActive ? '#c62828' : '#1976d2',
-                            opacity: togglingAdmin === admin.id ? 0.5 : 1,
-                          }}
-                        >
-                          {admin.isActive ? '비활성화' : '활성화'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <MobileCardList
+              items={admins}
+              keyExtractor={(admin) => admin.id}
+              emptyMessage="등록된 관리자 계정이 없습니다."
+              renderCard={(admin) => (
+                <MobileCard
+                  title={admin.name}
+                  subtitle={admin.email}
+                  badge={
+                    <span style={{
+                      background: admin.isActive ? '#e8f5e9' : '#f5f5f5',
+                      color: admin.isActive ? '#2e7d32' : '#9e9e9e',
+                      padding: '3px 10px',
+                      borderRadius: '10px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                    }}>
+                      {admin.isActive ? '활성' : '비활성'}
+                    </span>
+                  }
+                >
+                  <MobileCardFields>
+                    <MobileCardField label="마지막 로그인" value={admin.lastLoginAt ? new Date(admin.lastLoginAt).toLocaleString('ko-KR') : '없음'} />
+                  </MobileCardFields>
+                  <MobileCardActions>
+                    <button
+                      onClick={() => handleToggleAdmin(admin.id, admin.isActive)}
+                      disabled={togglingAdmin === admin.id}
+                      style={{
+                        padding: '4px 10px',
+                        background: 'none',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        color: admin.isActive ? '#c62828' : '#1976d2',
+                        opacity: togglingAdmin === admin.id ? 0.5 : 1,
+                      }}
+                    >
+                      {admin.isActive ? '비활성화' : '활성화'}
+                    </button>
+                  </MobileCardActions>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-sm">
+                    <thead>
+                      <tr className="border-b border-[rgba(91,164,217,0.15)]">
+                        {['이름', '이메일', '상태', '마지막 로그인', ''].map(h => (
+                          <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-brand uppercase tracking-wider">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {admins.map(admin => (
+                        <tr key={admin.id} className="border-b border-[rgba(91,164,217,0.08)] hover:bg-[rgba(91,164,217,0.04)] transition-colors">
+                          <td className="px-4 py-3 text-sm text-dim-brand">{admin.name}</td>
+                          <td className="px-4 py-3 text-xs text-muted-brand">{admin.email}</td>
+                          <td className="px-4 py-3 text-sm text-dim-brand">
+                            <span style={{
+                              background: admin.isActive ? '#e8f5e9' : '#f5f5f5',
+                              color: admin.isActive ? '#2e7d32' : '#9e9e9e',
+                              padding: '3px 10px',
+                              borderRadius: '10px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                            }}>
+                              {admin.isActive ? '활성' : '비활성'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-muted-brand">
+                            {admin.lastLoginAt ? new Date(admin.lastLoginAt).toLocaleString('ko-KR') : '없음'}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-dim-brand">
+                            <button
+                              onClick={() => handleToggleAdmin(admin.id, admin.isActive)}
+                              disabled={togglingAdmin === admin.id}
+                              style={{
+                                padding: '4px 10px',
+                                background: 'none',
+                                border: '1px solid rgba(255,255,255,0.12)',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                color: admin.isActive ? '#c62828' : '#1976d2',
+                                opacity: togglingAdmin === admin.id ? 0.5 : 1,
+                              }}
+                            >
+                              {admin.isActive ? '비활성화' : '활성화'}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            />
           )}
         </div>
     </div>

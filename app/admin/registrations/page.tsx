@@ -5,6 +5,7 @@ import {
   PageShell, PageHeader, FilterBar, FilterInput,
   AdminTable, AdminTr, AdminTd, StatusBadge,
   Btn, FormTextarea, ModalFooter, Modal, MetaRow,
+  MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions,
 } from '@/components/admin/ui'
 import { DetailPanel } from '@/components/admin/ui/DetailPanel'
 
@@ -356,78 +357,111 @@ export default function RegistrationsPage() {
       {/* ── 목록 테이블 ── */}
       {loading ? (
         <div className="text-center py-16 text-muted2-brand">로딩 중...</div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-muted2-brand">
-          {search ? '검색 결과가 없습니다.' : `${STATUS_LABEL[filter]} 상태의 신청이 없습니다.`}
-        </div>
       ) : (
-        <AdminTable headers={[
-          '이름', '이메일', '직종', '필수서류', '전체서류',
-          ...(filter === 'APPROVED' ? ['투입 가능'] : []),
-          '가입일시', '상태', '',
-        ]}>
-          {filtered.map(r => {
+        <MobileCardList
+          items={filtered}
+          emptyMessage={search ? '검색 결과가 없습니다.' : `${STATUS_LABEL[filter]} 상태의 신청이 없습니다.`}
+          renderTable={() => (
+            <AdminTable headers={[
+              '이름', '이메일', '직종', '필수서류', '전체서류',
+              ...(filter === 'APPROVED' ? ['투입 가능'] : []),
+              '가입일시', '상태', '',
+            ]}>
+              {filtered.map(r => {
+                const ds = getDocSummary(r)
+                const eligibility = r.accountStatus === 'APPROVED' ? getAssignmentEligibility(r) : null
+                return (
+                <AdminTr key={r.id} onClick={() => setSelected(r)} highlighted={selected?.id === r.id}>
+                  <AdminTd>
+                    <div className="font-semibold text-[13px] text-fore-brand">{r.name}</div>
+                    {r.phone && <div className="text-[11px] text-muted2-brand">{r.phone}</div>}
+                  </AdminTd>
+                  <AdminTd>{r.email ?? <span className="text-muted2-brand">-</span>}</AdminTd>
+                  <AdminTd>{r.jobTitle}</AdminTd>
+                  <AdminTd>
+                    <div className="flex items-center gap-1 text-[12px]">
+                      <span style={{ color: ds.requiredMet ? '#16a34a' : '#dc2626' }}>
+                        {ds.requiredMet ? '●' : '○'}
+                      </span>
+                      <span className={ds.requiredMet ? 'text-status-working font-medium' : 'text-status-rejected'}>
+                        {ds.requiredDone}/{ds.requiredTotal}
+                      </span>
+                    </div>
+                  </AdminTd>
+                  <AdminTd>
+                    <span className="text-[12px] text-muted-brand">{ds.allDone}/{ds.allTotal}</span>
+                  </AdminTd>
+                  {/* 승인 탭에서만 투입 가능 상태 표시 */}
+                  {filter === 'APPROVED' && eligibility && (
+                    <AdminTd>
+                      <span
+                        className="text-[11px] px-[6px] py-[2px] rounded font-medium"
+                        style={{
+                          backgroundColor: `${ELIGIBILITY_COLOR[eligibility]}14`,
+                          color: ELIGIBILITY_COLOR[eligibility],
+                        }}
+                      >
+                        {ELIGIBILITY_LABEL[eligibility]}
+                      </span>
+                    </AdminTd>
+                  )}
+                  <AdminTd className="text-[12px] text-muted2-brand">{fmtDate(r.createdAt)}</AdminTd>
+                  <AdminTd>
+                    <StatusBadge status={r.accountStatus} label={STATUS_LABEL[r.accountStatus]} />
+                  </AdminTd>
+                  <AdminTd>
+                    {r.accountStatus === 'PENDING' && (
+                      <div className="flex gap-[6px]" onClick={e => e.stopPropagation()}>
+                        <Btn variant="success" size="xs" onClick={() => approve(r.id)}
+                          disabled={processing === r.id || !canApprove(r)}>승인</Btn>
+                        <Btn variant="danger" size="xs"
+                          onClick={() => setModalTarget({ id: r.id, action: 'reject' })}>반려</Btn>
+                      </div>
+                    )}
+                    {r.accountStatus === 'APPROVED' && (
+                      <div onClick={e => e.stopPropagation()}>
+                        <Btn variant="ghost" size="xs"
+                          onClick={() => setModalTarget({ id: r.id, action: 'suspend' })}>정지</Btn>
+                      </div>
+                    )}
+                  </AdminTd>
+                </AdminTr>
+                )
+              })}
+            </AdminTable>
+          )}
+          renderCard={(r) => {
             const ds = getDocSummary(r)
-            const eligibility = r.accountStatus === 'APPROVED' ? getAssignmentEligibility(r) : null
             return (
-            <AdminTr key={r.id} onClick={() => setSelected(r)} highlighted={selected?.id === r.id}>
-              <AdminTd>
-                <div className="font-semibold text-[13px] text-fore-brand">{r.name}</div>
-                {r.phone && <div className="text-[11px] text-muted2-brand">{r.phone}</div>}
-              </AdminTd>
-              <AdminTd>{r.email ?? <span className="text-muted2-brand">-</span>}</AdminTd>
-              <AdminTd>{r.jobTitle}</AdminTd>
-              <AdminTd>
-                <div className="flex items-center gap-1 text-[12px]">
-                  <span style={{ color: ds.requiredMet ? '#16a34a' : '#dc2626' }}>
-                    {ds.requiredMet ? '●' : '○'}
-                  </span>
-                  <span className={ds.requiredMet ? 'text-status-working font-medium' : 'text-status-rejected'}>
-                    {ds.requiredDone}/{ds.requiredTotal}
-                  </span>
-                </div>
-              </AdminTd>
-              <AdminTd>
-                <span className="text-[12px] text-muted-brand">{ds.allDone}/{ds.allTotal}</span>
-              </AdminTd>
-              {/* 승인 탭에서만 투입 가능 상태 표시 */}
-              {filter === 'APPROVED' && eligibility && (
-                <AdminTd>
-                  <span
-                    className="text-[11px] px-[6px] py-[2px] rounded font-medium"
-                    style={{
-                      backgroundColor: `${ELIGIBILITY_COLOR[eligibility]}14`,
-                      color: ELIGIBILITY_COLOR[eligibility],
-                    }}
-                  >
-                    {ELIGIBILITY_LABEL[eligibility]}
-                  </span>
-                </AdminTd>
-              )}
-              <AdminTd className="text-[12px] text-muted2-brand">{fmtDate(r.createdAt)}</AdminTd>
-              <AdminTd>
-                <StatusBadge status={r.accountStatus} label={STATUS_LABEL[r.accountStatus]} />
-              </AdminTd>
-              <AdminTd>
+              <MobileCard
+                key={r.id}
+                title={r.name}
+                subtitle={r.phone ?? ''}
+                badge={<StatusBadge status={r.accountStatus} label={STATUS_LABEL[r.accountStatus]} />}
+                onClick={() => setSelected(r)}
+                highlighted={selected?.id === r.id}
+              >
+                <MobileCardFields>
+                  <MobileCardField label="직종">{r.jobTitle}</MobileCardField>
+                  <MobileCardField label="필수서류">
+                    <span className={ds.requiredMet ? 'text-status-working font-medium' : 'text-status-rejected'}>
+                      {ds.requiredDone}/{ds.requiredTotal}
+                    </span>
+                  </MobileCardField>
+                  <MobileCardField label="가입일">{fmtDate(r.createdAt)}</MobileCardField>
+                </MobileCardFields>
                 {r.accountStatus === 'PENDING' && (
-                  <div className="flex gap-[6px]" onClick={e => e.stopPropagation()}>
+                  <MobileCardActions onClick={e => e.stopPropagation()}>
                     <Btn variant="success" size="xs" onClick={() => approve(r.id)}
                       disabled={processing === r.id || !canApprove(r)}>승인</Btn>
                     <Btn variant="danger" size="xs"
                       onClick={() => setModalTarget({ id: r.id, action: 'reject' })}>반려</Btn>
-                  </div>
+                  </MobileCardActions>
                 )}
-                {r.accountStatus === 'APPROVED' && (
-                  <div onClick={e => e.stopPropagation()}>
-                    <Btn variant="ghost" size="xs"
-                      onClick={() => setModalTarget({ id: r.id, action: 'suspend' })}>정지</Btn>
-                  </div>
-                )}
-              </AdminTd>
-            </AdminTr>
+              </MobileCard>
             )
-          })}
-        </AdminTable>
+          }}
+        />
       )}
 
       {/* ── 상세 패널 ── */}

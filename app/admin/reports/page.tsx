@@ -7,6 +7,7 @@ import {
   FilterInput, FilterSelect, FilterPill,
   AdminTable, AdminTr, AdminTd, EmptyRow,
   StatusBadge, Btn, Modal,
+  MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions,
 } from '@/components/admin/ui'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
@@ -295,57 +296,104 @@ function ReportsPageInner() {
         <SectionCard className="mt-4">
           {loading ? (
             <div className="text-[13px] text-muted2-brand py-8 text-center">로딩 중...</div>
-          ) : items.length === 0 ? (
-            <AdminTable headers={['작업일자', '근로자', '직종', '현장', '근무시간', '공종/작업사항', '사진', '상태']}>
-              <EmptyRow colSpan={8} message="작업일보가 없습니다." />
-            </AdminTable>
           ) : (
             <>
-              <AdminTable headers={['', '작업일자', '근로자', '직종', '현장', '근무시간', '공종/작업사항', '사진', '상태']}>
-                {items.map((item) => (
-                  <AdminTr key={item.id} onClick={() => openDetail(item)}
-                    className={
-                      detailOpen && selected?.id === item.id
-                        ? 'bg-accent-light hover:bg-accent-light'
-                        : item.status === 'CONFIRMED'
-                          ? 'bg-[#FAFFFE] hover:bg-[#F0FDF4]'
-                          : ''
-                    }>
-                    <AdminTd className="w-8">
-                      {item.status === 'WRITTEN' && (
-                        <div onClick={(e) => { e.stopPropagation(); toggleSelect(item.id) }}>
+              <MobileCardList
+                items={items}
+                emptyMessage="작업일보가 없습니다."
+                renderTable={() => (
+                  items.length === 0 ? (
+                    <AdminTable headers={['작업일자', '근로자', '직종', '현장', '근무시간', '공종/작업사항', '사진', '상태']}>
+                      <EmptyRow colSpan={8} message="작업일보가 없습니다." />
+                    </AdminTable>
+                  ) : (
+                    <AdminTable headers={['', '작업일자', '근로자', '직종', '현장', '근무시간', '공종/작업사항', '사진', '상태']}>
+                      {items.map((item) => (
+                        <AdminTr key={item.id} onClick={() => openDetail(item)}
+                          className={
+                            detailOpen && selected?.id === item.id
+                              ? 'bg-accent-light hover:bg-accent-light'
+                              : item.status === 'CONFIRMED'
+                                ? 'bg-[#FAFFFE] hover:bg-[#F0FDF4]'
+                                : ''
+                          }>
+                          <AdminTd className="w-8">
+                            {item.status === 'WRITTEN' && (
+                              <div onClick={(e) => { e.stopPropagation(); toggleSelect(item.id) }}>
+                                <input type="checkbox" checked={selectedIds.has(item.id)} readOnly
+                                  className="w-4 h-4 accent-[#F97316] cursor-pointer" />
+                              </div>
+                            )}
+                          </AdminTd>
+                          <AdminTd className="text-muted-brand text-[12px]">{item.reportDate?.slice(5, 10)}</AdminTd>
+                          <AdminTd className="text-title-brand font-medium">{item.worker.name}</AdminTd>
+                          <AdminTd className="text-muted-brand text-[12px]">{item.jobTitle || '-'}</AdminTd>
+                          <AdminTd className="text-muted-brand text-[12px] max-w-[120px] truncate">{item.site.name}</AdminTd>
+                          <AdminTd className="text-muted-brand text-[12px]">
+                            {item.workStartTime && item.workEndTime
+                              ? `${item.workStartTime}~${item.workEndTime}`
+                              : item.workStartTime || item.workEndTime || '-'}
+                          </AdminTd>
+                          <AdminTd className="max-w-[200px]">
+                            <div className="line-clamp-1 text-[12px]">
+                              {[item.tradeFamilyLabel, item.tradeLabel, item.taskLabel].filter(Boolean).join(' > ') || '-'}
+                            </div>
+                          </AdminTd>
+                          <AdminTd className="text-center">
+                            {item.photos && item.photos.length > 0 ? (
+                              <span className="text-[11px] text-[#3B82F6]">{item.photos.length}장</span>
+                            ) : (
+                              <span className="text-[11px] text-[#D1D5DB]">-</span>
+                            )}
+                          </AdminTd>
+                          <AdminTd className="text-center">
+                            <StatusBadge status={item.status} />
+                          </AdminTd>
+                        </AdminTr>
+                      ))}
+                    </AdminTable>
+                  )
+                )}
+                renderCard={(item) => (
+                  <MobileCard
+                    key={item.id}
+                    title={item.worker.name}
+                    subtitle={`${item.site.name} · ${item.reportDate?.slice(5, 10)}`}
+                    badge={<StatusBadge status={item.status} />}
+                    onClick={() => openDetail(item)}
+                  >
+                    <MobileCardFields>
+                      <MobileCardField label="직종" value={item.jobTitle || '-'} />
+                      <MobileCardField
+                        label="근무시간"
+                        value={
+                          item.workStartTime && item.workEndTime
+                            ? `${item.workStartTime}~${item.workEndTime}`
+                            : item.workStartTime || item.workEndTime || '-'
+                        }
+                      />
+                      <MobileCardField
+                        label="공종"
+                        value={[item.tradeFamilyLabel, item.tradeLabel, item.taskLabel].filter(Boolean).join(' > ') || '-'}
+                      />
+                      {item.photos && item.photos.length > 0 && (
+                        <MobileCardField label="사진" value={`${item.photos.length}장`} />
+                      )}
+                    </MobileCardFields>
+                    {item.status === 'WRITTEN' && (
+                      <MobileCardActions>
+                        <div onClick={(e) => { e.stopPropagation(); toggleSelect(item.id) }}
+                          className="flex items-center gap-1.5 cursor-pointer">
                           <input type="checkbox" checked={selectedIds.has(item.id)} readOnly
                             className="w-4 h-4 accent-[#F97316] cursor-pointer" />
+                          <span className="text-[12px] text-muted-brand">선택</span>
                         </div>
-                      )}
-                    </AdminTd>
-                    <AdminTd className="text-muted-brand text-[12px]">{item.reportDate?.slice(5, 10)}</AdminTd>
-                    <AdminTd className="text-title-brand font-medium">{item.worker.name}</AdminTd>
-                    <AdminTd className="text-muted-brand text-[12px]">{item.jobTitle || '-'}</AdminTd>
-                    <AdminTd className="text-muted-brand text-[12px] max-w-[120px] truncate">{item.site.name}</AdminTd>
-                    <AdminTd className="text-muted-brand text-[12px]">
-                      {item.workStartTime && item.workEndTime
-                        ? `${item.workStartTime}~${item.workEndTime}`
-                        : item.workStartTime || item.workEndTime || '-'}
-                    </AdminTd>
-                    <AdminTd className="max-w-[200px]">
-                      <div className="line-clamp-1 text-[12px]">
-                        {[item.tradeFamilyLabel, item.tradeLabel, item.taskLabel].filter(Boolean).join(' > ') || '-'}
-                      </div>
-                    </AdminTd>
-                    <AdminTd className="text-center">
-                      {item.photos && item.photos.length > 0 ? (
-                        <span className="text-[11px] text-[#3B82F6]">{item.photos.length}장</span>
-                      ) : (
-                        <span className="text-[11px] text-[#D1D5DB]">-</span>
-                      )}
-                    </AdminTd>
-                    <AdminTd className="text-center">
-                      <StatusBadge status={item.status} />
-                    </AdminTd>
-                  </AdminTr>
-                ))}
-              </AdminTable>
+                        <Btn size="sm" variant="orange" onClick={(e) => { e.stopPropagation(); openDetail(item) }}>확정</Btn>
+                      </MobileCardActions>
+                    )}
+                  </MobileCard>
+                )}
+              />
 
               {total > 30 && (
                 <div className="flex justify-center gap-2 mt-4">

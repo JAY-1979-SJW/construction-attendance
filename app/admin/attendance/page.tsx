@@ -9,6 +9,7 @@ import {
   StatusBadge, Btn,
   FormInput, FormTextarea, ModalFooter,
   FloatingToast, Modal,
+  MobileCardList, MobileCard, MobileCardField, MobileCardFields,
 } from '@/components/admin/ui'
 import AttendanceCalendar from '@/components/admin/AttendanceCalendar'
 
@@ -850,112 +851,158 @@ function AttendancePageInner() {
           <SectionCard padding={false}>
             {loading ? (
               <div className="py-12 text-center text-[13px] text-muted2-brand">로딩 중...</div>
-            ) : sorted.length === 0 ? (
-              <AdminTable headers={['이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
-                <EmptyRow colSpan={8} message="조회된 기록이 없습니다" />
-              </AdminTable>
             ) : (
-              <AdminTable headers={['이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
-
-                    {sorted.map(item => {
-                      const md = calcManDay(item.workedMinutesFinal ?? item.workedMinutesRaw)
-                      const cs = getConfirmStatus(item, allWorkers)
-                      const isSelected = item.id === selectedId
-                      const rowBg =
-                        isSelected        ? 'bg-accent-light hover:bg-accent-light' :
-                        isNeedsReview(item) ? 'bg-red-light hover:bg-red-light' :
-                        (item.manualAdjustedYn || item.status === 'ADJUSTED') ? 'bg-[#FAF5FF] hover:bg-[#F3E8FF]' :
-                        ''
-                      return (
-                        <AdminTr
-                          key={item.id}
-                          onClick={() => openDetail(item.id)}
-                          className={rowBg}
-                        >
-                          <AdminTd>
-                            <div className="font-semibold text-fore-brand">{item.workerName}</div>
-                          </AdminTd>
-                          <AdminTd className="text-[12px] text-muted-brand">{item.jobTitle}</AdminTd>
-                          <AdminTd className="max-w-[100px]">
-                            {(() => {
-                              const w = allWorkers.find(w2 => w2.id === item.workerId)
-                              const primary = w?.activeSites.find(s => s.isPrimary)
-                              if (primary) return <div className="text-[12px] text-body-brand truncate">{primary.name}</div>
-                              if (w && w.activeSites.length > 0) return <div className="text-[12px] text-body-brand truncate">{w.activeSites[0].name}</div>
-                              return <StatusBadge status="PENDING" label="미배정" />
-                            })()}
-                          </AdminTd>
-                          <AdminTd className="max-w-[100px]">
-                            <div className="text-[12px] text-body-brand truncate">{item.siteName}</div>
-                            {(() => {
-                              const w = allWorkers.find(w2 => w2.id === item.workerId)
-                              const primary = w?.activeSites.find(s => s.isPrimary)
-                              if (primary && primary.id !== item.siteId) {
-                                return <span className="text-[11px] font-bold text-status-exception bg-yellow-light px-1 py-[1px] rounded">불일치</span>
-                              }
-                              return null
-                            })()}
-                          </AdminTd>
-                          <AdminTd className="tabular-nums">
-                            <span className={item.checkInWithinRadius === false ? 'text-status-rejected' : 'text-body-brand'}>
+              <MobileCardList
+                items={sorted}
+                keyExtractor={(item) => item.id}
+                emptyMessage="조회된 기록이 없습니다"
+                renderCard={(item) => {
+                  const cs = getConfirmStatus(item, allWorkers)
+                  return (
+                    <MobileCard
+                      title={item.workerName}
+                      subtitle={`${item.jobTitle} · ${item.siteName}`}
+                      badge={<StatusBadge status={item.status} label={STATUS_LABEL[item.status] ?? item.status} />}
+                      onClick={() => openDetail(item.id)}
+                    >
+                      <MobileCardFields>
+                        <MobileCardField
+                          label="출근"
+                          value={
+                            <span className={item.checkInWithinRadius === false ? 'text-status-rejected' : ''}>
                               {fmtTime(item.checkInAt)}
                             </span>
-                          </AdminTd>
-                          <AdminTd className="tabular-nums">
-                            {item.checkOutAt ? (
-                              <span className="text-body-brand">{fmtTime(item.checkOutAt)}</span>
-                            ) : (
-                              <span className="text-[#D1D5DB]">-</span>
-                            )}
-                          </AdminTd>
-                          <AdminTd>
-                            <StatusBadge status={item.status} label={STATUS_LABEL[item.status] ?? item.status} />
-                          </AdminTd>
-                          <AdminTd>
+                          }
+                        />
+                        <MobileCardField
+                          label="퇴근"
+                          value={fmtTime(item.checkOutAt)}
+                        />
+                        <MobileCardField
+                          label="확인"
+                          value={
                             <span
                               className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
                               style={{ color: cs.color, backgroundColor: cs.bg }}
                             >
                               {cs.label}{cs.reason && ` · ${cs.reason}`}
                             </span>
-                            {item.adminNote && (
-                              <div className="text-[11px] text-muted-brand mt-[2px] max-w-[120px] truncate" title={item.adminNote}>📝 {item.adminNote}</div>
-                            )}
-                          </AdminTd>
-                        </AdminTr>
-                      )
-                    })}
-                    {/* 미출근 행 (NOT_CHECKED_IN 필터 또는 전체) */}
-                    {(statusFilter === 'NOT_CHECKED_IN' || statusFilter === '') && notCheckedInWorkers.map(w => {
-                      if (statusFilter === '' && items.length > 0) return null // 전체 모드에서는 출근자만 표시
-                      const primary = w.activeSites.find(s => s.isPrimary) ?? w.activeSites[0]
-                      return (
-                        <AdminTr key={`nc-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} className="bg-yellow-light hover:bg-yellow-light">
-                          <AdminTd className="font-semibold text-fore-brand">{w.name}</AdminTd>
-                          <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
-                          <AdminTd className="text-[12px] text-body-brand">{primary?.name ?? '-'}</AdminTd>
-                          <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
-                          <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
-                          <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
-                          <AdminTd><StatusBadge status="PENDING" label="미출근" /></AdminTd>
-                          <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
-                        </AdminTr>
-                      )
-                    })}
-                    {/* 미배정 행 */}
-                    {statusFilter === 'UNASSIGNED' && unassignedWorkers.map(w => (
-                      <AdminTr key={`ua-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} highlighted className="bg-red-light hover:bg-red-light">
-                        <AdminTd className="font-semibold text-fore-brand">{w.name}</AdminTd>
-                        <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
-                        <AdminTd><StatusBadge status="PENDING" label="미배정" /></AdminTd>
-                        <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
-                        <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
-                        <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
-                        <AdminTd><StatusBadge status="PENDING" label="미배정" /></AdminTd>
-                        <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
-                      </AdminTr>
-                    ))}
-              </AdminTable>
+                          }
+                        />
+                      </MobileCardFields>
+                    </MobileCard>
+                  )
+                }}
+                renderTable={() => (
+                  sorted.length === 0 ? (
+                    <AdminTable headers={['이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
+                      <EmptyRow colSpan={8} message="조회된 기록이 없습니다" />
+                    </AdminTable>
+                  ) : (
+                    <AdminTable headers={['이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
+
+                          {sorted.map(item => {
+                            const md = calcManDay(item.workedMinutesFinal ?? item.workedMinutesRaw)
+                            const cs = getConfirmStatus(item, allWorkers)
+                            const isSelected = item.id === selectedId
+                            const rowBg =
+                              isSelected        ? 'bg-accent-light hover:bg-accent-light' :
+                              isNeedsReview(item) ? 'bg-red-light hover:bg-red-light' :
+                              (item.manualAdjustedYn || item.status === 'ADJUSTED') ? 'bg-[#FAF5FF] hover:bg-[#F3E8FF]' :
+                              ''
+                            return (
+                              <AdminTr
+                                key={item.id}
+                                onClick={() => openDetail(item.id)}
+                                className={rowBg}
+                              >
+                                <AdminTd>
+                                  <div className="font-semibold text-fore-brand">{item.workerName}</div>
+                                </AdminTd>
+                                <AdminTd className="text-[12px] text-muted-brand">{item.jobTitle}</AdminTd>
+                                <AdminTd className="max-w-[100px]">
+                                  {(() => {
+                                    const w = allWorkers.find(w2 => w2.id === item.workerId)
+                                    const primary = w?.activeSites.find(s => s.isPrimary)
+                                    if (primary) return <div className="text-[12px] text-body-brand truncate">{primary.name}</div>
+                                    if (w && w.activeSites.length > 0) return <div className="text-[12px] text-body-brand truncate">{w.activeSites[0].name}</div>
+                                    return <StatusBadge status="PENDING" label="미배정" />
+                                  })()}
+                                </AdminTd>
+                                <AdminTd className="max-w-[100px]">
+                                  <div className="text-[12px] text-body-brand truncate">{item.siteName}</div>
+                                  {(() => {
+                                    const w = allWorkers.find(w2 => w2.id === item.workerId)
+                                    const primary = w?.activeSites.find(s => s.isPrimary)
+                                    if (primary && primary.id !== item.siteId) {
+                                      return <span className="text-[11px] font-bold text-status-exception bg-yellow-light px-1 py-[1px] rounded">불일치</span>
+                                    }
+                                    return null
+                                  })()}
+                                </AdminTd>
+                                <AdminTd className="tabular-nums">
+                                  <span className={item.checkInWithinRadius === false ? 'text-status-rejected' : 'text-body-brand'}>
+                                    {fmtTime(item.checkInAt)}
+                                  </span>
+                                </AdminTd>
+                                <AdminTd className="tabular-nums">
+                                  {item.checkOutAt ? (
+                                    <span className="text-body-brand">{fmtTime(item.checkOutAt)}</span>
+                                  ) : (
+                                    <span className="text-[#D1D5DB]">-</span>
+                                  )}
+                                </AdminTd>
+                                <AdminTd>
+                                  <StatusBadge status={item.status} label={STATUS_LABEL[item.status] ?? item.status} />
+                                </AdminTd>
+                                <AdminTd>
+                                  <span
+                                    className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
+                                    style={{ color: cs.color, backgroundColor: cs.bg }}
+                                  >
+                                    {cs.label}{cs.reason && ` · ${cs.reason}`}
+                                  </span>
+                                  {item.adminNote && (
+                                    <div className="text-[11px] text-muted-brand mt-[2px] max-w-[120px] truncate" title={item.adminNote}>📝 {item.adminNote}</div>
+                                  )}
+                                </AdminTd>
+                              </AdminTr>
+                            )
+                          })}
+                          {/* 미출근 행 (NOT_CHECKED_IN 필터 또는 전체) */}
+                          {(statusFilter === 'NOT_CHECKED_IN' || statusFilter === '') && notCheckedInWorkers.map(w => {
+                            if (statusFilter === '' && items.length > 0) return null // 전체 모드에서는 출근자만 표시
+                            const primary = w.activeSites.find(s => s.isPrimary) ?? w.activeSites[0]
+                            return (
+                              <AdminTr key={`nc-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} className="bg-yellow-light hover:bg-yellow-light">
+                                <AdminTd className="font-semibold text-fore-brand">{w.name}</AdminTd>
+                                <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
+                                <AdminTd className="text-[12px] text-body-brand">{primary?.name ?? '-'}</AdminTd>
+                                <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                                <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                                <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                                <AdminTd><StatusBadge status="PENDING" label="미출근" /></AdminTd>
+                                <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                              </AdminTr>
+                            )
+                          })}
+                          {/* 미배정 행 */}
+                          {statusFilter === 'UNASSIGNED' && unassignedWorkers.map(w => (
+                            <AdminTr key={`ua-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} highlighted className="bg-red-light hover:bg-red-light">
+                              <AdminTd className="font-semibold text-fore-brand">{w.name}</AdminTd>
+                              <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
+                              <AdminTd><StatusBadge status="PENDING" label="미배정" /></AdminTd>
+                              <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                              <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                              <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                              <AdminTd><StatusBadge status="PENDING" label="미배정" /></AdminTd>
+                              <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
+                            </AdminTr>
+                          ))}
+                    </AdminTable>
+                  )
+                )}
+              />
             )}
           </SectionCard>
         </div>
