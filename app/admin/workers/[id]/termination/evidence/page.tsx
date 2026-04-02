@@ -175,153 +175,140 @@ function EvidencePageContent() {
         ['검토 상태',     reviewSummary.status],
       ]} />
       <div className="text-sm font-semibold mb-2">최종 확인 체크 결과</div>
-      {/* 모바일 카드 */}
-      <div className="sm:hidden mb-4">
-        <MobileCardList
-          items={Object.entries(reviewSummary.finalChecks)}
-          renderCard={([key, val]) => (
-            <MobileCard title={CHECK_LABELS[key] ?? key}>
-              <div className={`text-[13px] font-semibold mt-1 ${val ? 'text-green-700' : 'text-[#718096]'}`}>{val ? '✔ 완료' : '미체크'}</div>
-            </MobileCard>
-          )}
-        />
-      </div>
-      {/* 데스크탑 테이블 */}
-      <table className="hidden sm:table w-full border-collapse text-sm mb-4">
-        <tbody>
-          {Object.entries(reviewSummary.finalChecks).map(([key, val]) => (
-            <tr key={key} className="border border-[rgba(91,164,217,0.25)]">
-              <th className="bg-[rgba(255,255,255,0.04)] border-r border-[rgba(91,164,217,0.25)] px-3 py-2 text-left font-medium w-44">{CHECK_LABELS[key] ?? key}</th>
-              <td className={`px-3 py-2 ${val ? 'text-green-700 font-bold' : 'text-[#718096]'}`}>{val ? '✔ 완료' : '미체크'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <MobileCardList
+        items={Object.entries(reviewSummary.finalChecks)}
+        renderCard={([key, val]) => (
+          <MobileCard title={CHECK_LABELS[key] ?? key}>
+            <div className={`text-[13px] font-semibold mt-1 ${val ? 'text-green-700' : 'text-[#718096]'}`}>{val ? '✔ 완료' : '미체크'}</div>
+          </MobileCard>
+        )}
+        renderTable={() => (
+          <table className="w-full border-collapse text-sm mb-4">
+            <tbody>
+              {Object.entries(reviewSummary.finalChecks).map(([key, val]) => (
+                <tr key={key} className="border border-[rgba(91,164,217,0.25)]">
+                  <th className="bg-[rgba(255,255,255,0.04)] border-r border-[rgba(91,164,217,0.25)] px-3 py-2 text-left font-medium w-44">{CHECK_LABELS[key] ?? key}</th>
+                  <td className={`px-3 py-2 ${val ? 'text-green-700 font-bold' : 'text-[#718096]'}`}>{val ? '✔ 완료' : '미체크'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      />
 
       {/* 2. 자동점검 결과 */}
       <SectionTitle n={2} title="자동점검 결과 (11개 항목)" />
       {autoCheckItems.length === 0 ? <EmptyNote /> : (
-        <>
-        {/* 모바일 카드 */}
-        <div className="sm:hidden mb-4">
-          <MobileCardList
-            items={autoCheckItems}
-            renderCard={(item) => (
-              <MobileCard
-                title={item.label}
-                badge={SEVERITY_LABEL[item.severity] ?? item.severity}
-              >
-                <div className={`text-[13px] mt-2 ${!item.passed ? 'text-orange-700' : 'text-dim-brand'}`}>
-                  {item.passed ? '적정' : (item.action ? `미비 — 권장: ${item.action}` : '미비')}
-                </div>
-              </MobileCard>
-            )}
-          />
-        </div>
-        {/* 데스크탑 테이블 */}
-        <table className="hidden sm:table w-full border-collapse text-sm mb-4">
-          <thead>
-            <tr className="bg-[rgba(255,255,255,0.04)]">
-              <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-left w-1/2">항목</th>
-              <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-left w-24">결과</th>
-              <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-left">세부 내용</th>
-            </tr>
-          </thead>
-          <tbody>
-            {autoCheckItems.map((item) => (
-              <tr key={item.key} className="border-b border-[rgba(91,164,217,0.15)]">
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{item.label}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">
-                  <span className={`text-xs px-2 py-1 rounded ${SEVERITY_COLOR[item.severity] ?? ''}`}>
-                    {SEVERITY_LABEL[item.severity] ?? item.severity}
-                  </span>
-                </td>
-                <td className={`border border-[rgba(91,164,217,0.25)] px-3 py-2 ${!item.passed ? 'text-orange-700' : 'text-dim-brand'}`}>
-                  {item.passed ? '적정' : (item.action ? `미비 — 권장: ${item.action}` : '미비')}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </>
+        <MobileCardList
+          items={autoCheckItems}
+          renderCard={(item) => (
+            <MobileCard title={item.label} badge={SEVERITY_LABEL[item.severity] ?? item.severity}>
+              <div className={`text-[13px] mt-2 ${!item.passed ? 'text-orange-700' : 'text-dim-brand'}`}>
+                {item.passed ? '적정' : (item.action ? `미비 — 권장: ${item.action}` : '미비')}
+              </div>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse text-sm mb-4">
+              <thead>
+                <tr className="bg-[rgba(255,255,255,0.04)]">
+                  <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-left w-1/2">항목</th>
+                  <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-left w-24">결과</th>
+                  <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-left">세부 내용</th>
+                </tr>
+              </thead>
+              <tbody>
+                {autoCheckItems.map((item) => (
+                  <tr key={item.key} className="border-b border-[rgba(91,164,217,0.15)]">
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{item.label}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">
+                      <span className={`text-xs px-2 py-1 rounded ${SEVERITY_COLOR[item.severity] ?? ''}`}>
+                        {SEVERITY_LABEL[item.severity] ?? item.severity}
+                      </span>
+                    </td>
+                    <td className={`border border-[rgba(91,164,217,0.25)] px-3 py-2 ${!item.passed ? 'text-orange-700' : 'text-dim-brand'}`}>
+                      {item.passed ? '적정' : (item.action ? `미비 — 권장: ${item.action}` : '미비')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       )}
 
       {/* 3. 계약/문서 현황 */}
       <SectionTitle n={3} title="계약 / 문서 현황" />
       <div className="font-semibold text-sm mb-1 text-dim-brand">계약서 내역</div>
       {contractsAndDocs.contracts.length === 0 ? <EmptyNote text="계약서 기록 없음" /> : (
-        <>
-        <div className="sm:hidden mb-4">
-          <MobileCardList
-            items={contractsAndDocs.contracts}
-            renderCard={(c, i) => (
-              <MobileCard key={i} title={c.contractType} badge={c.contractStatus}>
-                <MobileCardFields>
-                  <MobileCardField label="시작일" value={c.startDate} />
-                  <MobileCardField label="종료일" value={c.endDate || '기록 없음'} />
-                  <MobileCardField label="생성일" value={c.createdAt ? new Date(c.createdAt).toLocaleDateString('ko-KR') : '기록 없음'} />
-                </MobileCardFields>
-              </MobileCard>
-            )}
-          />
-        </div>
-        <table className="hidden sm:table w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">계약 유형</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">상태</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">시작일</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">종료일</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">생성일</th>
-          </tr></thead>
-          <tbody>
-            {contractsAndDocs.contracts.map((c, i) => (
-              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.contractType}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.contractStatus}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.startDate}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.endDate || '기록 없음'}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.createdAt ? new Date(c.createdAt).toLocaleDateString('ko-KR') : '기록 없음'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </>
+        <MobileCardList
+          items={contractsAndDocs.contracts}
+          renderCard={(c) => (
+            <MobileCard title={c.contractType} badge={c.contractStatus}>
+              <MobileCardFields>
+                <MobileCardField label="시작일" value={c.startDate} />
+                <MobileCardField label="종료일" value={c.endDate || '기록 없음'} />
+                <MobileCardField label="생성일" value={c.createdAt ? new Date(c.createdAt).toLocaleDateString('ko-KR') : '기록 없음'} />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse text-sm mb-4">
+              <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">계약 유형</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">상태</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">시작일</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">종료일</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">생성일</th>
+              </tr></thead>
+              <tbody>
+                {contractsAndDocs.contracts.map((c, i) => (
+                  <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.contractType}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.contractStatus}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.startDate}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.endDate || '기록 없음'}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{c.createdAt ? new Date(c.createdAt).toLocaleDateString('ko-KR') : '기록 없음'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       )}
       <div className="font-semibold text-sm mb-1 text-dim-brand">문서 교부 이력</div>
       {contractsAndDocs.deliveryLogs.length === 0 ? <EmptyNote text="문서 교부 기록 없음" /> : (
-        <>
-        <div className="sm:hidden mb-4">
-          <MobileCardList
-            items={contractsAndDocs.deliveryLogs}
-            renderCard={(d, i) => (
-              <MobileCard key={i} title={d.documentType} badge={d.status}>
-                <MobileCardFields>
-                  <MobileCardField label="교부 방법" value={d.deliveryMethod} />
-                  <MobileCardField label="교부일" value={d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString('ko-KR') : '기록 없음'} />
-                </MobileCardFields>
-              </MobileCard>
-            )}
-          />
-        </div>
-        <table className="hidden sm:table w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">문서 유형</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부 방법</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부 상태</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부일</th>
-          </tr></thead>
-          <tbody>
-            {contractsAndDocs.deliveryLogs.map((d, i) => (
-              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.documentType}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.deliveryMethod}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.status}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString('ko-KR') : '기록 없음'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </>
+        <MobileCardList
+          items={contractsAndDocs.deliveryLogs}
+          renderCard={(d) => (
+            <MobileCard title={d.documentType} badge={d.status}>
+              <MobileCardFields>
+                <MobileCardField label="교부 방법" value={d.deliveryMethod} />
+                <MobileCardField label="교부일" value={d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString('ko-KR') : '기록 없음'} />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse text-sm mb-4">
+              <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">문서 유형</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부 방법</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부 상태</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부일</th>
+              </tr></thead>
+              <tbody>
+                {contractsAndDocs.deliveryLogs.map((d, i) => (
+                  <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.documentType}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.deliveryMethod}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.status}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString('ko-KR') : '기록 없음'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       )}
 
       {/* 4. 출퇴근/공수 요약 */}
@@ -338,179 +325,169 @@ function EvidencePageContent() {
       <SectionTitle n={5} title="경고 / 소명 / 통지 기록" />
       <div className="font-semibold text-sm mb-1 text-dim-brand">경고 발행 이력 ({hrActions.warnings.length}건)</div>
       {hrActions.warnings.length === 0 ? <EmptyNote text="경고 기록 없음" /> : (
-        <>
-        <div className="sm:hidden mb-4">
-          <MobileCardList
-            items={hrActions.warnings}
-            renderCard={(w, i) => (
-              <MobileCard key={i} title={w.warningLevel}>
-                <MobileCardFields>
-                  <MobileCardField label="사유" value={w.reason} />
-                  <MobileCardField label="발행일" value={new Date(w.issuedAt).toLocaleDateString('ko-KR')} />
-                </MobileCardFields>
-              </MobileCard>
-            )}
-          />
-        </div>
-        <table className="hidden sm:table w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">경고 수위</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">사유</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">발행일</th>
-          </tr></thead>
-          <tbody>
-            {hrActions.warnings.map((w, i) => (
-              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{w.warningLevel}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{w.reason}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{new Date(w.issuedAt).toLocaleDateString('ko-KR')}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </>
+        <MobileCardList
+          items={hrActions.warnings}
+          renderCard={(w) => (
+            <MobileCard title={w.warningLevel}>
+              <MobileCardFields>
+                <MobileCardField label="사유" value={w.reason} />
+                <MobileCardField label="발행일" value={new Date(w.issuedAt).toLocaleDateString('ko-KR')} />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse text-sm mb-4">
+              <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">경고 수위</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">사유</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">발행일</th>
+              </tr></thead>
+              <tbody>
+                {hrActions.warnings.map((w, i) => (
+                  <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{w.warningLevel}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{w.reason}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{new Date(w.issuedAt).toLocaleDateString('ko-KR')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       )}
       <div className="font-semibold text-sm mb-1 text-dim-brand">소명 요청 이력 ({hrActions.explanations.length}건)</div>
       {hrActions.explanations.length === 0 ? <EmptyNote text="소명 요청 기록 없음" /> : (
-        <>
-        <div className="sm:hidden mb-4">
-          <MobileCardList
-            items={hrActions.explanations}
-            renderCard={(e, i) => (
-              <MobileCard key={i} title={e.subject} badge={e.status}>
-                <MobileCardFields>
-                  <MobileCardField label="요청일" value={new Date(e.requestedAt).toLocaleDateString('ko-KR')} />
-                </MobileCardFields>
-              </MobileCard>
-            )}
-          />
-        </div>
-        <table className="hidden sm:table w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">요청 제목</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">상태</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">요청일</th>
-          </tr></thead>
-          <tbody>
-            {hrActions.explanations.map((e, i) => (
-              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{e.subject}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{e.status}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{new Date(e.requestedAt).toLocaleDateString('ko-KR')}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </>
+        <MobileCardList
+          items={hrActions.explanations}
+          renderCard={(exp) => (
+            <MobileCard title={exp.subject} badge={exp.status}>
+              <MobileCardFields>
+                <MobileCardField label="요청일" value={new Date(exp.requestedAt).toLocaleDateString('ko-KR')} />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse text-sm mb-4">
+              <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">요청 제목</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">상태</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">요청일</th>
+              </tr></thead>
+              <tbody>
+                {hrActions.explanations.map((exp, i) => (
+                  <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{exp.subject}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{exp.status}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{new Date(exp.requestedAt).toLocaleDateString('ko-KR')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       )}
       <div className="font-semibold text-sm mb-1 text-dim-brand">통지서 이력 ({hrActions.notices.length}건)</div>
       {hrActions.notices.length === 0 ? <EmptyNote text="통지서 기록 없음" /> : (
-        <>
-        <div className="sm:hidden mb-4">
-          <MobileCardList
-            items={hrActions.notices}
-            renderCard={(n, i) => (
-              <MobileCard key={i} title={n.title} subtitle={n.noticeType}>
-                <MobileCardFields>
-                  <MobileCardField label="교부 방법" value={n.deliveryMethod} />
-                  <MobileCardField label="발행일" value={new Date(n.issuedAt).toLocaleDateString('ko-KR')} />
-                </MobileCardFields>
-              </MobileCard>
-            )}
-          />
-        </div>
-        <table className="hidden sm:table w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">통지 유형</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">제목</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부 방법</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">발행일</th>
-          </tr></thead>
-          <tbody>
-            {hrActions.notices.map((n, i) => (
-              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{n.noticeType}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{n.title}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{n.deliveryMethod}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{new Date(n.issuedAt).toLocaleDateString('ko-KR')}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </>
+        <MobileCardList
+          items={hrActions.notices}
+          renderCard={(n) => (
+            <MobileCard title={n.title} subtitle={n.noticeType}>
+              <MobileCardFields>
+                <MobileCardField label="교부 방법" value={n.deliveryMethod} />
+                <MobileCardField label="발행일" value={new Date(n.issuedAt).toLocaleDateString('ko-KR')} />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse text-sm mb-4">
+              <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">통지 유형</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">제목</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">교부 방법</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">발행일</th>
+              </tr></thead>
+              <tbody>
+                {hrActions.notices.map((n, i) => (
+                  <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{n.noticeType}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{n.title}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{n.deliveryMethod}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{new Date(n.issuedAt).toLocaleDateString('ko-KR')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       )}
 
       {/* 6. 보완조치 */}
       <SectionTitle n={6} title="종료 전 보완조치 필요 항목" />
       {remedialActions.length === 0 ? <EmptyNote text="보완조치 필요 항목 없음" /> : (
-        <>
-        <div className="sm:hidden mb-4">
-          <MobileCardList
-            items={remedialActions}
-            renderCard={(r, i) => (
-              <MobileCard key={i} title={r.label} badge={SEVERITY_LABEL[r.severity] ?? r.severity}>
-                <div className="text-[13px] mt-2 text-dim-brand">{r.action}</div>
-              </MobileCard>
-            )}
-          />
-        </div>
-        <table className="hidden sm:table w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-1/3">점검 항목</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-20">심각도</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">권장 조치</th>
-          </tr></thead>
-          <tbody>
-            {remedialActions.map((r, i) => (
-              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{r.label}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">
-                  <span className={`text-xs px-2 py-1 rounded ${SEVERITY_COLOR[r.severity] ?? ''}`}>{SEVERITY_LABEL[r.severity] ?? r.severity}</span>
-                </td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{r.action}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </>
+        <MobileCardList
+          items={remedialActions}
+          renderCard={(r) => (
+            <MobileCard title={r.label} badge={SEVERITY_LABEL[r.severity] ?? r.severity}>
+              <div className="text-[13px] mt-2 text-dim-brand">{r.action}</div>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse text-sm mb-4">
+              <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-1/3">점검 항목</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-20">심각도</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">권장 조치</th>
+              </tr></thead>
+              <tbody>
+                {remedialActions.map((r, i) => (
+                  <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{r.label}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">
+                      <span className={`text-xs px-2 py-1 rounded ${SEVERITY_COLOR[r.severity] ?? ''}`}>{SEVERITY_LABEL[r.severity] ?? r.severity}</span>
+                    </td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{r.action}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       )}
 
       {/* 7. 감사로그 */}
       <SectionTitle n={7} title="감사로그 요약" />
       {auditLogSummary.length === 0 ? <EmptyNote text="감사로그 기록 없음" /> : (
-        <>
-        <div className="sm:hidden mb-4">
-          <MobileCardList
-            items={auditLogSummary}
-            renderCard={(log, i) => (
-              <MobileCard key={i} title={log.summary} subtitle={log.actionType}>
-                <MobileCardFields>
-                  <MobileCardField label="역할" value={log.actorRole} />
-                  <MobileCardField label="일시" value={new Date(log.occurredAt).toLocaleString('ko-KR')} />
-                </MobileCardFields>
-              </MobileCard>
-            )}
-          />
-        </div>
-        <table className="hidden sm:table w-full border-collapse text-sm mb-4">
-          <thead><tr className="bg-[rgba(255,255,255,0.04)]">
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-52">이벤트</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-24">역할</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">요약</th>
-            <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-36">일시</th>
-          </tr></thead>
-          <tbody>
-            {auditLogSummary.map((log, i) => (
-              <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2 font-mono text-xs">{log.actionType}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-xs">{log.actorRole}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{log.summary}</td>
-                <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-xs">{new Date(log.occurredAt).toLocaleString('ko-KR')}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </>
+        <MobileCardList
+          items={auditLogSummary}
+          renderCard={(log) => (
+            <MobileCard title={log.summary} subtitle={log.actionType}>
+              <MobileCardFields>
+                <MobileCardField label="역할" value={log.actorRole} />
+                <MobileCardField label="일시" value={new Date(log.occurredAt).toLocaleString('ko-KR')} />
+              </MobileCardFields>
+            </MobileCard>
+          )}
+          renderTable={() => (
+            <table className="w-full border-collapse text-sm mb-4">
+              <thead><tr className="bg-[rgba(255,255,255,0.04)]">
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-52">이벤트</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-24">역할</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2">요약</th>
+                <th className="border border-[rgba(91,164,217,0.25)] px-3 py-2 w-36">일시</th>
+              </tr></thead>
+              <tbody>
+                {auditLogSummary.map((log, i) => (
+                  <tr key={i} className="border-b border-[rgba(91,164,217,0.15)]">
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2 font-mono text-xs">{log.actionType}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-xs">{log.actorRole}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2">{log.summary}</td>
+                    <td className="border border-[rgba(91,164,217,0.25)] px-3 py-2 text-xs">{new Date(log.occurredAt).toLocaleString('ko-KR')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
       )}
 
       {/* 고정 문구 */}

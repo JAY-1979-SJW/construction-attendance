@@ -1078,45 +1078,43 @@ function NewContractPage() {
         {showGuide && (
           <div className="p-5 space-y-5">
             {/* 비교표 */}
-            {/* 모바일 카드 */}
-            <div className="sm:hidden mb-4">
-              <MobileCardList
-                items={ADMIN_TYPE_GUIDES}
-                renderCard={(g) => (
-                  <MobileCard title={`${g.icon} ${g.label}`} style={{ borderColor: g.accentColor + '60' }}>
-                    <MobileCardFields>
-                      <MobileCardField label="이런 경우 선택" value={g.tableRow.whenToSelect} />
-                      <MobileCardField label="계약 종료일" value={g.tableRow.endDateConcept} />
-                      <MobileCardField label="근태/계산 기준" value={g.tableRow.calcBasis} />
-                      <MobileCardField label="생성 문서/처리" value={g.tableRow.documents} />
-                    </MobileCardFields>
-                  </MobileCard>
-                )}
-              />
-            </div>
-            {/* 데스크탑 테이블 */}
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full text-xs border-collapse">
-                <thead>
-                  <tr className="bg-[rgba(255,255,255,0.04)]">
-                    {['유형', '이런 경우 선택', '계약 종료일', '근태/계산 기준', '생성 문서/처리'].map(h => (
-                      <th key={h} className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-left font-semibold text-dim-brand whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {ADMIN_TYPE_GUIDES.map(g => (
-                    <tr key={g.code} className="align-top">
-                      <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 font-bold whitespace-nowrap" style={{ color: g.accentColor }}>{g.icon} {g.label}</td>
-                      <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-dim-brand">{g.tableRow.whenToSelect}</td>
-                      <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-dim-brand whitespace-nowrap">{g.tableRow.endDateConcept}</td>
-                      <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-dim-brand">{g.tableRow.calcBasis}</td>
-                      <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-dim-brand">{g.tableRow.documents}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <MobileCardList
+              items={ADMIN_TYPE_GUIDES}
+              renderCard={(g) => (
+                <MobileCard title={`${g.icon} ${g.label}`} style={{ borderColor: g.accentColor + '60' }}>
+                  <MobileCardFields>
+                    <MobileCardField label="이런 경우 선택" value={g.tableRow.whenToSelect} />
+                    <MobileCardField label="계약 종료일" value={g.tableRow.endDateConcept} />
+                    <MobileCardField label="근태/계산 기준" value={g.tableRow.calcBasis} />
+                    <MobileCardField label="생성 문서/처리" value={g.tableRow.documents} />
+                  </MobileCardFields>
+                </MobileCard>
+              )}
+              renderTable={() => (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-[rgba(255,255,255,0.04)]">
+                        {['유형', '이런 경우 선택', '계약 종료일', '근태/계산 기준', '생성 문서/처리'].map(h => (
+                          <th key={h} className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-left font-semibold text-dim-brand whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ADMIN_TYPE_GUIDES.map(g => (
+                        <tr key={g.code} className="align-top">
+                          <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 font-bold whitespace-nowrap" style={{ color: g.accentColor }}>{g.icon} {g.label}</td>
+                          <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-dim-brand">{g.tableRow.whenToSelect}</td>
+                          <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-dim-brand whitespace-nowrap">{g.tableRow.endDateConcept}</td>
+                          <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-dim-brand">{g.tableRow.calcBasis}</td>
+                          <td className="border border-[rgba(91,164,217,0.15)] px-3 py-2 text-dim-brand">{g.tableRow.documents}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            />
 
             {/* 오선택 방지 경고 */}
             <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">

@@ -170,78 +170,72 @@ function NewPurchaseOrderInner() {
                 </span>
               </div>
 
-              {/* 모바일 카드 */}
-              <div className="sm:hidden">
-                <MobileCardList
-                  items={orderableItems}
-                  renderCard={(item) => {
-                    const remaining = parseFloat(item.remainingQty)
-                    const isDisabled = remaining <= 0
-                    const sel = selected[item.id]
-                    const qtyNum = parseFloat(sel?.qty ?? '0')
-                    const isOver = qtyNum > remaining
-                    return (
-                      <MobileCard
-                        title={item.itemName}
-                        subtitle={item.spec ?? undefined}
-                        badge={ORDER_STATUS_LABEL[item.orderStatus]}
-                        style={{
-                          opacity: isDisabled ? 0.4 : 1,
-                          background: sel?.checked && !isDisabled ? 'rgba(244,121,32,0.06)' : undefined,
-                          borderColor: ORDER_STATUS_COLOR[item.orderStatus] + '44',
-                        }}
-                      >
-                        <MobileCardFields>
-                          <MobileCardField label="단위" value={item.unit ?? '-'} />
-                          <MobileCardField label="요청수량" value={Number(item.requestedQty).toLocaleString()} />
-                          <MobileCardField label="기발주" value={Number(item.orderedQty).toLocaleString()} />
-                          <MobileCardField
-                            label="잔량"
-                            value={Number(item.remainingQty).toLocaleString()}
-                            valueStyle={{ color: remaining <= 0 ? '#607d8b' : '#66bb6a', fontWeight: 600 }}
+              <MobileCardList
+                items={orderableItems}
+                renderCard={(item) => {
+                  const remaining = parseFloat(item.remainingQty)
+                  const isDisabled = remaining <= 0
+                  const sel = selected[item.id]
+                  const qtyNum = parseFloat(sel?.qty ?? '0')
+                  const isOver = qtyNum > remaining
+                  return (
+                    <MobileCard
+                      title={item.itemName}
+                      subtitle={item.spec ?? undefined}
+                      badge={ORDER_STATUS_LABEL[item.orderStatus]}
+                      style={{
+                        opacity: isDisabled ? 0.4 : 1,
+                        background: sel?.checked && !isDisabled ? 'rgba(244,121,32,0.06)' : undefined,
+                        borderColor: ORDER_STATUS_COLOR[item.orderStatus] + '44',
+                      }}
+                    >
+                      <MobileCardFields>
+                        <MobileCardField label="단위" value={item.unit ?? '-'} />
+                        <MobileCardField label="요청수량" value={Number(item.requestedQty).toLocaleString()} />
+                        <MobileCardField label="기발주" value={Number(item.orderedQty).toLocaleString()} />
+                        <MobileCardField
+                          label="잔량"
+                          value={<span style={{ color: remaining <= 0 ? '#607d8b' : '#66bb6a', fontWeight: 600 }}>{Number(item.remainingQty).toLocaleString()}</span>}
+                        />
+                      </MobileCardFields>
+                      {item.isUrgent && <div className="text-[11px] text-[#ef5350] mt-1">긴급</div>}
+                      <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[rgba(91,164,217,0.15)]">
+                        <label className="flex items-center gap-2 text-[13px] text-white cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={!!sel?.checked && !isDisabled}
+                            disabled={isDisabled}
+                            onChange={e => setSelected(prev => ({
+                              ...prev,
+                              [item.id]: { ...prev[item.id], checked: e.target.checked },
+                            }))}
                           />
-                        </MobileCardFields>
-                        {item.isUrgent && <div className="text-[11px] text-[#ef5350] mt-1">긴급</div>}
-                        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[rgba(91,164,217,0.15)]">
-                          <label className="flex items-center gap-2 text-[13px] text-white cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={!!sel?.checked && !isDisabled}
-                              disabled={isDisabled}
-                              onChange={e => setSelected(prev => ({
-                                ...prev,
-                                [item.id]: { ...prev[item.id], checked: e.target.checked },
-                              }))}
-                            />
-                            선택
-                          </label>
-                          <div className="flex flex-col gap-[2px]">
-                            <input
-                              type="number" min="0.01" step="0.01"
-                              value={sel?.qty ?? ''}
-                              disabled={isDisabled || !sel?.checked}
-                              placeholder="발주수량"
-                              onChange={e => setSelected(prev => ({
-                                ...prev,
-                                [item.id]: { ...prev[item.id], qty: e.target.value },
-                              }))}
-                              style={{
-                                width: '100px', padding: '5px 8px', borderRadius: '4px',
-                                background: '#FFFFFF', color: '#111827', fontSize: '13px',
-                                border: `1px solid ${isOver ? '#ef5350' : '#E5E7EB'}`,
-                              }}
-                            />
-                            {isOver && <div className="text-[11px] text-[#ef5350]">잔량 초과</div>}
-                          </div>
+                          선택
+                        </label>
+                        <div className="flex flex-col gap-[2px]">
+                          <input
+                            type="number" min="0.01" step="0.01"
+                            value={sel?.qty ?? ''}
+                            disabled={isDisabled || !sel?.checked}
+                            placeholder="발주수량"
+                            onChange={e => setSelected(prev => ({
+                              ...prev,
+                              [item.id]: { ...prev[item.id], qty: e.target.value },
+                            }))}
+                            style={{
+                              width: '100px', padding: '5px 8px', borderRadius: '4px',
+                              background: '#FFFFFF', color: '#111827', fontSize: '13px',
+                              border: `1px solid ${isOver ? '#ef5350' : '#E5E7EB'}`,
+                            }}
+                          />
+                          {isOver && <div className="text-[11px] text-[#ef5350]">잔량 초과</div>}
                         </div>
-                      </MobileCard>
-                    )
-                  }}
-                />
-              </div>
-
-              {/* 데스크탑 테이블 */}
-              <table className="hidden sm:table w-full border-collapse">
+                      </div>
+                    </MobileCard>
+                  )
+                }}
+                renderTable={() => (
+                <table className="w-full border-collapse">
                 <thead>
                   <tr>
                     {['선택', '품목명', '규격', '단위', '요청수량', '기발주', '잔량', '발주수량', '상태'].map(h => (
@@ -316,6 +310,8 @@ function NewPurchaseOrderInner() {
                   })}
                 </tbody>
               </table>
+                )}
+              />
             </div>
 
             {error && (
