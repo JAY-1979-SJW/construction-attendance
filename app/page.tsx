@@ -124,34 +124,38 @@ export default function LandingPage() {
       {/* ── 왜 필요한가 ─────────────────────────────────────── */}
       <section className="py-20 px-6 bg-surface border-t border-footer">
         <div className="max-w-[960px] mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-5">
             <p className="text-[11px] font-semibold text-accent tracking-[2px] uppercase mb-3">WHY</p>
             <h2 className="text-[28px] sm:text-[32px] font-bold text-title-brand tracking-[-0.3px] leading-[1.35]">
-              건설현장, 기록 없이<br />운영하고 계신가요?
+              미리 준비하면<br />현장이 안전해집니다
             </h2>
           </div>
+          <p className="text-center text-[14px] text-muted-brand leading-[1.8] max-w-[640px] mx-auto mb-12">
+            건설현장에서는 예상치 못한 상황이 언제든 발생할 수 있습니다.<br />
+            정확한 기록은 사고를 예방하고, 문제가 생겼을 때 사업주와 근로자 모두를 보호합니다.
+          </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
             {[
               {
-                icon: '🚨',
-                title: '중대재해처벌법',
-                highlight: '사업주 처벌 강화',
-                desc: '2024년부터 50인 미만 사업장까지 확대 적용. 안전조치 의무 위반 시 1년 이상 징역 또는 10억원 이하 벌금. 누가, 언제, 어디서 일했는지 기록이 없으면 방어가 불가능합니다.',
+                icon: '🛡️',
+                title: '안전한 현장 운영',
+                highlight: '기록이 사업주를 보호합니다',
+                desc: '중대재해처벌법이 전 사업장으로 확대되었습니다. 누가, 언제, 어디서 작업했는지 체계적으로 기록해두면 안전관리 의무를 이행하고 있음을 증명할 수 있습니다.',
                 tag: '산업안전보건법 제38조',
               },
               {
-                icon: '⚖️',
-                title: '노사분쟁 대비',
-                highlight: '출퇴근 기록이 증거',
-                desc: '임금 체불, 근로시간 분쟁, 부당해고 소송에서 출퇴근 기록은 핵심 증거입니다. 수기 대장은 법적 효력이 약하지만, GPS 기반 전자 기록은 객관적 증거로 인정됩니다.',
+                icon: '🤝',
+                title: '투명한 근로 관계',
+                highlight: '분쟁을 미리 예방합니다',
+                desc: '출퇴근 시간, 근무일수, 급여 내역이 투명하게 기록되면 오해와 다툼이 줄어듭니다. 혹시 분쟁이 생기더라도 GPS 기반 전자 기록은 사업주와 근로자 모두에게 공정한 근거가 됩니다.',
                 tag: '근로기준법 제48조',
               },
               {
-                icon: '📋',
-                title: '4대보험·퇴직공제',
-                highlight: '신고 누락 = 과태료',
-                desc: '일용근로자 고용보험 신고, 퇴직공제 납부는 매월 의무입니다. 근무일수가 정확하지 않으면 과소/과다 신고로 과태료가 부과됩니다.',
+                icon: '📊',
+                title: '정확한 정산과 신고',
+                highlight: '실수 없는 보험·세무 처리',
+                desc: '근무일수가 정확해야 4대보험 신고와 퇴직공제 납부가 맞습니다. 자동 집계로 정산 실수를 없애고, 과태료 걱정 없이 기한 내 신고를 마칠 수 있습니다.',
                 tag: '고용보험법 제15조',
               },
             ].map(item => (
@@ -167,23 +171,23 @@ export default function LandingPage() {
 
           <div className="bg-card rounded-[16px] border border-brand p-7 md:p-8">
             <div className="text-center mb-6">
-              <h3 className="text-[18px] font-bold text-fore-brand mb-2">수기 대장 vs 전자 출퇴근</h3>
-              <p className="text-[13px] text-muted-brand m-0">같은 현장, 다른 결과</p>
+              <h3 className="text-[18px] font-bold text-fore-brand mb-2">같은 현장, 다른 준비</h3>
+              <p className="text-[13px] text-muted-brand m-0">작은 차이가 큰 안심이 됩니다</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-red-50 rounded-xl p-5 border border-red-200">
-                <div className="text-[14px] font-bold text-red-700 mb-3">수기 출석부</div>
-                <ul className="space-y-2 m-0 p-0 list-none text-[13px] text-red-600">
-                  {['대리 서명 가능 → 증거력 없음', '분쟁 시 "위조" 주장에 반박 불가', '월말 정산 시 일수 오류 발생', '감독관 점검 시 보완 요구'].map(t => (
-                    <li key={t} className="flex items-start gap-2"><span className="shrink-0 mt-0.5">✕</span>{t}</li>
+              <div className="bg-[#FFF8F0] rounded-xl p-5 border border-[#FFE0B2]">
+                <div className="text-[14px] font-bold text-[#E65100] mb-3">수기 출석부</div>
+                <ul className="space-y-2 m-0 p-0 list-none text-[13px] text-[#BF360C]">
+                  {['대리 서명 가능 — 기록의 신뢰도가 낮습니다', '분쟁 시 증거로 인정받기 어렵습니다', '월말 정산 때 일수 확인에 시간이 걸립니다', '감독관 점검 시 보완을 요구받을 수 있습니다'].map(t => (
+                    <li key={t} className="flex items-start gap-2"><span className="shrink-0 mt-0.5 text-[#E65100]">-</span>{t}</li>
                   ))}
                 </ul>
               </div>
-              <div className="bg-green-50 rounded-xl p-5 border border-green-200">
-                <div className="text-[14px] font-bold text-green-700 mb-3">GPS 전자 출퇴근</div>
-                <ul className="space-y-2 m-0 p-0 list-none text-[13px] text-green-700">
-                  {['GPS 좌표 + 시간 자동 기록 → 객관적 증거', '대리 출근 불가 (기기 인증)', '공수·급여 자동 계산 → 정산 오류 제로', '감독관 점검 시 즉시 출력 가능'].map(t => (
-                    <li key={t} className="flex items-start gap-2"><span className="shrink-0 mt-0.5">✓</span>{t}</li>
+              <div className="bg-[#F0FAF0] rounded-xl p-5 border border-[#C8E6C9]">
+                <div className="text-[14px] font-bold text-[#2E7D32] mb-3">GPS 전자 출퇴근</div>
+                <ul className="space-y-2 m-0 p-0 list-none text-[13px] text-[#1B5E20]">
+                  {['GPS + 시간 자동 기록 — 객관적이고 정확합니다', '기기 인증으로 본인만 출퇴근 가능합니다', '공수와 급여가 자동 계산되어 실수가 없습니다', '감독관 점검 시 바로 출력할 수 있습니다'].map(t => (
+                    <li key={t} className="flex items-start gap-2"><span className="shrink-0 mt-0.5 text-[#2E7D32]">+</span>{t}</li>
                   ))}
                 </ul>
               </div>
