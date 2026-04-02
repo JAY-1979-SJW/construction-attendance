@@ -13,6 +13,7 @@ const patchSchema = z.object({
   allowedRadiusMeters:z.number().int().min(10).max(5000).optional(),
   validationStatus:   z.enum(['READY', 'NEEDS_REVIEW', 'FAILED', 'APPROVED']).optional(),
   validationMessage:  z.string().nullable().optional(),
+  userDecision:       z.enum(['USE_EXISTING', 'REGISTER_NEW', 'CANCEL']).optional(),
 })
 
 export async function PATCH(
@@ -37,9 +38,13 @@ export async function PATCH(
     const parsed = patchSchema.safeParse(body)
     if (!parsed.success) return badRequest(parsed.error.errors[0].message)
 
-    const { validationStatus, ...rest } = parsed.data
+    const { validationStatus, userDecision, ...rest } = parsed.data
 
     const updateData: Record<string, unknown> = { ...rest }
+
+    if (userDecision) {
+      updateData.userDecision = userDecision
+    }
 
     if (validationStatus === 'APPROVED') {
       updateData.validationStatus = 'APPROVED'

@@ -734,6 +734,7 @@ model Worker {
   // 투입 전 필수 문서 패키지
   documentPackages           WorkerDocumentPackage[]
   onboardingDocuments        OnboardingDocument[]
+  bulkImportRows             BulkWorkerImportRow[]
 
   @@map("workers")
 }
@@ -1138,6 +1139,19 @@ model BulkSiteImportRow {
   latitude            Float?
   longitude           Float?
   allowedRadiusMeters Int?
+  // 중복 판정
+  dedupeStatus        String?                        // OK, REVIEW, BLOCK
+  dedupeReason        String?
+  matchedSiteId       String?
+  matchedSiteName     String?
+  candidatesJson      Json?
+  // AI 보조
+  aiDecision          String?
+  aiConfidence        Float?
+  aiExplanation       String?
+  // 사용자 결정
+  userDecision        String?                        // USE_EXISTING, REGISTER_NEW, CANCEL
+  //
   validationStatus    BulkImportRowValidationStatus  @default(READY)
   validationMessage   String?
   approvedBy          String?
@@ -1151,6 +1165,76 @@ model BulkSiteImportRow {
 
   @@index([jobId, validationStatus])
   @@map("bulk_site_import_rows")
+}
+
+// ─── 근로자 일괄 업로드 스테이징 ──────────────────────────
+
+model BulkWorkerImportJob {
+  id               String              @id @default(cuid())
+  uploadedBy       String
+  originalFilename String
+  status           BulkImportJobStatus @default(PENDING)
+  totalRows        Int                 @default(0)
+  okRows           Int                 @default(0)
+  reviewRows       Int                 @default(0)
+  blockRows        Int                 @default(0)
+  failedRows       Int                 @default(0)
+  importedRows     Int                 @default(0)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  rows BulkWorkerImportRow[]
+
+  @@index([createdAt])
+  @@map("bulk_worker_import_jobs")
+}
+
+model BulkWorkerImportRow {
+  id                  String                         @id @default(cuid())
+  jobId               String
+  rowNumber           Int
+  // 원본 입력값
+  name                String
+  phone               String
+  jobTitle            String
+  employmentType      String?
+  organizationType    String?
+  birthDate           String?
+  foreignerYn         Boolean                        @default(false)
+  skillLevel          String?
+  subcontractorName   String?
+  note                String?
+  // 정규화 결과
+  normalizedPhone     String?
+  normalizedName      String?
+  normalizedBirth     String?
+  // 중복 판정
+  dedupeStatus        String                         @default("PENDING")   // OK, REVIEW, BLOCK, PENDING
+  dedupeReason        String?
+  matchedWorkerId     String?
+  matchedWorkerName   String?
+  candidatesJson      Json?                          // 후보 목록 JSON
+  // AI 보조
+  aiDecision          String?                        // SAME, DIFFERENT, UNCERTAIN
+  aiConfidence        Float?
+  aiExplanation       String?
+  // 사용자 결정
+  userDecision        String?                        // USE_EXISTING, REGISTER_NEW, CANCEL
+  // 최종 상태
+  validationStatus    BulkImportRowValidationStatus  @default(READY)
+  validationMessage   String?
+  approvedBy          String?
+  approvedAt          DateTime?
+  importedWorkerId    String?
+  createdAt           DateTime                       @default(now())
+  updatedAt           DateTime                       @updatedAt
+
+  job            BulkWorkerImportJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  importedWorker Worker?             @relation(fields: [importedWorkerId], references: [id], onDelete: SetNull)
+
+  @@index([jobId, dedupeStatus])
+  @@index([jobId, validationStatus])
+  @@map("bulk_worker_import_rows")
 }
 
 // ─── v2: 범용 감사 로그 ──────────────────────────────────

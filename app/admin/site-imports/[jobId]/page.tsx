@@ -4,6 +4,14 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 
+interface SiteCandidate {
+  id: string
+  name: string
+  address: string
+  latitude: number
+  longitude: number
+}
+
 interface ImportRow {
   id: string
   rowNumber: number
@@ -13,6 +21,12 @@ interface ImportRow {
   latitude: number | null
   longitude: number | null
   allowedRadiusMeters: number | null
+  dedupeStatus: string | null // OK, REVIEW, BLOCK
+  dedupeReason: string | null
+  matchedSiteId: string | null
+  matchedSiteName: string | null
+  candidatesJson: SiteCandidate[] | null
+  userDecision: string | null // USE_EXISTING, REGISTER_NEW, CANCEL
   validationStatus: 'READY' | 'NEEDS_REVIEW' | 'FAILED' | 'APPROVED' | 'IMPORTED'
   validationMessage: string | null
   approvedBy: string | null
@@ -231,14 +245,14 @@ export default function SiteImportReviewPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr>
-                {['행', '현장명', '원본 주소', '정제 주소', '위도', '경도', '반경(m)', '상태', '메시지', '수정', '승인'].map((h) => (
+                {['행', '현장명', '원본 주소', '정제 주소', '위도', '경도', '반경(m)', '상태', '중복판정', '기존후보', '메시지', '수정', '처리'].map((h) => (
                   <th key={h} className="text-left px-3 py-2.5 text-[11px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] bg-surface whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filteredRows.length === 0 ? (
-                <tr><td colSpan={11} className="text-center py-8 text-[#999]">해당 상태의 행이 없습니다.</td></tr>
+                <tr><td colSpan={13} className="text-center py-8 text-[#999]">해당 상태의 행이 없습니다.</td></tr>
               ) : filteredRows.map((row) => (
                 <>
                   <tr key={row.id} style={{ background: editingId === row.id ? '#f0f7ff' : 'white' }}>
@@ -263,8 +277,35 @@ export default function SiteImportReviewPage() {
                         {STATUS_LABEL[row.validationStatus]}
                       </span>
                     </td>
+                    <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
+                      {row.dedupeStatus && row.dedupeStatus !== 'OK' ? (
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-[10px]"
+                          style={{
+                            color: row.dedupeStatus === 'BLOCK' ? '#b71c1c' : '#e65100',
+                            background: row.dedupeStatus === 'BLOCK' ? '#ffebee' : '#fff3e0',
+                          }}>
+                          {row.dedupeStatus}
+                        </span>
+                      ) : row.dedupeStatus === 'OK' ? (
+                        <span className="text-[11px] text-[#2e7d32]">OK</span>
+                      ) : '-'}
+                    </td>
+                    <td className="px-3 py-2.5 text-[11px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[200px]">
+                      {row.candidatesJson && Array.isArray(row.candidatesJson) && row.candidatesJson.length > 0 ? (
+                        <div className="space-y-1">
+                          {(row.candidatesJson as SiteCandidate[]).map((c, ci) => (
+                            <div key={ci} className="bg-[rgba(91,164,217,0.08)] rounded px-2 py-1">
+                              <div className="font-semibold">{c.name}</div>
+                              <div className="text-[#999] text-[10px]">{c.address}</div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : row.matchedSiteName ? (
+                        <span className="text-[#999]">{row.matchedSiteName}</span>
+                      ) : '-'}
+                    </td>
                     <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top max-w-[160px] text-[11px] text-accent-hover">
-                      {row.validationMessage ?? ''}
+                      {row.dedupeReason ?? row.validationMessage ?? ''}
                     </td>
                     <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top">
                       {!row.importedSiteId && (
@@ -277,6 +318,23 @@ export default function SiteImportReviewPage() {
                     <td className="px-3 py-2.5 text-[13px] border-b border-[rgba(91,164,217,0.1)] align-top text-center">
                       {row.importedSiteId ? (
                         <span className="text-[11px] text-[#4a148c]">등록됨</span>
+                      ) : row.dedupeStatus === 'BLOCK' || row.dedupeStatus === 'REVIEW' ? (
+                        <div className="flex gap-1 flex-col">
+                          <button
+                            onClick={() => patchRow(row.id, { validationStatus: 'APPROVED', userDecision: 'REGISTER_NEW' })}
+                            disabled={saving}
+                            className="px-2 py-1 bg-[#e8f5e9] text-[#2e7d32] border-0 rounded text-[10px] cursor-pointer font-semibold"
+                          >
+                            신규 등록
+                          </button>
+                          <button
+                            onClick={() => patchRow(row.id, { validationStatus: 'FAILED', userDecision: 'CANCEL' })}
+                            disabled={saving}
+                            className="px-2 py-1 bg-[#f5f5f5] text-[#757575] border-0 rounded text-[10px] cursor-pointer font-semibold"
+                          >
+                            취소
+                          </button>
+                        </div>
                       ) : (
                         <input
                           type="checkbox"
@@ -292,7 +350,7 @@ export default function SiteImportReviewPage() {
                   {/* 인라인 수정 폼 */}
                   {editingId === row.id && (
                     <tr key={`${row.id}-edit`} className="bg-[#f0f7ff]">
-                      <td colSpan={11} className="px-5 py-4 border-b-2 border-[#bbdefb]">
+                      <td colSpan={13} className="px-5 py-4 border-b-2 border-[#bbdefb]">
                         <div className="flex gap-3 flex-wrap items-end">
                           <div>
                             <div className="text-[11px] text-muted-brand mb-1">현장명</div>

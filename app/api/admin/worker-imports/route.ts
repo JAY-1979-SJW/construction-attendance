@@ -1,30 +1,26 @@
 /**
- * POST /api/admin/worker-imports
- * 근로자 엑셀 일괄 업로드
+ * POST /api/admin/worker-imports — 근로자 엑셀 업로드 + 중복 판정
+ * GET  /api/admin/worker-imports — 작업 목록
  *
- * 필수 컬럼: 이름, 연락처, 직종
- * 선택 컬럼: 소속, 고용형태, 생년월일, 외국인여부, 숙련도, 비고
- *
- * 행별 검증 → 성공 행만 즉시 등록 → 실패 행은 사유와 함께 반환
+ * OK 건: 즉시 등록
+ * REVIEW/BLOCK 건: 스테이징 후 사용자 확인
  */
 import { NextRequest } from 'next/server'
 import * as XLSX from 'xlsx'
+import { Prisma } from '@prisma/client'
 import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
-import { ok, badRequest, unauthorized, internalError } from '@/lib/utils/response'
+import { ok, created, badRequest, unauthorized, internalError } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { normalizePhone, normalizeName, normalizeBirthDate } from '@/lib/dedupe/normalize'
+import { loadExistingWorkers, classifyWorker, detectInFileDuplicates } from '@/lib/dedupe/worker'
 
-// ─── 컬럼 헤더 정규화 ───────────────────────────────────────
+// ─── 컬럼 헤더 정규화 ─────────────────────────────────────
 function norm(h: string): string {
   return h.trim().toLowerCase().replace(/\s/g, '')
 }
-
 function findCol(headers: string[], keys: string[]): string | null {
   return headers.find(h => keys.includes(norm(h))) ?? null
-}
-
-function normalizePhone(raw: string): string {
-  return raw.replace(/\D/g, '')
 }
 
 const EMPLOYMENT_TYPE_MAP: Record<string, string> = {
@@ -41,6 +37,38 @@ const ORG_TYPE_MAP: Record<string, string> = {
   '외주': 'SUBCONTRACTOR', '협력사': 'SUBCONTRACTOR', '하도급': 'SUBCONTRACTOR', '하청': 'SUBCONTRACTOR',
 }
 
+// ─── GET ─────────────────────────────────────────────────
+export async function GET(_req: NextRequest) {
+  try {
+    const session = await getAdminSession()
+    if (!session) return unauthorized()
+
+    const jobs = await prisma.bulkWorkerImportJob.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+      select: {
+        id: true,
+        originalFilename: true,
+        status: true,
+        totalRows: true,
+        okRows: true,
+        reviewRows: true,
+        blockRows: true,
+        failedRows: true,
+        importedRows: true,
+        uploadedBy: true,
+        createdAt: true,
+      },
+    })
+
+    return ok({ items: jobs })
+  } catch (err) {
+    console.error('[worker-imports GET]', err)
+    return internalError()
+  }
+}
+
+// ─── POST ────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   try {
     const session = await getAdminSession()
@@ -91,142 +119,230 @@ export async function POST(request: NextRequest) {
     const subconCol = findCol(headers, ['협력사', '하도급사', '외주사', 'subcontractor', '협력업체'])
     const noteCol = findCol(headers, ['비고', 'note', 'notes', 'memo', '메모'])
 
-    // 기존 전화번호 목록 (중복 감지용)
-    const existingPhones = new Set(
-      (await prisma.worker.findMany({ select: { phone: true } }))
-        .map(w => w.phone)
-        .filter(Boolean) as string[]
-    )
+    // 기존 근로자 로드 (1회)
+    const existingWorkers = await loadExistingWorkers()
 
     // 파일 내 중복 감지
-    const filePhones: Record<string, number[]> = {}
-    for (let i = 0; i < rawRows.length; i++) {
-      const p = normalizePhone(String(rawRows[i][phoneCol] ?? ''))
-      if (p) {
-        if (!filePhones[p]) filePhones[p] = []
-        filePhones[p].push(i + 2) // 엑셀 행번호
-      }
-    }
+    const phoneEntries = rawRows.map((row, i) => ({
+      rowIndex: i,
+      phone: String(row[phoneCol] ?? ''),
+    }))
+    const inFileDupes = detectInFileDuplicates(phoneEntries)
 
-    const results: Array<{
-      row: number
-      name: string
-      phone: string
-      status: 'success' | 'failed' | 'duplicate_warning'
-      message: string
-      workerId?: string
-    }> = []
+    // Job 생성
+    const job = await prisma.bulkWorkerImportJob.create({
+      data: {
+        uploadedBy: session.sub,
+        originalFilename: file.name,
+        status: 'PROCESSING',
+        totalRows: rawRows.length,
+      },
+    })
 
-    let successCount = 0
-    let failCount = 0
+    let autoInsertedCount = 0
 
     for (let i = 0; i < rawRows.length; i++) {
       const raw = rawRows[i]
-      const rowNum = i + 2
+      const rowNumber = i + 2
       const name = String(raw[nameCol] ?? '').trim()
       const phoneRaw = String(raw[phoneCol] ?? '').trim()
       const jobTitle = String(raw[jobCol] ?? '').trim()
 
       // 필수 검증
-      if (!name) {
-        results.push({ row: rowNum, name: '', phone: phoneRaw, status: 'failed', message: '이름이 비어 있습니다.' })
-        failCount++; continue
-      }
-      if (!phoneRaw) {
-        results.push({ row: rowNum, name, phone: '', status: 'failed', message: '연락처가 비어 있습니다.' })
-        failCount++; continue
-      }
-      if (!jobTitle) {
-        results.push({ row: rowNum, name, phone: phoneRaw, status: 'failed', message: '직종이 비어 있습니다.' })
-        failCount++; continue
+      if (!name || !phoneRaw || !jobTitle) {
+        const missing = [!name && '이름', !phoneRaw && '연락처', !jobTitle && '직종'].filter(Boolean).join(', ')
+        await prisma.bulkWorkerImportRow.create({
+          data: {
+            jobId: job.id, rowNumber, name: name || '(비어있음)', phone: phoneRaw, jobTitle: jobTitle || '',
+            dedupeStatus: 'PENDING',
+            validationStatus: 'FAILED',
+            validationMessage: `필수 항목 누락: ${missing}`,
+          },
+        })
+        continue
       }
 
       const phone = normalizePhone(phoneRaw)
       if (!/^010\d{8}$/.test(phone)) {
-        results.push({ row: rowNum, name, phone: phoneRaw, status: 'failed', message: '010으로 시작하는 11자리 번호가 아닙니다.' })
-        failCount++; continue
+        await prisma.bulkWorkerImportRow.create({
+          data: {
+            jobId: job.id, rowNumber, name, phone: phoneRaw, jobTitle,
+            normalizedPhone: phone,
+            dedupeStatus: 'PENDING',
+            validationStatus: 'FAILED',
+            validationMessage: '010으로 시작하는 11자리 번호가 아닙니다.',
+          },
+        })
+        continue
       }
 
-      // 중복 검사
-      if (existingPhones.has(phone)) {
-        results.push({ row: rowNum, name, phone, status: 'failed', message: '이미 등록된 전화번호입니다.' })
-        failCount++; continue
-      }
-
-      // 파일 내 중복
-      if (filePhones[phone] && filePhones[phone].length > 1) {
-        const otherRows = filePhones[phone].filter(r => r !== rowNum)
-        results.push({ row: rowNum, name, phone, status: 'failed', message: `파일 내 중복 전화번호 (${otherRows.join(',')}행과 동일)` })
-        failCount++; continue
+      // 파일 내 중복 체크
+      if (inFileDupes.has(i)) {
+        const otherRows = inFileDupes.get(i)!.map(r => r + 2)
+        await prisma.bulkWorkerImportRow.create({
+          data: {
+            jobId: job.id, rowNumber, name, phone, jobTitle,
+            normalizedPhone: phone,
+            normalizedName: normalizeName(name),
+            dedupeStatus: 'BLOCK',
+            dedupeReason: `파일 내 전화번호 중복 (${otherRows.join(',')}행과 동일)`,
+            validationStatus: 'NEEDS_REVIEW',
+            validationMessage: `파일 내 전화번호 중복 (${otherRows.join(',')}행)`,
+          },
+        })
+        continue
       }
 
       // 선택 필드 파싱
       const empTypeRaw = empTypeCol ? String(raw[empTypeCol] ?? '').trim().toLowerCase() : ''
       const employmentType = EMPLOYMENT_TYPE_MAP[empTypeRaw] ?? 'DAILY_CONSTRUCTION'
-
       const orgRaw = orgCol ? String(raw[orgCol] ?? '').trim().toLowerCase() : ''
       const organizationType = ORG_TYPE_MAP[orgRaw] ?? 'DIRECT'
 
       let birthDate: string | null = null
       if (birthCol) {
         const bd = String(raw[birthCol] ?? '').replace(/\D/g, '')
-        if (/^\d{8}$/.test(bd)) birthDate = bd
+        if (/^\d{6,8}$/.test(bd)) birthDate = normalizeBirthDate(bd)
       }
 
       const foreignerYn = foreignCol
         ? ['y', 'yes', '예', 'o', '1', 'true', '외국인'].includes(String(raw[foreignCol] ?? '').trim().toLowerCase())
         : false
-
       const skillLevel = skillCol ? String(raw[skillCol] ?? '').trim() || null : null
       const subcontractorName = subconCol ? String(raw[subconCol] ?? '').trim() || null : null
+      const note = noteCol ? String(raw[noteCol] ?? '').trim() || null : null
 
-      // 등록
-      try {
-        const worker = await prisma.worker.create({
+      // DB 기존 근로자와 중복 비교
+      const dedupe = classifyWorker(
+        { name, phone: phoneRaw, birthDate },
+        existingWorkers,
+      )
+
+      const normPhoneVal = normalizePhone(phoneRaw)
+      const normNameVal = normalizeName(name)
+      const normBirthVal = birthDate ? normalizeBirthDate(birthDate) : null
+
+      if (dedupe.status === 'OK') {
+        // 즉시 등록
+        try {
+          const worker = await prisma.worker.create({
+            data: {
+              name,
+              phone,
+              jobTitle,
+              employmentType: employmentType as never,
+              organizationType: organizationType as never,
+              foreignerYn,
+              nationalityCode: foreignerYn ? null : 'KR',
+              skillLevel,
+              birthDate: birthDate ?? undefined,
+              subcontractorName: organizationType === 'SUBCONTRACTOR' ? subcontractorName : null,
+            },
+          })
+
+          await prisma.bulkWorkerImportRow.create({
+            data: {
+              jobId: job.id, rowNumber, name, phone, jobTitle,
+              employmentType, organizationType, birthDate, foreignerYn, skillLevel, subcontractorName, note,
+              normalizedPhone: normPhoneVal, normalizedName: normNameVal, normalizedBirth: normBirthVal,
+              dedupeStatus: 'OK',
+              dedupeReason: dedupe.reason,
+              validationStatus: 'IMPORTED',
+              validationMessage: '즉시 등록 (중복 없음)',
+              importedWorkerId: worker.id,
+            },
+          })
+
+          // 이후 행 비교용으로 새 등록 근로자도 추가
+          existingWorkers.push({
+            id: worker.id, name, phone, birthDate, jobTitle, isActive: true,
+          })
+
+          autoInsertedCount++
+        } catch (err) {
+          const msg = (err as Error).message
+          await prisma.bulkWorkerImportRow.create({
+            data: {
+              jobId: job.id, rowNumber, name, phone, jobTitle,
+              employmentType, organizationType, birthDate, foreignerYn, skillLevel, subcontractorName, note,
+              normalizedPhone: normPhoneVal, normalizedName: normNameVal, normalizedBirth: normBirthVal,
+              dedupeStatus: 'OK',
+              validationStatus: 'FAILED',
+              validationMessage: msg.includes('Unique constraint')
+                ? '전화번호 중복 (동시 등록 충돌)'
+                : `DB 오류: ${msg.slice(0, 80)}`,
+            },
+          })
+        }
+      } else {
+        // REVIEW 또는 BLOCK → 스테이징
+        await prisma.bulkWorkerImportRow.create({
           data: {
-            name,
-            phone,
-            jobTitle,
-            employmentType: employmentType as never,
-            organizationType: organizationType as never,
-            foreignerYn,
-            nationalityCode: foreignerYn ? null : 'KR',
-            skillLevel,
-            birthDate,
-            subcontractorName: organizationType === 'SUBCONTRACTOR' ? subcontractorName : null,
+            jobId: job.id, rowNumber, name, phone, jobTitle,
+            employmentType, organizationType, birthDate, foreignerYn, skillLevel, subcontractorName, note,
+            normalizedPhone: normPhoneVal, normalizedName: normNameVal, normalizedBirth: normBirthVal,
+            dedupeStatus: dedupe.status,
+            dedupeReason: dedupe.reason,
+            matchedWorkerId: dedupe.matchedId,
+            matchedWorkerName: dedupe.matchedName,
+            candidatesJson: dedupe.candidates.length > 0
+              ? dedupe.candidates as unknown as Prisma.InputJsonValue
+              : undefined,
+            validationStatus: 'NEEDS_REVIEW',
+            validationMessage: `[${dedupe.status}] ${dedupe.reason}`,
           },
         })
-
-        existingPhones.add(phone) // 이후 행 중복 방지
-        results.push({ row: rowNum, name, phone, status: 'success', message: '등록 완료', workerId: worker.id })
-        successCount++
-      } catch (err) {
-        const msg = (err as Error).message
-        if (msg.includes('Unique constraint')) {
-          results.push({ row: rowNum, name, phone, status: 'failed', message: '전화번호 중복 (동시 등록 충돌)' })
-        } else {
-          results.push({ row: rowNum, name, phone, status: 'failed', message: `DB 오류: ${msg.slice(0, 80)}` })
-        }
-        failCount++
       }
     }
 
-    // 감사 로그
-    writeAuditLog({
+    // 집계
+    const counts = await prisma.bulkWorkerImportRow.groupBy({
+      by: ['dedupeStatus'],
+      where: { jobId: job.id },
+      _count: { _all: true },
+    })
+    const statusCounts = await prisma.bulkWorkerImportRow.groupBy({
+      by: ['validationStatus'],
+      where: { jobId: job.id },
+      _count: { _all: true },
+    })
+
+    const dedupeMap: Record<string, number> = {}
+    for (const c of counts) dedupeMap[c.dedupeStatus] = c._count._all
+    const statusMap: Record<string, number> = {}
+    for (const c of statusCounts) statusMap[c.validationStatus] = c._count._all
+
+    await prisma.bulkWorkerImportJob.update({
+      where: { id: job.id },
+      data: {
+        status: 'DONE',
+        okRows: dedupeMap['OK'] ?? 0,
+        reviewRows: dedupeMap['REVIEW'] ?? 0,
+        blockRows: dedupeMap['BLOCK'] ?? 0,
+        failedRows: statusMap['FAILED'] ?? 0,
+        importedRows: statusMap['IMPORTED'] ?? 0,
+      },
+    })
+
+    await writeAuditLog({
       actorUserId: session.sub,
       actorType: 'ADMIN',
       actorRole: session.role ?? undefined,
       actionType: 'WORKER_IMPORT_UPLOAD',
-      summary: `근로자 엑셀 업로드: ${file.name} (${rawRows.length}행 → 성공 ${successCount} / 실패 ${failCount})`,
-      metadataJson: { filename: file.name, totalRows: rawRows.length, successCount, failCount },
+      summary: `근로자 엑셀 업로드: ${file.name} (${rawRows.length}행 → 즉시등록 ${autoInsertedCount}, 검토필요 ${(dedupeMap['REVIEW'] ?? 0) + (dedupeMap['BLOCK'] ?? 0)})`,
+      metadataJson: {
+        filename: file.name, totalRows: rawRows.length,
+        autoInserted: autoInsertedCount,
+        review: dedupeMap['REVIEW'] ?? 0,
+        block: dedupeMap['BLOCK'] ?? 0,
+        failed: statusMap['FAILED'] ?? 0,
+      },
     })
 
-    return ok({
-      totalRows: rawRows.length,
-      successCount,
-      failCount,
-      results,
-    })
+    return created(
+      { jobId: job.id },
+      `업로드 완료: ${rawRows.length}행 (즉시등록 ${autoInsertedCount}, 검토필요 ${(dedupeMap['REVIEW'] ?? 0) + (dedupeMap['BLOCK'] ?? 0)})`,
+    )
   } catch (err) {
     console.error('[worker-imports POST]', err)
     return internalError()

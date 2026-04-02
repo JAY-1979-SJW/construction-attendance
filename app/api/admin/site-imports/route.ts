@@ -2,9 +2,11 @@ import { NextRequest } from 'next/server'
 import * as XLSX from 'xlsx'
 import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
+import { Prisma } from '@prisma/client'
 import { ok, created, badRequest, unauthorized, internalError } from '@/lib/utils/response'
 import { geocodeAddress, sleep } from '@/lib/geocoding/geocode'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { loadExistingSites, classifySite } from '@/lib/dedupe/site'
 
 // ─── 컬럼 헤더 정규화 ───────────────────────────────────────
 function normalizeHeader(h: string): string {
@@ -53,7 +55,7 @@ export async function GET(_req: NextRequest) {
   }
 }
 
-// ─── POST /api/admin/site-imports — 엑셀 업로드 + 파싱 + 지오코딩 ─
+// ─── POST /api/admin/site-imports — 엑셀 업로드 + 파싱 + 지오코딩 + DB 중복 비교 ─
 export async function POST(request: NextRequest) {
   try {
     const session = await getAdminSession()
@@ -91,12 +93,15 @@ export async function POST(request: NextRequest) {
       return badRequest(`필수 컬럼을 찾을 수 없습니다. '현장명'과 '주소' 컬럼이 있어야 합니다. (감지된 컬럼: ${headers.join(', ')})`)
     }
 
-    // 중복 현장명 감지 (같은 파일 내)
+    // 파일 내 중복 현장명 감지
     const nameCount: Record<string, number> = {}
     for (const row of rawRows) {
       const n = String(row[nameCol] ?? '').trim()
       if (n) nameCount[n] = (nameCount[n] ?? 0) + 1
     }
+
+    // 기존 현장 로드 (1회)
+    const existingSites = await loadExistingSites()
 
     // Job 생성 (상태 PROCESSING)
     const job = await prisma.bulkSiteImportJob.create({
@@ -108,12 +113,9 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // 각 행 처리 (지오코딩 포함)
-    let readyRows = 0, failedRows = 0
-
     for (let i = 0; i < rawRows.length; i++) {
       const raw = rawRows[i]
-      const rowNumber = i + 2  // 엑셀은 헤더=1행, 데이터는 2행부터
+      const rowNumber = i + 2
       const siteName   = String(raw[nameCol] ?? '').trim()
       const rawAddress = String(raw[addressCol] ?? '').trim()
       const radiusRaw  = radiusCol ? raw[radiusCol] : null
@@ -127,7 +129,7 @@ export async function POST(request: NextRequest) {
             validationStatus: 'FAILED', validationMessage: '현장명이 비어 있습니다.',
           },
         })
-        failedRows++; continue
+        continue
       }
       if (!rawAddress) {
         await prisma.bulkSiteImportRow.create({
@@ -136,10 +138,10 @@ export async function POST(request: NextRequest) {
             validationStatus: 'FAILED', validationMessage: '주소가 비어 있습니다.',
           },
         })
-        failedRows++; continue
+        continue
       }
 
-      // 지오코딩 (Nominatim 사용 시 rate limit 준수)
+      // 지오코딩
       if (i > 0 && !process.env.KAKAO_REST_API_KEY) await sleep(1100)
       const geo = await geocodeAddress(rawAddress)
 
@@ -150,18 +152,37 @@ export async function POST(request: NextRequest) {
             allowedRadiusMeters: allowedRadius,
             validationStatus: 'FAILED',
             validationMessage: '주소 지오코딩 실패 — 좌표를 직접 입력하세요.',
+            dedupeStatus: null,
           },
         })
-        failedRows++; continue
+        continue
       }
 
-      // 검수 필요 조건 판단
+      // DB 기존 현장과 중복 비교
+      const dedupe = classifySite(
+        { name: siteName, address: rawAddress, latitude: geo.latitude, longitude: geo.longitude },
+        existingSites,
+      )
+
+      // 검수 필요 조건 종합 판단
       const issues: string[] = []
       if (!allowedRadius) issues.push('허용 반경 미입력')
       if (nameCount[siteName] > 1) issues.push('파일 내 현장명 중복 의심')
-      if (geo.confidence === 'LOW') issues.push('지오코딩 정확도 낮음 (좌표 확인 필요)')
+      if (geo.confidence === 'LOW') issues.push('지오코딩 정확도 낮음')
 
-      const status = issues.length > 0 ? 'NEEDS_REVIEW' : 'READY'
+      // 중복 판정에 따른 validationStatus 결정
+      let validationStatus: 'READY' | 'NEEDS_REVIEW' | 'FAILED'
+      if (dedupe.status === 'BLOCK') {
+        validationStatus = 'NEEDS_REVIEW'
+        issues.unshift(`[BLOCK] ${dedupe.reason}`)
+      } else if (dedupe.status === 'REVIEW') {
+        validationStatus = 'NEEDS_REVIEW'
+        issues.unshift(`[REVIEW] ${dedupe.reason}`)
+      } else if (issues.length > 0) {
+        validationStatus = 'NEEDS_REVIEW'
+      } else {
+        validationStatus = 'READY'
+      }
 
       await prisma.bulkSiteImportRow.create({
         data: {
@@ -173,16 +194,22 @@ export async function POST(request: NextRequest) {
           latitude: geo.latitude,
           longitude: geo.longitude,
           allowedRadiusMeters: allowedRadius ?? 100,
-          validationStatus: status,
+          // 중복 판정
+          dedupeStatus: dedupe.status,
+          dedupeReason: dedupe.reason,
+          matchedSiteId: dedupe.matchedId,
+          matchedSiteName: dedupe.matchedName,
+          candidatesJson: dedupe.candidates.length > 0
+            ? dedupe.candidates as unknown as Prisma.InputJsonValue
+            : undefined,
+          //
+          validationStatus,
           validationMessage: issues.length > 0 ? issues.join(' / ') : null,
         },
       })
-
-      if (status === 'READY') readyRows++
-      else failedRows++  // NEEDS_REVIEW도 여기 포함 (통계용)
     }
 
-    // 실제 readyRows/failedRows/needsReview 재집계
+    // 집계 재계산
     const counts = await prisma.bulkSiteImportRow.groupBy({
       by: ['validationStatus'],
       where: { jobId: job.id },
@@ -210,7 +237,13 @@ export async function POST(request: NextRequest) {
       targetType: 'BulkSiteImportJob',
       targetId: job.id,
       summary: `현장 엑셀 업로드: ${file.name} (${rawRows.length}행)`,
-      metadataJson: { filename: file.name, totalRows: rawRows.length, readyRows: countMap['READY'] ?? 0 },
+      metadataJson: {
+        filename: file.name,
+        totalRows: rawRows.length,
+        readyRows: countMap['READY'] ?? 0,
+        needsReview: countMap['NEEDS_REVIEW'] ?? 0,
+        failed: countMap['FAILED'] ?? 0,
+      },
     })
 
     return created({ jobId: job.id }, `업로드 완료: ${rawRows.length}행 처리됨`)
