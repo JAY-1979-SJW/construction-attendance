@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 
 interface EmptyStateProps {
   title?: string
@@ -25,9 +25,9 @@ export function EmptyState({
           </svg>
         </div>
       )}
-      <div className="text-[14px] font-semibold text-[#374151] mb-1">{title}</div>
+      <div className="text-[14px] font-semibold text-body-brand mb-1">{title}</div>
       {description && (
-        <p className="text-[13px] text-[#9CA3AF] mb-4 max-w-xs leading-relaxed">{description}</p>
+        <p className="text-[13px] text-muted2-brand mb-4 max-w-xs leading-relaxed">{description}</p>
       )}
       {action && <div className="mt-2">{action}</div>}
     </div>

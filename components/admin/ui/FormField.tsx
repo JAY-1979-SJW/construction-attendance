@@ -1,14 +1,14 @@
-import React from 'react'
+﻿import React from 'react'
 
 /* ─── 공통 스타일 상수 ──────────────────────────────────────── */
 const INPUT_CLS =
-  'w-full h-10 px-3 text-[13px] text-[#111827] bg-white border border-[#E5E7EB] rounded-[8px] outline-none placeholder:text-[#9CA3AF] focus:border-[#F97316] focus:ring-2 focus:ring-[rgba(249,115,22,0.12)] transition-colors disabled:bg-[#F9FAFB] disabled:text-[#9CA3AF] disabled:cursor-not-allowed'
+  'w-full h-10 px-3 text-[13px] text-fore-brand bg-card border border-brand rounded-[8px] outline-none placeholder:text-muted2-brand focus:border-accent focus:ring-2 focus:ring-[rgba(249,115,22,0.12)] transition-colors disabled:bg-surface disabled:text-muted2-brand disabled:cursor-not-allowed'
 
 const SELECT_CLS =
-  'w-full h-10 px-3 text-[13px] text-[#111827] bg-white border border-[#E5E7EB] rounded-[8px] outline-none focus:border-[#F97316] focus:ring-2 focus:ring-[rgba(249,115,22,0.12)] transition-colors disabled:bg-[#F9FAFB] disabled:text-[#9CA3AF] disabled:cursor-not-allowed cursor-pointer appearance-none'
+  'w-full h-10 px-3 text-[13px] text-fore-brand bg-card border border-brand rounded-[8px] outline-none focus:border-accent focus:ring-2 focus:ring-[rgba(249,115,22,0.12)] transition-colors disabled:bg-surface disabled:text-muted2-brand disabled:cursor-not-allowed cursor-pointer appearance-none'
 
 const TEXTAREA_CLS =
-  'w-full px-3 py-2.5 text-[13px] text-[#111827] bg-white border border-[#E5E7EB] rounded-[8px] outline-none placeholder:text-[#9CA3AF] focus:border-[#F97316] focus:ring-2 focus:ring-[rgba(249,115,22,0.12)] transition-colors resize-none disabled:bg-[#F9FAFB] disabled:text-[#9CA3AF]'
+  'w-full px-3 py-2.5 text-[13px] text-fore-brand bg-card border border-brand rounded-[8px] outline-none placeholder:text-muted2-brand focus:border-accent focus:ring-2 focus:ring-[rgba(249,115,22,0.12)] transition-colors resize-none disabled:bg-surface disabled:text-muted2-brand'
 
 /* ─── FormField (label + helper + error 래퍼) ─────────────── */
 export function FormField({
@@ -29,14 +29,14 @@ export function FormField({
   return (
     <div className={`mb-4 last:mb-0 ${className ?? ''}`}>
       {label && (
-        <label className="block text-[12px] font-semibold text-[#374151] mb-1.5">
+        <label className="block text-[12px] font-semibold text-body-brand mb-1.5">
           {label}
           {required && <span className="text-[#EF4444] ml-0.5">*</span>}
         </label>
       )}
       {children}
       {helper && !error && (
-        <p className="text-[11px] text-[#9CA3AF] mt-1 m-0">{helper}</p>
+        <p className="text-[11px] text-muted2-brand mt-1 m-0">{helper}</p>
       )}
       {error && (
         <p className="text-[11px] text-[#EF4444] mt-1 m-0">{error}</p>
@@ -151,7 +151,7 @@ export function ModalFooter({ children, className }: {
   className?: string
 }) {
   return (
-    <div className={`flex items-center justify-end gap-2 pt-4 mt-4 border-t border-[#F3F4F6] ${className ?? ''}`}>
+    <div className={`flex items-center justify-end gap-2 pt-4 mt-4 border-t border-brand ${className ?? ''}`}>
       {children}
     </div>
   )

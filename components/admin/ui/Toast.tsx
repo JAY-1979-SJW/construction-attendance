@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Toast / Alert — 인라인 알림
  *
  * 기준 수치 (safety-docs 기준표):
@@ -15,10 +15,10 @@ export function Toast({
   variant?: 'success' | 'error' | 'warning' | 'info'
 }) {
   const cls: Record<string, string> = {
-    success: 'bg-[#D1FAE5] text-[#065F46]',
-    error:   'bg-[#FEE2E2] text-[#B91C1C]',
-    warning: 'bg-[#FEF3C7] text-[#92400E]',
-    info:    'bg-[#EFF6FF] text-[#1E40AF]',
+    success: 'bg-[#D1FAE5] text-status-approved',
+    error:   'bg-red-light text-status-missing',
+    warning: 'bg-yellow-light text-status-pending',
+    info:    'bg-blue-light text-[#1E40AF]',
   }
   return (
     <div className={`mb-3 p-2.5 text-[12px] rounded-[8px] ${cls[variant]}`}>
@@ -44,8 +44,8 @@ export function MetaRow({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="text-[#9CA3AF] text-[13px] w-[72px] shrink-0">{label}</span>
-      <span className="text-[#111827] text-[13px] min-w-0 break-words">{children}</span>
+      <span className="text-muted2-brand text-[13px] w-[72px] shrink-0">{label}</span>
+      <span className="text-fore-brand text-[13px] min-w-0 break-words">{children}</span>
     </div>
   )
 }

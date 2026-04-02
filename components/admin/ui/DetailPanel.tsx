@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React from 'react'
 
@@ -35,11 +35,11 @@ export function DetailPanel({
 
       {/* 패널 */}
       <div
-        className="fixed top-0 right-0 h-screen bg-white z-50 flex flex-col shadow-xl"
+        className="fixed top-0 right-0 h-screen bg-card z-50 flex flex-col shadow-xl"
         style={{ width }}
       >
         {/* 4px 오렌지 상단 라인 */}
-        <div className="h-1 bg-[#F97316] shrink-0" />
+        <div className="h-1 bg-brand-accent shrink-0" />
 
         {/* 헤더 */}
         <div
@@ -47,14 +47,14 @@ export function DetailPanel({
           style={{ borderBottom: '1px solid #E5E7EB' }}
         >
           <div>
-            <h2 className="text-[15px] font-bold text-[#0F172A] m-0 leading-snug">{title}</h2>
+            <h2 className="text-[15px] font-bold text-title-brand m-0 leading-snug">{title}</h2>
             {subtitle && (
-              <p className="text-[12px] text-[#9CA3AF] mt-0.5 m-0">{subtitle}</p>
+              <p className="text-[12px] text-muted2-brand mt-0.5 m-0">{subtitle}</p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-[6px] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#374151] transition-colors shrink-0 ml-3 mt-0.5"
+            className="w-7 h-7 flex items-center justify-center rounded-[6px] text-muted2-brand hover:bg-footer hover:text-body-brand transition-colors shrink-0 ml-3 mt-0.5"
             aria-label="닫기"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">

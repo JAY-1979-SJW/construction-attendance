@@ -1,4 +1,4 @@
-// FilterBar — 필터 영역 래퍼
+﻿// FilterBar — 필터 영역 래퍼
 export function FilterBar({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex gap-2 mb-4 items-center flex-wrap">
@@ -13,8 +13,8 @@ export function FilterInput(props: React.InputHTMLAttributes<HTMLInputElement>) 
   return (
     <input
       {...rest}
-      className={`h-9 px-3 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#111827] bg-white
-        focus:outline-none focus:border-[#F97316] placeholder:text-[#9CA3AF] ${className ?? ''}`}
+      className={`h-9 px-3 border border-brand rounded-[8px] text-[13px] text-fore-brand bg-white
+        focus:outline-none focus:border-accent placeholder:text-muted2-brand ${className ?? ''}`}
     />
   )
 }
@@ -25,8 +25,8 @@ export function FilterSelect(props: React.SelectHTMLAttributes<HTMLSelectElement
   return (
     <select
       {...rest}
-      className={`h-9 px-3 border border-[#E5E7EB] rounded-[8px] text-[13px] text-[#111827] bg-white
-        cursor-pointer focus:outline-none focus:border-[#F97316] ${className ?? ''}`}
+      className={`h-9 px-3 border border-brand rounded-[8px] text-[13px] text-fore-brand bg-white
+        cursor-pointer focus:outline-none focus:border-accent ${className ?? ''}`}
     />
   )
 }
@@ -47,8 +47,8 @@ export function FilterPill({
       onClick={onClick}
       className={`h-9 px-3 rounded-[8px] text-[12px] font-semibold border cursor-pointer transition-colors ${
         active
-          ? 'bg-[#F97316] border-[#F97316] text-white'
-          : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:border-[#D1D5DB] hover:text-[#374151]'
+          ? 'bg-brand-accent border-accent text-white'
+          : 'bg-white border-brand text-muted-brand hover:border-[#D1D5DB] hover:text-body-brand'
       }`}
     >
       {children}

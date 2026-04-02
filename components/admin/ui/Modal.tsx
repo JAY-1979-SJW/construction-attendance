@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React from 'react'
 
@@ -31,16 +31,16 @@ export function Modal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div
-        className="bg-white rounded-[12px] shadow-xl w-full max-h-[85vh] overflow-y-auto mx-4"
+        className="bg-card rounded-[12px] shadow-xl w-full max-h-[85vh] overflow-y-auto mx-4"
         style={{ maxWidth: width }}
         onClick={e => e.stopPropagation()}
       >
         {/* 헤더 — h-[52px] topbar 리듬 */}
-        <div className="h-[52px] flex items-center px-5 border-b border-[#E5E7EB] shrink-0">
-          <h2 className="text-[15px] font-bold text-[#0F172A] m-0 flex-1">{title}</h2>
+        <div className="h-[52px] flex items-center px-5 border-b border-brand shrink-0">
+          <h2 className="text-[15px] font-bold text-title-brand m-0 flex-1">{title}</h2>
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-[6px] text-[#9CA3AF] hover:bg-[#F3F4F6] hover:text-[#374151] transition-colors shrink-0 ml-3 border-none bg-transparent cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center rounded-[6px] text-muted2-brand hover:bg-footer hover:text-body-brand transition-colors shrink-0 ml-3 border-none bg-transparent cursor-pointer"
             aria-label="닫기"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">

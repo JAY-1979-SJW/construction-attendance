@@ -1,4 +1,4 @@
-// AdminTable — 표준 테이블 컨테이너
+﻿// AdminTable — 표준 테이블 컨테이너
 export function AdminTable({
   headers,
   children,
@@ -9,15 +9,15 @@ export function AdminTable({
   className?: string
 }) {
   return (
-    <div className={`bg-white rounded-[12px] border border-[#E5E7EB] overflow-hidden ${className ?? ''}`}>
+    <div className={`bg-card rounded-[12px] border border-brand overflow-hidden ${className ?? ''}`}>
       <div className="overflow-x-auto max-h-[calc(100vh-220px)] overflow-y-auto">
         <table className="w-full border-collapse">
           <thead className="sticky top-0 z-10">
-            <tr className="bg-[#F3F4F6]">
+            <tr className="bg-footer">
               {headers.map((h, i) => (
                 <th
                   key={i}
-                  className="text-left px-3 py-[10px] text-[11px] font-bold text-[#4B5563] border-b border-[#E5E7EB] whitespace-nowrap bg-[#F3F4F6]"
+                  className="text-left px-3 py-[10px] text-[11px] font-bold text-body-brand border-b border-brand whitespace-nowrap bg-footer"
                 >
                   {h}
                 </th>
@@ -49,7 +49,7 @@ export function AdminTr({
       className={`border-b border-[#F9FAFB] last:border-b-0 transition-colors ${
         onClick ? 'cursor-pointer' : ''
       } ${
-        highlighted ? 'bg-[#FFF1F2] hover:bg-[#FFE4E6]' : 'hover:bg-[#FAFAFA]'
+        highlighted ? 'bg-[#FFF1F2] hover:bg-[#FFE4E6]' : 'hover:bg-surface'
       } ${className ?? ''}`}
     >
       {children}
@@ -66,7 +66,7 @@ export function AdminTd({
   className?: string
 }) {
   return (
-    <td className={`px-3 py-[10px] text-[13px] text-[#374151] whitespace-nowrap ${className ?? ''}`}>
+    <td className={`px-3 py-[10px] text-[13px] text-body-brand whitespace-nowrap ${className ?? ''}`}>
       {children}
     </td>
   )
@@ -76,7 +76,7 @@ export function AdminTd({
 export function EmptyRow({ colSpan = 99, message = '데이터가 없습니다.' }: { colSpan?: number; message?: string }) {
   return (
     <tr>
-      <td colSpan={colSpan} className="text-center py-12 text-[#9CA3AF] text-[13px]">
+      <td colSpan={colSpan} className="text-center py-12 text-muted2-brand text-[13px]">
         {message}
       </td>
     </tr>
