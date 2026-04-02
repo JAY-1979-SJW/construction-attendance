@@ -50,8 +50,17 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<PdfTextResult>
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js')
 
+  // 서버 사이드: worker 비활성화 (standalone 빌드 시 worker 경로 문제 방지)
+  pdfjsLib.GlobalWorkerOptions.workerSrc = ''
+
   const data = new Uint8Array(buffer)
-  const doc = await pdfjsLib.getDocument({ data }).promise
+  const doc = await pdfjsLib.getDocument({
+    data,
+    isEvalSupported: false,
+    useWorkerFetch: false,
+    disableAutoFetch: true,
+    disableWorker: true,
+  }).promise
 
   let text = ''
   for (let i = 1; i <= doc.numPages; i++) {
