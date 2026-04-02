@@ -15,14 +15,17 @@ function getSecret(): Uint8Array {
   return _secret
 }
 
-export async function signToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): Promise<string> {
-  // admin: 1일, worker: 7일 (환경변수로 override 가능)
+export async function signToken(
+  payload: Omit<JwtPayload, 'iat' | 'exp'>,
+  expiresIn?: string,
+): Promise<string> {
+  // admin: 1일, worker: 7일 (환경변수로 override 가능, 호출자가 직접 지정도 가능)
   const defaultExpiry = payload.type === 'admin' ? '1d' : '7d'
-  const expiresIn = process.env.JWT_EXPIRES_IN ?? defaultExpiry
+  const resolvedExpiry = expiresIn ?? process.env.JWT_EXPIRES_IN ?? defaultExpiry
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: algorithm })
     .setIssuedAt()
-    .setExpirationTime(expiresIn)
+    .setExpirationTime(resolvedExpiry)
     .sign(getSecret())
 }
 

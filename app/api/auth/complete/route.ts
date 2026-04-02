@@ -29,6 +29,11 @@ export async function GET(req: Request) {
   const email = session.user.email
   const name = session.user.name ?? '사용자'
 
+  const ua = req.headers.get('user-agent') ?? ''
+  const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+  const workerTokenExpiry = isMobile ? '365d' : undefined
+  const workerCookieMaxAge = isMobile ? 60 * 60 * 24 * 365 : 60 * 60 * 24 * 7
+
   // 쿠키에서 가입 의도 확인
   const cookieStore = await cookies()
   const authIntent = cookieStore.get('auth_intent')?.value
@@ -84,11 +89,11 @@ export async function GET(req: Request) {
 
       // 프로필 미완성 (jobTitle이 미설정이면) → 프로필 완성 페이지
       if (existingWorker.jobTitle === '미설정') {
-        const token = await signToken({ sub: existingWorker.id, type: 'worker' })
+        const token = await signToken({ sub: existingWorker.id, type: 'worker' }, workerTokenExpiry)
         const res = NextResponse.redirect(`${BASE_URL}/register/complete`)
         res.cookies.set('worker_token', token, {
           httpOnly: true, secure: true, sameSite: 'lax',
-          maxAge: 60 * 60 * 24 * 7, path: '/',
+          maxAge: workerCookieMaxAge, path: '/',
         })
         clearIntentCookies(res)
         return res
@@ -96,21 +101,21 @@ export async function GET(req: Request) {
 
       // 승인 대기 중이면 pending 페이지
       if (existingWorker.accountStatus === 'PENDING') {
-        const token = await signToken({ sub: existingWorker.id, type: 'worker' })
+        const token = await signToken({ sub: existingWorker.id, type: 'worker' }, workerTokenExpiry)
         const res = NextResponse.redirect(`${BASE_URL}/register/pending`)
         res.cookies.set('worker_token', token, {
           httpOnly: true, secure: true, sameSite: 'lax',
-          maxAge: 60 * 60 * 24 * 7, path: '/',
+          maxAge: workerCookieMaxAge, path: '/',
         })
         clearIntentCookies(res)
         return res
       }
 
-      const token = await signToken({ sub: existingWorker.id, type: 'worker' })
+      const token = await signToken({ sub: existingWorker.id, type: 'worker' }, workerTokenExpiry)
       const res = NextResponse.redirect(`${BASE_URL}/attendance`)
       res.cookies.set('worker_token', token, {
         httpOnly: true, secure: true, sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, path: '/',
+        maxAge: workerCookieMaxAge, path: '/',
       })
       clearIntentCookies(res)
       return res
@@ -136,11 +141,11 @@ export async function GET(req: Request) {
       },
     })
 
-    const token = await signToken({ sub: worker.id, type: 'worker' })
+    const token = await signToken({ sub: worker.id, type: 'worker' }, workerTokenExpiry)
     const res = NextResponse.redirect(`${BASE_URL}/register/complete`)
     res.cookies.set('worker_token', token, {
       httpOnly: true, secure: true, sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, path: '/',
+      maxAge: workerCookieMaxAge, path: '/',
     })
     clearIntentCookies(res)
     return res

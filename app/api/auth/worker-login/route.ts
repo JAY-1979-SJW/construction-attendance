@@ -58,10 +58,12 @@ export async function POST(req: NextRequest) {
     resetRateLimit(`worker-login:ip:${ip}`)
     resetRateLimit(`worker-login:email:${email}`)
 
-    const token = await signToken({
-      sub: worker.id,
-      type: 'worker',
-    })
+    const ua = req.headers.get('user-agent') ?? ''
+    const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+    const tokenExpiry = isMobile ? '365d' : undefined
+    const cookieMaxAge = isMobile ? 60 * 60 * 24 * 365 : 60 * 60 * 24 * 7
+
+    const token = await signToken({ sub: worker.id, type: 'worker' }, tokenExpiry)
 
     const response = NextResponse.json({
       success: true,
@@ -71,7 +73,7 @@ export async function POST(req: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7일
+      maxAge: cookieMaxAge,
       path: '/',
     })
 
