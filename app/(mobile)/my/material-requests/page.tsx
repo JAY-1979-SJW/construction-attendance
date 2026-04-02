@@ -164,7 +164,7 @@ export default function MaterialRequestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 pb-24 overflow-x-hidden">
       <WorkerTopBar />
       <div className="px-4 pt-4">
         <div className="flex gap-2 mb-4">
