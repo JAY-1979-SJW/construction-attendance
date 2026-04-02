@@ -93,7 +93,7 @@ export async function GET(req: Request) {
         const res = NextResponse.redirect(`${BASE_URL}/register/complete`)
         res.cookies.set('worker_token', token, {
           httpOnly: true, secure: true, sameSite: 'lax',
-          maxAge: workerCookieMaxAge, path: '/',
+          maxAge: workerCookieMaxAge, expires: new Date(Date.now() + workerCookieMaxAge * 1000), path: '/',
         })
         clearIntentCookies(res)
         return res
@@ -105,7 +105,7 @@ export async function GET(req: Request) {
         const res = NextResponse.redirect(`${BASE_URL}/register/pending`)
         res.cookies.set('worker_token', token, {
           httpOnly: true, secure: true, sameSite: 'lax',
-          maxAge: workerCookieMaxAge, path: '/',
+          maxAge: workerCookieMaxAge, expires: new Date(Date.now() + workerCookieMaxAge * 1000), path: '/',
         })
         clearIntentCookies(res)
         return res

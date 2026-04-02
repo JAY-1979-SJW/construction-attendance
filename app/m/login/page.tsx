@@ -1,7 +1,7 @@
 'use client'
 
 import { signIn } from 'next-auth/react'
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
@@ -37,6 +37,14 @@ function LoginContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+
+  // 이미 로그인된 경우 출퇴근 페이지로 자동 이동
+  useEffect(() => {
+    if (errorKey) return
+    fetch('/api/auth/me').then(r => r.json()).then(d => {
+      if (d.success) router.replace('/attendance')
+    }).catch(() => {})
+  }, [router, errorKey])
 
   const handleOAuth = (p: string) => { setLoading(p); signIn(p, { callbackUrl: '/api/auth/complete' }) }
 
