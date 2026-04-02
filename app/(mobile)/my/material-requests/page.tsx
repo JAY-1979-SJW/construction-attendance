@@ -272,7 +272,7 @@ export default function MaterialRequestsPage() {
               ))}
             </div>
             <button onClick={handleSubmit} disabled={submitting}
-              className="w-full py-3.5 rounded-xl text-[15px] font-bold bg-brand-accent text-white border-none cursor-pointer disabled:bg-gray-300">
+              className="w-full h-12 rounded-xl text-sm font-bold bg-brand-accent text-white border-none cursor-pointer disabled:bg-gray-300">
               {submitting ? '제출 중...' : '자재 청구 제출'}
             </button>
           </div>

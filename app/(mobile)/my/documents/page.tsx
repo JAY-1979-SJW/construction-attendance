@@ -114,7 +114,7 @@ export default function MyDocumentsPage() {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <WorkerTopBar />
 
-      <main className="flex-1 pb-20 pt-14">
+      <main className="flex-1 pb-24 pt-[64px]">
         {/* 투입 필수 문서 바로가기 */}
         <Link href="/my/onboarding" className="block mx-4 mt-2 mb-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl no-underline">
           <div className="flex items-center justify-between">

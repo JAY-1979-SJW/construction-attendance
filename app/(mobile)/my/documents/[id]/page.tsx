@@ -95,7 +95,7 @@ export default function DocumentDetailPage() {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <WorkerTopBar />
 
-      <main className="flex-1 pb-20 pt-14">
+      <main className="flex-1 pb-24 pt-[64px]">
         {/* 뒤로가기 */}
         <div className="px-4 pt-3 pb-1">
           <button
