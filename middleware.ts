@@ -121,11 +121,27 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // ── 모바일 감지 → /m/ 리다이렉트 ─────────────────────────────
+  const MOBILE_REDIRECT_PAGES = ['/', '/login', '/register', '/register/company-admin', '/register/complete', '/register/pending', '/guide']
+  if (MOBILE_REDIRECT_PAGES.includes(pathname) && !pathname.startsWith('/m/') && !pathname.startsWith('/api/')) {
+    const ua = request.headers.get('user-agent') ?? ''
+    const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+    if (isMobile) {
+      const mobilePath = pathname === '/' ? '/m' : `/m${pathname}`
+      return NextResponse.redirect(new URL(mobilePath, request.url))
+    }
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
   matcher: [
+    '/',
+    '/login',
+    '/register',
+    '/register/:path*',
+    '/guide',
     '/admin/:path*',
     '/api/admin/:path*',
     '/company/:path*',

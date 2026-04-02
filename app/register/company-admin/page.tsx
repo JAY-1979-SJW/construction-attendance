@@ -25,7 +25,7 @@ function PasswordInput({ value, onChange, placeholder }: { value: string; onChan
   )
 }
 
-const INPUT_CLS = "w-full px-3 py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[15px] box-border bg-[rgba(255,255,255,0.06)] text-white outline-none"
+const INPUT_CLS = "w-full h-12 px-4 text-[15px] bg-white border border-gray-200 rounded-xl outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
 
 export default function CompanyAdminRegisterPage() {
   const router = useRouter()
