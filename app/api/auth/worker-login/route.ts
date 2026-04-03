@@ -1,6 +1,6 @@
 /**
  * POST /api/auth/worker-login
- * 근로자 이메일/비밀번호 로그인
+ * 근로자 핸드폰번호/비밀번호 로그인
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
@@ -11,7 +11,7 @@ import { badRequest, unauthorized, internalError } from '@/lib/utils/response'
 import { checkRateLimit, resetRateLimit } from '@/lib/auth/rate-limit'
 
 const schema = z.object({
-  email:    z.string().email(),
+  phone:    z.string().regex(/^010\d{8}$/, '올바른 휴대폰 번호를 입력하세요'),
   password: z.string().min(1),
 })
 
@@ -21,15 +21,15 @@ export async function POST(req: NextRequest) {
     const parsed = schema.safeParse(body)
     if (!parsed.success) return badRequest(parsed.error.errors[0].message)
 
-    const { email, password } = parsed.data
+    const { phone, password } = parsed.data
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
 
     // Rate limiting
     const ipCheck = checkRateLimit(`worker-login:ip:${ip}`, { maxAttempts: 10, windowMs: 60_000 })
-    const emailCheck = checkRateLimit(`worker-login:email:${email}`, { maxAttempts: 5, windowMs: 60_000 })
+    const phoneCheck = checkRateLimit(`worker-login:phone:${phone}`, { maxAttempts: 5, windowMs: 60_000 })
 
-    if (!ipCheck.allowed || !emailCheck.allowed) {
-      const retrySec = Math.ceil(Math.max(ipCheck.retryAfterMs, emailCheck.retryAfterMs) / 1000)
+    if (!ipCheck.allowed || !phoneCheck.allowed) {
+      const retrySec = Math.ceil(Math.max(ipCheck.retryAfterMs, phoneCheck.retryAfterMs) / 1000)
       return NextResponse.json(
         { success: false, message: `로그인 시도가 너무 많습니다. ${retrySec}초 후 다시 시도해주세요.` },
         { status: 429 }
@@ -37,12 +37,12 @@ export async function POST(req: NextRequest) {
     }
 
     const worker = await prisma.worker.findFirst({
-      where: { email },
-      select: { id: true, name: true, email: true, passwordHash: true, isActive: true, accountStatus: true },
+      where: { phone },
+      select: { id: true, name: true, phone: true, passwordHash: true, isActive: true, accountStatus: true },
     })
 
     if (!worker || !worker.passwordHash) {
-      return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
+      return unauthorized('핸드폰 번호 또는 비밀번호가 올바르지 않습니다.')
     }
 
     if (!worker.isActive) {
@@ -51,12 +51,12 @@ export async function POST(req: NextRequest) {
 
     const valid = await bcrypt.compare(password, worker.passwordHash)
     if (!valid) {
-      return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
+      return unauthorized('핸드폰 번호 또는 비밀번호가 올바르지 않습니다.')
     }
 
     // 성공 → rate limit 초기화
     resetRateLimit(`worker-login:ip:${ip}`)
-    resetRateLimit(`worker-login:email:${email}`)
+    resetRateLimit(`worker-login:phone:${phone}`)
 
     const ua = req.headers.get('user-agent') ?? ''
     const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({
       success: true,
-      data: { id: worker.id, name: worker.name, email: worker.email, accountStatus: worker.accountStatus },
+      data: { id: worker.id, name: worker.name, phone: worker.phone, accountStatus: worker.accountStatus },
     })
     response.cookies.set('worker_token', token, {
       httpOnly: true,
