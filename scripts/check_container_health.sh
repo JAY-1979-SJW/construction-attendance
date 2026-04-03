@@ -93,10 +93,10 @@ const http = require('http');
 const start = Date.now();
 http.get('http://localhost:3002/api/health', r => {
   const elapsed = ((Date.now() - start) / 1000).toFixed(3);
-  process.stdout.write(r.statusCode + '|' + elapsed);
+  console.log(r.statusCode + '|' + elapsed);
   process.exit(0);
 }).on('error', () => {
-  process.stdout.write('000|0');
+  console.log('000|0');
   process.exit(1);
 });
 " 2>/dev/null || echo "000|timeout"
@@ -107,8 +107,8 @@ const http = require('http');
 http.get('http://localhost:3002/api/health', r => {
   let d = '';
   r.on('data', c => d += c);
-  r.on('end', () => process.stdout.write(d));
-}).on('error', () => process.stdout.write('ERROR:health_failed'));
+  r.on('end', () => console.log(d));
+}).on('error', () => console.log('ERROR:health_failed'));
 " 2>/dev/null || echo "ERROR:health_failed"
 
 echo "===SECTION:ERROR_LOG==="
