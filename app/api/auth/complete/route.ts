@@ -122,7 +122,7 @@ export async function GET(req: Request) {
         httpOnly: true, secure: true, sameSite: 'lax',
         maxAge: workerCookieMaxAge, path: '/',
       })
-      res.cookies.set('_w_rt', refreshTok, { httpOnly: false, secure: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 3650, path: '/' })
+      res.cookies.set('worker_rt', refreshTok, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 3650, expires: new Date(Date.now() + 60 * 60 * 24 * 3650 * 1000), path: '/' })
       clearIntentCookies(res)
       return res
     }
@@ -154,7 +154,7 @@ export async function GET(req: Request) {
       httpOnly: true, secure: true, sameSite: 'lax',
       maxAge: workerCookieMaxAge, path: '/',
     })
-    res.cookies.set('_w_rt', refreshTok, { httpOnly: false, secure: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 3650, path: '/' })
+    res.cookies.set('worker_rt', refreshTok, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 3650, expires: new Date(Date.now() + 60 * 60 * 24 * 3650 * 1000), path: '/' })
     clearIntentCookies(res)
     return res
   } catch (err) {

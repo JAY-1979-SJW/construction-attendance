@@ -4370,3 +4370,14 @@ model OnboardingDocTemplate {
   @@index([docType, isActive])
   @@map("onboarding_doc_templates")
 }
+
+// ─── 토큰 블랙리스트 (로그아웃 시 토큰 무효화, DB 영속) ─────────
+model TokenBlacklist {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+  @@map("token_blacklist")
+}

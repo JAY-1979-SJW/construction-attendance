@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
       const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
       const { payload } = await jwtVerify(token, secret)
       const exp = (payload.exp ?? 0) * 1000
-      addToBlacklist(token, exp)
+      await addToBlacklist(token, exp)
     } catch {
       // 만료된 토큰이면 블랙리스트 불필요
     }

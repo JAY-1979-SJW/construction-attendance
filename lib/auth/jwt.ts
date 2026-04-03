@@ -31,7 +31,7 @@ export async function signToken(
 
 export async function verifyToken(token: string): Promise<JwtPayload | null> {
   try {
-    if (isBlacklisted(token)) return null
+    if (await isBlacklisted(token)) return null
     const { payload } = await jwtVerify(token, getSecret())
     return payload as unknown as JwtPayload
   } catch {

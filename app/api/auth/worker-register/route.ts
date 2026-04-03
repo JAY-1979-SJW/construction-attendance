@@ -56,11 +56,13 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // JWT 발급 (프로필 완성은 이미 되어 있으므로 바로 토큰 발급)
-    const token = await signToken({
-      sub: worker.id,
-      type: 'worker',
-    })
+    const ua = req.headers.get('user-agent') ?? ''
+    const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+    const tokenExpiry = isMobile ? '3650d' : '30d'
+    const cookieMaxAge = isMobile ? 60 * 60 * 24 * 3650 : 60 * 60 * 24 * 30
+
+    const token = await signToken({ sub: worker.id, type: 'worker' }, tokenExpiry)
+    const refreshToken = await signToken({ sub: worker.id, type: 'refresh' }, '3650d')
 
     const response = NextResponse.json({
       success: true,
@@ -69,9 +71,18 @@ export async function POST(req: NextRequest) {
     })
     response.cookies.set('worker_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: true,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7일
+      maxAge: cookieMaxAge,
+      expires: new Date(Date.now() + cookieMaxAge * 1000),
+      path: '/',
+    })
+    response.cookies.set('worker_rt', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 3650,
+      expires: new Date(Date.now() + 60 * 60 * 24 * 3650 * 1000),
       path: '/',
     })
 
