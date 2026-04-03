@@ -133,6 +133,15 @@ run_full() {
     AUDIT_OK="FAIL"
   fi
 
+  local CONTAINER_OK="NOT_RUN"
+  echo "" >> "$REPORT"
+  echo "=== 컨테이너 헬스체크 ===" >> "$REPORT"
+  if bash "$SCRIPT_DIR/check_container_health.sh" >> "$REPORT" 2>&1; then
+    CONTAINER_OK="PASS"
+  else
+    CONTAINER_OK="FAIL"
+  fi
+
   # 결과 요약
   {
     echo ""
@@ -141,14 +150,16 @@ run_full() {
     echo " 웹 점검: $WEB_OK"
     echo " 시나리오: $SCENARIO_OK"
     echo " 정적 분석: $AUDIT_OK"
+    echo " 컨테이너: $CONTAINER_OK"
 
-    if [ "$WEB_OK" = "PASS" ] && [ "$SCENARIO_OK" = "PASS" ] && [ "$AUDIT_OK" = "PASS" ]; then
+    if [ "$WEB_OK" = "PASS" ] && [ "$SCENARIO_OK" = "PASS" ] && [ "$AUDIT_OK" = "PASS" ] && [ "$CONTAINER_OK" = "PASS" ]; then
       echo " 종합: ALL PASS"
     else
       local fails=""
       [ "$WEB_OK" = "FAIL" ] && fails="${fails} 웹점검"
       [ "$SCENARIO_OK" = "FAIL" ] && fails="${fails} 시나리오"
       [ "$AUDIT_OK" = "FAIL" ] && fails="${fails} 정적분석"
+      [ "$CONTAINER_OK" = "FAIL" ] && fails="${fails} 컨테이너"
       echo " 종합: FAIL — ${fails}"
     fi
   } | tee -a "$REPORT"
@@ -160,9 +171,10 @@ run_full() {
     echo "web=$WEB_OK"
     echo "scenario=$SCENARIO_OK"
     echo "audit=$AUDIT_OK"
+    echo "container=$CONTAINER_OK"
   } > "$LOG_DIR/last_check_status.txt"
 
-  if [ "$WEB_OK" = "PASS" ] && [ "$SCENARIO_OK" = "PASS" ] && [ "$AUDIT_OK" = "PASS" ]; then
+  if [ "$WEB_OK" = "PASS" ] && [ "$SCENARIO_OK" = "PASS" ] && [ "$AUDIT_OK" = "PASS" ] && [ "$CONTAINER_OK" = "PASS" ]; then
     return 0
   else
     return 1

@@ -111,52 +111,46 @@ export default function AttendancePage() {
 
   // ── 초기 데이터 로딩 ─────────────────────────────────────────
   useEffect(() => {
-    console.log('[attendance] app init start')
-
     async function loadSession() {
-      console.log('[attendance] session check start')
       let meData = await fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json()).catch(() => ({ success: false }))
 
       if (!meData.success) {
         // worker_token 쿠키 누락 → worker_rt HttpOnly 쿠키로 복구 시도
-        console.log('[attendance] session fail, trying refresh (worker_rt cookie)')
+        console.warn('[attendance] session fail, trying refresh (worker_rt cookie)')
         const refreshRes = await fetch('/api/auth/refresh', {
           method: 'POST',
           credentials: 'include',
         }).catch(() => null)
         if (refreshRes?.ok) {
-          console.log('[attendance] refresh ok, retrying /api/auth/me')
+          console.info('[attendance] refresh ok, retrying /api/auth/me')
           meData = await fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json()).catch(() => ({ success: false }))
         } else {
-          console.log('[attendance] refresh failed → redirect /login')
+          console.warn('[attendance] refresh failed → redirect /login')
         }
       }
 
       if (!meData.success) {
-        console.log('[attendance] session check fail → redirect /login')
+        console.warn('[attendance] session check fail → redirect /login')
         router.push('/login')
         return
       }
 
       const todayData = await fetch('/api/attendance/today', { credentials: 'include' }).then((r) => r.json()).catch(() => ({ success: false, data: null }))
       // 세션 유효 → onboarding_done 복원 (UX 전용, auth 판정에 사용 안 함)
-      console.log('[attendance] session check success, accountStatus:', meData.data?.accountStatus)
       if (typeof window !== 'undefined' && !localStorage.getItem('onboarding_done')) {
         localStorage.setItem('onboarding_done', 'true')
       }
       // PENDING / REJECTED 사용자 → 승인대기 또는 로그인으로 이동
-      console.log('[attendance] route decision: accountStatus =', meData.data?.accountStatus)
       if (meData.data.accountStatus === 'PENDING') {
-        console.log('[attendance] redirect /register/pending')
+        console.info('[attendance] redirect /register/pending')
         router.push('/register/pending')
         return
       }
       if (meData.data.accountStatus === 'REJECTED') {
-        console.log('[attendance] redirect /login?error=inactive')
+        console.warn('[attendance] redirect /login?error=inactive')
         router.push('/login?error=inactive')
         return
       }
-      console.log('[attendance] route decision: authenticated, loading page')
       setWorker(meData.data)
       setToday(todayData.data)
       setLoading(false)

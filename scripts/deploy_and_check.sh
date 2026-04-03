@@ -37,6 +37,7 @@ WEB_STATUS="NOT_RUN"
 SCENARIO_STATUS="NOT_RUN"
 MOBILE_UI_STATUS="NOT_RUN"
 AUDIT_STATUS="NOT_RUN"
+CONTAINER_STATUS="NOT_RUN"
 
 WARN_ITEMS=""
 FAIL_ITEMS=""
@@ -243,6 +244,32 @@ fi
 out ""
 
 # ══════════════════════════════════════════════════
+# STEP: 컨테이너 헬스체크
+# ══════════════════════════════════════════════════
+STEP=$((STEP + 1))
+outc "▶ STEP $STEP: ${CYAN}컨테이너 헬스체크${NC}"
+out "────────────────────────────────"
+CONTAINER_OUTPUT=$(bash "$SCRIPT_DIR/check_container_health.sh" 2>&1) || true
+CONTAINER_EXIT=$?
+echo "$CONTAINER_OUTPUT" | tee -a "$REPORT"
+
+if echo "$CONTAINER_OUTPUT" | grep -q "NOT TESTED\|NOT_TESTED"; then
+  CONTAINER_STATUS="NOT_TESTED"
+  WARN_ITEMS="${WARN_ITEMS} 컨테이너(미검증)"
+elif [ "$CONTAINER_EXIT" -eq 0 ]; then
+  if echo "$CONTAINER_OUTPUT" | grep -q "WARN"; then
+    CONTAINER_STATUS="WARN"
+    WARN_ITEMS="${WARN_ITEMS} 컨테이너"
+  else
+    CONTAINER_STATUS="PASS"
+  fi
+else
+  CONTAINER_STATUS="FAIL"
+  FAIL_ITEMS="${FAIL_ITEMS} 컨테이너"
+fi
+out ""
+
+# ══════════════════════════════════════════════════
 # 최종 보고
 # ══════════════════════════════════════════════════
 COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
@@ -275,6 +302,7 @@ show_status "웹 점검" "$WEB_STATUS"
 show_status "시나리오" "$SCENARIO_STATUS"
 show_status "모바일 UI" "$MOBILE_UI_STATUS"
 show_status "정적 분석" "$AUDIT_STATUS"
+show_status "컨테이너" "$CONTAINER_STATUS"
 
 # 종합 판정
 out ""
@@ -317,6 +345,7 @@ fi
   echo "scenario_check=$SCENARIO_STATUS"
   echo "mobile_ui=$MOBILE_UI_STATUS"
   echo "audit=$AUDIT_STATUS"
+  echo "container=$CONTAINER_STATUS"
   echo "fail_items=${FAIL_ITEMS:-none}"
   echo "warn_items=${WARN_ITEMS:-none}"
 } > "$LOG_DIR/last_deploy_status.txt"
