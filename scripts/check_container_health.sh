@@ -87,21 +87,29 @@ echo "===SECTION:CONTAINER_INSPECT==="
 docker inspect attendance --format '{{.State.Status}}|{{.State.Health.Status}}|{{.RestartCount}}|{{.State.StartedAt}}' 2>/dev/null || echo "ERROR:inspect_failed"
 
 echo "===SECTION:PORT_CHECK==="
-# 포트 응답 확인 — Docker 내부 네트워크 경유 (expose only, no host port binding)
-CONTAINER_IP=$(docker inspect attendance --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 2>/dev/null || echo "")
-if [ -n "$CONTAINER_IP" ]; then
-  curl -s -o /dev/null -w "%{http_code}|%{time_total}" --max-time 10 "http://${CONTAINER_IP}:3002/api/health" 2>/dev/null || echo "000|timeout"
-else
-  # fallback: docker exec
-  docker exec attendance curl -s -o /dev/null -w "%{http_code}|%{time_total}" --max-time 10 http://localhost:3002/api/health 2>/dev/null || echo "000|timeout"
-fi
+# 포트 응답 — Docker healthcheck과 동일 방식 (node 내부에서 확인)
+docker exec attendance node -e "
+const http = require('http');
+const start = Date.now();
+http.get('http://localhost:3002/api/health', r => {
+  const elapsed = ((Date.now() - start) / 1000).toFixed(3);
+  process.stdout.write(r.statusCode + '|' + elapsed);
+  process.exit(0);
+}).on('error', () => {
+  process.stdout.write('000|0');
+  process.exit(1);
+});
+" 2>/dev/null || echo "000|timeout"
 
 echo "===SECTION:HEALTH_BODY==="
-if [ -n "$CONTAINER_IP" ]; then
-  curl -s --max-time 10 "http://${CONTAINER_IP}:3002/api/health" 2>/dev/null || echo "ERROR:health_failed"
-else
-  docker exec attendance curl -s --max-time 10 http://localhost:3002/api/health 2>/dev/null || echo "ERROR:health_failed"
-fi
+docker exec attendance node -e "
+const http = require('http');
+http.get('http://localhost:3002/api/health', r => {
+  let d = '';
+  r.on('data', c => d += c);
+  r.on('end', () => process.stdout.write(d));
+}).on('error', () => process.stdout.write('ERROR:health_failed'));
+" 2>/dev/null || echo "ERROR:health_failed"
 
 echo "===SECTION:ERROR_LOG==="
 # 최근 에러 로그 100줄
