@@ -57,7 +57,6 @@ function LoginContent() {
       const res = await fetch('/api/auth/worker-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email, password }) })
       const json = await res.json()
       if (!res.ok) { setError(json.message || '로그인 실패'); setLoading(null); return }
-      if (json.refreshToken) localStorage.setItem('_w_rt', json.refreshToken)
       if (json.data?.accountStatus === 'PENDING') { router.push('/m/register/pending'); return }
       router.push('/attendance')
     } catch { setError('서버 오류'); setLoading(null) }

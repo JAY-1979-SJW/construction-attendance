@@ -69,7 +69,6 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json({
       success: true,
       data: { id: worker.id, name: worker.name, email: worker.email, accountStatus: worker.accountStatus },
-      refreshToken,
     })
     response.cookies.set('worker_token', token, {
       httpOnly: true,
@@ -77,6 +76,14 @@ export async function POST(req: NextRequest) {
       sameSite: 'lax',
       maxAge: cookieMaxAge,
       expires: new Date(Date.now() + cookieMaxAge * 1000),
+      path: '/',
+    })
+    response.cookies.set('worker_rt', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 3650,
+      expires: new Date(Date.now() + 60 * 60 * 24 * 3650 * 1000),
       path: '/',
     })
 

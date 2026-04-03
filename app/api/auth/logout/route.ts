@@ -17,5 +17,6 @@ export async function POST(request: NextRequest) {
 
   const response = NextResponse.json({ success: true, message: '로그아웃되었습니다.' })
   response.cookies.delete('worker_token')
+  response.cookies.delete('worker_rt')
   return response
 }

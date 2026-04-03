@@ -1,6 +1,7 @@
 /**
  * POST /api/auth/refresh
- * localStorage에 저장된 refresh token으로 worker_token 쿠키 재발급
+ * worker_rt HttpOnly 쿠키로 worker_token 쿠키 재발급
+ * 클라이언트는 토큰 값을 직접 보거나 보관하지 않는다.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
@@ -9,9 +10,7 @@ import { unauthorized, internalError } from '@/lib/utils/response'
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json().catch(() => ({}))
-    const refreshToken: string | undefined = body?.refreshToken
-
+    const refreshToken = req.cookies.get('worker_rt')?.value
     if (!refreshToken) return unauthorized('refresh token이 없습니다.')
 
     const payload = await verifyToken(refreshToken)
@@ -21,9 +20,8 @@ export async function POST(req: NextRequest) {
 
     const worker = await prisma.worker.findUnique({
       where: { id: payload.sub },
-      select: { id: true, isActive: true, accountStatus: true },
+      select: { id: true, isActive: true },
     })
-
     if (!worker || !worker.isActive) {
       return unauthorized('비활성화된 계정입니다.')
     }

@@ -113,38 +113,22 @@ export default function AttendancePage() {
   useEffect(() => {
     console.log('[attendance] app init start')
 
-    // OAuth 흐름: 서버가 _w_rt 비httpOnly 쿠키로 전달 → localStorage로 이관 후 쿠키 삭제
-    if (typeof document !== 'undefined') {
-      const match = document.cookie.match(/(?:^|;\s*)_w_rt=([^;]+)/)
-      if (match) {
-        console.log('[attendance] _w_rt cookie found → moving to localStorage')
-        localStorage.setItem('_w_rt', decodeURIComponent(match[1]))
-        document.cookie = '_w_rt=; Max-Age=0; path=/; secure; samesite=lax'
-      }
-    }
-
     async function loadSession() {
       console.log('[attendance] session check start')
       let meData = await fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json()).catch(() => ({ success: false }))
 
       if (!meData.success) {
-        // 쿠키 세션 없음 → refresh token으로 복구 시도
-        const rt = typeof localStorage !== 'undefined' ? localStorage.getItem('_w_rt') : null
-        if (rt) {
-          console.log('[attendance] session fail, trying refresh token')
-          const refreshRes = await fetch('/api/auth/refresh', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ refreshToken: rt }),
-          }).catch(() => null)
-          if (refreshRes?.ok) {
-            console.log('[attendance] refresh ok, retrying /api/auth/me')
-            meData = await fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json()).catch(() => ({ success: false }))
-          } else {
-            console.log('[attendance] refresh failed, clearing _w_rt')
-            localStorage.removeItem('_w_rt')
-          }
+        // worker_token 쿠키 누락 → worker_rt HttpOnly 쿠키로 복구 시도
+        console.log('[attendance] session fail, trying refresh (worker_rt cookie)')
+        const refreshRes = await fetch('/api/auth/refresh', {
+          method: 'POST',
+          credentials: 'include',
+        }).catch(() => null)
+        if (refreshRes?.ok) {
+          console.log('[attendance] refresh ok, retrying /api/auth/me')
+          meData = await fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json()).catch(() => ({ success: false }))
+        } else {
+          console.log('[attendance] refresh failed → redirect /login')
         }
       }
 
