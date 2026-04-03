@@ -43,7 +43,7 @@ export default function MySitesPage() {
         ) : (
           <div className="space-y-3">
             {sites.map(site => (
-              <div key={site.siteId} className="bg-card rounded-2xl p-4 shadow-sm border border-gray-100">
+              <div key={site.siteId} className="bg-card rounded-2xl p-4 shadow-sm border border-brand">
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <div className="font-bold text-base text-gray-800 leading-snug">

@@ -131,7 +131,7 @@ export default function WorkCompletePage() {
             )}
 
             {/* 작업완료 사진 */}
-            <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
+            <div className="bg-card rounded-2xl p-4 mb-4 border border-brand">
               <div className="flex justify-between items-center mb-3">
                 <label className="text-sm font-semibold text-gray-700">작업완료 사진</label>
                 <span className="text-[13px] leading-5 text-gray-400">{photos.length}/5장</span>
@@ -156,7 +156,7 @@ export default function WorkCompletePage() {
             </div>
 
             {/* 작업 이상 없음 확인서 */}
-            <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
+            <div className="bg-card rounded-2xl p-4 mb-4 border border-brand">
               <label className="text-sm font-semibold text-gray-700 block mb-3">작업 완료 확인서</label>
 
               <div className="bg-blue-50 rounded-xl p-4 mb-3 text-[13px] text-gray-600 leading-relaxed">
@@ -187,7 +187,7 @@ export default function WorkCompletePage() {
             </div>
 
             {/* 건강이상 없음 확인 */}
-            <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
+            <div className="bg-card rounded-2xl p-4 mb-4 border border-brand">
               <label className="text-sm font-semibold text-gray-700 block mb-3">건강이상 없음 확인</label>
 
               <div className="bg-gray-50 rounded-xl p-4 mb-3 text-[13px] text-gray-600 leading-relaxed">
@@ -213,7 +213,7 @@ export default function WorkCompletePage() {
 
             {/* 서명 */}
             {workNoIssue && healthChecked && (
-              <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
+              <div className="bg-card rounded-2xl p-4 mb-4 border border-brand">
                 <label className="text-sm font-semibold text-gray-700 block mb-2">작업완료 + 건강확인 서명</label>
                 <p className="text-[13px] leading-5 text-gray-500 mb-3">
                   본인은 금일 작업 완료 시 이상이 없었으며, 건강에도 이상이 없음을 아래 서명으로 확인합니다.

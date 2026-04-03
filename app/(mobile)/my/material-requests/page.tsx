@@ -189,7 +189,7 @@ export default function MaterialRequestsPage() {
             <div className="space-y-3">{requests.map(req => {
               const st = STATUS_MAP[req.status] || STATUS_MAP.DRAFT
               return (
-                <div key={req.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                <div key={req.id} className="bg-card rounded-2xl p-4 shadow-sm border border-brand">
                   <div className="flex justify-between items-start mb-1">
                     <div className="font-bold text-sm text-gray-800">{req.title}</div>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${st.bg} ${st.color}`}>{st.label}</span>

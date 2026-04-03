@@ -219,7 +219,7 @@ export default function MyOnboardingPage() {
                 const isResubmit = doc.status === 'REJECTED' || doc.status === 'EXPIRED'
 
                 return (
-                  <div key={doc.id} className="bg-card rounded-2xl p-4 shadow-sm border border-gray-100">
+                  <div key={doc.id} className="bg-card rounded-2xl p-4 shadow-sm border border-brand">
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <div className="font-bold text-base leading-snug text-gray-800">{doc.label}</div>

@@ -35,6 +35,12 @@ CURL_OPTS=-s --max-time 30
 # 8~12월: 평일(월~금) 09:00 (평일 매일)
 0 9 * * 1-5 [ $(date +\%m) -gt 7 ] && curl $CURL_OPTS "$APP_URL/api/cron/check-rate-sources" -H "Authorization: Bearer $CRON_SECRET" >> /var/log/attendance-cron.log 2>&1
 
+# ─── 매 30분 — 빠른 웹 점검 ─────────────────────────────────
+*/30 * * * * cd ~/app/attendance && bash scripts/scheduled_check.sh --quick >> /var/log/attendance-check.log 2>&1
+
+# ─── 매일 06:00 — 전체 시나리오 점검 ────────────────────────
+0 6 * * * cd ~/app/attendance && bash scripts/scheduled_check.sh --full >> /var/log/attendance-check.log 2>&1
+
 # ═══════════════════════════════════════════════════════════
 #  설정 방법:
 #    1. crontab -e

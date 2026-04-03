@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   testDir: '.',
@@ -10,5 +10,21 @@ export default defineConfig({
   },
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' } },
+    {
+      name: 'mobile-iphone13',
+      use: {
+        ...devices['iPhone 13'],
+        screenshot: 'on',
+      },
+      testMatch: 'mobile-card-ui.spec.ts',
+    },
+    {
+      name: 'mobile-galaxy-s21',
+      use: {
+        ...devices['Galaxy S9+'],
+        screenshot: 'on',
+      },
+      testMatch: 'mobile-card-ui.spec.ts',
+    },
   ],
 })

@@ -76,7 +76,7 @@ export default function WorkOrdersPage() {
                 {unconfirmed.map(o => {
                   const pr = PRIORITY_STYLE[o.priority] || PRIORITY_STYLE.NORMAL
                   return (
-                    <div key={o.id} className="bg-white rounded-2xl p-4 mb-3 shadow-sm border-2 border-orange-200">
+                    <div key={o.id} className="bg-card rounded-2xl p-4 mb-3 shadow-sm border-2 border-orange-200">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -106,7 +106,7 @@ export default function WorkOrdersPage() {
                 {confirmed.map(o => {
                   const pr = PRIORITY_STYLE[o.priority] || PRIORITY_STYLE.NORMAL
                   return (
-                    <div key={o.id} className="bg-white rounded-2xl p-4 mb-2 shadow-sm border border-gray-100 opacity-80">
+                    <div key={o.id} className="bg-card rounded-2xl p-4 mb-2 shadow-sm border border-brand opacity-80">
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${pr.bg} ${pr.color}`}>{pr.label}</span>
                         <span className="font-bold text-sm text-gray-700 flex-1">{o.title}</span>

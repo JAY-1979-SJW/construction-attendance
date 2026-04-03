@@ -68,3 +68,8 @@ secrets/
 
 # backup files
 *.bak
+
+# 운영 점검 로그 및 스크린샷
+logs/
+test-results/
+playwright-report/

@@ -70,7 +70,7 @@ export default function TbmPage() {
         ) : (
           <div className="space-y-4">
             {records.map(tbm => (
-              <div key={tbm.id} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+              <div key={tbm.id} className="bg-card rounded-2xl p-5 shadow-sm border border-brand">
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <div className="text-[13px] leading-5 text-gray-400 mb-1">{tbm.siteName}</div>
