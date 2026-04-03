@@ -42,15 +42,42 @@ export async function POST(request: NextRequest) {
     }
 
     const admin = await prisma.adminUser.findUnique({ where: { email }, select: { id: true, name: true, email: true, passwordHash: true, role: true, isActive: true, companyId: true } })
-    if (!admin || !admin.isActive) {
+
+    // 계정 없음 → 승인대기 신청 여부 확인
+    if (!admin) {
+      const pendingRequest = await prisma.companyAdminRequest.findFirst({
+        where: { email, status: 'PENDING' },
+        select: { id: true },
+      })
       writeAuditLog({
         actionType: 'ADMIN_LOGIN_FAILED',
         actorType: 'SYSTEM',
-        summary: `로그인 실패 (계정 미존재/비활성): ${email}`,
-        metadataJson: { email, reason: !admin ? 'NOT_FOUND' : 'INACTIVE' },
+        summary: `로그인 실패 (계정 미존재): ${email}`,
+        metadataJson: { email, reason: 'NOT_FOUND', hasPendingRequest: !!pendingRequest },
         ipAddress: ip,
       })
+      if (pendingRequest) {
+        return NextResponse.json(
+          { success: false, message: '승인 대기 중인 계정입니다.' },
+          { status: 403 }
+        )
+      }
       return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
+    }
+
+    // 비활성 계정
+    if (!admin.isActive) {
+      writeAuditLog({
+        actionType: 'ADMIN_LOGIN_FAILED',
+        actorType: 'SYSTEM',
+        summary: `로그인 실패 (비활성 계정): ${email}`,
+        metadataJson: { email, reason: 'INACTIVE' },
+        ipAddress: ip,
+      })
+      return NextResponse.json(
+        { success: false, message: '비활성 처리된 계정입니다. 관리자에게 문의하세요.' },
+        { status: 403 }
+      )
     }
 
     const valid = await bcrypt.compare(password, admin.passwordHash)
