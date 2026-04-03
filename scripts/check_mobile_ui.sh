@@ -72,7 +72,7 @@ cd "$PROJECT_DIR"
 # Playwright 실행
 echo "" | tee -a "$RESULT_FILE"
 echo "▶ Playwright 테스트 실행 중..." | tee -a "$RESULT_FILE"
-npx playwright test e2e/mobile-card-ui.spec.ts $PROJECTS --reporter=list 2>&1 | tee -a "$RESULT_FILE"
+npx playwright test e2e/mobile-card-ui.spec.ts $PROJECTS --config=e2e/playwright.config.ts --reporter=list 2>&1 | tee -a "$RESULT_FILE"
 EXIT_CODE=${PIPESTATUS[0]}
 
 echo "" | tee -a "$RESULT_FILE"

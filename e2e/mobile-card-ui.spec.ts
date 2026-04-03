@@ -148,7 +148,16 @@ async function checkNoElementOverlap(page: Page) {
       document.querySelectorAll('button, a, input, select, textarea, [role="button"]')
     ).filter(el => {
       const style = window.getComputedStyle(el)
-      return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0'
+      if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false
+      // fixed/absolute 요소 또는 그 자손 제외 (플로팅 위젯, 인풋 내부 토글 등 의도적 배치)
+      if (style.position === 'fixed' || style.position === 'absolute') return false
+      let ancestor = el.parentElement
+      while (ancestor) {
+        const aStyle = window.getComputedStyle(ancestor)
+        if (aStyle.position === 'fixed') return false
+        ancestor = ancestor.parentElement
+      }
+      return true
     })
 
     const overlapping: string[] = []
@@ -158,6 +167,9 @@ async function checkNoElementOverlap(page: Page) {
       if (r1.width === 0 || r1.height === 0) continue
 
       for (let j = i + 1; j < interactives.length && j < 50; j++) {
+        // 부모-자식 관계면 의도적 배치 → 제외
+        if (interactives[i].contains(interactives[j]) || interactives[j].contains(interactives[i])) continue
+
         const r2 = interactives[j].getBoundingClientRect()
         if (r2.width === 0 || r2.height === 0) continue
 
