@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
+type Tab = 'phone' | 'email'
+
 function PwInput({ value, onChange, placeholder, onKeyDown }: {
   value: string; onChange: (v: string) => void; placeholder?: string; onKeyDown?: (e: React.KeyboardEvent) => void
 }) {
@@ -23,11 +25,15 @@ function PwInput({ value, onChange, placeholder, onKeyDown }: {
   )
 }
 
+const INPUT = "w-full h-[50px] px-4 text-[16px] bg-white border border-gray-200 rounded-2xl outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+
 function LoginContent() {
   const router = useRouter()
   const params = useSearchParams()
   const errorKey = params.get('error') ?? ''
+  const [tab, setTab] = useState<Tab>('phone')
   const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -39,7 +45,9 @@ function LoginContent() {
     }).catch(() => {})
   }, [router, errorKey])
 
-  const handleLogin = async () => {
+  const switchTab = (t: Tab) => { setTab(t); setError(''); setPassword('') }
+
+  const handlePhoneLogin = async () => {
     if (!phone || !password) { setError('핸드폰 번호와 비밀번호를 입력하세요.'); return }
     setLoading(true); setError('')
     try {
@@ -54,36 +62,91 @@ function LoginContent() {
     } catch { setError('서버 오류'); setLoading(false) }
   }
 
-  const errMsg = error || (errorKey === 'inactive' ? '비활성화된 계정입니다.' : errorKey ? '로그인 중 오류' : '')
+  const handleEmailLogin = async () => {
+    if (!email || !password) { setError('이메일과 비밀번호를 입력하세요.'); return }
+    setLoading(true); setError('')
+    try {
+      const res = await fetch('/api/admin/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      const json = await res.json()
+      if (!res.ok) { setError(json.message || '로그인 실패'); setLoading(false); return }
+      router.push(json.portal || '/admin')
+    } catch { setError('서버 오류'); setLoading(false) }
+  }
+
+  const globalError = errorKey === 'inactive' ? '비활성화된 계정입니다.' : errorKey ? '로그인 중 오류' : ''
 
   return (
     <div className="px-5 py-8">
       <Logo />
-      <h1 className="text-[24px] font-bold text-gray-900 mb-1.5">로그인</h1>
-      <p className="text-[15px] text-gray-500 mb-6">핸드폰 번호와 비밀번호를 입력하세요.</p>
-      {errMsg && <div className="mb-5 rounded-2xl px-4 py-3.5 text-[14px] text-red-600 bg-red-50 border border-red-100">{errMsg}</div>}
 
-      <div className="space-y-3">
-        <div>
-          <label className="block text-[14px] font-semibold text-gray-700 mb-2">핸드폰 번호</label>
-          <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
-            placeholder="01012345678" autoComplete="tel" inputMode="numeric"
-            className="w-full h-[50px] px-4 text-[16px] bg-white border border-gray-200 rounded-2xl outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100" />
-        </div>
-        <div>
-          <label className="block text-[14px] font-semibold text-gray-700 mb-2">비밀번호</label>
-          <PwInput value={password} onChange={setPassword} placeholder="비밀번호" onKeyDown={e => e.key === 'Enter' && handleLogin()} />
-        </div>
-        <button onClick={handleLogin} disabled={loading}
-          className="w-full h-[50px] text-[16px] font-bold text-white bg-orange-500 active:bg-orange-600 rounded-2xl border-none cursor-pointer disabled:opacity-50">
-          {loading ? '로그인 중...' : '로그인'}
+      {/* 탭 */}
+      <div className="flex mb-6 border-b border-gray-200">
+        <button onClick={() => switchTab('phone')}
+          className={`flex-1 pb-3 text-[15px] font-semibold border-b-2 transition-colors bg-transparent cursor-pointer ${tab === 'phone' ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-400'}`}>
+          핸드폰 로그인
+        </button>
+        <button onClick={() => switchTab('email')}
+          className={`flex-1 pb-3 text-[15px] font-semibold border-b-2 transition-colors bg-transparent cursor-pointer ${tab === 'email' ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-400'}`}>
+          이메일 로그인
         </button>
       </div>
 
-      <div className="flex justify-center gap-4 mt-6 text-[13px]">
-        <Link href="/m/register" className="text-gray-500 no-underline">회원가입</Link>
-        <Link href="/m" className="text-gray-500 no-underline">메인으로</Link>
-      </div>
+      {(globalError || error) && <div className="mb-5 rounded-2xl px-4 py-3.5 text-[14px] text-red-600 bg-red-50 border border-red-100">{globalError || error}</div>}
+
+      {/* 핸드폰 로그인 탭 */}
+      {tab === 'phone' && (
+        <>
+          <p className="text-[14px] text-gray-500 mb-4">근로자 계정으로 로그인합니다.</p>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-[14px] font-semibold text-gray-700 mb-2">핸드폰 번호</label>
+              <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+                placeholder="01012345678" autoComplete="tel" inputMode="numeric" className={INPUT} />
+            </div>
+            <div>
+              <label className="block text-[14px] font-semibold text-gray-700 mb-2">비밀번호</label>
+              <PwInput value={password} onChange={setPassword} placeholder="비밀번호" onKeyDown={e => e.key === 'Enter' && handlePhoneLogin()} />
+            </div>
+            <button onClick={handlePhoneLogin} disabled={loading}
+              className="w-full h-[50px] text-[16px] font-bold text-white bg-orange-500 active:bg-orange-600 rounded-2xl border-none cursor-pointer disabled:opacity-50">
+              {loading ? '로그인 중...' : '로그인'}
+            </button>
+          </div>
+          <div className="flex justify-center gap-4 mt-6 text-[13px]">
+            <Link href="/m/register" className="text-gray-500 no-underline">회원가입</Link>
+            <Link href="/m" className="text-gray-500 no-underline">메인으로</Link>
+          </div>
+        </>
+      )}
+
+      {/* 이메일 로그인 탭 */}
+      {tab === 'email' && (
+        <>
+          <p className="text-[14px] text-gray-500 mb-4">관리자 / 사업자 계정으로 로그인합니다.</p>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-[14px] font-semibold text-gray-700 mb-2">이메일</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="admin@example.com" autoComplete="email" className={INPUT} />
+            </div>
+            <div>
+              <label className="block text-[14px] font-semibold text-gray-700 mb-2">비밀번호</label>
+              <PwInput value={password} onChange={setPassword} placeholder="비밀번호" onKeyDown={e => e.key === 'Enter' && handleEmailLogin()} />
+            </div>
+            <button onClick={handleEmailLogin} disabled={loading}
+              className="w-full h-[50px] text-[16px] font-bold text-white bg-orange-500 active:bg-orange-600 rounded-2xl border-none cursor-pointer disabled:opacity-50">
+              {loading ? '로그인 중...' : '로그인'}
+            </button>
+          </div>
+          <div className="flex justify-center gap-4 mt-6 text-[13px]">
+            <Link href="/m/register/company-admin" className="text-gray-500 no-underline">사업자 가입 신청</Link>
+            <Link href="/m" className="text-gray-500 no-underline">메인으로</Link>
+          </div>
+        </>
+      )}
     </div>
   )
 }
