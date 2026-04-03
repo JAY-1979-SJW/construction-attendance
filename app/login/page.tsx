@@ -80,6 +80,7 @@ function LoginContent() {
         setLoading(null)
         return
       }
+      if (json.refreshToken) localStorage.setItem('_w_rt', json.refreshToken)
       // 승인 대기 중인 경우
       if (json.data?.accountStatus === 'PENDING') {
         router.push('/register/pending')

@@ -1,6 +1,6 @@
 export interface JwtPayload {
   sub: string       // workerId or adminId
-  type: 'worker' | 'admin'
+  type: 'worker' | 'admin' | 'refresh'
   deviceToken?: string
   role?: string
   companyId?: string  // COMPANY_ADMIN / EXTERNAL_SITE_ADMIN — 업체 데이터 스코프 기준

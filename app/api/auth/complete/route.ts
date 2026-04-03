@@ -90,11 +90,13 @@ export async function GET(req: Request) {
       // 프로필 미완성 (jobTitle이 미설정이면) → 프로필 완성 페이지
       if (existingWorker.jobTitle === '미설정') {
         const token = await signToken({ sub: existingWorker.id, type: 'worker' }, workerTokenExpiry)
+        const refreshTok = await signToken({ sub: existingWorker.id, type: 'refresh' }, '3650d')
         const res = NextResponse.redirect(`${BASE_URL}/register/complete`)
         res.cookies.set('worker_token', token, {
           httpOnly: true, secure: true, sameSite: 'lax',
           maxAge: workerCookieMaxAge, expires: new Date(Date.now() + workerCookieMaxAge * 1000), path: '/',
         })
+        res.cookies.set('_w_rt', refreshTok, { httpOnly: false, secure: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 3650, path: '/' })
         clearIntentCookies(res)
         return res
       }
@@ -102,21 +104,25 @@ export async function GET(req: Request) {
       // 승인 대기 중이면 pending 페이지
       if (existingWorker.accountStatus === 'PENDING') {
         const token = await signToken({ sub: existingWorker.id, type: 'worker' }, workerTokenExpiry)
+        const refreshTok = await signToken({ sub: existingWorker.id, type: 'refresh' }, '3650d')
         const res = NextResponse.redirect(`${BASE_URL}/register/pending`)
         res.cookies.set('worker_token', token, {
           httpOnly: true, secure: true, sameSite: 'lax',
           maxAge: workerCookieMaxAge, expires: new Date(Date.now() + workerCookieMaxAge * 1000), path: '/',
         })
+        res.cookies.set('_w_rt', refreshTok, { httpOnly: false, secure: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 3650, path: '/' })
         clearIntentCookies(res)
         return res
       }
 
       const token = await signToken({ sub: existingWorker.id, type: 'worker' }, workerTokenExpiry)
+      const refreshTok = await signToken({ sub: existingWorker.id, type: 'refresh' }, '3650d')
       const res = NextResponse.redirect(`${BASE_URL}/attendance`)
       res.cookies.set('worker_token', token, {
         httpOnly: true, secure: true, sameSite: 'lax',
         maxAge: workerCookieMaxAge, path: '/',
       })
+      res.cookies.set('_w_rt', refreshTok, { httpOnly: false, secure: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 3650, path: '/' })
       clearIntentCookies(res)
       return res
     }
@@ -142,11 +148,13 @@ export async function GET(req: Request) {
     })
 
     const token = await signToken({ sub: worker.id, type: 'worker' }, workerTokenExpiry)
+    const refreshTok = await signToken({ sub: worker.id, type: 'refresh' }, '3650d')
     const res = NextResponse.redirect(`${BASE_URL}/register/complete`)
     res.cookies.set('worker_token', token, {
       httpOnly: true, secure: true, sameSite: 'lax',
       maxAge: workerCookieMaxAge, path: '/',
     })
+    res.cookies.set('_w_rt', refreshTok, { httpOnly: false, secure: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 3650, path: '/' })
     clearIntentCookies(res)
     return res
   } catch (err) {

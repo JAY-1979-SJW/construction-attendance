@@ -64,10 +64,12 @@ export async function POST(req: NextRequest) {
     const cookieMaxAge = isMobile ? 60 * 60 * 24 * 3650 : 60 * 60 * 24 * 30
 
     const token = await signToken({ sub: worker.id, type: 'worker' }, tokenExpiry)
+    const refreshToken = await signToken({ sub: worker.id, type: 'refresh' }, '3650d')
 
     const response = NextResponse.json({
       success: true,
       data: { id: worker.id, name: worker.name, email: worker.email, accountStatus: worker.accountStatus },
+      refreshToken,
     })
     response.cookies.set('worker_token', token, {
       httpOnly: true,

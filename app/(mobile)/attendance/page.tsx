@@ -112,18 +112,49 @@ export default function AttendancePage() {
   // ── 초기 데이터 로딩 ─────────────────────────────────────────
   useEffect(() => {
     console.log('[attendance] app init start')
-    console.log('[attendance] session check start')
 
-    Promise.all([
-      fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json()),
-      fetch('/api/attendance/today', { credentials: 'include' }).then((r) => r.json()),
-    ]).then(([meData, todayData]) => {
+    // OAuth 흐름: 서버가 _w_rt 비httpOnly 쿠키로 전달 → localStorage로 이관 후 쿠키 삭제
+    if (typeof document !== 'undefined') {
+      const match = document.cookie.match(/(?:^|;\s*)_w_rt=([^;]+)/)
+      if (match) {
+        console.log('[attendance] _w_rt cookie found → moving to localStorage')
+        localStorage.setItem('_w_rt', decodeURIComponent(match[1]))
+        document.cookie = '_w_rt=; Max-Age=0; path=/; secure; samesite=lax'
+      }
+    }
+
+    async function loadSession() {
+      console.log('[attendance] session check start')
+      let meData = await fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json()).catch(() => ({ success: false }))
+
       if (!meData.success) {
-        // 세션 없음 → localStorage 무관하게 항상 로그인 페이지로
+        // 쿠키 세션 없음 → refresh token으로 복구 시도
+        const rt = typeof localStorage !== 'undefined' ? localStorage.getItem('_w_rt') : null
+        if (rt) {
+          console.log('[attendance] session fail, trying refresh token')
+          const refreshRes = await fetch('/api/auth/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ refreshToken: rt }),
+          }).catch(() => null)
+          if (refreshRes?.ok) {
+            console.log('[attendance] refresh ok, retrying /api/auth/me')
+            meData = await fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json()).catch(() => ({ success: false }))
+          } else {
+            console.log('[attendance] refresh failed, clearing _w_rt')
+            localStorage.removeItem('_w_rt')
+          }
+        }
+      }
+
+      if (!meData.success) {
         console.log('[attendance] session check fail → redirect /login')
         router.push('/login')
         return
       }
+
+      const todayData = await fetch('/api/attendance/today', { credentials: 'include' }).then((r) => r.json()).catch(() => ({ success: false, data: null }))
       // 세션 유효 → onboarding_done 복원 (UX 전용, auth 판정에 사용 안 함)
       console.log('[attendance] session check success, accountStatus:', meData.data?.accountStatus)
       if (typeof window !== 'undefined' && !localStorage.getItem('onboarding_done')) {
@@ -150,7 +181,9 @@ export default function AttendancePage() {
         .then((r) => r.json())
         .then((d) => { if (d.success) setHistory(d.data.items) })
         .catch(() => {})
-    }).catch((err) => {
+    }
+
+    loadSession().catch((err) => {
       console.error('[attendance] session check error:', err)
       router.push('/login')
     })
