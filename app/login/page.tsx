@@ -51,7 +51,9 @@ function LoginContent() {
   // 이미 로그인된 경우 자동 이동
   useEffect(() => {
     if (errorKey) return
-    fetch('/api/auth/me').then(r => r.json()).then(d => {
+    console.log('[login] session check start')
+    fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).then(d => {
+      console.log('[login] session check result:', d.success)
       if (d.success) router.replace('/attendance')
     }).catch(() => {})
   }, [router, errorKey])
@@ -69,6 +71,7 @@ function LoginContent() {
       const res = await fetch('/api/auth/worker-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       })
       const json = await res.json()

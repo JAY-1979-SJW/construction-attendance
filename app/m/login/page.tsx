@@ -41,7 +41,9 @@ function LoginContent() {
   // 이미 로그인된 경우 출퇴근 페이지로 자동 이동
   useEffect(() => {
     if (errorKey) return
-    fetch('/api/auth/me').then(r => r.json()).then(d => {
+    console.log('[m/login] session check start')
+    fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).then(d => {
+      console.log('[m/login] session check result:', d.success)
       if (d.success) router.replace('/attendance')
     }).catch(() => {})
   }, [router, errorKey])
@@ -52,7 +54,7 @@ function LoginContent() {
     if (!email || !password) { setError('이메일과 비밀번호를 입력하세요.'); return }
     setLoading('email'); setError('')
     try {
-      const res = await fetch('/api/auth/worker-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) })
+      const res = await fetch('/api/auth/worker-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email, password }) })
       const json = await res.json()
       if (!res.ok) { setError(json.message || '로그인 실패'); setLoading(null); return }
       if (json.data?.accountStatus === 'PENDING') { router.push('/m/register/pending'); return }

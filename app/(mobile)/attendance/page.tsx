@@ -111,43 +111,48 @@ export default function AttendancePage() {
 
   // ── 초기 데이터 로딩 ─────────────────────────────────────────
   useEffect(() => {
+    console.log('[attendance] app init start')
+    console.log('[attendance] session check start')
+
     Promise.all([
-      fetch('/api/auth/me').then((r) => r.json()),
-      fetch('/api/attendance/today').then((r) => r.json()),
+      fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json()),
+      fetch('/api/attendance/today', { credentials: 'include' }).then((r) => r.json()),
     ]).then(([meData, todayData]) => {
       if (!meData.success) {
-        // 세션 없음 → 온보딩 미완료면 온보딩, 완료면 미리보기
-        if (typeof window !== 'undefined' && !localStorage.getItem('onboarding_done')) {
-          router.push('/onboarding')
-          return
-        }
-        setIsPreview(true)
-        setWorker({ name: '홍길동 (미리보기)', company: '해한건설', jobTitle: '철근공' })
-        setToday(null)
-        setLoading(false)
+        // 세션 없음 → localStorage 무관하게 항상 로그인 페이지로
+        console.log('[attendance] session check fail → redirect /login')
+        router.push('/login')
         return
       }
-      // 세션 유효 → onboarding_done 복원 (localStorage가 초기화된 경우 대비)
+      // 세션 유효 → onboarding_done 복원 (UX 전용, auth 판정에 사용 안 함)
+      console.log('[attendance] session check success, accountStatus:', meData.data?.accountStatus)
       if (typeof window !== 'undefined' && !localStorage.getItem('onboarding_done')) {
         localStorage.setItem('onboarding_done', 'true')
       }
       // PENDING / REJECTED 사용자 → 승인대기 또는 로그인으로 이동
+      console.log('[attendance] route decision: accountStatus =', meData.data?.accountStatus)
       if (meData.data.accountStatus === 'PENDING') {
+        console.log('[attendance] redirect /register/pending')
         router.push('/register/pending')
         return
       }
       if (meData.data.accountStatus === 'REJECTED') {
+        console.log('[attendance] redirect /login?error=inactive')
         router.push('/login?error=inactive')
         return
       }
+      console.log('[attendance] route decision: authenticated, loading page')
       setWorker(meData.data)
       setToday(todayData.data)
       setLoading(false)
       // 최근 7일 기록 조회
-      fetch('/api/attendance/history?days=7')
+      fetch('/api/attendance/history?days=7', { credentials: 'include' })
         .then((r) => r.json())
         .then((d) => { if (d.success) setHistory(d.data.items) })
         .catch(() => {})
+    }).catch((err) => {
+      console.error('[attendance] session check error:', err)
+      router.push('/login')
     })
   }, [router])
 
