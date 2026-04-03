@@ -87,11 +87,21 @@ echo "===SECTION:CONTAINER_INSPECT==="
 docker inspect attendance --format '{{.State.Status}}|{{.State.Health.Status}}|{{.RestartCount}}|{{.State.StartedAt}}' 2>/dev/null || echo "ERROR:inspect_failed"
 
 echo "===SECTION:PORT_CHECK==="
-# 포트 응답 확인 (내부)
-curl -s -o /dev/null -w "%{http_code}|%{time_total}" --max-time 10 http://localhost:3002/api/health 2>/dev/null || echo "000|timeout"
+# 포트 응답 확인 — Docker 내부 네트워크 경유 (expose only, no host port binding)
+CONTAINER_IP=$(docker inspect attendance --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 2>/dev/null || echo "")
+if [ -n "$CONTAINER_IP" ]; then
+  curl -s -o /dev/null -w "%{http_code}|%{time_total}" --max-time 10 "http://${CONTAINER_IP}:3002/api/health" 2>/dev/null || echo "000|timeout"
+else
+  # fallback: docker exec
+  docker exec attendance curl -s -o /dev/null -w "%{http_code}|%{time_total}" --max-time 10 http://localhost:3002/api/health 2>/dev/null || echo "000|timeout"
+fi
 
 echo "===SECTION:HEALTH_BODY==="
-curl -s --max-time 10 http://localhost:3002/api/health 2>/dev/null || echo "ERROR:health_failed"
+if [ -n "$CONTAINER_IP" ]; then
+  curl -s --max-time 10 "http://${CONTAINER_IP}:3002/api/health" 2>/dev/null || echo "ERROR:health_failed"
+else
+  docker exec attendance curl -s --max-time 10 http://localhost:3002/api/health 2>/dev/null || echo "ERROR:health_failed"
+fi
 
 echo "===SECTION:ERROR_LOG==="
 # 최근 에러 로그 100줄
