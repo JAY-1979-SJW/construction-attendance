@@ -31,8 +31,14 @@ export async function signToken(
 
 export async function verifyToken(token: string): Promise<JwtPayload | null> {
   try {
-    if (await isBlacklisted(token)) return null
     const { payload } = await jwtVerify(token, getSecret())
+    // isBlacklisted는 Prisma를 사용하므로 Edge Runtime(미들웨어)에서는 실패할 수 있음.
+    // 실패 시 skip하고 JWT 서명 검증만으로 통과 — Node.js 런타임(API 라우트)에서는 정상 동작.
+    try {
+      if (await isBlacklisted(token)) return null
+    } catch {
+      // Edge Runtime 또는 DB 불가 시 블랙리스트 확인 생략
+    }
     return payload as unknown as JwtPayload
   } catch {
     return null
