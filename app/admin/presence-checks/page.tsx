@@ -159,6 +159,11 @@ export default function PresenceChecksPage() {
   // note form
   const [noteText, setNoteText] = useState('')
 
+  // bulk
+  const [selectedIds,    setSelectedIds]    = useState<Set<string>>(new Set())
+  const [bulkProcessing, setBulkProcessing] = useState(false)
+  const [bulkMsg,        setBulkMsg]        = useState('')
+
   // ── Fetch list ──────────────────────────────────────────────────────────
   const loadList = useCallback(() => {
     setLoading(true)
@@ -180,7 +185,7 @@ export default function PresenceChecksPage() {
       .catch(() => setLoading(false))
   }, [date, statusFilter, siteFilter, workerSearch, onlyReview, onlyNoResponse, router])
 
-  useEffect(() => { loadList() }, [loadList])
+  useEffect(() => { loadList(); setSelectedIds(new Set()) }, [loadList])
 
   // ── Fetch sites ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -263,6 +268,43 @@ export default function PresenceChecksPage() {
     else alert(`오류: ${r.error ?? '알 수 없음'}`)
   }
 
+  // ── Bulk helpers ─────────────────────────────────────────────────────────
+  const reviewItems = items.filter((i) => i.status === 'REVIEW_REQUIRED')
+  const allReviewSelected = reviewItems.length > 0 && reviewItems.every((i) => selectedIds.has(i.id))
+  const toggleSelect = (id: string) =>
+    setSelectedIds((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next })
+  const toggleSelectAll = () =>
+    setSelectedIds(allReviewSelected ? new Set() : new Set(reviewItems.map((i) => i.id)))
+
+  const handleBulk = async (action: 'confirm' | 'reject') => {
+    const ids = Array.from(selectedIds)
+    if (!ids.length) return
+    const label = action === 'confirm' ? '승인' : '이탈 확정'
+    let reason: string | undefined
+    if (action === 'reject') {
+      const r = prompt(`일괄 이탈 확정 사유를 입력하세요 (선택)`)
+      if (r === null) return
+      reason = r || undefined
+    }
+    if (!confirm(`선택한 ${ids.length}건을 대량 ${label} 처리하시겠습니까?`)) return
+    setBulkProcessing(true)
+    setBulkMsg('')
+    const r = await fetch('/api/admin/presence-checks/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids, action, reason }),
+    }).then((res) => res.json())
+    setBulkProcessing(false)
+    if (r.success) {
+      const { succeeded, failed } = r.data
+      setBulkMsg(`대량 ${label} 완료 — 성공 ${succeeded}건${failed > 0 ? ` | 실패 ${failed}건` : ''}`)
+    } else {
+      setBulkMsg(`대량 ${label} 실패: ${r.message ?? '알 수 없는 오류'}`)
+    }
+    setSelectedIds(new Set())
+    loadList()
+  }
+
   // ── Helpers ─────────────────────────────────────────────────────────────
   const fmt = (iso: string | null) =>
     iso ? new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'
@@ -334,6 +376,37 @@ export default function PresenceChecksPage() {
           </label>
         </div>
 
+        {/* 대량 처리 툴바 — REVIEW_REQUIRED 선택 시 표시 */}
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-3 mb-4 px-4 py-3 rounded-lg bg-[rgba(21,101,192,0.07)] border border-[rgba(21,101,192,0.25)] flex-wrap">
+            <span className="text-[13px] font-bold text-[#1565c0]">{selectedIds.size}건 선택됨</span>
+            <button
+              onClick={() => handleBulk('confirm')}
+              disabled={bulkProcessing}
+              className="px-3 py-1 text-[12px] bg-[#2e7d32] text-white rounded cursor-pointer border-0 font-semibold disabled:opacity-50"
+            >
+              {bulkProcessing ? '처리 중...' : '대량 승인'}
+            </button>
+            <button
+              onClick={() => handleBulk('reject')}
+              disabled={bulkProcessing}
+              className="px-3 py-1 text-[12px] bg-[#b71c1c] text-white rounded cursor-pointer border-0 font-semibold disabled:opacity-50"
+            >
+              {bulkProcessing ? '처리 중...' : '대량 이탈확정'}
+            </button>
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              disabled={bulkProcessing}
+              className="ml-auto px-3 py-1 text-[12px] bg-[rgba(91,164,217,0.1)] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded cursor-pointer"
+            >
+              선택 해제
+            </button>
+          </div>
+        )}
+        {bulkMsg && (
+          <div className="px-4 py-3 bg-[rgba(91,164,217,0.1)] rounded-lg mb-4 text-[14px] text-secondary-brand">{bulkMsg}</div>
+        )}
+
         {/* Summary cards */}
         {summary && (
           <div className="grid gap-3 mb-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
@@ -394,6 +467,19 @@ export default function PresenceChecksPage() {
                     outline: selected?.id === item.id ? '2px solid #1976d2' : undefined,
                   }}
                 >
+                  {item.status === 'REVIEW_REQUIRED' && (
+                    <MobileCardActions>
+                      <label className="flex items-center gap-1 cursor-pointer text-[12px] text-muted-brand select-none" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(item.id)}
+                          onChange={() => toggleSelect(item.id)}
+                          className="cursor-pointer"
+                        />
+                        선택
+                      </label>
+                    </MobileCardActions>
+                  )}
                   <MobileCardFields>
                     <MobileCardField label="예약" value={fmt(item.scheduledAt)} />
                     <MobileCardField label="응답" value={fmt(item.respondedAt)} />
@@ -438,6 +524,11 @@ export default function PresenceChecksPage() {
                   <table className="w-full border-collapse">
                     <thead>
                       <tr>
+                        <th className="px-[10px] py-[9px] border-b-2 border-[rgba(91,164,217,0.2)]">
+                          {reviewItems.length > 0 && (
+                            <input type="checkbox" checked={allReviewSelected} onChange={toggleSelectAll} title="REVIEW_REQUIRED 전체 선택" className="cursor-pointer" />
+                          )}
+                        </th>
                         {['이름', '현장', '구분', '예약', '만료', '응답', '거리(m)', 'GPS(m)', '상태', '메모'].map((h) => (
                           <th key={h} className="text-left px-[10px] py-[9px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
                         ))}
@@ -455,6 +546,11 @@ export default function PresenceChecksPage() {
                             transition:   'background 0.1s',
                           }}
                         >
+                          <td className="px-[10px] py-[10px] border-b border-brand" onClick={(e) => e.stopPropagation()}>
+                            {item.status === 'REVIEW_REQUIRED' && (
+                              <input type="checkbox" checked={selectedIds.has(item.id)} onChange={() => toggleSelect(item.id)} className="cursor-pointer" />
+                            )}
+                          </td>
                           <td className="px-[10px] py-[10px] text-[13px] border-b border-brand whitespace-nowrap">
                             <div className="font-semibold">{item.workerName}</div>
                             <div className="text-[11px] text-[#999]">{item.workerCompany}</div>
