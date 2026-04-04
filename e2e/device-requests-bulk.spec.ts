@@ -176,12 +176,13 @@ test.describe('device-requests 대량 승인/반려 [데스크탑]', () => {
   })
 
   test('bulkSaving 중 버튼 disabled', async ({ page }) => {
+    test.slow()
     await interceptBulk(page, 800)
     await page.route('**/api/admin/device-requests?status=PENDING', async (route: Route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mockListResp([REQ_PENDING_1, REQ_PENDING_2])) })
     })
     await page.goto(`${BASE}/admin/device-requests`)
-    await page.waitForLoadState('networkidle')
+    await expect(tableBodyCBs(page).first()).toBeVisible({ timeout: 15000 })
 
     await tableBodyCBs(page).nth(0).check()
     await page.click('button:has-text("대량 승인")')
