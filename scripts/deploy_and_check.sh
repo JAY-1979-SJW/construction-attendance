@@ -141,7 +141,7 @@ if ! $CHECK_ONLY; then
     STEP=$((STEP + 1))
     outc "▶ STEP $STEP: ${CYAN}사전 점검 (배포 허용 판단)${NC}"
     out "────────────────────────────────"
-    PREFLIGHT_OUTPUT=$(bash "$SCRIPT_DIR/scheduled_check.sh" --quick 2>&1) || true
+    PREFLIGHT_OUTPUT=$(bash "$SCRIPT_DIR/scheduled_check.sh" --quick 2>&1)
     PREFLIGHT_EXIT=$?
     echo "$PREFLIGHT_OUTPUT" | tee -a "$REPORT"
 
