@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 
 declare global {
@@ -8,7 +8,10 @@ declare global {
     daum: {
       Postcode: new (opts: {
         oncomplete: (data: { roadAddress: string; jibunAddress: string }) => void
-      }) => { open: () => void }
+        onclose?: () => void
+        width?: string | number
+        height?: string | number
+      }) => { open: () => void; embed: (element: HTMLElement) => void }
     }
   }
 }
@@ -243,14 +246,23 @@ export default function SiteDetailPage() {
     if (infoEditing) loadDaumPostcode().catch(() => {})
   }, [infoEditing, loadDaumPostcode])
 
-  // 동기 함수 — open()을 사용자 제스처 컨텍스트에서 직접 호출
+  // 주소검색 모달 (embed 방식 — 팝업 about:blank 문제 회피)
+  const [showPostcode, setShowPostcode] = useState(false)
+  const postcodeRef = useRef<HTMLDivElement>(null)
+
   const openAddressSearch = useCallback(() => {
     if (!window.daum?.Postcode) {
       alert('주소 검색 준비 중입니다. 잠시 후 다시 시도해주세요.')
       return
     }
+    setShowPostcode(true)
+  }, [])
+
+  useEffect(() => {
+    if (!showPostcode || !postcodeRef.current || !window.daum?.Postcode) return
     new window.daum.Postcode({
       oncomplete: async (data: { roadAddress: string; jibunAddress: string }) => {
+        setShowPostcode(false)
         const address = data.roadAddress || data.jibunAddress
         const addressJibun = data.jibunAddress || ''
         setInfoForm(f => ({ ...f, address, addressJibun }))
@@ -268,8 +280,11 @@ export default function SiteDetailPage() {
           setInfoGeoStatus('error')
         }
       },
-    }).open()
-  }, [])
+      onclose: () => setShowPostcode(false),
+      width: '100%',
+      height: '100%',
+    }).embed(postcodeRef.current)
+  }, [showPostcode])
 
   // ── 참여회사 탭 상태 ───────────────────────────────────────────
   const [siteCompanies, setSiteCompanies]       = useState<SiteCompanyAssignment[]>([])
@@ -1777,6 +1792,21 @@ export default function SiteDetailPage() {
         )}
 
       </div>
+
+      {/* 주소검색 모달 (embed 방식) */}
+      {showPostcode && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50"
+             onClick={() => setShowPostcode(false)}>
+          <div className="bg-white rounded-lg w-[400px] h-[500px] relative overflow-hidden"
+               onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowPostcode(false)}
+                    className="absolute top-1 right-2 z-10 text-gray-400 hover:text-gray-800 text-xl bg-white rounded-full w-7 h-7 flex items-center justify-center">
+              X
+            </button>
+            <div ref={postcodeRef} className="w-full h-full" />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

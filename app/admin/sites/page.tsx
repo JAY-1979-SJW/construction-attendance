@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
@@ -19,7 +19,10 @@ declare global {
     daum: {
       Postcode: new (opts: {
         oncomplete: (data: { roadAddress: string; jibunAddress: string }) => void
-      }) => { open: () => void }
+        onclose?: () => void
+        width?: string | number
+        height?: string | number
+      }) => { open: () => void; embed: (element: HTMLElement) => void }
     }
   }
 }
@@ -371,14 +374,24 @@ export default function SitesPage() {
     if (showForm || editTarget) loadDaumPostcode().catch(() => {})
   }, [showForm, editTarget, loadDaumPostcode])
 
-  // 동기 함수 — open()을 사용자 제스처 컨텍스트에서 직접 호출
+  // 주소검색 모달 (embed 방식 — 팝업 about:blank 문제 회피)
+  const [postcodeTarget, setPostcodeTarget] = useState<'form' | 'edit' | null>(null)
+  const postcodeRef = useRef<HTMLDivElement>(null)
+
   const openAddressSearch = (target: 'form' | 'edit') => {
     if (!window.daum?.Postcode) {
       alert('주소 검색 준비 중입니다. 잠시 후 다시 시도해주세요.')
       return
     }
+    setPostcodeTarget(target)
+  }
+
+  useEffect(() => {
+    if (!postcodeTarget || !postcodeRef.current || !window.daum?.Postcode) return
+    const target = postcodeTarget
     new window.daum.Postcode({
       oncomplete: async (data: { roadAddress: string; jibunAddress: string }) => {
+        setPostcodeTarget(null)
         const address = data.roadAddress || data.jibunAddress
         const addressJibun = data.jibunAddress || ''
         const setStatus = target === 'form' ? setFormGeoStatus : setEditGeoStatus
@@ -398,8 +411,11 @@ export default function SitesPage() {
           setStatus('error')
         }
       },
-    }).open()
-  }
+      onclose: () => setPostcodeTarget(null),
+      width: '100%',
+      height: '100%',
+    }).embed(postcodeRef.current)
+  }, [postcodeTarget])
 
   const fillCurrentLocation = (target: 'form' | 'edit') => {
     if (!navigator.geolocation) { alert('이 브라우저는 GPS를 지원하지 않습니다.'); return }
@@ -1093,6 +1109,20 @@ export default function SitesPage() {
         )}
       </Modal>
 
+      {/* 주소검색 모달 (embed 방식) */}
+      {postcodeTarget && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50"
+             onClick={() => setPostcodeTarget(null)}>
+          <div className="bg-white rounded-lg w-[400px] h-[500px] relative overflow-hidden"
+               onClick={e => e.stopPropagation()}>
+            <button onClick={() => setPostcodeTarget(null)}
+                    className="absolute top-1 right-2 z-10 text-gray-400 hover:text-gray-800 text-xl bg-white rounded-full w-7 h-7 flex items-center justify-center">
+              X
+            </button>
+            <div ref={postcodeRef} className="w-full h-full" />
+          </div>
+        </div>
+      )}
     </PageShell>
   )
 }
