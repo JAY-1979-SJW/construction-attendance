@@ -630,22 +630,24 @@ export default function SiteDetailPage() {
 
   return (
     <div className="min-h-screen bg-brand">
-      {/* 헤더 */}
-      <div className="bg-card border-b border-brand px-6 py-4 flex items-center gap-3">
-        <button
-          onClick={() => router.back()}
-          className="text-muted-brand hover:text-fore-brand text-sm"
-        >
-          ← 목록
-        </button>
-        <h1 className="text-lg font-semibold text-fore-brand">
-          {siteName || '현장 운영'}
-        </h1>
-        <span className="text-muted-brand text-sm">/ 운영 기록</span>
-      </div>
+      {/* 헤더 + 탭 바 — sticky (레이아웃 TopBar z-20보다 낮은 z-10) */}
+      <div className="sticky top-0 z-10 bg-card">
+        {/* 헤더 */}
+        <div className="border-b border-brand px-6 py-4 flex items-center gap-3">
+          <button
+            onClick={() => router.back()}
+            className="text-muted-brand hover:text-fore-brand text-sm"
+          >
+            ← 목록
+          </button>
+          <h1 className="text-lg font-semibold text-fore-brand">
+            {siteName || '현장 운영'}
+          </h1>
+          <span className="text-muted-brand text-sm">/ 운영 기록</span>
+        </div>
 
       {/* 탭 바 */}
-      <div className="bg-card border-b border-brand px-6 flex gap-1 overflow-x-auto">
+      <div className="border-b border-brand px-6 flex gap-1 overflow-x-auto">
         <button className={tabClass('info')}             onClick={() => setTab('info')}>            기본정보</button>
         <button className={tabClass('companies')}        onClick={() => setTab('companies')}>       참여회사</button>
         <button className={tabClass('assigned-workers')} onClick={() => setTab('assigned-workers')}> 작업자 배치</button>
@@ -657,6 +659,7 @@ export default function SiteDetailPage() {
         <button className={tabClass('tbm')}              onClick={() => setTab('tbm')}>              TBM/안전</button>
         <button className={tabClass('workers')}          onClick={() => setTab('workers')}>          출근자 상세</button>
       </div>
+      </div>{/* /sticky wrapper */}
 
       <div className="px-6 py-6 max-w-5xl mx-auto">
 

@@ -47,8 +47,8 @@ interface Site {
   id: string
   name: string
   address: string
-  latitude: number
-  longitude: number
+  latitude?: number | null
+  longitude?: number | null
   allowedRadius: number
   isActive: boolean
   siteCode?: string | null
@@ -422,8 +422,8 @@ export default function SitesPage() {
   const openEdit = (s: Site) => {
     setEditTarget(s)
     setEditForm({
-      name: s.name, address: s.address, addressDetail: '',
-      latitude: String(s.latitude), longitude: String(s.longitude),
+      name: s.name, address: s.address, addressJibun: '', addressDetail: '',
+      latitude: '', longitude: '',  // API 응답에서 제외됨 — 주소 변경 시 재검색
       allowedRadius: String(s.allowedRadius),
       siteCode: s.siteCode ?? '',
       openedAt: s.openedAt ? s.openedAt.substring(0, 10) : '',
@@ -431,18 +431,23 @@ export default function SitesPage() {
       notes: s.notes ?? '',
     })
     setEditActive(s.isActive); setEditError('')
-    setEditGeoStatus(s.latitude && s.longitude ? 'done' : 'idle')
+    setEditGeoStatus('idle')
   }
 
   const handleEdit = async () => {
     if (!editTarget) return
     setEditSaving(true); setEditError('')
     const lat = parseFloat(editForm.latitude), lng = parseFloat(editForm.longitude)
-    if (isNaN(lat) || isNaN(lng)) { setEditError('유효한 좌표가 없습니다.'); setEditSaving(false); return }
+    const hasCoords = !isNaN(lat) && !isNaN(lng)
+    const fullAddress = editForm.addressDetail?.trim()
+      ? `${editForm.address} ${editForm.addressDetail.trim()}`
+      : editForm.address
     const res = await fetch(`/api/admin/sites/${editTarget.id}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: editForm.name, address: editForm.addressDetail?.trim() ? `${editForm.address} ${editForm.addressDetail.trim()}` : editForm.address, latitude: lat, longitude: lng,
+        name: editForm.name,
+        address: fullAddress,
+        ...(hasCoords ? { latitude: lat, longitude: lng } : {}),
         allowedRadius: parseInt(editForm.allowedRadius, 10), isActive: editActive,
         siteCode: editForm.siteCode || null,
         openedAt: editForm.openedAt || null, closedAt: editForm.closedAt || null,

@@ -56,7 +56,6 @@ const MENU: MenuItem[] = [
     children: [
       { href: '/admin/attendance',         label: '출퇴근관리',   requiredFeature: 'WORKER_VIEW' },
       { href: '/admin/presence-checks',    label: '중간 체류확인', requiredFeature: 'ATTENDANCE_APPROVE' },
-      { href: '/admin/exceptions',         label: '예외 승인',    requiredFeature: 'ATTENDANCE_APPROVE' },
       { href: '/admin/work-confirmations', label: '근무확정',     requiredFeature: 'ATTENDANCE_APPROVE' },
       { href: '/admin/corrections',        label: '정정 이력',    requiredFeature: 'ATTENDANCE_APPROVE' },
       { href: '/admin/presence-report',    label: '체류 리포트',  requiredFeature: 'STATS_VIEW' },
@@ -76,9 +75,7 @@ const MENU: MenuItem[] = [
     icon: <I><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" {...S}/><path d="M9 22V12h6v10" {...S}/></I>,
     children: [
       { href: '/admin/sites',                  label: '현장관리' },
-      { href: '/admin/site-access-groups',      label: '접근 그룹' },
       { href: '/admin/site-admin-assignments',  label: '관리자 배치' },
-      { href: '/admin/site-imports',            label: '현장 Import' },
       { href: '/admin/site-locations',          label: '위치 마스터' },
     ],
   },
@@ -89,9 +86,8 @@ const MENU: MenuItem[] = [
     requiredFeature: 'DOCUMENT_DOWNLOAD',
     icon: <I><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" {...S}/><path d="M14 2v6h6M9 15l2 2 4-4" {...S}/></I>,
     children: [
-      { href: '/admin/contracts',          label: '근로계약서' },
-      { href: '/admin/safety-docs',        label: '안전서류' },
-      { href: '/admin/document-packages',  label: '제출 서류 검토' },
+      { href: '/admin/contracts',   label: '근로계약서' },
+      { href: '/admin/safety-docs', label: '안전서류' },
     ],
   },
 
@@ -101,7 +97,6 @@ const MENU: MenuItem[] = [
     icon: <I><rect x="2" y="7" width="20" height="14" rx="2" {...S}/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" {...S}/><path d="M12 12v4M10 14h4" {...S}/></I>,
     children: [
       { href: '/admin/labor',              label: '노무관리' },
-      { href: '/admin/labor-faqs',         label: '노무 FAQ' },
       { href: '/admin/labor-cost-summaries', label: '노무비 집계' },
     ],
   },
@@ -112,9 +107,7 @@ const MENU: MenuItem[] = [
     icon: <I><circle cx="12" cy="12" r="9" {...S}/><path d="M12 7v1m0 8v1M9.5 9.5C9.5 8.12 10.62 7 12 7s2.5 1.12 2.5 2.5c0 1.5-2.5 2-2.5 3.5m0 1h.01" {...S}/></I>,
     children: [
       { href: '/admin/wage',                      label: '노임관리' },
-      { href: '/admin/wage-calculations',          label: '급여 계산' },
       { href: '/admin/month-closings',             label: '월 마감' },
-      { href: '/admin/insurance-eligibility',      label: '보험 자격 판정' },
       { href: '/admin/insurance-rates',            label: '보험요율 관리' },
       { href: '/admin/retirement-mutual',          label: '퇴직공제' },
       { href: '/admin/subcontractor-settlements',  label: '협력사 정산' },
@@ -127,10 +120,6 @@ const MENU: MenuItem[] = [
     icon: <I><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" {...S}/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" {...S}/></I>,
     children: [
       { href: '/admin/materials',                 label: '자재 관리' },
-      { href: '/admin/materials/requests',        label: '자재 청구' },
-      { href: '/admin/materials/purchase-orders',  label: '발주 관리' },
-      { href: '/admin/materials/inventory',        label: '자재 재고' },
-      { href: '/admin/materials/estimates',            label: '내역서 분석' },
     ],
   },
 
@@ -140,9 +129,6 @@ const MENU: MenuItem[] = [
     icon: <I><path d="M12 20V10M18 20V4M6 20v-4" {...S}/></I>,
     children: [
       { href: '/admin/reports',                          label: '작업일보' },
-      { href: '/admin/work-orders',                      label: '작업지시' },
-      { href: '/admin/operations/print-center',          label: '출력 센터' },
-      { href: '/admin/operations/today-tasks',           label: '오늘 업무' },
       { href: '/admin/operations/attendance-exceptions',  label: '출퇴근 이상' },
       { href: '/admin/operations/labor-review',          label: '노무 검토' },
     ],
@@ -162,8 +148,6 @@ const MENU: MenuItem[] = [
       { href: '/admin/policies',        label: '정책 관리' },
       { href: '/admin/devices',         label: '기기 관리' },
       { href: '/admin/devices-anomaly', label: '기기 이상 탐지' },
-      { href: '/admin/pilot',           label: '파일럿 모니터' },
-      { href: '/admin/temp-docs',       label: '임시 문서',  requiredFeature: 'DOCUMENT_DOWNLOAD' },
     ],
   },
 ]
