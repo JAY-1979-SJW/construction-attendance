@@ -16,7 +16,12 @@
     "test:watch": "vitest",
     "e2e": "playwright test --config=e2e/playwright.config.ts --project=chromium",
     "e2e:bulk": "playwright test e2e/work-confirmations-bulk.spec.ts --config=e2e/playwright.config.ts --project=chromium",
-    "e2e:presence-bulk": "playwright test e2e/presence-checks-bulk.spec.ts --config=e2e/playwright.config.ts --project=chromium"
+    "e2e:presence-bulk": "playwright test e2e/presence-checks-bulk.spec.ts --config=e2e/playwright.config.ts --project=chromium",
+    "e2e:attendance-bulk": "playwright test e2e/attendance-bulk.spec.ts --config=e2e/playwright.config.ts --project=chromium",
+    "e2e:workers-bulk": "playwright test e2e/workers-bulk-education.spec.ts --config=e2e/playwright.config.ts --project=chromium",
+    "e2e:site-join-bulk": "playwright test e2e/site-join-requests-bulk.spec.ts --config=e2e/playwright.config.ts --project=chromium",
+    "e2e:device-bulk": "playwright test e2e/device-requests-bulk.spec.ts --config=e2e/playwright.config.ts --project=chromium",
+    "e2e:bulk:all": "playwright test e2e/work-confirmations-bulk.spec.ts e2e/presence-checks-bulk.spec.ts e2e/attendance-bulk.spec.ts e2e/workers-bulk-education.spec.ts e2e/site-join-requests-bulk.spec.ts e2e/device-requests-bulk.spec.ts --config=e2e/playwright.config.ts --project=chromium"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

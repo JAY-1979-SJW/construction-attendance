@@ -1,9 +1,10 @@
-﻿'use client'
+'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
-import { StatusBadge, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
+import { Modal, StatusBadge, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions, BulkToolbar } from '@/components/admin/ui'
+import { useBulkSelection } from '@/lib/hooks/useBulkSelection'
 
 interface DeviceRequest {
   id: string
@@ -32,8 +33,17 @@ export default function DeviceRequestsPage() {
   const [processing, setProcessing] = useState<string | null>(null)
   const [msg, setMsg] = useState('')
 
-  const load = (s = statusFilter) => {
+  // bulk
+  const { selectedIds, toggleSelect, clearSelection, toggleSelectAll } = useBulkSelection()
+  const [bulkSaving, setBulkSaving] = useState(false)
+  const [bulkRejectOpen, setBulkRejectOpen] = useState(false)
+  const [bulkRejectReason, setBulkRejectReason] = useState('')
+
+  const pendingItems = items.filter((item) => item.status === 'PENDING')
+
+  const load = useCallback((clearMsg = true, s = statusFilter) => {
     setLoading(true)
+    if (clearMsg) setMsg('')
     fetch(`/api/admin/device-requests?status=${s}`)
       .then((r) => r.json())
       .then((data) => {
@@ -42,9 +52,12 @@ export default function DeviceRequestsPage() {
         setTotal(data.data.total)
         setLoading(false)
       })
-  }
+  }, [statusFilter, router]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { load() }, [router]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 필터 변경 시 선택 해제
+  useEffect(() => { clearSelection() }, [statusFilter]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAction = async (requestId: string, action: 'APPROVE' | 'REJECT') => {
     setProcessing(requestId)
@@ -58,6 +71,45 @@ export default function DeviceRequestsPage() {
     setMsg(data.message)
     if (data.success) load()
     setProcessing(null)
+  }
+
+  async function handleBulkApprove() {
+    setBulkSaving(true)
+    try {
+      const res = await fetch('/api/admin/device-requests/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'approve', ids: Array.from(selectedIds) }),
+      })
+      const d = await res.json()
+      const result = d.data ?? d
+      setMsg(`대량 승인 완료 (성공: ${result.succeeded}, 실패: ${result.failed})`)
+      clearSelection()
+      load(false)
+    } finally {
+      setBulkSaving(false)
+    }
+  }
+
+  async function handleBulkReject() {
+    if (!bulkRejectReason.trim()) return
+    setBulkSaving(true)
+    setBulkRejectOpen(false)
+    try {
+      const res = await fetch('/api/admin/device-requests/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reject', ids: Array.from(selectedIds), rejectReason: bulkRejectReason }),
+      })
+      const d = await res.json()
+      const result = d.data ?? d
+      setMsg(`대량 반려 완료 (성공: ${result.succeeded}, 실패: ${result.failed})`)
+      clearSelection()
+      setBulkRejectReason('')
+      load(false)
+    } finally {
+      setBulkSaving(false)
+    }
   }
 
   const formatPhone = (p: string) => p.length === 11 ? `${p.slice(0,3)}-${p.slice(3,7)}-${p.slice(7)}` : p
@@ -80,13 +132,55 @@ export default function DeviceRequestsPage() {
           {[['PENDING', '대기중'], ['APPROVED', '승인'], ['REJECTED', '반려']].map(([s, label]) => (
             <button
               key={s}
-              onClick={() => { setStatusFilter(s); load(s) }}
+              onClick={() => { setStatusFilter(s); load(true, s) }}
               className={`px-5 py-2 border rounded-md cursor-pointer text-sm transition-colors ${statusFilter === s ? 'bg-[#1a1a2e] text-white border-[#1a1a2e]' : 'border-[rgba(91,164,217,0.3)] bg-card text-muted-brand'}`}
             >
               {label}
             </button>
           ))}
         </div>
+
+        {statusFilter === 'PENDING' && canMutate && (
+          <div className="mb-3">
+            <BulkToolbar count={selectedIds.size} onClear={clearSelection} disabled={bulkSaving}>
+              <button
+                onClick={handleBulkApprove}
+                disabled={bulkSaving}
+                className="px-3 py-1.5 text-[12px] font-semibold text-white bg-[#2e7d32] border-0 rounded-[8px] cursor-pointer disabled:opacity-50"
+              >
+                {bulkSaving ? '처리 중...' : '대량 승인'}
+              </button>
+              <button
+                onClick={() => { setBulkRejectReason(''); setBulkRejectOpen(true) }}
+                disabled={bulkSaving}
+                className="px-3 py-1.5 text-[12px] font-semibold text-white bg-[#e53935] border-0 rounded-[8px] cursor-pointer disabled:opacity-50"
+              >
+                {bulkSaving ? '처리 중...' : '대량 반려'}
+              </button>
+            </BulkToolbar>
+          </div>
+        )}
+
+        {/* 대량 반려 모달 */}
+        <Modal open={bulkRejectOpen} onClose={() => setBulkRejectOpen(false)} title={`대량 반려 (${selectedIds.size}건)`}>
+          <textarea
+            className="w-full px-[10px] py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[14px] mb-4 box-border resize-y"
+            value={bulkRejectReason}
+            onChange={e => setBulkRejectReason(e.target.value)}
+            placeholder="공통 반려 사유를 입력하세요."
+            rows={4}
+          />
+          <div className="flex gap-2 justify-end">
+            <button className="px-4 py-2 bg-[#eee] border-0 rounded-lg text-[14px] cursor-pointer" onClick={() => setBulkRejectOpen(false)}>취소</button>
+            <button
+              className="px-4 py-2 bg-[#e53935] text-white border-0 rounded-lg text-[14px] cursor-pointer font-bold disabled:opacity-50"
+              onClick={handleBulkReject}
+              disabled={!bulkRejectReason.trim()}
+            >
+              반려
+            </button>
+          </div>
+        </Modal>
 
         {loading ? <p>로딩 중...</p> : items.length === 0 ? (
           <div className="text-center py-12 text-muted2-brand text-[13px]">요청이 없습니다.</div>
@@ -108,9 +202,18 @@ export default function DeviceRequestsPage() {
                 </MobileCardFields>
                 {item.status === 'PENDING' && canMutate ? (
                   <MobileCardActions>
-                    <button onClick={() => handleAction(item.id, 'APPROVE')} disabled={processing === item.id}
+                    <label className="flex items-center gap-1 text-[12px] text-muted-brand cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(item.id)}
+                        onChange={() => toggleSelect(item.id)}
+                        disabled={bulkSaving}
+                      />
+                      선택
+                    </label>
+                    <button onClick={() => handleAction(item.id, 'APPROVE')} disabled={processing === item.id || bulkSaving}
                       className="px-3 py-1.5 bg-[#2e7d32] text-white border-none rounded-md cursor-pointer text-xs font-semibold disabled:opacity-50">승인</button>
-                    <button onClick={() => handleAction(item.id, 'REJECT')} disabled={processing === item.id}
+                    <button onClick={() => handleAction(item.id, 'REJECT')} disabled={processing === item.id || bulkSaving}
                       className="px-3 py-1.5 bg-[#e53935] text-white border-none rounded-md cursor-pointer text-xs font-semibold disabled:opacity-50">반려</button>
                   </MobileCardActions>
                 ) : (
@@ -125,6 +228,16 @@ export default function DeviceRequestsPage() {
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr className="border-b-2 border-[rgba(91,164,217,0.2)]">
+                      {statusFilter === 'PENDING' && canMutate && (
+                        <th className="text-left px-3 py-2.5 text-xs text-muted-brand w-10">
+                          <input
+                            type="checkbox"
+                            checked={pendingItems.length > 0 && pendingItems.every((item) => selectedIds.has(item.id))}
+                            onChange={() => toggleSelectAll(pendingItems.map((item) => item.id))}
+                            disabled={bulkSaving}
+                          />
+                        </th>
+                      )}
                       {['유형', '근로자', '연락처', '새 기기명', '사유', '요청일', '상태', '처리'].map((h) => (
                         <th key={h} className="text-left px-3 py-2.5 text-xs text-muted-brand">{h}</th>
                       ))}
@@ -133,6 +246,16 @@ export default function DeviceRequestsPage() {
                   <tbody>
                     {items.map((item) => (
                       <tr key={item.id} className="border-b border-[rgba(91,164,217,0.1)]">
+                        {statusFilter === 'PENDING' && canMutate && (
+                          <td className="px-3 py-3 align-middle">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(item.id)}
+                              onChange={() => toggleSelect(item.id)}
+                              disabled={bulkSaving}
+                            />
+                          </td>
+                        )}
                         <td className="px-3 py-3">
                           <span style={{ fontSize: '11px', fontWeight: 700, color: getTypeColor(item), background: item.oldDeviceToken === null ? '#e3f2fd' : '#f3e5f5', padding: '2px 8px', borderRadius: '10px', whiteSpace: 'nowrap' }}>
                             {getRequestType(item)}
@@ -149,9 +272,9 @@ export default function DeviceRequestsPage() {
                         <td className="px-3 py-3">
                           {item.status === 'PENDING' && canMutate && (
                             <div className="flex gap-1.5">
-                              <button onClick={() => handleAction(item.id, 'APPROVE')} disabled={processing === item.id}
+                              <button onClick={() => handleAction(item.id, 'APPROVE')} disabled={processing === item.id || bulkSaving}
                                 className="px-3 py-1 bg-[#2e7d32] text-white border-none rounded cursor-pointer text-xs disabled:opacity-50">승인</button>
-                              <button onClick={() => handleAction(item.id, 'REJECT')} disabled={processing === item.id}
+                              <button onClick={() => handleAction(item.id, 'REJECT')} disabled={processing === item.id || bulkSaving}
                                 className="px-3 py-1 bg-[#e53935] text-white border-none rounded cursor-pointer text-xs disabled:opacity-50">반려</button>
                             </div>
                           )}

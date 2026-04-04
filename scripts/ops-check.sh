@@ -632,6 +632,32 @@ fi
 out ""
 
 # ══════════════════════════════════════════════════════
+# [16] bulk E2E 회귀 테스트 최근 실행 여부
+# ══════════════════════════════════════════════════════
+BULK_E2E_LOG="$SCRIPT_DIR/../logs/last-bulk-e2e.txt"
+if [ ! -f "$BULK_E2E_LOG" ]; then
+  result_warn 16 "bulk_e2e" "bulk-e2e-freshness" "WARN — logs/last-bulk-e2e.txt 없음 (미실행)"
+else
+  BULK_RUN_AT=$(grep '^run_at=' "$BULK_E2E_LOG" | cut -d= -f2-)
+  BULK_STATUS=$(grep '^status=' "$BULK_E2E_LOG" | cut -d= -f2-)
+  if [ -z "$BULK_RUN_AT" ]; then
+    result_warn 16 "bulk_e2e" "bulk-e2e-freshness" "WARN — run_at 파싱 실패"
+  else
+    BULK_TS=$(date -d "$BULK_RUN_AT" +%s 2>/dev/null || echo 0)
+    NOW_TS=$(date +%s)
+    DIFF_DAYS=$(( (NOW_TS - BULK_TS) / 86400 ))
+    if [ "$BULK_STATUS" = "FAIL" ]; then
+      result_fail 16 "bulk_e2e" "bulk-e2e-freshness" "FAIL — 마지막 실행 결과 FAIL (${BULK_RUN_AT})"
+    elif [ "$DIFF_DAYS" -gt 7 ]; then
+      result_warn 16 "bulk_e2e" "bulk-e2e-freshness" "WARN — ${DIFF_DAYS}일 전 실행 (7일 초과, ${BULK_RUN_AT})"
+    else
+      result_pass 16 "bulk_e2e" "bulk-e2e-freshness" "PASS — ${DIFF_DAYS}일 전 실행 PASS (${BULK_RUN_AT})"
+    fi
+  fi
+fi
+out ""
+
+# ══════════════════════════════════════════════════════
 # FAIL 시 로그 자동 첨부 (항상, --logs면 50줄 전체)
 # ══════════════════════════════════════════════════════
 if [ "$DOCKER_CHECKS_AVAILABLE" = true ] && [ "$FAIL" -gt 0 ]; then

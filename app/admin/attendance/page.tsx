@@ -10,8 +10,10 @@ import {
   FormInput, FormTextarea, ModalFooter,
   FloatingToast, Modal,
   MobileCardList, MobileCard, MobileCardField, MobileCardFields,
+  BulkToolbar,
 } from '@/components/admin/ui'
 import AttendanceCalendar from '@/components/admin/AttendanceCalendar'
+import { useBulkSelection } from '@/lib/hooks/useBulkSelection'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
 interface AttendanceRecord {
@@ -417,6 +419,11 @@ function AttendancePageInner() {
   const [proxySaving, setProxySaving]       = useState(false)
   const [proxyError, setProxyError]         = useState('')
 
+  // 대량 처리
+  const { selectedIds, toggleSelect, clearSelection } = useBulkSelection()
+  const [bulkCheckoutTime, setBulkCheckoutTime] = useState('17:00')
+  const [bulkSaving, setBulkSaving] = useState(false)
+
   // 저장 토스트
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null)
   const [viewTab, setViewTab] = useState<'list' | 'calendar'>('list')
@@ -591,6 +598,37 @@ function AttendancePageInner() {
       setCorrectError(data.message ?? '보정 저장에 실패했습니다. 다시 시도해 주세요.')
     }
     setCorrectSaving(false)
+  }
+
+  // 대량 퇴근 보정
+  const bulkAdjust = async () => {
+    if (!selectedIds.size) return
+    setBulkSaving(true)
+    try {
+      const res = await fetch('/api/admin/attendance/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ids: Array.from(selectedIds),
+          action: 'adjust-checkout',
+          checkOutTime: bulkCheckoutTime,
+          reason: '퇴근 누락 대량 보정',
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        const { succeeded, failed } = data.data
+        clearSelection()
+        showToast(true, `대량 퇴근 보정 완료: ${succeeded}건 성공${failed > 0 ? `, ${failed}건 실패` : ''}`)
+        load()
+      } else {
+        showToast(false, data.message ?? '대량 보정에 실패했습니다.')
+      }
+    } catch {
+      showToast(false, '서버 연결 오류')
+    } finally {
+      setBulkSaving(false)
+    }
   }
 
   // 퇴근 누락 빠른 보정
@@ -843,6 +881,24 @@ function AttendancePageInner() {
         </div>
       )}
 
+      {/* ── 대량 처리 툴바 ── */}
+      <BulkToolbar count={selectedIds.size} onClear={clearSelection} disabled={bulkSaving}>
+        <span className="text-[12px] text-muted-brand">퇴근 시각</span>
+        <input
+          type="time"
+          value={bulkCheckoutTime}
+          onChange={e => setBulkCheckoutTime(e.target.value)}
+          className="h-8 px-2 text-[13px] border border-brand rounded-[6px] outline-none focus:border-accent bg-card w-[100px]"
+        />
+        <button
+          onClick={bulkAdjust}
+          disabled={bulkSaving}
+          className="px-4 py-1.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white text-[12px] font-semibold rounded-[8px] border-none cursor-pointer disabled:opacity-50 transition-colors"
+        >
+          {bulkSaving ? '처리 중...' : '대량 퇴근 보정'}
+        </button>
+      </BulkToolbar>
+
       {/* ── 2-column 본문 ── */}
       <div className="flex gap-4 items-start">
 
@@ -865,6 +921,20 @@ function AttendancePageInner() {
                       badge={<StatusBadge status={item.status} label={STATUS_LABEL[item.status] ?? item.status} />}
                       onClick={() => openDetail(item.id)}
                     >
+                      {item.status === 'MISSING_CHECKOUT' && (
+                        <label
+                          className="flex items-center gap-1.5 text-[12px] text-muted-brand mb-1 cursor-pointer"
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(item.id)}
+                            onChange={() => toggleSelect(item.id)}
+                            className="w-4 h-4 cursor-pointer accent-[#DC2626]"
+                          />
+                          선택
+                        </label>
+                      )}
                       <MobileCardFields>
                         <MobileCardField
                           label="출근"
@@ -895,11 +965,11 @@ function AttendancePageInner() {
                 }}
                 renderTable={() => (
                   sorted.length === 0 ? (
-                    <AdminTable headers={['이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
-                      <EmptyRow colSpan={8} message="조회된 기록이 없습니다" />
+                    <AdminTable headers={['', '이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
+                      <EmptyRow colSpan={9} message="조회된 기록이 없습니다" />
                     </AdminTable>
                   ) : (
-                    <AdminTable headers={['이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
+                    <AdminTable headers={['', '이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
 
                           {sorted.map(item => {
                             const md = calcManDay(item.workedMinutesFinal ?? item.workedMinutesRaw)
@@ -916,6 +986,16 @@ function AttendancePageInner() {
                                 onClick={() => openDetail(item.id)}
                                 className={rowBg}
                               >
+                                <AdminTd onClick={e => e.stopPropagation()} className="w-8">
+                                  {item.status === 'MISSING_CHECKOUT' && (
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedIds.has(item.id)}
+                                      onChange={() => toggleSelect(item.id)}
+                                      className="w-4 h-4 cursor-pointer accent-[#DC2626]"
+                                    />
+                                  )}
+                                </AdminTd>
                                 <AdminTd>
                                   <div className="font-semibold text-fore-brand">{item.workerName}</div>
                                 </AdminTd>

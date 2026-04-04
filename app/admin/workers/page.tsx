@@ -12,7 +12,9 @@ import {
   FormInput, FormSelect, ModalFooter,
   Modal, Toast, FloatingToast,
   MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions,
+  BulkToolbar,
 } from '@/components/admin/ui'
+import { useBulkSelection } from '@/lib/hooks/useBulkSelection'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
 interface Worker {
@@ -228,8 +230,13 @@ export default function WorkersPage() {
   // 등록 모달
   const [showRegister, setShowRegister] = useState(false)
 
-  // 체크박스 선택
+  // 체크박스 선택 (기존 — 퇴사 처리용)
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
+
+  // 안전교육 일괄 등록 선택
+  const { selectedIds: eduIds, toggleSelect: eduToggle, clearSelection: eduClear } = useBulkSelection()
+  const [eduDate, setEduDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const [eduSaving, setEduSaving] = useState(false)
 
   // 저장 토스트
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null)
@@ -412,6 +419,36 @@ export default function WorkersPage() {
     if (ok) router.push(`/admin/workers/${ids[0]}/termination`)
   }
 
+  // 안전교육 일괄 등록
+  const bulkRecordEdu = async () => {
+    if (!eduIds.size) return
+    setEduSaving(true)
+    try {
+      const res = await fetch('/api/admin/workers/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'record-education',
+          ids: Array.from(eduIds),
+          educationDate: eduDate,
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        const { succeeded, failed } = data.data
+        eduClear()
+        showToast(true, `안전교육 일괄 등록 완료: ${succeeded}건 성공${failed > 0 ? `, ${failed}건 실패` : ''}`)
+        load()
+      } else {
+        showToast(false, data.message ?? '일괄 등록에 실패했습니다.')
+      }
+    } catch {
+      showToast(false, '서버 연결 오류')
+    } finally {
+      setEduSaving(false)
+    }
+  }
+
   // 클라이언트 필터 + 정렬
   const filtered = workers.filter(w => {
     if (statusFilter === 'active' && !w.isActive) return false
@@ -545,6 +582,24 @@ export default function WorkersPage() {
         <KpiCard label="교육증 미등록"  value={statsNoCert.length}      unit="명" accentColor={statsNoCert.length > 0 ? '#D97706' : '#6B7280'} />
       </div>
 
+      {/* ── 안전교육 일괄 등록 툴바 ── */}
+      <BulkToolbar count={eduIds.size} onClear={eduClear} disabled={eduSaving}>
+        <span className="text-[12px] text-muted-brand">교육일</span>
+        <input
+          type="date"
+          value={eduDate}
+          onChange={e => setEduDate(e.target.value)}
+          className="h-8 px-2 text-[13px] border border-brand rounded-[6px] outline-none focus:border-accent bg-card w-[130px]"
+        />
+        <button
+          onClick={bulkRecordEdu}
+          disabled={eduSaving}
+          className="px-4 py-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-[12px] font-semibold rounded-[8px] border-none cursor-pointer disabled:opacity-50 transition-colors"
+        >
+          {eduSaving ? '처리 중...' : '안전교육 일괄 등록'}
+        </button>
+      </BulkToolbar>
+
       {/* ── 2-column 본문 ── */}
       <div className="flex gap-4 items-start">
 
@@ -563,6 +618,20 @@ export default function WorkersPage() {
                   badge={<StatusBadge status={elig === 'ok' ? 'ACTIVE' : elig === 'blocked' ? 'INACTIVE' : 'PENDING'} label={ELIGIBILITY_LABEL[elig].label} />}
                   onClick={() => openDetail(w.id)}
                 >
+                  {!w.hasSafetyEducation && (w.accountStatus === 'APPROVED' || w.accountStatus === 'ACTIVE') && (
+                    <label
+                      className="flex items-center gap-1.5 text-[12px] text-muted-brand mb-1 cursor-pointer"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={eduIds.has(w.id)}
+                        onChange={() => eduToggle(w.id)}
+                        className="w-4 h-4 cursor-pointer accent-[#2563EB]"
+                      />
+                      안전교육 선택
+                    </label>
+                  )}
                   <MobileCardFields>
                     <MobileCardField label="주배정현장" value={primarySite?.name || '미배정'} />
                     <MobileCardField label="상태" value={w.isActive ? '재직중' : '비활성'} />
@@ -657,8 +726,20 @@ export default function WorkersPage() {
                           <DocBadge has={w.hasContract} yesLabel="교부" noLabel="미교부" />
                         </AdminTd>
                         {/* 안전교육 */}
-                        <AdminTd>
-                          <DocBadge has={w.hasSafetyEducation} yesLabel="이수" noLabel="미이수" />
+                        <AdminTd onClick={e => e.stopPropagation()}>
+                          {!w.hasSafetyEducation && (w.accountStatus === 'APPROVED' || w.accountStatus === 'ACTIVE') ? (
+                            <label className="flex items-center gap-1.5 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={eduIds.has(w.id)}
+                                onChange={() => eduToggle(w.id)}
+                                className="w-4 h-4 cursor-pointer accent-[#2563EB]"
+                              />
+                              <span className="text-[11px] font-semibold text-status-rejected">미이수</span>
+                            </label>
+                          ) : (
+                            <DocBadge has={w.hasSafetyEducation} yesLabel="이수" noLabel="미이수" />
+                          )}
                         </AdminTd>
                         {/* 안전교육증 */}
                         <AdminTd>

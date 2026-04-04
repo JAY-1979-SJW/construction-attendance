@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
+import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions, BulkToolbar } from '@/components/admin/ui'
+import { useBulkSelection } from '@/lib/hooks/useBulkSelection'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -160,7 +161,7 @@ export default function PresenceChecksPage() {
   const [noteText, setNoteText] = useState('')
 
   // bulk
-  const [selectedIds,    setSelectedIds]    = useState<Set<string>>(new Set())
+  const { selectedIds, toggleSelect, clearSelection, toggleSelectAll } = useBulkSelection()
   const [bulkProcessing, setBulkProcessing] = useState(false)
   const [bulkMsg,        setBulkMsg]        = useState('')
 
@@ -185,7 +186,7 @@ export default function PresenceChecksPage() {
       .catch(() => setLoading(false))
   }, [date, statusFilter, siteFilter, workerSearch, onlyReview, onlyNoResponse, router])
 
-  useEffect(() => { loadList(); setSelectedIds(new Set()) }, [loadList])
+  useEffect(() => { loadList(); clearSelection() }, [loadList])
 
   // ── Fetch sites ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -271,10 +272,7 @@ export default function PresenceChecksPage() {
   // ── Bulk helpers ─────────────────────────────────────────────────────────
   const reviewItems = items.filter((i) => i.status === 'REVIEW_REQUIRED')
   const allReviewSelected = reviewItems.length > 0 && reviewItems.every((i) => selectedIds.has(i.id))
-  const toggleSelect = (id: string) =>
-    setSelectedIds((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next })
-  const toggleSelectAll = () =>
-    setSelectedIds(allReviewSelected ? new Set() : new Set(reviewItems.map((i) => i.id)))
+  const toggleSelectAllReview = () => toggleSelectAll(reviewItems.map((i) => i.id))
 
   const handleBulk = async (action: 'confirm' | 'reject') => {
     const ids = Array.from(selectedIds)
@@ -301,7 +299,7 @@ export default function PresenceChecksPage() {
     } else {
       setBulkMsg(`대량 ${label} 실패: ${r.message ?? '알 수 없는 오류'}`)
     }
-    setSelectedIds(new Set())
+    clearSelection()
     loadList()
   }
 
@@ -377,32 +375,22 @@ export default function PresenceChecksPage() {
         </div>
 
         {/* 대량 처리 툴바 — REVIEW_REQUIRED 선택 시 표시 */}
-        {selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 mb-4 px-4 py-3 rounded-lg bg-[rgba(21,101,192,0.07)] border border-[rgba(21,101,192,0.25)] flex-wrap">
-            <span className="text-[13px] font-bold text-[#1565c0]">{selectedIds.size}건 선택됨</span>
-            <button
-              onClick={() => handleBulk('confirm')}
-              disabled={bulkProcessing}
-              className="px-3 py-1 text-[12px] bg-[#2e7d32] text-white rounded cursor-pointer border-0 font-semibold disabled:opacity-50"
-            >
-              {bulkProcessing ? '처리 중...' : '대량 승인'}
-            </button>
-            <button
-              onClick={() => handleBulk('reject')}
-              disabled={bulkProcessing}
-              className="px-3 py-1 text-[12px] bg-[#b71c1c] text-white rounded cursor-pointer border-0 font-semibold disabled:opacity-50"
-            >
-              {bulkProcessing ? '처리 중...' : '대량 이탈확정'}
-            </button>
-            <button
-              onClick={() => setSelectedIds(new Set())}
-              disabled={bulkProcessing}
-              className="ml-auto px-3 py-1 text-[12px] bg-[rgba(91,164,217,0.1)] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded cursor-pointer"
-            >
-              선택 해제
-            </button>
-          </div>
-        )}
+        <BulkToolbar count={selectedIds.size} onClear={clearSelection} disabled={bulkProcessing}>
+          <button
+            onClick={() => handleBulk('confirm')}
+            disabled={bulkProcessing}
+            className="px-3 py-1.5 text-[12px] bg-[#2e7d32] text-white rounded-[8px] cursor-pointer border-0 font-semibold disabled:opacity-50"
+          >
+            {bulkProcessing ? '처리 중...' : '대량 승인'}
+          </button>
+          <button
+            onClick={() => handleBulk('reject')}
+            disabled={bulkProcessing}
+            className="px-3 py-1.5 text-[12px] bg-[#b71c1c] text-white rounded-[8px] cursor-pointer border-0 font-semibold disabled:opacity-50"
+          >
+            {bulkProcessing ? '처리 중...' : '대량 이탈확정'}
+          </button>
+        </BulkToolbar>
         {bulkMsg && (
           <div className="px-4 py-3 bg-[rgba(91,164,217,0.1)] rounded-lg mb-4 text-[14px] text-secondary-brand">{bulkMsg}</div>
         )}
@@ -526,7 +514,7 @@ export default function PresenceChecksPage() {
                       <tr>
                         <th className="px-[10px] py-[9px] border-b-2 border-[rgba(91,164,217,0.2)]">
                           {reviewItems.length > 0 && (
-                            <input type="checkbox" checked={allReviewSelected} onChange={toggleSelectAll} title="REVIEW_REQUIRED 전체 선택" className="cursor-pointer" />
+                            <input type="checkbox" checked={allReviewSelected} onChange={toggleSelectAllReview} title="REVIEW_REQUIRED 전체 선택" className="cursor-pointer" />
                           )}
                         </th>
                         {['이름', '현장', '구분', '예약', '만료', '응답', '거리(m)', 'GPS(m)', '상태', '메모'].map((h) => (

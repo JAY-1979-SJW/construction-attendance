@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Modal, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
+import { Modal, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions, BulkToolbar } from '@/components/admin/ui'
+import { useBulkSelection } from '@/lib/hooks/useBulkSelection'
 
 interface WorkConfirmation {
   id: string
@@ -64,7 +65,7 @@ export default function WorkConfirmationsPage() {
   const [editForm, setEditForm]   = useState({ workType: '', workUnits: '', baseAmount: '', allowanceAmount: '', notes: '' })
   const [saving, setSaving]       = useState(false)
   const [msg, setMsg]             = useState('')
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const { selectedIds, toggleSelect, clearSelection, toggleSelectAll } = useBulkSelection()
   const [bulkProcessing, setBulkProcessing] = useState(false)
 
   const load = useCallback(() => {
@@ -79,25 +80,11 @@ export default function WorkConfirmationsPage() {
       })
   }, [monthKey, statusFilter, router])
 
-  useEffect(() => { load(); setSelectedIds(new Set()) }, [load])
+  useEffect(() => { load(); clearSelection() }, [load])
 
   const draftItems = items.filter((i) => i.confirmationStatus === 'DRAFT')
   const allDraftSelected = draftItems.length > 0 && draftItems.every((i) => selectedIds.has(i.id))
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }
-  const toggleSelectAll = () => {
-    if (allDraftSelected) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(draftItems.map((i) => i.id)))
-    }
-  }
+  const toggleSelectAllDraft = () => toggleSelectAll(draftItems.map((i) => i.id))
 
   const handleBulk = async (action: 'confirm' | 'exclude') => {
     const ids = Array.from(selectedIds)
@@ -118,7 +105,7 @@ export default function WorkConfirmationsPage() {
     } else {
       setMsg(`대량 ${label} 실패: ${r.message ?? '알 수 없는 오류'}`)
     }
-    setSelectedIds(new Set())
+    clearSelection()
     load()
   }
 
@@ -231,32 +218,22 @@ export default function WorkConfirmationsPage() {
         {msg && <div className="px-4 py-3 bg-[rgba(91,164,217,0.1)] rounded-lg mb-4 text-[14px] text-secondary-brand">{msg}</div>}
 
         {/* 대량 처리 툴바 — 선택 건 있을 때만 표시 */}
-        {selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 mb-4 px-4 py-3 rounded-lg bg-[rgba(21,101,192,0.07)] border border-[rgba(21,101,192,0.25)] flex-wrap">
-            <span className="text-[13px] font-bold text-[#1565c0]">{selectedIds.size}건 선택됨</span>
-            <button
-              onClick={() => handleBulk('confirm')}
-              disabled={bulkProcessing}
-              className="px-3 py-1 text-[12px] bg-[#2e7d32] text-white rounded cursor-pointer border-0 font-semibold disabled:opacity-50"
-            >
-              {bulkProcessing ? '처리 중...' : '대량 승인'}
-            </button>
-            <button
-              onClick={() => handleBulk('exclude')}
-              disabled={bulkProcessing}
-              className="px-3 py-1 text-[12px] bg-[#b71c1c] text-white rounded cursor-pointer border-0 font-semibold disabled:opacity-50"
-            >
-              {bulkProcessing ? '처리 중...' : '대량 반려'}
-            </button>
-            <button
-              onClick={() => setSelectedIds(new Set())}
-              disabled={bulkProcessing}
-              className="ml-auto px-3 py-1 text-[12px] bg-[rgba(91,164,217,0.1)] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded cursor-pointer"
-            >
-              선택 해제
-            </button>
-          </div>
-        )}
+        <BulkToolbar count={selectedIds.size} onClear={clearSelection} disabled={bulkProcessing}>
+          <button
+            onClick={() => handleBulk('confirm')}
+            disabled={bulkProcessing}
+            className="px-3 py-1.5 text-[12px] bg-[#2e7d32] text-white rounded-[8px] cursor-pointer border-0 font-semibold disabled:opacity-50"
+          >
+            {bulkProcessing ? '처리 중...' : '대량 승인'}
+          </button>
+          <button
+            onClick={() => handleBulk('exclude')}
+            disabled={bulkProcessing}
+            className="px-3 py-1.5 text-[12px] bg-[#b71c1c] text-white rounded-[8px] cursor-pointer border-0 font-semibold disabled:opacity-50"
+          >
+            {bulkProcessing ? '처리 중...' : '대량 반려'}
+          </button>
+        </BulkToolbar>
 
         {/* pendingReview 배너 */}
         {summary && (
@@ -367,7 +344,7 @@ export default function WorkConfirmationsPage() {
                             <input
                               type="checkbox"
                               checked={allDraftSelected}
-                              onChange={toggleSelectAll}
+                              onChange={toggleSelectAllDraft}
                               title="DRAFT 전체 선택"
                               className="cursor-pointer"
                             />
