@@ -5,12 +5,12 @@ import { usePathname, useRouter } from 'next/navigation'
 /**
  * WorkerBottomNav
  *
- * 근로자 화면 하단 고정 내비게이션 — 최대 5개 항목.
- * 출퇴근 | 작업일보 | 서류 | 내 정보 | 요청
+ * 근로자 화면 하단 고정 내비게이션 — 4탭.
+ * 홈 | 서류 | 작업 | 노임
  *
  * 권한 설계 원칙:
- *  - 이 네비게이션 외 메뉴 없음 (관리자 메모, 리스크 점수, 계약형태 검토 이력 노출 금지)
- *  - "요청" 탭은 제한형 요청서만 제공 (자유 문의 없음)
+ *  - 이 네비게이션 외 메뉴 없음 (관리자 기능, TBM, 작업지시, 완료보고 노출 금지)
+ *  - 각 탭은 근로자 실사용 흐름만 제공
  */
 
 interface NavItem {
@@ -21,11 +21,10 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: '출퇴근',    icon: '🕐', href: '/attendance',              match: ['/attendance'] },
-  { label: '공수/급여', icon: '💰', href: '/wage',                    match: ['/wage'] },
-  { label: '서류',      icon: '📑', href: '/my/onboarding',           match: ['/my/onboarding', '/my/documents'] },
-  { label: '작업일보',  icon: '📋', href: '/daily-report',            match: ['/daily-report'] },
-  { label: '내 정보',   icon: '👤', href: '/my/status',               match: ['/my/status', '/my/requests', '/my/sites', '/my/material-requests'] },
+  { label: '홈',  icon: '🏠', href: '/attendance',   match: ['/attendance'] },
+  { label: '서류', icon: '📑', href: '/my/onboarding', match: ['/my/onboarding', '/my/documents', '/contracts'] },
+  { label: '작업', icon: '🔨', href: '/work',          match: ['/work', '/daily-report', '/my/material-requests'] },
+  { label: '노임', icon: '💰', href: '/wage',           match: ['/wage'] },
 ]
 
 export default function WorkerBottomNav() {

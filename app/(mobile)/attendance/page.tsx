@@ -592,13 +592,10 @@ export default function AttendancePage() {
               </div>
             </div>
 
-            {/* 근무중 바로가기 (2x2 그리드) */}
+            {/* 근무중 작업기록 바로가기 */}
             {!isPreview && today.status === 'WORKING' && (
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <a href="/tbm" className="py-3 rounded-xl text-center text-[13px] font-bold border border-blue-200 bg-blue-50 text-blue-700 no-underline">TBM</a>
-                <a href="/work-orders" className="py-3 rounded-xl text-center text-[13px] font-bold border border-orange-200 bg-orange-50 text-orange-700 no-underline">작업지시</a>
-                <a href="/work-complete" className="py-3 rounded-xl text-center text-[13px] font-bold border border-green-200 bg-green-50 text-green-700 no-underline">완료보고</a>
-                <a href="/daily-report" className="py-3 rounded-xl text-center text-[13px] font-bold border border-gray-200 bg-gray-50 text-gray-700 no-underline">작업일보</a>
+              <div className="mt-4">
+                <a href="/work" className="block w-full py-3 rounded-xl text-center text-[13px] font-bold border border-gray-200 bg-gray-50 text-gray-700 no-underline">작업기록 · 자재신청</a>
               </div>
             )}
 
@@ -829,21 +826,11 @@ export default function AttendancePage() {
         )}
       </div>
 
-      {/* 예외 신청 바로가기 */}
-      {!isPreview && !today && (
-        <div className="bg-card rounded-2xl p-4 mb-4 border border-brand">
-          <a
-            href="/my/requests"
-            className="flex items-center gap-3 no-underline"
-          >
-            <span className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-[18px] shrink-0">!</span>
-            <div className="flex-1">
-              <div className="text-[14px] font-bold text-title-brand">예외 신청</div>
-              <div className="text-[13px] leading-5 text-muted-brand">출근 불가 사유, GPS 오류 등 문의</div>
-            </div>
-            <span className="text-[#D1D5DB] text-[18px]">›</span>
-          </a>
-        </div>
+      {/* 문제신고 */}
+      {!isPreview && (
+        <ProblemReportCard
+          siteId={today?.siteId ?? availableSites[0]?.siteId ?? null}
+        />
       )}
 
       {/* 최근 내 기록 */}
@@ -1055,6 +1042,135 @@ function PresenceCard({
       >
         {isLoading ? '위치 확인 중...' : '현재 위치로 응답'}
       </button>
+    </div>
+  )
+}
+
+/* ── ProblemReportCard 컴포넌트 ────────────────────────── */
+const PROBLEM_TYPES = [
+  { type: 'MISSING_CHECKIN',   label: '출근누락',    color: '#1565c0', bg: 'rgba(21,101,192,0.08)' },
+  { type: 'MISSING_CHECKOUT',  label: '퇴근누락',    color: '#e65100', bg: 'rgba(230,81,0,0.08)' },
+  { type: 'LOCATION_MISMATCH', label: '위치이탈',    color: '#6a1b9a', bg: 'rgba(106,27,154,0.08)' },
+  { type: 'SAFETY_HEALTH',     label: '안전·건강이상', color: '#c62828', bg: 'rgba(198,40,40,0.08)' },
+  { type: 'ACCIDENT',          label: '사고/아차사고', color: '#b71c1c', bg: 'rgba(183,28,28,0.10)' },
+]
+
+function ProblemReportCard({ siteId }: { siteId: string | null }) {
+  const [open, setOpen]     = useState(false)
+  const [selected, setSelected] = useState<string | null>(null)
+  const [reason, setReason]  = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [msg, setMsg]        = useState('')
+
+  const todayKST = () => {
+    const d = new Date(Date.now() + 9 * 3600000)
+    return d.toISOString().slice(0, 10)
+  }
+
+  const handleSubmit = async () => {
+    if (!selected || reason.trim().length < 5) {
+      setMsg('신고 종류를 선택하고 사유를 5자 이상 입력하세요.')
+      return
+    }
+    if (!siteId) {
+      setMsg('현장 정보가 없습니다. 현장 배정 후 이용하세요.')
+      return
+    }
+    setSubmitting(true)
+    setMsg('')
+    try {
+      const res = await fetch('/api/attendance/exception-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ siteId, workDate: todayKST(), reason: reason.trim(), type: selected }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setMsg('신고가 접수되었습니다. 관리자 확인 후 처리됩니다.')
+        setSelected(null)
+        setReason('')
+        setTimeout(() => { setOpen(false); setMsg('') }, 2500)
+      } else {
+        setMsg(data.message ?? '처리 중 오류가 발생했습니다.')
+      }
+    } catch {
+      setMsg('네트워크 오류가 발생했습니다.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="bg-card rounded-2xl p-4 mb-4 border border-brand">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-3 w-full bg-transparent border-none cursor-pointer p-0 text-left"
+      >
+        <span className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center text-[18px] shrink-0">!</span>
+        <div className="flex-1">
+          <div className="text-[14px] font-bold text-title-brand">문제신고</div>
+          <div className="text-[13px] leading-5 text-muted-brand">출근·퇴근 누락, 위치이탈, 안전·사고 신고</div>
+        </div>
+        <span className="text-[#D1D5DB] text-[18px]">{open ? '∨' : '›'}</span>
+      </button>
+
+      {open && (
+        <div className="mt-4">
+          <div className="text-[13px] font-semibold text-body-brand mb-2">신고 종류 선택</div>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {PROBLEM_TYPES.map(p => (
+              <button
+                key={p.type}
+                onClick={() => setSelected(s => s === p.type ? null : p.type)}
+                className="px-3 py-2 rounded-xl text-[13px] font-semibold border cursor-pointer transition-all"
+                style={{
+                  background: selected === p.type ? p.bg : '#fff',
+                  color: selected === p.type ? p.color : '#5a6a7e',
+                  borderColor: selected === p.type ? p.color : '#E5E7EB',
+                  fontWeight: selected === p.type ? 700 : 400,
+                }}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          {selected && (
+            <>
+              <textarea
+                placeholder="구체적인 사유를 입력하세요 (5자 이상)"
+                value={reason}
+                onChange={e => setReason(e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 rounded-xl border border-brand text-[14px] resize-none box-border mb-3"
+              />
+              <button
+                onClick={handleSubmit}
+                disabled={submitting || reason.trim().length < 5}
+                className="w-full py-3 text-[14px] font-bold text-white border-none rounded-xl cursor-pointer"
+                style={{
+                  background: '#c62828',
+                  opacity: submitting || reason.trim().length < 5 ? 0.5 : 1,
+                }}
+              >
+                {submitting ? '접수 중...' : '신고 접수'}
+              </button>
+            </>
+          )}
+
+          {msg && (
+            <div
+              className="mt-3 rounded-xl px-3 py-2 text-[13px] font-medium"
+              style={{
+                background: msg.includes('접수') ? 'rgba(22,163,74,0.08)' : 'rgba(220,38,38,0.08)',
+                color: msg.includes('접수') ? '#16a34a' : '#dc2626',
+              }}
+            >
+              {msg}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

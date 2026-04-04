@@ -40,5 +40,21 @@ export default defineConfig({
       },
       testMatch: 'mobile-contract-form-layout.spec.ts',
     },
+    {
+      name: 'ui-layout-core',
+      use: {
+        browserName: 'chromium',
+        screenshot: 'on',
+      },
+      testMatch: 'ui-layout-core.spec.ts',
+    },
+    {
+      name: 'worker-home-ui',
+      use: {
+        browserName: 'chromium',
+        screenshot: 'only-on-failure',
+      },
+      testMatch: 'worker-home-ui.spec.ts',
+    },
   ],
 })
