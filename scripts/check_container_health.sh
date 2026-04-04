@@ -16,7 +16,7 @@
 # ──────────────────────────────────────────────
 set -uo pipefail
 
-SSH_KEY="$HOME/.ssh/haehan-ai.pem"
+SSH_KEY="${SSH_KEY:-$HOME/.ssh/haehan-ai.pem}"
 SSH_HOST="ubuntu@1.201.176.236"
 APP_DIR="~/app/attendance"
 DOMAIN="https://attendance.haehan-ai.kr"

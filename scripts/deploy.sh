@@ -18,7 +18,7 @@ echo $$ > "$LOCK_FILE"
 trap "rm -f '$LOCK_FILE'" EXIT INT TERM
 
 # ── 설정 ──
-SSH_KEY="$HOME/.ssh/haehan-ai.pem"
+SSH_KEY="${SSH_KEY:-$HOME/.ssh/haehan-ai.pem}"
 SSH_HOST="ubuntu@1.201.176.236"
 APP_DIR="~/app/attendance"
 BRANCH="master"
