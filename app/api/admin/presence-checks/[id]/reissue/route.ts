@@ -10,8 +10,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
+
+    // DB 조회를 권한 체크 전에 수행 — PERMISSION_DENIED audit log가 검증된 presenceCheckId를 사용하도록 보장
+    const [pc, adminUser] = await Promise.all([
+      prisma.presenceCheck.findUnique({ where: { id: params.id } }),
+      prisma.adminUser.findUnique({ where: { id: session.sub }, select: { name: true } }),
+    ])
+
     if (session.role === 'VIEWER') {
-      await logPresenceAudit({ presenceCheckId: params.id, action: 'PERMISSION_DENIED', actorType: 'ADMIN', actorId: session.sub, message: 'VIEWER 역할 reissue 시도 차단' })
+      // pc가 존재하는 경우에만 audit log 기록 (존재하지 않는 presenceCheckId로 insert 시 FK violation 방지)
+      if (pc) {
+        await logPresenceAudit({ presenceCheckId: pc.id, action: 'PERMISSION_DENIED', actorType: 'ADMIN', actorId: session.sub, message: 'VIEWER 역할 reissue 시도 차단' })
+      }
       return forbidden('조회 전용 계정은 이 작업을 수행할 수 없습니다.')
     }
 
@@ -23,10 +33,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return badRequest('INVALID_EXPIRES_MINUTES')
     }
 
-    const [pc, adminUser] = await Promise.all([
-      prisma.presenceCheck.findUnique({ where: { id: params.id } }),
-      prisma.adminUser.findUnique({ where: { id: session.sub }, select: { name: true } }),
-    ])
     const adminName = adminUser?.name ?? session.sub
     if (!pc) return notFound('NOT_FOUND')
 
