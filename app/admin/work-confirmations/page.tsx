@@ -64,6 +64,8 @@ export default function WorkConfirmationsPage() {
   const [editForm, setEditForm]   = useState({ workType: '', workUnits: '', baseAmount: '', allowanceAmount: '', notes: '' })
   const [saving, setSaving]       = useState(false)
   const [msg, setMsg]             = useState('')
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [bulkProcessing, setBulkProcessing] = useState(false)
 
   const load = useCallback(() => {
     setLoading(true)
@@ -77,7 +79,48 @@ export default function WorkConfirmationsPage() {
       })
   }, [monthKey, statusFilter, router])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { load(); setSelectedIds(new Set()) }, [load])
+
+  const draftItems = items.filter((i) => i.confirmationStatus === 'DRAFT')
+  const allDraftSelected = draftItems.length > 0 && draftItems.every((i) => selectedIds.has(i.id))
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+  const toggleSelectAll = () => {
+    if (allDraftSelected) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(draftItems.map((i) => i.id)))
+    }
+  }
+
+  const handleBulk = async (action: 'confirm' | 'exclude') => {
+    const ids = Array.from(selectedIds)
+    if (!ids.length) return
+    const label = action === 'confirm' ? '승인' : '반려(제외)'
+    if (!confirm(`선택한 ${ids.length}건을 대량 ${label} 처리하시겠습니까?`)) return
+    setBulkProcessing(true)
+    setMsg('')
+    const r = await fetch('/api/admin/work-confirmations/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids, action }),
+    }).then((res) => res.json())
+    setBulkProcessing(false)
+    if (r.success) {
+      const { succeeded, failed } = r.data
+      setMsg(`대량 ${label} 완료 — 성공 ${succeeded}건${failed > 0 ? ` | 실패 ${failed}건` : ''}`)
+    } else {
+      setMsg(`대량 ${label} 실패: ${r.message ?? '알 수 없는 오류'}`)
+    }
+    setSelectedIds(new Set())
+    load()
+  }
 
   const handleGenerate = async () => {
     if (!confirm(`${monthKey} 근무확정 초안을 생성하시겠습니까?`)) return
@@ -187,6 +230,34 @@ export default function WorkConfirmationsPage() {
 
         {msg && <div className="px-4 py-3 bg-[rgba(91,164,217,0.1)] rounded-lg mb-4 text-[14px] text-secondary-brand">{msg}</div>}
 
+        {/* 대량 처리 툴바 — 선택 건 있을 때만 표시 */}
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-3 mb-4 px-4 py-3 rounded-lg bg-[rgba(21,101,192,0.07)] border border-[rgba(21,101,192,0.25)] flex-wrap">
+            <span className="text-[13px] font-bold text-[#1565c0]">{selectedIds.size}건 선택됨</span>
+            <button
+              onClick={() => handleBulk('confirm')}
+              disabled={bulkProcessing}
+              className="px-3 py-1 text-[12px] bg-[#2e7d32] text-white rounded cursor-pointer border-0 font-semibold disabled:opacity-50"
+            >
+              {bulkProcessing ? '처리 중...' : '대량 승인'}
+            </button>
+            <button
+              onClick={() => handleBulk('exclude')}
+              disabled={bulkProcessing}
+              className="px-3 py-1 text-[12px] bg-[#b71c1c] text-white rounded cursor-pointer border-0 font-semibold disabled:opacity-50"
+            >
+              {bulkProcessing ? '처리 중...' : '대량 반려'}
+            </button>
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              disabled={bulkProcessing}
+              className="ml-auto px-3 py-1 text-[12px] bg-[rgba(91,164,217,0.1)] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded cursor-pointer"
+            >
+              선택 해제
+            </button>
+          </div>
+        )}
+
         {/* pendingReview 배너 */}
         {summary && (
           <div className={`flex items-center gap-3 mb-4 px-4 py-3 rounded-lg flex-wrap ${
@@ -265,7 +336,21 @@ export default function WorkConfirmationsPage() {
                     <MobileCardField label="퇴근" value={fmtTime(item.attendanceDay?.lastCheckOutAt ?? null)} />
                     <MobileCardField label="확정보수" value={fmt(item.confirmedTotalAmount)} />
                   </MobileCardFields>
-                  {item.confirmationStatus !== 'CONFIRMED' && (
+                  {item.confirmationStatus === 'DRAFT' && (
+                    <MobileCardActions>
+                      <label className="flex items-center gap-1 cursor-pointer text-[12px] text-muted-brand select-none">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(item.id)}
+                          onChange={() => toggleSelect(item.id)}
+                          className="cursor-pointer"
+                        />
+                        선택
+                      </label>
+                      <button onClick={() => openEdit(item)} className="px-[10px] py-1 text-[12px] bg-accent text-white border-0 rounded cursor-pointer">수정/확정</button>
+                    </MobileCardActions>
+                  )}
+                  {item.confirmationStatus !== 'DRAFT' && item.confirmationStatus !== 'CONFIRMED' && (
                     <MobileCardActions>
                       <button onClick={() => openEdit(item)} className="px-[10px] py-1 text-[12px] bg-accent text-white border-0 rounded cursor-pointer">수정/확정</button>
                     </MobileCardActions>
@@ -277,6 +362,17 @@ export default function WorkConfirmationsPage() {
                   <table className="w-full border-collapse">
                     <thead>
                       <tr>
+                        <th className="px-3 py-3 text-left border-b border-[rgba(91,164,217,0.2)]">
+                          {draftItems.length > 0 && (
+                            <input
+                              type="checkbox"
+                              checked={allDraftSelected}
+                              onChange={toggleSelectAll}
+                              title="DRAFT 전체 선택"
+                              className="cursor-pointer"
+                            />
+                          )}
+                        </th>
                         {['날짜', '근로자', '현장', '출근', '퇴근', '소득유형', '공수', '확정보수', '상태', ''].map((h) => (
                           <th key={h} className="px-4 py-3 text-left text-[12px] font-semibold text-muted-brand border-b border-[rgba(91,164,217,0.2)] whitespace-nowrap">{h}</th>
                         ))}
@@ -284,7 +380,17 @@ export default function WorkConfirmationsPage() {
                     </thead>
                     <tbody>
                       {items.map((item) => (
-                        <tr key={item.id} className="cursor-default">
+                        <tr key={item.id} className={`cursor-default ${selectedIds.has(item.id) ? 'bg-[rgba(21,101,192,0.05)]' : ''}`}>
+                          <td className="px-3 py-3 border-b border-[rgba(91,164,217,0.1)] align-top">
+                            {item.confirmationStatus === 'DRAFT' && (
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.has(item.id)}
+                                onChange={() => toggleSelect(item.id)}
+                                className="cursor-pointer"
+                              />
+                            )}
+                          </td>
                           <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.workDate}</td>
                           <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.worker.name}</td>
                           <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">{item.site.name}</td>
