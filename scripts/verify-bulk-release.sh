@@ -159,7 +159,27 @@ else
 fi
 
 # ──────────────────────────────────────────────────────
-# [6] 최종 요약
+# [6] admin smoke E2E
+# ──────────────────────────────────────────────────────
+echo ""
+echo "▶ [6] admin smoke E2E"
+cd "$ROOT"
+set +e
+SMOKE_OUT=$(npx playwright test e2e/admin-smoke.spec.ts \
+  --config=e2e/playwright.config.ts --project=chromium 2>&1)
+SMOKE_EC=$?
+set -e
+SMOKE_PASSED=$(echo "$SMOKE_OUT" | grep -oE '[0-9]+ passed' | tail -1 || echo "? passed")
+SMOKE_FAILED=$(echo "$SMOKE_OUT" | grep -oE '[0-9]+ failed' | head -1 || true)
+if [ $SMOKE_EC -eq 0 ]; then
+  mark "adminSmokeE2E" "PASS" "$SMOKE_PASSED"
+else
+  mark "adminSmokeE2E" "FAIL" "${SMOKE_FAILED:-실패} / $SMOKE_PASSED"
+  echo "$SMOKE_OUT" | grep -E "(✘|Error:)" | head -5 | sed 's/^/      /'
+fi
+
+# ──────────────────────────────────────────────────────
+# [7] 최종 요약
 # ──────────────────────────────────────────────────────
 END_TS=$(date '+%Y-%m-%d %H:%M:%S')
 echo ""
