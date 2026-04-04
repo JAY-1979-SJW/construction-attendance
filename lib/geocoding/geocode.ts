@@ -30,28 +30,43 @@ async function geocodeWithKakao(address: string): Promise<GeocodedResult | null>
   }
 }
 
-/** Nominatim(OpenStreetMap) 무료 지오코딩 — 한국 주소 보조 */
+/** Nominatim(OpenStreetMap) 무료 지오코딩 — 한국 주소 보조
+ *  1차: 전체 주소 시도
+ *  2차: 시/구 단위만 추출해 폴백 (도로명 주소는 Nominatim 히트율 낮음)
+ */
 async function geocodeWithNominatim(address: string): Promise<GeocodedResult | null> {
-  try {
-    const query = encodeURIComponent(`${address} 대한민국`)
-    const url = `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&accept-language=ko&countrycodes=kr`
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'HaehanAttendanceSystem/1.0 (construction-attendance)' },
-      signal: AbortSignal.timeout(10000),
-    })
-    if (!res.ok) return null
-    const data = await res.json()
-    const item = data[0]
-    if (!item || parseFloat(item.lat) === 0) return null
-    return {
-      normalizedAddress: item.display_name ?? address,
-      latitude: parseFloat(item.lat),
-      longitude: parseFloat(item.lon),
-      confidence: 'LOW',
-    }
-  } catch {
-    return null
+  const tryNominatim = async (q: string): Promise<GeocodedResult | null> => {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ' 대한민국')}&format=json&limit=1&accept-language=ko&countrycodes=kr`
+      const res = await fetch(url, {
+        headers: { 'User-Agent': 'HaehanAttendanceSystem/1.0 (construction-attendance)' },
+        signal: AbortSignal.timeout(8000),
+      })
+      if (!res.ok) return null
+      const data = await res.json()
+      const item = data[0]
+      if (!item || parseFloat(item.lat) === 0) return null
+      return {
+        normalizedAddress: item.display_name ?? q,
+        latitude: parseFloat(item.lat),
+        longitude: parseFloat(item.lon),
+        confidence: 'LOW',
+      }
+    } catch { return null }
   }
+
+  // 1차: 전체 주소
+  const full = await tryNominatim(address)
+  if (full) return full
+
+  // 2차: 시/도 + 구/군 단위 추출 폴백
+  // 예: "서울특별시 서초구 반포대로 58" → "서울특별시 서초구"
+  const m = address.match(/^(.+?[시도])\s+(.+?[구군시])\s/)
+  if (m) {
+    const district = `${m[1]} ${m[2]}`
+    return tryNominatim(district)
+  }
+  return null
 }
 
 /**

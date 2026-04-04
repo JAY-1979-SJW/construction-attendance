@@ -380,7 +380,8 @@ export default function SitesPage() {
         const addressJibun = data.jibunAddress || ''
         const setStatus = target === 'form' ? setFormGeoStatus : setEditGeoStatus
         const setF      = target === 'form' ? setForm          : setEditForm
-        setF(f => ({ ...f, address, addressJibun, latitude: '', longitude: '' }))
+        // 주소만 업데이트 — lat/lng는 geocode 결과 전까지 기존 값 유지
+        setF(f => ({ ...f, address, addressJibun }))
         setStatus('loading')
         try {
           const res  = await fetch(`/api/admin/geocode?address=${encodeURIComponent(address)}`)

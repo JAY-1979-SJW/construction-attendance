@@ -249,7 +249,8 @@ export default function SiteDetailPage() {
       oncomplete: async (data: { roadAddress: string; jibunAddress: string }) => {
         const address = data.roadAddress || data.jibunAddress
         const addressJibun = data.jibunAddress || ''
-        setInfoForm(f => ({ ...f, address, addressJibun, latitude: '', longitude: '' }))
+        // 주소만 업데이트 — lat/lng는 geocode 결과 전까지 기존 값 유지
+        setInfoForm(f => ({ ...f, address, addressJibun }))
         setInfoGeoStatus('loading')
         try {
           const res  = await fetch(`/api/admin/geocode?address=${encodeURIComponent(address)}`)
@@ -258,6 +259,7 @@ export default function SiteDetailPage() {
             setInfoForm(f => ({ ...f, latitude: String(json.data.lat), longitude: String(json.data.lng) }))
             setInfoGeoStatus('done')
           } else {
+            // geocode 실패 — 기존 좌표 유지, 수동 입력 유도
             setInfoGeoStatus('error')
           }
         } catch {
