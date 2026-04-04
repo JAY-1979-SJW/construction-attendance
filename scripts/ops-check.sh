@@ -218,9 +218,12 @@ http.get('http://localhost:3002/api/health', r => {
 " 2>/dev/null || echo "000|timeout"
 
 # ── [6] 15분 에러로그 ──
+# allow-list: 실제 장애 신호만 탐지
+# deny-list:  정상 JSON 요약 로그 제외 ("errors": 0 / errors: 0 / 정상 cron 결과 로그)
 echo "===SECTION:ERROR_LOG_15M==="
 ERR_OUT=$(docker logs "$APP_CONTAINER" --since 15m 2>&1 \
-  | grep -iE 'error|exception|traceback|segfault|oom|killed|fatal|panic|ECONNREFUSED|ENOTFOUND' \
+  | grep -iE 'uncaughtException|unhandledRejection|TypeError|ReferenceError|SyntaxError|RangeError|PrismaClientKnownRequestError|PrismaClientUnknownRequestError|PrismaClientInitializationError|P[0-9]{4}:|exception|traceback|segfault|oom |killed|fatal|panic|ECONNREFUSED|ENOTFOUND' \
+  | grep -vE '"errors"\s*:\s*[0-9]+|errors:\s*[0-9]+|\berrors\b.*done|\[cron/' \
   | tail -50 2>/dev/null) || ERR_OUT=""
 [ -z "$ERR_OUT" ] && echo "NONE" || echo "$ERR_OUT"
 
