@@ -179,7 +179,27 @@ else
 fi
 
 # ──────────────────────────────────────────────────────
-# [7] 최종 요약
+# [7] admin regression E2E
+# ──────────────────────────────────────────────────────
+echo ""
+echo "▶ [7] admin regression E2E"
+cd "$ROOT"
+set +e
+REG_OUT=$(npx playwright test e2e/admin-regression.spec.ts \
+  --config=e2e/playwright.config.ts --project=chromium 2>&1)
+REG_EC=$?
+set -e
+REG_PASSED=$(echo "$REG_OUT" | grep -oE '[0-9]+ passed' | tail -1 || echo "? passed")
+REG_FAILED=$(echo "$REG_OUT" | grep -oE '[0-9]+ failed' | head -1 || true)
+if [ $REG_EC -eq 0 ]; then
+  mark "adminRegressionE2E" "PASS" "$REG_PASSED"
+else
+  mark "adminRegressionE2E" "FAIL" "${REG_FAILED:-실패} / $REG_PASSED"
+  echo "$REG_OUT" | grep -E "(✘|Error:)" | head -5 | sed 's/^/      /'
+fi
+
+# ──────────────────────────────────────────────────────
+# [8] 최종 요약
 # ──────────────────────────────────────────────────────
 END_TS=$(date '+%Y-%m-%d %H:%M:%S')
 echo ""
