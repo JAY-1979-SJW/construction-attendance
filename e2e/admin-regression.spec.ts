@@ -8,6 +8,10 @@
  *   R-09  현장점검 목록 렌더링 + 상태 select 필터 적용
  *   R-10  모바일(390px) 출퇴근 카드/테이블 렌더링
  *   R-11  VIEWER 권한 → workers bulk 체크박스 없음
+ *   R-12  현장 목록 렌더링
+ *   R-13  현장 행 클릭 → 상세 패널 현장명 표시
+ *   R-14  현장 상세 패널 → 기본정보 수정 모달 → PATCH API 호출 확인
+ *   R-15  현장 상세(/admin/sites/[id]) → 수정 → 주소검색(Daum mock) → 좌표 반영 → 저장 PATCH
  *
  * 실행:
  *   npx playwright test e2e/admin-regression.spec.ts --config=e2e/playwright.config.ts --project=chromium
@@ -65,6 +69,16 @@ async function ensureAdmin(page: Page) {
 
 // ── 목 데이터 ──────────────────────────────────────────────
 const TODAY = new Date().toISOString().slice(0, 10)
+
+const SITE = {
+  id: 'site-1', name: '테스트현장', address: '서울시 강남구 테스트로 1',
+  latitude: 37.5, longitude: 127.0, allowedRadius: 100,
+  isActive: true, siteCode: 'S-001',
+  openedAt: '2025-01-01', closedAt: '2026-12-31', notes: null,
+  assignedWorkerCount: 5, todayCheckInCount: 3, absentCount: 0,
+  todayWage: 300000, monthWage: 5000000, totalWage: 30000000,
+  companyAssignments: [],
+}
 
 const WORKER = {
   id: 'w-1', name: '김철수', phone: '01012345678', accountStatus: 'APPROVED',
@@ -284,6 +298,231 @@ test.describe('[REGRESSION] 모바일 출퇴근', () => {
     await page.goto(`${BASE}/admin/attendance`)
     const content = page.locator('table, [class*="card"], [class*="Card"]').first()
     await expect(content).toBeVisible({ timeout: 15000 })
+  })
+})
+
+// ══════════════════════════════════════════════════════════════
+// R-12 / R-13 / R-14  현장 목록 + 상세 패널 + 수정 PATCH
+// ══════════════════════════════════════════════════════════════
+test.describe('[REGRESSION] 현장 목록/상세/수정', () => {
+  test.beforeEach(async ({ page }) => {
+    await ensureAdmin(page)
+    page.on('dialog', d => d.accept())
+    // companies 드롭다운 (수정 모달 내부)
+    await page.route('**/api/admin/companies**', async (route: Route) => {
+      await route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: [] }),
+      })
+    })
+  })
+
+  test('R-12 현장 목록 — 렌더링', async ({ page }) => {
+    await page.route('**/api/admin/sites**', async (route: Route) => {
+      await route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify(listResp([SITE])),
+      })
+    })
+    await page.goto(`${BASE}/admin/sites`)
+    // 현장명 또는 테이블/카드 노출
+    await expect(page.locator(`text=${SITE.name}`).first()).toBeVisible({ timeout: 15000 })
+  })
+
+  test('R-13 현장 행 클릭 → 상세 패널 현장명 표시', async ({ page }) => {
+    await page.route('**/api/admin/sites**', async (route: Route) => {
+      await route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify(listResp([SITE])),
+      })
+    })
+    await page.goto(`${BASE}/admin/sites`)
+    await expect(page.locator(`text=${SITE.name}`).first()).toBeVisible({ timeout: 15000 })
+
+    // 첫 번째 행 클릭 → 상세 패널
+    await page.locator(`text=${SITE.name}`).first().click()
+    // 패널에 현장명이 bold 텍스트로 노출 (text-[15px] font-bold)
+    await expect(page.locator(`.font-bold:has-text("${SITE.name}")`).first()).toBeVisible({ timeout: 5000 })
+  })
+
+  test('R-14 현장 수정 모달 → PATCH API 호출 확인', async ({ page }) => {
+    let patchCalled = false
+
+    await page.route('**/api/admin/sites**', async (route: Route) => {
+      const method = route.request().method()
+      const url = route.request().url()
+      if (method === 'PATCH' && url.includes(`/sites/${SITE.id}`)) {
+        patchCalled = true
+        await route.fulfill({
+          status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: SITE }),
+        })
+      } else {
+        await route.fulfill({
+          status: 200, contentType: 'application/json',
+          body: JSON.stringify(listResp([SITE])),
+        })
+      }
+    })
+
+    await page.goto(`${BASE}/admin/sites`)
+    await expect(page.locator(`text=${SITE.name}`).first()).toBeVisible({ timeout: 15000 })
+
+    // 행 클릭 → 상세 패널
+    await page.locator(`text=${SITE.name}`).first().click()
+    await expect(page.locator(`.font-bold:has-text("${SITE.name}")`).first()).toBeVisible({ timeout: 5000 })
+
+    // 기본정보 수정 버튼 → 수정 모달
+    await page.click('button:has-text("기본정보 수정")')
+    // 수정 모달 open → 저장 버튼 클릭
+    const saveBtn = page.locator('button:has-text("저장")').last()
+    await expect(saveBtn).toBeVisible({ timeout: 5000 })
+    await saveBtn.click()
+    await page.waitForTimeout(1000)
+
+    expect(patchCalled).toBe(true)
+  })
+})
+
+// ══════════════════════════════════════════════════════════════
+// R-15  현장 상세(/admin/sites/[id]) 주소검색 자동화
+//       Daum Postcode는 window.daum 모킹으로 대체
+// ══════════════════════════════════════════════════════════════
+const SITE_INFO = {
+  id: 'site-1', name: '테스트현장', address: '서울시 강남구 테스트로 1',
+  latitude: 37.5, longitude: 127.0, allowedRadius: 100,
+  isActive: true, siteCode: 'S-001', qrToken: 'qr-token-1',
+  openedAt: '2025-01-01', closedAt: '2026-12-31', notes: null,
+}
+
+const MOCK_ADDRESS    = '서울특별시 서초구 반포대로 58'
+const MOCK_JIBUN      = '서울특별시 서초구 반포동 100'
+const MOCK_LAT        = '37.5044'
+const MOCK_LNG        = '127.0049'
+
+test.describe('[REGRESSION] 현장 상세 주소검색', () => {
+  test.beforeEach(async ({ page }) => {
+    await ensureAdmin(page)
+    page.on('dialog', d => d.accept())
+
+    // ── Daum Postcode 모킹: addInitScript로 페이지 로드 전 주입
+    // open() 호출 시 즉시 oncomplete 콜백을 실행해 팝업 없이 동작 검증
+    await page.addInitScript(`
+      window.__daumMockFired = false;
+      window.daum = {
+        Postcode: class {
+          constructor(opts) { this._opts = opts; }
+          open() {
+            window.__daumMockFired = true;
+            this._opts.oncomplete({
+              roadAddress: '${MOCK_ADDRESS}',
+              jibunAddress: '${MOCK_JIBUN}',
+            });
+          }
+        }
+      };
+    `)
+
+    // ── API 모킹
+    await page.route(`**/api/admin/sites/${SITE_INFO.id}`, async (route: Route) => {
+      const method = route.request().method()
+      if (method === 'PATCH') {
+        await route.fulfill({
+          status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: SITE_INFO }),
+        })
+      } else {
+        await route.fulfill({
+          status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: SITE_INFO }),
+        })
+      }
+    })
+    await page.route(`**/api/admin/sites/${SITE_INFO.id}/company-assignments**`, async (route: Route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [] }) })
+    })
+    await page.route(`**/api/admin/sites/${SITE_INFO.id}/workers**`, async (route: Route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: { assignments: [] } }) })
+    })
+    await page.route(`**/api/admin/sites/${SITE_INFO.id}/notices**`, async (route: Route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [] }) })
+    })
+    await page.route(`**/api/admin/sites/${SITE_INFO.id}/schedules**`, async (route: Route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [] }) })
+    })
+    await page.route(`**/api/admin/sites/${SITE_INFO.id}/daily-workers**`, async (route: Route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: { workers: [] } }) })
+    })
+    await page.route('**/api/admin/geocode**', async (route: Route) => {
+      await route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: { lat: parseFloat('${MOCK_LAT}'), lng: parseFloat('${MOCK_LNG}') } }),
+      })
+    })
+  })
+
+  test('R-15 주소검색 → 주소/좌표 반영 → 저장 PATCH', async ({ page }) => {
+    let patchBody: Record<string, unknown> | null = null
+
+    // PATCH 호출 본문 캡처
+    await page.route(`**/api/admin/sites/${SITE_INFO.id}`, async (route: Route) => {
+      if (route.request().method() === 'PATCH') {
+        patchBody = JSON.parse(route.request().postData() ?? '{}')
+        await route.fulfill({
+          status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: SITE_INFO }),
+        })
+      } else {
+        await route.fulfill({
+          status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: SITE_INFO }),
+        })
+      }
+    })
+    // geocode 모킹 (beforeEach 라우트보다 나중에 등록 → 덮어씀)
+    await page.route('**/api/admin/geocode**', async (route: Route) => {
+      await route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: { lat: 37.5044, lng: 127.0049 } }),
+      })
+    })
+
+    // ① 현장 상세 페이지 진입
+    await page.goto(`${BASE}/admin/sites/${SITE_INFO.id}`)
+    await expect(page.locator(`text=${SITE_INFO.name}`).first()).toBeVisible({ timeout: 15000 })
+
+    // ② 수정 버튼 클릭 (기본정보 탭)
+    const editBtn = page.locator('button:has-text("수정")').first()
+    await expect(editBtn).toBeVisible({ timeout: 5000 })
+    await editBtn.click()
+
+    // ③ 주소검색 버튼 표시 확인
+    const searchBtn = page.locator('button:has-text("주소검색")')
+    await expect(searchBtn).toBeVisible({ timeout: 5000 })
+
+    // ④ 주소검색 클릭 → Daum mock 자동 발화
+    await searchBtn.click()
+
+    // ⑤ mock 발화 확인
+    const mockFired = await page.evaluate(() => (window as unknown as Record<string, unknown>).__daumMockFired)
+    expect(mockFired).toBe(true)
+
+    // ⑥ 주소 필드 반영 확인 (readOnly input)
+    const addressInput = page.locator('input[placeholder*="주소검색"]')
+    await expect(addressInput).toHaveValue(MOCK_ADDRESS, { timeout: 5000 })
+
+    // ⑦ 좌표 반영 대기 (geocode 비동기)
+    const latInput = page.locator('input[type="number"]').first()
+    await expect(latInput).not.toHaveValue('', { timeout: 5000 })
+
+    // ⑧ 저장 클릭
+    const saveBtn = page.locator('button:has-text("저장")').last()
+    await saveBtn.click()
+    await page.waitForTimeout(1000)
+
+    // ⑨ PATCH 호출 확인 + 주소 포함 여부
+    expect(patchBody).not.toBeNull()
+    expect((patchBody as Record<string, unknown>).address).toBe(MOCK_ADDRESS)
   })
 })
 
