@@ -172,6 +172,33 @@ export default function WorkConfirmationsPage() {
 
         {msg && <div className="px-4 py-3 bg-[rgba(91,164,217,0.1)] rounded-lg mb-4 text-[14px] text-secondary-brand">{msg}</div>}
 
+        {/* pendingReview 배너 */}
+        {summary && (
+          <div className={`flex items-center gap-3 mb-4 px-4 py-3 rounded-lg flex-wrap ${
+            summary.draft > 0
+              ? 'bg-[rgba(230,81,0,0.07)] border border-[rgba(230,81,0,0.22)]'
+              : 'bg-[rgba(46,125,50,0.05)] border border-[rgba(46,125,50,0.18)]'
+          }`}>
+            {summary.draft > 0 ? (
+              <>
+                <span className="text-[13px] font-bold text-[#e65100]">🔍 검토 대기 {summary.draft}건</span>
+                <span className="text-[12px] text-muted-brand">·</span>
+                <span className="text-[12px] text-muted-brand">확정 {summary.confirmed}건 완료</span>
+                <button
+                  onClick={() => setStatusFilter('DRAFT')}
+                  className="ml-auto px-3 py-1 text-[12px] bg-[#e65100] text-white rounded cursor-pointer border-0 font-semibold whitespace-nowrap"
+                >
+                  미확정 목록 보기 →
+                </button>
+              </>
+            ) : (
+              <span className="text-[13px] font-semibold text-[#2e7d32]">
+                ✅ 검토 대기 없음 — 확정 {summary.confirmed}건 / 제외 {summary.excluded}건
+              </span>
+            )}
+          </div>
+        )}
+
         {/* 요약 */}
         {summary && (
           <div className="flex gap-3 mb-5 flex-wrap">
