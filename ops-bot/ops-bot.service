@@ -1,0 +1,17 @@
+[Unit]
+Description=Haehan Ops Telegram Bot
+After=network.target docker.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/app/ops-bot
+EnvironmentFile=/home/ubuntu/app/ops-bot/.env
+ExecStart=/usr/bin/python3 -m ops.telegram_bot
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

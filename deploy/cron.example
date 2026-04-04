@@ -1,0 +1,25 @@
+# ──────────────────────────────────────────────
+# cron.example — scheduled_check.sh 자동 실행 등록 예시
+#
+# 적용 방법:
+#   crontab -e
+#   아래 내용 붙여넣기 후 PROJECT_DIR 경로 실제 경로로 수정
+#
+# 로그는 logs/ 디렉터리에 자동 저장됨 (scheduled_check.sh 내부 처리)
+# ──────────────────────────────────────────────
+
+PROJECT_DIR=/home/ubuntu/app/attendance
+
+# 빠른 점검: 매 5분 (health + 주요 페이지)
+*/5 * * * * cd $PROJECT_DIR && bash scripts/scheduled_check.sh --quick >> /dev/null 2>&1
+
+# 전체 점검: 매 시간 정각 (웹 + 시나리오 + 컨테이너)
+0 * * * * cd $PROJECT_DIR && bash scripts/scheduled_check.sh --full >> /dev/null 2>&1
+
+# DB 백업: 매일 새벽 3시
+0 3 * * * cd $PROJECT_DIR/ops-bot && bash scripts/backup_db.sh db >> /dev/null 2>&1
+
+# ──────────────────────────────────────────────
+# systemd 방식 (선택)
+# /etc/systemd/system/attendance-check.service 참고
+# ──────────────────────────────────────────────

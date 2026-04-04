@@ -15,6 +15,18 @@
 # ──────────────────────────────────────────────
 set -uo pipefail
 
+# ── 중복 실행 방지 ──
+LOCK_FILE="/tmp/deploy_and_check_sh.lock"
+if [ -f "$LOCK_FILE" ]; then
+  OLD_PID=$(cat "$LOCK_FILE" 2>/dev/null || echo "")
+  if [ -n "$OLD_PID" ] && kill -0 "$OLD_PID" 2>/dev/null; then
+    echo "[SKIP] deploy_and_check.sh 이미 실행 중 (PID=$OLD_PID) — 중복 실행 차단"
+    exit 1
+  fi
+fi
+echo $$ > "$LOCK_FILE"
+trap "rm -f '$LOCK_FILE'" EXIT INT TERM
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 LOG_DIR="$PROJECT_DIR/logs"
@@ -362,5 +374,10 @@ fi
 
 out " 전체 로그: $REPORT"
 out ""
+
+# 텔레그램 보고 (자동)
+if [ -f "$SCRIPT_DIR/telegram.sh" ]; then
+  bash "$SCRIPT_DIR/telegram.sh" deploy-report "${COMMIT_MSG:-점검}" 2>/dev/null || true
+fi
 
 $HAS_FAIL && exit 1 || exit 0

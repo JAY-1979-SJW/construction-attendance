@@ -7,6 +7,18 @@
 # ──────────────────────────────────────────────
 set -uo pipefail
 
+# ── 중복 실행 방지 ──
+LOCK_FILE="/tmp/scheduled_check_sh.lock"
+if [ -f "$LOCK_FILE" ]; then
+  OLD_PID=$(cat "$LOCK_FILE" 2>/dev/null || echo "")
+  if [ -n "$OLD_PID" ] && kill -0 "$OLD_PID" 2>/dev/null; then
+    echo "[SKIP] scheduled_check.sh 이미 실행 중 (PID=$OLD_PID) — 중복 실행 차단"
+    exit 1
+  fi
+fi
+echo $$ > "$LOCK_FILE"
+trap "rm -f '$LOCK_FILE'" EXIT INT TERM
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="$SCRIPT_DIR/../logs"
 mkdir -p "$LOG_DIR"
@@ -173,6 +185,11 @@ run_full() {
     echo "audit=$AUDIT_OK"
     echo "container=$CONTAINER_OK"
   } > "$LOG_DIR/last_check_status.txt"
+
+  # 텔레그램 보고
+  if [ -f "$SCRIPT_DIR/telegram.sh" ]; then
+    bash "$SCRIPT_DIR/telegram.sh" check 2>/dev/null || true
+  fi
 
   if [ "$WEB_OK" = "PASS" ] && [ "$SCENARIO_OK" = "PASS" ] && [ "$AUDIT_OK" = "PASS" ] && [ "$CONTAINER_OK" = "PASS" ]; then
     return 0

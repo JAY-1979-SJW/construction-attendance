@@ -7,6 +7,7 @@ nara_resources → nara_material_catalog 공종별 분류 생성
   lvlRsceClsfcNm1/2 → discipline_code/nm
   rsceNm 키워드 → sub_discipline (소방전기/소방설비/조경 등)
 """
+import os
 import sys
 from datetime import datetime
 
@@ -19,9 +20,13 @@ except ImportError:
     import psycopg2
     import psycopg2.extras
 
+_db_pw = os.environ.get("DB_PASSWORD") or os.environ.get("PGPASSWORD")
+if not _db_pw:
+    raise RuntimeError("DB_PASSWORD 환경변수 미설정 — 실행 전 설정 필요")
+_db_host = os.environ.get("DB_HOST", "192.168.120.18")
 DB_DSN = (
-    "host=192.168.120.18 port=5432 dbname=construction_attendance "
-    "user=attendance_app password=Att3nd4nce@Haehan2026"
+    f"host={_db_host} port=5432 dbname=construction_attendance "
+    f"user=attendance_app password={_db_pw}"
 )
 
 # ─── 공종 매핑 테이블 ────────────────────────────────────────────────────────

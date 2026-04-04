@@ -5,6 +5,18 @@
 # ──────────────────────────────────────────────
 set -euo pipefail
 
+# ── 중복 실행 방지 ──
+LOCK_FILE="/tmp/deploy_sh.lock"
+if [ -f "$LOCK_FILE" ]; then
+  OLD_PID=$(cat "$LOCK_FILE" 2>/dev/null || echo "")
+  if [ -n "$OLD_PID" ] && kill -0 "$OLD_PID" 2>/dev/null; then
+    echo "[SKIP] deploy.sh 이미 실행 중 (PID=$OLD_PID) — 중복 실행 차단"
+    exit 1
+  fi
+fi
+echo $$ > "$LOCK_FILE"
+trap "rm -f '$LOCK_FILE'" EXIT INT TERM
+
 # ── 설정 ──
 SSH_KEY="$HOME/.ssh/haehan-ai.pem"
 SSH_HOST="ubuntu@1.201.176.236"
@@ -108,12 +120,13 @@ echo "  서버 현재 상태: $SERVER_PRE_STATUS" | tee -a "$DEPLOY_LOG"
 # ── 5) 서버 배포 ──
 info "서버 배포 중... (pull → build → restart)"
 DEPLOY_OUTPUT=$(ssh -i "$SSH_KEY" "$SSH_HOST" bash -s <<'REMOTE'
-set -e
+set -euo pipefail
 cd ~/app/attendance
 echo "=== git pull ==="
 git pull origin master 2>&1
 echo "=== docker build ==="
-docker compose up -d --build 2>&1 | tail -15
+BUILD_OUTPUT=$(docker compose up -d --build 2>&1) || { echo "$BUILD_OUTPUT" | tail -15; exit 1; }
+echo "$BUILD_OUTPUT" | tail -15
 # 헬스체크 대기 (최대 90초, 더 보수적)
 echo "=== healthcheck ==="
 for i in $(seq 1 18); do

@@ -8,6 +8,10 @@ set -uo pipefail
 DOMAIN="https://attendance.haehan-ai.kr"
 LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/logs"
 mkdir -p "$LOG_DIR"
+
+# PID 기반 임시파일 (동시 실행 충돌 방지)
+TMP_BODY="/tmp/check_web_body_$$.txt"
+trap "rm -f '$TMP_BODY'" EXIT INT TERM
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 RESULT_FILE="$LOG_DIR/check_web_${TIMESTAMP}.log"
 
@@ -33,7 +37,7 @@ check() {
 
   local http_code time_total
   local output
-  output=$(curl -s -o /tmp/check_web_body.txt -w "%{http_code}|%{time_total}" -L --max-time 15 "$url" 2>/dev/null) || true
+  output=$(curl -s -o "$TMP_BODY" -w "%{http_code}|%{time_total}" -L --max-time 15 "$url" 2>/dev/null) || true
   http_code=$(echo "$output" | cut -d'|' -f1)
   time_total=$(echo "$output" | cut -d'|' -f2)
 

@@ -65,11 +65,17 @@ client_secret*.json
 googleclient_secret*.json
 *credential*.json
 secrets/
+*.secrets
+scripts/.secrets
 
 # backup files
 *.bak
 
 # 운영 점검 로그 및 스크린샷
 logs/
+
+# ops-bot 환경변수/로그
+ops-bot/.env
+ops-bot/logs/
 test-results/
 playwright-report/

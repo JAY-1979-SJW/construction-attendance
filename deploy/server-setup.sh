@@ -2,10 +2,18 @@
 # ═══════════════════════════════════════════════════════════
 #  해한 현장 출퇴근 시스템 — 서버 배포 스크립트
 #  Ubuntu 20.04 / 22.04 기준
-#  실행: bash deploy/server-setup.sh
+#  실행: bash deploy/server-setup.sh [--yes]
+#  --yes : 대화형 입력 없이 자동 실행 (seed 건너뜀)
+#  AUTO_YES=true bash deploy/server-setup.sh  도 동일
 # ═══════════════════════════════════════════════════════════
 
-set -e
+set -euo pipefail
+
+# ── 옵션 파싱 ──
+AUTO_YES="${AUTO_YES:-false}"
+for arg in "$@"; do
+  [ "$arg" = "--yes" ] && AUTO_YES="true"
+done
 
 APP_DIR="$HOME/apps/construction-attendance"
 REPO_URL="https://github.com/JAY-1979-SJW/construction-attendance.git"
@@ -72,10 +80,14 @@ echo "[7] Prisma 마이그레이션..."
 npx prisma migrate deploy
 
 # 8. 초기 데이터 (최초 1회만)
-read -p "[8] 초기 데이터(seed)를 실행하시겠습니까? (y/N) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    npx prisma db seed
+if [ "$AUTO_YES" = "true" ]; then
+    echo "[8] 초기 데이터(seed) 건너뜀 (--yes 모드)"
+else
+    read -p "[8] 초기 데이터(seed)를 실행하시겠습니까? (y/N) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        npx prisma db seed
+    fi
 fi
 
 # 9. 빌드

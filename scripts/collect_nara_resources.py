@@ -8,6 +8,7 @@
 - TRUNCATE + INSERT (재실행 안전)
 - 수집 완료 후 유형별·대분류별 집계 출력
 """
+import os
 import sys
 import time
 import json
@@ -33,9 +34,13 @@ except ImportError:
 API_KEY = "__REVOKED__"
 API_URL = "http://apis.data.go.kr/1230000/ao/PriceInfoService/getNetRsceinfoList"
 
+_db_pw = os.environ.get("DB_PASSWORD") or os.environ.get("PGPASSWORD")
+if not _db_pw:
+    raise RuntimeError("DB_PASSWORD 환경변수 미설정 — 실행 전 설정 필요")
+_db_host = os.environ.get("DB_HOST", "192.168.120.18")
 DB_DSN = (
-    "host=192.168.120.18 port=5432 dbname=construction_attendance "
-    "user=attendance_app password=Att3nd4nce@Haehan2026"
+    f"host={_db_host} port=5432 dbname=construction_attendance "
+    f"user=attendance_app password={_db_pw}"
 )
 
 NUM_OF_ROWS = 500
