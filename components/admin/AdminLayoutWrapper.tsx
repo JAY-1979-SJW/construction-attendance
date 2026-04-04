@@ -152,6 +152,14 @@ function getPageTitle(pathname: string): string {
 export default function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [adminRole, setAdminRole] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    fetch('/api/admin/auth/me')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.data?.role) setAdminRole(d.data.role) })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -172,7 +180,7 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
 
   return (
     <div className="flex min-h-screen bg-brand">
-      <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} role={adminRole} />
 
       {/* 모바일 오버레이 */}
       {sidebarOpen && (

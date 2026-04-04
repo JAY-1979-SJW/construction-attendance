@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES, buildWorkerScopeWhere } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, requireFeature, MUTATE_ROLES, buildWorkerScopeWhere } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, created, badRequest, unauthorized, internalError } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
@@ -42,6 +42,8 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
+    const deny = requireFeature(session, 'WORKER_VIEW')
+    if (deny) return deny
 
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') ?? ''

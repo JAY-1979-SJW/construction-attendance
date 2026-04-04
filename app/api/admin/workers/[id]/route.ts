@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES, buildWorkerScopeWhere } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, requireFeature, MUTATE_ROLES, buildWorkerScopeWhere } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import {
   ok,
@@ -21,6 +21,8 @@ export async function GET(
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
+    const deny = requireFeature(session, 'WORKER_VIEW')
+    if (deny) return deny
 
     const { id } = await params
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, requireFeature } from '@/lib/auth/guards'
 import { createExcelDocument, ExcelDocumentType } from '@/lib/labor/excel-export'
 
 const VALID_DOC_TYPES: ExcelDocumentType[] = [
@@ -10,6 +10,8 @@ const VALID_DOC_TYPES: ExcelDocumentType[] = [
 export async function POST(req: NextRequest) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const deny = requireFeature(session, 'DOCUMENT_DOWNLOAD')
+  if (deny) return deny
 
   const body = await req.json().catch(() => ({}))
   const { monthKey, documentType, siteId, companyId, subcontractorId } = body

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { hasFeaturePermission, type AdminFeature } from '@/lib/policies/security-policy'
 
 /* ─── 아이콘 헬퍼 ─────────────────────────────────────────────── */
 function I({ children }: { children: React.ReactNode }) {
@@ -15,7 +16,7 @@ function I({ children }: { children: React.ReactNode }) {
 const S = { stroke: 'currentColor', strokeWidth: '2', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
 
 /* ─── 타입 ────────────────────────────────────────────────────── */
-interface SubItem { href: string; label: string }
+interface SubItem { href: string; label: string; requiredFeature?: AdminFeature }
 interface MenuItem {
   key: string
   label: string
@@ -23,6 +24,7 @@ interface MenuItem {
   href?: string        // standalone link (no children)
   exact?: boolean
   children?: SubItem[] // group with sub-items
+  requiredFeature?: AdminFeature  // 그룹 전체 숨김 조건
 }
 
 /* ─── 메뉴 정의 ──────────────────────────────────────────────── */
@@ -40,9 +42,9 @@ const MENU: MenuItem[] = [
     children: [
       { href: '/admin/registrations',          label: '회원가입 승인' },
       { href: '/admin/approvals',              label: '승인 관리' },
-      { href: '/admin/company-admin-requests',  label: '업체관리자 신청' },
-      { href: '/admin/company-admins',          label: '업체관리자' },
-      { href: '/admin/site-join-requests',      label: '현장 참여 신청' },
+      { href: '/admin/company-admin-requests',  label: '업체관리자 신청', requiredFeature: 'COMPANY_MANAGE' },
+      { href: '/admin/company-admins',          label: '업체관리자',      requiredFeature: 'COMPANY_MANAGE' },
+      { href: '/admin/site-join-requests',      label: '현장 참여 신청',  requiredFeature: 'SITE_WRITE' },
       { href: '/admin/device-requests',         label: '기기 등록 신청' },
     ],
   },
@@ -52,18 +54,19 @@ const MENU: MenuItem[] = [
     key: 'attendance', label: '출퇴근',
     icon: <I><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" {...S}/><rect x="9" y="3" width="6" height="4" rx="1" {...S}/><path d="M9 12l2 2 4-4" {...S}/></I>,
     children: [
-      { href: '/admin/attendance',         label: '출퇴근관리' },
-      { href: '/admin/presence-checks',    label: '중간 체류확인' },
-      { href: '/admin/exceptions',         label: '예외 승인' },
-      { href: '/admin/work-confirmations', label: '근무확정' },
-      { href: '/admin/corrections',        label: '정정 이력' },
-      { href: '/admin/presence-report',    label: '체류 리포트' },
+      { href: '/admin/attendance',         label: '출퇴근관리',   requiredFeature: 'WORKER_VIEW' },
+      { href: '/admin/presence-checks',    label: '중간 체류확인', requiredFeature: 'ATTENDANCE_APPROVE' },
+      { href: '/admin/exceptions',         label: '예외 승인',    requiredFeature: 'ATTENDANCE_APPROVE' },
+      { href: '/admin/work-confirmations', label: '근무확정',     requiredFeature: 'ATTENDANCE_APPROVE' },
+      { href: '/admin/corrections',        label: '정정 이력',    requiredFeature: 'ATTENDANCE_APPROVE' },
+      { href: '/admin/presence-report',    label: '체류 리포트',  requiredFeature: 'STATS_VIEW' },
     ],
   },
 
   /* ── 근로자 (standalone) ── */
   {
     key: 'workers', label: '근로자관리', href: '/admin/workers',
+    requiredFeature: 'WORKER_VIEW',
     icon: <I><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" {...S}/><circle cx="9" cy="7" r="4" {...S}/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" {...S}/></I>,
   },
 
@@ -83,6 +86,7 @@ const MENU: MenuItem[] = [
   /* ── 서류 (근로계약서 + 안전서류) ── */
   {
     key: 'docs', label: '서류',
+    requiredFeature: 'DOCUMENT_DOWNLOAD',
     icon: <I><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" {...S}/><path d="M14 2v6h6M9 15l2 2 4-4" {...S}/></I>,
     children: [
       { href: '/admin/contracts',          label: '근로계약서' },
@@ -150,8 +154,8 @@ const MENU: MenuItem[] = [
     icon: <I><circle cx="12" cy="12" r="3" {...S}/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" {...S}/></I>,
     children: [
       { href: '/admin/settings',       label: '설정' },
-      { href: '/admin/companies',      label: '회사 정보' },
-      { href: '/admin/document-center', label: '문서 센터' },
+      { href: '/admin/companies',      label: '회사 정보',   requiredFeature: 'COMPANY_MANAGE' },
+      { href: '/admin/document-center', label: '문서 센터',  requiredFeature: 'DOCUMENT_DOWNLOAD' },
       { href: '/admin/connections',      label: '접속 현황' },
       { href: '/admin/audit-logs',      label: '감사 로그' },
       { href: '/admin/super-users',     label: '관리자 계정' },
@@ -159,7 +163,7 @@ const MENU: MenuItem[] = [
       { href: '/admin/devices',         label: '기기 관리' },
       { href: '/admin/devices-anomaly', label: '기기 이상 탐지' },
       { href: '/admin/pilot',           label: '파일럿 모니터' },
-      { href: '/admin/temp-docs',       label: '임시 문서' },
+      { href: '/admin/temp-docs',       label: '임시 문서',  requiredFeature: 'DOCUMENT_DOWNLOAD' },
     ],
   },
 ]
@@ -255,9 +259,11 @@ function SubLink({ href, label, active }: { href: string; label: string; active:
 export default function AdminSidebar({
   isOpen,
   onClose,
+  role,
 }: {
   isOpen: boolean
   onClose: () => void
+  role?: string
 }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -323,9 +329,15 @@ export default function AdminSidebar({
 
       {/* 메인 네비게이션 */}
       <nav className="flex-1 overflow-y-auto py-2" style={{ scrollbarWidth: 'thin' }}>
-        {MENU.map((item) => {
+        {MENU.filter(item =>
+          !item.requiredFeature || hasFeaturePermission(role, item.requiredFeature)
+        ).map((item) => {
           if (item.children) {
             // 그룹 메뉴
+            const visibleChildren = item.children.filter(sub =>
+              !sub.requiredFeature || hasFeaturePermission(role, sub.requiredFeature)
+            )
+            if (visibleChildren.length === 0) return null
             const isGroupActive = groupContains(item, pathname)
             const isOpen = openGroups.has(item.key)
             return (
@@ -339,7 +351,7 @@ export default function AdminSidebar({
                 />
                 {isOpen && (
                   <div>
-                    {item.children.map((sub) => (
+                    {visibleChildren.map((sub) => (
                       <SubLink
                         key={sub.href}
                         href={sub.href}

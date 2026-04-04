@@ -4,7 +4,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, requireFeature } from '@/lib/auth/guards'
 
 export async function GET(
   _req: NextRequest,
@@ -12,6 +12,8 @@ export async function GET(
 ) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: '인증 필요' }, { status: 401 })
+  const deny = requireFeature(session, 'DOCUMENT_DOWNLOAD')
+  if (deny) return deny
 
   const doc = await prisma.safetyDocument.findUnique({
     where: { id: params.id },
