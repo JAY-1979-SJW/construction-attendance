@@ -29,8 +29,5 @@ self.addEventListener('activate', (event) => {
   self.clients.claim()
 })
 
-// fetch — 모든 요청을 네트워크 직접 처리
-// SW는 intercepting 없이 통과만 시킴 → 쿠키 자동 포함, 항상 최신 코드 로딩
-self.addEventListener('fetch', () => {
-  // respondWith 호출하지 않음: 브라우저 기본 네트워크 동작 유지
-})
+// fetch 핸들러 없음 — 브라우저 기본 네트워크 동작 유지
+// (no-op fetch handler 등록 시 내비게이션 오버헤드 경고 발생하여 제거)
