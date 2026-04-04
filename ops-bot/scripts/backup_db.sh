@@ -2,6 +2,18 @@
 # DB 백업 — pg_dump → 압축 저장
 set -euo pipefail
 
+# ── 중복 실행 방지 ──
+LOCK_FILE="/tmp/backup_db_sh.lock"
+if [ -f "$LOCK_FILE" ]; then
+  OLD_PID=$(cat "$LOCK_FILE" 2>/dev/null || echo "")
+  if [ -n "$OLD_PID" ] && kill -0 "$OLD_PID" 2>/dev/null; then
+    echo "[SKIP] backup_db.sh 이미 실행 중 (PID=$OLD_PID) — 중복 실행 차단"
+    exit 1
+  fi
+fi
+echo $$ > "$LOCK_FILE"
+trap "rm -f '$LOCK_FILE'" EXIT INT TERM
+
 TARGET="${1:-db}"
 if [ "$TARGET" != "db" ]; then
   echo "FAIL: 허용 대상 아님 — db만 가능"
