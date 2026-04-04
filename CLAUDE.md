@@ -183,6 +183,34 @@ if (session.role === 'VIEWER') {
 내부에서 존재 확인 후 기록하므로 순서 실수 방지 가능.
 (단, 이미 선조회한 pc 객체가 있으면 `logPresenceAudit({ presenceCheckId: pc.id })` 직접 사용이 더 효율적)
 
+## 20. 배포 표준 경로 고정 규칙
+
+### 유일한 허용 배포 경로
+```
+bash scripts/deploy-and-verify.sh
+```
+
+### 필수 실행 순서 (스크립트 내부에 고정)
+1. pre-flight: 모바일 레이아웃 E2E (로컬) → 실패 시 즉시 중단
+2. SSH 연결 확인
+3. 서버 git pull + docker compose build + up -d
+4. healthcheck 대기
+5. verify-bulk-release.sh (health / ops-check / 에러로그 / smoke / regression / bulk E2E)
+
+### 금지 행동
+- `docker compose up` 직접 실행 금지
+- `git pull` + 수동 재시작 금지
+- 개별 단계 분리 실행 금지 (예: build만, up만, verify만)
+- pre-flight 건너뛰기 금지
+
+### 예외 없음
+- 핫픽스 / 긴급 배포 / 작은 수정 모두 동일 경로 사용
+- pre-flight 실패 시 코드 수정 후 재실행
+
+### 판정 기준
+- 최종 PASS + health 정상 + `logs/last-deploy-verify.txt` 기록 = 배포 완료
+- 위 3가지 중 하나라도 없으면 배포 미완료
+
 ## 19. ops-check 기준선 운영 규칙
 - 장애 발생 / 배포 직후 / 정기 점검 시 `bash scripts/ops-check.sh` 를 가장 먼저 실행한다
 - 결과는 PASS/WARN/FAIL 요약만 보고한다
