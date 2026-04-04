@@ -56,16 +56,29 @@ FAIL_ITEMS=""
 
 # ── 모드 판별 ──
 CHECK_ONLY=false
+AUTO_APPROVE=false
 COMMIT_MSG=""
 
-if [ "${1:-}" = "--check-only" ] || [ "${1:-}" = "-c" ]; then
-  CHECK_ONLY=true
-elif [ -n "${1:-}" ]; then
-  COMMIT_MSG="$1"
-else
+# 인수 파싱 — --check-only / --auto / "커밋 메시지"
+_ARGS=("$@")
+_REMAINING=()
+for _arg in "${_ARGS[@]:-}"; do
+  case "$_arg" in
+    --check-only|-c) CHECK_ONLY=true ;;
+    --auto)          AUTO_APPROVE=true ;;
+    *)               _REMAINING+=("$_arg") ;;
+  esac
+done
+
+if [ "${#_REMAINING[@]}" -gt 0 ]; then
+  COMMIT_MSG="${_REMAINING[0]}"
+fi
+
+if ! $CHECK_ONLY && [ -z "$COMMIT_MSG" ]; then
   outc "${RED}[FAIL]${NC} 사용법:"
-  out "  배포+점검: bash scripts/deploy_and_check.sh \"커밋 메시지\""
-  out "  점검만:    bash scripts/deploy_and_check.sh --check-only"
+  out "  배포+점검:    bash scripts/deploy_and_check.sh \"커밋 메시지\""
+  out "  점검만:       bash scripts/deploy_and_check.sh --check-only"
+  out "  승인형 배포:  bash scripts/deploy_and_check.sh \"커밋 메시지\" --auto"
   exit 1
 fi
 
@@ -73,6 +86,8 @@ out ""
 out "╔══════════════════════════════════════════════════╗"
 if $CHECK_ONLY; then
   out "║  점검 파이프라인 시작 (배포 없음)                ║"
+elif $AUTO_APPROVE; then
+  out "║  승인형 배포 파이프라인 시작 (Level B)           ║"
 else
   out "║  배포 + 점검 파이프라인 시작                     ║"
 fi
@@ -121,8 +136,78 @@ if ! $CHECK_ONLY; then
   fi
   out ""
 
-  # ── 배포 실행 ──
+  # ── 사전 헬스체크 (배포 전 PASS 필수) ──
   if [ "$DEPLOY_STATUS" != "SKIP" ]; then
+    STEP=$((STEP + 1))
+    outc "▶ STEP $STEP: ${CYAN}사전 점검 (배포 허용 판단)${NC}"
+    out "────────────────────────────────"
+    PREFLIGHT_OUTPUT=$(bash "$SCRIPT_DIR/scheduled_check.sh" --quick 2>&1) || true
+    PREFLIGHT_EXIT=$?
+    echo "$PREFLIGHT_OUTPUT" | tee -a "$REPORT"
+
+    if [ "$PREFLIGHT_EXIT" -ne 0 ]; then
+      outc "  ${RED}[BLOCK]${NC} 사전 점검 FAIL — 배포 차단"
+      DEPLOY_STATUS="BLOCKED"
+      FAIL_ITEMS="${FAIL_ITEMS} 사전점검FAIL"
+
+      COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+      out ""
+      out "━━━━━ 최종 보고 ━━━━━"
+      out " 상태: 사전 점검 실패로 배포 차단"
+      out " 커밋: $COMMIT_HASH"
+      outc " 사전 점검: ${RED}FAIL${NC}"
+      outc " 배포: ${YELLOW}NOT_RUN (차단됨)${NC}"
+      out " 조치: 사전 점검 항목 확인 후 재시도"
+      {
+        echo "timestamp=$TIMESTAMP"
+        echo "commit=$COMMIT_HASH"
+        echo "preflight=FAIL"
+        echo "deploy=NOT_RUN"
+      } > "$LOG_DIR/last_deploy_status.txt"
+      exit 1
+    fi
+    outc "  ${GREEN}[OK]${NC} 사전 점검 PASS — 배포 진행"
+    out ""
+
+    # 직전 커밋/이미지 저장 (롤백용)
+    PREV_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
+    PREV_IMAGE=$(docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' 2>/dev/null | head -1 || echo "unknown")
+    {
+      echo "timestamp=$TIMESTAMP"
+      echo "prev_commit=$PREV_COMMIT"
+      echo "prev_image=$PREV_IMAGE"
+    } > "$LOG_DIR/last_deploy_state.txt"
+    out "  [저장] 롤백 기준: $PREV_COMMIT"
+    out ""
+
+    # ── 승인 게이트 ──
+    if ! $AUTO_APPROVE; then
+      outc "  ${CYAN}[GATE]${NC} 배포를 진행하시겠습니까? (y/N, 30초 타임아웃)"
+      if [ -t 0 ]; then
+        read -t 30 -r REPLY || REPLY=""
+      else
+        REPLY="y"  # 비대화형(파이프/cron) 환경 — 자동 승인
+      fi
+      if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+        out "  [CANCEL] 사용자 취소 또는 타임아웃 — 배포 중단"
+        DEPLOY_STATUS="CANCEL"
+        out ""
+        out "━━━━━ 최종 보고 ━━━━━"
+        out " 상태: 배포 취소"
+        outc " 사전 점검: ${GREEN}PASS${NC}"
+        outc " 배포: ${YELLOW}CANCEL${NC}"
+        {
+          echo "timestamp=$TIMESTAMP"
+          echo "preflight=PASS"
+          echo "deploy=CANCEL"
+        } > "$LOG_DIR/last_deploy_status.txt"
+        exit 0
+      fi
+    fi
+  fi
+
+  # ── 배포 실행 ──
+  if [ "$DEPLOY_STATUS" != "SKIP" ] && [ "$DEPLOY_STATUS" != "CANCEL" ] && [ "$DEPLOY_STATUS" != "BLOCKED" ]; then
     STEP=$((STEP + 1))
     outc "▶ STEP $STEP: ${CYAN}배포${NC}"
     out "────────────────────────────────"
@@ -279,6 +364,36 @@ fi
 out ""
 
 # ══════════════════════════════════════════════════
+# STEP: JWT 사후 점검 (배포 후 인증 정상 확인)
+# ══════════════════════════════════════════════════
+JWT_STATUS="NOT_RUN"
+JWT_SCRIPT_PATH=""
+OPS_BOT_ENV="$SCRIPT_DIR/../ops-bot/.env"
+for _p in "$SCRIPT_DIR/../ops-bot/scripts/check_jwt_runtime.sh" \
+          "$HOME/app/ops-bot/scripts/check_jwt_runtime.sh" \
+          "$HOME/app/attendance/ops-bot/scripts/check_jwt_runtime.sh"; do
+  [ -f "$_p" ] && { JWT_SCRIPT_PATH="$_p"; break; }
+done
+
+if [ -n "$JWT_SCRIPT_PATH" ]; then
+  STEP=$((STEP + 1))
+  outc "▶ STEP $STEP: ${CYAN}JWT 사후 점검${NC}"
+  out "────────────────────────────────"
+  if [ -f "$OPS_BOT_ENV" ]; then
+    set -a; source "$OPS_BOT_ENV"; set +a
+  fi
+  JWT_OUT=$(timeout 30 bash "$JWT_SCRIPT_PATH" 2>&1) || true
+  echo "$JWT_OUT" | tee -a "$REPORT"
+  if echo "$JWT_OUT" | grep -q "PASS"; then
+    JWT_STATUS="PASS"
+  else
+    JWT_STATUS="FAIL"
+    FAIL_ITEMS="${FAIL_ITEMS} JWT사후점검"
+  fi
+  out ""
+fi
+
+# ══════════════════════════════════════════════════
 # 최종 보고
 # ══════════════════════════════════════════════════
 COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
@@ -312,6 +427,7 @@ show_status "시나리오" "$SCENARIO_STATUS"
 show_status "모바일 UI" "$MOBILE_UI_STATUS"
 show_status "정적 분석" "$AUDIT_STATUS"
 show_status "컨테이너" "$CONTAINER_STATUS"
+[ "$JWT_STATUS" != "NOT_RUN" ] && show_status "JWT 사후 점검" "$JWT_STATUS"
 
 # 종합 판정
 out ""
