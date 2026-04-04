@@ -787,9 +787,10 @@ export default function SiteDetailPage() {
                   <div className="col-span-2">
                     <label className="text-xs text-body-brand block mb-1">주소</label>
                     <div className="flex gap-2">
-                      <input readOnly className="flex-1 border border-[#D1D5DB] rounded px-2 py-1.5 text-sm bg-surface text-fore-brand cursor-default"
+                      <input className="flex-1 border border-[#D1D5DB] rounded px-2 py-1.5 text-sm bg-card text-fore-brand"
                         value={infoForm.address}
-                        placeholder="아래 주소검색 버튼을 클릭하세요" />
+                        onChange={(e) => setInfoForm(f => ({ ...f, address: e.target.value }))}
+                        placeholder="주소 직접 입력 또는 우측 버튼으로 검색" />
                       <button type="button" onClick={openAddressSearch}
                         className="shrink-0 text-sm border border-blue-500 text-blue-600 px-3 py-1.5 rounded hover:bg-blue-50 whitespace-nowrap">
                         주소검색

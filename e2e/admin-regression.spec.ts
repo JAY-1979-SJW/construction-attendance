@@ -507,8 +507,8 @@ test.describe('[REGRESSION] 현장 상세 주소검색', () => {
     const mockFired = await page.evaluate(() => (window as unknown as Record<string, unknown>).__daumMockFired)
     expect(mockFired).toBe(true)
 
-    // ⑥ 주소 필드 반영 확인 (readOnly input)
-    const addressInput = page.locator('input[placeholder*="주소검색"]')
+    // ⑥ 주소 필드 반영 확인
+    const addressInput = page.locator('input[placeholder*="주소"]').first()
     await expect(addressInput).toHaveValue(MOCK_ADDRESS, { timeout: 5000 })
 
     // ⑦ 좌표 반영 대기 (geocode 비동기)
