@@ -2,6 +2,16 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+
+declare global {
+  interface Window {
+    daum: {
+      Postcode: new (opts: {
+        oncomplete: (data: { roadAddress: string; jibunAddress: string }) => void
+      }) => { open: () => void }
+    }
+  }
+}
 import Link from 'next/link'
 import { WorklogTab } from '@/components/admin/site-ops/WorklogTab'
 import { TbmTab } from '@/components/admin/site-ops/TbmTab'
@@ -200,10 +210,62 @@ export default function SiteDetailPage() {
   const [infoLoading, setInfoLoading] = useState(false)
   const [infoEditing, setInfoEditing] = useState(false)
   const [infoSaving, setInfoSaving]   = useState(false)
+  const [infoGeoStatus, setInfoGeoStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [infoForm, setInfoForm]       = useState({
-    name: '', address: '', latitude: '', longitude: '',
+    name: '', address: '', addressJibun: '', latitude: '', longitude: '',
     allowedRadius: '', siteCode: '', openedAt: '', closedAt: '', notes: '',
   })
+
+  const loadDaumPostcode = useCallback((): Promise<void> => {
+    if (window.daum?.Postcode) return Promise.resolve()
+    return new Promise((resolve, reject) => {
+      const existing = document.getElementById('kakao-postcode-script') as HTMLScriptElement | null
+      if (existing) {
+        let elapsed = 0
+        const poll = setInterval(() => {
+          if (window.daum?.Postcode) { clearInterval(poll); resolve(); return }
+          elapsed += 100
+          if (elapsed >= 10000) { clearInterval(poll); reject(new Error('timeout')) }
+        }, 100)
+        return
+      }
+      const s = document.createElement('script')
+      s.id = 'kakao-postcode-script'
+      s.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
+      s.onload = () => resolve()
+      s.onerror = () => reject(new Error('스크립트 로드 실패'))
+      document.head.appendChild(s)
+    })
+  }, [])
+
+  const openAddressSearch = useCallback(async () => {
+    try {
+      await loadDaumPostcode()
+    } catch {
+      alert('주소 검색 스크립트를 불러오지 못했습니다. 네트워크를 확인하세요.')
+      return
+    }
+    new window.daum.Postcode({
+      oncomplete: async (data: { roadAddress: string; jibunAddress: string }) => {
+        const address = data.roadAddress || data.jibunAddress
+        const addressJibun = data.jibunAddress || ''
+        setInfoForm(f => ({ ...f, address, addressJibun, latitude: '', longitude: '' }))
+        setInfoGeoStatus('loading')
+        try {
+          const res  = await fetch(`/api/admin/geocode?address=${encodeURIComponent(address)}`)
+          const json = await res.json()
+          if (json.success && json.data?.lat && json.data?.lng) {
+            setInfoForm(f => ({ ...f, latitude: String(json.data.lat), longitude: String(json.data.lng) }))
+            setInfoGeoStatus('done')
+          } else {
+            setInfoGeoStatus('error')
+          }
+        } catch {
+          setInfoGeoStatus('error')
+        }
+      },
+    }).open()
+  }, [loadDaumPostcode])
 
   // ── 참여회사 탭 상태 ───────────────────────────────────────────
   const [siteCompanies, setSiteCompanies]       = useState<SiteCompanyAssignment[]>([])
@@ -455,9 +517,11 @@ export default function SiteDetailPage() {
 
   const startInfoEdit = () => {
     if (!siteInfo) return
+    setInfoGeoStatus('idle')
     setInfoForm({
       name:          siteInfo.name,
       address:       siteInfo.address,
+      addressJibun:  '',
       latitude:      String(siteInfo.latitude),
       longitude:     String(siteInfo.longitude),
       allowedRadius: String(siteInfo.allowedRadius),
@@ -478,6 +542,7 @@ export default function SiteDetailPage() {
         body: JSON.stringify({
           name:          infoForm.name || undefined,
           address:       infoForm.address || undefined,
+          addressJibun:  infoForm.addressJibun || undefined,
           latitude:      infoForm.latitude  ? parseFloat(infoForm.latitude)  : undefined,
           longitude:     infoForm.longitude ? parseFloat(infoForm.longitude) : undefined,
           allowedRadius: infoForm.allowedRadius ? parseInt(infoForm.allowedRadius) : undefined,
@@ -719,9 +784,18 @@ export default function SiteDetailPage() {
                   </div>
                   <div className="col-span-2">
                     <label className="text-xs text-body-brand block mb-1">주소</label>
-                    <input className="w-full border border-[#D1D5DB] rounded px-2 py-1.5 text-sm bg-card text-fore-brand"
-                      value={infoForm.address}
-                      onChange={(e) => setInfoForm((f) => ({ ...f, address: e.target.value }))} />
+                    <div className="flex gap-2">
+                      <input readOnly className="flex-1 border border-[#D1D5DB] rounded px-2 py-1.5 text-sm bg-surface text-fore-brand cursor-default"
+                        value={infoForm.address}
+                        placeholder="아래 주소검색 버튼을 클릭하세요" />
+                      <button type="button" onClick={openAddressSearch}
+                        className="shrink-0 text-sm border border-blue-500 text-blue-600 px-3 py-1.5 rounded hover:bg-blue-50 whitespace-nowrap">
+                        주소검색
+                      </button>
+                    </div>
+                    {infoGeoStatus === 'loading' && <p className="text-xs text-blue-500 mt-1">좌표 조회 중...</p>}
+                    {infoGeoStatus === 'done'    && <p className="text-xs text-green-600 mt-1">좌표 자동 반영됨</p>}
+                    {infoGeoStatus === 'error'   && <p className="text-xs text-red-500 mt-1">좌표 조회 실패 — 아래에서 직접 입력하세요</p>}
                   </div>
                   <div>
                     <label className="text-xs text-body-brand block mb-1">위도</label>
