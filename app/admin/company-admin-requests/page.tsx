@@ -1,7 +1,8 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Modal, Toast, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
+import { Modal, MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions, BulkToolbar } from '@/components/admin/ui'
+import { useBulkSelection } from '@/lib/hooks/useBulkSelection'
 
 interface CompanyAdminRequest {
   id: string
@@ -35,9 +36,17 @@ export default function CompanyAdminRequestsPage() {
   const [msg, setMsg] = useState('')
   const [approveResult, setApproveResult] = useState<{ temporaryPassword: string } | null>(null)
 
-  const load = useCallback(async () => {
+  // bulk
+  const { selectedIds, toggleSelect, clearSelection, toggleSelectAll } = useBulkSelection()
+  const [bulkSaving, setBulkSaving] = useState(false)
+  const [bulkRejectOpen, setBulkRejectOpen] = useState(false)
+  const [bulkRejectReason, setBulkRejectReason] = useState('')
+
+  const pendingItems = data.filter((r) => r.status === 'PENDING')
+
+  const load = useCallback(async (clearMsg = true) => {
     setLoading(true)
-    setMsg('')
+    if (clearMsg) setMsg('')
     const res = await fetch(`/api/admin/company-admin-requests?status=${filter}`)
     const d = await res.json()
     setData(d.data ?? [])
@@ -45,6 +54,9 @@ export default function CompanyAdminRequestsPage() {
   }, [filter])
 
   useEffect(() => { load() }, [load])
+
+  // 필터 변경 시 선택 해제
+  useEffect(() => { clearSelection() }, [filter]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function submitApprove() {
     if (!selected) return
@@ -82,6 +94,45 @@ export default function CompanyAdminRequestsPage() {
     load()
   }
 
+  async function handleBulkApprove() {
+    setBulkSaving(true)
+    try {
+      const res = await fetch('/api/admin/company-admin-requests/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'approve', ids: Array.from(selectedIds) }),
+      })
+      const d = await res.json()
+      const result = d.data ?? d
+      setMsg(`대량 승인 완료 (성공: ${result.succeeded}, 실패: ${result.failed}) — 이메일이 있는 신청자에게 임시 비밀번호가 발송되었습니다.`)
+      clearSelection()
+      load(false)
+    } finally {
+      setBulkSaving(false)
+    }
+  }
+
+  async function handleBulkReject() {
+    if (!bulkRejectReason.trim()) return
+    setBulkSaving(true)
+    setBulkRejectOpen(false)
+    try {
+      const res = await fetch('/api/admin/company-admin-requests/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reject', ids: Array.from(selectedIds), rejectReason: bulkRejectReason }),
+      })
+      const d = await res.json()
+      const result = d.data ?? d
+      setMsg(`대량 반려 완료 (성공: ${result.succeeded}, 실패: ${result.failed})`)
+      clearSelection()
+      setBulkRejectReason('')
+      load(false)
+    } finally {
+      setBulkSaving(false)
+    }
+  }
+
   const closeModal = () => { setMode(null); setSelected(null); setRejectReason(''); setTempPass('') }
 
   return (
@@ -104,6 +155,27 @@ export default function CompanyAdminRequestsPage() {
         ))}
       </div>
 
+      {filter === 'PENDING' && (
+        <div className="mb-3">
+          <BulkToolbar count={selectedIds.size} onClear={clearSelection} disabled={bulkSaving}>
+            <button
+              onClick={handleBulkApprove}
+              disabled={bulkSaving}
+              className="px-3 py-1.5 text-[12px] font-semibold text-white bg-[#2e7d32] border-0 rounded-[8px] cursor-pointer disabled:opacity-50"
+            >
+              {bulkSaving ? '처리 중...' : '대량 승인'}
+            </button>
+            <button
+              onClick={() => { setBulkRejectReason(''); setBulkRejectOpen(true) }}
+              disabled={bulkSaving}
+              className="px-3 py-1.5 text-[12px] font-semibold text-white bg-[#c62828] border-0 rounded-[8px] cursor-pointer disabled:opacity-50"
+            >
+              {bulkSaving ? '처리 중...' : '대량 반려'}
+            </button>
+          </BulkToolbar>
+        </div>
+      )}
+
       {msg && (
         <div className="bg-green-light border border-[#a5d6a7] rounded-lg px-4 py-3 mb-4 text-[#2e7d32] text-sm">
           {msg}
@@ -122,7 +194,7 @@ export default function CompanyAdminRequestsPage() {
         </div>
       )}
 
-      {/* 모달 */}
+      {/* 개별 승인/반려 모달 */}
       <Modal open={!!(mode && selected)} onClose={closeModal} title={mode === 'approve' ? '업체 관리자 승인' : '신청 반려'}>
         {selected && (
           <>
@@ -157,10 +229,7 @@ export default function CompanyAdminRequestsPage() {
               </>
             )}
             <div className="flex gap-2 justify-end mt-4">
-              <button
-                className="px-4 py-2 bg-[#eee] border-none rounded-lg text-sm cursor-pointer"
-                onClick={closeModal}
-              >취소</button>
+              <button className="px-4 py-2 bg-[#eee] border-none rounded-lg text-sm cursor-pointer" onClick={closeModal}>취소</button>
               {mode === 'approve'
                 ? <button
                     className="px-4 py-2 bg-[#2e7d32] text-white border-none rounded-lg text-sm cursor-pointer font-bold disabled:opacity-50"
@@ -176,6 +245,27 @@ export default function CompanyAdminRequestsPage() {
             </div>
           </>
         )}
+      </Modal>
+
+      {/* 대량 반려 모달 */}
+      <Modal open={bulkRejectOpen} onClose={() => setBulkRejectOpen(false)} title={`대량 반려 (${selectedIds.size}건)`}>
+        <textarea
+          className="w-full px-[10px] py-[10px] border border-[rgba(91,164,217,0.3)] rounded-lg text-[14px] mb-4 box-border resize-y"
+          value={bulkRejectReason}
+          onChange={e => setBulkRejectReason(e.target.value)}
+          placeholder="공통 반려 사유를 입력하세요."
+          rows={4}
+        />
+        <div className="flex gap-2 justify-end">
+          <button className="px-4 py-2 bg-[#eee] border-0 rounded-lg text-[14px] cursor-pointer" onClick={() => setBulkRejectOpen(false)}>취소</button>
+          <button
+            className="px-4 py-2 bg-[#c62828] text-white border-0 rounded-lg text-[14px] cursor-pointer font-bold disabled:opacity-50"
+            onClick={handleBulkReject}
+            disabled={!bulkRejectReason.trim()}
+          >
+            반려
+          </button>
+        </div>
       </Modal>
 
       {loading ? (
@@ -207,13 +297,24 @@ export default function CompanyAdminRequestsPage() {
               )}
               {r.status === 'PENDING' && (
                 <MobileCardActions>
+                  <label className="flex items-center gap-1 text-[12px] text-muted-brand cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(r.id)}
+                      onChange={() => toggleSelect(r.id)}
+                      disabled={bulkSaving}
+                    />
+                    선택
+                  </label>
                   <button
-                    className="px-3 py-[6px] bg-[#2e7d32] text-white border-none rounded-md text-xs cursor-pointer font-semibold"
+                    className="px-3 py-[6px] bg-[#2e7d32] text-white border-none rounded-md text-xs cursor-pointer font-semibold disabled:opacity-50"
                     onClick={() => { setSelected(r); setMode('approve') }}
+                    disabled={bulkSaving}
                   >승인</button>
                   <button
-                    className="px-3 py-[6px] bg-[#c62828] text-white border-none rounded-md text-xs cursor-pointer font-semibold"
+                    className="px-3 py-[6px] bg-[#c62828] text-white border-none rounded-md text-xs cursor-pointer font-semibold disabled:opacity-50"
                     onClick={() => { setSelected(r); setMode('reject') }}
+                    disabled={bulkSaving}
                   >반려</button>
                 </MobileCardActions>
               )}
@@ -224,6 +325,16 @@ export default function CompanyAdminRequestsPage() {
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr>
+                    {filter === 'PENDING' && (
+                      <th className="bg-[#1E3350] px-[14px] py-3 text-left font-bold text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] w-10">
+                        <input
+                          type="checkbox"
+                          checked={pendingItems.length > 0 && pendingItems.every((r) => selectedIds.has(r.id))}
+                          onChange={() => toggleSelectAll(pendingItems.map((r) => r.id))}
+                          disabled={bulkSaving}
+                        />
+                      </th>
+                    )}
                     {['업체명', '사업자번호', '담당자', '연락처', '상태', '신청일', ''].map(h => (
                       <th
                         key={h}
@@ -235,6 +346,16 @@ export default function CompanyAdminRequestsPage() {
                 <tbody>
                   {data.map(r => (
                     <tr key={r.id} className="border-b border-brand">
+                      {filter === 'PENDING' && (
+                        <td className="px-[14px] py-3 align-middle">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(r.id)}
+                            onChange={() => toggleSelect(r.id)}
+                            disabled={bulkSaving}
+                          />
+                        </td>
+                      )}
                       <td className="px-[14px] py-3 align-middle">{r.companyName}</td>
                       <td className="px-[14px] py-3 align-middle">{r.businessNumber}</td>
                       <td className="px-[14px] py-3 align-middle">
@@ -254,12 +375,14 @@ export default function CompanyAdminRequestsPage() {
                         {r.status === 'PENDING' && (
                           <div className="flex gap-[6px]">
                             <button
-                              className="px-3 py-[6px] bg-[#2e7d32] text-white border-none rounded-md text-xs cursor-pointer font-semibold"
+                              className="px-3 py-[6px] bg-[#2e7d32] text-white border-none rounded-md text-xs cursor-pointer font-semibold disabled:opacity-50"
                               onClick={() => { setSelected(r); setMode('approve') }}
+                              disabled={bulkSaving}
                             >승인</button>
                             <button
-                              className="px-3 py-[6px] bg-[#c62828] text-white border-none rounded-md text-xs cursor-pointer font-semibold"
+                              className="px-3 py-[6px] bg-[#c62828] text-white border-none rounded-md text-xs cursor-pointer font-semibold disabled:opacity-50"
                               onClick={() => { setSelected(r); setMode('reject') }}
+                              disabled={bulkSaving}
                             >반려</button>
                           </div>
                         )}

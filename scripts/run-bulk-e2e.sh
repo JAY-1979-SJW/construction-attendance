@@ -22,6 +22,7 @@ npx playwright test \
   e2e/workers-bulk-education.spec.ts \
   e2e/site-join-requests-bulk.spec.ts \
   e2e/device-requests-bulk.spec.ts \
+  e2e/company-admin-requests-bulk.spec.ts \
   --config=e2e/playwright.config.ts \
   --project=chromium
 EXIT_CODE=$?
