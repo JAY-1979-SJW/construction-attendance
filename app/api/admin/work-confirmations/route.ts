@@ -27,10 +27,31 @@ export async function GET(req: NextRequest) {
       include: {
         worker: { select: { id: true, name: true, jobTitle: true, employmentType: true, incomeType: true } },
         site:   { select: { id: true, name: true } },
-        attendanceDay: { select: { firstCheckInAt: true, lastCheckOutAt: true, presenceStatus: true } },
+        attendanceDay: { select: { firstCheckInAt: true, lastCheckOutAt: true, presenceStatus: true, manualAdjustedYn: true } },
       },
       orderBy: [{ workDate: 'asc' }, { worker: { name: 'asc' } }],
     })
+
+    // DRAFT 항목만 우선순위 정렬 적용 (비위험 순→위험 순→수동조정 하단, 동순위는 updatedAt desc)
+    function draftPriority(item: typeof items[0]): number {
+      if (item.attendanceDay?.manualAdjustedYn) return 90
+      const ps = item.attendanceDay?.presenceStatus
+      if (ps === 'REVIEW_REQUIRED')  return 10
+      if (ps === 'OUT_OF_GEOFENCE')  return 20
+      if (ps === 'NO_RESPONSE')      return 30
+      const wt = item.confirmedWorkType
+      if (wt === 'INVALID')          return 40
+      if (wt === 'HALF_DAY')         return 50
+      return 60
+    }
+
+    const sorted = status === 'DRAFT'
+      ? [...items].sort((a, b) => {
+          const diff = draftPriority(a) - draftPriority(b)
+          if (diff !== 0) return diff
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        })
+      : items
 
     // 월 집계 요약
     const summary = {
@@ -42,7 +63,7 @@ export async function GET(req: NextRequest) {
                        .reduce((s, i) => s + i.confirmedTotalAmount, 0),
     }
 
-    return ok({ items, summary, monthKey })
+    return ok({ items: sorted, summary, monthKey })
   } catch (err) {
     console.error('[work-confirmations GET]', err)
     return internalError()

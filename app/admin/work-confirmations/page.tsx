@@ -18,7 +18,8 @@ interface WorkConfirmation {
   notes: string | null
   worker: { id: string; name: string; jobTitle: string; employmentType: string; incomeType: string }
   site: { id: string; name: string }
-  attendanceDay: { firstCheckInAt: string | null; lastCheckOutAt: string | null; presenceStatus: string } | null
+  attendanceDay: { firstCheckInAt: string | null; lastCheckOutAt: string | null; presenceStatus: string; manualAdjustedYn: boolean } | null
+  updatedAt: string
 }
 
 interface Summary { total: number; draft: number; confirmed: number; excluded: number; totalAmount: number }
@@ -29,6 +30,20 @@ const WORK_TYPE_LABEL: Record<string, string> = {
   FULL_DAY: '1공수', HALF_DAY: '0.5공수', OVERTIME: '연장', NIGHT: '야간', HOLIDAY: '휴일', INVALID: '무효',
 }
 const INCOME_LABEL: Record<string, string> = { SALARY: '상용급여', DAILY_WAGE: '일용', BUSINESS_INCOME: '3.3%' }
+
+// DRAFT 우선순위 배지: 왜 상단에 노출되는지 표시
+function getDraftPriorityBadge(item: WorkConfirmation): { label: string; color: string } | null {
+  if (item.confirmationStatus !== 'DRAFT') return null
+  if (item.attendanceDay?.manualAdjustedYn) return { label: '수동조정', color: '#78909c' }
+  const ps = item.attendanceDay?.presenceStatus
+  if (ps === 'REVIEW_REQUIRED')  return { label: '요주의', color: '#c62828' }
+  if (ps === 'OUT_OF_GEOFENCE')  return { label: '지오펜스이탈', color: '#e65100' }
+  if (ps === 'NO_RESPONSE')      return { label: '미응답', color: '#f57c00' }
+  const wt = item.confirmedWorkType
+  if (wt === 'INVALID')          return { label: '무효처리', color: '#b71c1c' }
+  if (wt === 'HALF_DAY')         return { label: '반일', color: '#6d4c41' }
+  return null
+}
 
 function getMonthKey() {
   const now = new Date(Date.now() + 9 * 3600000)
@@ -224,13 +239,22 @@ export default function WorkConfirmationsPage() {
               items={items}
               emptyMessage="데이터 없음 — 초안 생성을 먼저 실행하세요"
               keyExtractor={(item) => item.id}
-              renderCard={(item) => (
+              renderCard={(item) => {
+                const priorityBadge = getDraftPriorityBadge(item)
+                return (
                 <MobileCard
                   title={item.worker.name}
                   subtitle={`${item.workDate} · ${item.site.name}`}
                   badge={
-                    <span style={{ color: STATUS_COLOR[item.confirmationStatus], fontWeight: 600, fontSize: '12px' }}>
-                      {STATUS_LABEL[item.confirmationStatus] ?? item.confirmationStatus}
+                    <span className="flex items-center gap-1">
+                      {priorityBadge && (
+                        <span style={{ color: priorityBadge.color, fontWeight: 700, fontSize: '11px', background: `${priorityBadge.color}18`, padding: '1px 5px', borderRadius: '4px', border: `1px solid ${priorityBadge.color}44` }}>
+                          {priorityBadge.label}
+                        </span>
+                      )}
+                      <span style={{ color: STATUS_COLOR[item.confirmationStatus], fontWeight: 600, fontSize: '12px' }}>
+                        {STATUS_LABEL[item.confirmationStatus] ?? item.confirmationStatus}
+                      </span>
                     </span>
                   }
                 >
@@ -247,7 +271,7 @@ export default function WorkConfirmationsPage() {
                     </MobileCardActions>
                   )}
                 </MobileCard>
-              )}
+              )}}
               renderTable={() => (
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
@@ -276,6 +300,11 @@ export default function WorkConfirmationsPage() {
                             <span style={{ color: STATUS_COLOR[item.confirmationStatus], fontWeight: 600, fontSize: '13px' }}>
                               {STATUS_LABEL[item.confirmationStatus] ?? item.confirmationStatus}
                             </span>
+                            {(() => { const b = getDraftPriorityBadge(item); return b ? (
+                              <span style={{ display: 'block', marginTop: '2px', color: b.color, fontWeight: 700, fontSize: '11px', background: `${b.color}18`, padding: '1px 5px', borderRadius: '4px', border: `1px solid ${b.color}44` }}>
+                                {b.label}
+                              </span>
+                            ) : null })()}
                           </td>
                           <td className="px-4 py-3 text-[13px] text-dim-brand border-b border-[rgba(91,164,217,0.1)] align-top">
                             {item.confirmationStatus !== 'CONFIRMED' && (
