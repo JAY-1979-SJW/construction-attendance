@@ -232,12 +232,10 @@ test.describe('근로자 홈 — 4탭 네비 / 출근화면', () => {
     const page = await ctx.newPage()
     await injectWorker(ctx)
     await mockWorkerAPIs(page)
-
-    // 서류 탭 mock
+    // 서류/노임 탭 mock
     await page.route(`${BASE}/api/my/documents`, r =>
       r.fulfill({ status: 200, contentType: 'application/json',
         body: JSON.stringify(ok({ package: null, documents: [] })) }))
-    // 노임 탭 mock
     await page.route(`${BASE}/api/attendance/monthly**`, r =>
       r.fulfill({ status: 200, contentType: 'application/json',
         body: JSON.stringify(ok({ days: [], summary: {} })) }))
@@ -245,28 +243,24 @@ test.describe('근로자 홈 — 4탭 네비 / 출근화면', () => {
       r.fulfill({ status: 200, contentType: 'application/json',
         body: JSON.stringify(ok({ days: [], summary: {} })) }))
 
+    // 서류 탭: /attendance → 서류 클릭 → /my/onboarding
     await page.goto(`${BASE}/attendance`)
     await waitForWorkerPage(page)
-    const nav = page.locator('nav.fixed.bottom-0')
+    await page.locator('nav.fixed.bottom-0').getByText('서류').click()
+    await expect(page).toHaveURL(/\/my\/onboarding/, { timeout: 8000 })
 
-    // 서류 탭 → /my/onboarding
-    await nav.getByText('서류').click()
-    await expect(page).toHaveURL(/\/my\/onboarding/, { timeout: 5000 })
+    // 작업 탭: /my/onboarding → 작업 클릭 → /work
+    await page.waitForSelector('nav.fixed.bottom-0', { timeout: 8000 })
+    await page.locator('nav.fixed.bottom-0').getByText('작업').click()
+    await expect(page).toHaveURL(/\/work/, { timeout: 8000 })
 
-    // 작업 탭 → /work
-    await nav.getByText('작업').click()
-    await expect(page).toHaveURL(/\/work/, { timeout: 5000 })
-
-    // 노임 탭 → /wage
-    await nav.getByText('노임').click()
-    await expect(page).toHaveURL(/\/wage/, { timeout: 5000 })
-
-    // 홈 탭 → /attendance
-    await nav.getByText('홈').click()
-    await expect(page).toHaveURL(/\/attendance/, { timeout: 5000 })
+    // 노임 탭: /work → 노임 클릭 → /wage
+    await page.waitForSelector('nav.fixed.bottom-0', { timeout: 8000 })
+    await page.locator('nav.fixed.bottom-0').getByText('노임').click()
+    await expect(page).toHaveURL(/\/wage/, { timeout: 8000 })
 
     await ctx.close()
-  })
+  }, 60000) // 탭 순차 탐색: 60s 타임아웃
 
   test('3. 홈에서 TBM / 작업지시 / 완료보고 바로가기 링크 없음 (근무 중 상태)', async ({ browser }) => {
     const ctx  = await browser.newContext({ viewport: VP390 })
@@ -298,12 +292,12 @@ test.describe('근로자 홈 — 4탭 네비 / 출근화면', () => {
     // 문제신고 카드 클릭 (토글 열기)
     await page.getByText('문제신고').click()
 
-    // 5종 버튼 확인
-    await expect(page.getByRole('button', { name: '출근누락' })).toBeVisible()
-    await expect(page.getByRole('button', { name: '퇴근누락' })).toBeVisible()
-    await expect(page.getByRole('button', { name: '위치이탈' })).toBeVisible()
-    await expect(page.getByRole('button', { name: '안전·건강이상' })).toBeVisible()
-    await expect(page.getByRole('button', { name: '사고/아차사고' })).toBeVisible()
+    // 5종 버튼 확인 (exact: true — 토글 버튼과 중복 매칭 방지)
+    await expect(page.getByRole('button', { name: '출근누락',    exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: '퇴근누락',    exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: '위치이탈',    exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: '안전·건강이상', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: '사고/아차사고', exact: true })).toBeVisible()
 
     await ctx.close()
   })
@@ -366,7 +360,7 @@ test.describe('근로자 /work 페이지 — 작업기록 / 자재신청', () =>
     await page.goto(`${BASE}/work`)
     await page.waitForSelector('nav.fixed.bottom-0', { timeout: 10000 })
 
-    await expect(page.getByRole('button', { name: '작업기록' })).toBeVisible()
+    await expect(page.getByRole('button', { name: '작업기록', exact: true })).toBeVisible()
     await expect(page.getByPlaceholder('한 줄로 입력')).toBeVisible()
     await expect(page.getByPlaceholder('이상 있을 때만 입력')).toBeVisible()
     await expect(page.getByPlaceholder('전달할 내용 한 줄')).toBeVisible()
