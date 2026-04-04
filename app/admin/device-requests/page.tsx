@@ -26,6 +26,7 @@ export default function DeviceRequestsPage() {
   const router = useRouter()
   const role = useAdminRole()
   const canMutate = role !== null && role !== 'VIEWER'
+  const canBulkSelect = role !== 'VIEWER' // null(로딩 중)에도 체크박스 표시
   const [items, setItems] = useState<DeviceRequest[]>([])
   const [total, setTotal] = useState(0)
   const [statusFilter, setStatusFilter] = useState('PENDING')
@@ -140,7 +141,7 @@ export default function DeviceRequestsPage() {
           ))}
         </div>
 
-        {statusFilter === 'PENDING' && canMutate && (
+        {statusFilter === 'PENDING' && canBulkSelect && (
           <div className="mb-3">
             <BulkToolbar count={selectedIds.size} onClear={clearSelection} disabled={bulkSaving}>
               <button
@@ -200,7 +201,7 @@ export default function DeviceRequestsPage() {
                   {item.reason && <MobileCardField label="사유" value={item.reason} />}
                   <MobileCardField label="요청일" value={formatDt(item.requestedAt)} />
                 </MobileCardFields>
-                {item.status === 'PENDING' && canMutate ? (
+                {item.status === 'PENDING' && canBulkSelect ? (
                   <MobileCardActions>
                     <label className="flex items-center gap-1 text-[12px] text-muted-brand cursor-pointer">
                       <input
@@ -228,7 +229,7 @@ export default function DeviceRequestsPage() {
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr className="border-b-2 border-[rgba(91,164,217,0.2)]">
-                      {statusFilter === 'PENDING' && canMutate && (
+                      {statusFilter === 'PENDING' && canBulkSelect && (
                         <th className="text-left px-3 py-2.5 text-xs text-muted-brand w-10">
                           <input
                             type="checkbox"
@@ -246,7 +247,7 @@ export default function DeviceRequestsPage() {
                   <tbody>
                     {items.map((item) => (
                       <tr key={item.id} className="border-b border-[rgba(91,164,217,0.1)]">
-                        {statusFilter === 'PENDING' && canMutate && (
+                        {statusFilter === 'PENDING' && canBulkSelect && (
                           <td className="px-3 py-3 align-middle">
                             <input
                               type="checkbox"
