@@ -99,7 +99,7 @@ fi
 echo ""
 echo "▶ [3] 최근 에러로그 확인 (10분)"
 set +e
-ERR_LINES=$(ssh_cmd "docker logs attendance --since=10m 2>&1 | grep -iE 'error|exception|prisma|fatal' | grep -v 'EarlyHints' | head -20")
+ERR_LINES=$(ssh_cmd "docker logs attendance --since=10m 2>&1 | grep -iE '\berror\b|\bexception\b|\bfatal\b' | grep -viE 'EarlyHints|schema loaded|migrations found|prisma.*loaded|DeprecationWarning' | head -20")
 ERR_EC=$?
 set -e
 ERR_COUNT=$(echo "$ERR_LINES" | grep -c . || true)
