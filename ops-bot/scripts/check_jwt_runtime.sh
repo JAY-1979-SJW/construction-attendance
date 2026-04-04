@@ -30,11 +30,12 @@ if [ "$LOGIN_CODE" != "200" ]; then
 fi
 echo "OK: 로그인 성공 (HTTP $LOGIN_CODE)"
 
-# 2. 쿠키에서 토큰 추출
-TOKEN=$(curl -s -c - -X POST ${APP_BASE}/api/admin/auth/login \
+# 2. Set-Cookie 헤더에서 토큰 추출 (Secure 쿠키 → 헤더 직접 파싱)
+TOKEN=$(curl -s -D - -o /dev/null -X POST "${APP_BASE}/api/admin/auth/login" \
   -H "Content-Type: application/json" \
   -d "$LOGIN_PAYLOAD" 2>/dev/null \
-  | grep admin_token | awk '{print $NF}')
+  | grep -i "set-cookie: admin_token=" \
+  | grep -oP '(?<=admin_token=)[^;]+')
 
 if [ -z "$TOKEN" ]; then
   echo "FAIL: 토큰 추출 실패"
