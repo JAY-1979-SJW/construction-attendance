@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, requireFeature, MUTATE_ROLES, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import {
   ok,
@@ -73,7 +73,9 @@ export async function PATCH(
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
-    const deny = requireRole(session, [...MUTATE_ROLES, 'SITE_ADMIN'])
+    // SITE_WRITE 권한 강제 — SUPER_ADMIN/HQ_ADMIN/ADMIN/SITE_ADMIN(담당 현장만)
+    // COMPANY_ADMIN(현장 마스터 수정 불가), VIEWER 차단
+    const deny = requireFeature(session, 'SITE_WRITE')
     if (deny) return deny
 
     const { id } = await params

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminSession, requireRole } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, requireFeature } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { MUTATE_ALLOWED_ROLES, SUPER_ADMIN_ONLY_ROLES } from '@/lib/policies/security-policy'
@@ -41,7 +41,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const deny = requireRole(session, MUTATE_ALLOWED_ROLES)
+  // COMPANY_MANAGE 권한 강제 — SUPER_ADMIN/HQ_ADMIN/ADMIN만 업체 정보 수정 가능
+  // COMPANY_ADMIN(자기 업체라도 마스터 데이터 직접 수정 불가), SITE_ADMIN, VIEWER 차단
+  const deny = requireFeature(session, 'COMPANY_MANAGE')
   if (deny) return deny
 
   const body = await req.json().catch(() => ({}))

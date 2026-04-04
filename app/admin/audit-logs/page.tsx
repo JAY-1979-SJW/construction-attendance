@@ -8,6 +8,7 @@ interface AuditLog {
   id: string
   actorUserId: string | null
   actorType: string
+  actorRole: string | null
   actionType: string
   targetType: string | null
   targetId: string | null
@@ -15,6 +16,27 @@ interface AuditLog {
   metadataJson: Record<string, unknown> | null
   ipAddress: string | null
   createdAt: string
+}
+
+const ACTOR_ROLE_OPTIONS = [
+  { value: '', label: '전체 역할' },
+  { value: 'SUPER_ADMIN',         label: '대표 (SUPER_ADMIN)' },
+  { value: 'HQ_ADMIN',            label: '본사관리자 (HQ_ADMIN)' },
+  { value: 'ADMIN',               label: '관리자 레거시 (ADMIN)' },
+  { value: 'VIEWER',              label: '조회자 (VIEWER)' },
+  { value: 'SITE_ADMIN',          label: '현장관리자 (SITE_ADMIN)' },
+  { value: 'EXTERNAL_SITE_ADMIN', label: '외부현장관리자 (EXTERNAL_SITE_ADMIN)' },
+  { value: 'COMPANY_ADMIN',       label: '업체관리자 (COMPANY_ADMIN)' },
+]
+
+const ROLE_BADGE_COLOR: Record<string, { bg: string; text: string }> = {
+  SUPER_ADMIN:         { bg: '#4a148c', text: '#fff' },
+  HQ_ADMIN:            { bg: '#1565c0', text: '#fff' },
+  ADMIN:               { bg: '#0d47a1', text: '#fff' },
+  VIEWER:              { bg: '#546e7a', text: '#fff' },
+  SITE_ADMIN:          { bg: '#2e7d32', text: '#fff' },
+  EXTERNAL_SITE_ADMIN: { bg: '#00695c', text: '#fff' },
+  COMPANY_ADMIN:       { bg: '#e65100', text: '#fff' },
 }
 
 const ACTOR_TYPE_COLOR: Record<string, string> = {
@@ -65,6 +87,7 @@ export default function AuditLogsPage() {
   const [dateTo, setDateTo]           = useState(today)
   const [actionType, setActionType]   = useState('')
   const [actorUserId, setActorUserId] = useState('')
+  const [actorRole, setActorRole]     = useState('')
   const [targetType, setTargetType]   = useState('')
   const [items, setItems]             = useState<AuditLog[]>([])
   const [total, setTotal]             = useState(0)
@@ -80,6 +103,7 @@ export default function AuditLogsPage() {
     const params = new URLSearchParams({ dateFrom, dateTo, pageSize: String(pageSize), page: String(pg) })
     if (actionType) params.set('actionType', actionType)
     if (actorUserId.trim()) params.set('actorUserId', actorUserId.trim())
+    if (actorRole) params.set('actorRole', actorRole)
     if (targetType) params.set('targetType', targetType)
     fetch(`/api/admin/audit-logs?${params}`)
       .then((r) => {
@@ -140,6 +164,13 @@ export default function AuditLogsPage() {
               <select value={targetType} onChange={(e) => setTargetType(e.target.value)}
                 className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]">
                 {TARGET_TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] text-muted-brand">역할</label>
+              <select value={actorRole} onChange={(e) => setActorRole(e.target.value)}
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] min-w-[180px]">
+                {ACTOR_ROLE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div className="flex flex-col gap-1">
@@ -245,6 +276,14 @@ export default function AuditLogsPage() {
                           }}>
                             {item.actorType}
                           </span>
+                          {item.actorRole && (() => {
+                            const rc = ROLE_BADGE_COLOR[item.actorRole]
+                            return rc ? (
+                              <span style={{ fontSize: '10px', fontWeight: 700, padding: '1px 5px', borderRadius: '8px', background: rc.bg, color: rc.text, marginLeft: 3 }}>
+                                {item.actorRole}
+                              </span>
+                            ) : null
+                          })()}
                           {item.actorUserId && (
                             <div className="text-[11px] text-muted-brand mt-0.5">
                               {shortId(item.actorUserId)}

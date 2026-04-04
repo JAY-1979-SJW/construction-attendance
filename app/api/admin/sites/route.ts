@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES, getAccessibleSiteIds } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, requireFeature, MUTATE_ROLES, getAccessibleSiteIds } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, created, badRequest, unauthorized, internalError } from '@/lib/utils/response'
 import { generateToken } from '@/lib/utils/random'
@@ -135,8 +135,9 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
-    // SITE_ADMIN은 현장 신규 생성 불가 (배정된 현장만 관리)
-    const deny = requireRole(session, MUTATE_ROLES)
+    // SITE_WRITE 권한 강제 — SUPER_ADMIN/HQ_ADMIN/ADMIN만 현장 신규 생성 가능
+    // SITE_ADMIN(담당 현장 관리만), COMPANY_ADMIN, VIEWER 차단
+    const deny = requireFeature(session, 'SITE_WRITE')
     if (deny) return deny
 
     const body = await request.json()

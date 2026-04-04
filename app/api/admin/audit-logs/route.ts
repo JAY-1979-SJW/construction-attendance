@@ -14,9 +14,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const dateFrom   = searchParams.get('dateFrom')
     const dateTo     = searchParams.get('dateTo')
-    const actionType = searchParams.get('actionType') ?? ''
+    const actionType  = searchParams.get('actionType') ?? ''
     const actorUserId = searchParams.get('actorUserId') ?? ''
-    const targetType = searchParams.get('targetType') ?? ''
+    const actorRole   = searchParams.get('actorRole') ?? ''
+    const targetType  = searchParams.get('targetType') ?? ''
     const page     = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
     const pageSize = Math.min(200, Math.max(1, parseInt(searchParams.get('pageSize') ?? '50', 10)))
 
@@ -29,9 +30,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    if (actionType) where.actionType = actionType
+    if (actionType)  where.actionType  = actionType
     if (actorUserId) where.actorUserId = actorUserId
-    if (targetType) where.targetType = targetType
+    if (actorRole)   where.actorRole   = actorRole
+    if (targetType)  where.targetType  = targetType
 
     const [total, items] = await Promise.all([
       prisma.auditLog.count({ where }),
