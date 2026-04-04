@@ -42,8 +42,9 @@ export default function WorkConfirmationsPage() {
   const [summary, setSummary]   = useState<Summary | null>(null)
   const [loading, setLoading]   = useState(false)
   const [statusFilter, setStatusFilter] = useState('')
-  const [generating, setGenerating] = useState(false)
-  const [finalizing, setFinalizing] = useState(false)
+  const [generating, setGenerating]       = useState(false)
+  const [autoConfirming, setAutoConfirming] = useState(false)
+  const [finalizing, setFinalizing]       = useState(false)
   const [editTarget, setEditTarget] = useState<WorkConfirmation | null>(null)
   const [editForm, setEditForm]   = useState({ workType: '', workUnits: '', baseAmount: '', allowanceAmount: '', notes: '' })
   const [saving, setSaving]       = useState(false)
@@ -73,6 +74,27 @@ export default function WorkConfirmationsPage() {
     }).then((r) => r.json())
     setGenerating(false)
     setMsg(r.success ? `생성 완료 — 신규 ${r.data.created}건, 갱신 ${r.data.skipped}건` : '생성 실패')
+    load()
+  }
+
+  const handleAutoConfirm = async () => {
+    if (!confirm(`${monthKey} 기준으로 자동 확정을 실행하시겠습니까?\n\n대상: 정상 출퇴근(NORMAL) + 1공수(FULL_DAY) 건만 자동 확정\n나머지: DRAFT 유지 → 수동 검토 대기`)) return
+    setAutoConfirming(true)
+    setMsg('')
+    const r = await fetch('/api/admin/work-confirmations/auto-confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ monthKey }),
+    }).then((r) => r.json())
+    setAutoConfirming(false)
+    if (r.success) {
+      const { autoConfirmed, pendingReview, errors } = r.data
+      setMsg(
+        `자동 확정 완료 — 확정 ${autoConfirmed}건 | 검토 대기 ${pendingReview}건${errors ? ` | 오류 ${errors}건` : ''}`
+      )
+    } else {
+      setMsg(`자동 확정 실패: ${r.message ?? '알 수 없는 오류'}`)
+    }
     load()
   }
 
@@ -138,10 +160,13 @@ export default function WorkConfirmationsPage() {
             <option value="EXCLUDED">제외</option>
           </select>
           <button onClick={handleGenerate} disabled={generating} className="px-4 py-2 bg-accent text-white border-0 rounded-md cursor-pointer text-[14px] font-semibold">
-            {generating ? '생성 중...' : '초안 생성'}
+            {generating ? '생성 중...' : '① 초안 생성'}
+          </button>
+          <button onClick={handleAutoConfirm} disabled={autoConfirming} className="px-4 py-2 bg-[#1565c0] text-white border-0 rounded-md cursor-pointer text-[14px] font-semibold">
+            {autoConfirming ? '자동 확정 중...' : '② 자동 확정'}
           </button>
           <button onClick={handleFinalize} disabled={finalizing} className="px-4 py-2 bg-[#2e7d32] text-white border-0 rounded-md cursor-pointer text-[14px] font-semibold">
-            {finalizing ? '확정 중...' : '전체 확정 + 보험/세금 계산'}
+            {finalizing ? '확정 중...' : '③ 전체 확정 + 보험/세금 계산'}
           </button>
         </div>
 
