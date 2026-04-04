@@ -40,7 +40,7 @@ if [ "$DUMP_EXIT" -eq 0 ] && [ -s "$BACKUP_FILE" ]; then
 
   # 30일 이상 백업 정리
   OLD=$(find "$BACKUP_DIR" -name "attendance_*.sql.gz" -mtime +30 -delete -print | wc -l)
-  [ "$OLD" -gt 0 ] && echo "정리: ${OLD}건 삭제 (30일 초과)"
+  if [ "$OLD" -gt 0 ]; then echo "정리: ${OLD}건 삭제 (30일 초과)"; fi
 else
   echo "결과: FAIL — pg_dump 실패 (exit=$DUMP_EXIT)"
   rm -f "$BACKUP_FILE"
