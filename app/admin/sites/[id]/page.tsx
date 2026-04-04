@@ -238,18 +238,21 @@ export default function SiteDetailPage() {
     })
   }, [])
 
-  const openAddressSearch = useCallback(async () => {
-    try {
-      await loadDaumPostcode()
-    } catch {
-      alert('주소 검색 스크립트를 불러오지 못했습니다. 네트워크를 확인하세요.')
+  // 수정폼 진입 시 Daum 스크립트 프리로드 — 클릭 시점엔 이미 로드됨
+  useEffect(() => {
+    if (infoEditing) loadDaumPostcode().catch(() => {})
+  }, [infoEditing, loadDaumPostcode])
+
+  // 동기 함수 — open()을 사용자 제스처 컨텍스트에서 직접 호출
+  const openAddressSearch = useCallback(() => {
+    if (!window.daum?.Postcode) {
+      alert('주소 검색 준비 중입니다. 잠시 후 다시 시도해주세요.')
       return
     }
     new window.daum.Postcode({
       oncomplete: async (data: { roadAddress: string; jibunAddress: string }) => {
         const address = data.roadAddress || data.jibunAddress
         const addressJibun = data.jibunAddress || ''
-        // 주소만 업데이트 — lat/lng는 geocode 결과 전까지 기존 값 유지
         setInfoForm(f => ({ ...f, address, addressJibun }))
         setInfoGeoStatus('loading')
         try {
@@ -259,7 +262,6 @@ export default function SiteDetailPage() {
             setInfoForm(f => ({ ...f, latitude: String(json.data.lat), longitude: String(json.data.lng) }))
             setInfoGeoStatus('done')
           } else {
-            // geocode 실패 — 기존 좌표 유지, 수동 입력 유도
             setInfoGeoStatus('error')
           }
         } catch {
@@ -267,7 +269,7 @@ export default function SiteDetailPage() {
         }
       },
     }).open()
-  }, [loadDaumPostcode])
+  }, [])
 
   // ── 참여회사 탭 상태 ───────────────────────────────────────────
   const [siteCompanies, setSiteCompanies]       = useState<SiteCompanyAssignment[]>([])

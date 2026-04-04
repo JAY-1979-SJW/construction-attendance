@@ -366,12 +366,15 @@ export default function SitesPage() {
     return list
   }, [sitesWithStatus, search, opFilter, cpFilter, sortKey])
 
-  // ── 주소 검색 / GPS ───────────────────────────────────────────────────────
-  const openAddressSearch = async (target: 'form' | 'edit') => {
-    try {
-      await loadDaumPostcode()
-    } catch {
-      alert('주소 검색 스크립트를 불러오지 못했습니다. 네트워크를 확인하세요.')
+  // 등록/수정 폼 열릴 때 Daum 스크립트 프리로드
+  useEffect(() => {
+    if (showForm || editTarget) loadDaumPostcode().catch(() => {})
+  }, [showForm, editTarget, loadDaumPostcode])
+
+  // 동기 함수 — open()을 사용자 제스처 컨텍스트에서 직접 호출
+  const openAddressSearch = (target: 'form' | 'edit') => {
+    if (!window.daum?.Postcode) {
+      alert('주소 검색 준비 중입니다. 잠시 후 다시 시도해주세요.')
       return
     }
     new window.daum.Postcode({
@@ -380,7 +383,6 @@ export default function SitesPage() {
         const addressJibun = data.jibunAddress || ''
         const setStatus = target === 'form' ? setFormGeoStatus : setEditGeoStatus
         const setF      = target === 'form' ? setForm          : setEditForm
-        // 주소만 업데이트 — lat/lng는 geocode 결과 전까지 기존 값 유지
         setF(f => ({ ...f, address, addressJibun }))
         setStatus('loading')
         try {
