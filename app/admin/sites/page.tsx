@@ -267,15 +267,23 @@ export default function SitesPage() {
   const loadDaumPostcode = useCallback((): Promise<void> => {
     if (window.daum?.Postcode) return Promise.resolve()
     return new Promise((resolve, reject) => {
-      let s = document.getElementById('kakao-postcode-script') as HTMLScriptElement | null
-      if (!s) {
-        s = document.createElement('script')
-        s.id = 'kakao-postcode-script'
-        s.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
-        document.head.appendChild(s)
+      const existing = document.getElementById('kakao-postcode-script') as HTMLScriptElement | null
+      if (existing) {
+        // 스크립트 태그는 있지만 load 이벤트가 이미 발생했을 수 있음 → 폴링
+        let elapsed = 0
+        const poll = setInterval(() => {
+          if (window.daum?.Postcode) { clearInterval(poll); resolve(); return }
+          elapsed += 100
+          if (elapsed >= 10000) { clearInterval(poll); reject(new Error('timeout')) }
+        }, 100)
+        return
       }
-      s.addEventListener('load', () => resolve())
-      s.addEventListener('error', () => reject(new Error('주소 검색 스크립트 로드 실패')))
+      const s = document.createElement('script')
+      s.id = 'kakao-postcode-script'
+      s.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
+      s.onload = () => resolve()
+      s.onerror = () => reject(new Error('스크립트 로드 실패'))
+      document.head.appendChild(s)
     })
   }, [])
 
