@@ -19,11 +19,12 @@ echo "대상: construction_attendance"
 echo "저장: $BACKUP_FILE"
 echo ""
 
-# Docker 네트워크에서 DB 접근
+# DB 접근 (attendance_app 유저 — pg_hba.conf 허용 계정)
 DB_HOST="${DB_HOST:-192.168.120.18}"
+DB_USER="${DB_USER:-attendance_app}"
 PGPASSWORD="${DB_PASSWORD:?'DB_PASSWORD 미설정 — ops-bot/.env 또는 환경변수에 설정 필요'}" pg_dump \
   -h "$DB_HOST" \
-  -U postgres \
+  -U "$DB_USER" \
   -d construction_attendance \
   --no-owner \
   --no-privileges \
