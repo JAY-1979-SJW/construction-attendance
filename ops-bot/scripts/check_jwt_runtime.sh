@@ -6,12 +6,17 @@ set -uo pipefail
 OPS_LOGIN_ID="${OPS_LOGIN_ID:?'OPS_LOGIN_ID 미설정 — ops-bot/.env 또는 환경변수에 설정 필요'}"
 OPS_LOGIN_PW="${OPS_LOGIN_PW:?'OPS_LOGIN_PW 미설정 — ops-bot/.env 또는 환경변수에 설정 필요'}"
 
+# ── 컨테이너 IP 동적 조회 ──
+APP_HOST=$(docker inspect attendance --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 2>/dev/null)
+APP_HOST="${APP_HOST:-172.18.0.2}"
+APP_BASE="http://${APP_HOST}:3002"
+
 echo "=== JWT 런타임 검증 ==="
 
 # 1. 로그인 API로 토큰 발급
 echo "[1] 로그인 API 호출..."
 LOGIN_PAYLOAD="{\"email\":\"${OPS_LOGIN_ID}\",\"password\":\"${OPS_LOGIN_PW}\"}"
-LOGIN_RESULT=$(curl -s -w "\n%{http_code}" -X POST http://localhost:3002/api/admin/auth/login \
+LOGIN_RESULT=$(curl -s -w "\n%{http_code}" -X POST ${APP_BASE}/api/admin/auth/login \
   -H "Content-Type: application/json" \
   -d "$LOGIN_PAYLOAD" 2>/dev/null)
 
@@ -26,7 +31,7 @@ fi
 echo "OK: 로그인 성공 (HTTP $LOGIN_CODE)"
 
 # 2. 쿠키에서 토큰 추출
-TOKEN=$(curl -s -c - -X POST http://localhost:3002/api/admin/auth/login \
+TOKEN=$(curl -s -c - -X POST ${APP_BASE}/api/admin/auth/login \
   -H "Content-Type: application/json" \
   -d "$LOGIN_PAYLOAD" 2>/dev/null \
   | grep admin_token | awk '{print $NF}')
