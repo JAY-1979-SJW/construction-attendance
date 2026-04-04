@@ -261,15 +261,12 @@ out ""
 STEP=$((STEP + 1))
 outc "▶ STEP $STEP: ${CYAN}컨테이너 헬스체크${NC}"
 out "────────────────────────────────"
-CONTAINER_OUTPUT=$(bash "$SCRIPT_DIR/check_container_health.sh" 2>&1) || true
+CONTAINER_OUTPUT=$(bash "$SCRIPT_DIR/check_container_health.sh" 2>&1)
 CONTAINER_EXIT=$?
 echo "$CONTAINER_OUTPUT" | tee -a "$REPORT"
 
-if echo "$CONTAINER_OUTPUT" | grep -q "NOT TESTED\|NOT_TESTED"; then
-  CONTAINER_STATUS="NOT_TESTED"
-  WARN_ITEMS="${WARN_ITEMS} 컨테이너(미검증)"
-elif [ "$CONTAINER_EXIT" -eq 0 ]; then
-  if echo "$CONTAINER_OUTPUT" | grep -q "WARN"; then
+if [ "$CONTAINER_EXIT" -eq 0 ]; then
+  if echo "$CONTAINER_OUTPUT" | grep -q "\[WARN\]"; then
     CONTAINER_STATUS="WARN"
     WARN_ITEMS="${WARN_ITEMS} 컨테이너"
   else

@@ -55,27 +55,32 @@ outc "${CYAN}━━━━━━━━━━━━━━━━━━━━━━�
 out ""
 
 # ═══════════════════════════════════════════
-# SSH 접속 확인
+# 실행 모드 결정: SSH 키 있으면 원격, 없으면 로컬 Docker 직접 점검
 # ═══════════════════════════════════════════
-outc "${CYAN}[1] SSH 접속${NC}"
-SSH_TEST=$(ssh -i "$SSH_KEY" "$SSH_HOST" -o ConnectTimeout=10 -o BatchMode=yes "echo OK" 2>&1) || true
-if [ "$SSH_TEST" = "OK" ]; then
-  result_pass "SSH 접속" "정상"
+LOCAL_MODE=false
+outc "${CYAN}[1] 접속 / 실행 모드${NC}"
+if [ ! -f "$SSH_KEY" ]; then
+  out "  [INFO] SSH 키 없음 ($SSH_KEY) — 로컬 Docker 직접 점검 모드"
+  LOCAL_MODE=true
 else
-  result_fail "SSH 접속" "실패: $SSH_TEST"
-  out ""
-  out "SSH 접속 실패 — 이후 점검 불가"
-  echo -e "$RESULTS" > "$LOG_DIR/last_container_failure.log"
-  exit 1
+  SSH_TEST=$(ssh -i "$SSH_KEY" "$SSH_HOST" -o ConnectTimeout=10 -o BatchMode=yes "echo OK" 2>&1) || true
+  if [ "$SSH_TEST" = "OK" ]; then
+    result_pass "SSH 접속" "원격 정상 ($SSH_HOST)"
+  else
+    result_warn "SSH 접속" "실패: $SSH_TEST — 로컬 Docker 직접 점검으로 전환"
+    LOCAL_MODE=true
+  fi
 fi
 out ""
 
 # ═══════════════════════════════════════════
-# 서버 원격 점검 (한 번의 SSH로 전부 수집)
+# Docker 점검 (로컬 직접 실행 또는 SSH 원격 실행)
 # ═══════════════════════════════════════════
-outc "${CYAN}[2-8] 서버 원격 점검${NC}"
+EXEC_MODE=$( [ "$LOCAL_MODE" = true ] && echo "로컬" || echo "원격 SSH" )
+outc "${CYAN}[2-8] Docker 점검 (${EXEC_MODE})${NC}"
 
-REMOTE_DATA=$(ssh -i "$SSH_KEY" "$SSH_HOST" -o ConnectTimeout=15 bash -s <<'REMOTE_SCRIPT'
+# 점검 스크립트 — 로컬/원격 공통 사용
+DOCKER_CMDS=$(cat <<'DOCKER_SCRIPT'
 set -uo pipefail
 
 echo "===SECTION:COMPOSE_PS==="
@@ -83,11 +88,9 @@ cd ~/app/attendance
 docker compose ps --format '{{.Name}}|{{.State}}|{{.Status}}' 2>/dev/null || echo "ERROR:compose_ps_failed"
 
 echo "===SECTION:CONTAINER_INSPECT==="
-# attendance 컨테이너 상세
 docker inspect attendance --format '{{.State.Status}}|{{.State.Health.Status}}|{{.RestartCount}}|{{.State.StartedAt}}' 2>/dev/null || echo "ERROR:inspect_failed"
 
 echo "===SECTION:PORT_CHECK==="
-# 포트 응답 — Docker healthcheck과 동일 방식 (node 내부에서 확인)
 docker exec attendance node -e "
 const http = require('http');
 const start = Date.now();
@@ -112,11 +115,9 @@ http.get('http://localhost:3002/api/health', r => {
 " 2>/dev/null || echo "ERROR:health_failed"
 
 echo "===SECTION:ERROR_LOG==="
-# 최근 에러 로그 100줄
 docker logs attendance --tail 100 2>&1 | grep -iE 'error|exception|traceback|segfault|oom|killed|fatal|panic|ECONNREFUSED|ENOTFOUND' | tail -20 || echo "NONE"
 
 echo "===SECTION:FULL_LOG_TAIL==="
-# 최근 로그 마지막 20줄 (에러 아닌 것도 포함)
 docker logs attendance --tail 20 2>&1 || echo "ERROR:log_failed"
 
 echo "===SECTION:DISK==="
@@ -129,8 +130,14 @@ echo "===SECTION:DOCKER_STATS==="
 docker stats attendance --no-stream --format '{{.CPUPerc}}|{{.MemUsage}}|{{.MemPerc}}' 2>/dev/null || echo "ERROR:stats_failed"
 
 echo "===SECTION:END==="
-REMOTE_SCRIPT
-) 2>&1
+DOCKER_SCRIPT
+)
+
+if [ "$LOCAL_MODE" = true ]; then
+  REMOTE_DATA=$(bash <<< "$DOCKER_CMDS" 2>&1)
+else
+  REMOTE_DATA=$(ssh -i "$SSH_KEY" "$SSH_HOST" -o ConnectTimeout=15 bash -s <<< "$DOCKER_CMDS" 2>&1)
+fi
 
 # 원격 데이터를 로그에 저장
 echo "$REMOTE_DATA" >> "$REPORT"
