@@ -11,6 +11,12 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' } },
     {
+      name: 'admin-actions',
+      use: { browserName: 'chromium' },
+      testMatch: 'admin-page-actions.spec.ts',
+      timeout: 45000,
+    },
+    {
       name: 'mobile-iphone13',
       use: {
         ...devices['iPhone 13'],

@@ -265,6 +265,78 @@ export async function confirmWorkDay(opts: ConfirmOptions) {
   return updated
 }
 
+export interface AutoConfirmOptions {
+  monthKey: string
+  siteId?: string
+  workerId?: string
+  confirmedBy: string  // 'SYSTEM' 또는 AdminUser.id
+}
+
+export interface AutoConfirmResult {
+  autoConfirmed: number   // 자동 확정된 건수
+  skipped: number         // 기준 미충족 (HALF_DAY / INVALID / REVIEW_REQUIRED 등)
+  errors: number
+}
+
+/**
+ * 근무 인정 기준 자동 판정 + 확정
+ *
+ * 자동 확정 조건 (모두 충족 시):
+ *   1. confirmationStatus = 'DRAFT'
+ *   2. attendanceDay.presenceStatus = 'NORMAL'
+ *   3. confirmedWorkType = 'FULL_DAY' (실근로 ≥ 480분 = 07:00~16:00 시나리오 기준)
+ *
+ * 자동 확정 제외 (수동 검토 대기):
+ *   - presenceStatus: REVIEW_REQUIRED / OUT_OF_GEOFENCE / NO_RESPONSE / MISSING_CHECKOUT
+ *   - workType: HALF_DAY / INVALID
+ *   - manualAdjustedYn = true (이미 수동 보정됨)
+ */
+export async function autoConfirmQualified(
+  opts: AutoConfirmOptions,
+): Promise<AutoConfirmResult> {
+  const { monthKey, siteId, workerId, confirmedBy } = opts
+  const result: AutoConfirmResult = { autoConfirmed: 0, skipped: 0, errors: 0 }
+
+  const drafts = await prisma.monthlyWorkConfirmation.findMany({
+    where: {
+      monthKey,
+      confirmationStatus: 'DRAFT',
+      confirmedWorkType:  'FULL_DAY' as never,
+      ...(siteId   ? { siteId }   : {}),
+      ...(workerId ? { workerId } : {}),
+    },
+    include: {
+      attendanceDay: {
+        select: { presenceStatus: true, manualAdjustedYn: true },
+      },
+    },
+  })
+
+  for (const draft of drafts) {
+    try {
+      const day = draft.attendanceDay
+      // presenceStatus 조건: NORMAL 만 허용
+      const presenceOk = day?.presenceStatus === 'NORMAL'
+      // 수동 보정 이력이 있으면 자동 확정 제외
+      const notManuallyAdjusted = !day?.manualAdjustedYn
+
+      if (!presenceOk || !notManuallyAdjusted) {
+        result.skipped++
+        continue
+      }
+
+      await confirmWorkDay({ confirmationId: draft.id, confirmedBy })
+      result.autoConfirmed++
+    } catch (err) {
+      console.error('[work-confirmations] autoConfirm error', { draftId: draft.id, err })
+      result.errors++
+    }
+  }
+
+  console.info('[work-confirmations] autoConfirmQualified done', { monthKey, ...result })
+  return result
+}
+
 /** 월 일괄 확정 */
 export async function finalizeMonth(monthKey: string, confirmedBy: string, siteId?: string) {
   const drafts = await prisma.monthlyWorkConfirmation.findMany({
