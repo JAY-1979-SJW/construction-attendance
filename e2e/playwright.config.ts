@@ -32,5 +32,13 @@ export default defineConfig({
       },
       testMatch: 'mobile-card-ui.spec.ts',
     },
+    {
+      name: 'mobile-contract-layout',
+      use: {
+        browserName: 'chromium',
+        screenshot: 'on',
+      },
+      testMatch: 'mobile-contract-form-layout.spec.ts',
+    },
   ],
 })

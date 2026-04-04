@@ -854,7 +854,7 @@ function NewContractPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 pb-24 max-w-3xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <button onClick={() => router.back()} className="text-[#718096] hover:text-dim-brand text-sm">← 뒤로</button>
         <h1 className="text-xl sm:text-2xl font-bold">신규 계약 등록</h1>
@@ -1330,12 +1330,12 @@ function NewContractPage() {
               <label className="text-xs font-medium text-dim-brand block mb-1">공사명</label>
               <input type="text" value={form.projectName} onChange={e => set('projectName', e.target.value)}
                 placeholder="예: ○○빌딩 신축공사"
-                className="w-full border rounded px-3 py-2 text-sm" />
+                className="w-full border rounded px-3 py-2 text-sm min-h-[44px]" />
             </div>
             <div>
               <label className="text-xs font-medium text-dim-brand block mb-1">공종</label>
               <select value={form.workType} onChange={e => set('workType', e.target.value)}
-                className="w-full border rounded px-3 py-2 text-sm">
+                className="w-full border rounded px-3 py-2 text-sm min-h-[44px]">
                 <option value="">선택</option>
                 {WORK_TYPE_OPTIONS.map(v => <option key={v} value={v}>{v}</option>)}
               </select>
@@ -1344,12 +1344,12 @@ function NewContractPage() {
               <label className="text-xs font-medium text-dim-brand block mb-1">세부공종</label>
               <input type="text" value={form.workTypeSub} onChange={e => set('workTypeSub', e.target.value)}
                 placeholder="예: 동력반, 소화배관"
-                className="w-full border rounded px-3 py-2 text-sm" />
+                className="w-full border rounded px-3 py-2 text-sm min-h-[44px]" />
             </div>
             <div>
               <label className="text-xs font-medium text-dim-brand block mb-1">직종</label>
               <select value={form.jobCategory} onChange={e => set('jobCategory', e.target.value)}
-                className="w-full border rounded px-3 py-2 text-sm">
+                className="w-full border rounded px-3 py-2 text-sm min-h-[44px]">
                 <option value="">선택</option>
                 {JOB_CATEGORY_OPTIONS.map(v => <option key={v} value={v}>{v}</option>)}
               </select>
@@ -1358,13 +1358,13 @@ function NewContractPage() {
               <label className="text-xs font-medium text-dim-brand block mb-1">세부직종</label>
               <input type="text" value={form.jobCategorySub} onChange={e => set('jobCategorySub', e.target.value)}
                 placeholder="예: 전기기능사, 용접공"
-                className="w-full border rounded px-3 py-2 text-sm" />
+                className="w-full border rounded px-3 py-2 text-sm min-h-[44px]" />
             </div>
             <div className="col-span-2">
               <label className="text-xs font-medium text-dim-brand block mb-1">담당업무</label>
               <input type="text" value={form.taskDescription} onChange={e => set('taskDescription', e.target.value)}
                 placeholder="예: 전기 배관 및 케이블 포설"
-                className="w-full border rounded px-3 py-2 text-sm" />
+                className="w-full border rounded px-3 py-2 text-sm min-h-[44px]" />
             </div>
           </div>
         </div>
