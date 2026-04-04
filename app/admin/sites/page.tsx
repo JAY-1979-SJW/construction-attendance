@@ -263,14 +263,20 @@ export default function SitesPage() {
 
   const [gpsLoading, setGpsLoading] = useState(false)
 
-  // Daum 우편번호 스크립트 (마운트 1회)
-  useEffect(() => {
-    if (!document.getElementById('kakao-postcode-script')) {
-      const s = document.createElement('script')
-      s.id = 'kakao-postcode-script'
-      s.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
-      document.head.appendChild(s)
-    }
+  // Daum 우편번호 스크립트 — 클릭 시 로드 보장
+  const loadDaumPostcode = useCallback((): Promise<void> => {
+    if (window.daum?.Postcode) return Promise.resolve()
+    return new Promise((resolve, reject) => {
+      let s = document.getElementById('kakao-postcode-script') as HTMLScriptElement | null
+      if (!s) {
+        s = document.createElement('script')
+        s.id = 'kakao-postcode-script'
+        s.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
+        document.head.appendChild(s)
+      }
+      s.addEventListener('load', () => resolve())
+      s.addEventListener('error', () => reject(new Error('주소 검색 스크립트 로드 실패')))
+    })
   }, [])
 
   // ── 데이터 로드 ───────────────────────────────────────────────────────────
@@ -353,8 +359,13 @@ export default function SitesPage() {
   }, [sitesWithStatus, search, opFilter, cpFilter, sortKey])
 
   // ── 주소 검색 / GPS ───────────────────────────────────────────────────────
-  const openAddressSearch = (target: 'form' | 'edit') => {
-    if (!window.daum?.Postcode) { alert('주소 검색 서비스 로딩 중입니다.'); return }
+  const openAddressSearch = async (target: 'form' | 'edit') => {
+    try {
+      await loadDaumPostcode()
+    } catch {
+      alert('주소 검색 스크립트를 불러오지 못했습니다. 네트워크를 확인하세요.')
+      return
+    }
     new window.daum.Postcode({
       oncomplete: async (data: { roadAddress: string; jibunAddress: string }) => {
         const address = data.roadAddress || data.jibunAddress
