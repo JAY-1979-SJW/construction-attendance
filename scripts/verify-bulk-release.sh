@@ -26,8 +26,10 @@ mkdir -p "$LOG_DIR"
 
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/haehan-ai.pem}"
 SSH_HOST="ubuntu@1.201.176.236"
-CONTAINER_IP="172.18.0.2"
 APP_PORT="3002"
+# 컨테이너 IP 동적 조회 (네트워크 변경 대응)
+CONTAINER_IP=$(ssh -i "${SSH_KEY}" -o StrictHostKeyChecking=no "${SSH_HOST}" \
+  "docker inspect attendance --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 2>/dev/null" 2>/dev/null || echo "172.26.0.2")
 SINGLE_SPEC="${1:-}"
 
 # npx 경로 탐색

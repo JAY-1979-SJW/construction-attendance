@@ -2,6 +2,7 @@
 # DB: 192.168.120.18:5432 (공용 PostgreSQL)
 # 파일 저장: /mnt/nas/attendance/uploads (NFS → /app/uploads)
 # 마이그레이션 기준 서버: APP_SERVER_1 (MIGRATE_ON_START=true)
+# 네트워크: attendance-net (전용) — nginx는 이 네트워크에 연결되어 프록시
 
 services:
   attendance-app:
@@ -15,14 +16,14 @@ services:
     container_name: attendance
     restart: unless-stopped
     env_file: .env.production
-    # ports 제거: nginx가 Docker 내부 네트워크(app_web)��� 접근
+    # ports 제거: nginx가 Docker 내부 네트워크(attendance-net)로 접근
     # 외부에서 3002 직접 접근 차단
     expose:
       - "3002"
     volumes:
       - /mnt/nas/attendance/uploads:/app/uploads
     networks:
-      - app_web
+      - attendance-net
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3002/api/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
       interval: 30s
@@ -31,5 +32,5 @@ services:
       start_period: 60s
 
 networks:
-  app_web:
+  attendance-net:
     external: true
