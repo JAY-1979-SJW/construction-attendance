@@ -2,16 +2,25 @@
  * 근로계약서 생성 폼 — 모바일 레이아웃 자동점검
  *
  * 점검 항목:
- *   L-01  수평 스크롤 없음 (390px)
- *   L-02  수평 스크롤 없음 (412px)
- *   L-03  세부공종 input 높이 44px 이상 (390px)
- *   L-04  세부직종 input 높이 44px 이상 (390px)
- *   L-05  공종 select 높이 44px 이상 (390px)
- *   L-06  직종 select 높이 44px 이상 (390px)
- *   L-07  라벨 미클립 — 공종/세부공종/직종/세부직종 (390px)
- *   L-08  플로팅 버튼이 2단계 필드를 덮지 않음 (390px)
- *   L-09  스크린샷 baseline 비교 — 2단계 섹션 (390px)
- *   L-10  스크린샷 baseline 비교 — 2단계 섹션 (412px)
+ *   L-01  수평 스크롤 없음 (360px)
+ *   L-02  수평 스크롤 없음 (390px)
+ *   L-03  수평 스크롤 없음 (412px)
+ *   L-04  세부공종 input 높이 44px 이상 (390px)
+ *   L-05  세부직종 input 높이 44px 이상 (390px)
+ *   L-06  공종 select 높이 44px 이상 (390px)
+ *   L-07  직종 select 높이 44px 이상 (390px)
+ *   L-08  라벨 미클립 — 공종/세부공종/직종/세부직종 (390px)
+ *   L-09  플로팅 버튼이 2단계 필드를 덮지 않음 (390px)
+ *   L-10  스크린샷 baseline 비교 — 2단계 섹션 (360px)
+ *   L-11  스크린샷 baseline 비교 — 2단계 섹션 (390px)
+ *   L-12  스크린샷 baseline 비교 — 2단계 섹션 (412px)
+ *   L-13  세부공종 라벨↔필드 세로 비겹침 (360/390/412)
+ *   L-14  세부직종 라벨↔필드 세로 비겹침 (360/390/412)
+ *   L-15  Step3 회사 라벨↔필드 세로 비겹침 (360/390/412)
+ *   L-16  라벨 텍스트 단일 행 검증 — writing-mode + 줄수 (390px)
+ *   L-17  공/직/담당업무 필드 left x 좌표 정렬 오차 ≤ 4px (390px)
+ *   L-18  select 오버플로우 없음 + 우측 경계 뷰포트 내 (390px)
+ *   L-19  Step3 회사 선택 영역 스크린샷 baseline (360/390/412)
  *
  * 실행:
  *   npx playwright test e2e/mobile-contract-form-layout.spec.ts \
@@ -105,6 +114,29 @@ async function gotoContractsNew(page: Page) {
   await page.waitForTimeout(400)
 }
 
+// ── 라벨-필드 세로 비겹침 헬퍼 ─────────────────────────
+// label이 field 위에 있을 때: label.bottom <= field.top 이어야 함
+async function assertLabelAboveField(
+  page: Page,
+  labelText: string,
+  fieldSelector: string,
+  tag = labelText,
+) {
+  const label = page.locator(`label:has-text("${labelText}")`).first()
+  const field = page.locator(fieldSelector).first()
+  await expect(label).toBeVisible({ timeout: 5000 })
+  await expect(field).toBeVisible({ timeout: 5000 })
+  const lBox = await label.boundingBox()
+  const fBox = await field.boundingBox()
+  expect(lBox, `${tag}: label not found`).not.toBeNull()
+  expect(fBox, `${tag}: field not found`).not.toBeNull()
+  const labelBottom = lBox!.y + lBox!.height
+  expect(
+    labelBottom,
+    `${tag}: 라벨 하단(${labelBottom.toFixed(1)})이 필드 상단(${fBox!.y.toFixed(1)})보다 아래 — 겹침`
+  ).toBeLessThanOrEqual(fBox!.y + 1) // 1px 허용 오차
+}
+
 // ── 수평 스크롤 검사 헬퍼 ────────────────────────────────
 async function checkNoHorizontalScroll(page: Page): Promise<boolean> {
   return page.evaluate(() =>
@@ -120,11 +152,16 @@ async function getBox(page: Page, selector: string) {
 }
 
 // ════════════════════════════════════════════════════════
-//  L-01 / L-02  수평 스크롤 없음
+//  L-01 / L-02 / L-03  수평 스크롤 없음 (360 / 390 / 412px)
 // ════════════════════════════════════════════════════════
 test.describe('[LAYOUT] 수평 스크롤', () => {
-  for (const [width, height] of [[390, 844], [412, 915]] as const) {
-    test(`L-0${width === 390 ? 1 : 2} 수평 스크롤 없음 (${width}px)`, async ({ browser }) => {
+  const VIEWPORTS: [number, number, string][] = [
+    [360, 800, 'L-01'],
+    [390, 844, 'L-02'],
+    [412, 915, 'L-03'],
+  ]
+  for (const [width, height, id] of VIEWPORTS) {
+    test(`${id} 수평 스크롤 없음 (${width}px)`, async ({ browser }) => {
       const ctx  = await browser.newContext({ viewport: { width, height } })
       const page = await ctx.newPage()
       await ensureAdmin(page)
@@ -140,7 +177,7 @@ test.describe('[LAYOUT] 수평 스크롤', () => {
 })
 
 // ════════════════════════════════════════════════════════
-//  L-03~L-06  입력 필드 높이 44px 이상 (390px)
+//  L-04~L-07  입력 필드 높이 44px 이상 (390px)
 // ════════════════════════════════════════════════════════
 test.describe('[LAYOUT] 입력 필드 최소 높이', () => {
   test.use({ viewport: { width: 390, height: 844 } })
@@ -153,22 +190,19 @@ test.describe('[LAYOUT] 입력 필드 최소 높이', () => {
 
   const MIN_H = 44
 
-  test('L-03 세부공종 input 높이 ≥ 44px', async ({ page }) => {
-    // 세부공종: placeholder="예: 동력반, 소화배관"
+  test('L-04 세부공종 input 높이 ≥ 44px', async ({ page }) => {
     const box = await getBox(page, 'input[placeholder*="동력반"]')
     expect(box, '세부공종 input not found').not.toBeNull()
     expect(box!.height, `세부공종 height=${box!.height}px`).toBeGreaterThanOrEqual(MIN_H)
   })
 
-  test('L-04 세부직종 input 높이 ≥ 44px', async ({ page }) => {
-    // 세부직종: placeholder="예: 전기기능사, 용접공"
+  test('L-05 세부직종 input 높이 ≥ 44px', async ({ page }) => {
     const box = await getBox(page, 'input[placeholder*="전기기능사"]')
     expect(box, '세부직종 input not found').not.toBeNull()
     expect(box!.height, `세부직종 height=${box!.height}px`).toBeGreaterThanOrEqual(MIN_H)
   })
 
-  test('L-05 공종 select 높이 ≥ 44px', async ({ page }) => {
-    // 공종 select — 2단계 첫 번째 select
+  test('L-06 공종 select 높이 ≥ 44px', async ({ page }) => {
     const section = page.locator('div:has(> h2:has-text("2단계"))')
     const selects = section.locator('select')
     const box = await selects.first().boundingBox()
@@ -176,7 +210,7 @@ test.describe('[LAYOUT] 입력 필드 최소 높이', () => {
     expect(box!.height, `공종 select height=${box!.height}px`).toBeGreaterThanOrEqual(MIN_H)
   })
 
-  test('L-06 직종 select 높이 ≥ 44px', async ({ page }) => {
+  test('L-07 직종 select 높이 ≥ 44px', async ({ page }) => {
     const section = page.locator('div:has(> h2:has-text("2단계"))')
     const selects = section.locator('select')
     const box = await selects.nth(1).boundingBox()
@@ -186,7 +220,7 @@ test.describe('[LAYOUT] 입력 필드 최소 높이', () => {
 })
 
 // ════════════════════════════════════════════════════════
-//  L-07  라벨 미클립 — 잘리거나 0px가 되지 않을 것
+//  L-08  라벨 미클립 — 잘리거나 0px가 되지 않을 것 (390px)
 // ════════════════════════════════════════════════════════
 test.describe('[LAYOUT] 라벨 미클립', () => {
   test.use({ viewport: { width: 390, height: 844 } })
@@ -200,26 +234,25 @@ test.describe('[LAYOUT] 라벨 미클립', () => {
   const LABELS = ['공종', '세부공종', '직종', '세부직종']
 
   for (const label of LABELS) {
-    test(`L-07 라벨 미클립 — "${label}"`, async ({ page }) => {
+    test(`L-08 라벨 미클립 — "${label}"`, async ({ page }) => {
       const el = page.locator(`label:has-text("${label}")`).first()
       await expect(el).toBeVisible({ timeout: 5000 })
       const box = await el.boundingBox()
       expect(box, `"${label}" label not found`).not.toBeNull()
       expect(box!.width,  `"${label}" label width=0`).toBeGreaterThan(0)
       expect(box!.height, `"${label}" label height=0`).toBeGreaterThan(0)
-      // 라벨이 뷰포트 오른쪽 밖으로 밀리지 않을 것
       expect(box!.x + box!.width, `"${label}" label 밖으로 밀림`).toBeLessThanOrEqual(390)
     })
   }
 })
 
 // ════════════════════════════════════════════════════════
-//  L-08  플로팅 버튼이 2단계 필드를 덮지 않음
+//  L-09  플로팅 버튼이 2단계 필드를 덮지 않음 (390px)
 // ════════════════════════════════════════════════════════
 test.describe('[LAYOUT] 플로팅 버튼 겹침', () => {
   test.use({ viewport: { width: 390, height: 844 } })
 
-  test('L-08 플로팅 버튼이 2단계 입력 필드를 덮지 않음', async ({ page }) => {
+  test('L-09 플로팅 버튼이 2단계 입력 필드를 덮지 않음', async ({ page }) => {
     await ensureAdmin(page)
     await mockInitialApis(page)
     await gotoContractsNew(page)
@@ -264,34 +297,316 @@ test.describe('[LAYOUT] 플로팅 버튼 겹침', () => {
 })
 
 // ════════════════════════════════════════════════════════
-//  L-09 / L-10  스크린샷 baseline 비교
+//  L-10 / L-11 / L-12  Step2 스크린샷 baseline (360/390/412px)
 // ════════════════════════════════════════════════════════
-test.describe('[LAYOUT] 스크린샷 baseline', () => {
-  for (const [width, height] of [[390, 844], [412, 915]] as const) {
-    test(`L-${width === 390 ? '09' : '10'} 2단계 섹션 스크린샷 (${width}px)`, async ({ browser }) => {
-      const ctx  = await browser.newContext({
-        viewport: { width, height },
-        colorScheme: 'dark',
-      })
+test.describe('[LAYOUT] Step2 스크린샷 baseline', () => {
+  const VIEWPORTS: [number, number, string][] = [
+    [360, 800,  'L-10'],
+    [390, 844,  'L-11'],
+    [412, 915,  'L-12'],
+  ]
+  for (const [width, height, id] of VIEWPORTS) {
+    test(`${id} Step2 섹션 스크린샷 (${width}px)`, async ({ browser }) => {
+      const ctx  = await browser.newContext({ viewport: { width, height }, colorScheme: 'dark' })
       const page = await ctx.newPage()
       await ensureAdmin(page)
       await mockInitialApis(page)
       await gotoContractsNew(page)
 
-      // 2단계 섹션만 clip
       const section = page.locator('div:has(> h2:has-text("2단계"))')
       await expect(section).toBeVisible({ timeout: 5000 })
-
-      // 로컬 파일 저장 (항상)
-      const shotFile = path.join(SHOT_DIR, `step2-${width}px.png`)
-      await section.screenshot({ path: shotFile })
-
-      // baseline 비교 (--update-snapshots 로 최초 생성)
+      await section.screenshot({ path: path.join(SHOT_DIR, `step2-${width}px.png`) })
       await expect(section).toHaveScreenshot(`step2-${width}px.png`, {
-        maxDiffPixelRatio: 0.02,   // 2% 이내 허용
-        animations: 'disabled',
+        maxDiffPixelRatio: 0.02, animations: 'disabled',
+      })
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════
+//  L-13  세부공종 라벨↔필드 세로 비겹침 (360/390/412px)
+// ════════════════════════════════════════════════════════
+test.describe('[LAYOUT] 세부공종 라벨-필드 비겹침', () => {
+  const VIEWPORTS: [number, number][] = [[360, 800], [390, 844], [412, 915]]
+
+  for (const [width, height] of VIEWPORTS) {
+    test(`L-13 세부공종 라벨↔input 비겹침 (${width}px)`, async ({ browser }) => {
+      const ctx  = await browser.newContext({ viewport: { width, height } })
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockInitialApis(page)
+      await gotoContractsNew(page)
+
+      await assertLabelAboveField(
+        page,
+        '세부공종',
+        'input[placeholder*="동력반"]',
+        `세부공종@${width}px`,
+      )
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════
+//  L-14  세부직종 라벨↔필드 세로 비겹침 (360/390/412px)
+// ════════════════════════════════════════════════════════
+test.describe('[LAYOUT] 세부직종 라벨-필드 비겹침', () => {
+  const VIEWPORTS: [number, number][] = [[360, 800], [390, 844], [412, 915]]
+
+  for (const [width, height] of VIEWPORTS) {
+    test(`L-14 세부직종 라벨↔input 비겹침 (${width}px)`, async ({ browser }) => {
+      const ctx  = await browser.newContext({ viewport: { width, height } })
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockInitialApis(page)
+      await gotoContractsNew(page)
+
+      await assertLabelAboveField(
+        page,
+        '세부직종',
+        'input[placeholder*="전기기능사"]',
+        `세부직종@${width}px`,
+      )
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════
+//  L-15  Step3 회사 라벨↔select 세로 비겹침 (360/390/412px)
+// ════════════════════════════════════════════════════════
+test.describe('[LAYOUT] Step3 회사 라벨-필드 비겹침', () => {
+  const VIEWPORTS: [number, number][] = [[360, 800], [390, 844], [412, 915]]
+
+  for (const [width, height] of VIEWPORTS) {
+    test(`L-15 Step3 회사 라벨↔select 비겹침 (${width}px)`, async ({ browser }) => {
+      const ctx  = await browser.newContext({ viewport: { width, height } })
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockInitialApis(page)
+      await page.goto(`${BASE}/admin/contracts/new`)
+      // Step3 헤더 대기
+      await expect(page.locator('h2:has-text("3단계: 기본 정보")')).toBeVisible({ timeout: 15000 })
+      await page.locator('h2:has-text("3단계: 기본 정보")').scrollIntoViewIfNeeded()
+      await page.waitForTimeout(300)
+
+      // 회사 (자동채움용) 라벨 vs 첫 번째 select
+      const step3 = page.locator('div:has(> h2:has-text("3단계"))')
+      const companyLabel = step3.locator('label:has-text("회사")').first()
+      const companySelect = step3.locator('select').first()
+
+      await expect(companyLabel).toBeVisible({ timeout: 5000 })
+      await expect(companySelect).toBeVisible({ timeout: 5000 })
+
+      const lBox = await companyLabel.boundingBox()
+      const fBox = await companySelect.boundingBox()
+      expect(lBox, `회사 label not found @${width}px`).not.toBeNull()
+      expect(fBox, `회사 select not found @${width}px`).not.toBeNull()
+
+      const labelBottom = lBox!.y + lBox!.height
+      expect(
+        labelBottom,
+        `Step3 회사 라벨 하단(${labelBottom.toFixed(1)})이 select 상단(${fBox!.y.toFixed(1)})과 겹침 @${width}px`
+      ).toBeLessThanOrEqual(fBox!.y + 1)
+
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════
+//  L-16  라벨 텍스트 단일 행 검증 (writing-mode + 줄수) (390px)
+// ════════════════════════════════════════════════════════
+test.describe('[LAYOUT] 라벨 단일 행', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test.beforeEach(async ({ page }) => {
+    await ensureAdmin(page)
+    await mockInitialApis(page)
+    await gotoContractsNew(page)
+  })
+
+  // Step2 라벨 + Step3 회사 라벨
+  const STEP2_LABELS = ['공종', '세부공종', '직종', '세부직종', '담당업무']
+
+  for (const labelText of STEP2_LABELS) {
+    test(`L-16 라벨 단일 행 — "${labelText}"`, async ({ page }) => {
+      const el = page.locator(`label:has-text("${labelText}")`).first()
+      await expect(el).toBeVisible({ timeout: 5000 })
+
+      const { writingMode, lineCount } = await el.evaluate(node => {
+        const s   = window.getComputedStyle(node)
+        const lhRaw = s.lineHeight
+        const lh  = lhRaw === 'normal'
+          ? parseFloat(s.fontSize) * 1.4
+          : parseFloat(lhRaw)
+        const h   = node.getBoundingClientRect().height
+        return {
+          writingMode: s.writingMode,
+          lineCount:   lh > 0 ? Math.round(h / lh) : 1,
+        }
       })
 
+      expect(
+        writingMode,
+        `"${labelText}" writing-mode=${writingMode} — 세로 배치`
+      ).toBe('horizontal-tb')
+
+      expect(
+        lineCount,
+        `"${labelText}" 라벨이 ${lineCount}줄로 표시됨 (1줄 기대)`
+      ).toBeLessThanOrEqual(1)
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════
+//  L-17  같은 열 내 필드 x좌표 정렬 오차 ≤ 4px (390px)
+//
+//  실제 레이아웃: sm:grid-cols-2 가 390px에서도 적용됨
+//    col1(x≈37): 공종 select, 직종 select, 공사명 input, 담당업무 input
+//    col2(x≈142): 세부공종 input, 세부직종 input
+//  → 같은 열끼리만 x 일치 여부를 검사한다.
+// ════════════════════════════════════════════════════════
+test.describe('[LAYOUT] 필드 x좌표 정렬', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test.beforeEach(async ({ page }) => {
+    await ensureAdmin(page)
+    await mockInitialApis(page)
+    await gotoContractsNew(page)
+  })
+
+  test('L-17a col1 필드(공종·직종·담당업무) left x 오차 ≤ 4px', async ({ page }) => {
+    const section = page.locator('div:has(> h2:has-text("2단계"))')
+    const targets = [
+      { sel: () => section.locator('select').first(),            label: '공종 select'   },
+      { sel: () => section.locator('select').nth(1),             label: '직종 select'   },
+      { sel: () => section.locator('input[placeholder*="포설"]'), label: '담당업무 input'},
+    ]
+    const xs: { label: string; x: number }[] = []
+    for (const t of targets) {
+      const el = t.sel()
+      if (!await el.isVisible().catch(() => false)) continue
+      const box = await el.boundingBox()
+      if (box) xs.push({ label: t.label, x: box.x })
+    }
+    expect(xs.length, 'col1 정렬 검사 대상 없음').toBeGreaterThan(1)
+    const spread = Math.max(...xs.map(e => e.x)) - Math.min(...xs.map(e => e.x))
+    expect(
+      spread,
+      `col1 x 오차 ${spread.toFixed(1)}px 초과\n` + xs.map(e => `  ${e.label}: x=${e.x.toFixed(1)}`).join('\n')
+    ).toBeLessThanOrEqual(4)
+  })
+
+  test('L-17b col2 필드(세부공종·세부직종) left x 오차 ≤ 4px', async ({ page }) => {
+    const section = page.locator('div:has(> h2:has-text("2단계"))')
+    const targets = [
+      { sel: () => section.locator('input[placeholder*="동력반"]'),    label: '세부공종 input'},
+      { sel: () => section.locator('input[placeholder*="전기기능사"]'), label: '세부직종 input'},
+    ]
+    const xs: { label: string; x: number }[] = []
+    for (const t of targets) {
+      const el = t.sel()
+      if (!await el.isVisible().catch(() => false)) continue
+      const box = await el.boundingBox()
+      if (box) xs.push({ label: t.label, x: box.x })
+    }
+    expect(xs.length, 'col2 정렬 검사 대상 없음').toBeGreaterThan(1)
+    const spread = Math.max(...xs.map(e => e.x)) - Math.min(...xs.map(e => e.x))
+    expect(
+      spread,
+      `col2 x 오차 ${spread.toFixed(1)}px 초과\n` + xs.map(e => `  ${e.label}: x=${e.x.toFixed(1)}`).join('\n')
+    ).toBeLessThanOrEqual(4)
+  })
+
+  test('L-17c col2 x가 col1 x보다 큼 (2열 구분 유지)', async ({ page }) => {
+    const section = page.locator('div:has(> h2:has-text("2단계"))')
+    const col1Box  = await section.locator('select').first().boundingBox()
+    const col2Box  = await section.locator('input[placeholder*="동력반"]').first().boundingBox()
+    expect(col1Box, 'col1 field not found').not.toBeNull()
+    expect(col2Box, 'col2 field not found').not.toBeNull()
+    expect(
+      col2Box!.x,
+      `col2 x(${col2Box!.x.toFixed(1)}) ≤ col1 x(${col1Box!.x.toFixed(1)}) — 2열 구분 붕괴`
+    ).toBeGreaterThan(col1Box!.x + 10)
+  })
+})
+
+// ════════════════════════════════════════════════════════
+//  L-18  select 오버플로우 없음 + 우측 경계 뷰포트 내 (390px)
+// ════════════════════════════════════════════════════════
+test.describe('[LAYOUT] select 오버플로우', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('L-18 select 오버플로우 없음 + 우측 경계 뷰포트 내', async ({ page }) => {
+    await ensureAdmin(page)
+    await mockInitialApis(page)
+    await gotoContractsNew(page)
+
+    // Step2의 select 2개 + Step3 최상단 회사 select
+    const step2 = page.locator('div:has(> h2:has-text("2단계"))')
+    const step3 = page.locator('div:has(> h2:has-text("3단계"))')
+
+    // Step3 스크롤
+    await page.locator('h2:has-text("3단계: 기본 정보")').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(200)
+
+    const selects = [
+      { loc: step2.locator('select').first(), name: 'Step2 공종' },
+      { loc: step2.locator('select').nth(1),  name: 'Step2 직종' },
+      { loc: step3.locator('select').first(), name: 'Step3 회사' },
+    ]
+
+    for (const { loc, name } of selects) {
+      const visible = await loc.isVisible().catch(() => false)
+      if (!visible) continue
+
+      // 내부 오버플로우 없음
+      const overflow = await loc.evaluate(el =>
+        (el as HTMLSelectElement).scrollWidth > (el as HTMLSelectElement).offsetWidth
+      )
+      expect(overflow, `${name}: select 내부 오버플로우`).toBe(false)
+
+      // 우측 경계 ≤ 뷰포트 우측
+      const box = await loc.boundingBox()
+      expect(box, `${name}: select not found`).not.toBeNull()
+      expect(
+        box!.x + box!.width,
+        `${name}: select 우측(${(box!.x + box!.width).toFixed(1)})이 뷰포트(390) 밖으로 나감`
+      ).toBeLessThanOrEqual(390)
+    }
+  })
+})
+
+// ════════════════════════════════════════════════════════
+//  L-19  Step3 회사 선택 영역 스크린샷 baseline (360/390/412px)
+// ════════════════════════════════════════════════════════
+test.describe('[LAYOUT] Step3 회사 선택 스크린샷 baseline', () => {
+  const VIEWPORTS: [number, number, string][] = [
+    [360, 800,  'L-19a'],
+    [390, 844,  'L-19b'],
+    [412, 915,  'L-19c'],
+  ]
+  for (const [width, height, id] of VIEWPORTS) {
+    test(`${id} Step3 회사 선택 영역 스크린샷 (${width}px)`, async ({ browser }) => {
+      const ctx  = await browser.newContext({ viewport: { width, height }, colorScheme: 'dark' })
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockInitialApis(page)
+      await page.goto(`${BASE}/admin/contracts/new`)
+      await expect(page.locator('h2:has-text("3단계: 기본 정보")')).toBeVisible({ timeout: 15000 })
+      await page.locator('h2:has-text("3단계: 기본 정보")').scrollIntoViewIfNeeded()
+      await page.waitForTimeout(300)
+
+      const section = page.locator('div:has(> h2:has-text("3단계"))')
+      await expect(section).toBeVisible({ timeout: 5000 })
+      await section.screenshot({ path: path.join(SHOT_DIR, `step3-company-${width}px.png`) })
+      await expect(section).toHaveScreenshot(`step3-company-${width}px.png`, {
+        maxDiffPixelRatio: 0.02, animations: 'disabled',
+      })
       await ctx.close()
     })
   }
