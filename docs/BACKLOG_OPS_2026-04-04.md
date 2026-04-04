@@ -1,5 +1,18 @@
 # 운영 자동화 후순위 backlog (2026-04-04)
 
+## B-00 롤백 실검증 (대기 중 — 다음 실제 배포 후 실행)
+
+- **상태**: 대기 중 — `deploy_rollback.sh` 스크립트 완성 + 게이트 버그 수정 완료 (`17e55b5`)
+- **실행 조건**: 실제 배포 후 `logs/last_deploy_state.txt` 의 `prev_commit != current` 인 상태
+- **체크포인트**:
+  1. `prev_commit` 값 확인: `grep prev_commit logs/last_deploy_state.txt`
+  2. `bash scripts/deploy_rollback.sh` 실행 → 이전 커밋 복구 확인
+  3. `bash scripts/scheduled_check.sh --quick` + `bash ops-bot/scripts/check_jwt_runtime.sh` PASS 확인
+- **완료 기준**: 헬스체크 PASS + JWT PASS + 커밋 복구 확인
+- **완료 기록 위치**: `docs/BACKLOG_OPS_2026-04-04.md` B-00 에 결과 업데이트 또는 별도 완료 문서 작성
+
+---
+
 ## B-01 디자인 토큰 치환 — bg-white + rounded-2xl
 
 - **내용**: `bg-white + rounded-2xl` 조합 6건 → `bg-card` 토큰으로 치환

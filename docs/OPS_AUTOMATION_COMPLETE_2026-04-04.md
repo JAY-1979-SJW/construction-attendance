@@ -18,6 +18,15 @@
 | ops-bot Telegram 토큰 교체 및 서버 반영 | 완료 | 서버 `.env` |
 | 장애 문서 (JWT Edge Runtime 원인·수정·검증) | 완료 | `163381d` |
 | 운영 런북 작성 | 완료 | `e6d73c7` |
+| **Level B 승인형 자동 배포 구현** (deploy_and_check.sh + deploy_rollback.sh) | **완료** | `0e23089` |
+| **Level B 승인 게이트 버그 수정** — 비대화형 자동승인 제거, BLOCK/ABORT 차단 | **완료** | `17e55b5` |
+| **로컬 전용 차단** — 서버(ubuntu) 내부 실행 시 exit 1 | **완료** | `17e55b5` |
+
+### 미완료 (backlog 이관)
+
+| 항목 | 상태 | 위치 |
+|------|------|------|
+| 롤백 실검증 — 실제 배포 후 `deploy_rollback.sh` 1회 실행 | 대기 중 | `BACKLOG_OPS_2026-04-04.md` B-00 |
 
 ---
 
