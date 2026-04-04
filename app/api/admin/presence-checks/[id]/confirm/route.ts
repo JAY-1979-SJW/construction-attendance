@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, requireFeature } from '@/lib/auth/guards'
 import { ok, unauthorized, forbidden, notFound, conflict, internalError } from '@/lib/utils/response'
 import { logPresenceAudit } from '@/lib/attendance/presence-audit'
 
@@ -8,9 +8,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
-    if (session.role === 'VIEWER') {
-      await logPresenceAudit({ presenceCheckId: params.id, action: 'PERMISSION_DENIED', actorType: 'ADMIN', actorId: session.sub, message: 'VIEWER 역할 confirm 시도 차단' })
-      return forbidden('조회 전용 계정은 이 작업을 수행할 수 없습니다.')
+
+    // feature permission 검사 — ATTENDANCE_APPROVE 없는 역할 차단
+    const denyFeature = requireFeature(session, 'ATTENDANCE_APPROVE')
+    if (denyFeature) {
+      await logPresenceAudit({ presenceCheckId: params.id, action: 'PERMISSION_DENIED', actorType: 'ADMIN', actorId: session.sub, message: `${session.role} 역할 confirm 시도 차단 (ATTENDANCE_APPROVE 권한 없음)` })
+      return denyFeature
     }
 
     const { note } = await req.json().catch(() => ({}))

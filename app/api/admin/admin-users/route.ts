@@ -14,7 +14,7 @@ const createSchema = z.object({
   name:      z.string().min(1).max(50),
   email:     z.string().email(),
   password:  z.string().min(8).max(100),
-  role:      z.enum(['SUPER_ADMIN', 'ADMIN', 'VIEWER', 'COMPANY_ADMIN', 'SITE_ADMIN', 'EXTERNAL_SITE_ADMIN']),
+  role:      z.enum(['SUPER_ADMIN', 'HQ_ADMIN', 'ADMIN', 'VIEWER', 'COMPANY_ADMIN', 'SITE_ADMIN', 'EXTERNAL_SITE_ADMIN']),
   companyId: z.string().nullable().optional(),
 })
 
@@ -81,6 +81,8 @@ export async function POST(req: NextRequest) {
     if (['COMPANY_ADMIN', 'EXTERNAL_SITE_ADMIN'].includes(role) && !companyId) {
       return badRequest(`${role} 역할은 소속 회사(companyId)가 필요합니다.`)
     }
+    // 신규 관리자는 HQ_ADMIN 사용 권장 (ADMIN은 레거시)
+    // 기존 호환을 위해 ADMIN도 허용하지만 생성 시 HQ_ADMIN 권장
 
     // 이메일 중복 체크
     const exists = await prisma.adminUser.findUnique({ where: { email } })

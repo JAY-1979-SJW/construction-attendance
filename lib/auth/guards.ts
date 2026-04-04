@@ -10,6 +10,8 @@ import {
   PLATFORM_ADMIN_ROLES,
   COMPANY_ADMIN_ROLE,
   SITE_MUTATE_ROLES,
+  hasFeaturePermission,
+  type AdminFeature,
 } from '@/lib/policies/security-policy'
 
 // ─── 현장 접근 권한 공통 함수 재내보내기 ──────────────────────────────────────
@@ -104,6 +106,27 @@ export function requirePlatformRole(session: JwtPayload): NextResponse<unknown> 
   }
   return null
 }
+
+/**
+ * 세션의 역할이 특정 기능 권한을 보유하는지 확인한다.
+ * 권한 없으면 403 NextResponse 반환, 있으면 null 반환.
+ *
+ * 사용 예:
+ *   const deny = requireFeature(session, 'ATTENDANCE_APPROVE')
+ *   if (deny) return deny
+ */
+export function requireFeature(
+  session: JwtPayload,
+  feature: AdminFeature
+): NextResponse<unknown> | null {
+  if (!hasFeaturePermission(session.role, feature)) {
+    return forbidden(`이 작업은 ${feature} 권한이 필요합니다. 현재 역할: ${session.role ?? '없음'}`)
+  }
+  return null
+}
+
+// feature permission 유틸 재내보내기
+export { hasFeaturePermission, type AdminFeature }
 
 /** unauthorized response helper (기존 코드 호환) */
 export { unauthorized }

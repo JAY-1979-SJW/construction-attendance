@@ -29,8 +29,8 @@ export async function canAccessSite(
 ): Promise<boolean> {
   const role = session.role ?? ''
 
-  // 플랫폼 관리자 — 전체 허용
-  if (['SUPER_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) return true
+  // 플랫폼 관리자 (SUPER_ADMIN / HQ_ADMIN / ADMIN / VIEWER) — 전체 허용
+  if (['SUPER_ADMIN', 'HQ_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) return true
 
   // COMPANY_ADMIN — 자기 회사 소속 현장만
   if (role === 'COMPANY_ADMIN' && session.companyId) {
@@ -87,7 +87,7 @@ export async function getAccessibleSiteIds(
 ): Promise<string[] | null> {
   const role = session.role ?? ''
 
-  if (['SUPER_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) return null
+  if (['SUPER_ADMIN', 'HQ_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) return null
 
   if (role === 'COMPANY_ADMIN' && session.companyId) {
     const rows = await prisma.siteCompanyAssignment.findMany({
@@ -136,7 +136,7 @@ export async function getAccessibleCompanyIds(
 ): Promise<string[] | null> {
   const role = session.role ?? ''
 
-  if (['SUPER_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) return null
+  if (['SUPER_ADMIN', 'HQ_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) return null
 
   if (role === 'COMPANY_ADMIN' && session.companyId) {
     return [session.companyId]
@@ -169,7 +169,7 @@ export async function canAccessCompany(
 ): Promise<boolean> {
   const role = session.role ?? ''
 
-  if (['SUPER_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) return true
+  if (['SUPER_ADMIN', 'HQ_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) return true
 
   if (role === 'COMPANY_ADMIN') {
     return session.companyId === companyId
@@ -232,8 +232,8 @@ export async function buildSiteScopeWhere(
 ): Promise<{ siteId?: string | { in: string[] } } | false> {
   const role = session.role ?? ''
 
-  // 플랫폼 관리자 — 무제한
-  if (['SUPER_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) {
+  // 플랫폼 관리자 (SUPER_ADMIN / HQ_ADMIN / ADMIN / VIEWER) — 무제한
+  if (['SUPER_ADMIN', 'HQ_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) {
     return requestedSiteId ? { siteId: requestedSiteId } : {}
   }
 
@@ -268,7 +268,7 @@ export async function buildWorkerScopeWhere(
 ): Promise<Record<string, unknown> | false> {
   const role = session.role ?? ''
 
-  if (['SUPER_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) return {}
+  if (['SUPER_ADMIN', 'HQ_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) return {}
 
   if (role === 'COMPANY_ADMIN' && session.companyId) {
     return {
