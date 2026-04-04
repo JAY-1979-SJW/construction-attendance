@@ -144,3 +144,47 @@
 ## 17. 메모리 행동 비중 축소
 개발/운영 작업 중 메모리 저장은 우선순위가 아니다.
 메모리 저장 여부를 보고하지 말고, 실제 코드/실행/검증 결과만 보고한다.
+
+## 18. admin API audit/log 작성 규칙 (FK 선조회 원칙)
+
+신규 admin API route에서 audit/log/history 기록 시 반드시 아래 순서를 지킨다.
+
+### 필수 순서
+1. `findUnique` / `findFirst` 로 FK 대상 row 먼저 조회
+2. 권한/분기 처리 (PERMISSION_DENIED 등)
+3. row가 존재할 때만 audit create 실행
+
+### 금지 패턴
+```typescript
+// ❌ 금지 — params.id를 DB 미검증 상태로 audit에 직접 사용
+if (session.role === 'VIEWER') {
+  await logPresenceAudit({ presenceCheckId: params.id, ... })
+}
+const pc = await prisma.presenceCheck.findUnique(...)
+```
+
+### 필수 패턴
+```typescript
+// ✅ 올바른 순서 — DB 조회 먼저, 존재 확인 후 audit
+const pc = await prisma.presenceCheck.findUnique({ where: { id: params.id } })
+if (session.role === 'VIEWER') {
+  if (pc) await logPresenceAudit({ presenceCheckId: pc.id, ... })
+  return forbidden(...)
+}
+```
+
+### 적용 대상
+- `logPresenceAudit` 호출 위치 전체
+- `writeAuditLog` / `writeAdminAuditLog`의 `targetId`가 FK인 경우
+- confirm / reject / reissue / approve / deny / suspend / delete 계열 route
+
+### 헬퍼 사용
+`logPresenceAuditSafe(presenceCheckId, params)` 를 사용하면
+내부에서 존재 확인 후 기록하므로 순서 실수 방지 가능.
+(단, 이미 선조회한 pc 객체가 있으면 `logPresenceAudit({ presenceCheckId: pc.id })` 직접 사용이 더 효율적)
+
+## 19. ops-check 기준선 운영 규칙
+- 장애 발생 / 배포 직후 / 정기 점검 시 `bash scripts/ops-check.sh` 를 가장 먼저 실행한다
+- 결과는 PASS/WARN/FAIL 요약만 보고한다
+- FAIL 시 자동 첨부된 로그를 확인하고, 승인 전 재시작/삭제/롤백 금지 원칙을 유지한다
+- ops-check 스크립트 경로: `scripts/ops-check.sh` (서버: `~/app/attendance/scripts/ops-check.sh`)
