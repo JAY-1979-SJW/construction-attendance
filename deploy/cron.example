@@ -19,6 +19,11 @@ PROJECT_DIR=/home/ubuntu/app/attendance
 # DB 백업: 매일 새벽 3시
 0 3 * * * cd $PROJECT_DIR/ops-bot && bash scripts/backup_db.sh db >> /dev/null 2>&1
 
+# 근무확정 월별 자동처리: 매월 1일 오전 1시 KST (= 16:00 UTC 전달 말일)
+# generate → auto-confirm (NORMAL+FULL_DAY) → 검토대기 집계
+# finalize는 실행하지 않음 — 수동 승인 필요
+0 16 28-31 * * [ "$(date -d tomorrow +\%d)" = "01" ] && curl -s -X POST http://localhost:3002/api/cron/work-confirm-monthly -H "x-cron-secret: $CRON_SECRET" >> $PROJECT_DIR/logs/work-confirm-monthly.log 2>&1
+
 # ──────────────────────────────────────────────
 # systemd 방식 (선택)
 # /etc/systemd/system/attendance-check.service 참고
