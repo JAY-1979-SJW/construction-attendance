@@ -105,7 +105,7 @@ async function goToPage(page: Page, status = 'PENDING') {
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mockListResp(items)) })
   })
   await page.goto(`${BASE}/admin/device-requests`)
-  await page.waitForLoadState('networkidle')
+  await expect(page.locator('table tbody input[type="checkbox"]').first()).toBeVisible({ timeout: 15000 })
 }
 
 // ─────────────────────────────────────────────────────────
@@ -141,7 +141,7 @@ test.describe('device-requests 대량 승인/반려 [데스크탑]', () => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mockListResp(items)) })
     })
     await page.goto(`${BASE}/admin/device-requests`)
-    await page.waitForLoadState('networkidle')
+    await expect(tableBodyCBs(page).first()).toBeVisible({ timeout: 15000 })
 
     await tableBodyCBs(page).nth(0).check()
     await tableBodyCBs(page).nth(1).check()
@@ -161,7 +161,7 @@ test.describe('device-requests 대량 승인/반려 [데스크탑]', () => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mockListResp(items)) })
     })
     await page.goto(`${BASE}/admin/device-requests`)
-    await page.waitForLoadState('networkidle')
+    await expect(tableBodyCBs(page).first()).toBeVisible({ timeout: 15000 })
 
     await tableBodyCBs(page).nth(0).check()
     await tableBodyCBs(page).nth(1).check()
@@ -223,7 +223,7 @@ test.describe('device-requests 대량 승인/반려 [모바일]', () => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mockListResp(items)) })
     })
     await page.goto(`${BASE}/admin/device-requests`)
-    await page.waitForLoadState('networkidle')
+    await expect(cardCBs(page).first()).toBeVisible({ timeout: 15000 })
 
     await expect(cardCBs(page)).toHaveCount(2)
 
