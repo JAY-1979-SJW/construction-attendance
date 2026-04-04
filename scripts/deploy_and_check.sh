@@ -15,6 +15,17 @@
 # ──────────────────────────────────────────────
 set -uo pipefail
 
+# ── 로컬 전용 차단 ──
+# deploy_and_check.sh 는 로컬 개발 환경 전용입니다.
+# 서버(ubuntu) 내부에서 직접 실행하면 즉시 중단합니다.
+_SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ "$(whoami 2>/dev/null)" == "ubuntu" ]] && [[ "$_SELF_DIR" == /home/ubuntu/* ]]; then
+  echo "[BLOCK] deploy_and_check.sh 는 로컬 전용 스크립트입니다."
+  echo "  서버 내부 직접 실행 금지 — 로컬 PC 에서만 실행하세요."
+  echo "  배포 파이프라인: 로컬 PC → git push → 서버 자동 pull"
+  exit 1
+fi
+
 # ── 중복 실행 방지 ──
 LOCK_FILE="/tmp/deploy_and_check_sh.lock"
 if [ -f "$LOCK_FILE" ]; then
@@ -182,12 +193,24 @@ if ! $CHECK_ONLY; then
 
     # ── 승인 게이트 ──
     if ! $AUTO_APPROVE; then
-      outc "  ${CYAN}[GATE]${NC} 배포를 진행하시겠습니까? (y/N, 30초 타임아웃)"
-      if [ -t 0 ]; then
-        read -t 30 -r REPLY || REPLY=""
-      else
-        REPLY="y"  # 비대화형(파이프/cron) 환경 — 자동 승인
+      # 비대화형 환경(cron/ssh 파이프/CI)에서 --auto 없이 실행하면 즉시 중단
+      if [ ! -t 0 ]; then
+        outc "  ${RED}[ABORT]${NC} 비대화형 환경 — --auto 없이는 자동승인 불가"
+        out "  cron / ssh 비대화형 / CI 환경에서는 승인 게이트를 통과할 수 없습니다."
+        out "  의도적 자동승인이 필요하면: bash scripts/deploy_and_check.sh \"메시지\" --auto"
+        DEPLOY_STATUS="ABORT"
+        out ""
+        out "━━━━━ 최종 보고 ━━━━━"
+        out " 상태: 비대화형 환경 — 배포 중단 (ABORT)"
+        {
+          echo "timestamp=$TIMESTAMP"
+          echo "deploy=ABORT"
+          echo "reason=non-interactive without --auto"
+        } > "$LOG_DIR/last_deploy_status.txt"
+        exit 1
       fi
+      outc "  ${CYAN}[GATE]${NC} 배포를 진행하시겠습니까? (y/N, 30초 타임아웃)"
+      read -t 30 -r REPLY || REPLY=""
       if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
         out "  [CANCEL] 사용자 취소 또는 타임아웃 — 배포 중단"
         DEPLOY_STATUS="CANCEL"

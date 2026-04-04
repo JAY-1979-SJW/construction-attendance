@@ -83,7 +83,30 @@ bash scripts/deploy_and_check.sh --check-only  # 전체 점검
 
 ---
 
-## 5. 알려진 WARN 항목 (기능 영향 없음)
+## 5. 배포 스크립트 실행 제약 (Level B)
+
+`deploy.sh` / `deploy_and_check.sh` / `deploy_rollback.sh` 는 **로컬 PC 전용**이다.
+
+### 허용
+- 로컬 터미널에서 직접 실행: `bash scripts/deploy_and_check.sh "메시지"`
+- `--auto` 플래그 명시 시 승인 게이트 우회: `bash scripts/deploy_and_check.sh "메시지" --auto`
+
+### 금지
+| 금지 유형 | 결과 |
+|-----------|------|
+| cron 에 deploy_and_check.sh 등록 | `[ABORT]` 비대화형 환경 차단 |
+| ssh 비대화형 파이프로 실행 | `[ABORT]` 비대화형 환경 차단 |
+| CI/CD 파이프라인 직접 호출 | `[ABORT]` 비대화형 환경 차단 |
+| 서버(ubuntu) 내부 직접 실행 | `[BLOCK]` 로컬 전용 차단 |
+
+### 롤백 주의사항
+- `deploy_rollback.sh` 는 **대화형 터미널 수동 실행만** 허용
+- 비대화형 환경에서 실행 시 `[ABORT]` 즉시 종료
+- 실검증 필요: 실제 배포 후 `prev_commit != current` 상태에서 1회 실행하여 검증할 것
+
+---
+
+## 6. 알려진 WARN 항목 (기능 영향 없음)
 
 | 항목 | 내용 | 조치 |
 |------|------|------|

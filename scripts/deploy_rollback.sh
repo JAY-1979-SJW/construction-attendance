@@ -75,11 +75,13 @@ fi
 
 # ── 승인 확인 ──
 outc "  ${CYAN}[GATE]${NC} $CURRENT_COMMIT → $TARGET_SHORT 롤백을 진행하시겠습니까? (y/N)"
-if [ -t 0 ]; then
-  read -t 30 -r REPLY || REPLY=""
-else
-  REPLY="y"
+# 비대화형 환경(cron/ssh 파이프/CI)에서는 절대 자동승인 금지
+if [ ! -t 0 ]; then
+  outc "${RED}[ABORT]${NC} 비대화형 환경 — 롤백은 대화형 터미널에서만 수동으로 실행해야 합니다."
+  out "  cron / ssh 비대화형 / CI 환경에서는 실행 불가."
+  exit 1
 fi
+read -t 30 -r REPLY || REPLY=""
 if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
   out "  [CANCEL] 롤백 취소"
   exit 0

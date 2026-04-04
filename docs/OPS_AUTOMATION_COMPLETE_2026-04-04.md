@@ -74,6 +74,34 @@ bash scripts/check_container_health.sh
 
 ---
 
+---
+
+## Level B 승인형 자동 배포 — 제약 사항 (2026-04-04 보강)
+
+### 허용 실행 방법
+
+| 방법 | 조건 | 승인 |
+|------|------|------|
+| 대화형 터미널 수동 실행 | `bash scripts/deploy_and_check.sh "메시지"` | 터미널에서 y/N 입력 |
+| 자동승인 명시 실행 | `bash scripts/deploy_and_check.sh "메시지" --auto` | --auto 플래그로 우회 |
+
+### 절대 금지 실행 방법
+
+| 금지 상황 | 이유 |
+|-----------|------|
+| cron 등록 (`crontab -e`로 deploy_and_check.sh 등록) | 비대화형 환경 → ABORT 처리 |
+| ssh 비대화형 파이프 (`ssh host "bash deploy_and_check.sh"`) | 비대화형 환경 → ABORT 처리 |
+| CI/CD 파이프라인 직접 호출 | 비대화형 환경 → ABORT 처리 |
+| 서버 내부 직접 실행 (ubuntu@서버에서) | 로컬 전용 차단 → BLOCK 처리 |
+
+### 롤백 실검증 상태
+
+- **현재 상태: dry-run 수준** — `deploy_rollback.sh` 스크립트 작성 완료, 게이트 버그 수정 완료
+- **실검증 조건**: 실제 배포 후 `prev_commit != current` 상태에서 이전 커밋 복구 1회 실행 필요
+- **검증 미완료 이유**: 실운영 배포 후 prev_commit 기록이 있는 상태에서 아직 롤백 실행 기회가 없었음
+
+---
+
 ## 후순위 backlog
 
 → `docs/BACKLOG_OPS_2026-04-04.md` 참조

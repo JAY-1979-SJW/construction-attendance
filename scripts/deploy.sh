@@ -5,6 +5,17 @@
 # ──────────────────────────────────────────────
 set -euo pipefail
 
+# ── 로컬 전용 차단 ──
+# deploy.sh 는 로컬 개발 환경 전용입니다.
+# 서버(ubuntu) 내부에서 직접 실행하면 즉시 중단합니다.
+_SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ "$(whoami 2>/dev/null)" == "ubuntu" ]] && [[ "$_SELF_DIR" == /home/ubuntu/* ]]; then
+  echo "[BLOCK] deploy.sh 는 로컬 전용 스크립트입니다."
+  echo "  서버 내부 직접 실행 금지 — 로컬 PC 에서만 실행하세요."
+  echo "  배포 파이프라인: 로컬 PC → git push → 서버 자동 pull"
+  exit 1
+fi
+
 # ── 중복 실행 방지 ──
 LOCK_FILE="/tmp/deploy_sh.lock"
 if [ -f "$LOCK_FILE" ]; then
