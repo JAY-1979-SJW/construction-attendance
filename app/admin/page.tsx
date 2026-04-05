@@ -1,10 +1,13 @@
-﻿'use client'
+'use client'
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { PageShell, PageHeader, StatusBadge, Btn, FilterInput, FilterSelect, AdminTable, AdminTr, AdminTd, EmptyRow, MobileCardList, MobileCard, MobileCardField, MobileCardFields } from '@/components/admin/ui'
+import {
+  PageShell, PageHeader, StatusBadge, Btn, FilterInput,
+  AdminTable, AdminTr, AdminTd, EmptyRow,
+} from '@/components/admin/ui'
 
-// ── 타입 ──────────────────────────────────────────────────────────────────
+// ── 타입 ─────────────────────────────────────────────────────────────────────
 interface Summary {
   totalWorkers: number; activeSites: number
   todayTotal: number; todayCheckedIn: number; todayCompleted: number
@@ -13,146 +16,53 @@ interface Summary {
   todayWage: number; monthWage: number; totalWage: number
   todayPresenceTotal: number; todayPresencePending: number
   todayPresenceNoResponse: number; todayPresenceReview: number
+  materialRequestCount: number
+  docIncompleteCount: number
+  scopeLabel: string | null
 }
-interface WorkerRecord {
-  id: string; workerId: string
-  workerName: string; company: string; siteName: string
-  checkInAt: string | null; checkOutAt: string | null; status: string
-  dayWage: number; monthWage: number; totalWage: number
+interface IssueRecord {
+  id: string; workerId: string; workerName: string
+  teamName: string | null; siteName: string
+  checkInAt: string | null; status: string
 }
-interface SiteSummary {
-  id: string; name: string
-  openedAt: string | null; closedAt: string | null
-  working: number; completed: number; issue: number
-  todayWage: number; monthWage: number; totalWage: number
+interface MaterialRecord {
+  id: string; requestNo: string; title: string; status: string
+  siteName: string; requestedByName: string; submittedAt: string | null
 }
-interface SiteOption { id: string; name: string }
+interface DocWorker {
+  id: string; name: string; teamName: string | null; issues: string[]
+}
+interface SiteSummaryItem {
+  id: string; name: string; working: number; completed: number; missing: number; exception: number; issue: number
+}
 
-// ── 헬퍼 ──────────────────────────────────────────────────────────────────
+// ── 헬퍼 ──────────────────────────────────────────────────────────────────────
 const fmtTime = (iso: string | null) =>
   iso ? new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '-'
 
-const fmtWageShort = (n: number) => {
-  if (n === 0) return '-'
-  if (n >= 100_000_000) return (n / 100_000_000).toFixed(1) + '억원'
-  if (n >= 10_000)      return Math.round(n / 10_000) + '만원'
-  return n.toLocaleString('ko-KR') + '원'
-}
-const fmtWageFull = (n: number) => n > 0 ? n.toLocaleString('ko-KR') + '원' : '-'
-const fmtDate = (iso: string | null) => iso ? iso.slice(0, 10) : null
-
-const getDaysUntil = (iso: string | null) => {
-  if (!iso) return null
-  return Math.ceil((new Date(iso).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-}
-const getContractProgress = (openedAt: string | null, closedAt: string | null) => {
-  if (!openedAt || !closedAt) return null
-  const start = new Date(openedAt).getTime()
-  const end   = new Date(closedAt).getTime()
-  if (end <= start) return null
-  const pct = Math.round(((Date.now() - start) / (end - start)) * 100)
-  const remaining = Math.max(0, Math.ceil((end - Date.now()) / (1000 * 60 * 60 * 24)))
-  return { pct: Math.min(100, Math.max(0, pct)), remaining }
-}
-
 const STATUS_LABEL: Record<string, string> = {
-  WORKING: '근무중', COMPLETED: '퇴근', MISSING_CHECKOUT: '미퇴근', EXCEPTION: '예외',
+  MISSING_CHECKOUT: '미퇴근', EXCEPTION: '예외',
+  WORKING: '근무중', COMPLETED: '퇴근',
 }
-const STATUS_SORT: Record<string, number> = {
-  MISSING_CHECKOUT: 0, EXCEPTION: 1, WORKING: 2, COMPLETED: 3,
+const MAT_STATUS_LABEL: Record<string, string> = {
+  SUBMITTED: '검토대기', REVIEWED: '검토완료', APPROVED: '승인', REJECTED: '반려',
+  DRAFT: '작성중', CANCELLED: '취소',
+}
+const ISSUE_COLORS: Record<string, string> = {
+  MISSING_CHECKOUT: 'text-status-missing', EXCEPTION: 'text-status-rejected',
 }
 
-// ── 검색형 현장 선택 ──────────────────────────────────────────────────────
-function SiteSelect({
-  options, value, onChange,
+// ── 요약 카드 ─────────────────────────────────────────────────────────────────
+function SummaryCard({
+  label, value, unit, sub, alert = false,
 }: {
-  options: SiteOption[]; value: string; onChange: (v: string) => void
-}) {
-  const [query, setQuery]   = useState('')
-  const [open, setOpen]     = useState(false)
-  const ref                 = useRef<HTMLDivElement>(null)
-  const selectedLabel       = value === '' ? '전체 현장' : (options.find(o => o.id === value)?.name ?? '현장 선택')
-  const filtered = useMemo(() =>
-    query ? options.filter(o => o.name.includes(query)) : options,
-    [options, query]
-  )
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false); setQuery('')
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => { setOpen(!open); setQuery('') }}
-        className="h-9 pl-3 pr-8 border border-brand rounded-[8px] text-[13px] bg-card text-body-brand text-left min-w-[160px] relative hover:border-[#D1D5DB] focus:outline-none focus:border-accent transition-colors"
-      >
-        <span className="truncate block">{selectedLabel}</span>
-        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted2-brand pointer-events-none" style={{ fontSize: 9 }}>▾</span>
-      </button>
-
-      {open && (
-        <div className="absolute top-full mt-1 left-0 z-30 bg-card border border-brand rounded-[12px] shadow-lg min-w-[220px] max-h-[300px] flex flex-col">
-          <div className="p-2 border-b border-brand">
-            <input
-              autoFocus
-              type="text"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="현장 검색..."
-              className="w-full h-9 px-3 border border-brand rounded-[6px] text-[12px] text-fore-brand focus:outline-none focus:border-accent placeholder:text-muted2-brand"
-            />
-          </div>
-          <div className="overflow-y-auto flex-1 py-1">
-            <button
-              type="button"
-              onClick={() => { onChange(''); setOpen(false); setQuery('') }}
-              className={`w-full text-left px-3 py-2 text-[13px] hover:bg-surface transition-colors ${value === '' ? 'font-semibold text-accent bg-accent-light' : 'text-body-brand'}`}
-            >
-              전체 현장
-            </button>
-            {filtered.map(o => (
-              <button
-                key={o.id}
-                type="button"
-                onClick={() => { onChange(o.id); setOpen(false); setQuery('') }}
-                className={`w-full text-left px-3 py-2 text-[13px] hover:bg-surface transition-colors ${value === o.id ? 'font-semibold text-accent bg-accent-light' : 'text-body-brand'}`}
-              >
-                {o.name}
-              </button>
-            ))}
-            {filtered.length === 0 && (
-              <div className="px-3 py-3 text-[12px] text-muted2-brand text-center">검색 결과 없음</div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── KPI 카드 ──────────────────────────────────────────────────────────────
-function KpiCard({
-  label, value, unit, sub, accentColor = '#E5E7EB', alert = false,
-}: {
-  label: string; value: string | number; unit?: string; sub?: string
-  accentColor?: string; alert?: boolean
+  label: string; value: number; unit?: string; sub?: string; alert?: boolean
 }) {
   return (
-    <div
-      className="bg-card rounded-[12px] border border-brand px-4 py-4"
-      style={{ borderTopWidth: 3, borderTopColor: accentColor }}
-    >
-      <div className="text-[11px] font-semibold text-muted-brand mb-2 uppercase tracking-wide leading-tight">{label}</div>
+    <div className="bg-card rounded-[12px] border border-brand px-4 py-4">
+      <div className="text-[11px] font-semibold text-muted-brand mb-2 uppercase tracking-wide">{label}</div>
       <div className="flex items-baseline gap-1 mb-1">
-        <span className={`text-[22px] font-bold leading-none tabular-nums ${alert ? 'text-status-missing' : 'text-title-brand'}`}>
+        <span className={`text-[26px] font-bold leading-none tabular-nums ${alert && value > 0 ? 'text-status-missing' : 'text-title-brand'}`}>
           {value}
         </span>
         {unit && <span className="text-[12px] text-muted2-brand">{unit}</span>}
@@ -162,103 +72,21 @@ function KpiCard({
   )
 }
 
-// ── 현장 카드 ─────────────────────────────────────────────────────────────
-function SiteCard({ site }: { site: SiteSummary }) {
-  const prog      = getContractProgress(site.openedAt, site.closedAt)
-  const remaining = getDaysUntil(site.closedAt)
-  const hasIssue  = site.issue > 0
-  const isExpired = remaining !== null && remaining <= 0
-  const isNearing = remaining !== null && remaining > 0 && remaining <= 30
-
+// ── 섹션 헤더 ──────────────────────────────────────────────────────────────────
+function SectionHeader({ title, count }: { title: string; count?: number }) {
   return (
-    <div className={`bg-card rounded-[12px] border overflow-hidden ${hasIssue ? 'border-[#F87171]' : 'border-brand'}`}>
-      {/* 상단 컬러 라인 */}
-      <div className="h-[3px]" style={{
-        background: hasIssue ? '#B91C1C' : isExpired ? '#9CA3AF' : isNearing ? '#F97316' : '#E5E7EB',
-      }} />
-      <div className="px-4 py-3">
-        {/* 현장명 + 배지 */}
-        <div className="flex items-start justify-between mb-2 gap-2">
-          <span className="text-[13px] font-semibold text-fore-brand leading-snug">{site.name}</span>
-          <div className="flex items-center gap-1 shrink-0">
-            {isExpired && (
-              <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-footer text-muted-brand border border-[#D1D5DB]">계약종료</span>
-            )}
-            {isNearing && !isExpired && (
-              <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-light text-status-pending border border-yellow">임박</span>
-            )}
-            {hasIssue && (
-              <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-red-light text-status-missing border border-[#F87171]">
-                확인 {site.issue}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* 계약기간 진행 바 */}
-        {prog ? (
-          <div className="mb-2">
-            <div className="flex items-center justify-between mb-0.5">
-              <span className="text-[11px] text-muted2-brand tabular-nums">
-                {fmtDate(site.openedAt)} ~ {fmtDate(site.closedAt)}
-              </span>
-              <span className="text-[11px] text-muted-brand tabular-nums">{prog.pct}% · 잔여 {prog.remaining}일</span>
-            </div>
-            <div className="w-full h-1.5 bg-footer rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{
-                  width:      `${prog.pct}%`,
-                  background: prog.pct >= 90 ? '#B91C1C' : prog.pct >= 70 ? '#F97316' : '#16A34A',
-                }}
-              />
-            </div>
-          </div>
-        ) : (
-          site.openedAt || site.closedAt ? (
-            <div className="mb-2 text-[11px] text-[#D1D5DB]">
-              {fmtDate(site.openedAt)} ~ {fmtDate(site.closedAt)}
-            </div>
-          ) : null
-        )}
-
-        {/* 인원 현황 */}
-        <div className="flex items-center gap-2 mb-2 flex-wrap text-[12px]">
-          {site.working > 0 && (
-            <span className="text-status-working font-semibold">출근중 {site.working}</span>
-          )}
-          {site.completed > 0 && (
-            <span className="text-muted-brand">퇴근 {site.completed}</span>
-          )}
-          {site.issue > 0 && (
-            <span className="text-status-missing font-semibold">확인필요 {site.issue}</span>
-          )}
-          {site.working === 0 && site.completed === 0 && site.issue === 0 && (
-            <span className="text-[#D1D5DB]">오늘 출근 없음</span>
-          )}
-        </div>
-
-        {/* 노임 현황 */}
-        <div className="border-t border-brand pt-2 grid grid-cols-1 sm:grid-cols-3 gap-1 text-center">
-          <div>
-            <div className="text-[11px] text-muted2-brand mb-0.5">오늘</div>
-            <div className="text-[12px] font-semibold text-body-brand tabular-nums">{fmtWageShort(site.todayWage)}</div>
-          </div>
-          <div>
-            <div className="text-[11px] text-muted2-brand mb-0.5">이번달</div>
-            <div className="text-[12px] font-semibold text-body-brand tabular-nums">{fmtWageShort(site.monthWage)}</div>
-          </div>
-          <div>
-            <div className="text-[11px] text-muted2-brand mb-0.5">총 누계</div>
-            <div className="text-[12px] font-bold text-title-brand tabular-nums">{fmtWageShort(site.totalWage)}</div>
-          </div>
-        </div>
-      </div>
+    <div className="flex items-center gap-2 mb-3">
+      <span className="text-[13px] font-semibold text-fore-brand">{title}</span>
+      {count !== undefined && (
+        <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-surface text-muted-brand border border-brand tabular-nums">
+          {count}
+        </span>
+      )}
     </div>
   )
 }
 
-// ── 메인 컴포넌트 ─────────────────────────────────────────────────────────
+// ── 메인 컴포넌트 ──────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const router = useRouter()
 
@@ -267,69 +95,45 @@ export default function AdminDashboard() {
     return d.toISOString().slice(0, 10)
   }, [])
 
-  const [selectedDate,   setSelectedDate]   = useState(todayIso)
-  const [selectedSiteId, setSelectedSiteId] = useState('')
-  const [statusFilter,   setStatusFilter]   = useState('ALL')
-  const [summary,        setSummary]        = useState<Summary | null>(null)
-  const [records,        setRecords]        = useState<WorkerRecord[]>([])
-  const [sites,          setSites]          = useState<SiteSummary[]>([])
-  const [siteOptions,    setSiteOptions]    = useState<SiteOption[]>([])
-  const [loading,        setLoading]        = useState(true)
-  const [loadError,      setLoadError]      = useState('')
-  const [inviteCopied,   setInviteCopied]   = useState(false)
+  const [selectedDate, setSelectedDate] = useState(todayIso)
+  const [summary,      setSummary]      = useState<Summary | null>(null)
+  const [issues,       setIssues]       = useState<IssueRecord[]>([])
+  const [materials,    setMaterials]    = useState<MaterialRecord[]>([])
+  const [docWorkers,   setDocWorkers]   = useState<DocWorker[]>([])
+  const [siteSummary,  setSiteSummary]  = useState<SiteSummaryItem[]>([])
+  const [loading,      setLoading]      = useState(true)
+  const [loadError,    setLoadError]    = useState('')
 
   const load = useCallback(() => {
     setLoading(true)
     setLoadError('')
-    const params = new URLSearchParams({ date: selectedDate })
-    if (selectedSiteId) params.set('siteId', selectedSiteId)
-    fetch(`/api/admin/dashboard?${params}`)
+    fetch(`/api/admin/dashboard?date=${selectedDate}`)
       .then(r => r.json())
       .then(data => {
         if (!data.success) { router.push('/admin/login'); return }
-        setSummary(data.data.summary)
-        setRecords(data.data.recentAttendance)
-        setSites(data.data.sites)
-        setSiteOptions(data.data.siteOptions)
+        const d = data.data
+        setSummary(d.summary)
+        setIssues(d.recentIssues ?? [])
+        setMaterials(d.recentMaterialRequests ?? [])
+        setDocWorkers(d.docIncompleteWorkers ?? [])
+        setSiteSummary(d.siteSummary ?? [])
         setLoading(false)
       })
-      .catch(() => { setLoadError('대시보드를 불러올 수 없습니다. 새로고침하거나 관리자에게 문의하세요.'); setLoading(false) })
-  }, [selectedDate, selectedSiteId, router])
+      .catch(() => {
+        setLoadError('대시보드를 불러올 수 없습니다.')
+        setLoading(false)
+      })
+  }, [selectedDate, router])
 
   useEffect(() => { load() }, [load])
 
-  // 상태 필터 + 정렬 적용
-  const filteredRecords = useMemo(() => {
-    let rs = [...records]
-    if (statusFilter !== 'ALL') rs = rs.filter(r => r.status === statusFilter)
-    return rs.sort((a, b) => (STATUS_SORT[a.status] ?? 9) - (STATUS_SORT[b.status] ?? 9))
-  }, [records, statusFilter])
-
-  // 현장 패널: 선택 시 단독, 전체 시 상위만 노출
-  const displayedSites = useMemo(() => {
-    if (selectedSiteId) return sites.filter(s => s.id === selectedSiteId)
-    const byIssue = [...sites].sort((a, b) => b.issue - a.issue).slice(0, 8)
-    const byWage  = [...sites]
-      .sort((a, b) => b.totalWage - a.totalWage)
-      .filter(s => !byIssue.find(x => x.id === s.id))
-      .slice(0, 4)
-    return [...byIssue, ...byWage]
-  }, [sites, selectedSiteId])
-
-  // 선택 현장 계약기간 정보
-  const selectedSiteInfo  = selectedSiteId ? sites.find(s => s.id === selectedSiteId) : null
-  const contractProg      = getContractProgress(selectedSiteInfo?.openedAt ?? null, selectedSiteInfo?.closedAt ?? null)
-  const remainingDays     = getDaysUntil(selectedSiteInfo?.closedAt ?? null)
-
-  const monthKey = selectedDate.slice(0, 7)
-  const issueCount = (summary?.todayMissing ?? 0) + (summary?.todayException ?? 0)
+  const reviewCount = (summary?.todayException ?? 0) + (summary?.todayPresenceReview ?? 0)
 
   return (
     <PageShell>
-
       <PageHeader
-        title="운영 대시보드"
-        description="인원·노임·현장 운영 현황 통합 확인"
+        title="현황판"
+        description={`${selectedDate} 기준 운영 요약`}
         actions={
           <>
             <FilterInput
@@ -337,17 +141,6 @@ export default function AdminDashboard() {
               value={selectedDate}
               onChange={e => setSelectedDate(e.target.value)}
             />
-            <SiteSelect options={siteOptions} value={selectedSiteId} onChange={setSelectedSiteId} />
-            <FilterSelect
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-            >
-              <option value="ALL">전체 상태</option>
-              <option value="WORKING">근무중</option>
-              <option value="COMPLETED">퇴근완료</option>
-              <option value="MISSING_CHECKOUT">미퇴근</option>
-              <option value="EXCEPTION">예외</option>
-            </FilterSelect>
             <Btn variant="ghost" size="sm" onClick={load}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
                 <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
@@ -355,64 +148,18 @@ export default function AdminDashboard() {
               </svg>
               새로고침
             </Btn>
-            <Btn
-              variant="primary" size="sm"
-              onClick={() => {
-                const url = `${window.location.origin}/invite`
-                navigator.clipboard.writeText(url).then(() => {
-                  setInviteCopied(true)
-                  setTimeout(() => setInviteCopied(false), 2000)
-                })
-              }}
-            >
-              {inviteCopied ? '복사됨!' : '근로자 초대 링크'}
-            </Btn>
           </>
         }
       />
 
-      {/* ── 계약기간 보조 정보 바 (특정 현장 선택 시) ────────────────────── */}
-      {selectedSiteInfo && (
-        <div className="mb-4 bg-card rounded-[12px] border border-brand px-5 py-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-          <div className="flex items-center gap-2">
-            <span className="text-[13px] font-semibold text-body-brand">{selectedSiteInfo.name}</span>
-            {remainingDays !== null && remainingDays <= 0 && (
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-light text-status-missing border border-[#F87171]">계약 종료</span>
-            )}
-            {remainingDays !== null && remainingDays > 0 && remainingDays <= 30 && (
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-yellow-light text-status-pending border border-yellow">종료 임박</span>
-            )}
-          </div>
-
-          {(selectedSiteInfo.openedAt || selectedSiteInfo.closedAt) ? (
-            <>
-              <div className="text-[12px] text-muted-brand">
-                계약기간
-                <span className="text-body-brand font-medium ml-1 tabular-nums">
-                  {fmtDate(selectedSiteInfo.openedAt) ?? '미설정'} ~ {fmtDate(selectedSiteInfo.closedAt) ?? '미설정'}
-                </span>
-              </div>
-              {contractProg && (
-                <div className="flex items-center gap-2">
-                  <span className="text-[12px] text-muted-brand">진행률</span>
-                  <div className="w-28 h-2 bg-brand-deeper rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width:      `${contractProg.pct}%`,
-                        background: contractProg.pct >= 90 ? '#B91C1C' : contractProg.pct >= 70 ? '#F97316' : '#16A34A',
-                      }}
-                    />
-                  </div>
-                  <span className="text-[12px] font-semibold text-body-brand tabular-nums">{contractProg.pct}%</span>
-                  <span className="text-[12px] text-muted2-brand">·</span>
-                  <span className="text-[12px] text-body-brand">잔여 <span className="font-semibold tabular-nums">{contractProg.remaining}</span>일</span>
-                </div>
-              )}
-            </>
-          ) : (
-            <span className="text-[12px] text-[#D1D5DB]">계약기간 미설정 — 현장관리에서 입력 가능</span>
-          )}
+      {/* scope 배지 (팀장/반장 전용) */}
+      {summary?.scopeLabel && (
+        <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent-light border border-accent text-[12px] font-semibold text-accent">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          {summary.scopeLabel} 기준
         </div>
       )}
 
@@ -425,203 +172,174 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <>
-          {/* ── 초기 설정 안내 (현장 또는 근로자 0건) ──────────────────── */}
-          {summary && (summary.activeSites === 0 || summary.totalWorkers === 0) && (
-            <div className="mb-4 p-5 rounded-xl border-2 border-dashed border-accent bg-accent-light">
-              <div className="text-[15px] font-bold text-accent mb-3">초기 설정이 필요합니다</div>
-              <div className="space-y-2">
-                {summary.activeSites === 0 ? (
-                  <div className="flex items-start gap-2">
-                    <span className="text-[14px] text-status-rejected mt-0.5">1</span>
-                    <div>
-                      <a href="/admin/sites" className="text-[13px] font-semibold text-accent underline">현장을 개설하세요</a>
-                      <div className="text-[11px] text-muted-brand mt-0.5">현장명, 주소, GPS 반경을 입력하면 QR코드가 자동 생성됩니다.</div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-[13px] text-status-working">
-                    <span>✓</span> 현장 {summary.activeSites}개 운영 중
-                  </div>
-                )}
-                {summary.totalWorkers === 0 ? (
-                  <div className="flex items-start gap-2">
-                    <span className="text-[14px] text-status-rejected mt-0.5">{summary.activeSites === 0 ? '2' : '1'}</span>
-                    <div>
-                      <a href="/admin/workers" className="text-[13px] font-semibold text-accent underline">근로자를 등록하거나 가입 승인하세요</a>
-                      <div className="text-[11px] text-muted-brand mt-0.5">근로자 직접 등록 또는 근로자 앱에서 회원가입 후 승인 처리합니다.</div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-[13px] text-status-working">
-                    <span>✓</span> 근로자 {summary.totalWorkers}명 등록됨
-                  </div>
-                )}
-                <div className="flex items-start gap-2">
-                  <span className="text-[14px] text-muted2-brand mt-0.5">3</span>
-                  <div>
-                    <a href="/admin/settings" className="text-[13px] font-semibold text-muted-brand underline">운영 설정 확인</a>
-                    <div className="text-[11px] text-muted2-brand mt-0.5">근무시간, 기기 승인 정책, 공수 기준 등을 설정합니다.</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ── KPI 카드 ────────────────────────────────────────────────── */}
-          {/* 인원 4개 */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-            <KpiCard
+          {/* ── 요약 카드 5개 ───────────────────────────────────────────── */}
+          <div data-testid="summary-cards" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+            <SummaryCard
               label="오늘 출근 인원"
               value={summary?.todayTotal ?? 0}
               unit="명"
               sub={`근무중 ${summary?.todayCheckedIn ?? 0} · 퇴근 ${summary?.todayCompleted ?? 0}`}
-              accentColor="#94A3B8"
             />
-            <KpiCard
-              label="현재 출근중"
-              value={summary?.todayCheckedIn ?? 0}
+            <SummaryCard
+              label="미출근 인원"
+              value={summary?.todayMissing ?? 0}
               unit="명"
-              sub="현재 현장 체류"
-              accentColor="#16A34A"
+              sub="오늘 미퇴근 처리"
+              alert
             />
-            <KpiCard
-              label="미퇴근 누계"
-              value={summary?.pendingMissing ?? 0}
+            <SummaryCard
+              label="검토 필요"
+              value={reviewCount}
               unit="건"
-              sub="이전 일자 미처리"
-              accentColor={(summary?.pendingMissing ?? 0) > 0 ? '#F97316' : '#E5E7EB'}
-              alert={(summary?.pendingMissing ?? 0) > 0}
+              sub={`예외 ${summary?.todayException ?? 0} · 체류검토 ${summary?.todayPresenceReview ?? 0}`}
+              alert
             />
-            <KpiCard
-              label="오늘 확인필요"
-              value={issueCount}
+            <SummaryCard
+              label="자재 신청"
+              value={summary?.materialRequestCount ?? 0}
               unit="건"
-              sub={`미퇴근 ${summary?.todayMissing ?? 0} · 예외 ${summary?.todayException ?? 0}`}
-              accentColor={issueCount > 0 ? '#B91C1C' : '#E5E7EB'}
-              alert={issueCount > 0}
+              sub="검토대기 + 검토완료"
             />
-          </div>
-          {/* 노임 3개 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
-            <KpiCard
-              label={`오늘 총 노임 (${selectedDate})`}
-              value={fmtWageShort(summary?.todayWage ?? 0)}
-              sub={(summary?.todayWage ?? 0) > 0 ? fmtWageFull(summary!.todayWage) : '확정 내역 없음'}
-              accentColor="#F97316"
-            />
-            <KpiCard
-              label={`이번 달 누계 노임 (${monthKey})`}
-              value={fmtWageShort(summary?.monthWage ?? 0)}
-              sub={(summary?.monthWage ?? 0) > 0 ? fmtWageFull(summary!.monthWage) : '확정 내역 없음'}
-              accentColor="#F97316"
-            />
-            <KpiCard
-              label="총 누계 노임"
-              value={fmtWageShort(summary?.totalWage ?? 0)}
-              sub={(summary?.totalWage ?? 0) > 0 ? fmtWageFull(summary!.totalWage) : '확정 내역 없음'}
-              accentColor="#0F172A"
+            <SummaryCard
+              label="서류 미완료"
+              value={summary?.docIncompleteCount ?? 0}
+              unit="명"
+              sub="온보딩 미처리"
+              alert
             />
           </div>
 
-          {/* ── 메인 2단 ────────────────────────────────────────────────── */}
-          <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-4 items-start">
+          {/* ── 중간 영역 2행 ───────────────────────────────────────────── */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
 
-            {/* 좌: 근로자 현황 테이블 */}
-            <div className="bg-card rounded-[12px] border border-brand overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-3 border-b border-brand">
-                <div className="flex items-center gap-2">
-                  <span className="text-[14px] font-semibold text-fore-brand">오늘 근로자 현황</span>
-                  <span className="text-[11px] text-muted2-brand">문제 인원 우선</span>
-                </div>
-                <span className="text-[12px] text-muted2-brand tabular-nums">{filteredRecords.length}명</span>
-              </div>
-              <MobileCardList
-                items={filteredRecords.slice(0, 30)}
-                keyExtractor={(r) => r.id}
-                emptyMessage={statusFilter !== 'ALL' ? '해당 상태의 기록이 없습니다' : '오늘 출근 기록이 없습니다'}
-                renderCard={(r) => {
-                  const isIssue = r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION'
-                  return (
-                    <MobileCard
-                      title={r.workerName}
-                      subtitle={r.siteName}
-                      badge={<StatusBadge status={r.status} label={STATUS_LABEL[r.status]} />}
-                      onClick={() => router.push(`/admin/attendance?date=${selectedDate}&name=${encodeURIComponent(r.workerName)}`)}
-                      style={isIssue ? { borderColor: '#FCA5A5' } : undefined}
-                    >
-                      <MobileCardFields>
-                        <MobileCardField label="출근" value={fmtTime(r.checkInAt)} />
-                        <MobileCardField label="퇴근" value={fmtTime(r.checkOutAt)} />
-                        <MobileCardField label="일 노임" value={r.dayWage > 0 ? r.dayWage.toLocaleString('ko-KR') + '원' : '-'} />
-                        <MobileCardField label="월 누계" value={r.monthWage > 0 ? r.monthWage.toLocaleString('ko-KR') + '원' : '-'} />
-                        <MobileCardField label="총 누계" value={r.totalWage > 0 ? r.totalWage.toLocaleString('ko-KR') + '원' : '-'} />
-                      </MobileCardFields>
-                    </MobileCard>
-                  )
-                }}
-                renderTable={() => (
-                  <AdminTable headers={['이름', '소속 현장', '출근', '퇴근', '상태', '일 노임', '월 누계', '총 누계']}>
-                    {filteredRecords.length === 0 ? (
-                      <EmptyRow colSpan={8} message={statusFilter !== 'ALL' ? '해당 상태의 기록이 없습니다' : '오늘 출근 기록이 없습니다'} />
-                    ) : filteredRecords.slice(0, 30).map(r => {
-                      const isIssue = r.status === 'MISSING_CHECKOUT' || r.status === 'EXCEPTION'
-                      return (
-                        <AdminTr
-                          key={r.id}
-                          onClick={() => router.push(`/admin/attendance?date=${selectedDate}&name=${encodeURIComponent(r.workerName)}`)}
-                          highlighted={isIssue}
-                        >
-                          <AdminTd className="font-medium text-fore-brand">{r.workerName}</AdminTd>
-                          <AdminTd className="text-muted-brand max-w-[120px] truncate">{r.siteName}</AdminTd>
-                          <AdminTd className="tabular-nums">{fmtTime(r.checkInAt)}</AdminTd>
-                          <AdminTd className="tabular-nums">{fmtTime(r.checkOutAt)}</AdminTd>
-                          <AdminTd><StatusBadge status={r.status} label={STATUS_LABEL[r.status]} /></AdminTd>
-                          <AdminTd className="text-[12px] tabular-nums text-right">
-                            {r.dayWage > 0 ? r.dayWage.toLocaleString('ko-KR') : '-'}
-                          </AdminTd>
-                          <AdminTd className="text-[12px] text-muted-brand tabular-nums text-right">
-                            {r.monthWage > 0 ? r.monthWage.toLocaleString('ko-KR') : '-'}
-                          </AdminTd>
-                          <AdminTd className="text-[12px] font-medium tabular-nums text-right">
-                            {r.totalWage > 0 ? r.totalWage.toLocaleString('ko-KR') : '-'}
-                          </AdminTd>
-                        </AdminTr>
-                      )
-                    })}
-                  </AdminTable>
-                )}
-              />
-              {filteredRecords.length > 30 && (
-                <div className="px-5 py-2.5 border-t border-brand text-[12px] text-muted2-brand">
-                  {filteredRecords.length - 30}명 더 있음 — 출퇴근관리에서 전체 확인
-                </div>
-              )}
+            {/* 최근 출근 이상 건 */}
+            <div className="bg-card rounded-[12px] border border-brand p-4">
+              <SectionHeader title="최근 출근 이상" count={issues.length} />
+              <AdminTable headers={['근로자', '현장', '출근시각', '상태']}>
+                {issues.length === 0 ? (
+                  <EmptyRow colSpan={4} message="오늘 이상 건 없음" />
+                ) : issues.map(r => (
+                  <AdminTr key={r.id}>
+                    <AdminTd>
+                      <div className="font-medium text-fore-brand">{r.workerName}</div>
+                      {r.teamName && <div className="text-[11px] text-muted2-brand">{r.teamName}</div>}
+                    </AdminTd>
+                    <AdminTd>
+                      <span className="text-[12px] text-body-brand">{r.siteName}</span>
+                    </AdminTd>
+                    <AdminTd>
+                      <span className="tabular-nums text-[12px]">{fmtTime(r.checkInAt)}</span>
+                    </AdminTd>
+                    <AdminTd>
+                      <StatusBadge
+                        status={r.status}
+                        label={STATUS_LABEL[r.status] ?? r.status}
+                      />
+                    </AdminTd>
+                  </AdminTr>
+                ))}
+              </AdminTable>
             </div>
 
-            {/* 우: 현장별 요약 카드 */}
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-semibold text-fore-brand">현장별 운영 현황</span>
-                {!selectedSiteId && sites.length > 12 && (
-                  <span className="text-[11px] text-muted2-brand">문제·노임 상위</span>
-                )}
-              </div>
+            {/* 현장별 인원 요약 */}
+            <div className="bg-card rounded-[12px] border border-brand p-4">
+              <SectionHeader title="현장별 인원 요약" count={siteSummary.length} />
+              <AdminTable headers={['현장', '출근중', '퇴근', '확인필요']}>
+                {siteSummary.length === 0 ? (
+                  <EmptyRow colSpan={4} message="오늘 출근 현장 없음" />
+                ) : siteSummary.map(s => (
+                  <AdminTr key={s.id}>
+                    <AdminTd>
+                      <span className="text-[12px] font-medium text-fore-brand">{s.name}</span>
+                    </AdminTd>
+                    <AdminTd>
+                      <span className={`tabular-nums font-semibold text-[13px] ${s.working > 0 ? 'text-status-working' : 'text-muted2-brand'}`}>
+                        {s.working}
+                      </span>
+                    </AdminTd>
+                    <AdminTd>
+                      <span className="tabular-nums text-[13px] text-muted-brand">{s.completed}</span>
+                    </AdminTd>
+                    <AdminTd>
+                      {s.issue > 0 ? (
+                        <span className="text-[12px] font-semibold px-1.5 py-0.5 rounded-full bg-red-light text-status-missing border border-[#F87171] tabular-nums">
+                          {s.issue}
+                        </span>
+                      ) : (
+                        <span className="text-muted2-brand text-[12px]">-</span>
+                      )}
+                    </AdminTd>
+                  </AdminTr>
+                ))}
+              </AdminTable>
+            </div>
+          </div>
 
-              {displayedSites.length === 0 ? (
-                <div className="bg-card rounded-[12px] border border-brand py-12 text-center text-[13px] text-muted2-brand">
-                  오늘 운영 현황 없음
-                </div>
-              ) : displayedSites.map(site => (
-                <SiteCard key={site.id} site={site} />
-              ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-              {!selectedSiteId && sites.length > 12 && (
-                <div className="text-center text-[12px] text-muted2-brand py-1">
-                  전체 현장 {sites.length}개 — 현장관리에서 확인
-                </div>
-              )}
+            {/* 최근 자재신청 */}
+            <div className="bg-card rounded-[12px] border border-brand p-4">
+              <SectionHeader title="최근 자재 신청" count={materials.length} />
+              <AdminTable headers={['신청번호', '품목', '현장', '상태']}>
+                {materials.length === 0 ? (
+                  <EmptyRow colSpan={4} message="검토 대기 건 없음" />
+                ) : materials.map(r => (
+                  <AdminTr key={r.id}>
+                    <AdminTd>
+                      <span className="tabular-nums text-[11px] text-muted-brand font-mono">{r.requestNo}</span>
+                    </AdminTd>
+                    <AdminTd>
+                      <div className="text-[12px] font-medium text-fore-brand truncate max-w-[160px]">{r.title}</div>
+                      <div className="text-[11px] text-muted2-brand">{r.requestedByName}</div>
+                    </AdminTd>
+                    <AdminTd>
+                      <span className="text-[12px] text-body-brand">{r.siteName}</span>
+                    </AdminTd>
+                    <AdminTd>
+                      <StatusBadge
+                        status={r.status === 'SUBMITTED' ? 'PENDING' : r.status}
+                        label={MAT_STATUS_LABEL[r.status] ?? r.status}
+                      />
+                    </AdminTd>
+                  </AdminTr>
+                ))}
+              </AdminTable>
             </div>
 
+            {/* 서류/안전교육 미완료 근로자 */}
+            <div className="bg-card rounded-[12px] border border-brand p-4">
+              <SectionHeader title="서류/안전교육 미완료" count={docWorkers.length} />
+              <AdminTable headers={['근로자', '팀', '미처리 항목']}>
+                {docWorkers.length === 0 ? (
+                  <EmptyRow colSpan={3} message="미완료 근로자 없음" />
+                ) : docWorkers.map(w => (
+                  <AdminTr key={w.id}>
+                    <AdminTd>
+                      <a href={`/admin/workers/${w.id}`} className="text-[12px] font-medium text-accent hover:underline">
+                        {w.name}
+                      </a>
+                    </AdminTd>
+                    <AdminTd>
+                      <span className="text-[12px] text-muted-brand">{w.teamName ?? '-'}</span>
+                    </AdminTd>
+                    <AdminTd>
+                      <div className="flex flex-wrap gap-1">
+                        {w.issues.slice(0, 2).map((issue, i) => (
+                          <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-light text-status-pending border border-yellow">
+                            {issue}
+                          </span>
+                        ))}
+                        {w.issues.length > 2 && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface text-muted2-brand border border-brand">
+                            +{w.issues.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    </AdminTd>
+                  </AdminTr>
+                ))}
+              </AdminTable>
+            </div>
           </div>
         </>
       )}
