@@ -69,6 +69,13 @@ const MENU: MenuItem[] = [
     icon: <I><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" {...S}/><circle cx="9" cy="7" r="4" {...S}/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" {...S}/></I>,
   },
 
+  /* ── 조직 (standalone) ── */
+  {
+    key: 'org', label: '조직관리', href: '/admin/org',
+    requiredFeature: 'WORKER_VIEW',
+    icon: <I><circle cx="12" cy="5" r="2" {...S}/><path d="M12 7v4M8 13h8M8 13a3 3 0 01-3 3H4M16 13a3 3 0 003 3h1M5 16v2M19 16v2" {...S}/></I>,
+  },
+
   /* ── 3. 현장 ── */
   {
     key: 'sites', label: '현장',
