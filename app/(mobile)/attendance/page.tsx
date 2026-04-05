@@ -87,6 +87,8 @@ export default function AttendancePage() {
   const [presenceResult, setPresenceResult] = useState<PresenceResult>({ state: 'idle' })
   const [countdown, setCountdown]     = useState<string | null>(null)
   const submittingRef                  = useRef(false)  // 중복 제출 방지 (연타·두 탭)
+  const checkInRef                     = useRef(false)  // 직접 출근 중복 클릭 방지
+  const checkOutRef                    = useRef(false)  // 직접 퇴근 중복 클릭 방지
   // ── 출근 조건 검사 state ──────────────────────────────────────
   const [eligibility, setEligibility] = useState<{ key: string; label: string; passed: boolean; message: string }[]>([])
   const [eligibilityChecked, setEligibilityChecked] = useState(false)
@@ -360,7 +362,8 @@ export default function AttendancePage() {
 
   // ── 직접 출근 ─────────────────────────────────────────────────
   const handleDirectCheckIn = async (siteId: string) => {
-    if (checkInLoading) return
+    if (checkInRef.current || checkInLoading) return
+    checkInRef.current = true
     setCheckInLoading(true)
     setAttendanceMsg('')
     try {
@@ -388,14 +391,18 @@ export default function AttendancePage() {
       } else {
         setAttendanceMsg(data.message ?? '출근 실패')
       }
+    } catch {
+      setAttendanceMsg('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
     } finally {
+      checkInRef.current = false
       setCheckInLoading(false)
     }
   }
 
   // ── 직접 퇴근 ─────────────────────────────────────────────────
   const handleDirectCheckOut = async (reason?: string) => {
-    if (checkOutLoading) return
+    if (checkOutRef.current || checkOutLoading) return
+    checkOutRef.current = true
     setCheckOutLoading(true)
     setAttendanceMsg('')
     try {
@@ -430,7 +437,10 @@ export default function AttendancePage() {
           setAttendanceMsg(data.message ?? '퇴근 실패')
         }
       }
+    } catch {
+      setAttendanceMsg('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
     } finally {
+      checkOutRef.current = false
       setCheckOutLoading(false)
     }
   }

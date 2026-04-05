@@ -41,6 +41,7 @@ function LoginContent() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [loginSuccess, setLoginSuccess] = useState(false)
 
   useEffect(() => {
     if (errorKey) return
@@ -62,6 +63,7 @@ function LoginContent() {
       const json = await res.json()
       if (!res.ok) { setError(json.message || '로그인에 실패했습니다.'); setLoading(false); return }
       if (json.data?.accountStatus === 'PENDING') { router.push('/register/pending'); return }
+      setLoginSuccess(true)
       router.push('/attendance')
     } catch { setError('서버 오류가 발생했습니다.'); setLoading(false) }
   }
@@ -120,6 +122,7 @@ function LoginContent() {
                 className="w-full h-12 text-[15px] font-semibold text-white bg-brand-accent hover:bg-brand-accent-hover rounded-[12px] transition-colors shadow-[0_2px_10px_rgba(249,115,22,0.25)] disabled:opacity-50 border-none cursor-pointer">
                 {loading ? '로그인 중...' : '로그인'}
               </button>
+              {loginSuccess && <span data-testid="login-success" aria-hidden="true" className="sr-only" />}
             </div>
             <AuthFooter links={[
               { label: '회원가입', href: '/register' },
