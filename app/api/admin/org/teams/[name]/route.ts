@@ -117,21 +117,14 @@ export async function PATCH(
 
     if (teamName === '__unassigned__') return badRequest('미배정 그룹은 수정할 수 없습니다.')
 
+    const wrkScope = await buildWorkerScopeWhere(session)
+    const scopeWhere = wrkScope === false ? { id: 'NONE' } : (wrkScope as object)
+
     const body = await req.json()
     const parsed = patchSchema.safeParse(body)
     if (!parsed.success) return badRequest(parsed.error.errors[0].message)
 
     const { newTeamName, supervisorName } = parsed.data
-
-    // 해당 팀 근로자 존재 확인
-    const teamCount = await prisma.worker.count({ where: { teamName, isActive: true } })
-    if (teamCount === 0) return notFound('팀을 찾을 수 없습니다.')
-
-    // 중복 팀명 체크
-    if (newTeamName && newTeamName !== teamName) {
-      const duplicate = await prisma.worker.count({ where: { teamName: newTeamName, isActive: true } })
-      if (duplicate > 0) return badRequest(`'${newTeamName}' 팀이 이미 존재합니다.`)
-    }
 
     const updateData: Record<string, unknown> = {}
     if (newTeamName !== undefined)    updateData.teamName       = newTeamName
@@ -139,12 +132,26 @@ export async function PATCH(
 
     if (Object.keys(updateData).length === 0) return badRequest('변경 항목이 없습니다.')
 
-    const result = await prisma.worker.updateMany({
-      where: { teamName, isActive: true },
-      data:  updateData,
+    const result = await prisma.$transaction(async (tx) => {
+      const teamCount = await tx.worker.count({
+        where: { teamName, isActive: true, ...scopeWhere },
+      })
+      if (teamCount === 0) return null
+
+      if (newTeamName && newTeamName !== teamName) {
+        const dup = await tx.worker.count({ where: { teamName: newTeamName, isActive: true } })
+        if (dup > 0) throw new Error(`DUPLICATE:${newTeamName}`)
+      }
+
+      return tx.worker.updateMany({
+        where: { teamName, isActive: true, ...scopeWhere },
+        data:  updateData,
+      })
     })
 
-    writeAuditLog({
+    if (result === null) return notFound('팀을 찾을 수 없습니다.')
+
+    await writeAuditLog({
       actorUserId:  session.sub,
       actorType:    'ADMIN',
       actorRole:    session.role,
@@ -157,6 +164,9 @@ export async function PATCH(
 
     return ok({ updated: result.count, teamName: newTeamName ?? teamName })
   } catch (err) {
+    if (err instanceof Error && err.message.startsWith('DUPLICATE:')) {
+      return badRequest(`'${err.message.slice('DUPLICATE:'.length)}' 팀이 이미 존재합니다.`)
+    }
     console.error('[org/teams/[name] PATCH]', err)
     return internalError()
   }

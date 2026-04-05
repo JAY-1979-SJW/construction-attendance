@@ -399,3 +399,95 @@ test('ORG-10 모바일 360px — 팀 상세 overflow 없음', async ({ page }) =
   const bodyWidth = await page.evaluate(() => document.body.scrollWidth)
   expect(bodyWidth).toBeLessThanOrEqual(360 + 5)
 })
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ORG-11  중복 팀명 수정 시 에러 표시
+// ══════════════════════════════════════════════════════════════════════════════
+test('ORG-11 중복 팀명 수정 → 에러 메시지 표시', async ({ page }) => {
+  await injectToken(page)
+  await mockRole(page, 'ADMIN')
+  await mockOrgTeams(page)
+
+  await page.route(`**/api/admin/org/teams/${encodeURIComponent('철근팀')}`, async (route: Route) => {
+    if (route.request().method() === 'PATCH') {
+      await route.fulfill({
+        status: 400, contentType: 'application/json',
+        body: JSON.stringify({ success: false, error: "'목공팀' 팀이 이미 존재합니다." }),
+      })
+    } else {
+      await route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: {
+            teamName: '철근팀', workerCount: 1, supervisorNames: ['김팀장'], foremanNames: ['이반장'],
+            workers: [{ id: 'w-1', name: '김철수', teamName: '철근팀', supervisorName: '김팀장', foremanName: '이반장', jobTitle: '철근공', siteName: 'A현장' }],
+          },
+        }),
+      })
+    }
+  })
+
+  await page.goto(`${BASE}/admin/org/${encodeURIComponent('철근팀')}`)
+  await expect(page.locator('[data-testid="team-info"]')).toBeVisible({ timeout: 15000 })
+  await page.locator('[data-testid="team-info"]').locator('button:has-text("수정")').first().click()
+  await page.locator('[data-testid="team-info"]').locator('input').first().fill('목공팀')
+  await page.locator('[data-testid="team-info"]').locator('button:has-text("저장")').click()
+  await expect(page.locator("text='목공팀' 팀이 이미 존재합니다.")).toBeVisible({ timeout: 5000 })
+})
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ORG-12  공백 팀명 저장 → 클라이언트 차단 (PATCH 미호출 확인은 요청 감시로)
+// ══════════════════════════════════════════════════════════════════════════════
+test('ORG-12 공백 팀명 → 에러 표시, PATCH 미호출', async ({ page }) => {
+  await injectToken(page)
+  await mockRole(page, 'ADMIN')
+  await mockOrgTeams(page)
+
+  // GET + PATCH 모두 단일 핸들러에서 처리 (route.continue() 체인 문제 방지)
+  let patchCalled = false
+  await page.route(`**/api/admin/org/teams/${encodeURIComponent('철근팀')}**`, async (route: Route) => {
+    if (route.request().method() === 'PATCH') {
+      patchCalled = true
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: { updated: 2, teamName: '철근팀' } }) })
+    } else {
+      await route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: { teamName: '철근팀', workerCount: 1, supervisorNames: ['김팀장'], foremanNames: ['이반장'],
+            workers: [{ id: 'w-1', name: '김철수', teamName: '철근팀', supervisorName: '김팀장', foremanName: '이반장', jobTitle: '철근공', siteName: 'A현장' }] },
+        }),
+      })
+    }
+  })
+
+  await page.goto(`${BASE}/admin/org/${encodeURIComponent('철근팀')}`)
+  await expect(page.locator('[data-testid="team-info"]')).toBeVisible({ timeout: 15000 })
+  await page.locator('[data-testid="team-info"]').locator('button:has-text("수정")').first().click()
+  await page.locator('[data-testid="team-info"]').locator('input').first().fill('   ')
+  await page.locator('[data-testid="team-info"]').locator('button:has-text("저장")').click()
+
+  await expect(page.locator('text=비워둘 수 없습니다.')).toBeVisible()
+  expect(patchCalled).toBe(false)
+})
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ORG-13  인증 쿠키 없이 PATCH 직접 호출 → 401
+// ══════════════════════════════════════════════════════════════════════════════
+test('ORG-13 인증 쿠키 없이 PATCH 직접 호출 → 401', async ({ page }) => {
+  // 토큰 주입 없이 빈 컨텍스트에서 fetch
+  await page.goto(`${BASE}/admin/org`)
+
+  const res = await page.evaluate(async () => {
+    const r = await fetch('/api/admin/org/teams/%EC%B2%A0%EA%B7%BC%ED%8C%80', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ newTeamName: '해킹팀' }),
+    })
+    return { status: r.status, body: await r.json() }
+  })
+
+  expect(res.status).toBe(401)
+  expect(res.body.success).toBe(false)
+})
