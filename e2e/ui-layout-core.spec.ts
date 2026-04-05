@@ -1001,8 +1001,6 @@ test.describe('[LAYOUT:reports] 작업일보 (관리자)', () => {
 test.describe('[LAYOUT:audit-logs] 감사 로그', () => {
   for (const vp of ALL_VPS) {
     test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
-      // audit-logs filter select min-w 제거 — 배포 후 재활성화 (docs/E2E_SKIP_REGISTRY.md)
-      test.fixme(vp.w <= 390, 'audit-logs select min-w-[240px] overflow — 배포 대기 중')
       const ctx  = await makeCtx(browser, vp)
       const page = await ctx.newPage()
       await ensureAdmin(page)
@@ -1041,8 +1039,6 @@ test.describe('[LAYOUT:audit-logs] 감사 로그', () => {
 test.describe('[LAYOUT:settings] 시스템 설정', () => {
   for (const vp of ALL_VPS) {
     test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
-      // settings 내부 w-[200px] 사이드바 + time input overflow — 배포 후 재활성화 (docs/E2E_SKIP_REGISTRY.md)
-      test.fixme(vp.w === 360, 'settings 모바일 사이드바 overflow — 배포 대기 중')
       const ctx  = await makeCtx(browser, vp)
       const page = await ctx.newPage()
       await ensureAdmin(page)
@@ -1074,8 +1070,6 @@ test.describe('[LAYOUT:settings] 시스템 설정', () => {
   }
   // R-MINHEIGHT: 360px 저장 버튼 ≥ 36px
   test('@360px 저장 버튼 높이 ≥ 36px', async ({ browser }) => {
-    // settings 저장 버튼 py-[6px] → py-2.5 — 배포 후 재활성화 (docs/E2E_SKIP_REGISTRY.md)
-    test.fixme(true, 'settings 저장 버튼 높이 33px — 배포 대기 중')
     const vp = MOBILE_VPS[0]
     const ctx = await makeCtx(browser, vp)
     const page = await ctx.newPage()
