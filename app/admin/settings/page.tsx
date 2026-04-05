@@ -610,7 +610,7 @@ export default function SettingsPage() {
           {isDirty && (
             <button
               onClick={handleRevert}
-              className="px-3 py-[6px] border border-brand rounded-[8px] text-[13px] text-muted-brand hover:bg-surface cursor-pointer bg-card transition-colors"
+              className="px-3 py-2.5 border border-brand rounded-[8px] text-[13px] text-muted-brand hover:bg-surface cursor-pointer bg-card transition-colors"
             >
               되돌리기
             </button>
@@ -618,7 +618,7 @@ export default function SettingsPage() {
           <button
             onClick={handleSave}
             disabled={!isDirty || saving || !canMutate}
-            className="px-4 py-[6px] rounded-[8px] text-[13px] font-semibold border-none cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default"
+            className="px-4 py-2.5 rounded-[8px] text-[13px] font-semibold border-none cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default"
             style={{
               background: isDirty && canMutate ? '#F97316' : '#E5E7EB',
               color:      isDirty && canMutate ? '#fff'    : '#9CA3AF',
@@ -629,10 +629,23 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* ── 모바일 카테고리 선택 (lg 미만에서만) ── */}
+      <div className="lg:hidden px-4 py-2 bg-card border-b border-brand">
+        <select
+          value={activeCategory}
+          onChange={(e) => handleCategoryChange(e.target.value as CategoryKey)}
+          className="w-full h-10 px-3 text-[13px] border border-brand rounded-[8px] bg-card text-title-brand"
+        >
+          {CATEGORIES.map((c) => (
+            <option key={c.key} value={c.key}>{c.label}</option>
+          ))}
+        </select>
+      </div>
+
       {/* ── 메인 레이아웃 ── */}
       <div className="flex flex-1">
-        {/* 좌측 카테고리 목록 */}
-        <div className="w-[200px] shrink-0 bg-card border-r border-brand py-3">
+        {/* 좌측 카테고리 목록 (lg 이상에서만) */}
+        <div className="hidden lg:flex lg:flex-col w-[200px] shrink-0 bg-card border-r border-brand py-3">
           {CATEGORIES.map((cat) => {
             const active = activeCategory === cat.key
             const hasDirty = dirtyMap[cat.key] && !active

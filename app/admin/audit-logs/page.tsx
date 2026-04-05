@@ -141,35 +141,35 @@ export default function AuditLogsPage() {
 
         {/* 필터 */}
         <div className="bg-card rounded-[12px] p-5 mb-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-          <div className="flex gap-3 items-end flex-wrap">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-3 items-end">
             <div className="flex flex-col gap-1">
               <label className="text-[12px] text-muted-brand">시작일</label>
               <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
-                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]" />
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] w-full" />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[12px] text-muted-brand">종료일</label>
               <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
-                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]" />
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] w-full" />
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 sm:col-span-2 lg:col-span-1">
               <label className="text-[12px] text-muted-brand">액션 유형</label>
               <select value={actionType} onChange={(e) => setActionType(e.target.value)}
-                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] min-w-[240px]">
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] w-full max-w-full">
                 {ACTION_TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[12px] text-muted-brand">대상 유형</label>
               <select value={targetType} onChange={(e) => setTargetType(e.target.value)}
-                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px]">
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] w-full">
                 {TARGET_TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[12px] text-muted-brand">역할</label>
               <select value={actorRole} onChange={(e) => setActorRole(e.target.value)}
-                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] min-w-[180px]">
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] w-full">
                 {ACTOR_ROLE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
@@ -180,11 +180,11 @@ export default function AuditLogsPage() {
                 placeholder="actorUserId"
                 value={actorUserId}
                 onChange={(e) => setActorUserId(e.target.value)}
-                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] w-40"
+                className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-[13px] w-full"
               />
             </div>
             <button onClick={() => load(1)}
-              className="px-5 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[14px]">
+              className="px-5 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[14px] h-[38px]">
               조회
             </button>
           </div>

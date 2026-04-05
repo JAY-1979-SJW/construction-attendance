@@ -151,8 +151,11 @@ function getPageTitle(pathname: string): string {
 
 export default function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [adminRole, setAdminRole] = useState<string | undefined>(undefined)
+  // 초기값 false — 모바일 첫 렌더 시 marginLeft:0 보장
+  // mounted=true 이후에만 transition 활성화 → 초기 레이아웃 점프 방지
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [mounted,     setMounted]     = useState(false)
+  const [adminRole,   setAdminRole]   = useState<string | undefined>(undefined)
 
   useEffect(() => {
     fetch('/api/admin/auth/me')
@@ -161,17 +164,18 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
       .catch(() => {})
   }, [])
 
+  // 마운트 시점에 뷰포트 기준으로 상태 결정 + transition 활성화
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setSidebarOpen(window.innerWidth >= 1024)
-    }
+    setSidebarOpen(window.innerWidth >= 1024)
+    setMounted(true)
   }, [])
 
+  // 페이지 전환 시 모바일이면 닫기
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+    if (mounted && window.innerWidth < 1024) {
       setSidebarOpen(false)
     }
-  }, [pathname])
+  }, [pathname, mounted])
 
   if (pathname === '/admin/login') return <>{children}</>
 
@@ -190,9 +194,9 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
         />
       )}
 
-      {/* 메인 영역 */}
+      {/* 메인 영역 — mounted 이후에만 transition 활성화 (초기 레이아웃 점프 방지) */}
       <div
-        className="flex-1 h-screen flex flex-col overflow-hidden transition-all duration-300"
+        className={`flex-1 h-screen flex flex-col overflow-hidden${mounted ? ' transition-all duration-300' : ''}`}
         style={{ marginLeft: sidebarOpen ? SIDEBAR_WIDTH : 0 }}
       >
         {/* TopBar */}
