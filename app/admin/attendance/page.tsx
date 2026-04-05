@@ -919,13 +919,17 @@ function AttendancePageInner() {
           onChange={e => setBulkCheckoutTime(e.target.value)}
           className="h-8 px-2 text-[13px] border border-brand rounded-[6px] outline-none focus:border-accent bg-card w-[100px]"
         />
-        <button
-          onClick={bulkAdjust}
-          disabled={bulkSaving}
-          className="px-4 py-1.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white text-[12px] font-semibold rounded-[8px] border-none cursor-pointer disabled:opacity-50 transition-colors"
-        >
-          {bulkSaving ? '처리 중...' : '대량 퇴근 보정'}
-        </button>
+        {canMutate ? (
+          <button
+            onClick={bulkAdjust}
+            disabled={bulkSaving}
+            className="px-4 py-1.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white text-[12px] font-semibold rounded-[8px] border-none cursor-pointer disabled:opacity-50 transition-colors"
+          >
+            {bulkSaving ? '처리 중...' : '대량 퇴근 보정'}
+          </button>
+        ) : (
+          <span className="text-[12px] text-muted2-brand">수정 권한 없음</span>
+        )}
       </BulkToolbar>
 
       {/* ── 2-column 본문 ── */}
@@ -1014,9 +1018,9 @@ function AttendancePageInner() {
                                 onClick={() => openDetail(item.id)}
                                 className={rowBg}
                               >
-                                {/* 체크박스 */}
+                                {/* 체크박스 (VIEWER 포함 노출, 실행 버튼에서 차단) */}
                                 <AdminTd onClick={e => e.stopPropagation()} className="w-8">
-                                  {canMutate && item.status === 'MISSING_CHECKOUT' && (
+                                  {item.status === 'MISSING_CHECKOUT' && (
                                     <input
                                       type="checkbox"
                                       checked={selectedIds.has(item.id)}
