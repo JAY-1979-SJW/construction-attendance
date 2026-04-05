@@ -172,10 +172,10 @@ test('A-02 날짜·현장·상태 필터 — 활성화 확인', async ({ page })
   // 날짜 필터 입력 확인
   await expect(page.locator('input[type="date"]')).toBeVisible()
 
-  // 상태 필터 pill
-  await expect(page.locator('button:has-text("전체"), [class*="pill"]:has-text("전체")')).toBeVisible()
-  await expect(page.locator('button:has-text("근무중"), [class*="pill"]:has-text("근무중")')).toBeVisible()
-  await expect(page.locator('button:has-text("퇴근완료"), [class*="pill"]:has-text("퇴근완료")')).toBeVisible()
+  // 상태 필터 pill (exact match — "전체 현장" 버튼과 구분)
+  await expect(page.locator('button').filter({ hasText: /^전체$/ }).first()).toBeVisible()
+  await expect(page.locator('button').filter({ hasText: /^근무중$/ }).first()).toBeVisible()
+  await expect(page.locator('button').filter({ hasText: /^퇴근완료$/ }).first()).toBeVisible()
 
   // 이름 검색 input
   await expect(page.locator('input[placeholder*="이름"]')).toBeVisible()
@@ -206,13 +206,14 @@ test('A-03 상세 진입 — 소속팀·반장 패널 노출', async ({ page }) 
   await expect(page.locator('table').first()).toBeVisible({ timeout: 15000 })
   await page.waitForTimeout(1000)
 
-  // 첫 번째 행 클릭 → 상세 패널 오픈
-  await page.locator('table tbody tr').first().click()
+  // 김일팀 행 클릭 → 상세 패널 오픈 (정렬 순서 무관하게 특정 행 선택)
+  await page.locator('table tbody tr').filter({ hasText: '김일팀' }).click()
   await page.waitForTimeout(1000)
 
-  // 패널에 소속팀, 반장 노출
-  await expect(page.locator('[class*="PanelSection"], .sticky').filter({ hasText: '1팀' })).toBeVisible({ timeout: 5000 })
-  await expect(page.locator('[class*="PanelSection"], .sticky').filter({ hasText: '박반장' })).toBeVisible({ timeout: 5000 })
+  // 패널에 소속팀·반장 노출 — 패널 헤더(h3)가 열린 후 panel row 값 확인
+  await expect(page.locator('h3').filter({ hasText: '김일팀' })).toBeVisible({ timeout: 5000 })
+  await expect(page.locator('span').filter({ hasText: /^1팀$/ })).toBeVisible({ timeout: 5000 })
+  await expect(page.locator('span').filter({ hasText: /^박반장$/ })).toBeVisible({ timeout: 5000 })
 })
 
 // ══════════════════════════════════════════════════════════
