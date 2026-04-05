@@ -294,3 +294,108 @@ test('ORG-05 VIEWER — 배정 변경 버튼 미노출', async ({ page }) => {
     await expect(teamInfoCard.locator('button:has-text("수정")')).not.toBeVisible()
   }
 })
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ORG-06  팀 상세 API 실패 → 에러 메시지 표시
+// ══════════════════════════════════════════════════════════════════════════════
+test('ORG-06 팀 상세 API 실패 → 에러 메시지 표시', async ({ page }) => {
+  await injectToken(page)
+  await mockRole(page, 'ADMIN')
+  await mockOrgTeams(page)
+
+  // 팀 상세 API 실패 mock
+  await page.route(`**/api/admin/org/teams/${encodeURIComponent('없는팀')}**`, async (route: Route) => {
+    await route.fulfill({
+      status: 404, contentType: 'application/json',
+      body: JSON.stringify({ success: false, error: '팀을 찾을 수 없습니다.' }),
+    })
+  })
+
+  await page.goto(`${BASE}/admin/org/${encodeURIComponent('없는팀')}`)
+  // 에러 메시지 또는 다시 시도 버튼 표시
+  await expect(page.locator('text=팀을 찾을 수 없습니다.')).toBeVisible({ timeout: 15000 })
+  await expect(page.locator('text=다시 시도')).toBeVisible()
+})
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ORG-07  근로자 없는 팀 → EmptyRow 표시
+// ══════════════════════════════════════════════════════════════════════════════
+test('ORG-07 근로자 없는 팀 → EmptyRow 표시', async ({ page }) => {
+  await injectToken(page)
+  await mockRole(page, 'ADMIN')
+  await mockOrgTeams(page)
+
+  await page.route(`**/api/admin/org/teams/${encodeURIComponent('빈팀')}**`, async (route: Route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: { teamName: '빈팀', workerCount: 0, supervisorNames: [], foremanNames: [], workers: [] },
+        }),
+      })
+    } else { await route.continue() }
+  })
+
+  await page.goto(`${BASE}/admin/org/${encodeURIComponent('빈팀')}`)
+  await expect(page.locator('[data-testid="team-info"]')).toBeVisible({ timeout: 15000 })
+  // EmptyRow 메시지 표시
+  await expect(page.locator('text=근로자가 없습니다.')).toBeVisible()
+})
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ORG-08  조직 목록 API 실패 → 에러 + 다시 시도 버튼
+// ══════════════════════════════════════════════════════════════════════════════
+test('ORG-08 조직 목록 API 실패 → 에러 + 다시 시도 버튼', async ({ page }) => {
+  await injectToken(page)
+  await mockRole(page, 'ADMIN')
+
+  await page.route('**/api/admin/org/teams', async (route: Route) => {
+    await route.fulfill({
+      status: 500, contentType: 'application/json',
+      body: JSON.stringify({ success: false, error: '서버 오류' }),
+    })
+  })
+
+  await page.goto(`${BASE}/admin/org`)
+  await expect(page.locator('text=조직 정보를 불러올 수 없습니다.')).toBeVisible({ timeout: 15000 })
+  await expect(page.locator('button:has-text("다시 시도")')).toBeVisible()
+})
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ORG-09  모바일 360px — 조직 목록 렌더
+// ══════════════════════════════════════════════════════════════════════════════
+test('ORG-09 모바일 360px — 조직 목록 overflow 없음', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 })
+  await injectToken(page)
+  await mockRole(page, 'ADMIN')
+  await mockOrgTeams(page)
+
+  await page.goto(`${BASE}/admin/org`)
+  await expect(page.locator('[data-testid="org-list"]')).toBeVisible({ timeout: 15000 })
+  await expect(page.locator('text=철근팀')).toBeVisible()
+  await expect(page.locator('text=미배정')).toBeVisible()
+
+  // 수평 스크롤 없음 체크
+  const bodyWidth = await page.evaluate(() => document.body.scrollWidth)
+  const viewportWidth = 360
+  expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 5) // 5px tolerance
+})
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ORG-10  모바일 360px — 팀 상세 렌더
+// ══════════════════════════════════════════════════════════════════════════════
+test('ORG-10 모바일 360px — 팀 상세 overflow 없음', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 })
+  await injectToken(page)
+  await mockRole(page, 'ADMIN')
+  await mockTeamDetail(page, '철근팀')
+  await mockOrgTeams(page)
+
+  await page.goto(`${BASE}/admin/org/${encodeURIComponent('철근팀')}`)
+  await expect(page.locator('[data-testid="team-info"]')).toBeVisible({ timeout: 15000 })
+  await expect(page.locator('text=김철수')).toBeVisible()
+
+  const bodyWidth = await page.evaluate(() => document.body.scrollWidth)
+  expect(bodyWidth).toBeLessThanOrEqual(360 + 5)
+})

@@ -308,6 +308,68 @@ export async function PUT(
   }
 }
 
+// ─── PATCH /api/admin/workers/[id] — 조직 필드 부분 수정 (팀·반장·팀장) ────────
+const orgPatchSchema = z.object({
+  teamName:      z.string().trim().max(50).nullable().optional(),
+  foremanName:   z.string().trim().max(20).nullable().optional(),
+  supervisorName: z.string().trim().max(20).nullable().optional(),
+})
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getAdminSession()
+    if (!session) return unauthorized()
+    const denyFeature = requireFeature(session, 'WORKER_VIEW')
+    if (denyFeature) return denyFeature
+    const denyRole = requireRole(session, MUTATE_ROLES)
+    if (denyRole) return denyRole
+
+    const { id } = await params
+    const workerScope = await buildWorkerScopeWhere(session)
+    if (workerScope === false) return notFound('근로자를 찾을 수 없습니다.')
+
+    const worker = await prisma.worker.findFirst({ where: { id, ...(workerScope as object) } })
+    if (!worker) return notFound('근로자를 찾을 수 없습니다.')
+
+    const body = await request.json()
+    const parsed = orgPatchSchema.safeParse(body)
+    if (!parsed.success) return badRequest(parsed.error.errors[0].message)
+
+    const updateData: Record<string, unknown> = {}
+    if ('teamName' in parsed.data)       updateData.teamName       = parsed.data.teamName      ?? null
+    if ('foremanName' in parsed.data)    updateData.foremanName    = parsed.data.foremanName   ?? null
+    if ('supervisorName' in parsed.data) updateData.supervisorName = parsed.data.supervisorName ?? null
+
+    if (Object.keys(updateData).length === 0) return badRequest('변경 항목이 없습니다.')
+
+    const updated = await prisma.worker.update({ where: { id }, data: updateData })
+
+    writeAuditLog({
+      actorUserId: session.sub,
+      actorType:   'ADMIN',
+      actorRole:   session.role,
+      actionType:  'UPDATE_WORKER_ORG',
+      targetType:  'Worker',
+      targetId:    id,
+      summary:     `근로자 조직 수정: ${worker.name} | ${Object.keys(updateData).join(', ')}`,
+      metadataJson: updateData as Record<string, unknown>,
+    })
+
+    return ok({
+      id:             updated.id,
+      teamName:       updated.teamName,
+      foremanName:    updated.foremanName,
+      supervisorName: updated.supervisorName,
+    })
+  } catch (err) {
+    console.error('[admin/workers/[id] PATCH]', err)
+    return internalError()
+  }
+}
+
 // ─── DELETE /api/admin/workers/[id] — 종료 처리 체크리스트 미완료 시 차단 ─────
 //
 // 직접 isActive=false 변경은 금지.

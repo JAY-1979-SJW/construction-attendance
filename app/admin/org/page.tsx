@@ -30,7 +30,14 @@ export default function OrgPage() {
     fetch('/api/admin/org/teams')
       .then(r => r.json())
       .then(data => {
-        if (!data.success) { router.push('/admin/login'); return }
+        if (!data.success) {
+          if (data.statusCode === 401 || data.error === 'UNAUTHORIZED') {
+            router.push('/admin/login'); return
+          }
+          setError('조직 정보를 불러올 수 없습니다.')
+          setLoading(false)
+          return
+        }
         setTeams(data.data.teams)
         setUnassignedCount(data.data.unassignedCount)
         setLoading(false)

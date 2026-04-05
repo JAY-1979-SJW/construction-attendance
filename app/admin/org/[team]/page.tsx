@@ -28,33 +28,45 @@ interface TeamDetail {
 
 // ── 인라인 편집 입력 ──────────────────────────────────────────────────────────
 function InlineEdit({
-  label, value, onSave, disabled = false,
+  label, value, onSave, disabled = false, required = false,
 }: {
-  label: string; value: string; onSave: (v: string) => Promise<void>; disabled?: boolean
+  label: string; value: string; onSave: (v: string) => Promise<void>; disabled?: boolean; required?: boolean
 }) {
   const [editing, setEditing] = useState(false)
   const [val,     setVal]     = useState(value)
   const [saving,  setSaving]  = useState(false)
+  const [saveErr, setSaveErr] = useState('')
 
   const commit = async () => {
+    const trimmed = val.trim()
+    if (required && !trimmed) { setSaveErr(`${label}은(는) 비워둘 수 없습니다.`); return }
     setSaving(true)
-    await onSave(val)
-    setSaving(false)
-    setEditing(false)
+    setSaveErr('')
+    try {
+      await onSave(trimmed)
+      setEditing(false)
+    } catch (e) {
+      setSaveErr((e as Error).message || '저장에 실패했습니다.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (editing) {
     return (
-      <div className="flex items-center gap-2">
-        <input
-          autoFocus
-          value={val}
-          onChange={e => setVal(e.target.value)}
-          className="h-8 px-2 border border-brand rounded-[6px] text-[12px] text-fore-brand focus:outline-none focus:border-accent min-w-[120px]"
-          onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') setEditing(false) }}
-        />
-        <Btn size="sm" variant="primary" onClick={commit} disabled={saving}>저장</Btn>
-        <Btn size="sm" variant="ghost" onClick={() => { setEditing(false); setVal(value) }}>취소</Btn>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <input
+            autoFocus
+            value={val}
+            onChange={e => { setVal(e.target.value); setSaveErr('') }}
+            className="h-8 px-2 border border-brand rounded-[6px] text-[12px] text-fore-brand focus:outline-none focus:border-accent min-w-[120px]"
+            onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') { setEditing(false); setVal(value); setSaveErr('') } }}
+          />
+          <Btn size="sm" variant="primary" onClick={commit} disabled={saving}>저장</Btn>
+          <Btn size="sm" variant="ghost" onClick={() => { setEditing(false); setVal(value); setSaveErr('') }}>취소</Btn>
+        </div>
+        {saveErr && <span className="text-[11px] text-status-rejected">{saveErr}</span>}
       </div>
     )
   }
@@ -63,7 +75,7 @@ function InlineEdit({
       <span className="text-[13px] text-fore-brand">{value || <span className="text-muted2-brand">미지정</span>}</span>
       {!disabled && (
         <button
-          onClick={() => setEditing(true)}
+          onClick={() => { setEditing(true); setVal(value) }}
           className="text-[11px] text-accent hover:underline border-none bg-transparent cursor-pointer p-0"
         >
           수정
@@ -96,8 +108,8 @@ function WorkerAssignRow({
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          teamName:    teamVal   || null,
-          foremanName: foremanVal || null,
+          teamName:    teamVal.trim()    || null,
+          foremanName: foremanVal.trim() || null,
         }),
       })
       const data = await res.json()
@@ -216,7 +228,14 @@ export default function OrgDetailPage() {
       fetch('/api/admin/auth/me').then(r => r.json()),
     ])
       .then(([detailData, listData, meData]) => {
-        if (!detailData.success) { router.push('/admin/login'); return }
+        if (!detailData.success) {
+          if (detailData.statusCode === 401 || detailData.error === 'UNAUTHORIZED') {
+            router.push('/admin/login'); return
+          }
+          setError(detailData.error ?? '팀 정보를 불러올 수 없습니다.')
+          setLoading(false)
+          return
+        }
         setDetail(detailData.data)
         if (listData.success) setAllTeams(listData.data.teams.map((t: { teamName: string }) => t.teamName))
         if (meData.success) {
@@ -237,12 +256,11 @@ export default function OrgDetailPage() {
       body: JSON.stringify({ [field]: value || null }),
     })
     const data = await res.json()
-    if (data.success) {
-      if (field === 'newTeamName' && data.data.teamName) {
-        router.replace(`/admin/org/${encodeURIComponent(data.data.teamName)}`)
-      } else {
-        load()
-      }
+    if (!data.success) throw new Error(data.error ?? '저장에 실패했습니다.')
+    if (field === 'newTeamName' && data.data.teamName) {
+      router.replace(`/admin/org/${encodeURIComponent(data.data.teamName)}`)
+    } else {
+      load()
     }
   }
 
@@ -281,7 +299,10 @@ export default function OrgDetailPage() {
       {loading ? (
         <div className="py-20 text-center text-[13px] text-muted2-brand">로딩 중...</div>
       ) : error ? (
-        <div className="py-20 text-center text-status-rejected text-[14px]">{error}</div>
+        <div className="py-20 text-center">
+          <div className="text-status-rejected text-[14px] mb-2">{error}</div>
+          <button onClick={load} className="px-4 py-2 bg-brand-accent text-white rounded-lg text-[13px] border-none cursor-pointer">다시 시도</button>
+        </div>
       ) : detail ? (
         <>
           {/* ── 팀 정보 카드 (미배정 제외) ─────────────────────────── */}
@@ -294,6 +315,7 @@ export default function OrgDetailPage() {
                   value={detail.teamName ?? ''}
                   onSave={v => saveTeamField('newTeamName', v)}
                   disabled={!canMutate}
+                  required
                 />
               </div>
               <div>

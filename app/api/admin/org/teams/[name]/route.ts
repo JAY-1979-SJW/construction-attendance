@@ -19,8 +19,8 @@ import { ok, badRequest, unauthorized, notFound, internalError } from '@/lib/uti
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 const patchSchema = z.object({
-  newTeamName:    z.string().min(1).max(50).optional(),
-  supervisorName: z.string().max(20).nullable().optional(),
+  newTeamName:    z.string().trim().min(1, '팀명은 1자 이상이어야 합니다.').max(50, '팀명은 50자 이하여야 합니다.').optional(),
+  supervisorName: z.string().trim().max(20, '팀장 이름은 20자 이하여야 합니다.').nullable().optional(),
 })
 
 // ── GET ───────────────────────────────────────────────────────────────────────
@@ -115,6 +115,8 @@ export async function PATCH(
     const { name } = await params
     const teamName = decodeURIComponent(name)
 
+    if (teamName === '__unassigned__') return badRequest('미배정 그룹은 수정할 수 없습니다.')
+
     const body = await req.json()
     const parsed = patchSchema.safeParse(body)
     if (!parsed.success) return badRequest(parsed.error.errors[0].message)
@@ -124,6 +126,12 @@ export async function PATCH(
     // 해당 팀 근로자 존재 확인
     const teamCount = await prisma.worker.count({ where: { teamName, isActive: true } })
     if (teamCount === 0) return notFound('팀을 찾을 수 없습니다.')
+
+    // 중복 팀명 체크
+    if (newTeamName && newTeamName !== teamName) {
+      const duplicate = await prisma.worker.count({ where: { teamName: newTeamName, isActive: true } })
+      if (duplicate > 0) return badRequest(`'${newTeamName}' 팀이 이미 존재합니다.`)
+    }
 
     const updateData: Record<string, unknown> = {}
     if (newTeamName !== undefined)    updateData.teamName       = newTeamName
