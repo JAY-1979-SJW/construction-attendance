@@ -242,8 +242,8 @@ test('M-06 상세 화면 — 품목명·상태·현장 표시', async ({ page })
   await expect(page.getByText('철근 D16', { exact: false }).filter({ visible: true }).first()).toBeVisible({ timeout: 10000 })
   // 상태 배지 — 요청 (strict mode 우회)
   await expect(page.getByText('요청', { exact: true }).first()).toBeVisible()
-  // 현장명
-  await expect(page.getByText('테스트현장', { exact: false })).toBeVisible()
+  // 현장명 (strict mode 우회)
+  await expect(page.getByText('테스트현장', { exact: false }).first()).toBeVisible()
 })
 
 // ══════════════════════════════════════════════════════════

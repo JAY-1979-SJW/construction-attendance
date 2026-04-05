@@ -185,9 +185,9 @@ test('P-05 VIEWER — 자재청구 목록 읽기 가능, 청구서 작성 버튼
   })
   await page.goto(`${BASE}/admin/materials/requests`)
   // 목록 컨테이너 진입
-  await expect(page.locator('h1').filter({ hasText: /자재청구/ })).toBeVisible({ timeout: 15000 })
+  await expect(page.locator('h1').filter({ hasText: /자재 신청/ })).toBeVisible({ timeout: 15000 })
   await page.waitForTimeout(1500)
 
-  // 청구서 작성 버튼 없음
-  await expect(page.locator('button:has-text("청구서 작성"), button:has-text("+ 청구서")')).not.toBeVisible()
+  // 신청 작성 버튼 없음 (canMutate=false → 버튼 미노출)
+  await expect(page.locator('button:has-text("신청"), button:has-text("+ 신청")')).not.toBeVisible()
 })
