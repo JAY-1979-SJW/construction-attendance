@@ -153,6 +153,11 @@ async function interceptWorkers(page: Page) {
     await route.fulfill({ status: 200, contentType: 'application/json',
       body: JSON.stringify({ success: true, data: { items: [] } }) })
   })
+  // canMutate 경쟁조건 방지: auth/me 즉시 응답으로 role=ADMIN 확정
+  await page.route('**/api/admin/auth/me', async (route: Route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json',
+      body: JSON.stringify({ success: true, data: { role: 'ADMIN', sub: 'admin-user', name: 'Admin' } }) })
+  })
 }
 
 async function goToPage(page: Page) {
