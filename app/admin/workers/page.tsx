@@ -205,7 +205,7 @@ function RegisterModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
 export default function WorkersPage() {
   const router = useRouter()
   const role = useAdminRole()
-  const canMutate = role !== null && role !== 'VIEWER'
+  const canMutate = role !== null && !['VIEWER', 'TEAM_LEADER', 'FOREMAN'].includes(role)
 
   // 필터
   const [nameSearch, setNameSearch]   = useState('')

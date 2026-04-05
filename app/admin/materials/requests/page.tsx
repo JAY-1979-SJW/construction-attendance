@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { MobileCardList, MobileCard, MobileCardField, MobileCardFields, MobileCardActions } from '@/components/admin/ui'
+import { useAdminRole } from '@/lib/hooks/useAdminRole'
 
 interface MaterialRequest {
   id: string
@@ -41,6 +42,8 @@ function fmtDate(d: string) {
 
 export default function MaterialRequestsPage() {
   const router = useRouter()
+  const role = useAdminRole()
+  const canMutate = role !== null && role !== 'VIEWER'
   const [requests, setRequests] = useState<MaterialRequest[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -78,9 +81,11 @@ export default function MaterialRequestsPage() {
             <h1 className="text-2xl font-bold m-0 mb-1">자재청구 목록</h1>
             <p className="text-sm text-muted-brand m-0">현장별 자재청구서를 관리합니다.</p>
           </div>
-          <button onClick={() => router.push('/admin/materials/requests/new')} className="px-5 py-[10px] bg-brand-accent text-white border-0 rounded-md cursor-pointer text-sm font-semibold">
-            + 청구서 작성
-          </button>
+          {canMutate && (
+            <button onClick={() => router.push('/admin/materials/requests/new')} className="px-5 py-[10px] bg-brand-accent text-white border-0 rounded-md cursor-pointer text-sm font-semibold">
+              + 청구서 작성
+            </button>
+          )}
         </div>
 
         {/* 필터 */}
