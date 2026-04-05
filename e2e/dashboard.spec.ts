@@ -133,8 +133,9 @@ test('DSH-01 ADMIN — 대시보드 진입, 헤더 및 카드 렌더', async ({ 
   // 요약 카드 영역 존재
   await expect(page.locator('[data-testid="summary-cards"]')).toBeVisible()
 
-  // scope 배지 없음 (ADMIN은 표시 안 함)
-  await expect(page.locator('text=기준')).not.toBeVisible()
+  // scope 배지 없음 (ADMIN은 팀:/담당: 배지 미표시)
+  await expect(page.locator('text=팀: ')).not.toBeVisible()
+  await expect(page.locator('text=담당: ')).not.toBeVisible()
 })
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -183,22 +184,22 @@ test('DSH-04 요약 카드 5개 수치 렌더', async ({ page }) => {
   await expect(page.locator('[data-testid="summary-cards"]')).toBeVisible({ timeout: 15000 })
   await page.waitForTimeout(500)
 
+  const summaryCards = page.locator('[data-testid="summary-cards"]')
   // 오늘 출근 인원
-  await expect(page.locator('text=오늘 출근 인원')).toBeVisible()
+  await expect(summaryCards.locator('text=오늘 출근 인원')).toBeVisible()
   // 미출근 인원
-  await expect(page.locator('text=미출근 인원')).toBeVisible()
+  await expect(summaryCards.locator('text=미출근 인원')).toBeVisible()
   // 검토 필요
-  await expect(page.locator('text=검토 필요')).toBeVisible()
-  // 자재 신청
-  await expect(page.locator('text=자재 신청')).toBeVisible()
+  await expect(summaryCards.locator('text=검토 필요')).toBeVisible()
+  // 자재 신청 (카드 레이블만)
+  await expect(summaryCards.locator('text=자재 신청')).toBeVisible()
   // 서류 미완료
-  await expect(page.locator('text=서류 미완료')).toBeVisible()
+  await expect(summaryCards.locator('text=서류 미완료')).toBeVisible()
 
-  // 수치 확인 (mock 기준: todayTotal=8, todayMissing=2, materialRequestCount=3, docIncompleteCount=4)
-  const cards = page.locator('[data-testid="summary-cards"]')
-  await expect(cards.locator('text=8').first()).toBeVisible()
-  await expect(cards.locator('text=3').first()).toBeVisible()
-  await expect(cards.locator('text=4').first()).toBeVisible()
+  // 수치 확인 (mock 기준: todayTotal=8, materialRequestCount=3, docIncompleteCount=4)
+  await expect(summaryCards.locator('text=8').first()).toBeVisible()
+  await expect(summaryCards.locator('text=3').first()).toBeVisible()
+  await expect(summaryCards.locator('text=4').first()).toBeVisible()
 })
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -232,7 +233,7 @@ test('DSH-05 최근 목록 4섹션 렌더', async ({ page }) => {
   // 서류미완료 row
   await expect(page.locator('text=홍길동')).toBeVisible()
 
-  // 현장 요약 row
-  await expect(page.locator('text=A현장')).toBeVisible()
-  await expect(page.locator('text=B현장')).toBeVisible()
+  // 현장 요약 row (복수 매칭 허용)
+  await expect(page.locator('text=A현장').first()).toBeVisible()
+  await expect(page.locator('text=B현장').first()).toBeVisible()
 })
