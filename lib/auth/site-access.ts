@@ -251,6 +251,44 @@ export async function buildSiteScopeWhere(
 }
 
 /**
+ * AttendanceLog 목록/단건 쿼리에 사용할 Prisma where 조건 빌더
+ *
+ * TEAM_LEADER / FOREMAN는 site 기준이 아닌 worker 기준으로 필터링한다.
+ *
+ * - SUPER_ADMIN/HQ_ADMIN/ADMIN/VIEWER → {} (무제한)
+ * - TEAM_LEADER → { worker: { teamName: session.teamName } }
+ * - FOREMAN     → { worker: { foremanName: session.name } }
+ * - 그 외       → site scope 기반 (buildSiteScopeWhere와 동일)
+ *
+ * 반환값:
+ *   - `false`  : 접근 불가
+ *   - `object` : Prisma AttendanceLog where 조건
+ */
+export async function buildAttendanceScopeWhere(
+  session: JwtPayload
+): Promise<Record<string, unknown> | false> {
+  const role = session.role ?? ''
+
+  if (['SUPER_ADMIN', 'HQ_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) return {}
+
+  // 팀장 — 자기 팀 소속 근로자의 출근 기록만
+  if (role === 'TEAM_LEADER' && session.teamName) {
+    return { worker: { teamName: session.teamName } }
+  }
+
+  // 반장 — 자기 이름을 foremanName으로 가진 근로자의 출근 기록만
+  if (role === 'FOREMAN' && session.name) {
+    return { worker: { foremanName: session.name } }
+  }
+
+  // site 기반 역할 (COMPANY_ADMIN, SITE_ADMIN, EXTERNAL_SITE_ADMIN)
+  const ids = await getAccessibleSiteIds(session)
+  if (ids === null) return {}
+  if (ids.length === 0) return false
+  return { siteId: { in: ids } }
+}
+
+/**
  * Worker 목록/검색 쿼리에 사용할 Prisma where 조건 빌더
  *
  * Worker에는 직접 siteId 필드가 없으므로 relation 기준으로 scope를 적용한다.

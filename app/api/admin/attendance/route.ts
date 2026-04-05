@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { AttendanceStatus } from '@prisma/client'
 import { z } from 'zod'
-import { getAdminSession, buildSiteScopeWhere, canAccessSite, siteAccessDeniedWithLog, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
+import { getAdminSession, buildAttendanceScopeWhere, buildSiteScopeWhere, canAccessSite, siteAccessDeniedWithLog, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { ok, created, unauthorized, badRequest, conflict, internalError } from '@/lib/utils/response'
@@ -30,13 +30,19 @@ export async function GET(request: NextRequest) {
     const resolvedFrom = dateParam ? dateParam : dateFrom
     const resolvedTo   = dateParam ? dateParam : dateTo
 
-    // ── site scope 강제 ──────────────────────────────────────────────────────
+    // ── 출근 기록 scope 강제 (TEAM_LEADER/FOREMAN는 worker 기준) ────────────────
     let siteScopeFilter: Record<string, unknown> = {}
-    if (siteId) {
+    const role = session.role ?? ''
+    if (siteId && !['TEAM_LEADER', 'FOREMAN'].includes(role)) {
       if (!await canAccessSite(session, siteId)) return siteAccessDeniedWithLog(session, siteId)
       siteScopeFilter = { siteId }
+    } else if (['TEAM_LEADER', 'FOREMAN'].includes(role)) {
+      // 팀장/반장: siteId 파라미터 무시, worker 기준 scope 강제
+      const scope = await buildAttendanceScopeWhere(session)
+      if (scope === false) return ok({ items: [], total: 0, page: 1, pageSize, totalPages: 0, summary: null, siteOptions: [] })
+      siteScopeFilter = scope
     } else {
-      const scope = await buildSiteScopeWhere(session)
+      const scope = await buildAttendanceScopeWhere(session)
       if (scope === false) return ok({ items: [], total: 0, page: 1, pageSize, totalPages: 0, summary: null, siteOptions: [] })
       siteScopeFilter = scope as Record<string, unknown>
     }
@@ -63,7 +69,7 @@ export async function GET(request: NextRequest) {
       prisma.attendanceLog.findMany({
         where,
         include: {
-          worker: { select: { name: true, phone: true, jobTitle: true } },
+          worker: { select: { name: true, phone: true, jobTitle: true, teamName: true, foremanName: true } },
           checkInSite:  { select: { id: true, name: true } },
           checkOutSite: { select: { id: true, name: true } },
           events: {
@@ -208,6 +214,8 @@ export async function GET(request: NextRequest) {
           workerPhone:          l.worker.phone,
           company:              l.companyNameSnapshot ?? '',
           jobTitle:             l.worker.jobTitle,
+          workerTeamName:       l.worker.teamName   ?? null,
+          workerForemanName:    l.worker.foremanName ?? null,
           siteId:               l.siteId,
           siteName:             checkInSiteName,
           checkOutSiteName,

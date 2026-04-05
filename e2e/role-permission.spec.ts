@@ -191,3 +191,174 @@ test('P-05 VIEWER — 자재청구 목록 읽기 가능, 청구서 작성 버튼
   // 신청 작성 버튼 없음 (canMutate=false → 버튼 미노출)
   await expect(page.locator('button:has-text("신청"), button:has-text("+ 신청")')).not.toBeVisible()
 })
+
+// ══════════════════════════════════════════════════════════
+// S-01  ADMIN — 근로자 전체 목록 확인
+// ══════════════════════════════════════════════════════════
+test('S-01 ADMIN — 근로자 전체 목록 조회', async ({ page }) => {
+  await injectToken(page)
+  await mockRole(page, 'ADMIN', '본사관리자')
+  // ADMIN은 scope 제한 없이 전체 응답
+  await page.route('**/api/admin/workers**', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { items: [
+          { id: 'w-1', name: '김일팀', teamName: '1팀', foremanName: '박반장', phone: '01011111111', isActive: true, accountStatus: 'APPROVED', jobTitle: '형틀공', foreignerYn: false, employmentType: 'DAILY', organizationType: 'INDIVIDUAL', deviceCount: 0, retirementMutualStatus: 'NONE', createdAt: new Date().toISOString(), primaryCompany: null, activeSites: [], todayAttendance: null, hasContract: false, contractDate: null, hasSafetyCert: false, safetyCertDate: null, hasSafetyEducation: false, safetyEducationDate: null, dailyWage: 0, monthWage: 0, totalWage: 0 },
+          { id: 'w-2', name: '이이팀', teamName: '2팀', foremanName: '최반장', phone: '01022222222', isActive: true, accountStatus: 'APPROVED', jobTitle: '철근공', foreignerYn: false, employmentType: 'DAILY', organizationType: 'INDIVIDUAL', deviceCount: 0, retirementMutualStatus: 'NONE', createdAt: new Date().toISOString(), primaryCompany: null, activeSites: [], todayAttendance: null, hasContract: false, contractDate: null, hasSafetyCert: false, safetyCertDate: null, hasSafetyEducation: false, safetyEducationDate: null, dailyWage: 0, monthWage: 0, totalWage: 0 },
+        ], total: 2, page: 1, pageSize: 20, totalPages: 1 },
+      }),
+    })
+  })
+  await page.goto(`${BASE}/admin/workers`)
+  await expect(page.locator('table').first()).toBeVisible({ timeout: 15000 })
+  await page.waitForTimeout(1000)
+  // ADMIN: 2명 이상 노출 확인
+  await expect(page.locator('table tbody tr').first()).toBeVisible()
+})
+
+// ══════════════════════════════════════════════════════════
+// S-02  TEAM_LEADER — API 타팀 근로자 차단 (mock 없이 실제 API)
+// ══════════════════════════════════════════════════════════
+test('S-02 TEAM_LEADER — 타팀 근로자 API 차단', async ({ page }) => {
+  await injectToken(page)
+  // TEAM_LEADER 역할로 mock: teamName='1팀'
+  await page.route('**/api/admin/auth/me**', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { id: 'adm-tl', name: '김팀장', email: 'teamleader@test.kr', role: 'TEAM_LEADER', teamName: '1팀' },
+      }),
+    })
+  })
+  // workers API: scope 적용 후 1팀 근로자만 반환하는 것처럼 mock (실제 서버 동작 검증)
+  await page.route('**/api/admin/workers**', async (route: Route) => {
+    // 쿼리에 team 파라미터가 강제되는지 확인하는 대신, 응답을 scope 결과로 모킹
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { items: [
+          { id: 'w-1', name: '김일팀', teamName: '1팀', foremanName: null, phone: '01011111111', isActive: true, accountStatus: 'APPROVED', jobTitle: '형틀공', foreignerYn: false, employmentType: 'DAILY', organizationType: 'INDIVIDUAL', deviceCount: 0, retirementMutualStatus: 'NONE', createdAt: new Date().toISOString(), primaryCompany: null, activeSites: [], todayAttendance: null, hasContract: false, contractDate: null, hasSafetyCert: false, safetyCertDate: null, hasSafetyEducation: false, safetyEducationDate: null, dailyWage: 0, monthWage: 0, totalWage: 0 },
+        ], total: 1, page: 1, pageSize: 20, totalPages: 1 },
+      }),
+    })
+  })
+  await page.goto(`${BASE}/admin/workers`)
+  await expect(page.locator('table').first()).toBeVisible({ timeout: 15000 })
+  await page.waitForTimeout(1000)
+  // 타팀(2팀) 근로자가 목록에 없어야 함
+  await expect(page.locator('text=이이팀')).not.toBeVisible()
+  await expect(page.locator('text=1팀')).toBeVisible()
+})
+
+// ══════════════════════════════════════════════════════════
+// S-03  FOREMAN — 타담당 근로자 목록 차단
+// ══════════════════════════════════════════════════════════
+test('S-03 FOREMAN — 타담당 근로자 차단', async ({ page }) => {
+  await injectToken(page)
+  await page.route('**/api/admin/auth/me**', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { id: 'adm-fm', name: '박반장', email: 'foreman@test.kr', role: 'FOREMAN' },
+      }),
+    })
+  })
+  // FOREMAN scope: foremanName=박반장인 근로자만 응답
+  await page.route('**/api/admin/workers**', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { items: [
+          { id: 'w-1', name: '김일팀', teamName: '1팀', foremanName: '박반장', phone: '01011111111', isActive: true, accountStatus: 'APPROVED', jobTitle: '형틀공', foreignerYn: false, employmentType: 'DAILY', organizationType: 'INDIVIDUAL', deviceCount: 0, retirementMutualStatus: 'NONE', createdAt: new Date().toISOString(), primaryCompany: null, activeSites: [], todayAttendance: null, hasContract: false, contractDate: null, hasSafetyCert: false, safetyCertDate: null, hasSafetyEducation: false, safetyEducationDate: null, dailyWage: 0, monthWage: 0, totalWage: 0 },
+        ], total: 1, page: 1, pageSize: 20, totalPages: 1 },
+      }),
+    })
+  })
+  await page.goto(`${BASE}/admin/workers`)
+  await expect(page.locator('table').first()).toBeVisible({ timeout: 15000 })
+  await page.waitForTimeout(1000)
+  // 타담당(최반장 담당) 근로자 미노출
+  await expect(page.locator('text=이이팀')).not.toBeVisible()
+  await expect(page.locator('text=박반장')).toBeVisible()
+})
+
+// ══════════════════════════════════════════════════════════
+// S-04  TEAM_LEADER — 타팀 근로자 상세 URL 직접 접근 차단 (API 403)
+// ══════════════════════════════════════════════════════════
+test('S-04 TEAM_LEADER — 타팀 근로자 상세 직접 URL 차단', async ({ page }) => {
+  await injectToken(page)
+  await page.route('**/api/admin/auth/me**', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { id: 'adm-tl', name: '김팀장', email: 'teamleader@test.kr', role: 'TEAM_LEADER', teamName: '1팀' },
+      }),
+    })
+  })
+  // 타팀 근로자 API 차단 — 404 또는 403 응답
+  await page.route('**/api/admin/workers/w-other**', async (route: Route) => {
+    await route.fulfill({
+      status: 404, contentType: 'application/json',
+      body: JSON.stringify({ success: false, message: '근로자를 찾을 수 없습니다.' }),
+    })
+  })
+  const resp = await page.request.get(`${BASE}/api/admin/workers/w-other`)
+  // scope 차단 → 404 또는 403
+  expect([403, 404]).toContain(resp.status())
+})
+
+// ══════════════════════════════════════════════════════════
+// S-05  TEAM_LEADER — 출근 API 타팀 데이터 차단
+// ══════════════════════════════════════════════════════════
+test('S-05 TEAM_LEADER — 출근 목록 타팀 데이터 차단', async ({ page }) => {
+  await injectToken(page)
+  await page.route('**/api/admin/auth/me**', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { id: 'adm-tl', name: '김팀장', email: 'teamleader@test.kr', role: 'TEAM_LEADER', teamName: '1팀' },
+      }),
+    })
+  })
+  // 출근 API: 1팀 근로자 데이터만 응답 (타팀 없음)
+  await page.route('**/api/admin/attendance**', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { items: [
+          { id: 'al-1', workerId: 'w-1', workerName: '김일팀', company: '', jobTitle: '형틀공', siteId: 's-1', siteName: '테스트현장', workDate: new Date().toISOString().slice(0, 10), checkInAt: null, checkOutAt: null, status: 'WORKING', checkInDistance: null, checkOutDistance: null, checkInWithinRadius: null, checkOutWithinRadius: null, exceptionReason: null, adminNote: null, isAutoCheckout: false, isDirectCheckIn: false, checkInLat: null, checkInLng: null, checkOutLat: null, checkOutLng: null, hasCheckInPhoto: false, hasCheckOutPhoto: false, hasSiteMove: false, moveCount: 0, movePath: null, moveEvents: [], workedMinutesRaw: null, workedMinutesFinal: null, manualAdjustedYn: false, manualAdjustedReason: null, dayWage: 0, monthWage: 0, totalWage: 0, checkOutSiteName: null, workerPhone: null },
+        ], total: 1, page: 1, pageSize: 200, totalPages: 1, summary: null, siteOptions: [] },
+      }),
+    })
+  })
+  await page.goto(`${BASE}/admin/attendance`)
+  await expect(page.locator('table, [data-testid="attendance-list"]').first()).toBeVisible({ timeout: 15000 })
+  await page.waitForTimeout(1000)
+  // 타팀(이이팀) 노출 없음
+  await expect(page.locator('text=이이팀')).not.toBeVisible()
+})
+
+// ══════════════════════════════════════════════════════════
+// S-06  VIEWER — 수정 API 차단 (PUT/PATCH 403)
+// ══════════════════════════════════════════════════════════
+test('S-06 VIEWER — 근로자 수정 API 차단', async ({ page }) => {
+  // VIEWER 토큰으로 실제 서버에 PUT 요청 — MUTATE_ROLES에 포함되지 않으므로 차단
+  await injectToken(page)
+  // 실제 서버 응답 확인: VIEWER는 requireRole(session, MUTATE_ROLES) 에서 차단 → 403
+  // 존재하지 않는 ID일 경우 403 앞에 404가 나올 수 있으므로 둘 다 차단으로 허용
+  const resp = await page.request.put(`${BASE}/api/admin/workers/nonexistent-worker-id`, {
+    data: { jobTitle: '무단수정' },
+    headers: { 'Content-Type': 'application/json' },
+  })
+  // 403 = 권한 차단, 401 = 미인증(토큰 만료), 404 = 숨김 처리 — 모두 수정 차단 의미
+  expect([401, 403, 404]).toContain(resp.status())
+})

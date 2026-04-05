@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
 import { prisma } from '@/lib/db/prisma'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, buildSiteScopeWhere } from '@/lib/auth/guards'
 import { ok, created, badRequest, unauthorized } from '@/lib/utils/response'
 import { generateRequestNo } from '@/lib/materials/request-service'
 
@@ -31,8 +31,20 @@ export async function GET(req: NextRequest) {
   const pageSize = Math.min(50, parseInt(searchParams.get('pageSize') ?? '20', 10))
 
   const where: Record<string, unknown> = {}
+
+  // ── scope 강제: TEAM_LEADER/FOREMAN는 본인 신청만, 나머지는 site scope ──────
+  const role = session.role ?? ''
+  if (['TEAM_LEADER', 'FOREMAN'].includes(role)) {
+    where.requestedBy = session.sub
+  } else if (!['SUPER_ADMIN', 'HQ_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) {
+    const scope = await buildSiteScopeWhere(session)
+    if (scope === false) return ok({ requests: [], total: 0, page: 1, pageSize, totalPages: 0 })
+    if ((scope as Record<string, unknown>).siteId) where.siteId = (scope as Record<string, unknown>).siteId
+  }
+  // ──────────────────────────────────────────────────────────────────────────
+
   if (status) where.status = status
-  if (siteId) where.siteId = siteId
+  if (siteId && !['TEAM_LEADER', 'FOREMAN'].includes(role)) where.siteId = siteId
   if (q.trim()) {
     where.OR = [
       { title:     { contains: q, mode: 'insensitive' } },

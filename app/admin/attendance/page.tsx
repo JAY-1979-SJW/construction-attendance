@@ -14,6 +14,7 @@ import {
 } from '@/components/admin/ui'
 import AttendanceCalendar from '@/components/admin/AttendanceCalendar'
 import { useBulkSelection } from '@/lib/hooks/useBulkSelection'
+import { useAdminRole } from '@/lib/hooks/useAdminRole'
 
 // ── 타입 ──────────────────────────────────────────────────────────────────────
 interface AttendanceRecord {
@@ -23,6 +24,8 @@ interface AttendanceRecord {
   workerPhone: string
   company: string
   jobTitle: string
+  workerTeamName: string | null
+  workerForemanName: string | null
   siteId: string
   siteName: string
   checkOutSiteName: string | null
@@ -132,11 +135,23 @@ function fmtDateTime(iso: string | null): string {
 
 // ── 상태 레이블 ───────────────────────────────────────────────────────────────
 const STATUS_LABEL: Record<string, string> = {
-  WORKING: '출근중',
-  COMPLETED: '퇴근완료',
-  MISSING_CHECKOUT: '미출근',
-  EXCEPTION: '확인필요',
-  ADJUSTED: '수정됨',
+  WORKING:          '출근중',
+  COMPLETED:        '퇴근완료',
+  MISSING_CHECKOUT: '퇴근누락',
+  EXCEPTION:        '응답없음',
+  ADJUSTED:         '수동수정',
+  ADMIN_MANUAL:     '대리등록',
+}
+
+// ── 상태 원인 표시 ─────────────────────────────────────────────────────────────
+function getStatusCause(r: AttendanceRecord): string {
+  if (r.checkInWithinRadius === false)  return '지오펜스이탈'
+  if (r.checkOutWithinRadius === false) return '퇴근GPS이상'
+  if (r.status === 'EXCEPTION')         return '응답없음'
+  if (r.status === 'MISSING_CHECKOUT')  return '퇴근누락'
+  if (r.status === 'ADJUSTED' || r.manualAdjustedYn) return '수동수정'
+  if (r.status === 'ADMIN_MANUAL')      return '대리등록'
+  return ''
 }
 
 // ── 퇴근누락 의심 기준: 오후 9시(KST) 이후 WORKING이면 퇴근누락 의심 ──
@@ -193,6 +208,18 @@ function GpsBadge({ within }: { within: boolean | null }) {
   return within
     ? <span className="text-[11px] font-semibold text-status-working">범위내</span>
     : <span className="text-[11px] font-semibold text-status-rejected">범위외</span>
+}
+
+// ── 근무 인정 배지 ────────────────────────────────────────────────────────────
+function ManDayBadge({ minutes, manual }: { minutes: number | null; manual: boolean }) {
+  if (manual) {
+    return <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full bg-[#F3E8FF] text-[#7C3AED]">수동보정</span>
+  }
+  if (minutes == null) return <span className="text-[12px] text-[#D1D5DB]">-</span>
+  const effective = minutes > 240 ? minutes - 60 : minutes
+  if (effective >= 480) return <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full bg-[#DCFCE7] text-[#16A34A]">1공수</span>
+  if (effective >= 240) return <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full bg-[#FEF3C7] text-[#D97706]">0.5공수</span>
+  return <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full bg-[#FEE2E2] text-[#B91C1C]">미인정</span>
 }
 
 // ── 사진 상태 아이콘 ──────────────────────────────────────────────────────────
@@ -360,6 +387,8 @@ function PanelRow({ label, value, warn }: {
 function AttendancePageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const adminRole = useAdminRole()
+  const canMutate = adminRole !== null && adminRole !== 'VIEWER'
 
   const todayStr = () => {
     const d = new Date()
@@ -768,7 +797,7 @@ function AttendancePageInner() {
             <option value="name">이름순</option>
           </FilterSelect>
           <div className="flex-1" />
-          <Btn variant="primary" size="sm" onClick={openProxyModal}>대리 등록</Btn>
+          {canMutate && <Btn variant="primary" size="sm" onClick={openProxyModal}>대리 등록</Btn>}
           <Btn variant="ghost" size="sm" onClick={load}>새로고침</Btn>
           <Btn
             variant="ghost" size="sm"
@@ -965,19 +994,18 @@ function AttendancePageInner() {
                 }}
                 renderTable={() => (
                   sorted.length === 0 ? (
-                    <AdminTable headers={['', '이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
-                      <EmptyRow colSpan={9} message="조회된 기록이 없습니다" />
+                    <AdminTable headers={['', '날짜', '근로자', '소속팀', '반장', '현장', '출근', '퇴근', '상태', '근무인정']}>
+                      <EmptyRow colSpan={10} message="조회된 기록이 없습니다" />
                     </AdminTable>
                   ) : (
-                    <AdminTable headers={['', '이름', '직종', '주배정현장', '출근현장', '출근', '퇴근', '상태', '확인']}>
+                    <AdminTable headers={['', '날짜', '근로자', '소속팀', '반장', '현장', '출근', '퇴근', '상태', '근무인정']}>
 
                           {sorted.map(item => {
-                            const md = calcManDay(item.workedMinutesFinal ?? item.workedMinutesRaw)
-                            const cs = getConfirmStatus(item, allWorkers)
                             const isSelected = item.id === selectedId
+                            const cause = getStatusCause(item)
                             const rowBg =
-                              isSelected        ? 'bg-accent-light hover:bg-accent-light' :
-                              isNeedsReview(item) ? 'bg-red-light hover:bg-red-light' :
+                              isSelected          ? 'bg-accent-light hover:bg-accent-light' :
+                              isNeedsReview(item)  ? 'bg-red-light hover:bg-red-light' :
                               (item.manualAdjustedYn || item.status === 'ADJUSTED') ? 'bg-[#FAF5FF] hover:bg-[#F3E8FF]' :
                               ''
                             return (
@@ -986,8 +1014,9 @@ function AttendancePageInner() {
                                 onClick={() => openDetail(item.id)}
                                 className={rowBg}
                               >
+                                {/* 체크박스 */}
                                 <AdminTd onClick={e => e.stopPropagation()} className="w-8">
-                                  {item.status === 'MISSING_CHECKOUT' && (
+                                  {canMutate && item.status === 'MISSING_CHECKOUT' && (
                                     <input
                                       type="checkbox"
                                       checked={selectedIds.has(item.id)}
@@ -996,35 +1025,37 @@ function AttendancePageInner() {
                                     />
                                   )}
                                 </AdminTd>
+                                {/* 날짜 */}
+                                <AdminTd className="text-[12px] tabular-nums text-muted-brand whitespace-nowrap">
+                                  {item.workDate.slice(5)}
+                                </AdminTd>
+                                {/* 근로자 */}
                                 <AdminTd>
                                   <div className="font-semibold text-fore-brand">{item.workerName}</div>
+                                  <div className="text-[11px] text-muted-brand">{item.jobTitle}</div>
                                 </AdminTd>
-                                <AdminTd className="text-[12px] text-muted-brand">{item.jobTitle}</AdminTd>
-                                <AdminTd className="max-w-[100px]">
-                                  {(() => {
-                                    const w = allWorkers.find(w2 => w2.id === item.workerId)
-                                    const primary = w?.activeSites.find(s => s.isPrimary)
-                                    if (primary) return <div className="text-[12px] text-body-brand truncate">{primary.name}</div>
-                                    if (w && w.activeSites.length > 0) return <div className="text-[12px] text-body-brand truncate">{w.activeSites[0].name}</div>
-                                    return <StatusBadge status="PENDING" label="미배정" />
-                                  })()}
+                                {/* 소속팀 */}
+                                <AdminTd className="text-[12px] text-body-brand">
+                                  {item.workerTeamName ?? <span className="text-[#D1D5DB]">-</span>}
                                 </AdminTd>
-                                <AdminTd className="max-w-[100px]">
+                                {/* 반장 */}
+                                <AdminTd className="text-[12px] text-body-brand">
+                                  {item.workerForemanName ?? <span className="text-[#D1D5DB]">-</span>}
+                                </AdminTd>
+                                {/* 현장 */}
+                                <AdminTd className="max-w-[110px]">
                                   <div className="text-[12px] text-body-brand truncate">{item.siteName}</div>
-                                  {(() => {
-                                    const w = allWorkers.find(w2 => w2.id === item.workerId)
-                                    const primary = w?.activeSites.find(s => s.isPrimary)
-                                    if (primary && primary.id !== item.siteId) {
-                                      return <span className="text-[11px] font-bold text-status-exception bg-yellow-light px-1 py-[1px] rounded">불일치</span>
-                                    }
-                                    return null
-                                  })()}
                                 </AdminTd>
+                                {/* 출근 */}
                                 <AdminTd className="tabular-nums">
-                                  <span className={item.checkInWithinRadius === false ? 'text-status-rejected' : 'text-body-brand'}>
+                                  <span className={item.checkInWithinRadius === false ? 'text-status-rejected font-semibold' : 'text-body-brand'}>
                                     {fmtTime(item.checkInAt)}
                                   </span>
+                                  {item.checkInWithinRadius === false && (
+                                    <div className="text-[10px] text-status-rejected">지오펜스이탈</div>
+                                  )}
                                 </AdminTd>
+                                {/* 퇴근 */}
                                 <AdminTd className="tabular-nums">
                                   {item.checkOutAt ? (
                                     <span className="text-body-brand">{fmtTime(item.checkOutAt)}</span>
@@ -1032,33 +1063,35 @@ function AttendancePageInner() {
                                     <span className="text-[#D1D5DB]">-</span>
                                   )}
                                 </AdminTd>
+                                {/* 상태 + 원인 */}
                                 <AdminTd>
                                   <StatusBadge status={item.status} label={STATUS_LABEL[item.status] ?? item.status} />
-                                </AdminTd>
-                                <AdminTd>
-                                  <span
-                                    className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
-                                    style={{ color: cs.color, backgroundColor: cs.bg }}
-                                  >
-                                    {cs.label}{cs.reason && ` · ${cs.reason}`}
-                                  </span>
-                                  {item.adminNote && (
-                                    <div className="text-[11px] text-muted-brand mt-[2px] max-w-[120px] truncate" title={item.adminNote}>📝 {item.adminNote}</div>
+                                  {cause && cause !== getStatusCause({ ...item, checkInWithinRadius: null }) && (
+                                    <div className="text-[10px] text-muted-brand mt-[2px]">{cause}</div>
                                   )}
+                                </AdminTd>
+                                {/* 근무 인정 */}
+                                <AdminTd>
+                                  <ManDayBadge
+                                    minutes={item.workedMinutesFinal ?? item.workedMinutesRaw}
+                                    manual={item.manualAdjustedYn}
+                                  />
                                 </AdminTd>
                               </AdminTr>
                             )
                           })}
-                          {/* 미출근 행 (NOT_CHECKED_IN 필터 또는 전체) */}
+                          {/* 미출근 행 */}
                           {(statusFilter === 'NOT_CHECKED_IN' || statusFilter === '') && notCheckedInWorkers.map(w => {
-                            if (statusFilter === '' && items.length > 0) return null // 전체 모드에서는 출근자만 표시
+                            if (statusFilter === '' && items.length > 0) return null
                             const primary = w.activeSites.find(s => s.isPrimary) ?? w.activeSites[0]
                             return (
                               <AdminTr key={`nc-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} className="bg-yellow-light hover:bg-yellow-light">
-                                <AdminTd className="font-semibold text-fore-brand">{w.name}</AdminTd>
-                                <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
+                                <AdminTd>{''}</AdminTd>
+                                <AdminTd className="text-[12px] text-muted-brand">-</AdminTd>
+                                <AdminTd><span className="font-semibold text-fore-brand">{w.name}</span></AdminTd>
+                                <AdminTd className="text-[12px] text-muted-brand">-</AdminTd>
+                                <AdminTd className="text-[12px] text-muted-brand">-</AdminTd>
                                 <AdminTd className="text-[12px] text-body-brand">{primary?.name ?? '-'}</AdminTd>
-                                <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
                                 <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
                                 <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
                                 <AdminTd><StatusBadge status="PENDING" label="미출근" /></AdminTd>
@@ -1068,11 +1101,13 @@ function AttendancePageInner() {
                           })}
                           {/* 미배정 행 */}
                           {statusFilter === 'UNASSIGNED' && unassignedWorkers.map(w => (
-                            <AdminTr key={`ua-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} highlighted className="bg-red-light hover:bg-red-light">
-                              <AdminTd className="font-semibold text-fore-brand">{w.name}</AdminTd>
-                              <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
+                            <AdminTr key={`ua-${w.id}`} onClick={() => router.push(`/admin/workers?search=${encodeURIComponent(w.name)}`)} className="bg-red-light hover:bg-red-light">
+                              <AdminTd>{''}</AdminTd>
+                              <AdminTd className="text-[12px] text-muted-brand">-</AdminTd>
+                              <AdminTd><span className="font-semibold text-fore-brand">{w.name}</span></AdminTd>
+                              <AdminTd className="text-[12px] text-muted-brand">-</AdminTd>
+                              <AdminTd className="text-[12px] text-muted-brand">-</AdminTd>
                               <AdminTd><StatusBadge status="PENDING" label="미배정" /></AdminTd>
-                              <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
                               <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
                               <AdminTd><span className="text-[#D1D5DB]">-</span></AdminTd>
                               <AdminTd><StatusBadge status="PENDING" label="미배정" /></AdminTd>
@@ -1128,8 +1163,10 @@ function AttendancePageInner() {
 
                 {/* A. 기본 정보 */}
                 <PanelSection label="A. 기본 정보">
-                  <PanelRow label="소속" value={selected.company || '-'} />
+                  <PanelRow label="근로자" value={<span className="font-semibold">{selected.workerName}</span>} />
                   <PanelRow label="직종" value={selected.jobTitle || '-'} />
+                  <PanelRow label="소속팀" value={selected.workerTeamName || <span className="text-muted2-brand">-</span>} />
+                  <PanelRow label="반장" value={selected.workerForemanName || <span className="text-muted2-brand">-</span>} />
                   <PanelRow label="연락처" value={selected.workerPhone || '-'} />
                   {(() => {
                     const w = allWorkers.find(w2 => w2.id === selected.workerId)
@@ -1355,7 +1392,11 @@ function AttendancePageInner() {
                 {/* E. 관리자 처리 */}
                 <PanelSection label="E. 관리자 처리">
 
-                  {!correcting && (
+                  {!canMutate && (
+                    <div className="text-[12px] text-muted2-brand bg-surface rounded-lg px-3 py-2">조회 전용 — 수정 권한 없음</div>
+                  )}
+
+                  {canMutate && !correcting && (
                     <div className="flex flex-col gap-2">
                       {/* 미퇴근 빠른 보정 */}
                       {selected.status === 'MISSING_CHECKOUT' && (
@@ -1389,7 +1430,7 @@ function AttendancePageInner() {
                     </div>
                   )}
 
-                  {correcting && (
+                  {canMutate && correcting && (
                     <div className="rounded-[10px] bg-[#F5F3FF] border border-purple px-4 py-4">
                       <div className="text-[11px] font-bold text-status-adjusted mb-3">수동 보정</div>
 

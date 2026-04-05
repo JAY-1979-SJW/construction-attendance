@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getAdminSession, requireRole, MUTATE_ROLES, canAccessSite, siteAccessDeniedWithLog } from '@/lib/auth/guards'
+import { getAdminSession, requireRole, MUTATE_ROLES, canAccessSite, siteAccessDeniedWithLog, buildWorkerScopeWhere, siteAccessDenied } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { ok, unauthorized, badRequest, notFound, internalError } from '@/lib/utils/response'
@@ -34,9 +34,17 @@ export async function GET(
 
     if (!log) return notFound('출퇴근 기록을 찾을 수 없습니다.')
 
-    // ── site scope 검증 ──────────────────────────────────────────────────────
-    if (!await canAccessSite(session, log.siteId)) {
-      return siteAccessDeniedWithLog(session, log.siteId)
+    // ── scope 검증: TEAM_LEADER/FOREMAN는 worker 기준, 나머지는 site 기준 ────────
+    const role = session.role ?? ''
+    if (['TEAM_LEADER', 'FOREMAN'].includes(role)) {
+      const workerScope = await buildWorkerScopeWhere(session)
+      if (workerScope === false) return siteAccessDenied()
+      const accessible = await prisma.worker.count({ where: { id: log.workerId, ...workerScope } })
+      if (!accessible) return siteAccessDenied()
+    } else {
+      if (!await canAccessSite(session, log.siteId)) {
+        return siteAccessDeniedWithLog(session, log.siteId)
+      }
     }
     // ────────────────────────────────────────────────────────────────────────
 
@@ -110,9 +118,17 @@ export async function PATCH(
     const log = await prisma.attendanceLog.findUnique({ where: { id: params.id } })
     if (!log) return notFound('출퇴근 기록을 찾을 수 없습니다.')
 
-    // ── site scope 검증 ──────────────────────────────────────────────────────
-    if (!await canAccessSite(session, log.siteId)) {
-      return siteAccessDeniedWithLog(session, log.siteId)
+    // ── scope 검증: TEAM_LEADER/FOREMAN는 worker 기준, 나머지는 site 기준 ────────
+    const patchRole = session.role ?? ''
+    if (['TEAM_LEADER', 'FOREMAN'].includes(patchRole)) {
+      const workerScope = await buildWorkerScopeWhere(session)
+      if (workerScope === false) return siteAccessDenied()
+      const accessible = await prisma.worker.count({ where: { id: log.workerId, ...workerScope } })
+      if (!accessible) return siteAccessDenied()
+    } else {
+      if (!await canAccessSite(session, log.siteId)) {
+        return siteAccessDeniedWithLog(session, log.siteId)
+      }
     }
     // ────────────────────────────────────────────────────────────────────────
 

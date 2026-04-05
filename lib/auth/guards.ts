@@ -22,6 +22,7 @@ export {
   getAccessibleCompanyIds,
   buildSiteScopeWhere,
   buildWorkerScopeWhere,
+  buildAttendanceScopeWhere,
   siteAccessDenied,
   siteAccessDeniedWithLog,
   companyAccessDenied,
