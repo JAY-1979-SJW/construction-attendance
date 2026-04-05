@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback, use } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import {
   PageShell, PageHeader, Btn, FilterInput,
   AdminTable, AdminTr, AdminTd, EmptyRow,
@@ -193,9 +193,10 @@ function WorkerAssignRow({
 }
 
 // ── 메인 ─────────────────────────────────────────────────────────────────────
-export default function OrgDetailPage({ params }: { params: Promise<{ team: string }> }) {
+export default function OrgDetailPage() {
   const router = useRouter()
-  const { team: encodedTeam } = use(params)
+  const rawParams = useParams()
+  const encodedTeam = Array.isArray(rawParams.team) ? rawParams.team[0] : (rawParams.team ?? '')
   const teamParam = decodeURIComponent(encodedTeam)
   const isUnassigned = teamParam === '__unassigned__'
 
