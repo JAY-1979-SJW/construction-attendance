@@ -815,7 +815,7 @@ export default function WorkersPage() {
                       { label: '근로계약서 첨부',   has: selected.contractAttachedYn,  date: null },
                       { label: `안전교육 이수${selected.safetyEducationType ? ` (${selected.safetyEducationType})` : ''}`, has: selected.hasSafetyEducation, date: selected.safetyEducationDate },
                       { label: '안전교육 이수증',   has: selected.safetyEduCertAttachedYn, date: selected.safetyCertDate },
-                      { label: '���분 확인',          has: !!selected.idVerificationStatus && ['APPROVED', 'VERIFIED'].includes(selected.idVerificationStatus as string), date: null },
+                      { label: '신분 확인',  has: !!selected.idVerificationStatus && ['APPROVED', 'VERIFIED'].includes(selected.idVerificationStatus as string), date: null },
                     ].map((item, i) => (
                       <div key={item.label} className={`flex items-center justify-between px-3 py-2.5 ${i > 0 ? 'border-t border-brand' : ''}`}>
                         <span className="text-[12px] font-medium text-body-brand">{item.label}</span>
