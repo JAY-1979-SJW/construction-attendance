@@ -65,10 +65,12 @@ const REQUEST_A = {
   title: '철근 자재 청구',
   status: 'SUBMITTED',
   requestedBy: '홍길동',
+  requestedByName: '홍길동',
   createdAt: new Date().toISOString(),
   deliveryRequestedAt: null,
   site: { id: 's-1', name: '테스트현장' },
-  _count: { items: 3 },
+  items: [{ itemName: '철근 D16', spec: 'D16×9m', requestedQty: '100', unit: '본', isUrgent: false }],
+  _count: { items: 1 },
 }
 const REQUEST_B = {
   id: 'mr-2',
@@ -76,10 +78,12 @@ const REQUEST_B = {
   title: '형틀 목재 청구',
   status: 'APPROVED',
   requestedBy: '김철수',
+  requestedByName: '김철수',
   createdAt: new Date().toISOString(),
   deliveryRequestedAt: new Date(Date.now() + 86400000 * 3).toISOString(),
   site: { id: 's-1', name: '테스트현장' },
-  _count: { items: 5 },
+  items: [{ itemName: '형틀 목재', spec: null, requestedQty: '50', unit: 'EA', isUrgent: false }],
+  _count: { items: 1 },
 }
 
 function listResp(requests = [REQUEST_A, REQUEST_B]) {
@@ -103,11 +107,10 @@ test('M-01 자재청구 목록 — 테이블/카드 렌더링', async ({ page })
   await page.waitForTimeout(2000)
 
   // 헤더
-  await expect(page.locator('h1, h2').filter({ hasText: /자재청구/ })).toBeVisible({ timeout: 10000 })
+  await expect(page.locator('h1').filter({ hasText: /자재 신청/ })).toBeVisible({ timeout: 10000 })
 
-  // 청구번호/제목 노출 — 테이블 또는 카드 어느 쪽이든
-  // exact: true — 테이블뷰 span 매칭 (카드뷰 hidden div 제외)
-  await expect(page.getByText('REQ-2026-0001', { exact: true })).toBeVisible({ timeout: 10000 })
+  // 품목명 노출 — 테이블 row에 items[0].itemName 표시
+  await expect(page.getByText('철근 D16', { exact: true })).toBeVisible({ timeout: 10000 })
 })
 
 // ══════════════════════════════════════════════════════════
@@ -125,9 +128,8 @@ test('M-02 상태 필터 — SUBMITTED 선택 → API status=SUBMITTED 전달', 
   await page.goto(`${BASE}/admin/materials/requests`)
   await page.waitForTimeout(1500)
 
-  // 상태 select
-  const statusSelect = page.locator('select').filter({ hasText: /전체 상태/ })
-  await statusSelect.selectOption('SUBMITTED')
+  // 상태 pill 버튼 (select → pill 버튼으로 변경됨)
+  await page.locator('button').filter({ hasText: '요청' }).click()
   await page.waitForTimeout(800)
 
   expect(capturedUrl).toContain('status=SUBMITTED')
@@ -236,10 +238,10 @@ test('M-06 상세 화면 — 품목명·상태·현장 표시', async ({ page })
   await page.goto(`${BASE}/admin/materials/requests/mr-1`)
   await page.waitForTimeout(2000)
 
-  // 품목명 노출 (strict mode 우회 — 복수 매칭 가능)
-  await expect(page.getByText('철근 D16', { exact: false }).first()).toBeVisible({ timeout: 10000 })
-  // 상태 배지 — 요청
-  await expect(page.getByText('요청', { exact: false })).toBeVisible()
+  // 품목명 노출 — visible 요소만 (hidden 카드뷰 제외)
+  await expect(page.getByText('철근 D16', { exact: false }).filter({ visible: true }).first()).toBeVisible({ timeout: 10000 })
+  // 상태 배지 — 요청 (strict mode 우회)
+  await expect(page.getByText('요청', { exact: true }).first()).toBeVisible()
   // 현장명
   await expect(page.getByText('테스트현장', { exact: false })).toBeVisible()
 })

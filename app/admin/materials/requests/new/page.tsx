@@ -29,7 +29,7 @@ export default function NewMaterialRequestPage() {
   useEffect(() => {
     fetch('/api/admin/sites?pageSize=200')
       .then(r => r.json())
-      .then(d => { if (d.success) setSites(d.data.sites ?? d.data ?? []) })
+      .then(d => { if (d.success) setSites(d.data.items ?? d.data.sites ?? []) })
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
