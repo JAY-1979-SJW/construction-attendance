@@ -120,7 +120,7 @@ export async function GET(req: NextRequest) {
       },
       select: {
         id: true, requestNo: true, title: true, status: true, submittedAt: true,
-        requestedByName: true,
+        requestedBy: true,
         site: { select: { name: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -253,7 +253,7 @@ export async function GET(req: NextRequest) {
         title:           r.title,
         status:          r.status,
         siteName:        r.site?.name ?? '-',
-        requestedByName: r.requestedByName ?? '-',
+        requestedByName: r.requestedBy ?? '-',
         submittedAt:     r.submittedAt?.toISOString() ?? null,
       })),
       docIncompleteWorkers: docIncompleteWorkers.map(w => ({
