@@ -81,6 +81,21 @@ interface WorkerDetail {
   accountStatus?: string
   birthDate?: string | null
   subcontractorName?: string | null
+  // 실무 필수 항목
+  hireDate?: string | null
+  emergencyContact?: string | null
+  teamName?: string | null
+  supervisorName?: string | null
+  foremanName?: string | null
+  // 서류/교육 직접 입력 필드
+  contractWrittenYn?: boolean
+  contractWrittenDate?: string | null
+  contractIssuedYn?: boolean
+  contractAttachedYn?: boolean
+  safetyEduCompletedYn?: boolean
+  safetyEduType?: string | null
+  safetyEduDate?: string | null
+  safetyEduCertAttachedYn?: boolean
   assignmentEligibility?: string  // READY | NEEDS_DOCS | NEEDS_REVISION | EXPIRED_DOCS | NOT_APPROVED
   missingDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string; expiresAt?: string | null }[]
   rejectedDocs?: { key: string; label: string; actionType: string; docType?: string; status?: string; expiresAt?: string | null }[]
@@ -822,6 +837,217 @@ function InfoTab({ worker, onRefresh, onNavigateDoc }: { worker: WorkerDetail; o
           ))}
         </div>
         </>
+      )}
+
+      {/* 서류/교육 현황 섹션 — 항상 표시 */}
+      <DocEduSection worker={worker} onRefresh={onRefresh} />
+    </div>
+  )
+}
+
+// ─── 서류/교육 현황 섹션 ────────────────────────────────────────────────────
+
+const ID_STATUS_LABEL: Record<string, string> = {
+  VERIFIED:        '확인 완료',
+  PENDING_REVIEW:  '확인 대기',
+  REJECTED:        '반려',
+  RESCAN_REQUIRED: '재촬영 필요',
+  ARCHIVED:        '보관',
+}
+
+function DocItem({ label, yn, sub, text }: { label: string; yn?: boolean; sub?: string; text?: string }) {
+  return (
+    <div className="flex items-center gap-2 py-1.5 border-b border-[rgba(91,164,217,0.1)]">
+      <span className="text-muted-brand text-[12px] w-[115px] flex-shrink-0">{label}</span>
+      {typeof yn !== 'undefined' ? (
+        <span className={`font-semibold text-[13px] ${yn ? 'text-[#16a34a]' : 'text-[#9ca3af]'}`}>
+          {yn ? '완료' : '미완료'}
+          {sub && yn && <span className="font-normal text-muted-brand ml-1 text-[12px]">({sub})</span>}
+        </span>
+      ) : (
+        <span className="text-[13px] text-title-brand">{text}</span>
+      )}
+    </div>
+  )
+}
+
+function DocEduSection({ worker, onRefresh }: { worker: WorkerDetail; onRefresh: () => void }) {
+  const [editing, setEditing] = React.useState(false)
+  const [saving, setSaving] = React.useState(false)
+  const [saveError, setSaveError] = React.useState('')
+
+  const [contractWrittenYn, setContractWrittenYn] = React.useState(worker.contractWrittenYn ?? false)
+  const [contractWrittenDate, setContractWrittenDate] = React.useState(worker.contractWrittenDate ?? '')
+  const [contractIssuedYn, setContractIssuedYn] = React.useState(worker.contractIssuedYn ?? false)
+  const [contractAttachedYn, setContractAttachedYn] = React.useState(worker.contractAttachedYn ?? false)
+  const [safetyEduCompletedYn, setSafetyEduCompletedYn] = React.useState(worker.safetyEduCompletedYn ?? false)
+  const [safetyEduType, setSafetyEduType] = React.useState(worker.safetyEduType ?? '')
+  const [safetyEduDate, setSafetyEduDate] = React.useState(worker.safetyEduDate ?? '')
+  const [safetyEduCertAttachedYn, setSafetyEduCertAttachedYn] = React.useState(worker.safetyEduCertAttachedYn ?? false)
+  const [idVerificationStatus, setIdVerificationStatus] = React.useState(worker.idVerificationStatus ?? '')
+  const [emergencyContact, setEmergencyContact] = React.useState(worker.emergencyContact ?? '')
+
+  const openEdit = () => {
+    setContractWrittenYn(worker.contractWrittenYn ?? false)
+    setContractWrittenDate(worker.contractWrittenDate ?? '')
+    setContractIssuedYn(worker.contractIssuedYn ?? false)
+    setContractAttachedYn(worker.contractAttachedYn ?? false)
+    setSafetyEduCompletedYn(worker.safetyEduCompletedYn ?? false)
+    setSafetyEduType(worker.safetyEduType ?? '')
+    setSafetyEduDate(worker.safetyEduDate ?? '')
+    setSafetyEduCertAttachedYn(worker.safetyEduCertAttachedYn ?? false)
+    setIdVerificationStatus(worker.idVerificationStatus ?? '')
+    setEmergencyContact(worker.emergencyContact ?? '')
+    setSaveError('')
+    setEditing(true)
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    setSaveError('')
+    const res = await fetch(`/api/admin/workers/${worker.id}/docs`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contractWrittenYn,
+        contractWrittenDate: contractWrittenDate || null,
+        contractIssuedYn,
+        contractAttachedYn,
+        safetyEduCompletedYn,
+        safetyEduType: safetyEduType || null,
+        safetyEduDate: safetyEduDate || null,
+        safetyEduCertAttachedYn,
+        idVerificationStatus: idVerificationStatus || null,
+        emergencyContact: emergencyContact || null,
+      }),
+    })
+    const d = await res.json()
+    setSaving(false)
+    if (!d.success) { setSaveError(d.error ?? d.message ?? '저장 실패'); return }
+    setEditing(false)
+    onRefresh()
+  }
+
+  const inputCls = 'flex-1 px-2 py-1.5 border border-[rgba(91,164,217,0.2)] rounded-md text-[12px] bg-card text-white'
+  const checkRowCls = 'flex items-center gap-2 cursor-pointer text-[13px] text-title-brand'
+
+  return (
+    <div className="mt-5 pt-5 border-t border-[rgba(91,164,217,0.12)]">
+      <div className="flex justify-between items-center mb-3">
+        <h4 className="m-0 text-[13px] font-bold text-dim-brand">서류 / 교육 현황</h4>
+        {!editing && (
+          <button
+            onClick={openEdit}
+            className="px-3 py-1.5 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold"
+          >
+            수정
+          </button>
+        )}
+      </div>
+
+      {editing ? (
+        <div className="bg-[rgba(91,164,217,0.04)] rounded-lg p-4 border border-[rgba(91,164,217,0.15)]">
+          {/* 근로계약서 */}
+          <div className="mb-5">
+            <div className="text-[11px] font-semibold text-muted-brand mb-2 uppercase tracking-wider">근로계약서</div>
+            <div className="grid grid-cols-2 gap-3">
+              <label className={checkRowCls}>
+                <input type="checkbox" checked={contractWrittenYn} onChange={e => setContractWrittenYn(e.target.checked)} className="w-4 h-4 accent-[#5ba4d9]" />
+                작성
+              </label>
+              <label className={checkRowCls}>
+                <input type="checkbox" checked={contractIssuedYn} onChange={e => setContractIssuedYn(e.target.checked)} className="w-4 h-4 accent-[#5ba4d9]" />
+                교부
+              </label>
+              <label className={checkRowCls}>
+                <input type="checkbox" checked={contractAttachedYn} onChange={e => setContractAttachedYn(e.target.checked)} className="w-4 h-4 accent-[#5ba4d9]" />
+                첨부
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] text-muted-brand w-[48px] flex-shrink-0">작성일</span>
+                <input type="date" value={contractWrittenDate} onChange={e => setContractWrittenDate(e.target.value)} className={inputCls} />
+              </div>
+            </div>
+          </div>
+
+          {/* 안전교육 */}
+          <div className="mb-5">
+            <div className="text-[11px] font-semibold text-muted-brand mb-2 uppercase tracking-wider">안전교육</div>
+            <div className="grid grid-cols-2 gap-3">
+              <label className={checkRowCls}>
+                <input type="checkbox" checked={safetyEduCompletedYn} onChange={e => setSafetyEduCompletedYn(e.target.checked)} className="w-4 h-4 accent-[#5ba4d9]" />
+                이수
+              </label>
+              <label className={checkRowCls}>
+                <input type="checkbox" checked={safetyEduCertAttachedYn} onChange={e => setSafetyEduCertAttachedYn(e.target.checked)} className="w-4 h-4 accent-[#5ba4d9]" />
+                이수증 첨부
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] text-muted-brand w-[48px] flex-shrink-0">이수일</span>
+                <input type="date" value={safetyEduDate} onChange={e => setSafetyEduDate(e.target.value)} className={inputCls} />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] text-muted-brand w-[48px] flex-shrink-0">종류</span>
+                <select value={safetyEduType} onChange={e => setSafetyEduType(e.target.value)} className={inputCls}>
+                  <option value="">선택</option>
+                  <option value="기초안전교육">기초안전교육</option>
+                  <option value="신규채용교육">신규채용교육</option>
+                  <option value="특별안전교육">특별안전교육</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* 신분 / 연락처 */}
+          <div className="mb-4">
+            <div className="text-[11px] font-semibold text-muted-brand mb-2 uppercase tracking-wider">신분 / 연락처</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] text-muted-brand w-[48px] flex-shrink-0">신분확인</span>
+                <select value={idVerificationStatus} onChange={e => setIdVerificationStatus(e.target.value)} className={inputCls}>
+                  <option value="">미설정</option>
+                  <option value="VERIFIED">확인 완료</option>
+                  <option value="PENDING_REVIEW">확인 대기</option>
+                  <option value="REJECTED">반려</option>
+                  <option value="RESCAN_REQUIRED">재촬영 필요</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] text-muted-brand w-[48px] flex-shrink-0">비상연락처</span>
+                <input value={emergencyContact} onChange={e => setEmergencyContact(e.target.value)} placeholder="010-XXXX-XXXX" className={inputCls} />
+              </div>
+            </div>
+          </div>
+
+          {saveError && <p className="text-[#c62828] text-[13px] mb-3">{saveError}</p>}
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="px-5 py-2 bg-brand-accent text-white border-none rounded-md cursor-pointer text-[13px] font-semibold disabled:opacity-50"
+            >
+              {saving ? '저장 중...' : '저장'}
+            </button>
+            <button
+              onClick={() => setEditing(false)}
+              className="px-5 py-2 bg-card border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px]"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-x-6">
+          <DocItem label="근로계약서 작성" yn={worker.contractWrittenYn ?? false} sub={worker.contractWrittenDate ?? undefined} />
+          <DocItem label="계약서 교부" yn={worker.contractIssuedYn ?? false} />
+          <DocItem label="계약서 첨부" yn={worker.contractAttachedYn ?? false} />
+          <DocItem label="안전교육 이수" yn={worker.safetyEduCompletedYn ?? false} sub={worker.safetyEduDate ?? undefined} />
+          <DocItem label="교육 종류" text={worker.safetyEduType ?? '—'} />
+          <DocItem label="이수증 첨부" yn={worker.safetyEduCertAttachedYn ?? false} />
+          <DocItem label="신분 확인" text={ID_STATUS_LABEL[worker.idVerificationStatus ?? ''] ?? (worker.idVerificationStatus ?? '—')} />
+          <DocItem label="비상연락처" text={worker.emergencyContact ?? '—'} />
+        </div>
       )}
     </div>
   )

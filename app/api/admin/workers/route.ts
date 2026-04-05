@@ -208,21 +208,29 @@ export async function GET(request: NextRequest) {
         supervisorName: w.supervisorName ?? null,
         foremanName: w.foremanName ?? null,
         latestCheckInDate: latestCheckInMap.get(w.id) ?? null,
-        // 서류/교육 상태
-        hasContract: w.workerDocuments.some(d => d.documentType === 'CONTRACT') || w.safetyDocuments.some(d => d.documentType === 'WORK_CONDITIONS_RECEIPT'),
-        contractDate: (w.workerDocuments.find(d => d.documentType === 'CONTRACT')?.createdAt?.toISOString().slice(0, 10)) ?? (w.safetyDocuments.find(d => d.documentType === 'WORK_CONDITIONS_RECEIPT')?.documentDate) ?? null,
-        contractIssuedYn: w.workerDocuments.some(d => d.documentType === 'CONTRACT' && d.status === 'APPROVED'),
-        contractAttachedYn: w.workerDocuments.some(d => d.documentType === 'CONTRACT'),
+        // 서류/교육 상태 — 직접 입력 필드 우선, 없으면 문서 관계 기반 계산
+        hasContract: w.contractWrittenYn
+          || w.workerDocuments.some(d => d.documentType === 'CONTRACT')
+          || w.safetyDocuments.some(d => d.documentType === 'WORK_CONDITIONS_RECEIPT'),
+        contractDate: w.contractWrittenDate
+          ?? (w.workerDocuments.find(d => d.documentType === 'CONTRACT')?.createdAt?.toISOString().slice(0, 10))
+          ?? (w.safetyDocuments.find(d => d.documentType === 'WORK_CONDITIONS_RECEIPT')?.documentDate)
+          ?? null,
+        contractIssuedYn: w.contractIssuedYn || w.workerDocuments.some(d => d.documentType === 'CONTRACT' && d.status === 'APPROVED'),
+        contractAttachedYn: w.contractAttachedYn || w.workerDocuments.some(d => d.documentType === 'CONTRACT'),
         hasSafetyCert: w.workerDocuments.some(d => d.documentType === 'SAFETY_CERT'),
         safetyCertDate: w.workerDocuments.find(d => d.documentType === 'SAFETY_CERT')?.createdAt?.toISOString().slice(0, 10) ?? null,
-        hasSafetyEducation: w.safetyDocuments.some(d => d.documentType === 'BASIC_SAFETY_EDU_CONFIRM' || d.documentType === 'SAFETY_EDUCATION_NEW_HIRE'),
-        safetyEducationType: (() => {
+        hasSafetyEducation: w.safetyEduCompletedYn
+          || w.safetyDocuments.some(d => d.documentType === 'BASIC_SAFETY_EDU_CONFIRM' || d.documentType === 'SAFETY_EDUCATION_NEW_HIRE'),
+        safetyEducationType: w.safetyEduType ?? (() => {
           const doc = w.safetyDocuments.find(d => d.documentType === 'BASIC_SAFETY_EDU_CONFIRM' || d.documentType === 'SAFETY_EDUCATION_NEW_HIRE')
           if (!doc) return null
           return doc.documentType === 'BASIC_SAFETY_EDU_CONFIRM' ? '기초안전교육' : '신규채용교육'
         })(),
-        safetyEducationDate: (w.safetyDocuments.find(d => d.documentType === 'BASIC_SAFETY_EDU_CONFIRM' || d.documentType === 'SAFETY_EDUCATION_NEW_HIRE'))?.educationDate ?? null,
-        safetyEduCertAttachedYn: w.workerDocuments.some(d => d.documentType === 'SAFETY_CERT'),
+        safetyEducationDate: w.safetyEduDate
+          ?? (w.safetyDocuments.find(d => d.documentType === 'BASIC_SAFETY_EDU_CONFIRM' || d.documentType === 'SAFETY_EDUCATION_NEW_HIRE'))?.educationDate
+          ?? null,
+        safetyEduCertAttachedYn: w.safetyEduCertAttachedYn || w.workerDocuments.some(d => d.documentType === 'SAFETY_CERT'),
         dailyWage: w.contracts[0]?.dailyWage ?? 0,
         monthWage: monthWageMap.get(w.id) ?? 0,
         totalWage: totalWageMap.get(w.id) ?? 0,

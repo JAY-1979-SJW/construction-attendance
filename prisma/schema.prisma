@@ -675,6 +675,15 @@ model Worker {
   teamName                   String?   // 소속팀명
   supervisorName             String?   // 팀장 이름
   foremanName                String?   // 반장 이름
+  // ── 서류/교육 직접 입력 ───────────────────────────────
+  contractWrittenYn          Boolean  @default(false)  // 근로계약서 작성 여부
+  contractWrittenDate        String?                   // 근로계약서 작성일 YYYY-MM-DD
+  contractIssuedYn           Boolean  @default(false)  // 근로계약서 교부 여부
+  contractAttachedYn         Boolean  @default(false)  // 근로계약서 첨부 여부
+  safetyEduCompletedYn       Boolean  @default(false)  // 안전교육 이수 여부
+  safetyEduType              String?                   // 안전교육 종류
+  safetyEduDate              String?                   // 안전교육 이수일 YYYY-MM-DD
+  safetyEduCertAttachedYn    Boolean  @default(false)  // 안전교육 이수증 첨부 여부
   // ───────────────────────────────────────────────────────
 
   createdAt   DateTime @default(now())
