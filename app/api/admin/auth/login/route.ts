@@ -101,7 +101,9 @@ export async function POST(request: NextRequest) {
       sub: admin.id,
       type: 'admin',
       role: admin.role,
+      name: admin.name,
       companyId: admin.companyId ?? undefined,
+      teamName: (admin as typeof admin & { teamName?: string | null }).teamName ?? undefined,
     })
 
     await writeAuditLog({

@@ -34,13 +34,25 @@ interface Worker {
   primaryCompany: { id: string; companyName: string } | null
   activeSites: { id: string; name: string; isPrimary?: boolean }[]
   todayAttendance: { siteId: string; siteName: string; checkInAt: string | null; checkOutAt: string | null; status: string } | null
+  // 실무 필수 항목
+  hireDate: string | null
+  emergencyContact: string | null
+  teamName: string | null
+  supervisorName: string | null
+  foremanName: string | null
+  latestCheckInDate: string | null
+  idVerificationStatus: string | null
   // 서류/교육 상태
   hasContract: boolean
   contractDate: string | null
+  contractIssuedYn: boolean
+  contractAttachedYn: boolean
   hasSafetyCert: boolean
   safetyCertDate: string | null
   hasSafetyEducation: boolean
+  safetyEducationType: string | null
   safetyEducationDate: string | null
+  safetyEduCertAttachedYn: boolean
   // 노임
   dailyWage: number
   monthWage: number
@@ -198,6 +210,7 @@ export default function WorkersPage() {
   // 필터
   const [nameSearch, setNameSearch]   = useState('')
   const [siteFilter, setSiteFilter]   = useState('')
+  const [teamFilter, setTeamFilter]   = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [eligFilter, setEligFilter]   = useState('')
   const [sortKey, setSortKey]         = useState('needsAction')
@@ -213,7 +226,7 @@ export default function WorkersPage() {
 
   // 수정 폼 상태 (패널 내부)
   const [editing, setEditing]         = useState(false)
-  const [editForm, setEditForm]       = useState({ name: '', phone: '', jobTitle: '', isActive: true })
+  const [editForm, setEditForm]       = useState({ name: '', phone: '', jobTitle: '', isActive: true, hireDate: '', emergencyContact: '', teamName: '', supervisorName: '', foremanName: '' })
   const [editSaving, setEditSaving]   = useState(false)
   const [editError, setEditError]     = useState('')
 
@@ -251,6 +264,9 @@ export default function WorkersPage() {
     const params = new URLSearchParams({ pageSize: '300' })
     if (nameSearch) params.set('search', nameSearch)
     if (siteFilter) params.set('siteId', siteFilter)
+    if (teamFilter) params.set('team', teamFilter)
+    if (statusFilter === 'active')   params.set('status', 'active')
+    if (statusFilter === 'inactive') params.set('status', 'inactive')
 
     fetch(`/api/admin/workers?${params}`)
       .then(r => r.json())
@@ -261,7 +277,7 @@ export default function WorkersPage() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [nameSearch, siteFilter, router])
+  }, [nameSearch, siteFilter, teamFilter, statusFilter, router])
 
   // 현장 목록 로드
   useEffect(() => {
@@ -297,7 +313,17 @@ export default function WorkersPage() {
   // 기본정보 수정
   const startEdit = () => {
     if (!selected) return
-    setEditForm({ name: selected.name, phone: selected.phone, jobTitle: selected.jobTitle, isActive: selected.isActive })
+    setEditForm({
+      name: selected.name,
+      phone: selected.phone,
+      jobTitle: selected.jobTitle,
+      isActive: selected.isActive,
+      hireDate: selected.hireDate || '',
+      emergencyContact: selected.emergencyContact || '',
+      teamName: selected.teamName || '',
+      supervisorName: selected.supervisorName || '',
+      foremanName: selected.foremanName || '',
+    })
     setEditing(true)
     setEditError('')
   }
@@ -329,7 +355,9 @@ export default function WorkersPage() {
     }
     // 전체 재조회 없이 화면 상태 직접 반영
     setWorkers(prev => prev.map(w => w.id === selected.id
-      ? { ...w, name: editForm.name, phone: editForm.phone, jobTitle: editForm.jobTitle, isActive: editForm.isActive }
+      ? { ...w, name: editForm.name, phone: editForm.phone, jobTitle: editForm.jobTitle, isActive: editForm.isActive,
+          hireDate: editForm.hireDate || null, emergencyContact: editForm.emergencyContact || null,
+          teamName: editForm.teamName || null, supervisorName: editForm.supervisorName || null, foremanName: editForm.foremanName || null }
       : w
     ))
     setEditing(false)
@@ -511,6 +539,14 @@ export default function WorkersPage() {
                 onChange={e => setNameSearch(e.target.value)}
                 className="w-[140px]"
               />
+              {/* 소속팀 필터 */}
+              <FilterInput
+                type="text"
+                placeholder="소속팀"
+                value={teamFilter}
+                onChange={e => setTeamFilter(e.target.value)}
+                className="w-[100px]"
+              />
               {/* 현장 필터 */}
               <FilterSelect value={siteFilter} onChange={e => setSiteFilter(e.target.value)}>
                 <option value="">전체 현장</option>
@@ -522,21 +558,11 @@ export default function WorkersPage() {
                 <option value="ineligible">투입불가 우선</option>
                 <option value="name">이름순</option>
                 <option value="createdAt">최근 등록순</option>
-                <option value="monthWage">월 누계 노임 큰 순</option>
-                <option value="totalWage">총 누계 노임 큰 순</option>
               </FilterSelect>
               <div className="flex-1" />
               <Btn variant="ghost" size="sm" onClick={load}>새로고침</Btn>
-              {canMutate && checkedIds.size > 0 && (
-                <Btn variant="orange" size="sm" onClick={handleBulkTermination}>
-                  선택 {checkedIds.size}명 퇴사 처리 →
-                </Btn>
-              )}
-              {canMutate && checkedIds.size === 0 && (
-                <>
-                  <Btn variant="ghost" size="sm" onClick={() => router.push('/admin/worker-imports')}>엑셀 일괄 등록</Btn>
-                  <Btn variant="orange" size="sm" onClick={() => router.push('/admin/workers/new')}>+ 근로자 등록</Btn>
-                </>
+              {canMutate && (
+                <Btn variant="orange" size="sm" onClick={() => router.push('/admin/workers/new')}>+ 근로자 등록</Btn>
               )}
             </div>
             {/* 상태 필터 pills */}
@@ -645,17 +671,11 @@ export default function WorkersPage() {
               )
             }}
             renderTable={() => (
-              <AdminTable headers={[
-                  <input key="all" type="checkbox" className="cursor-pointer"
-                    checked={sorted.length > 0 && sorted.every(w => checkedIds.has(w.id))}
-                    onChange={() => toggleAll(sorted.map(w => w.id))}
-                  />,
-                  '이름', '직종', '주배정현장', '오늘출근', '상태', '투입가능', '근로계약서', '안전교육', '안전교육증', '일당', '월 누계', '확인상태'
-                ]}>
+              <AdminTable headers={['이름', '연락처', '소속팀', '팀장', '반장', '직종/공종', '재직', '최근출근일', '근로계약서', '안전교육', '확인상태']}>
                 {loading ? (
-                  <EmptyRow colSpan={13} message="로딩 중..." />
+                  <EmptyRow colSpan={11} message="로딩 중..." />
                 ) : sorted.length === 0 ? (
-                  <EmptyRow colSpan={13} message="조회된 근로자가 없습니다" />
+                  <EmptyRow colSpan={11} message="조회된 근로자가 없습니다" />
                 ) : (
                   sorted.map(w => {
                     const elig = getEligibility(w)
@@ -667,68 +687,40 @@ export default function WorkersPage() {
                       (elig === 'docs_missing' || elig === 'edu_missing') ? 'bg-yellow-light hover:bg-yellow-light' :
                       ''
                     return (
-                      <AdminTr
-                        key={w.id}
-                        onClick={() => openDetail(w.id)}
-                        highlighted={isSelected}
-                        className={rowBg}
-                      >
-                        {/* 체크박스 */}
-                        <AdminTd>
-                          <input type="checkbox" className="cursor-pointer"
-                            checked={checkedIds.has(w.id)}
-                            onClick={(e) => toggleCheck(w.id, e)}
-                            onChange={() => {}}
-                          />
-                        </AdminTd>
+                      <AdminTr key={w.id} onClick={() => openDetail(w.id)} highlighted={isSelected} className={rowBg}>
                         {/* 이름 */}
                         <AdminTd>
                           <div className="font-semibold text-fore-brand whitespace-nowrap">{w.name}</div>
                           {w.foreignerYn && <div className="text-[11px] text-muted-brand">외국인</div>}
                         </AdminTd>
-                        {/* 직종 */}
+                        {/* 연락처 */}
+                        <AdminTd className="text-[12px] text-muted-brand whitespace-nowrap">
+                          {w.phone ? fmtPhone(w.phone) : '-'}
+                        </AdminTd>
+                        {/* 소속팀 */}
+                        <AdminTd className="text-[12px] text-body-brand">{w.teamName || '-'}</AdminTd>
+                        {/* 팀장 */}
+                        <AdminTd className="text-[12px] text-muted-brand">{w.supervisorName || '-'}</AdminTd>
+                        {/* 반장 */}
+                        <AdminTd className="text-[12px] text-muted-brand">{w.foremanName || '-'}</AdminTd>
+                        {/* 직종/공종 */}
                         <AdminTd className="text-[12px] text-muted-brand">{w.jobTitle}</AdminTd>
-                        {/* 주배정 현장 */}
-                        <AdminTd className="max-w-[110px]">
-                          {(() => {
-                            const primary = w.activeSites.find(s => s.isPrimary)
-                            if (primary) return <div className="text-[12px] text-body-brand truncate">{primary.name}{w.activeSites.length > 1 && <span className="text-[11px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
-                            if (w.activeSites.length > 0) return <div className="text-[12px] text-body-brand truncate">{w.activeSites[0].name}{w.activeSites.length > 1 && <span className="text-[11px] text-muted2-brand ml-1">+{w.activeSites.length - 1}</span>}</div>
-                            return <StatusBadge status="PENDING" label="미배정" />
-                          })()}
-                        </AdminTd>
-                        {/* 오늘 출근 */}
-                        <AdminTd>
-                          {w.todayAttendance ? (
-                            <div>
-                              <StatusBadge status="WORKING" label="출근" />
-                              <div className="text-[11px] text-muted-brand mt-[2px] truncate max-w-[80px]">{w.todayAttendance.siteName}</div>
-                            </div>
-                          ) : w.activeSites.length === 0 ? (
-                            <span className="text-[11px] text-[#D1D5DB]">-</span>
-                          ) : (
-                            <StatusBadge status="INACTIVE" label="미출근" />
-                          )}
-                        </AdminTd>
-                        {/* 상태 */}
+                        {/* 재직 상태 */}
                         <AdminTd>
                           <StatusBadge status={w.isActive ? 'ACTIVE' : 'INACTIVE'} label={w.isActive ? '재직중' : '비활성'} />
                         </AdminTd>
-                        {/* 투입가능 */}
-                        <AdminTd>
-                          <span className="text-[11px] font-semibold px-2 py-[2px] rounded-full whitespace-nowrap"
-                            style={{ color: ELIGIBILITY_LABEL[elig].color, backgroundColor: ELIGIBILITY_LABEL[elig].bg }}>
-                            {ELIGIBILITY_LABEL[elig].label}
-                          </span>
+                        {/* 최근 출근일 */}
+                        <AdminTd className="text-[12px] text-muted-brand whitespace-nowrap">
+                          {w.latestCheckInDate ? fmtDate(w.latestCheckInDate) : '-'}
                         </AdminTd>
                         {/* 근로계약서 */}
                         <AdminTd>
                           <DocBadge has={w.hasContract} yesLabel="교부" noLabel="미교부" />
                         </AdminTd>
                         {/* 안전교육 */}
-                        <AdminTd onClick={e => e.stopPropagation()}>
+                        <AdminTd>
                           {!w.hasSafetyEducation && (w.accountStatus === 'APPROVED' || w.accountStatus === 'ACTIVE') ? (
-                            <label className="flex items-center gap-1.5 cursor-pointer">
+                            <label className="flex items-center gap-1.5 cursor-pointer" onClick={e => e.stopPropagation()}>
                               <input
                                 type="checkbox"
                                 checked={eduIds.has(w.id)}
@@ -740,20 +732,6 @@ export default function WorkersPage() {
                           ) : (
                             <DocBadge has={w.hasSafetyEducation} yesLabel="이수" noLabel="미이수" />
                           )}
-                        </AdminTd>
-                        {/* 안전교육증 */}
-                        <AdminTd>
-                          <DocBadge has={w.hasSafetyCert} yesLabel="등록" noLabel="미등록" />
-                        </AdminTd>
-                        {/* 일당 */}
-                        <AdminTd className="text-right tabular-nums text-[12px] text-muted-brand">
-                          {w.dailyWage > 0 ? fmtWage(w.dailyWage) : '-'}
-                        </AdminTd>
-                        {/* 월 누계 */}
-                        <AdminTd className="text-right tabular-nums">
-                          {w.monthWage > 0
-                            ? <span className="font-semibold text-body-brand">{fmtWage(w.monthWage)}</span>
-                            : <span className="text-[#D1D5DB]">-</span>}
                         </AdminTd>
                         {/* 확인상태 */}
                         <AdminTd>
@@ -808,10 +786,19 @@ export default function WorkersPage() {
                 <PanelSection label="A. 기본 정보">
                   <PanelRow label="연락처" value={fmtPhone(selected.phone)} />
                   {selected.birthDate && <PanelRow label="생년월일" value={selected.birthDate} />}
-                  <PanelRow label="고용형태" value={EMP_LABELS[selected.employmentType] ?? selected.employmentType} />
+                  <PanelRow label="입사일" value={selected.hireDate || '-'} />
+                  <PanelRow label="비상연락처" value={selected.emergencyContact || '-'} />
                   {selected.foreignerYn && <PanelRow label="국적" value="외국인" />}
-                  <PanelRow label="일당" value={selected.dailyWage > 0 ? fmtWageFull(selected.dailyWage) : '미입력'} warn={!selected.dailyWage} />
                   <PanelRow label="등록일" value={fmtDate(selected.createdAt)} />
+                </PanelSection>
+
+                {/* B. 소속 / 직종 */}
+                <PanelSection label="B. 소속 / 직종">
+                  <PanelRow label="소속팀" value={selected.teamName || '-'} />
+                  <PanelRow label="팀장" value={selected.supervisorName || '-'} />
+                  <PanelRow label="반장" value={selected.foremanName || '-'} />
+                  <PanelRow label="직종/공종" value={selected.jobTitle} />
+                  <PanelRow label="고용형태" value={EMP_LABELS[selected.employmentType] ?? selected.employmentType} />
                   <PanelRow label="소속현장" value={
                     selected.activeSites.length > 0
                       ? selected.activeSites.map(s => s.name).join(', ')
@@ -819,13 +806,16 @@ export default function WorkersPage() {
                   } warn={selected.activeSites.length === 0} />
                 </PanelSection>
 
-                {/* B. 서류 및 교육 상태 */}
-                <PanelSection label="B. 서류 및 교육 상태" warn={!selected.hasContract || !selected.hasSafetyEducation || !selected.hasSafetyCert}>
+                {/* C. 서류 및 교육 상태 */}
+                <PanelSection label="C. 서류 및 교육 상태" warn={!selected.hasContract || !selected.hasSafetyEducation || !selected.hasSafetyCert}>
                   <div className="rounded-[8px] border border-brand overflow-hidden mb-3">
                     {[
-                      { label: '근로계약서 교부', has: selected.hasContract, date: selected.contractDate },
-                      { label: '안전교육 이수',   has: selected.hasSafetyEducation, date: selected.safetyEducationDate },
-                      { label: '안전교육증 등록', has: selected.hasSafetyCert, date: selected.safetyCertDate },
+                      { label: '근로계약서 작성',   has: selected.hasContract,         date: selected.contractDate },
+                      { label: '근로계약서 교부',   has: selected.contractIssuedYn,    date: null },
+                      { label: '근로계약서 첨부',   has: selected.contractAttachedYn,  date: null },
+                      { label: `안전교육 이수${selected.safetyEducationType ? ` (${selected.safetyEducationType})` : ''}`, has: selected.hasSafetyEducation, date: selected.safetyEducationDate },
+                      { label: '안전교육 이수증',   has: selected.safetyEduCertAttachedYn, date: selected.safetyCertDate },
+                      { label: '���분 확인',          has: !!selected.idVerificationStatus && ['APPROVED', 'VERIFIED'].includes(selected.idVerificationStatus as string), date: null },
                     ].map((item, i) => (
                       <div key={item.label} className={`flex items-center justify-between px-3 py-2.5 ${i > 0 ? 'border-t border-brand' : ''}`}>
                         <span className="text-[12px] font-medium text-body-brand">{item.label}</span>
@@ -925,7 +915,12 @@ export default function WorkersPage() {
                       <div className="text-[11px] font-bold text-status-adjusted mb-3">기본정보 수정</div>
                       <FormInput label="이름" value={editForm.name} onChange={e => setEditForm(ef => ({ ...ef, name: e.target.value }))} className="mb-2" />
                       <FormInput label="연락처" value={editForm.phone} onChange={e => setEditForm(ef => ({ ...ef, phone: e.target.value }))} className="mb-2" />
-                      <FormInput label="직종" value={editForm.jobTitle} onChange={e => setEditForm(ef => ({ ...ef, jobTitle: e.target.value }))} className="mb-2" />
+                      <FormInput label="직종/공종" value={editForm.jobTitle} onChange={e => setEditForm(ef => ({ ...ef, jobTitle: e.target.value }))} className="mb-2" />
+                      <FormInput label="소속팀" value={editForm.teamName} onChange={e => setEditForm(ef => ({ ...ef, teamName: e.target.value }))} placeholder="예: 1팀" className="mb-2" />
+                      <FormInput label="팀장" value={editForm.supervisorName} onChange={e => setEditForm(ef => ({ ...ef, supervisorName: e.target.value }))} placeholder="팀장 이름" className="mb-2" />
+                      <FormInput label="반장" value={editForm.foremanName} onChange={e => setEditForm(ef => ({ ...ef, foremanName: e.target.value }))} placeholder="반장 이름" className="mb-2" />
+                      <FormInput label="입사일" type="date" value={editForm.hireDate} onChange={e => setEditForm(ef => ({ ...ef, hireDate: e.target.value }))} className="mb-2" />
+                      <FormInput label="비상연락처" value={editForm.emergencyContact} onChange={e => setEditForm(ef => ({ ...ef, emergencyContact: e.target.value }))} placeholder="010-0000-0000" className="mb-2" />
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-[12px] text-muted-brand w-[48px] shrink-0">상태</span>
                         <label className="flex items-center gap-1.5 cursor-pointer">

@@ -278,6 +278,16 @@ export async function buildWorkerScopeWhere(
     }
   }
 
+  // 팀장 — 자기 teamName과 일치하는 근로자만
+  if (role === 'TEAM_LEADER' && session.teamName) {
+    return { teamName: session.teamName }
+  }
+
+  // 반장 — 자기 이름을 foremanName으로 가진 근로자만
+  if (role === 'FOREMAN' && session.name) {
+    return { foremanName: session.name }
+  }
+
   const ids = await getAccessibleSiteIds(session)
   if (ids === null) return {}
   if (ids.length === 0) return false

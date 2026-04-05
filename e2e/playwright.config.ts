@@ -56,5 +56,14 @@ export default defineConfig({
       },
       testMatch: 'worker-home-ui.spec.ts',
     },
+    {
+      name: 'admin-worker-management',
+      use: {
+        browserName: 'chromium',
+        screenshot: 'only-on-failure',
+      },
+      testMatch: 'admin-worker-management.spec.ts',
+      timeout: 45000,
+    },
   ],
 })

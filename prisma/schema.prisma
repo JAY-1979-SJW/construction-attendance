@@ -50,6 +50,8 @@ enum AdminRole {
   COMPANY_ADMIN         // 업체관리자 — companyId 필수, 자사 근로자/문서/통계만, /company 포털
   SITE_ADMIN            // 현장관리자 — SiteAdminAssignment로 담당 현장 지정, 출근 승인 가능
   EXTERNAL_SITE_ADMIN   // 외부 현장관리자 — UserSiteAccessGroup 기반 복수 현장, 읽기 전용
+  TEAM_LEADER           // 팀장 — teamName 기준 자기 팀 근로자 조회/수정
+  FOREMAN               // 반장 — foremanName 기준 자기 담당 인원 조회/출근확인
 }
 
 enum CompanyStatus {
@@ -542,6 +544,7 @@ model AdminUser {
   role         AdminRole @default(ADMIN)
   isActive     Boolean   @default(true)
   companyId    String?   // COMPANY_ADMIN 전용, 플랫폼 관리자는 null
+  teamName     String?   // TEAM_LEADER/FOREMAN 전용 — 담당 팀명
   lastLoginAt  DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
@@ -666,6 +669,12 @@ model Worker {
   latestIdentityDocumentId   String?
   identityLastReviewedAt     DateTime?
   identityLastReviewedBy     String?
+  // ── 실무 필수 항목 (근로자 관리 구조 고정) ──────────────
+  hireDate                   String?   // 입사일 YYYY-MM-DD
+  emergencyContact           String?   // 비상연락처
+  teamName                   String?   // 소속팀명
+  supervisorName             String?   // 팀장 이름
+  foremanName                String?   // 반장 이름
   // ───────────────────────────────────────────────────────
 
   createdAt   DateTime @default(now())

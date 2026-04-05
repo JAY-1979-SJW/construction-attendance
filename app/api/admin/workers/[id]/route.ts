@@ -227,6 +227,12 @@ const updateSchema = z.object({
   phone: z.string().regex(/^010\d{8}$/, '올바른 휴대폰 번호 형식이 아닙니다.').optional(),
   jobTitle: z.string().min(1).optional(),
   isActive: z.boolean().optional(),
+  // 실무 필수 항목
+  hireDate: z.string().nullable().optional(),
+  emergencyContact: z.string().nullable().optional(),
+  teamName: z.string().max(50).nullable().optional(),
+  supervisorName: z.string().max(20).nullable().optional(),
+  foremanName: z.string().max(20).nullable().optional(),
 })
 
 // ─── PUT /api/admin/workers/[id] — 근로자 정보 수정 ─────────────────────────
@@ -287,6 +293,11 @@ export async function PUT(
         phone: updated.phone,
         jobTitle: updated.jobTitle,
         isActive: updated.isActive,
+        hireDate: updated.hireDate,
+        emergencyContact: updated.emergencyContact,
+        teamName: updated.teamName,
+        supervisorName: updated.supervisorName,
+        foremanName: updated.foremanName,
         updatedAt: updated.updatedAt,
       },
       '근로자 정보가 수정되었습니다.'

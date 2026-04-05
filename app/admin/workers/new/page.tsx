@@ -64,6 +64,11 @@ interface WorkerForm {
   subcontractorName: string
   foreignerYn: boolean
   address: string
+  hireDate: string
+  emergencyContact: string
+  teamName: string
+  supervisorName: string
+  foremanName: string
 }
 
 const EMPTY_FORM: WorkerForm = {
@@ -77,6 +82,11 @@ const EMPTY_FORM: WorkerForm = {
   subcontractorName: '',
   foreignerYn: false,
   address: '',
+  hireDate: '',
+  emergencyContact: '',
+  teamName: '',
+  supervisorName: '',
+  foremanName: '',
 }
 
 // ── 전화번호 포맷 ───────────────────────────────────────────────────────────
@@ -180,6 +190,11 @@ export default function WorkersNewPage() {
           birthDate: form.birthDate || undefined,
           subcontractorName: form.organizationType === 'SUBCONTRACTOR' ? form.subcontractorName.trim() : undefined,
           address: form.address.trim() || undefined,
+          hireDate: form.hireDate || undefined,
+          emergencyContact: form.emergencyContact.trim() || undefined,
+          teamName: form.teamName.trim() || undefined,
+          supervisorName: form.supervisorName.trim() || undefined,
+          foremanName: form.foremanName.trim() || undefined,
         }),
       })
       const data = await res.json()
@@ -326,12 +341,44 @@ export default function WorkersNewPage() {
                 error={errors.subcontractorName}
               />
             )}
+            <FormInput
+              label="소속팀"
+              value={form.teamName}
+              onChange={e => set('teamName', e.target.value)}
+              placeholder="예: 1팀, 철근팀"
+              helper="팀장/반장 필터 기준"
+            />
+            <FormInput
+              label="팀장"
+              value={form.supervisorName}
+              onChange={e => set('supervisorName', e.target.value)}
+              placeholder="팀장 이름"
+            />
+            <FormInput
+              label="반장"
+              value={form.foremanName}
+              onChange={e => set('foremanName', e.target.value)}
+              placeholder="반장 이름"
+            />
+            <FormInput
+              label="입사일"
+              type="date"
+              value={form.hireDate}
+              onChange={e => set('hireDate', e.target.value)}
+            />
           </FormGrid>
-          {isSubcontractor && (
-            <p className="text-[11px] text-muted2-brand mt-2">
-              추후 회사 관리에서 정식 등록하면 자동으로 연결됩니다.
-            </p>
-          )}
+        </SectionCard>
+
+        {/* ── 비상연락처 ───────────────────────────────────────── */}
+        <SectionCard>
+          <h3 className="text-[14px] font-bold text-fore-brand mb-4">비상연락처</h3>
+          <FormInput
+            label="비상연락처"
+            value={form.emergencyContact}
+            onChange={e => set('emergencyContact', e.target.value)}
+            placeholder="010-0000-0000"
+            helper="본인 이외 연락 가능한 번호 (선택)"
+          />
         </SectionCard>
 
         {/* ── 필수서류 안내 ────────────────────────────────────── */}
