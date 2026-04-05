@@ -193,15 +193,36 @@ REG_EC=$?
 set -e
 REG_PASSED=$(echo "$REG_OUT" | grep -oE '[0-9]+ passed' | tail -1 || echo "? passed")
 REG_FAILED=$(echo "$REG_OUT" | grep -oE '[0-9]+ failed' | head -1 || true)
+REG_SKIPPED=$(echo "$REG_OUT" | grep -oE '[0-9]+ skipped' | tail -1 || true)
 if [ $REG_EC -eq 0 ]; then
-  mark "adminRegressionE2E" "PASS" "$REG_PASSED"
+  mark "adminRegressionE2E" "PASS" "$REG_PASSED${REG_SKIPPED:+ / $REG_SKIPPED}"
 else
   mark "adminRegressionE2E" "FAIL" "${REG_FAILED:-실패} / $REG_PASSED"
   echo "$REG_OUT" | grep -E "(✘|Error:)" | head -5 | sed 's/^/      /'
 fi
 
 # ──────────────────────────────────────────────────────
-# [8] 최종 요약
+# [8] admin worker management E2E (근로자 관리)
+# ──────────────────────────────────────────────────────
+echo ""
+echo "▶ [8] admin worker management E2E"
+cd "$ROOT"
+set +e
+WORKER_OUT=$(npx playwright test e2e/admin-worker-management.spec.ts \
+  --config=e2e/playwright.config.ts --project=admin-worker-management 2>&1)
+WORKER_EC=$?
+set -e
+WORKER_PASSED=$(echo "$WORKER_OUT" | grep -oE '[0-9]+ passed' | tail -1 || echo "? passed")
+WORKER_FAILED=$(echo "$WORKER_OUT" | grep -oE '[0-9]+ failed' | head -1 || true)
+if [ $WORKER_EC -eq 0 ]; then
+  mark "adminWorkerE2E" "PASS" "$WORKER_PASSED"
+else
+  mark "adminWorkerE2E" "FAIL" "${WORKER_FAILED:-실패} / $WORKER_PASSED"
+  echo "$WORKER_OUT" | grep -E "(✘|Error:)" | head -5 | sed 's/^/      /'
+fi
+
+# ──────────────────────────────────────────────────────
+# [9] 최종 요약
 # ──────────────────────────────────────────────────────
 END_TS=$(date '+%Y-%m-%d %H:%M:%S')
 echo ""
