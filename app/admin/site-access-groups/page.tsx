@@ -236,9 +236,9 @@ export default function SiteAccessGroupsPage() {
           </div>
         )}
 
-        <div className="flex gap-4">
+        <div className="flex flex-col lg:flex-row gap-4">
           {/* 그룹 목록 (좌측) */}
-          <div className="w-72 flex-shrink-0">
+          <div className="w-full lg:w-72 lg:flex-shrink-0">
             {loading ? (
               <div className="text-center text-gray-400 py-8 text-sm">불러오는 중...</div>
             ) : groups.length === 0 ? (

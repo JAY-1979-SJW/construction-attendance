@@ -387,22 +387,24 @@ test.describe('[LAYOUT:sites] 현장 목록', () => {
     const ctx = await makeCtx(browser, vp)
     const page = await ctx.newPage()
     await ensureAdmin(page)
-    // sites 전용 mock: 실제 사이트 1건 반환
+    // ⚠ LIFO: catch-all 먼저, 특정 route 나중에 (나중에 등록한 것이 먼저 매칭)
+    await page.route('**/api/admin/**', async r => {
+      if (!r.request().isNavigationRequest()) {
+        await r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [] }) })
+      } else { await r.continue() }
+    })
+    // sites 전용 mock: 실제 사이트 1건 반환 (catch-all 이후 등록 → 먼저 매칭)
     await page.route('**/api/admin/sites**', r => r.fulfill({
       status: 200, contentType: 'application/json',
       body: JSON.stringify({ success: true, data: [{
         id: 's-1', name: '테스트현장', address: '서울시 테스트로 1',
         latitude: 37.5, longitude: 127.0, allowedRadius: 100,
         isActive: true, siteCode: null, openedAt: null, closedAt: null, notes: null,
+        createdAt: new Date().toISOString(),
         assignedWorkerCount: 0, todayCheckInCount: 0, absentCount: 0,
         todayWage: 0, monthWage: 0, totalWage: 0, companyAssignments: [],
       }] }),
     }))
-    await page.route('**/api/admin/**', async r => {
-      if (!r.request().isNavigationRequest()) {
-        await r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [] }) })
-      } else { await r.continue() }
-    })
     await page.goto(`${BASE}/admin/sites`)
 
     // 현장 행이 렌더링되면 클릭 → 패널 → 기본정보 수정
@@ -1113,6 +1115,445 @@ test.describe('[LAYOUT:materials] 내역서 분석', () => {
       await assertNoHScroll(page, vp, 'materials')
       await assertNotOverflowViewport(page, 'select', vp, 'materials')
       await assertCTAVisible(page, ['+ 내역서 업로드', '내역서 업로드', '새로고침'], vp, 'materials')
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:registrations]  /admin/registrations  회원가입 승인
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:registrations] 회원가입 승인', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/registrations**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: [], pagination: { total: 0 } }) }))
+      await page.goto(`${BASE}/admin/registrations`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'registrations')
+      await assertNotOverflowViewport(page, 'input[type="text"], input[type="search"]', vp, 'registrations')
+      await assertCTAVisible(page, ['대기', '승인', '반려'], vp, 'registrations')
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:device-requests]  /admin/device-requests  기기 등록 신청
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:device-requests] 기기 등록 신청', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/device-requests**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [], total: 0 } }) }))
+      await page.goto(`${BASE}/admin/device-requests`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'device-requests')
+      await assertNotOverflowViewport(page, 'input[type="text"]', vp, 'device-requests')
+      await assertCTAVisible(page, ['대기중', '승인', '반려'], vp, 'device-requests')
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:site-join-requests]  /admin/site-join-requests  현장 참여 신청
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:site-join-requests] 현장 참여 신청', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/site-join-requests**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: [] }) }))
+      await page.goto(`${BASE}/admin/site-join-requests`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'site-join-requests')
+      await assertNotOverflowViewport(page, 'input[type="text"]', vp, 'site-join-requests')
+      await assertCTAVisible(page, ['대기', '승인', '반려'], vp, 'site-join-requests')
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:super-users]  /admin/super-users  관리자 계정
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:super-users] 관리자 계정', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/admin-users**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [] } }) }))
+      await page.route('**/api/admin/companies**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [] } }) }))
+      await page.goto(`${BASE}/admin/super-users`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'super-users')
+      await assertCTAVisible(page, ['+ 계정 생성', '계정 생성'], vp, 'super-users')
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:policies]  /admin/policies  정책 관리
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:policies] 정책 관리', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/policies**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: [] }) }))
+      await page.goto(`${BASE}/admin/policies`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'policies')
+      await assertCTAVisible(page, ['+ 새 버전 등록', '새 버전 등록'], vp, 'policies')
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:wage-calculations]  /admin/wage-calculations  급여 계산
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:wage-calculations] 급여 계산', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/wage-calculations**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [], totals: null } }) }))
+      await page.goto(`${BASE}/admin/wage-calculations`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'wage-calculations')
+      await assertNotOverflowViewport(page, 'input[type="month"], select', vp, 'wage-calculations')
+      await assertCTAVisible(page, ['세금계산 실행'], vp, 'wage-calculations')
+      await ctx.close()
+    })
+  }
+
+  test('@360px 세금계산 버튼 높이 ≥ 36px', async ({ browser }) => {
+    const vp = MOBILE_VPS[0]
+    const ctx = await makeCtx(browser, vp)
+    const page = await ctx.newPage()
+    await ensureAdmin(page)
+    await mockAdminAuth(page)
+    await page.route('**/api/admin/wage-calculations**', r =>
+      r.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: { items: [], totals: null } }) }))
+    await page.goto(`${BASE}/admin/wage-calculations`)
+    await expect(page.locator('h1').first()).toBeVisible({ timeout: 15000 })
+    await assertMinHeight(page, 'button:has-text("세금계산 실행")', 36, vp, 'wage-calculations-btn')
+    await ctx.close()
+  })
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:month-closings]  /admin/month-closings  월 마감
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:month-closings] 월 마감', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/month-closings**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { closings: [] } }) }))
+      await page.goto(`${BASE}/admin/month-closings`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'month-closings')
+      await assertNotOverflowViewport(page, 'input[type="month"]', vp, 'month-closings')
+      await assertCTAVisible(page, ['사전검사 실행', '마감 실행'], vp, 'month-closings')
+      await ctx.close()
+    })
+  }
+
+  test('@360px 사전검사 버튼 높이 ≥ 36px', async ({ browser }) => {
+    const vp = MOBILE_VPS[0]
+    const ctx = await makeCtx(browser, vp)
+    const page = await ctx.newPage()
+    await ensureAdmin(page)
+    await mockAdminAuth(page)
+    await page.route('**/api/admin/month-closings**', r =>
+      r.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: { closings: [] } }) }))
+    await page.goto(`${BASE}/admin/month-closings`)
+    await expect(page.locator('h1').first()).toBeVisible({ timeout: 15000 })
+    await assertMinHeight(page, 'button:has-text("사전검사 실행")', 36, vp, 'month-closings-btn')
+    await ctx.close()
+  })
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:presence-report]  /admin/presence-report  체류 리포트
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:presence-report] 체류 리포트', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·필터`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/presence-report**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: {
+            days: 7, today: new Date().toISOString().split('T')[0], siteId: null,
+            sites: [], daily: [], totals: { totalDays: 0, totalWorkers: 0, avgCheckIn: null, avgCheckOut: null, avgPresenceRate: null, avgAbsenceRate: null },
+            siteBreakdown: [],
+          } }) }))
+      await page.goto(`${BASE}/admin/presence-report`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'presence-report')
+      await assertNotOverflowViewport(page, 'select', vp, 'presence-report')
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:labor-cost-summaries]  /admin/labor-cost-summaries  노무비 집계
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:labor-cost-summaries] 노무비 집계', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/sites**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: [] }) }))
+      await page.route('**/api/admin/labor-cost-summaries**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [], totals: null } }) }))
+      await page.goto(`${BASE}/admin/labor-cost-summaries`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'labor-cost-summaries')
+      await assertNotOverflowViewport(page, 'input[type="month"], select', vp, 'labor-cost-summaries')
+      await assertCTAVisible(page, ['집계 실행'], vp, 'labor-cost-summaries')
+      await ctx.close()
+    })
+  }
+
+  test('@360px 집계 실행 버튼 높이 ≥ 36px', async ({ browser }) => {
+    const vp = MOBILE_VPS[0]
+    const ctx = await makeCtx(browser, vp)
+    const page = await ctx.newPage()
+    await ensureAdmin(page)
+    await mockAdminAuth(page)
+    await page.route('**/api/admin/sites**', r =>
+      r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [] }) }))
+    await page.route('**/api/admin/labor-cost-summaries**', r =>
+      r.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: { items: [], totals: null } }) }))
+    await page.goto(`${BASE}/admin/labor-cost-summaries`)
+    await expect(page.locator('h1').first()).toBeVisible({ timeout: 15000 })
+    await assertMinHeight(page, 'button:has-text("집계 실행")', 36, vp, 'labor-cost-summaries-btn')
+    await ctx.close()
+  })
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:devices]  /admin/devices  기기 관리
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:devices] 기기 관리', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/devices**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [], total: 0 } }) }))
+      await page.goto(`${BASE}/admin/devices`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'devices')
+      await assertCTAVisible(page, ['전체', '차단됨', '정상'], vp, 'devices')
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:insurance-eligibility]  /admin/insurance-eligibility  보험 자격 판정
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:insurance-eligibility] 보험 자격 판정', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/insurance-eligibility**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [] } }) }))
+      await page.goto(`${BASE}/admin/insurance-eligibility`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'insurance-eligibility')
+      await assertNotOverflowViewport(page, 'input[type="month"], select', vp, 'insurance-eligibility')
+      await assertCTAVisible(page, ['보험판정 실행'], vp, 'insurance-eligibility')
+      await ctx.close()
+    })
+  }
+
+  test('@360px 보험판정 버튼 높이 ≥ 36px', async ({ browser }) => {
+    const vp = MOBILE_VPS[0]
+    const ctx = await makeCtx(browser, vp)
+    const page = await ctx.newPage()
+    await ensureAdmin(page)
+    await mockAdminAuth(page)
+    await page.route('**/api/admin/insurance-eligibility**', r =>
+      r.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: { items: [] } }) }))
+    await page.goto(`${BASE}/admin/insurance-eligibility`)
+    await expect(page.locator('h1').first()).toBeVisible({ timeout: 15000 })
+    await assertMinHeight(page, 'button:has-text("보험판정 실행")', 36, vp, 'insurance-eligibility-btn')
+    await ctx.close()
+  })
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:insurance-rates]  /admin/insurance-rates  보험요율 관리
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:insurance-rates] 보험요율 관리', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/insurance-rates**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: [] }) }))
+      await page.goto(`${BASE}/admin/insurance-rates`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'insurance-rates')
+      await assertNotOverflowViewport(page, 'select', vp, 'insurance-rates')
+      await assertCTAVisible(page, ['+ 신규 버전 등록', '신규 버전 등록'], vp, 'insurance-rates')
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:site-access-groups]  /admin/site-access-groups  현장 접근 그룹
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:site-access-groups] 현장 접근 그룹', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      await page.route('**/api/admin/site-access-groups**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [] } }) }))
+      await page.route('**/api/admin/sites**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [] } }) }))
+      await page.route('**/api/admin/admin-users**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [] } }) }))
+      await page.goto(`${BASE}/admin/site-access-groups`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      // site-access-groups 페이지는 h1 없고 헤더 텍스트로 확인
+      await expect(page.locator('text=현장 접근 그룹').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'site-access-groups')
+      await assertCTAVisible(page, ['+ 그룹 생성', '그룹 생성'], vp, 'site-access-groups')
+      await ctx.close()
+    })
+  }
+})
+
+// ════════════════════════════════════════════════════════════
+//  [LAYOUT:site-admin-assignments]  /admin/site-admin-assignments  현장관리자 배치
+// ════════════════════════════════════════════════════════════
+test.describe('[LAYOUT:site-admin-assignments] 현장관리자 배치', () => {
+  for (const vp of ALL_VPS) {
+    test(`@${vp.label}px HScroll·overflow·CTA`, async ({ browser }) => {
+      const ctx  = await makeCtx(browser, vp)
+      const page = await ctx.newPage()
+      await ensureAdmin(page)
+      await mockAdminAuth(page)
+      // ⚠ LIFO: catch-all 먼저
+      await page.route('**/api/admin/**', async r => {
+        if (!r.request().isNavigationRequest()) {
+          await r.fulfill({ status: 200, contentType: 'application/json',
+            body: JSON.stringify({ success: true, data: { items: [] } }) })
+        } else { await r.continue() }
+      })
+      await page.route('**/api/admin/site-admin-assignments**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { assignments: [] } }) }))
+      await page.route('**/api/admin/super-users**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [] } }) }))
+      await page.route('**/api/admin/sites**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [] } }) }))
+      await page.route('**/api/admin/companies**', r =>
+        r.fulfill({ status: 200, contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { items: [] } }) }))
+      await page.goto(`${BASE}/admin/site-admin-assignments`)
+      await page.waitForLoadState('networkidle', { timeout: 15000 })
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+
+      await assertNoHScroll(page, vp, 'site-admin-assignments')
+      await assertCTAVisible(page, ['+ 현장 관리자 배정', '현장 관리자 배정'], vp, 'site-admin-assignments')
       await ctx.close()
     })
   }
