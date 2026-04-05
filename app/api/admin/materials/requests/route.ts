@@ -7,10 +7,16 @@ import { ok, created, badRequest, unauthorized } from '@/lib/utils/response'
 import { generateRequestNo } from '@/lib/materials/request-service'
 
 const CreateSchema = z.object({
-  title:               z.string().min(1, '제목을 입력하세요.'),
   siteId:              z.string().optional(),
   notes:               z.string().optional(),
   deliveryRequestedAt: z.string().datetime().optional(),
+  // 인라인 품목 (현장형 단일 등록)
+  itemName:    z.string().min(1, '품목명을 입력하세요.'),
+  spec:        z.string().optional(),
+  requestedQty: z.number().positive('수량은 0보다 커야 합니다.'),
+  unit:        z.string().optional(),
+  useLocation: z.string().optional(),
+  isUrgent:    z.boolean().default(false),
 })
 
 export async function GET(req: NextRequest) {
@@ -39,15 +45,21 @@ export async function GET(req: NextRequest) {
     prisma.materialRequest.findMany({
       where,
       select: {
-        id:           true,
-        requestNo:    true,
-        title:        true,
-        status:       true,
-        requestedBy:  true,
-        createdAt:    true,
+        id:               true,
+        requestNo:        true,
+        title:            true,
+        status:           true,
+        requestedBy:      true,
+        requestedByName:  true,
+        createdAt:        true,
         deliveryRequestedAt: true,
-        site:         { select: { id: true, name: true } },
-        _count:       { select: { items: true } },
+        site:             { select: { id: true, name: true } },
+        items: {
+          select: { itemName: true, spec: true, requestedQty: true, unit: true, isUrgent: true },
+          take: 1,
+          orderBy: { createdAt: 'asc' },
+        },
+        _count: { select: { items: true } },
       },
       orderBy: { createdAt: 'desc' },
       skip:  (page - 1) * pageSize,
@@ -66,34 +78,56 @@ export async function POST(req: NextRequest) {
   const parsed = CreateSchema.safeParse(body)
   if (!parsed.success) return badRequest(parsed.error.errors[0].message)
 
-  const { title, siteId, notes, deliveryRequestedAt } = parsed.data
+  const { siteId, notes, deliveryRequestedAt, itemName, spec, requestedQty, unit, useLocation, isUrgent } = parsed.data
   const requestNo = await generateRequestNo()
-  const id = randomUUID()
+  const requestId = randomUUID()
+
+  // 제목은 품목명으로 자동 생성
+  const title = `${itemName}${spec ? ` (${spec})` : ''} 자재 신청`
 
   const request = await prisma.$transaction(async (tx) => {
-    const req = await tx.materialRequest.create({
+    const newReq = await tx.materialRequest.create({
       data: {
-        id,
+        id:                 requestId,
         requestNo,
         title,
         siteId:             siteId ?? null,
         requestedBy:        session.sub,
+        requestedByName:    (session as { name?: string }).name ?? null,
         notes:              notes ?? null,
         deliveryRequestedAt: deliveryRequestedAt ? new Date(deliveryRequestedAt) : null,
-        status:             'DRAFT',
+        status:             'SUBMITTED', // 등록 즉시 요청 상태
+        submittedAt:        new Date(),
       },
     })
+
+    // 인라인 품목 생성
+    await tx.materialRequestItem.create({
+      data: {
+        id:          randomUUID(),
+        requestId,
+        itemCode:    itemName.slice(0, 50),
+        itemName,
+        spec:        spec ?? null,
+        unit:        unit ?? null,
+        requestedQty: requestedQty,
+        isUrgent,
+        useLocation: useLocation ?? null,
+      },
+    })
+
     await tx.materialRequestStatusHistory.create({
       data: {
-        id:        randomUUID(),
-        requestId: id,
+        id:         randomUUID(),
+        requestId,
         fromStatus: null,
-        toStatus:   'DRAFT',
+        toStatus:   'SUBMITTED',
         actorId:    session.sub,
         actorType:  'ADMIN',
       },
     })
-    return req
+
+    return newReq
   })
 
   return created({ id: request.id, requestNo: request.requestNo })

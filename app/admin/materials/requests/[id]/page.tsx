@@ -85,11 +85,13 @@ interface PickerItem {
 
 const STATUS_LABEL: Record<string, string> = {
   DRAFT:     '작성중',
-  SUBMITTED: '제출됨',
-  REVIEWED:  '검토됨',
-  APPROVED:  '승인됨',
-  REJECTED:  '반려됨',
-  CANCELLED: '취소됨',
+  SUBMITTED: '요청',
+  REVIEWED:  '검토중',
+  APPROVED:  '승인',
+  ORDERED:   '발주완료',
+  RECEIVED:  '입고완료',
+  REJECTED:  '반려',
+  CANCELLED: '취소',
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -97,6 +99,8 @@ const STATUS_COLOR: Record<string, string> = {
   SUBMITTED: '#f9a825',
   REVIEWED:  '#1565c0',
   APPROVED:  '#2e7d32',
+  ORDERED:   '#6a1b9a',
+  RECEIVED:  '#00695c',
   REJECTED:  '#b71c1c',
   CANCELLED: '#424242',
 }
@@ -195,6 +199,21 @@ export default function MaterialRequestDetailPage() {
     else alert(d.message ?? '처리 실패')
   }
 
+  const handleStatusChange = async (toStatus: string) => {
+    const labels: Record<string, string> = { REVIEWED: '검토중', APPROVED: '승인', ORDERED: '발주완료', RECEIVED: '입고완료' }
+    if (!confirm(`${labels[toStatus] ?? toStatus}으로 변경하시겠습니까?`)) return
+    setActionLoading(true)
+    const res = await fetch(`/api/admin/materials/requests/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ toStatus }),
+    })
+    const d = await res.json()
+    setActionLoading(false)
+    if (d.success) load()
+    else alert(d.message ?? '상태 변경 실패')
+  }
+
   const handleReject = async () => {
     if (!rejectReason.trim()) { alert('반려 사유를 입력하세요.'); return }
     setActionLoading(true)
@@ -245,9 +264,12 @@ export default function MaterialRequestDetailPage() {
   const isDraft = req.status === 'DRAFT'
   const isEditable = ['DRAFT', 'REJECTED'].includes(req.status)
   const canSubmit = isDraft && req.items.length > 0
+  const canReview = req.status === 'SUBMITTED'
   const canApprove = ['SUBMITTED', 'REVIEWED'].includes(req.status)
   const canReject = ['SUBMITTED', 'REVIEWED'].includes(req.status)
   const canCancel = ['DRAFT', 'SUBMITTED'].includes(req.status)
+  const canOrder = req.status === 'APPROVED'
+  const canReceive = req.status === 'ORDERED'
 
   return (
     <div className="p-4 sm:p-8 overflow-x-auto">
@@ -280,31 +302,25 @@ export default function MaterialRequestDetailPage() {
               <button onClick={() => setShowPicker(true)} className="px-4 py-2 bg-white/[0.08] text-muted-brand border border-[rgba(91,164,217,0.2)] rounded-md cursor-pointer text-[13px]">+ 품목 추가</button>
             )}
             {canSubmit && (
-              <button onClick={() => handleAction('submit')} disabled={actionLoading} className="px-[18px] py-2 bg-[#1565c0] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
-                제출
-              </button>
+              <button onClick={() => handleAction('submit')} disabled={actionLoading} className="px-[18px] py-2 bg-[#1565c0] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">제출</button>
+            )}
+            {canReview && (
+              <button onClick={() => handleStatusChange('REVIEWED')} disabled={actionLoading} className="px-[18px] py-2 bg-[#1565c0] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">검토중</button>
             )}
             {canApprove && (
-              <button onClick={() => handleAction('approve')} disabled={actionLoading} className="px-[18px] py-2 bg-[#2e7d32] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
-                승인
-              </button>
+              <button onClick={() => handleStatusChange('APPROVED')} disabled={actionLoading} className="px-[18px] py-2 bg-[#2e7d32] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">승인</button>
+            )}
+            {canOrder && (
+              <button onClick={() => handleStatusChange('ORDERED')} disabled={actionLoading} className="px-[18px] py-2 bg-[#6a1b9a] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">발주완료</button>
+            )}
+            {canReceive && (
+              <button onClick={() => handleStatusChange('RECEIVED')} disabled={actionLoading} className="px-[18px] py-2 bg-[#00695c] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">입고완료</button>
             )}
             {canReject && (
-              <button onClick={() => setShowRejectModal(true)} disabled={actionLoading} className="px-[18px] py-2 bg-[#b71c1c] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
-                반려
-              </button>
+              <button onClick={() => setShowRejectModal(true)} disabled={actionLoading} className="px-[18px] py-2 bg-[#b71c1c] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">반려</button>
             )}
             {canCancel && (
-              <button onClick={() => handleAction('cancel')} disabled={actionLoading} className="px-4 py-2 bg-white/[0.06] text-[#607d8b] border border-[rgba(97,125,139,0.3)] rounded-md cursor-pointer text-[13px]">
-                취소
-              </button>
-            )}
-            {req.status === 'APPROVED' && (
-              <button
-                onClick={() => router.push(`/admin/materials/purchase-orders/new?materialRequestId=${req.id}`)}
-                className="px-[18px] py-2 bg-[#0d47a1] text-white border-0 rounded-md cursor-pointer text-[13px] font-semibold">
-                + 발주 생성
-              </button>
+              <button onClick={() => handleAction('cancel')} disabled={actionLoading} className="px-4 py-2 bg-white/[0.06] text-[#607d8b] border border-[rgba(97,125,139,0.3)] rounded-md cursor-pointer text-[13px]">취소</button>
             )}
           </div>
         </div>

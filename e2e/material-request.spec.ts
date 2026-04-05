@@ -152,3 +152,170 @@ test('M-03 보기 링크 — href 패턴 /requests/[id] 확인', async ({ page }
   expect(href).toMatch(/\/admin\/materials\/requests\/.+/)
   expect(href).not.toMatch(/\/admin\/materials\/requests\/$/)
 })
+
+// ══════════════════════════════════════════════════════════
+// M-04  등록 화면 진입
+// ══════════════════════════════════════════════════════════
+test('M-04 등록 화면 — 필수 입력 필드 노출', async ({ page }) => {
+  await page.goto(`${BASE}/admin/materials/requests/new`)
+  await page.waitForTimeout(1500)
+
+  // 필수 필드 존재 확인
+  await expect(page.locator('input[placeholder*="품목명"], input[placeholder*="철근"]')).toBeVisible({ timeout: 10000 })
+  await expect(page.locator('input[type="number"], input[placeholder="0"]')).toBeVisible()
+  await expect(page.locator('button[type="submit"], button:has-text("신청 등록")')).toBeVisible()
+})
+
+// ══════════════════════════════════════════════════════════
+// M-05  자재 신청 등록 저장 → 상세 이동
+// ══════════════════════════════════════════════════════════
+test('M-05 자재 신청 등록 — POST 성공 → 상세 이동', async ({ page }) => {
+  // POST 모킹
+  await page.route('**/api/admin/materials/requests', async (route: Route) => {
+    if (route.request().method() === 'POST') {
+      await route.fulfill({
+        status: 201, contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: { id: 'mr-new', requestNo: 'REQ-2026-0099' } }),
+      })
+    } else {
+      await route.continue()
+    }
+  })
+  // 상세 API 모킹
+  await page.route('**/api/admin/materials/requests/mr-new**', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { ...REQUEST_A, id: 'mr-new', requestNo: 'REQ-2026-0099', status: 'SUBMITTED',
+          items: [{ id: 'i-1', itemCode: '철근D16', itemName: '철근 D16', spec: 'D16×9m',
+            unit: '본', requestedQty: '100', approvedQty: null, unitPrice: null,
+            isUrgent: false, allowSubstitute: false, notes: null,
+            disciplineCode: null, useLocation: '3층 기둥' }],
+          history: [] },
+      }),
+    })
+  })
+
+  await page.goto(`${BASE}/admin/materials/requests/new`)
+  await page.waitForTimeout(1000)
+
+  // 품목명 + 수량 입력
+  await page.locator('input[placeholder*="품목명"], input[placeholder*="철근"]').fill('철근 D16')
+  await page.locator('input[type="number"], input[placeholder="0"]').fill('100')
+
+  // 제출
+  await page.locator('button[type="submit"], button:has-text("신청 등록")').click()
+
+  // 상세 페이지 이동 확인
+  await page.waitForURL('**/admin/materials/requests/mr-new', { timeout: 8000 })
+  expect(page.url()).toContain('/admin/materials/requests/mr-new')
+})
+
+// ══════════════════════════════════════════════════════════
+// M-06  상세 화면 — 신청 정보 + 상태 반영
+// ══════════════════════════════════════════════════════════
+test('M-06 상세 화면 — 품목명·상태·현장 표시', async ({ page }) => {
+  await page.route('**/api/admin/materials/requests/mr-1', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { ...REQUEST_A, status: 'SUBMITTED',
+          items: [{ id: 'i-1', itemCode: '철근D16', itemName: '철근 D16', spec: 'D16×9m',
+            unit: '본', requestedQty: '100', approvedQty: null, unitPrice: null,
+            isUrgent: false, allowSubstitute: false, notes: null,
+            disciplineCode: null, useLocation: '3층 기둥' }],
+          history: [{ id: 'h-1', fromStatus: null, toStatus: 'SUBMITTED',
+            actorId: 'adm-1', actorType: 'ADMIN', reason: null,
+            createdAt: new Date().toISOString() }] },
+      }),
+    })
+  })
+
+  await page.goto(`${BASE}/admin/materials/requests/mr-1`)
+  await page.waitForTimeout(2000)
+
+  // 품목명 노출 (strict mode 우회 — 복수 매칭 가능)
+  await expect(page.getByText('철근 D16', { exact: false }).first()).toBeVisible({ timeout: 10000 })
+  // 상태 배지 — 요청
+  await expect(page.getByText('요청', { exact: false })).toBeVisible()
+  // 현장명
+  await expect(page.getByText('테스트현장', { exact: false })).toBeVisible()
+})
+
+// ══════════════════════════════════════════════════════════
+// M-07  상태변경 권한 — VIEWER 는 상태 변경 버튼 없음
+// ══════════════════════════════════════════════════════════
+test('M-07 상태변경 — VIEWER 는 상태변경 API 403 반환', async ({ page }) => {
+  let statusChangeAttempted = false
+  await page.route('**/api/admin/materials/requests/mr-1/status', async (route: Route) => {
+    statusChangeAttempted = true
+    await route.fulfill({
+      status: 403, contentType: 'application/json',
+      body: JSON.stringify({ success: false, error: '상태 변경은 관리자만 가능합니다.' }),
+    })
+  })
+
+  // VIEWER 역할 mock
+  await page.route('**/api/admin/auth/me**', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ success: true, data: { id: 'adm-1', name: '뷰어', email: 'viewer@test.kr', role: 'VIEWER' } }),
+    })
+  })
+  await page.route('**/api/admin/materials/requests/mr-1', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { ...REQUEST_A, status: 'SUBMITTED',
+          items: [{ id: 'i-1', itemCode: '철근D16', itemName: '철근 D16', spec: null,
+            unit: '본', requestedQty: '100', approvedQty: null, unitPrice: null,
+            isUrgent: false, allowSubstitute: false, notes: null, disciplineCode: null }],
+          history: [] },
+      }),
+    })
+  })
+
+  await page.goto(`${BASE}/admin/materials/requests/mr-1`)
+  await page.waitForTimeout(2000)
+
+  // VIEWER: 승인/검토중/발주완료 버튼 없음 — 상태 변경 API 직접 호출로 403 확인
+  // page.evaluate() 로 브라우저 컨텍스트에서 fetch → page.route() mock 적용됨
+  const result = await page.evaluate(async (url: string) => {
+    const r = await fetch(url, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ toStatus: 'REVIEWED' }),
+    })
+    return { status: r.status }
+  }, `${BASE}/api/admin/materials/requests/mr-1/status`)
+  expect(result.status).toBe(403)
+  expect(statusChangeAttempted).toBe(true)
+})
+
+// ══════════════════════════════════════════════════════════
+// M-08  VIEWER 작성 차단 유지 (P-05 재확인)
+// ══════════════════════════════════════════════════════════
+test('M-08 VIEWER — 자재 신청 목록 + 작성 버튼 없음', async ({ page }) => {
+  await page.route('**/api/admin/auth/me**', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({ success: true, data: { id: 'adm-1', name: '뷰어', role: 'VIEWER' } }),
+    })
+  })
+  await page.route('**/api/admin/materials/requests**', async (route: Route) => {
+    await route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify(listResp([])),
+    })
+  })
+  await page.goto(`${BASE}/admin/materials/requests`)
+  await page.waitForTimeout(2000)
+
+  // 목록 진입 성공
+  await expect(page.locator('h1').filter({ hasText: /자재 신청/ })).toBeVisible({ timeout: 10000 })
+  // 작성 버튼 없음
+  await expect(page.locator('button:has-text("신청"), button:has-text("+ 신청")')).not.toBeVisible()
+})

@@ -3854,11 +3854,13 @@ model NaraResource {
 
 enum MaterialRequestStatus {
   DRAFT      // 작성중
-  SUBMITTED  // 제출됨
-  REVIEWED   // 검토됨
-  APPROVED   // 승인됨
-  REJECTED   // 반려됨
-  CANCELLED  // 취소됨
+  SUBMITTED  // 요청
+  REVIEWED   // 검토중
+  APPROVED   // 승인
+  ORDERED    // 발주완료
+  RECEIVED   // 입고완료
+  REJECTED   // 반려
+  CANCELLED  // 취소
 }
 
 enum MaterialRequestActorType {
@@ -3906,6 +3908,7 @@ model MaterialRequest {
   requestNo    String                 @unique // MR-YYYYMMDD-NNNN
   siteId       String?
   requestedBy        String                   // Admin userId (WORKER인 경우 'WORKER' 고정값)
+  requestedByName    String?                  // 신청자 표시명 (등록 시 session.name)
   workerRequesterId  String?                  // actorType=WORKER일 때 Worker.id
   actorType          MaterialRequestActorType @default(ADMIN)
   status             MaterialRequestStatus    @default(DRAFT)
@@ -3955,6 +3958,7 @@ model MaterialRequestItem {
   unitPrice        Decimal? @db.Decimal(15, 2)
   isUrgent         Boolean  @default(false)
   allowSubstitute  Boolean  @default(false)
+  useLocation      String?  // 사용 위치/용도
   notes            String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
