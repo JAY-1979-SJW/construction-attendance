@@ -200,3 +200,24 @@ test('W-10 390px 뷰포트 근로자 목록 — 가로 스크롤 없음', async 
   expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 5)
   await ctx.close()
 })
+
+// ── 11. 한글 근로자명 — 목록 표시 정상 확인 ──────────────────────────────
+// E2E 전용 근로자(phone=01077770001, name=E2E테스트)가 목록에 깨지지 않고 표시되는지 검증
+// 관련 버그: EUC-KR 바이트가 UTF-8로 잘못 디코딩 → U+FFFD 치환 문자 삽입 (2026-04-04 발생)
+test('W-11 한글 근로자명 — 목록 정상 표시 (인코딩 검증)', async ({ request }) => {
+  const token = await fetchAdminToken()
+  const res = await request.get(`${BASE}/api/admin/workers?search=01077770001&pageSize=5`, {
+    headers: { Cookie: `admin_token=${token}` },
+  })
+  const data = await res.json()
+  expect(data.success).toBe(true)
+  if (!data.data?.items?.length) {
+    test.skip(true, 'E2E 테스트 근로자(01077770001) 없음 — setup 필요')
+    return
+  }
+  const worker = data.data.items[0]
+  // 깨진 문자(U+FFFD, replacement char) 포함 여부 검증
+  expect(worker.name).not.toContain('\uFFFD')
+  // 한글이 실제로 포함되어 있는지 검증 (정상 한글 범위: U+AC00~U+D7A3)
+  expect(/[\uAC00-\uD7A3]/.test(worker.name)).toBe(true)
+})
