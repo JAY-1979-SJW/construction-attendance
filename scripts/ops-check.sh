@@ -657,6 +657,31 @@ else
 fi
 out ""
 
+
+# ══════════════════════════════════════════════════════
+# [17] 디스크 자동 정리 최근 실행 결과
+# ══════════════════════════════════════════════════════
+outc "${CYAN}[17] 디스크 자동 정리 이력${NC}"
+DISK_CLEAN_LOG="$SCRIPT_DIR/../logs/last-disk-check.txt"
+if [ ! -f "$DISK_CLEAN_LOG" ]; then
+  result_warn 17 "disk_clean" "disk-cleanup-freshness" "WARN — logs/last-disk-check.txt 없음 (미실행)"
+else
+  DC_RUN_AT=$(grep '^run_at=' "$DISK_CLEAN_LOG" | cut -d= -f2-)
+  DC_USAGE_BEFORE=$(grep '^usage_before=' "$DISK_CLEAN_LOG" | cut -d= -f2-)
+  DC_USAGE_AFTER=$(grep '^usage_after=' "$DISK_CLEAN_LOG" | cut -d= -f2-)
+  DC_CLEANUP=$(grep '^cleanup_level=' "$DISK_CLEAN_LOG" | cut -d= -f2-)
+  DC_FINAL=$(grep '^final=' "$DISK_CLEAN_LOG" | cut -d= -f2-)
+  DC_NOTE="${DC_USAGE_AFTER} (정리=${DC_CLEANUP}, 직전=${DC_USAGE_BEFORE}) @ ${DC_RUN_AT}"
+  if [ "$DC_FINAL" = "FAIL" ]; then
+    result_fail 17 "disk_clean" "disk-cleanup-freshness" "FAIL — $DC_NOTE"
+  elif [ "$DC_FINAL" = "WARN" ]; then
+    result_warn 17 "disk_clean" "disk-cleanup-freshness" "WARN — $DC_NOTE"
+  else
+    result_pass 17 "disk_clean" "disk-cleanup-freshness" "PASS — $DC_NOTE"
+  fi
+fi
+out ""
+
 # ══════════════════════════════════════════════════════
 # FAIL 시 로그 자동 첨부 (항상, --logs면 50줄 전체)
 # ══════════════════════════════════════════════════════
