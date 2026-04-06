@@ -5,80 +5,46 @@ export interface GeocodedResult {
   confidence: 'HIGH' | 'LOW'
 }
 
-/** 카카오 REST API로 주소 → 좌표 변환 */
-async function geocodeWithKakao(address: string): Promise<GeocodedResult | null> {
-  const key = process.env.KAKAO_REST_API_KEY
-  if (!key) return null
-  try {
-    const url = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`
-    const res = await fetch(url, {
-      headers: { Authorization: `KakaoAK ${key}` },
-      signal: AbortSignal.timeout(8000),
-    })
-    if (!res.ok) return null
-    const data = await res.json()
-    const doc = data.documents?.[0]
-    if (!doc) return null
-    return {
-      normalizedAddress: doc.address_name ?? address,
-      latitude: parseFloat(doc.y),
-      longitude: parseFloat(doc.x),
-      confidence: 'HIGH',
-    }
-  } catch {
-    return null
-  }
-}
-
-/** Nominatim(OpenStreetMap) 무료 지오코딩 — 한국 주소 보조
- *  1차: 전체 주소 시도
- *  2차: 시/구 단위만 추출해 폴백 (도로명 주소는 Nominatim 히트율 낮음)
+/** VWorld Geocoder API로 주소 → 좌표 변환
+ *  type=road(도로명) 먼저 시도, 없으면 type=parcel(지번) 재시도
  */
-async function geocodeWithNominatim(address: string): Promise<GeocodedResult | null> {
-  const tryNominatim = async (q: string): Promise<GeocodedResult | null> => {
+async function geocodeWithVWorld(address: string): Promise<GeocodedResult | null> {
+  const key = process.env.NEXT_PUBLIC_VWORLD_API_KEY
+  if (!key) return null
+
+  const tryType = async (type: 'road' | 'parcel'): Promise<GeocodedResult | null> => {
     try {
-      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ' 대한민국')}&format=json&limit=1&accept-language=ko&countrycodes=kr`
-      const res = await fetch(url, {
-        headers: { 'User-Agent': 'HaehanAttendanceSystem/1.0 (construction-attendance)' },
-        signal: AbortSignal.timeout(8000),
-      })
+      const url =
+        `https://api.vworld.kr/req/address` +
+        `?service=address&request=getcoord&version=2.0&crs=epsg:4326` +
+        `&address=${encodeURIComponent(address)}&format=json&type=${type}&key=${key}`
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
       if (!res.ok) return null
       const data = await res.json()
-      const item = data[0]
-      if (!item || parseFloat(item.lat) === 0) return null
+      if (data?.response?.status !== 'OK') return null
+      const point = data.response?.result?.point
+      if (!point?.x || !point?.y) return null
       return {
-        normalizedAddress: item.display_name ?? q,
-        latitude: parseFloat(item.lat),
-        longitude: parseFloat(item.lon),
-        confidence: 'LOW',
+        normalizedAddress: address,
+        latitude:  parseFloat(point.y),
+        longitude: parseFloat(point.x),
+        confidence: 'HIGH',
       }
     } catch { return null }
   }
 
-  // 1차: 전체 주소
-  const full = await tryNominatim(address)
-  if (full) return full
-
-  // 2차: 시/도 + 구/군 단위 추출 폴백
-  // 예: "서울특별시 서초구 반포대로 58" → "서울특별시 서초구"
-  const m = address.match(/^(.+?[시도])\s+(.+?[구군시])\s/)
-  if (m) {
-    const district = `${m[1]} ${m[2]}`
-    return tryNominatim(district)
-  }
-  return null
+  const road = await tryType('road')
+  if (road) return road
+  return tryType('parcel')
 }
 
 /**
  * 주소 → 좌표 변환.
- * 우선순위: Kakao REST API (KAKAO_REST_API_KEY 설정 시) → Nominatim 무료 API → null
+ * VWorld Geocoder API (NEXT_PUBLIC_VWORLD_API_KEY 설정 시) 사용.
+ * 키 없으면 null 반환.
  */
 export async function geocodeAddress(address: string): Promise<GeocodedResult | null> {
-  const kakao = await geocodeWithKakao(address)
-  if (kakao) return kakao
-
-  // Nominatim 1 req/s 제한 — 호출 측에서 delay 처리
-  return geocodeWithNominatim(address)
+  return geocodeWithVWorld(address)
 }
 
 /** ms 단위 sleep */

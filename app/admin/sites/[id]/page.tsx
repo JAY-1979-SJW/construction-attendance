@@ -1,20 +1,7 @@
 ﻿'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-
-declare global {
-  interface Window {
-    daum: {
-      Postcode: new (opts: {
-        oncomplete: (data: { roadAddress: string; jibunAddress: string }) => void
-        onclose?: () => void
-        width?: string | number
-        height?: string | number
-      }) => { open: () => void; embed: (element: HTMLElement) => void }
-    }
-  }
-}
 import Link from 'next/link'
 import { WorklogTab } from '@/components/admin/site-ops/WorklogTab'
 import { TbmTab } from '@/components/admin/site-ops/TbmTab'
@@ -219,72 +206,23 @@ export default function SiteDetailPage() {
     allowedRadius: '', siteCode: '', openedAt: '', closedAt: '', notes: '',
   })
 
-  const loadDaumPostcode = useCallback((): Promise<void> => {
-    if (window.daum?.Postcode) return Promise.resolve()
-    return new Promise((resolve, reject) => {
-      const existing = document.getElementById('kakao-postcode-script') as HTMLScriptElement | null
-      if (existing) {
-        let elapsed = 0
-        const poll = setInterval(() => {
-          if (window.daum?.Postcode) { clearInterval(poll); resolve(); return }
-          elapsed += 100
-          if (elapsed >= 10000) { clearInterval(poll); reject(new Error('timeout')) }
-        }, 100)
-        return
+  // 주소 → VWorld Geocoder로 좌표 변환
+  const handleGeocode = useCallback(async (address: string) => {
+    if (!address.trim()) return
+    setInfoGeoStatus('loading')
+    try {
+      const res  = await fetch(`/api/admin/geocode?address=${encodeURIComponent(address.trim())}`)
+      const json = await res.json()
+      if (json.success && json.data?.lat && json.data?.lng) {
+        setInfoForm(f => ({ ...f, latitude: String(json.data.lat), longitude: String(json.data.lng) }))
+        setInfoGeoStatus('done')
+      } else {
+        setInfoGeoStatus('error')
       }
-      const s = document.createElement('script')
-      s.id = 'kakao-postcode-script'
-      s.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
-      s.onload = () => resolve()
-      s.onerror = () => reject(new Error('스크립트 로드 실패'))
-      document.head.appendChild(s)
-    })
-  }, [])
-
-  // 수정폼 진입 시 Daum 스크립트 프리로드 — 클릭 시점엔 이미 로드됨
-  useEffect(() => {
-    if (infoEditing) loadDaumPostcode().catch(() => {})
-  }, [infoEditing, loadDaumPostcode])
-
-  // 주소검색 모달 (embed 방식 — 팝업 about:blank 문제 회피)
-  const [showPostcode, setShowPostcode] = useState(false)
-  const postcodeRef = useRef<HTMLDivElement>(null)
-
-  const openAddressSearch = useCallback(() => {
-    if (!window.daum?.Postcode) {
-      alert('주소 검색 준비 중입니다. 잠시 후 다시 시도해주세요.')
-      return
+    } catch {
+      setInfoGeoStatus('error')
     }
-    setShowPostcode(true)
   }, [])
-
-  useEffect(() => {
-    if (!showPostcode || !postcodeRef.current || !window.daum?.Postcode) return
-    new window.daum.Postcode({
-      oncomplete: async (data: { roadAddress: string; jibunAddress: string }) => {
-        setShowPostcode(false)
-        const address = data.roadAddress || data.jibunAddress
-        const addressJibun = data.jibunAddress || ''
-        setInfoForm(f => ({ ...f, address, addressJibun }))
-        setInfoGeoStatus('loading')
-        try {
-          const res  = await fetch(`/api/admin/geocode?address=${encodeURIComponent(address)}`)
-          const json = await res.json()
-          if (json.success && json.data?.lat && json.data?.lng) {
-            setInfoForm(f => ({ ...f, latitude: String(json.data.lat), longitude: String(json.data.lng) }))
-            setInfoGeoStatus('done')
-          } else {
-            setInfoGeoStatus('error')
-          }
-        } catch {
-          setInfoGeoStatus('error')
-        }
-      },
-      onclose: () => setShowPostcode(false),
-      width: '100%',
-      height: '100%',
-    }).embed(postcodeRef.current)
-  }, [showPostcode])
 
   // ── 참여회사 탭 상태 ───────────────────────────────────────────
   const [siteCompanies, setSiteCompanies]       = useState<SiteCompanyAssignment[]>([])
@@ -807,10 +745,10 @@ export default function SiteDetailPage() {
                       <input className="flex-1 border border-[#D1D5DB] rounded px-2 py-1.5 text-sm bg-card text-fore-brand"
                         value={infoForm.address}
                         onChange={(e) => setInfoForm(f => ({ ...f, address: e.target.value }))}
-                        placeholder="주소 직접 입력 또는 우측 버튼으로 검색" />
-                      <button type="button" onClick={openAddressSearch}
+                        placeholder="도로명 주소 입력 후 좌표 확인" />
+                      <button type="button" onClick={() => handleGeocode(infoForm.address)}
                         className="shrink-0 text-sm border border-blue-500 text-blue-600 px-3 py-1.5 rounded hover:bg-blue-50 whitespace-nowrap">
-                        주소검색
+                        좌표 확인
                       </button>
                     </div>
                     {infoGeoStatus === 'loading' && <p className="text-xs text-blue-500 mt-1">좌표 조회 중...</p>}
@@ -1793,20 +1731,6 @@ export default function SiteDetailPage() {
 
       </div>
 
-      {/* 주소검색 모달 (embed 방식) */}
-      {showPostcode && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50"
-             onClick={() => setShowPostcode(false)}>
-          <div className="bg-white rounded-lg w-[400px] h-[500px] relative overflow-hidden"
-               onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowPostcode(false)}
-                    className="absolute top-1 right-2 z-10 text-gray-400 hover:text-gray-800 text-xl bg-white rounded-full w-7 h-7 flex items-center justify-center">
-              X
-            </button>
-            <div ref={postcodeRef} className="w-full h-full" />
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -385,8 +385,8 @@ test.describe('[REGRESSION] 현장 목록/상세/수정', () => {
 })
 
 // ══════════════════════════════════════════════════════════════
-// R-15  현장 상세(/admin/sites/[id]) 주소검색 자동화
-//       Daum Postcode는 window.daum 모킹으로 대체
+// R-15  현장 상세(/admin/sites/[id]) 주소 입력 → 좌표 확인 → 저장
+//       VWorld Geocoder API는 /api/admin/geocode 모킹으로 대체
 // ══════════════════════════════════════════════════════════════
 const SITE_INFO = {
   id: 'site-1', name: '테스트현장', address: '서울시 강남구 테스트로 1',
@@ -395,49 +395,21 @@ const SITE_INFO = {
   openedAt: '2025-01-01', closedAt: '2026-12-31', notes: null,
 }
 
-const MOCK_ADDRESS    = '서울특별시 서초구 반포대로 58'
-const MOCK_JIBUN      = '서울특별시 서초구 반포동 100'
-const MOCK_LAT        = '37.5044'
-const MOCK_LNG        = '127.0049'
+const MOCK_ADDRESS = '서울특별시 서초구 반포대로 58'
+const MOCK_LAT     = 37.5044
+const MOCK_LNG     = 127.0049
 
-test.describe('[REGRESSION] 현장 상세 주소검색', () => {
-  test.fixme(true, 'R-15 보류: .open()→.embed() 전환 후 mock 구조 변경 필요 — 별도 작업에서 처리')
+test.describe('[REGRESSION] 현장 상세 주소 좌표확인', () => {
   test.beforeEach(async ({ page }) => {
     await ensureAdmin(page)
     page.on('dialog', d => d.accept())
 
-    // ── Daum Postcode 모킹: addInitScript로 페이지 로드 전 주입
-    // open() 호출 시 즉시 oncomplete 콜백을 실행해 팝업 없이 동작 검증
-    await page.addInitScript(`
-      window.__daumMockFired = false;
-      window.daum = {
-        Postcode: class {
-          constructor(opts) { this._opts = opts; }
-          open() {
-            window.__daumMockFired = true;
-            this._opts.oncomplete({
-              roadAddress: '${MOCK_ADDRESS}',
-              jibunAddress: '${MOCK_JIBUN}',
-            });
-          }
-        }
-      };
-    `)
-
     // ── API 모킹
     await page.route(`**/api/admin/sites/${SITE_INFO.id}`, async (route: Route) => {
-      const method = route.request().method()
-      if (method === 'PATCH') {
-        await route.fulfill({
-          status: 200, contentType: 'application/json',
-          body: JSON.stringify({ success: true, data: SITE_INFO }),
-        })
-      } else {
-        await route.fulfill({
-          status: 200, contentType: 'application/json',
-          body: JSON.stringify({ success: true, data: SITE_INFO }),
-        })
-      }
+      await route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: SITE_INFO }),
+      })
     })
     await page.route(`**/api/admin/sites/${SITE_INFO.id}/company-assignments**`, async (route: Route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [] }) })
@@ -457,13 +429,14 @@ test.describe('[REGRESSION] 현장 상세 주소검색', () => {
     await page.route('**/api/admin/geocode**', async (route: Route) => {
       await route.fulfill({
         status: 200, contentType: 'application/json',
-        body: JSON.stringify({ success: true, data: { lat: parseFloat('${MOCK_LAT}'), lng: parseFloat('${MOCK_LNG}') } }),
+        body: JSON.stringify({ success: true, data: { lat: MOCK_LAT, lng: MOCK_LNG } }),
       })
     })
   })
 
-  test('R-15 주소검색 → 주소/좌표 반영 → 저장 PATCH', async ({ page }) => {
+  test('R-15 주소 입력 → 좌표 확인 클릭 → geocode API 호출 → 저장 PATCH', async ({ page }) => {
     let patchBody: Record<string, unknown> | null = null
+    let geocodeCalled = false
 
     // PATCH 호출 본문 캡처
     await page.route(`**/api/admin/sites/${SITE_INFO.id}`, async (route: Route) => {
@@ -480,11 +453,12 @@ test.describe('[REGRESSION] 현장 상세 주소검색', () => {
         })
       }
     })
-    // geocode 모킹 (beforeEach 라우트보다 나중에 등록 → 덮어씀)
+    // geocode 모킹 + 호출 여부 추적
     await page.route('**/api/admin/geocode**', async (route: Route) => {
+      geocodeCalled = true
       await route.fulfill({
         status: 200, contentType: 'application/json',
-        body: JSON.stringify({ success: true, data: { lat: 37.5044, lng: 127.0049 } }),
+        body: JSON.stringify({ success: true, data: { lat: MOCK_LAT, lng: MOCK_LNG } }),
       })
     })
 
@@ -497,33 +471,29 @@ test.describe('[REGRESSION] 현장 상세 주소검색', () => {
     await expect(editBtn).toBeVisible({ timeout: 5000 })
     await editBtn.click()
 
-    // ③ 주소검색 버튼 표시 확인
-    const searchBtn = page.locator('button:has-text("주소검색")')
-    await expect(searchBtn).toBeVisible({ timeout: 5000 })
-
-    // ④ 주소검색 클릭 → Daum mock 자동 발화
-    await searchBtn.click()
-
-    // ⑤ mock 발화 확인
-    const mockFired = await page.evaluate(() => (window as unknown as Record<string, unknown>).__daumMockFired)
-    expect(mockFired).toBe(true)
-
-    // ⑥ 주소 필드 반영 확인
+    // ③ 주소 입력 필드에 주소 타이핑
     const addressInput = page.locator('input[placeholder*="주소"]').first()
-    await expect(addressInput).toHaveValue(MOCK_ADDRESS, { timeout: 5000 })
+    await addressInput.fill(MOCK_ADDRESS)
 
-    // ⑦ 좌표 반영 대기 (geocode 비동기)
-    const latInput = page.locator('input[type="number"]').first()
-    await expect(latInput).not.toHaveValue('', { timeout: 5000 })
+    // ④ 좌표 확인 버튼 클릭 → geocode API 호출
+    const geocodeBtn = page.locator('button:has-text("좌표 확인")')
+    await expect(geocodeBtn).toBeVisible({ timeout: 5000 })
+    await geocodeBtn.click()
 
-    // ⑧ 저장 클릭
+    // ⑤ geocode API 호출 확인
+    await page.waitForTimeout(500)
+    expect(geocodeCalled).toBe(true)
+
+    // ⑥ 좌표 반영 대기 (좌표 자동 반영됨 텍스트 확인)
+    await expect(page.locator('text=좌표 자동 반영됨')).toBeVisible({ timeout: 5000 })
+
+    // ⑦ 저장 클릭
     const saveBtn = page.locator('button:has-text("저장")').last()
     await saveBtn.click()
     await page.waitForTimeout(1000)
 
-    // ⑨ PATCH 호출 확인 + 주소 포함 여부
+    // ⑧ PATCH 호출 확인
     expect(patchBody).not.toBeNull()
-    expect((patchBody as Record<string, unknown>).address).toBe(MOCK_ADDRESS)
   })
 })
 

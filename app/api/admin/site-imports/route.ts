@@ -154,8 +154,8 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      // 지오코딩
-      if (i > 0 && !process.env.KAKAO_REST_API_KEY) await sleep(1100)
+      // 지오코딩 (VWorld API — 연속 호출 시 서버 부하 방지)
+      if (i > 0) await sleep(300)
       const geo = await geocodeAddress(rawAddress)
 
       if (!geo) {

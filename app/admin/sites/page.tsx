@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminRole } from '@/lib/hooks/useAdminRole'
@@ -12,20 +12,7 @@ import {
   FormInput, FormSelect, FormGrid, ModalFooter,
   Modal, Toast,
 } from '@/components/admin/ui'
-
-// ── 전역 타입 ──────────────────────────────────────────────────────────────
-declare global {
-  interface Window {
-    daum: {
-      Postcode: new (opts: {
-        oncomplete: (data: { roadAddress: string; jibunAddress: string }) => void
-        onclose?: () => void
-        width?: string | number
-        height?: string | number
-      }) => { open: () => void; embed: (element: HTMLElement) => void }
-    }
-  }
-}
+import VWorldMap from '@/components/map/VWorldMap'
 
 // ── 미출근 확인필요 기준값
 // 현재: 하드코딩 임시값 (기본 2명)
@@ -266,30 +253,6 @@ export default function SitesPage() {
 
   const [gpsLoading, setGpsLoading] = useState(false)
 
-  // Daum 우편번호 스크립트 — 클릭 시 로드 보장
-  const loadDaumPostcode = useCallback((): Promise<void> => {
-    if (window.daum?.Postcode) return Promise.resolve()
-    return new Promise((resolve, reject) => {
-      const existing = document.getElementById('kakao-postcode-script') as HTMLScriptElement | null
-      if (existing) {
-        // 스크립트 태그는 있지만 load 이벤트가 이미 발생했을 수 있음 → 폴링
-        let elapsed = 0
-        const poll = setInterval(() => {
-          if (window.daum?.Postcode) { clearInterval(poll); resolve(); return }
-          elapsed += 100
-          if (elapsed >= 10000) { clearInterval(poll); reject(new Error('timeout')) }
-        }, 100)
-        return
-      }
-      const s = document.createElement('script')
-      s.id = 'kakao-postcode-script'
-      s.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
-      s.onload = () => resolve()
-      s.onerror = () => reject(new Error('스크립트 로드 실패'))
-      document.head.appendChild(s)
-    })
-  }, [])
-
   // ── 데이터 로드 ───────────────────────────────────────────────────────────
   const load = useCallback(() => {
     setLoading(true)
@@ -369,53 +332,25 @@ export default function SitesPage() {
     return list
   }, [sitesWithStatus, search, opFilter, cpFilter, sortKey])
 
-  // 등록/수정 폼 열릴 때 Daum 스크립트 프리로드
-  useEffect(() => {
-    if (showForm || editTarget) loadDaumPostcode().catch(() => {})
-  }, [showForm, editTarget, loadDaumPostcode])
-
-  // 주소검색 모달 (embed 방식 — 팝업 about:blank 문제 회피)
-  const [postcodeTarget, setPostcodeTarget] = useState<'form' | 'edit' | null>(null)
-  const postcodeRef = useRef<HTMLDivElement>(null)
-
-  const openAddressSearch = (target: 'form' | 'edit') => {
-    if (!window.daum?.Postcode) {
-      alert('주소 검색 준비 중입니다. 잠시 후 다시 시도해주세요.')
-      return
+  // 주소 → VWorld Geocoder로 좌표 변환
+  const handleGeocode = useCallback(async (address: string, target: 'form' | 'edit') => {
+    if (!address.trim()) return
+    const setStatus = target === 'form' ? setFormGeoStatus : setEditGeoStatus
+    const setF      = target === 'form' ? setForm          : setEditForm
+    setStatus('loading')
+    try {
+      const res  = await fetch(`/api/admin/geocode?address=${encodeURIComponent(address.trim())}`)
+      const json = await res.json()
+      if (json.success && json.data?.lat && json.data?.lng) {
+        setF(f => ({ ...f, latitude: String(json.data.lat), longitude: String(json.data.lng) }))
+        setStatus('done')
+      } else {
+        setStatus('error')
+      }
+    } catch {
+      setStatus('error')
     }
-    setPostcodeTarget(target)
-  }
-
-  useEffect(() => {
-    if (!postcodeTarget || !postcodeRef.current || !window.daum?.Postcode) return
-    const target = postcodeTarget
-    new window.daum.Postcode({
-      oncomplete: async (data: { roadAddress: string; jibunAddress: string }) => {
-        setPostcodeTarget(null)
-        const address = data.roadAddress || data.jibunAddress
-        const addressJibun = data.jibunAddress || ''
-        const setStatus = target === 'form' ? setFormGeoStatus : setEditGeoStatus
-        const setF      = target === 'form' ? setForm          : setEditForm
-        setF(f => ({ ...f, address, addressJibun }))
-        setStatus('loading')
-        try {
-          const res  = await fetch(`/api/admin/geocode?address=${encodeURIComponent(address)}`)
-          const json = await res.json()
-          if (json.success && json.data?.lat && json.data?.lng) {
-            setF(f => ({ ...f, latitude: String(json.data.lat), longitude: String(json.data.lng) }))
-            setStatus('done')
-          } else {
-            setStatus('error')
-          }
-        } catch {
-          setStatus('error')
-        }
-      },
-      onclose: () => setPostcodeTarget(null),
-      width: '100%',
-      height: '100%',
-    }).embed(postcodeRef.current)
-  }, [postcodeTarget])
+  }, [])
 
   const fillCurrentLocation = (target: 'form' | 'edit') => {
     if (!navigator.geolocation) { alert('이 브라우저는 GPS를 지원하지 않습니다.'); return }
@@ -577,7 +512,7 @@ export default function SitesPage() {
           <div className="flex gap-[6px]">
             <button type="button"
               className="px-3 py-[6px] bg-[rgba(244,121,32,0.12)] text-accent border border-[#90caf9] rounded-md cursor-pointer text-[13px] font-semibold whitespace-nowrap"
-              onClick={() => openAddressSearch(target)}>주소 검색</button>
+              onClick={() => handleGeocode(f.address, target)}>좌표 확인</button>
             <button type="button"
               className="px-3 py-[6px] bg-green-light text-[#2e7d32] border border-[#a5d6a7] rounded-md cursor-pointer text-[13px] font-semibold whitespace-nowrap disabled:opacity-50"
               disabled={gpsLoading} onClick={() => fillCurrentLocation(target)}>
@@ -585,12 +520,19 @@ export default function SitesPage() {
             </button>
           </div>
         </div>
-        <FormInput value={f.address} placeholder="주소 검색 또는 직접 입력" onChange={e => onChange('address', e.target.value)} />
+        <FormInput value={f.address} placeholder="도로명 주소 입력 후 좌표 확인" onChange={e => onChange('address', e.target.value)} />
         <FormInput value={f.addressDetail ?? ''} placeholder="상세주소 (동/호/층)" onChange={e => onChange('addressDetail', e.target.value)} />
       </div>
       {geoStatus === 'loading' && <div className="text-xs text-[#F59E0B] mb-1">좌표 확인 중...</div>}
-      {geoStatus === 'error'   && <div className="text-xs text-[#e53935] mb-1">좌표를 찾지 못했습니다. 주소를 다시 검색하세요.</div>}
-      {geoStatus === 'done' && f.latitude && <div className="text-xs text-status-working mb-1">좌표 확인 완료</div>}
+      {geoStatus === 'error'   && <div className="text-xs text-[#e53935] mb-1">좌표를 찾지 못했습니다. 주소를 다시 확인하세요.</div>}
+      {geoStatus === 'done' && f.latitude && (
+        <>
+          <div className="text-xs text-status-working mb-1">좌표 확인 완료</div>
+          <div className="mb-3">
+            <VWorldMap lat={f.latitude} lng={f.longitude} height="200px" />
+          </div>
+        </>
+      )}
       <input type="hidden" value={f.latitude} />
       <input type="hidden" value={f.longitude} />
       <FormInput label="GPS 허용 반경 (m)" value={f.allowedRadius} placeholder="100" onChange={e => onChange('allowedRadius', e.target.value)} />
@@ -1109,20 +1051,6 @@ export default function SitesPage() {
         )}
       </Modal>
 
-      {/* 주소검색 모달 (embed 방식) */}
-      {postcodeTarget && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50"
-             onClick={() => setPostcodeTarget(null)}>
-          <div className="bg-white rounded-lg w-[400px] h-[500px] relative overflow-hidden"
-               onClick={e => e.stopPropagation()}>
-            <button onClick={() => setPostcodeTarget(null)}
-                    className="absolute top-1 right-2 z-10 text-gray-400 hover:text-gray-800 text-xl bg-white rounded-full w-7 h-7 flex items-center justify-center">
-              X
-            </button>
-            <div ref={postcodeRef} className="w-full h-full" />
-          </div>
-        </div>
-      )}
     </PageShell>
   )
 }
