@@ -3,14 +3,15 @@
 # deploy-and-verify.sh — 배포 + 자동검증 단일 실행
 #
 # 절차:
-#   [0] 로컬 pre-flight — 모바일 레이아웃 E2E (실패 시 배포 중단)
-#   [1] SSH 연결 확인
-#   [2] 서버 git pull + docker compose build + up -d
-#   [3] healthcheck 대기 (최대 90초)
-#   [4] verify-bulk-release.sh 호출
-#       → health / ops-check / 에러로그
-#       → admin smoke / admin regression / bulk E2E
-#   [5] PASS/WARN/FAIL 요약
+#   [0]   로컬 pre-flight — 모바일 레이아웃 E2E (실패 시 배포 중단)
+#   [1]   SSH 연결 확인
+#   [1.5] 서버 디스크 점검 + 자동 정리 (85%↑WARN / 90%↑정리 / 95%↑강제정리+FAIL)
+#   [2]   서버 git pull + docker compose build + up -d
+#   [3]   healthcheck 대기 (최대 90초)
+#   [4]   verify-bulk-release.sh 호출
+#         → health / ops-check / 에러로그
+#         → admin smoke / admin regression / bulk E2E
+#   [5]   PASS/WARN/FAIL 요약
 #
 # 사용법:
 #   bash scripts/deploy-and-verify.sh
@@ -186,6 +187,37 @@ if [ $SSH_EC -ne 0 ]; then
   echo "" && echo "══ 최종: FAIL ══" && exit 1
 fi
 mark "SSH" "PASS"
+
+# ──────────────────────────────────────────────────
+# [1.5] 서버 디스크 점검 + 자동 정리
+# ──────────────────────────────────────────────────
+echo ""
+echo "▶ [1.5] 서버 디스크 점검 + 자동 정리"
+set +e
+DISK_OUT=$(ssh_cmd bash -s <<'DISK_REMOTE' 2>&1
+set -uo pipefail
+bash /home/ubuntu/app/attendance/scripts/disk-check-and-clean.sh
+DISK_REMOTE
+)
+DISK_EC=$?
+set -e
+
+echo "$DISK_OUT" | tee -a "$DEPLOY_LOG"
+
+# 마지막 disk-check 요약 읽기
+DISK_SUMMARY=$(ssh_cmd "cat /home/ubuntu/app/attendance/logs/last-disk-check.txt 2>/dev/null" || echo "")
+DISK_USAGE_AFTER=$(echo "$DISK_SUMMARY" | grep 'usage_after' | cut -d= -f2 || echo "?")
+DISK_CLEANUP=$(echo "$DISK_SUMMARY" | grep 'cleanup_level' | cut -d= -f2 || echo "?")
+DISK_FINAL=$(echo "$DISK_SUMMARY" | grep '^final=' | cut -d= -f2 || echo "?")
+
+if   [ $DISK_EC -eq 2 ]; then
+  mark "disk" "FAIL" "사용률 ${DISK_USAGE_AFTER} — 정리 후에도 95% 초과"
+  echo "" && echo "══ 최종: FAIL — 디스크 부족, 배포 중단 ══" && exit 1
+elif [ $DISK_EC -eq 1 ]; then
+  mark "disk" "WARN" "사용률 ${DISK_USAGE_AFTER} (cleanup=${DISK_CLEANUP})"
+else
+  mark "disk" "PASS" "사용률 ${DISK_USAGE_AFTER} (cleanup=${DISK_CLEANUP})"
+fi
 
 # ──────────────────────────────────────────────────
 # [2] 서버 git pull + docker compose build + up -d
