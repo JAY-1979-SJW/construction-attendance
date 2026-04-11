@@ -751,6 +751,24 @@ if [ "${#WARN_ITEMS[@]}" -gt 0 ]; then
 fi
 
 out ""
+# 디스크 정리 최근 결과 한 줄 요약
+_DISK_LOG="$SCRIPT_DIR/../logs/last-disk-check.txt"
+if [ -f "$_DISK_LOG" ]; then
+  _DC_AFTER=$(grep '^usage_after='   "$_DISK_LOG" | cut -d= -f2-)
+  _DC_BEFORE=$(grep '^usage_before=' "$_DISK_LOG" | cut -d= -f2-)
+  _DC_LEVEL=$(grep '^cleanup_level=' "$_DISK_LOG" | cut -d= -f2-)
+  _DC_AT=$(grep '^run_at='          "$_DISK_LOG" | cut -d= -f2-)
+  _DC_FINAL=$(grep '^final='        "$_DISK_LOG" | cut -d= -f2-)
+  if [ "$_DC_FINAL" = "FAIL" ]; then
+    outc " 디스크 정리: ${RED}${_DC_AFTER}${NC} (직전 ${_DC_BEFORE}, 정리=${_DC_LEVEL}) @ ${_DC_AT}"
+  elif [ "$_DC_FINAL" = "WARN" ]; then
+    outc " 디스크 정리: ${YELLOW}${_DC_AFTER}${NC} (직전 ${_DC_BEFORE}, 정리=${_DC_LEVEL}) @ ${_DC_AT}"
+  else
+    outc " 디스크 정리: ${GREEN}${_DC_AFTER}${NC} (직전 ${_DC_BEFORE}, 정리=${_DC_LEVEL}) @ ${_DC_AT}"
+  fi
+else
+  out " 디스크 정리: last-disk-check.txt 없음"
+fi
 out " 로그: $REPORT"
 outc "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
