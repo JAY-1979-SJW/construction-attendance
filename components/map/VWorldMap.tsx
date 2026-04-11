@@ -66,18 +66,21 @@ export default function VWorldMap({ lat, lng, height = '280px' }: VWorldMapProps
           lat: numLat,
           container: id,
         }
-        const map = new window.vw.Map()
+        new window.vw.Map()
 
-        // HTML Overlay 마커 (window.ol = OpenLayers, sopMapInit.js 로드 후 사용 가능)
-        const el = document.createElement('div')
-        el.style.cssText =
-          'width:18px;height:18px;background:#F47920;border:3px solid #fff;' +
-          'border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.4);transform:translate(-50%,-50%);'
-        const overlay = new window.ol.Overlay({
-          position: window.ol.proj.fromLonLat([numLng, numLat]),
-          element: el,
-        })
-        map.addOverlay(overlay)
+        // 마커: 지도 중앙(= 설정된 좌표)에 CSS 절대위치로 표시
+        // addOverlay API 미지원 → 컨테이너 div에 직접 추가
+        const container = document.getElementById(id)
+        if (container) {
+          container.style.position = 'relative'
+          const marker = document.createElement('div')
+          marker.style.cssText =
+            'position:absolute;top:50%;left:50%;width:18px;height:18px;' +
+            'background:#F47920;border:3px solid #fff;border-radius:50%;' +
+            'box-shadow:0 1px 4px rgba(0,0,0,.4);transform:translate(-50%,-50%);' +
+            'z-index:100;pointer-events:none;'
+          container.appendChild(marker)
+        }
         if (!cancelled) setStatus('ready')
       } catch (e) {
         console.error('[VWorldMap] buildMap error:', e)
@@ -103,9 +106,8 @@ export default function VWorldMap({ lat, lng, height = '280px' }: VWorldMapProps
         const mapUrls = window.vw?.ol3?.MapUrls
         if (!extUrls || !mapUrls) throw new Error('VWorld ExtUrls/MapUrls 없음')
 
-        // 3단계: OpenLayers + Map SDK 병렬 로드 (순서 중요: ol → sopMapInit)
-        await loadScript(extUrls.openlayers, 'vworld-ol')
-        await loadScript(mapUrls.earth,      'vworld-map-sdk')
+        // 3단계: Map SDK 로드 (sopMapInit.js.do → window.vw.Map 정의)
+        await loadScript(mapUrls.earth, 'vworld-map-sdk')
 
         if (cancelled) return
         buildMap()
@@ -115,8 +117,8 @@ export default function VWorldMap({ lat, lng, height = '280px' }: VWorldMapProps
       }
     }
 
-    // 이미 완전히 로드된 경우 바로 초기화 (window.vw.Map + window.ol 둘 다 필요)
-    if (typeof window.vw?.Map === 'function' && typeof window.ol !== 'undefined') {
+    // 이미 완전히 로드된 경우 바로 초기화
+    if (typeof window.vw?.Map === 'function') {
       buildMap()
     } else {
       initSDK()
