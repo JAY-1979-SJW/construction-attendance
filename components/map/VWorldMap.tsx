@@ -58,6 +58,7 @@ export default function VWorldMap({ lat, lng, height = '280px' }: VWorldMapProps
       containerRef.current.id = id
 
       try {
+        // sopMapInit.js.do 로드 후 window.vw.Map 에 2D Map 생성자가 정의됨
         window.vw.mapOptions = {
           basemap: 'GRAPHIC',
           zoom: 15,
@@ -65,7 +66,7 @@ export default function VWorldMap({ lat, lng, height = '280px' }: VWorldMapProps
           lat: numLat,
           container: id,
         }
-        const map = new window.vw.ol3.Map()
+        const map = new window.vw.Map()
 
         // HTML Overlay 마커 (window.ol = OpenLayers, sopMapInit.js 로드 후 사용 가능)
         const el = document.createElement('div')
@@ -114,8 +115,8 @@ export default function VWorldMap({ lat, lng, height = '280px' }: VWorldMapProps
       }
     }
 
-    // 이미 완전히 로드된 경우 바로 초기화
-    if (window.vw?.ol3?.Map && window.ol) {
+    // 이미 완전히 로드된 경우 바로 초기화 (window.vw.Map + window.ol 둘 다 필요)
+    if (typeof window.vw?.Map === 'function' && typeof window.ol !== 'undefined') {
       buildMap()
     } else {
       initSDK()
