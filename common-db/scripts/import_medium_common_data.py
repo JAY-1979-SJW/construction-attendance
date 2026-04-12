@@ -120,6 +120,16 @@ def ensure_machine_columns(cur):
         cur.execute("ALTER TABLE machine_costs ALTER COLUMN fuel_type TYPE VARCHAR(100)")
         print("  [DDL] machine_costs.fuel_type → VARCHAR(100)")
 
+    # unit 길이 보강 (원본에 최대 69자 값 존재)
+    cur.execute("""
+        SELECT character_maximum_length FROM information_schema.columns
+        WHERE table_name='machine_costs' AND column_name='unit'
+    """)
+    row = cur.fetchone()
+    if row and row[0] and row[0] < 200:
+        cur.execute("ALTER TABLE machine_costs ALTER COLUMN unit TYPE VARCHAR(200)")
+        print("  [DDL] machine_costs.unit → VARCHAR(200)")
+
     # UNIQUE CONSTRAINT on src_id
     cur.execute("""
         SELECT constraint_name FROM information_schema.table_constraints
