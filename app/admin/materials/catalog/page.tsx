@@ -478,6 +478,75 @@ function LookupSection({
   )
 }
 
+// ── 카테고리 트리뷰 ──────────────────────────────────────────────
+function CategoryTree({
+  categories,
+  counts,
+  selected,
+  onSelect,
+  totalCount,
+}: {
+  categories: string[]
+  counts: Map<string, number>
+  selected: string
+  onSelect: (cat: string) => void
+  totalCount: number
+}) {
+  const rootSelected = selected === ''
+  return (
+    <div className="flex flex-col h-full">
+      <div className="px-4 pt-5 pb-3">
+        <span className="text-[11px] font-semibold tracking-wider uppercase text-muted-brand">분류</span>
+      </div>
+      <ul className="flex-1 overflow-y-auto px-2 pb-4">
+        {/* 전체 */}
+        <li>
+          <button
+            onClick={() => onSelect('')}
+            className="w-full flex items-center justify-between px-3 py-[7px] rounded-[7px] text-left text-sm transition-colors border-0 cursor-pointer"
+            style={{
+              background:  rootSelected ? 'rgba(91,164,217,0.15)' : 'transparent',
+              color:       rootSelected ? '#5BA4D9'               : undefined,
+              fontWeight:  rootSelected ? 600                     : undefined,
+            }}
+          >
+            <span>전체</span>
+            {totalCount > 0 && (
+              <span className="text-[11px] text-muted-brand">{totalCount.toLocaleString()}</span>
+            )}
+          </button>
+        </li>
+        {/* 카테고리 목록 */}
+        {categories.map(cat => {
+          const isActive = selected === cat
+          const cnt = counts.get(cat) ?? 0
+          return (
+            <li key={cat}>
+              <button
+                onClick={() => onSelect(cat)}
+                className="w-full flex items-center justify-between px-3 py-[7px] rounded-[7px] text-left text-sm transition-colors border-0 cursor-pointer"
+                style={{
+                  background: isActive ? 'rgba(91,164,217,0.15)' : 'transparent',
+                  color:      isActive ? '#5BA4D9'               : undefined,
+                  fontWeight: isActive ? 600                     : undefined,
+                }}
+              >
+                <span className="truncate pr-1">{cat}</span>
+                {cnt > 0 && (
+                  <span className="text-[11px] text-muted-brand flex-shrink-0">{cnt.toLocaleString()}</span>
+                )}
+              </button>
+            </li>
+          )
+        })}
+        {categories.length === 0 && (
+          <li className="px-3 py-2 text-xs text-muted-brand">데이터 없음</li>
+        )}
+      </ul>
+    </div>
+  )
+}
+
 export default function MaterialCatalogPage() {
   const [q, setQ]                         = useState('')
   const [category, setCategory]           = useState('')
@@ -488,6 +557,7 @@ export default function MaterialCatalogPage() {
   const [loading, setLoading]             = useState(false)
   const [error, setError]                 = useState('')
   const [categories, setCategories]       = useState<string[]>([])
+  const [categoryCounts, setCategoryCounts] = useState<Map<string, number>>(new Map())
   const [syncStatus, setSyncStatus]       = useState<SyncStatus | null>(null)
   const [searched, setSearched]           = useState(false)
   const [selectedId, setSelectedId]       = useState<number | null>(null)
@@ -531,7 +601,11 @@ export default function MaterialCatalogPage() {
     fetch('/api/proxy/material-categories')
       .then(r => r.json())
       .then(d => {
-        if (d.success) setCategories(d.data.map((c: { category: string }) => c.category))
+        if (d.success) {
+          const rows: { category: string; _count: { id: number } }[] = d.data ?? []
+          setCategories(rows.map(c => c.category))
+          setCategoryCounts(new Map(rows.map(c => [c.category, c._count?.id ?? 0])))
+        }
       })
       .catch(() => {})
 
@@ -706,11 +780,49 @@ export default function MaterialCatalogPage() {
   }
 
   return (
-    <div className="p-6" style={{ marginRight: selectedId !== null ? '360px' : '0', transition: 'margin-right 0.2s' }}>
+    <div className="flex" style={{ marginRight: selectedId !== null ? '360px' : '0', transition: 'margin-right 0.2s' }}>
+      {/* 좌측 카테고리 트리 */}
+      <aside
+        className="flex-shrink-0 sticky top-0 overflow-y-auto"
+        style={{
+          width: '220px',
+          height: '100vh',
+          borderRight: '1px solid rgba(91,164,217,0.12)',
+          background: 'rgba(91,164,217,0.02)',
+        }}
+      >
+        <CategoryTree
+          categories={categories}
+          counts={categoryCounts}
+          selected={category}
+          onSelect={handleCategoryChange}
+          totalCount={summary?.totalMaterials ?? 0}
+        />
+      </aside>
+
+      {/* 우측 콘텐츠 */}
+      <div className="flex-1 min-w-0 p-6">
+
       {/* 헤더 */}
-      <div className="mb-5">
+      <div className="mb-3">
         <h1 className="text-2xl font-bold m-0 mb-1">자재 카탈로그</h1>
         <p className="text-sm text-muted-brand m-0">나라장터 자재 코드 조회 · 내부 테스트</p>
+      </div>
+      {/* 경로 표시 */}
+      <div className="flex items-center gap-1 text-[12px] mb-4" style={{ color: 'rgba(91,164,217,0.7)' }}>
+        <button
+          onClick={() => handleCategoryChange('')}
+          className="border-0 bg-transparent cursor-pointer p-0 text-[12px] transition-colors hover:text-white"
+          style={{ color: category ? 'rgba(91,164,217,0.7)' : '#5BA4D9', fontWeight: category ? 400 : 600 }}
+        >
+          전체
+        </button>
+        {category && (
+          <>
+            <span style={{ opacity: 0.4 }}>›</span>
+            <span style={{ color: '#5BA4D9', fontWeight: 600 }}>{category}</span>
+          </>
+        )}
       </div>
 
       {/* 요약 카드 */}
@@ -807,16 +919,6 @@ export default function MaterialCatalogPage() {
           )}
         </div>
 
-        <select
-          value={category}
-          onChange={e => handleCategoryChange(e.target.value)}
-          className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-card"
-        >
-          <option value="">전체 분류</option>
-          {categories.map(c => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
         <button
           onClick={handleSearch}
           disabled={loading}
@@ -945,6 +1047,7 @@ export default function MaterialCatalogPage() {
       {selectedId !== null && (
         <DetailPanel id={selectedId} onClose={() => { setSelectedId(null); syncURL(q, category, page, null) }} />
       )}
+      </div>{/* end right content */}
     </div>
   )
 }
