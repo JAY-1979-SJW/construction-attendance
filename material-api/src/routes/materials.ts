@@ -18,6 +18,12 @@ interface ExportQuery {
   category?: string
 }
 
+interface SuggestQuery {
+  q?: string
+  limit?: string
+  category?: string
+}
+
 function csvCell(val: string | number | null | undefined): string {
   const s = val === null || val === undefined ? '' : String(val)
   if (s.includes(',') || s.includes('"') || s.includes('\n')) {
@@ -183,6 +189,44 @@ export async function materialsRoutes(app: FastifyInstance) {
       .header('Content-Type', 'text/csv; charset=utf-8')
       .header('Content-Disposition', `attachment; filename="${filename}"`)
     return reply.send(csv)
+  })
+
+  // GET /api/materials/suggest — 자동완성 (q, limit, category)
+  app.get<{ Querystring: SuggestQuery }>('/materials/suggest', async (req) => {
+    const q        = req.query.q?.trim() ?? ''
+    const limit    = Math.min(20, Math.max(1, parseInt(req.query.limit ?? '10') || 10))
+    const category = req.query.category?.trim()
+
+    if (!q) return { success: true, data: [] }
+
+    const where: Record<string, unknown> = {
+      OR: [
+        { code: { contains: q, mode: 'insensitive' } },
+        { name: { contains: q, mode: 'insensitive' } },
+      ],
+    }
+    if (category) where.category = category
+
+    // 내부 버퍼: 최대 200건 가져와 메모리 정렬
+    const rows = await prisma.material.findMany({
+      where,
+      orderBy: { name: 'asc' },
+      take: 200,
+      select: { id: true, code: true, name: true, spec: true, unit: true, category: true, source: true },
+    })
+
+    const ql = q.toLowerCase()
+    const priority = (r: typeof rows[number]) => {
+      if (r.code.toLowerCase().startsWith(ql)) return 0
+      if (r.name.toLowerCase().startsWith(ql))  return 1
+      return 2
+    }
+    rows.sort((a, b) => {
+      const dp = priority(a) - priority(b)
+      return dp !== 0 ? dp : a.name.localeCompare(b.name, 'ko')
+    })
+
+    return { success: true, data: rows.slice(0, limit) }
   })
 
   // GET /api/materials/:id — 자재 단건 상세조회 (DB id 기준)
