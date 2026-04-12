@@ -210,8 +210,21 @@ function SuggestDropdown({
 function LookupSection() {
   const [text, setText]               = useState('')
   const [loading, setLoading]         = useState(false)
+  const [csvLoading, setCsvLoading]   = useState(false)
   const [error, setError]             = useState('')
   const [result, setResult]           = useState<LookupResult | null>(null)
+
+  // 공통 파싱 + 유효성 검사 (lookupText, handleCsvDownload 공유)
+  const parseAndValidate = (trimmed: string): string[] | null => {
+    const codes = [...new Set(
+      trimmed.split(/[\n,\t\s]+/).map(s => s.trim()).filter(Boolean)
+    )]
+    if (codes.length > 100) {
+      setError(`최대 100개까지 입력 가능합니다. (현재 ${codes.length}개)`)
+      return null
+    }
+    return codes
+  }
 
   const handleLookup = async () => {
     const trimmed = text.trim()
@@ -220,13 +233,7 @@ function LookupSection() {
       return
     }
     // 클라이언트 파싱: 줄바꿈, 쉼표, 공백, 탭 구분
-    const codes = [...new Set(
-      trimmed.split(/[\n,\t\s]+/).map(s => s.trim()).filter(Boolean)
-    )]
-    if (codes.length > 100) {
-      setError(`최대 100개까지 입력 가능합니다. (현재 ${codes.length}개)`)
-      return
-    }
+    if (!parseAndValidate(trimmed)) return
     setLoading(true)
     setError('')
     setResult(null)
@@ -246,6 +253,47 @@ function LookupSection() {
       setError('네트워크 오류')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleCsvDownload = async () => {
+    const trimmed = text.trim()
+    if (!trimmed) {
+      setError('코드를 입력해주세요.')
+      return
+    }
+    if (!parseAndValidate(trimmed)) return
+    setCsvLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/proxy/material-lookup-text-export', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text: trimmed }),
+      })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        setError((d as { message?: string }).message ?? 'CSV 다운로드 실패')
+        return
+      }
+      const blob = await res.blob()
+      const cd = res.headers.get('content-disposition') ?? ''
+      const fnMatch = cd.match(/filename\*?=(?:UTF-8'')?([^;]+)/i)
+      const filename = fnMatch
+        ? decodeURIComponent(fnMatch[1].replace(/"/g, '').trim())
+        : 'materials.csv'
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch {
+      setError('CSV 다운로드 실패')
+    } finally {
+      setCsvLoading(false)
     }
   }
 
@@ -280,10 +328,18 @@ function LookupSection() {
         <div className="flex gap-2 mb-3">
           <button
             onClick={handleLookup}
-            disabled={loading}
+            disabled={loading || csvLoading}
             className="px-5 py-[8px] bg-brand-accent text-white border-0 rounded-md text-sm font-semibold cursor-pointer disabled:opacity-50"
           >
             {loading ? '조회 중...' : '일괄 조회'}
+          </button>
+          <button
+            onClick={handleCsvDownload}
+            disabled={csvLoading || loading}
+            className="px-4 py-[8px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm cursor-pointer bg-transparent disabled:opacity-50 transition-colors"
+            style={{ color: '#5BA4D9' }}
+          >
+            {csvLoading ? '다운로드 중...' : 'CSV 다운로드'}
           </button>
           <button
             onClick={handleReset}
