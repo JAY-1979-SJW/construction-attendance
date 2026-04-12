@@ -97,6 +97,29 @@ def ensure_machine_columns(cur):
             cur.execute(ddl)
             print(f"  [DDL] machine_costs.{col} 컬럼 추가")
 
+    # 기존 (year, half, machine_code) unique 제약 제거 — machine_code 빈값 충돌 방지
+    cur.execute("""
+        SELECT constraint_name FROM information_schema.table_constraints
+        WHERE table_name='machine_costs'
+          AND constraint_name='machine_costs_year_half_machine_code_key'
+    """)
+    if cur.fetchone():
+        cur.execute("""
+            ALTER TABLE machine_costs
+            DROP CONSTRAINT machine_costs_year_half_machine_code_key
+        """)
+        print("  [DDL] machine_costs 기존 (year,half,machine_code) 제약 삭제")
+
+    # fuel_type 길이 보강 (원본에 최대 31자 값 존재)
+    cur.execute("""
+        SELECT character_maximum_length FROM information_schema.columns
+        WHERE table_name='machine_costs' AND column_name='fuel_type'
+    """)
+    row = cur.fetchone()
+    if row and row[0] and row[0] < 100:
+        cur.execute("ALTER TABLE machine_costs ALTER COLUMN fuel_type TYPE VARCHAR(100)")
+        print("  [DDL] machine_costs.fuel_type → VARCHAR(100)")
+
     # UNIQUE CONSTRAINT on src_id
     cur.execute("""
         SELECT constraint_name FROM information_schema.table_constraints
@@ -182,6 +205,7 @@ def import_machine(pg_conn):
     pg_conn.commit()
 
     ins = upd = fail = 0
+    cur.execute("SAVEPOINT sp_mc")   # 첫 savepoint 초기화
     for row in rows:
         half_val = HALF_MAP.get(row["half"])
         if half_val is None:
@@ -316,6 +340,12 @@ def main():
     pg  = pg_connect(env)
 
     try:
+        # data_update_log 컬럼 보강 (source_file, finished_at, failed_count)
+        _cur = pg.cursor()
+        ensure_log_columns(_cur)
+        pg.commit()
+        _cur.close()
+
         print("\n[1] machine_costs")
         import_machine(pg)
 
