@@ -416,6 +416,23 @@ enum ConsentType {
   MARKETING         // 마케팅 수신 (선택)
 }
 
+// ─── 앱 공통 문서 동의 유형 ───────────────────────────────────
+enum ConsentDocType {
+  SAFETY_PLEDGE       // 안전교육 서약서
+  PRIVACY_CONSENT     // 개인정보 동의서
+  SITE_NOTICE         // 현장 유의사항
+  TBM_CONFIRMATION    // TBM 확인서
+  LABOR_CONTRACT      // 근로계약서 (가상 — WorkerContract 연동)
+  GENERAL             // 기타 공통 문서
+}
+
+// ─── 앱 공통 문서 동의 범위 ───────────────────────────────────
+enum ConsentDocScope {
+  GLOBAL   // 전체 앱 공통
+  COMPANY  // 업체별
+  SITE     // 현장별
+}
+
 enum SiteJoinStatus {
   PENDING   // 참여 승인 대기
   APPROVED  // 승인 완료
@@ -612,6 +629,8 @@ model Company {
   terminationReviews    WorkerTerminationReview[]
   terminationSnapshots  WorkerTerminationSnapshot[]
   insuranceSubmissions  InsuranceSubmissionHistory[]
+  // 앱 공통 문서 동의
+  consentDocs           ConsentDoc[]
 
   @@map("companies")
 }
@@ -758,6 +777,8 @@ model Worker {
   onboardingDocuments        OnboardingDocument[]
   bulkImportRows             BulkWorkerImportRow[]
   insuranceSubmissions       InsuranceSubmissionHistory[]
+  // 앱 공통 문서 동의
+  docConsents                WorkerDocConsent[]
 
   @@map("workers")
 }
@@ -850,6 +871,8 @@ model Site {
   workOrders                 WorkOrder[]
   // 출퇴근 사진 증빙
   attendancePhotoEvidences   AttendancePhotoEvidence[]
+  // 앱 공통 문서 동의
+  consentDocs                ConsentDoc[]
 
   @@map("sites")
 }
@@ -4393,6 +4416,50 @@ model OnboardingDocTemplate {
 
   @@index([docType, isActive])
   @@map("onboarding_doc_templates")
+}
+
+// ─── 앱 공통 문서 템플릿 ──────────────────────────────────────
+// 전역/업체별/현장별 필수 동의 문서를 관리한다.
+// scope=GLOBAL → 앱 전체 공통 (companyId/siteId null)
+// scope=COMPANY → 해당 업체에 소속된 근로자에게 노출
+// scope=SITE    → 해당 현장에 배정된 근로자에게 노출
+model ConsentDoc {
+  id          String          @id @default(cuid())
+  docType     ConsentDocType
+  scope       ConsentDocScope @default(GLOBAL)
+  companyId   String?
+  siteId      String?
+  title       String
+  contentMd   String          @db.Text
+  isActive    Boolean         @default(true)
+  isRequired  Boolean         @default(true)
+  sortOrder   Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  company     Company?        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  site        Site?           @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  workerConsents WorkerDocConsent[]
+
+  @@index([scope, isActive])
+  @@index([companyId])
+  @@index([siteId])
+  @@map("consent_docs")
+}
+
+// ─── 근로자 문서 동의 이력 ────────────────────────────────────
+model WorkerDocConsent {
+  id            String   @id @default(cuid())
+  workerId      String
+  consentDocId  String
+  agreedAt      DateTime @default(now())
+
+  worker      Worker     @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  consentDoc  ConsentDoc @relation(fields: [consentDocId], references: [id], onDelete: Cascade)
+
+  @@unique([workerId, consentDocId])
+  @@index([workerId])
+  @@map("worker_doc_consents")
 }
 
 // ─── 토큰 블랙리스트 (로그아웃 시 토큰 무효화, DB 영속) ─────────
