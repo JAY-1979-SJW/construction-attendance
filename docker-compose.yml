@@ -9,8 +9,6 @@ services:
     build:
       context: .
       args:
-        NEXT_PUBLIC_VWORLD_API_KEY: D27B4D53-96D0-37B7-B3A1-F652BB7E9B1E
-        NEXT_PUBLIC_VWORLD_DOMAIN: attendance.haehan-ai.kr
         NEXT_PUBLIC_APP_NAME: 해한Ai 현장관리
         NEXT_PUBLIC_BASE_URL: https://attendance.haehan-ai.kr
     image: attendance:latest
