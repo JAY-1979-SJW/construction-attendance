@@ -12,7 +12,8 @@ ALTER TABLE "worker_doc_consents"
 ADD COLUMN "agreed_version" INTEGER NOT NULL DEFAULT 1;
 
 -- Step 2: 기존 레코드를 실제 consent_docs.version으로 채움
+-- 주의: Prisma 기본 매핑으로 컬럼명이 camelCase("consentDocId")로 유지됨
 UPDATE "worker_doc_consents" wdc
 SET "agreed_version" = cd."version"
 FROM "consent_docs" cd
-WHERE cd."id" = wdc."consent_doc_id";
+WHERE cd."id" = wdc."consentDocId";
