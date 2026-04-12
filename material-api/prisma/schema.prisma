@@ -1,0 +1,41 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Material {
+  id          Int      @id @default(autoincrement())
+  code        String
+  name        String
+  spec        String?
+  unit        String
+  category    String
+  subCategory String?  @map("sub_category")
+  basePrice   Decimal? @db.Decimal(12, 2) @map("base_price")
+  source      String   // "nara" | "kpi" | "mltm"
+  baseDate    DateTime @db.Date @map("base_date")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([code, source])
+  @@index([category])
+  @@index([name])
+  @@map("materials")
+}
+
+model MaterialSyncLog {
+  id         Int      @id @default(autoincrement())
+  source     String
+  syncedAt   DateTime @default(now()) @map("synced_at")
+  totalCount Int      @map("total_count")
+  inserted   Int      @default(0)
+  updated    Int      @default(0)
+  failed     Int      @default(0)
+  note       String?
+
+  @@map("material_sync_log")
+}
