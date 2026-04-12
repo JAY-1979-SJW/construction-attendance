@@ -24,6 +24,7 @@ model Material {
   @@unique([code, source])
   @@index([category])
   @@index([name])
+  @@index([category, name])
   @@map("materials")
 }
 
