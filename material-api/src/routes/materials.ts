@@ -29,6 +29,11 @@ interface ByCodeQuery {
   source?: string
 }
 
+interface LookupBody {
+  codes: string[]
+  source?: string
+}
+
 function csvCell(val: string | number | null | undefined): string {
   const s = val === null || val === undefined ? '' : String(val)
   if (s.includes(',') || s.includes('"') || s.includes('\n')) {
@@ -255,6 +260,75 @@ export async function materialsRoutes(app: FastifyInstance) {
         ...item,
         price_available: item.basePrice !== null,
         notice: 'nara 데이터는 2026-03-24 기준 카탈로그 이관본 (실수집 보류 중)',
+      },
+    }
+  })
+
+  // POST /api/materials/lookup — 코드 목록 일괄 조회 (최대 100)
+  app.post<{ Body: LookupBody }>('/materials/lookup', async (req, reply) => {
+    const { codes, source = 'nara' } = req.body ?? {}
+
+    if (!Array.isArray(codes)) {
+      return reply.status(400).send({ success: false, message: 'codes는 배열이어야 합니다.' })
+    }
+
+    // trim → 빈값 제거 → 중복 제거 (순서 유지)
+    const cleaned = [...new Set(
+      codes
+        .map((c: unknown) => (typeof c === 'string' ? c.trim() : ''))
+        .filter((c) => c.length > 0)
+    )]
+
+    if (cleaned.length === 0) {
+      return reply.status(400).send({ success: false, message: 'codes에 유효한 값이 없습니다.' })
+    }
+    if (cleaned.length > 100) {
+      return reply.status(400).send({ success: false, message: 'codes는 최대 100개까지 허용됩니다.' })
+    }
+
+    const rows = await prisma.material.findMany({
+      where: { code: { in: cleaned }, source },
+      select: {
+        id: true, code: true, name: true, spec: true, unit: true,
+        category: true, basePrice: true, source: true, baseDate: true, updatedAt: true,
+      },
+    })
+
+    // code → row 맵 (같은 code+source 중복 행이 있으면 첫 번째만)
+    const byCode = new Map<string, typeof rows[number]>()
+    for (const r of rows) {
+      if (!byCode.has(r.code)) byCode.set(r.code, r)
+    }
+
+    // 요청 순서 유지
+    const items = cleaned
+      .filter((c) => byCode.has(c))
+      .map((c) => {
+        const r = byCode.get(c)!
+        return {
+          id:         r.id,
+          code:       r.code,
+          name:       r.name,
+          spec:       r.spec,
+          unit:       r.unit,
+          category:   r.category,
+          base_price: r.basePrice,
+          source:     r.source,
+          base_date:  r.baseDate,
+          updated_at: r.updatedAt,
+        }
+      })
+
+    const foundCodes   = new Set(items.map((i) => i.code))
+    const missingCodes = cleaned.filter((c) => !foundCodes.has(c))
+
+    return {
+      success: true,
+      data: {
+        requestedCount: cleaned.length,
+        foundCount:     items.length,
+        items,
+        missingCodes,
       },
     }
   })
