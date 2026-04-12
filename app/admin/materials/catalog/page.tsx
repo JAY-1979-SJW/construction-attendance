@@ -508,6 +508,25 @@ export default function MaterialCatalogPage() {
   const suggestTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const fetchMaterials = useCallback((qVal: string, catVal: string, pageVal: number) => {
+    setLoading(true)
+    setError('')
+    const params = new URLSearchParams({ page: String(pageVal), pageSize: String(PAGE_SIZE) })
+    if (qVal.trim()) params.set('q', qVal.trim())
+    if (catVal) params.set('category', catVal)
+    fetch(`/api/proxy/material-catalog?${params}`)
+      .then(r => r.json())
+      .then(d => {
+        if (!d.success) { setError(d.message ?? '조회 실패'); return }
+        setItems(d.data.items)
+        setTotal(d.data.total)
+        setTotalPages(d.data.totalPages)
+        setSearched(true)
+      })
+      .catch(() => setError('네트워크 오류'))
+      .finally(() => setLoading(false))
+  }, [])
+
   useEffect(() => {
     fetch('/api/proxy/material-categories')
       .then(r => r.json())
@@ -550,25 +569,6 @@ export default function MaterialCatalogPage() {
       if (urlQ || urlCat || urlPage > 1) fetchMaterials(urlQ, urlCat, urlPage)
     }
   }, [fetchMaterials])
-
-  const fetchMaterials = useCallback((qVal: string, catVal: string, pageVal: number) => {
-    setLoading(true)
-    setError('')
-    const params = new URLSearchParams({ page: String(pageVal), pageSize: String(PAGE_SIZE) })
-    if (qVal.trim()) params.set('q', qVal.trim())
-    if (catVal) params.set('category', catVal)
-    fetch(`/api/proxy/material-catalog?${params}`)
-      .then(r => r.json())
-      .then(d => {
-        if (!d.success) { setError(d.message ?? '조회 실패'); return }
-        setItems(d.data.items)
-        setTotal(d.data.total)
-        setTotalPages(d.data.totalPages)
-        setSearched(true)
-      })
-      .catch(() => setError('네트워크 오류'))
-      .finally(() => setLoading(false))
-  }, [])
 
   // URL 동기화 (replace 기반 — 히스토리 불필요 누적 방지)
   const syncURL = (qVal: string, catVal: string, pageVal: number, idVal: number | null) => {
