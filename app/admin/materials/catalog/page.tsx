@@ -483,6 +483,9 @@ export default function MaterialCatalogPage() {
   const [searched, setSearched]           = useState(false)
   const [selectedId, setSelectedId]       = useState<number | null>(null)
 
+  const [catalogCsvLoading, setCatalogCsvLoading] = useState(false)
+  const [catalogCsvError, setCatalogCsvError]     = useState('')
+
   const [suggests, setSuggests]           = useState<SuggestItem[]>([])
   const [suggestOpen, setSuggestOpen]     = useState(false)
   const [suggestLoading, setSuggestLoading] = useState(false)
@@ -529,6 +532,40 @@ export default function MaterialCatalogPage() {
       .catch(() => setError('네트워크 오류'))
       .finally(() => setLoading(false))
   }, [])
+
+  const handleCatalogCsvDownload = async () => {
+    setCatalogCsvLoading(true)
+    setCatalogCsvError('')
+    try {
+      const params = new URLSearchParams()
+      if (q.trim()) params.set('q', q.trim())
+      if (category) params.set('category', category)
+      const res = await fetch(`/api/proxy/material-catalog-export?${params}`)
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        setCatalogCsvError((d as { message?: string }).message ?? 'CSV 다운로드 실패')
+        return
+      }
+      const blob = await res.blob()
+      const cd = res.headers.get('content-disposition') ?? ''
+      const fnMatch = cd.match(/filename\*?=(?:UTF-8'')?([^;]+)/i)
+      const filename = fnMatch
+        ? decodeURIComponent(fnMatch[1].replace(/"/g, '').trim())
+        : 'materials.csv'
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch {
+      setCatalogCsvError('CSV 다운로드 실패')
+    } finally {
+      setCatalogCsvLoading(false)
+    }
+  }
 
   const closeSuggest = () => {
     setSuggestOpen(false)
@@ -696,10 +733,26 @@ export default function MaterialCatalogPage() {
         >
           {loading ? '조회 중...' : '조회'}
         </button>
+        <button
+          onClick={handleCatalogCsvDownload}
+          disabled={catalogCsvLoading || loading}
+          className="px-4 py-[9px] border border-[rgba(91,164,217,0.3)] rounded-md text-sm cursor-pointer bg-transparent disabled:opacity-50 transition-colors"
+          style={{ color: '#5BA4D9' }}
+        >
+          {catalogCsvLoading ? '다운로드 중...' : '목록 CSV'}
+        </button>
         {searched && (
           <span className="text-sm text-muted-brand">총 {total.toLocaleString()}건</span>
         )}
       </div>
+
+      {/* 목록 CSV 에러 */}
+      {catalogCsvError && (
+        <div className="mb-4 px-4 py-3 rounded-lg text-sm"
+             style={{ background: 'rgba(183,28,28,0.08)', border: '1px solid rgba(183,28,28,0.2)', color: '#ef5350' }}>
+          {catalogCsvError}
+        </div>
+      )}
 
       {/* 에러 */}
       {error && (
