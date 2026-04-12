@@ -70,16 +70,17 @@ def ensure_insurance_src_id(cur):
         print("  [DDL] insurance_rates.src_id 컬럼 추가")
 
     cur.execute("""
-        SELECT indexname FROM pg_indexes
-        WHERE tablename = 'insurance_rates' AND indexname = 'uq_insurance_src_id'
+        SELECT constraint_name FROM information_schema.table_constraints
+        WHERE table_name = 'insurance_rates'
+          AND constraint_name = 'uq_insurance_src_id'
+          AND constraint_type = 'UNIQUE'
     """)
     if not cur.fetchone():
         cur.execute("""
-            CREATE UNIQUE INDEX uq_insurance_src_id
-            ON insurance_rates (src_id)
-            WHERE src_id IS NOT NULL
+            ALTER TABLE insurance_rates
+            ADD CONSTRAINT uq_insurance_src_id UNIQUE (src_id)
         """)
-        print("  [DDL] uq_insurance_src_id 유니크 인덱스 생성")
+        print("  [DDL] uq_insurance_src_id UNIQUE 제약 생성")
 
 
 # ────────────────────────────────────────────
