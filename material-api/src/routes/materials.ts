@@ -34,12 +34,65 @@ interface LookupBody {
   source?: string
 }
 
+interface LookupTextBody {
+  text?: string
+  source?: string
+}
+
 function csvCell(val: string | number | null | undefined): string {
   const s = val === null || val === undefined ? '' : String(val)
   if (s.includes(',') || s.includes('"') || s.includes('\n')) {
     return '"' + s.replace(/"/g, '""') + '"'
   }
   return s
+}
+
+// 공통: 코드 목록으로 자재 일괄 조회
+async function lookupByCodes(cleaned: string[], source: string) {
+  const rows = await prisma.material.findMany({
+    where: { code: { in: cleaned }, source },
+    select: {
+      id: true, code: true, name: true, spec: true, unit: true,
+      category: true, basePrice: true, source: true, baseDate: true, updatedAt: true,
+    },
+  })
+
+  const byCode = new Map<string, typeof rows[number]>()
+  for (const r of rows) {
+    if (!byCode.has(r.code)) byCode.set(r.code, r)
+  }
+
+  const items = cleaned
+    .filter((c) => byCode.has(c))
+    .map((c) => {
+      const r = byCode.get(c)!
+      return {
+        id:         r.id,
+        code:       r.code,
+        name:       r.name,
+        spec:       r.spec,
+        unit:       r.unit,
+        category:   r.category,
+        base_price: r.basePrice,
+        source:     r.source,
+        base_date:  r.baseDate,
+        updated_at: r.updatedAt,
+      }
+    })
+
+  const foundCodes   = new Set(items.map((i) => i.code))
+  const missingCodes = cleaned.filter((c) => !foundCodes.has(c))
+
+  return { items, missingCodes }
+}
+
+// 공통: cleaned 코드 배열 추출 (trim / 빈값 제거 / 중복 제거)
+function cleanCodes(raw: string[]): string[] {
+  return [...new Set(
+    raw
+      .map((c) => (typeof c === 'string' ? c.trim() : ''))
+      .filter((c) => c.length > 0)
+  )]
 }
 
 export async function materialsRoutes(app: FastifyInstance) {
@@ -272,12 +325,7 @@ export async function materialsRoutes(app: FastifyInstance) {
       return reply.status(400).send({ success: false, message: 'codes는 배열이어야 합니다.' })
     }
 
-    // trim → 빈값 제거 → 중복 제거 (순서 유지)
-    const cleaned = [...new Set(
-      codes
-        .map((c: unknown) => (typeof c === 'string' ? c.trim() : ''))
-        .filter((c) => c.length > 0)
-    )]
+    const cleaned = cleanCodes(codes as string[])
 
     if (cleaned.length === 0) {
       return reply.status(400).send({ success: false, message: 'codes에 유효한 값이 없습니다.' })
@@ -286,45 +334,44 @@ export async function materialsRoutes(app: FastifyInstance) {
       return reply.status(400).send({ success: false, message: 'codes는 최대 100개까지 허용됩니다.' })
     }
 
-    const rows = await prisma.material.findMany({
-      where: { code: { in: cleaned }, source },
-      select: {
-        id: true, code: true, name: true, spec: true, unit: true,
-        category: true, basePrice: true, source: true, baseDate: true, updatedAt: true,
-      },
-    })
-
-    // code → row 맵 (같은 code+source 중복 행이 있으면 첫 번째만)
-    const byCode = new Map<string, typeof rows[number]>()
-    for (const r of rows) {
-      if (!byCode.has(r.code)) byCode.set(r.code, r)
-    }
-
-    // 요청 순서 유지
-    const items = cleaned
-      .filter((c) => byCode.has(c))
-      .map((c) => {
-        const r = byCode.get(c)!
-        return {
-          id:         r.id,
-          code:       r.code,
-          name:       r.name,
-          spec:       r.spec,
-          unit:       r.unit,
-          category:   r.category,
-          base_price: r.basePrice,
-          source:     r.source,
-          base_date:  r.baseDate,
-          updated_at: r.updatedAt,
-        }
-      })
-
-    const foundCodes   = new Set(items.map((i) => i.code))
-    const missingCodes = cleaned.filter((c) => !foundCodes.has(c))
+    const { items, missingCodes } = await lookupByCodes(cleaned, source)
 
     return {
       success: true,
       data: {
+        requestedCount: cleaned.length,
+        foundCount:     items.length,
+        items,
+        missingCodes,
+      },
+    }
+  })
+
+  // POST /api/materials/lookup/text — textarea 붙여넣기 입력으로 일괄 조회
+  app.post<{ Body: LookupTextBody }>('/materials/lookup/text', async (req, reply) => {
+    const { text, source = 'nara' } = req.body ?? {}
+
+    if (!text || typeof text !== 'string' || !text.trim()) {
+      return reply.status(400).send({ success: false, message: 'text는 필수입니다.' })
+    }
+
+    // 줄바꿈 / 쉼표 / 탭 / 공백 모두 구분자로 허용
+    const tokens = text.split(/[\n\r,\t ]+/)
+    const cleaned = cleanCodes(tokens)
+
+    if (cleaned.length === 0) {
+      return reply.status(400).send({ success: false, message: 'text에 유효한 코드가 없습니다.' })
+    }
+    if (cleaned.length > 100) {
+      return reply.status(400).send({ success: false, message: 'codes는 최대 100개까지 허용됩니다.' })
+    }
+
+    const { items, missingCodes } = await lookupByCodes(cleaned, source)
+
+    return {
+      success: true,
+      data: {
+        parsedCount:    tokens.filter((t) => t.trim()).length,
         requestedCount: cleaned.length,
         foundCount:     items.length,
         items,
@@ -341,11 +388,7 @@ export async function materialsRoutes(app: FastifyInstance) {
       return reply.status(400).send({ success: false, message: 'codes는 배열이어야 합니다.' })
     }
 
-    const cleaned = [...new Set(
-      codes
-        .map((c: unknown) => (typeof c === 'string' ? c.trim() : ''))
-        .filter((c) => c.length > 0)
-    )]
+    const cleaned = cleanCodes(codes as string[])
 
     if (cleaned.length === 0) {
       return reply.status(400).send({ success: false, message: 'codes에 유효한 값이 없습니다.' })
@@ -354,18 +397,8 @@ export async function materialsRoutes(app: FastifyInstance) {
       return reply.status(400).send({ success: false, message: 'codes는 최대 100개까지 허용됩니다.' })
     }
 
-    const rows = await prisma.material.findMany({
-      where: { code: { in: cleaned }, source },
-      select: {
-        id: true, code: true, name: true, spec: true, unit: true,
-        category: true, basePrice: true, source: true, baseDate: true, updatedAt: true,
-      },
-    })
-
-    const byCode = new Map<string, typeof rows[number]>()
-    for (const r of rows) {
-      if (!byCode.has(r.code)) byCode.set(r.code, r)
-    }
+    const { items, missingCodes: missing } = await lookupByCodes(cleaned, source)
+    const byCode = new Map(items.map((i) => [i.code, i]))
 
     const HEADER = 'input_code,found,id,code,name,spec,unit,category,base_price,source,base_date,updated_at'
     const csvRows = cleaned.map((inputCode) => {
@@ -382,12 +415,14 @@ export async function materialsRoutes(app: FastifyInstance) {
         csvCell(r.spec),
         csvCell(r.unit),
         csvCell(r.category),
-        r.basePrice !== null ? r.basePrice.toString() : '',
+        r.base_price !== null ? String(r.base_price) : '',
         r.source,
-        r.baseDate.toISOString().split('T')[0],
-        r.updatedAt.toISOString(),
+        r.base_date instanceof Date ? r.base_date.toISOString().split('T')[0] : String(r.base_date),
+        r.updated_at instanceof Date ? r.updated_at.toISOString() : String(r.updated_at),
       ].join(',')
     })
+
+    void missing  // used only for CSV; suppress unused warning
 
     const csv = '\uFEFF' + HEADER + '\n' + csvRows.join('\n') + '\n'
 
