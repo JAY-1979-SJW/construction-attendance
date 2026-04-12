@@ -501,6 +501,36 @@ export async function materialsRoutes(app: FastifyInstance) {
     return reply.send(csv)
   })
 
+  // GET /api/materials/sync-log — 수집 이력 목록
+  app.get('/materials/sync-log', async (req, reply) => {
+    const query = req.query as { page?: string; pageSize?: string; source?: string }
+    const page     = Math.max(1, parseInt(query.page     ?? '1',  10) || 1)
+    const pageSize = Math.min(100, Math.max(1, parseInt(query.pageSize ?? '20', 10) || 20))
+    const source   = typeof query.source === 'string' && query.source ? query.source : undefined
+
+    const where = source ? { source } : {}
+    const [total, rows] = await Promise.all([
+      prisma.materialSyncLog.count({ where }),
+      prisma.materialSyncLog.findMany({
+        where,
+        orderBy: { syncedAt: 'desc' },
+        skip:    (page - 1) * pageSize,
+        take:    pageSize,
+      }),
+    ])
+
+    return {
+      success: true,
+      data: {
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+        items: rows,
+      },
+    }
+  })
+
   // GET /api/materials/:id — 자재 단건 상세조회 (DB id 기준)
   app.get<{ Params: IdParam }>('/materials/:id', async (req, reply) => {
     const id = parseInt(req.params.id)
