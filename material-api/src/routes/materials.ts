@@ -88,6 +88,45 @@ export async function materialsRoutes(app: FastifyInstance) {
     return { success: true, data: { totalMaterials, sourceStatus: [naraStatus], recentSyncs } }
   })
 
+  // GET /api/materials/summary — 요약 통계
+  app.get('/materials/summary', async () => {
+    const [
+      totalMaterials,
+      categoryRows,
+      sourceCounts,
+      priceAvailableCount,
+      latestBaseDateRow,
+      categoryTop10,
+    ] = await Promise.all([
+      prisma.material.count(),
+      prisma.material.groupBy({ by: ['category'], _count: { id: true } }),
+      prisma.material.groupBy({ by: ['source'],   _count: { id: true }, orderBy: { source: 'asc' } }),
+      prisma.material.count({ where: { basePrice: { not: null } } }),
+      prisma.material.findFirst({ orderBy: { baseDate: 'desc' }, select: { baseDate: true } }),
+      prisma.material.groupBy({
+        by: ['category'],
+        _count: { id: true },
+        orderBy: { _count: { id: 'desc' } },
+        take: 10,
+      }),
+    ])
+
+    return {
+      success: true,
+      data: {
+        totalMaterials,
+        totalCategories:    categoryRows.length,
+        sourceCounts:       sourceCounts.map(r => ({ source: r.source, count: r._count.id })),
+        priceAvailableCount,
+        priceMissingCount:  totalMaterials - priceAvailableCount,
+        latestBaseDate:     latestBaseDateRow?.baseDate ?? null,
+        categoryTop10:      categoryTop10.map(r => ({ category: r.category, count: r._count.id })),
+        notice:             'nara 데이터는 2026-03-24 기준 카탈로그 이관본이며 base_price=null (실수집 보류 중)',
+        price_available:    false,
+      },
+    }
+  })
+
   // GET /api/materials/:id — 자재 단건 상세조회 (DB id 기준)
   app.get<{ Params: IdParam }>('/materials/:id', async (req, reply) => {
     const id = parseInt(req.params.id)
