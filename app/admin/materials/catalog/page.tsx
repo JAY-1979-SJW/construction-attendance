@@ -231,9 +231,9 @@ function LookupSection({
 
   // 공통 파싱 + 유효성 검사 (lookupText, handleCsvDownload 공유)
   const parseAndValidate = (trimmed: string): string[] | null => {
-    const codes = [...new Set(
+    const codes = Array.from(new Set(
       trimmed.split(/[\n,\t\s]+/).map(s => s.trim()).filter(Boolean)
-    )]
+    ))
     if (codes.length > 100) {
       setError(`최대 100개까지 입력 가능합니다. (현재 ${codes.length}개)`)
       return null
@@ -478,36 +478,48 @@ function LookupSection({
   )
 }
 
-// ── 카테고리 트리뷰 ──────────────────────────────────────────────
+// ── 카테고리 트리뷰 (2단계: 대분류 > 중분류) ────────────────────
+interface CategoryTreeNode {
+  category: string
+  count: number
+  subCategories: { subCategory: string; count: number }[]
+}
+
 function CategoryTree({
-  categories,
-  counts,
-  selected,
-  onSelect,
+  treeData,
+  selectedCat,
+  selectedSub,
+  expandedCats,
+  onSelectCat,
+  onSelectSub,
+  onToggleExpand,
   totalCount,
 }: {
-  categories: string[]
-  counts: Map<string, number>
-  selected: string
-  onSelect: (cat: string) => void
+  treeData: CategoryTreeNode[]
+  selectedCat: string
+  selectedSub: string
+  expandedCats: Set<string>
+  onSelectCat: (cat: string) => void
+  onSelectSub: (cat: string, sub: string) => void
+  onToggleExpand: (cat: string) => void
   totalCount: number
 }) {
-  const rootSelected = selected === ''
+  const rootSelected = selectedCat === '' && selectedSub === ''
   return (
     <div className="flex flex-col h-full">
       <div className="px-4 pt-5 pb-3">
         <span className="text-[11px] font-semibold tracking-wider uppercase text-muted-brand">분류</span>
       </div>
-      <ul className="flex-1 overflow-y-auto px-2 pb-4">
+      <ul className="flex-1 overflow-y-auto px-2 pb-4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {/* 전체 */}
         <li>
           <button
-            onClick={() => onSelect('')}
+            onClick={() => onSelectCat('')}
             className="w-full flex items-center justify-between px-3 py-[7px] rounded-[7px] text-left text-sm transition-colors border-0 cursor-pointer"
             style={{
-              background:  rootSelected ? 'rgba(91,164,217,0.15)' : 'transparent',
-              color:       rootSelected ? '#5BA4D9'               : undefined,
-              fontWeight:  rootSelected ? 600                     : undefined,
+              background: rootSelected ? 'rgba(91,164,217,0.15)' : 'transparent',
+              color:      rootSelected ? '#5BA4D9'               : undefined,
+              fontWeight: rootSelected ? 600                     : undefined,
             }}
           >
             <span>전체</span>
@@ -516,30 +528,66 @@ function CategoryTree({
             )}
           </button>
         </li>
-        {/* 카테고리 목록 */}
-        {categories.map(cat => {
-          const isActive = selected === cat
-          const cnt = counts.get(cat) ?? 0
+        {/* 대분류 */}
+        {treeData.map(node => {
+          const catActive  = selectedCat === node.category && selectedSub === ''
+          const isExpanded = expandedCats.has(node.category)
           return (
-            <li key={cat}>
-              <button
-                onClick={() => onSelect(cat)}
-                className="w-full flex items-center justify-between px-3 py-[7px] rounded-[7px] text-left text-sm transition-colors border-0 cursor-pointer"
-                style={{
-                  background: isActive ? 'rgba(91,164,217,0.15)' : 'transparent',
-                  color:      isActive ? '#5BA4D9'               : undefined,
-                  fontWeight: isActive ? 600                     : undefined,
-                }}
-              >
-                <span className="truncate pr-1">{cat}</span>
-                {cnt > 0 && (
-                  <span className="text-[11px] text-muted-brand flex-shrink-0">{cnt.toLocaleString()}</span>
-                )}
-              </button>
+            <li key={node.category}>
+              <div className="flex items-center gap-0">
+                {/* 펼침/접기 토글 */}
+                <button
+                  onClick={() => onToggleExpand(node.category)}
+                  className="flex-shrink-0 border-0 bg-transparent cursor-pointer px-1 py-[7px] text-[10px]"
+                  style={{ color: 'rgba(91,164,217,0.5)', width: '20px', textAlign: 'center' }}
+                  title={isExpanded ? '접기' : '펼치기'}
+                >
+                  {isExpanded ? '▾' : '▸'}
+                </button>
+                {/* 대분류 클릭 — 하위 전체 포함 필터 */}
+                <button
+                  onClick={() => onSelectCat(node.category)}
+                  className="flex-1 flex items-center justify-between px-2 py-[7px] rounded-[7px] text-left text-sm transition-colors border-0 cursor-pointer"
+                  style={{
+                    background: catActive ? 'rgba(91,164,217,0.15)' : 'transparent',
+                    color:      catActive ? '#5BA4D9'               : undefined,
+                    fontWeight: catActive ? 600                     : undefined,
+                  }}
+                >
+                  <span className="truncate pr-1">{node.category}</span>
+                  <span className="text-[11px] text-muted-brand flex-shrink-0">{node.count.toLocaleString()}</span>
+                </button>
+              </div>
+              {/* 중분류 */}
+              {isExpanded && (
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                  {node.subCategories.map(sub => {
+                    const subActive = selectedCat === node.category && selectedSub === sub.subCategory
+                    return (
+                      <li key={sub.subCategory}>
+                        <button
+                          onClick={() => onSelectSub(node.category, sub.subCategory)}
+                          className="w-full flex items-center justify-between rounded-[7px] text-left text-[12px] transition-colors border-0 cursor-pointer"
+                          style={{
+                            paddingLeft: '28px', paddingRight: '12px',
+                            paddingTop: '5px', paddingBottom: '5px',
+                            background: subActive ? 'rgba(91,164,217,0.12)' : 'transparent',
+                            color:      subActive ? '#5BA4D9'               : 'rgba(255,255,255,0.7)',
+                            fontWeight: subActive ? 600                     : undefined,
+                          }}
+                        >
+                          <span className="truncate pr-1">{sub.subCategory}</span>
+                          <span className="text-[11px] text-muted-brand flex-shrink-0">{sub.count.toLocaleString()}</span>
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
             </li>
           )
         })}
-        {categories.length === 0 && (
+        {treeData.length === 0 && (
           <li className="px-3 py-2 text-xs text-muted-brand">데이터 없음</li>
         )}
       </ul>
@@ -550,14 +598,15 @@ function CategoryTree({
 export default function MaterialCatalogPage() {
   const [q, setQ]                         = useState('')
   const [category, setCategory]           = useState('')
+  const [subCategory, setSubCategory]     = useState('')
   const [page, setPage]                   = useState(1)
   const [items, setItems]                 = useState<MaterialItem[]>([])
   const [total, setTotal]                 = useState(0)
   const [totalPages, setTotalPages]       = useState(0)
   const [loading, setLoading]             = useState(false)
   const [error, setError]                 = useState('')
-  const [categories, setCategories]       = useState<string[]>([])
-  const [categoryCounts, setCategoryCounts] = useState<Map<string, number>>(new Map())
+  const [treeData, setTreeData]           = useState<CategoryTreeNode[]>([])
+  const [expandedCats, setExpandedCats]   = useState<Set<string>>(new Set())
   const [syncStatus, setSyncStatus]       = useState<SyncStatus | null>(null)
   const [searched, setSearched]           = useState(false)
   const [selectedId, setSelectedId]       = useState<number | null>(null)
@@ -578,12 +627,13 @@ export default function MaterialCatalogPage() {
   const suggestTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const fetchMaterials = useCallback((qVal: string, catVal: string, pageVal: number) => {
+  const fetchMaterials = useCallback((qVal: string, catVal: string, subCatVal: string, pageVal: number) => {
     setLoading(true)
     setError('')
     const params = new URLSearchParams({ page: String(pageVal), pageSize: String(PAGE_SIZE) })
-    if (qVal.trim()) params.set('q', qVal.trim())
-    if (catVal) params.set('category', catVal)
+    if (qVal.trim())   params.set('q', qVal.trim())
+    if (catVal)        params.set('category', catVal)
+    if (subCatVal)     params.set('subCategory', subCatVal)
     fetch(`/api/proxy/material-catalog?${params}`)
       .then(r => r.json())
       .then(d => {
@@ -598,13 +648,12 @@ export default function MaterialCatalogPage() {
   }, [])
 
   useEffect(() => {
-    fetch('/api/proxy/material-categories')
+    fetch('/api/proxy/material-categories-tree')
       .then(r => r.json())
       .then(d => {
         if (d.success) {
-          const rows: { category: string; _count: { id: number } }[] = d.data ?? []
-          setCategories(rows.map(c => c.category))
-          setCategoryCounts(new Map(rows.map(c => [c.category, c._count?.id ?? 0])))
+          const nodes: CategoryTreeNode[] = d.data ?? []
+          setTreeData(nodes)
         }
       })
       .catch(() => {})
@@ -630,25 +679,29 @@ export default function MaterialCatalogPage() {
 
     // URL 파라미터 복원 (클라이언트 전용)
     const sp = new URLSearchParams(window.location.search)
-    const urlQ     = sp.get('q') || ''
-    const urlCat   = sp.get('category') || ''
-    const urlPage  = Math.max(1, parseInt(sp.get('page') || '1', 10) || 1)
-    const rawSel   = sp.get('selectedId')
-    const urlSelId = rawSel ? (parseInt(rawSel, 10) || null) : null
-    if (urlQ || urlCat || urlPage > 1 || urlSelId !== null) {
-      if (urlQ)            setQ(urlQ)
-      if (urlCat)          setCategory(urlCat)
-      if (urlPage > 1)     setPage(urlPage)
+    const urlQ      = sp.get('q') || ''
+    const urlCat    = sp.get('category') || ''
+    const urlSub    = sp.get('subCategory') || ''
+    const urlPage   = Math.max(1, parseInt(sp.get('page') || '1', 10) || 1)
+    const rawSel    = sp.get('selectedId')
+    const urlSelId  = rawSel ? (parseInt(rawSel, 10) || null) : null
+    if (urlQ || urlCat || urlSub || urlPage > 1 || urlSelId !== null) {
+      if (urlQ)             setQ(urlQ)
+      if (urlCat)           setCategory(urlCat)
+      if (urlSub)           setSubCategory(urlSub)
+      if (urlCat)           setExpandedCats(new Set([urlCat]))
+      if (urlPage > 1)      setPage(urlPage)
       if (urlSelId !== null) setSelectedId(urlSelId)
-      if (urlQ || urlCat || urlPage > 1) fetchMaterials(urlQ, urlCat, urlPage)
+      if (urlQ || urlCat || urlSub || urlPage > 1) fetchMaterials(urlQ, urlCat, urlSub, urlPage)
     }
   }, [fetchMaterials])
 
   // URL 동기화 (replace 기반 — 히스토리 불필요 누적 방지)
-  const syncURL = (qVal: string, catVal: string, pageVal: number, idVal: number | null) => {
+  const syncURL = (qVal: string, catVal: string, subCatVal: string, pageVal: number, idVal: number | null) => {
     const sp = new URLSearchParams()
     if (qVal.trim())       sp.set('q', qVal.trim())
     if (catVal)            sp.set('category', catVal)
+    if (subCatVal)         sp.set('subCategory', subCatVal)
     if (pageVal > 1)       sp.set('page', String(pageVal))
     if (idVal !== null)    sp.set('selectedId', String(idVal))
     const qs = sp.toString()
@@ -660,8 +713,9 @@ export default function MaterialCatalogPage() {
     setCatalogCsvError('')
     try {
       const params = new URLSearchParams()
-      if (q.trim()) params.set('q', q.trim())
-      if (category) params.set('category', category)
+      if (q.trim())      params.set('q', q.trim())
+      if (category)      params.set('category', category)
+      if (subCategory)   params.set('subCategory', subCategory)
       const res = await fetch(`/api/proxy/material-catalog-export?${params}`)
       if (!res.ok) {
         const d = await res.json().catch(() => ({}))
@@ -730,16 +784,16 @@ export default function MaterialCatalogPage() {
     closeSuggest()
     setPage(1)
     setSelectedId(null)
-    fetchMaterials(item.name, category, 1)
-    syncURL(item.name, category, 1, null)
+    fetchMaterials(item.name, category, subCategory, 1)
+    syncURL(item.name, category, subCategory, 1, null)
   }
 
   const handleSearch = () => {
     closeSuggest()
     setPage(1)
     setSelectedId(null)
-    fetchMaterials(q, category, 1)
-    syncURL(q, category, 1, null)
+    fetchMaterials(q, category, subCategory, 1)
+    syncURL(q, category, subCategory, 1, null)
   }
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -765,18 +819,40 @@ export default function MaterialCatalogPage() {
     }
   }
 
-  const handleCategoryChange = (val: string) => {
-    setCategory(val)
+  const handleCategoryChange = (cat: string) => {
+    setCategory(cat)
+    setSubCategory('')
     setPage(1)
     setSelectedId(null)
-    if (searched) fetchMaterials(q, val, 1)
-    syncURL(q, val, 1, null)
+    // 대분류 선택 시 자동 펼치기
+    if (cat) setExpandedCats(prev => { const s = new Set(Array.from(prev)); s.add(cat); return s })
+    if (searched) fetchMaterials(q, cat, '', 1)
+    syncURL(q, cat, '', 1, null)
+  }
+
+  const handleSubCategoryChange = (cat: string, sub: string) => {
+    setCategory(cat)
+    setSubCategory(sub)
+    setPage(1)
+    setSelectedId(null)
+    fetchMaterials(q, cat, sub, 1)
+    syncURL(q, cat, sub, 1, null)
+    setSearched(true)
+  }
+
+  const handleToggleExpand = (cat: string) => {
+    setExpandedCats(prev => {
+      const next = new Set(prev)
+      if (next.has(cat)) next.delete(cat)
+      else next.add(cat)
+      return next
+    })
   }
 
   const handlePageChange = (next: number) => {
     setPage(next)
-    fetchMaterials(q, category, next)
-    syncURL(q, category, next, selectedId)
+    fetchMaterials(q, category, subCategory, next)
+    syncURL(q, category, subCategory, next, selectedId)
   }
 
   return (
@@ -792,10 +868,13 @@ export default function MaterialCatalogPage() {
         }}
       >
         <CategoryTree
-          categories={categories}
-          counts={categoryCounts}
-          selected={category}
-          onSelect={handleCategoryChange}
+          treeData={treeData}
+          selectedCat={category}
+          selectedSub={subCategory}
+          expandedCats={expandedCats}
+          onSelectCat={handleCategoryChange}
+          onSelectSub={handleSubCategoryChange}
+          onToggleExpand={handleToggleExpand}
           totalCount={summary?.totalMaterials ?? 0}
         />
       </aside>
@@ -820,7 +899,19 @@ export default function MaterialCatalogPage() {
         {category && (
           <>
             <span style={{ opacity: 0.4 }}>›</span>
-            <span style={{ color: '#5BA4D9', fontWeight: 600 }}>{category}</span>
+            <button
+              onClick={() => handleCategoryChange(category)}
+              className="border-0 bg-transparent cursor-pointer p-0 text-[12px] transition-colors hover:text-white"
+              style={{ color: subCategory ? 'rgba(91,164,217,0.7)' : '#5BA4D9', fontWeight: subCategory ? 400 : 600 }}
+            >
+              {category}
+            </button>
+          </>
+        )}
+        {subCategory && (
+          <>
+            <span style={{ opacity: 0.4 }}>›</span>
+            <span style={{ color: '#5BA4D9', fontWeight: 600 }}>{subCategory}</span>
           </>
         )}
       </div>
@@ -875,7 +966,7 @@ export default function MaterialCatalogPage() {
       {/* 붙여넣기 조회 섹션 */}
       <LookupSection
         selectedId={selectedId}
-        onSelectId={(id) => { setSelectedId(id); syncURL(q, category, page, id) }}
+        onSelectId={(id) => { setSelectedId(id); syncURL(q, category, subCategory, page, id) }}
       />
 
       {/* 필터 */}
@@ -982,7 +1073,7 @@ export default function MaterialCatalogPage() {
                     return (
                       <tr
                         key={item.id}
-                        onClick={() => { const next = isSelected ? null : item.id; setSelectedId(next); syncURL(q, category, page, next) }}
+                        onClick={() => { const next = isSelected ? null : item.id; setSelectedId(next); syncURL(q, category, subCategory, page, next) }}
                         className="cursor-pointer transition-colors"
                         style={{ background: isSelected ? 'rgba(91,164,217,0.12)' : undefined }}
                         onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = 'rgba(91,164,217,0.04)' }}
@@ -1045,7 +1136,7 @@ export default function MaterialCatalogPage() {
       )}
 
       {selectedId !== null && (
-        <DetailPanel id={selectedId} onClose={() => { setSelectedId(null); syncURL(q, category, page, null) }} />
+        <DetailPanel id={selectedId} onClose={() => { setSelectedId(null); syncURL(q, category, subCategory, page, null) }} />
       )}
       </div>{/* end right content */}
     </div>

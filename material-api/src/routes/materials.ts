@@ -4,6 +4,7 @@ import { prisma } from '../db/prisma'
 interface ListQuery {
   q?: string
   category?: string
+  subCategory?: string
   source?: string
   page?: string
   pageSize?: string
@@ -142,7 +143,7 @@ function buildLookupCsv(cleaned: string[], items: LookupItem[]): string {
 export async function materialsRoutes(app: FastifyInstance) {
   // GET /api/materials — 자재 목록 검색
   app.get<{ Querystring: ListQuery }>('/materials', async (req) => {
-    const { q, category, source, page = '1', pageSize = '50' } = req.query
+    const { q, category, subCategory, source, page = '1', pageSize = '50' } = req.query
     const pageNum = Math.max(1, parseInt(page))
     const take    = Math.min(200, Math.max(1, parseInt(pageSize)))
     const skip    = (pageNum - 1) * take
@@ -153,8 +154,9 @@ export async function materialsRoutes(app: FastifyInstance) {
       { name: { contains: search, mode: 'insensitive' } },
       { code: { contains: search, mode: 'insensitive' } },
     ]
-    if (category) where.category = category.trim()
-    if (source)   where.source   = source
+    if (category)    where.category    = category.trim()
+    if (subCategory) where.subCategory = subCategory.trim()
+    if (source)      where.source      = source
 
     const [total, items] = await Promise.all([
       prisma.material.count({ where }),
@@ -180,7 +182,7 @@ export async function materialsRoutes(app: FastifyInstance) {
     }
   })
 
-  // GET /api/materials/categories — 분류 목록
+  // GET /api/materials/categories — 분류 목록 (1단계)
   app.get('/materials/categories', async () => {
     const rows = await prisma.material.groupBy({
       by: ['category'],
@@ -191,6 +193,29 @@ export async function materialsRoutes(app: FastifyInstance) {
       success: true,
       data: rows.map(r => ({ category: r.category, count: r._count.id })),
     }
+  })
+
+  // GET /api/materials/categories/tree — 2단계 분류 트리 (category > subCategory)
+  app.get('/materials/categories/tree', async () => {
+    const rows = await prisma.material.groupBy({
+      by: ['category', 'subCategory'],
+      _count: { id: true },
+      orderBy: [{ category: 'asc' }, { subCategory: 'asc' }],
+    })
+    const map = new Map<string, { subCategory: string; count: number }[]>()
+    for (const r of rows) {
+      const sub = r.subCategory ?? ''
+      if (!map.has(r.category)) map.set(r.category, [])
+      map.get(r.category)!.push({ subCategory: sub, count: r._count.id })
+    }
+    const tree = Array.from(map.entries()).map(([category, subs]) => ({
+      category,
+      count: subs.reduce((s, x) => s + x.count, 0),
+      subCategories: subs
+        .filter(s => s.subCategory !== '')
+        .sort((a, b) => a.subCategory.localeCompare(b.subCategory, 'ko')),
+    }))
+    return { success: true, data: tree }
   })
 
   // GET /api/materials/sync-status — 갱신 상태
