@@ -40,8 +40,8 @@ export async function POST(request: Request) {
 
   await prisma.workerDocConsent.upsert({
     where: { workerId_consentDocId: { workerId, consentDocId: docId } },
-    create: { workerId, consentDocId: docId, agreedAt },
-    update: { agreedAt },
+    create: { workerId, consentDocId: docId, agreedVersion: doc.version, agreedAt },
+    update: { agreedVersion: doc.version, agreedAt },
   })
 
   return ok({ docId, agreedAt: agreedAt.toISOString() })

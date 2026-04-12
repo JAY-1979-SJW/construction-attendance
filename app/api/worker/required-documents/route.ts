@@ -12,6 +12,10 @@ import { unauthorized, ok } from '@/lib/utils/response'
  *   3. 근로자 배정 현장 SITE 문서
  *   4. 근로계약서 (WorkerContract 기반 가상 문서)
  *
+ * 버전 판정:
+ *   WorkerDocConsent.agreedVersion === ConsentDoc.version 일 때만 동의 유효
+ *   버전 불일치(문서 업데이트됨) → agreedAt=null 반환 → 재동의 대상
+ *
  * Response: { docs: DocItem[], pendingCount: number }
  * DocItem: {
  *   id: string,           // ConsentDoc.id 또는 "labor-contract:<contractId>"
@@ -70,7 +74,7 @@ export async function GET() {
     include: {
       workerConsents: {
         where: { workerId },
-        select: { agreedAt: true },
+        select: { agreedAt: true, agreedVersion: true },
         take: 1,
       },
     },
@@ -100,7 +104,14 @@ export async function GET() {
       version:    doc.version,
       isRequired: doc.isRequired,
       scope:      doc.scope,
-      agreedAt:   doc.workerConsents[0]?.agreedAt?.toISOString() ?? null,
+      // agreedVersion이 현재 doc.version과 일치할 때만 동의 유효
+      // 불일치(문서 업데이트 후 미재동의) → null 반환 → 재동의 대상
+      agreedAt: (() => {
+        const consent = doc.workerConsents[0]
+        if (!consent) return null
+        if (consent.agreedVersion !== doc.version) return null
+        return consent.agreedAt.toISOString()
+      })(),
     })),
     // 근로계약서 가상 문서
     ...(contract
