@@ -62,6 +62,15 @@ interface LookupResult {
   missingCodes: string[]
 }
 
+interface MaterialSummary {
+  totalMaterials: number
+  totalCategories: number
+  priceAvailableCount: number
+  priceUnavailableCount: number
+  latestBaseDate: string | null
+  sourceCounts: Record<string, number>
+}
+
 const PAGE_SIZE = 50
 
 function DetailPanel({
@@ -483,6 +492,10 @@ export default function MaterialCatalogPage() {
   const [searched, setSearched]           = useState(false)
   const [selectedId, setSelectedId]       = useState<number | null>(null)
 
+  const [summary, setSummary]               = useState<MaterialSummary | null>(null)
+  const [summaryLoading, setSummaryLoading] = useState(true)
+  const [summaryError, setSummaryError]     = useState('')
+
   const [catalogCsvLoading, setCatalogCsvLoading] = useState(false)
   const [catalogCsvError, setCatalogCsvError]     = useState('')
 
@@ -512,6 +525,15 @@ export default function MaterialCatalogPage() {
         }
       })
       .catch(() => {})
+
+    fetch('/api/proxy/material-summary')
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) setSummary(d.data)
+        else setSummaryError(d.message ?? 'summary 조회 실패')
+      })
+      .catch(() => setSummaryError('summary 네트워크 오류'))
+      .finally(() => setSummaryLoading(false))
   }, [])
 
   const fetchMaterials = useCallback((qVal: string, catVal: string, pageVal: number) => {
@@ -660,6 +682,42 @@ export default function MaterialCatalogPage() {
         <h1 className="text-2xl font-bold m-0 mb-1">자재 카탈로그</h1>
         <p className="text-sm text-muted-brand m-0">나라장터 자재 코드 조회 · 내부 테스트</p>
       </div>
+
+      {/* 요약 카드 */}
+      {summaryLoading ? (
+        <div className="mb-5 px-4 py-3 rounded-lg text-sm text-muted-brand"
+             style={{ background: 'rgba(91,164,217,0.04)', border: '1px solid rgba(91,164,217,0.12)' }}>
+          불러오는 중...
+        </div>
+      ) : summaryError ? (
+        <div className="mb-5 px-4 py-3 rounded-lg text-sm"
+             style={{ background: 'rgba(183,28,28,0.08)', border: '1px solid rgba(183,28,28,0.2)', color: '#ef5350' }}>
+          {summaryError}
+        </div>
+      ) : summary ? (
+        <div className="mb-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-2">
+            {[
+              { label: '총 자재 수',    value: summary.totalMaterials.toLocaleString(),     sub: null },
+              { label: '카테고리',      value: `${summary.totalCategories}개`,              sub: null },
+              { label: '가격 있음',     value: summary.priceAvailableCount.toLocaleString(), sub: null },
+              { label: '가격 없음',     value: summary.priceUnavailableCount.toLocaleString(), sub: 'price_available=false' },
+              { label: '최신 기준일',   value: summary.latestBaseDate ? summary.latestBaseDate.split('T')[0] : '-', sub: null },
+              { label: 'nara 건수',     value: (summary.sourceCounts?.nara ?? 0).toLocaleString(), sub: '실수집 보류' },
+            ].map(card => (
+              <div key={card.label}
+                   className="rounded-[10px] px-4 py-3 flex flex-col gap-[3px]"
+                   style={{ background: 'rgba(91,164,217,0.05)', border: '1px solid rgba(91,164,217,0.14)' }}>
+                <span className="text-[11px] text-muted-brand">{card.label}</span>
+                <span className="text-[15px] font-bold">{card.value}</span>
+                {card.sub && (
+                  <span className="text-[10px]" style={{ color: '#f9a825' }}>{card.sub}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {/* 상태 배너 */}
       {syncStatus && (
