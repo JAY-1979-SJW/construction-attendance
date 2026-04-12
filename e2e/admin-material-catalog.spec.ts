@@ -187,7 +187,7 @@ test('CAT-A 첫 진입 — 배너·요약카드·카테고리 확인', async ({ 
   await expect(page.locator('h1').filter({ hasText: '자재 카탈로그' })).toBeVisible({ timeout: 10000 })
 
   // deferred 배너 (수집 보류)
-  await expect(page.getByText('수집 보류')).toBeVisible({ timeout: 8000 })
+  await expect(page.getByText('수집 보류', { exact: true })).toBeVisible({ timeout: 8000 })
 
   // summary 카드
   await expect(page.getByText('총 자재 수')).toBeVisible({ timeout: 8000 })
@@ -268,7 +268,7 @@ test('CAT-C 카테고리+페이지 이동 — 필터→조회→다음 페이지
   await select.selectOption('건자재')
 
   // 조회 버튼 클릭 (handleSearch → fetchMaterials → searched=true → 테이블 노출)
-  await page.locator('button').filter({ hasText: '조회' }).click()
+  await page.getByRole('button', { name: '조회', exact: true }).click()
 
   // 총 N건 표시 확인
   await expect(page.getByText(/총 \d+건/)).toBeVisible({ timeout: 8000 })
@@ -300,7 +300,7 @@ test('CAT-D 상세패널 — 행 클릭→열림→닫기', async ({ page }) => 
   await expect(page.locator('h1').filter({ hasText: '자재 카탈로그' })).toBeVisible({ timeout: 10000 })
 
   // 조회 실행해서 테이블 노출
-  await page.locator('button').filter({ hasText: '조회' }).click()
+  await page.getByRole('button', { name: '조회', exact: true }).click()
   await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 8000 })
 
   // 첫 행 클릭 → 상세패널 열림
