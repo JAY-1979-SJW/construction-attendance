@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 interface MaterialItem {
   id: number
@@ -33,6 +33,14 @@ interface SyncStatus {
   status: string
   baseDate: string | null
   priceIncluded: boolean
+}
+
+interface SuggestItem {
+  id: number
+  code: string
+  name: string
+  category: string | null
+  spec: string | null
 }
 
 const PAGE_SIZE = 50
@@ -137,19 +145,76 @@ function DetailPanel({
   )
 }
 
+function SuggestDropdown({
+  items,
+  activeIdx,
+  onSelect,
+  onMouseEnter,
+}: {
+  items: SuggestItem[]
+  activeIdx: number
+  onSelect: (item: SuggestItem) => void
+  onMouseEnter: (idx: number) => void
+}) {
+  if (items.length === 0) return null
+  return (
+    <ul
+      role="listbox"
+      className="absolute left-0 top-full mt-1 w-full z-40 rounded-md shadow-lg overflow-hidden"
+      style={{
+        background: 'var(--color-card, #1e2530)',
+        border: '1px solid rgba(91,164,217,0.25)',
+        maxHeight: '260px',
+        overflowY: 'auto',
+      }}
+    >
+      {items.map((item, idx) => (
+        <li
+          key={item.id}
+          role="option"
+          aria-selected={idx === activeIdx}
+          onMouseDown={e => { e.preventDefault(); onSelect(item) }}
+          onMouseEnter={() => onMouseEnter(idx)}
+          className="px-3 py-[9px] cursor-pointer text-sm flex flex-col gap-[2px]"
+          style={{
+            background: idx === activeIdx ? 'rgba(91,164,217,0.15)' : undefined,
+            borderBottom: '1px solid rgba(91,164,217,0.08)',
+          }}
+        >
+          <span className="font-semibold truncate">{item.name}</span>
+          <span className="text-[11px] text-muted-brand flex gap-2">
+            <span className="font-mono">{item.code}</span>
+            {item.category && <span>{item.category}</span>}
+          </span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 export default function MaterialCatalogPage() {
-  const [q, setQ]                   = useState('')
-  const [category, setCategory]     = useState('')
-  const [page, setPage]             = useState(1)
-  const [items, setItems]           = useState<MaterialItem[]>([])
-  const [total, setTotal]           = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const [loading, setLoading]       = useState(false)
-  const [error, setError]           = useState('')
-  const [categories, setCategories] = useState<string[]>([])
-  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null)
-  const [searched, setSearched]     = useState(false)
-  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [q, setQ]                         = useState('')
+  const [category, setCategory]           = useState('')
+  const [page, setPage]                   = useState(1)
+  const [items, setItems]                 = useState<MaterialItem[]>([])
+  const [total, setTotal]                 = useState(0)
+  const [totalPages, setTotalPages]       = useState(0)
+  const [loading, setLoading]             = useState(false)
+  const [error, setError]                 = useState('')
+  const [categories, setCategories]       = useState<string[]>([])
+  const [syncStatus, setSyncStatus]       = useState<SyncStatus | null>(null)
+  const [searched, setSearched]           = useState(false)
+  const [selectedId, setSelectedId]       = useState<number | null>(null)
+
+  // autocomplete state
+  const [suggests, setSuggests]           = useState<SuggestItem[]>([])
+  const [suggestOpen, setSuggestOpen]     = useState(false)
+  const [suggestLoading, setSuggestLoading] = useState(false)
+  const [activeIdx, setActiveIdx]         = useState(-1)
+  const [suggestError, setSuggestError]   = useState('')
+
+  const suggestTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     fetch('/api/proxy/material-categories')
@@ -189,10 +254,87 @@ export default function MaterialCatalogPage() {
       .finally(() => setLoading(false))
   }, [])
 
+  const closeSuggest = () => {
+    setSuggestOpen(false)
+    setSuggests([])
+    setActiveIdx(-1)
+    setSuggestError('')
+  }
+
+  const fetchSuggests = useCallback((val: string) => {
+    if (val.trim().length < 1) {
+      closeSuggest()
+      return
+    }
+    setSuggestLoading(true)
+    setSuggestError('')
+    fetch(`/api/proxy/material-suggest?q=${encodeURIComponent(val.trim())}&limit=10`)
+      .then(r => r.json())
+      .then(d => {
+        if (!d.success) {
+          setSuggestError('추천 조회 실패')
+          setSuggests([])
+        } else {
+          const list: SuggestItem[] = d.data ?? []
+          setSuggests(list)
+          setSuggestOpen(true)
+          if (list.length === 0) setSuggestError('검색 결과 없음')
+        }
+      })
+      .catch(() => {
+        setSuggestOpen(false)
+        setSuggests([])
+      })
+      .finally(() => setSuggestLoading(false))
+  }, [])
+
+  const handleInputChange = (val: string) => {
+    setQ(val)
+    setActiveIdx(-1)
+    if (suggestTimer.current) clearTimeout(suggestTimer.current)
+    if (val.trim().length === 0) {
+      closeSuggest()
+      return
+    }
+    suggestTimer.current = setTimeout(() => fetchSuggests(val), 200)
+  }
+
+  const handleSuggestSelect = (item: SuggestItem) => {
+    setQ(item.name)
+    closeSuggest()
+    setPage(1)
+    setSelectedId(null)
+    fetchMaterials(item.name, category, 1)
+  }
+
   const handleSearch = () => {
+    closeSuggest()
     setPage(1)
     setSelectedId(null)
     fetchMaterials(q, category, 1)
+  }
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!suggestOpen) {
+      if (e.key === 'Enter') handleSearch()
+      return
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActiveIdx(i => Math.min(i + 1, suggests.length - 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveIdx(i => Math.max(i - 1, -1))
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      if (activeIdx >= 0 && suggests[activeIdx]) {
+        handleSuggestSelect(suggests[activeIdx])
+      } else {
+        handleSearch()
+      }
+    } else if (e.key === 'Escape') {
+      closeSuggest()
+    }
   }
 
   const handleCategoryChange = (val: string) => {
@@ -228,14 +370,48 @@ export default function MaterialCatalogPage() {
 
       {/* 필터 */}
       <div className="flex gap-3 items-center flex-wrap mb-4">
-        <input
-          type="text"
-          value={q}
-          onChange={e => setQ(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSearch()}
-          placeholder="코드 또는 자재명 검색"
-          className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-card w-64"
-        />
+        {/* 자동완성 래퍼 */}
+        <div className="relative w-64">
+          <input
+            ref={inputRef}
+            type="text"
+            value={q}
+            onChange={e => handleInputChange(e.target.value)}
+            onKeyDown={handleInputKeyDown}
+            onBlur={() => setTimeout(closeSuggest, 150)}
+            placeholder="코드 또는 자재명 검색"
+            className="px-3 py-2 border border-[rgba(91,164,217,0.3)] rounded-md text-sm bg-card w-full"
+            autoComplete="off"
+            aria-autocomplete="list"
+            aria-expanded={suggestOpen}
+          />
+          {/* 로딩 스피너 */}
+          {suggestLoading && (
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-muted-brand">...</span>
+          )}
+          {/* 드롭다운 */}
+          {suggestOpen && (
+            suggestError ? (
+              <ul
+                className="absolute left-0 top-full mt-1 w-full z-40 rounded-md shadow-lg"
+                style={{
+                  background: 'var(--color-card, #1e2530)',
+                  border: '1px solid rgba(91,164,217,0.25)',
+                }}
+              >
+                <li className="px-3 py-3 text-[12px] text-muted-brand">{suggestError}</li>
+              </ul>
+            ) : (
+              <SuggestDropdown
+                items={suggests}
+                activeIdx={activeIdx}
+                onSelect={handleSuggestSelect}
+                onMouseEnter={setActiveIdx}
+              />
+            )
+          )}
+        </div>
+
         <select
           value={category}
           onChange={e => handleCategoryChange(e.target.value)}
