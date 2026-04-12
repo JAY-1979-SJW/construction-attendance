@@ -207,7 +207,13 @@ function SuggestDropdown({
 }
 
 // ── 붙여넣기 조회 섹션 ──────────────────────────────────────────
-function LookupSection() {
+function LookupSection({
+  selectedId,
+  onSelectId,
+}: {
+  selectedId: number | null
+  onSelectId: (id: number | null) => void
+}) {
   const [text, setText]               = useState('')
   const [loading, setLoading]         = useState(false)
   const [csvLoading, setCsvLoading]   = useState(false)
@@ -391,8 +397,17 @@ function LookupSection() {
                       </tr>
                     </thead>
                     <tbody>
-                      {result.items.map(item => (
-                        <tr key={item.id}>
+                      {result.items.map(item => {
+                        const isSelected = item.id === selectedId
+                        return (
+                        <tr
+                          key={item.id}
+                          onClick={() => onSelectId(isSelected ? null : item.id)}
+                          className="cursor-pointer transition-colors"
+                          style={{ background: isSelected ? 'rgba(91,164,217,0.12)' : undefined }}
+                          onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = 'rgba(91,164,217,0.04)' }}
+                          onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = '' }}
+                        >
                           <td className="px-3 py-[8px] border-b border-[rgba(91,164,217,0.08)] font-mono text-[12px] text-muted-brand whitespace-nowrap">
                             {item.code}
                           </td>
@@ -418,7 +433,8 @@ function LookupSection() {
                             {item.base_date ? item.base_date.split('T')[0] : '-'}
                           </td>
                         </tr>
-                      ))}
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -620,7 +636,7 @@ export default function MaterialCatalogPage() {
       )}
 
       {/* 붙여넣기 조회 섹션 */}
-      <LookupSection />
+      <LookupSection selectedId={selectedId} onSelectId={setSelectedId} />
 
       {/* 필터 */}
       <div className="flex gap-3 items-center flex-wrap mb-4">
