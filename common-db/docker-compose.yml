@@ -1,0 +1,31 @@
+services:
+  common-db:
+    image: postgres:16-alpine
+    container_name: common-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: common_data
+      POSTGRES_USER: common_admin
+      POSTGRES_PASSWORD: ${COMMON_ADMIN_PASSWORD}
+      COMMON_WRITER_PASSWORD: ${COMMON_WRITER_PASSWORD}
+      COMMON_READER_PASSWORD: ${COMMON_READER_PASSWORD}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - common_db_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - attendance-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U common_admin -d common_data"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  common_db_data:
+
+networks:
+  attendance-net:
+    external: true
