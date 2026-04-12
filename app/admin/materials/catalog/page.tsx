@@ -536,6 +536,27 @@ function savePresets(items: FilterPreset[]) {
   localStorage.setItem(PRESET_KEY, JSON.stringify(items))
 }
 
+// ── 마지막 사용 상태 ──────────────────────────────────
+const LAST_STATE_KEY = 'material-catalog-last-state'
+
+interface LastFilterState {
+  category: string
+  subCategory: string
+  q: string
+  savedAt: string
+}
+
+function loadLastState(): LastFilterState | null {
+  if (typeof window === 'undefined') return null
+  try { return JSON.parse(localStorage.getItem(LAST_STATE_KEY) ?? 'null') } catch { return null }
+}
+function saveLastState(state: LastFilterState) {
+  localStorage.setItem(LAST_STATE_KEY, JSON.stringify(state))
+}
+function clearLastState() {
+  localStorage.removeItem(LAST_STATE_KEY)
+}
+
 function CategoryTree({
   treeData,
   selectedCat,
@@ -952,6 +973,7 @@ export default function MaterialCatalogPage() {
     const rawSel    = sp.get('selectedId')
     const urlSelId  = rawSel ? (parseInt(rawSel, 10) || null) : null
     if (urlQ || urlCat || urlSub || urlPage > 1 || urlSelId !== null) {
+      // URL 우선 — 기존 로직
       if (urlQ)             setQ(urlQ)
       if (urlCat)           setCategory(urlCat)
       if (urlSub)           setSubCategory(urlSub)
@@ -959,6 +981,17 @@ export default function MaterialCatalogPage() {
       if (urlPage > 1)      setPage(urlPage)
       if (urlSelId !== null) setSelectedId(urlSelId)
       if (urlQ || urlCat || urlSub || urlPage > 1) fetchMaterials(urlQ, urlCat, urlSub, urlPage)
+    } else {
+      // URL 없으면 마지막 사용 상태 자동 복원
+      const last = loadLastState()
+      if (last && (last.category || last.subCategory || last.q)) {
+        setQ(last.q)
+        setCategory(last.category)
+        setSubCategory(last.subCategory)
+        if (last.category) setExpandedCats(new Set([last.category]))
+        fetchMaterials(last.q, last.category, last.subCategory, 1)
+        syncURL(last.q, last.category, last.subCategory, 1, null)
+      }
     }
   }, [fetchMaterials])
 
@@ -1183,6 +1216,18 @@ export default function MaterialCatalogPage() {
 
   const handleDeletePreset = (name: string) => {
     setPresets(prev => { const next = prev.filter(p => p.name !== name); savePresets(next); return next })
+  }
+
+  // ── 마지막 상태 자동 저장 ─────────────────────────
+  useEffect(() => {
+    if (searched) {
+      saveLastState({ category, subCategory, q, savedAt: new Date().toISOString() })
+    }
+  }, [searched, category, subCategory, q])
+
+  const handleClearLastState = () => {
+    clearLastState()
+    handleClearAll()
   }
 
   return (
@@ -1410,6 +1455,12 @@ export default function MaterialCatalogPage() {
             style={{ color: '#5BA4D9' }}
             title="현재 필터를 프리셋으로 저장"
           >+ 저장</button>
+          <button
+            onClick={handleClearLastState}
+            className="text-[11px] border-0 bg-transparent cursor-pointer"
+            style={{ color: 'rgba(91,164,217,0.3)' }}
+            title="마지막 상태 기록 삭제 + 전체 초기화"
+          >기록 삭제</button>
         </div>
       )}
 
