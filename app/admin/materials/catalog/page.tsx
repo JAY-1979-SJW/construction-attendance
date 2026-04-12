@@ -534,7 +534,22 @@ export default function MaterialCatalogPage() {
       })
       .catch(() => setSummaryError('summary 네트워크 오류'))
       .finally(() => setSummaryLoading(false))
-  }, [])
+
+    // URL 파라미터 복원 (클라이언트 전용)
+    const sp = new URLSearchParams(window.location.search)
+    const urlQ     = sp.get('q') || ''
+    const urlCat   = sp.get('category') || ''
+    const urlPage  = Math.max(1, parseInt(sp.get('page') || '1', 10) || 1)
+    const rawSel   = sp.get('selectedId')
+    const urlSelId = rawSel ? (parseInt(rawSel, 10) || null) : null
+    if (urlQ || urlCat || urlPage > 1 || urlSelId !== null) {
+      if (urlQ)            setQ(urlQ)
+      if (urlCat)          setCategory(urlCat)
+      if (urlPage > 1)     setPage(urlPage)
+      if (urlSelId !== null) setSelectedId(urlSelId)
+      if (urlQ || urlCat || urlPage > 1) fetchMaterials(urlQ, urlCat, urlPage)
+    }
+  }, [fetchMaterials])
 
   const fetchMaterials = useCallback((qVal: string, catVal: string, pageVal: number) => {
     setLoading(true)
@@ -554,6 +569,17 @@ export default function MaterialCatalogPage() {
       .catch(() => setError('네트워크 오류'))
       .finally(() => setLoading(false))
   }, [])
+
+  // URL 동기화 (replace 기반 — 히스토리 불필요 누적 방지)
+  const syncURL = (qVal: string, catVal: string, pageVal: number, idVal: number | null) => {
+    const sp = new URLSearchParams()
+    if (qVal.trim())       sp.set('q', qVal.trim())
+    if (catVal)            sp.set('category', catVal)
+    if (pageVal > 1)       sp.set('page', String(pageVal))
+    if (idVal !== null)    sp.set('selectedId', String(idVal))
+    const qs = sp.toString()
+    history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname)
+  }
 
   const handleCatalogCsvDownload = async () => {
     setCatalogCsvLoading(true)
@@ -631,6 +657,7 @@ export default function MaterialCatalogPage() {
     setPage(1)
     setSelectedId(null)
     fetchMaterials(item.name, category, 1)
+    syncURL(item.name, category, 1, null)
   }
 
   const handleSearch = () => {
@@ -638,6 +665,7 @@ export default function MaterialCatalogPage() {
     setPage(1)
     setSelectedId(null)
     fetchMaterials(q, category, 1)
+    syncURL(q, category, 1, null)
   }
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -668,11 +696,13 @@ export default function MaterialCatalogPage() {
     setPage(1)
     setSelectedId(null)
     if (searched) fetchMaterials(q, val, 1)
+    syncURL(q, val, 1, null)
   }
 
   const handlePageChange = (next: number) => {
     setPage(next)
     fetchMaterials(q, category, next)
+    syncURL(q, category, next, selectedId)
   }
 
   return (
@@ -731,7 +761,10 @@ export default function MaterialCatalogPage() {
       )}
 
       {/* 붙여넣기 조회 섹션 */}
-      <LookupSection selectedId={selectedId} onSelectId={setSelectedId} />
+      <LookupSection
+        selectedId={selectedId}
+        onSelectId={(id) => { setSelectedId(id); syncURL(q, category, page, id) }}
+      />
 
       {/* 필터 */}
       <div className="flex gap-3 items-center flex-wrap mb-4">
@@ -847,7 +880,7 @@ export default function MaterialCatalogPage() {
                     return (
                       <tr
                         key={item.id}
-                        onClick={() => setSelectedId(isSelected ? null : item.id)}
+                        onClick={() => { const next = isSelected ? null : item.id; setSelectedId(next); syncURL(q, category, page, next) }}
                         className="cursor-pointer transition-colors"
                         style={{ background: isSelected ? 'rgba(91,164,217,0.12)' : undefined }}
                         onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = 'rgba(91,164,217,0.04)' }}
@@ -910,7 +943,7 @@ export default function MaterialCatalogPage() {
       )}
 
       {selectedId !== null && (
-        <DetailPanel id={selectedId} onClose={() => setSelectedId(null)} />
+        <DetailPanel id={selectedId} onClose={() => { setSelectedId(null); syncURL(q, category, page, null) }} />
       )}
     </div>
   )
