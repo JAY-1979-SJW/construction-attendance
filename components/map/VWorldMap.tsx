@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import 'leaflet/dist/leaflet.css'
 
 interface VWorldMapProps {
   lat?: number | string | null
@@ -32,15 +33,6 @@ export default function VWorldMap({ lat, lng, height = '280px' }: VWorldMapProps
       try {
         // Leaflet을 동적으로 import (SSR 방지)
         const L = (await import('leaflet')).default
-
-        // Leaflet CSS 동적 로드
-        if (!document.getElementById('leaflet-css')) {
-          const link = document.createElement('link')
-          link.id   = 'leaflet-css'
-          link.rel  = 'stylesheet'
-          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
-          document.head.appendChild(link)
-        }
 
         if (cancelled || !containerRef.current) return
 

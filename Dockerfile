@@ -10,10 +10,7 @@ RUN npx prisma generate
 ARG DATABASE_URL="postgresql://build:build@localhost:5432/build_placeholder"
 ENV DATABASE_URL=${DATABASE_URL}
 # NEXT_PUBLIC_* 는 빌드 시 번들에 인라인됨 — .dockerignore 외부에서 ARG로 주입
-ARG NEXT_PUBLIC_VWORLD_API_KEY=""
-ENV NEXT_PUBLIC_VWORLD_API_KEY=${NEXT_PUBLIC_VWORLD_API_KEY}
-ARG NEXT_PUBLIC_VWORLD_DOMAIN="attendance.haehan-ai.kr"
-ENV NEXT_PUBLIC_VWORLD_DOMAIN=${NEXT_PUBLIC_VWORLD_DOMAIN}
+# VWORLD_API_KEY 는 서버 전용 (런타임 env) — 빌드 ARG 불필요
 ARG NEXT_PUBLIC_APP_NAME="해한Ai 현장관리"
 ENV NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME}
 ARG NEXT_PUBLIC_BASE_URL="https://attendance.haehan-ai.kr"

@@ -7,9 +7,10 @@ export interface GeocodedResult {
 
 /** VWorld Geocoder API로 주소 → 좌표 변환
  *  type=road(도로명) 먼저 시도, 없으면 type=parcel(지번) 재시도
+ *  서버 전용 환경변수 VWORLD_API_KEY 사용 (클라이언트 번들 비노출)
  */
 async function geocodeWithVWorld(address: string): Promise<GeocodedResult | null> {
-  const key = process.env.NEXT_PUBLIC_VWORLD_API_KEY
+  const key = process.env.VWORLD_API_KEY
   if (!key) return null
 
   const tryType = async (type: 'road' | 'parcel'): Promise<GeocodedResult | null> => {
@@ -40,7 +41,7 @@ async function geocodeWithVWorld(address: string): Promise<GeocodedResult | null
 
 /**
  * 주소 → 좌표 변환.
- * VWorld Geocoder API (NEXT_PUBLIC_VWORLD_API_KEY 설정 시) 사용.
+ * VWorld Geocoder API (VWORLD_API_KEY 설정 시) 사용.
  * 키 없으면 null 반환.
  */
 export async function geocodeAddress(address: string): Promise<GeocodedResult | null> {
