@@ -41,7 +41,14 @@ export async function materialsRoutes(app: FastifyInstance) {
 
     return {
       success: true,
-      data: { items, total, page: parseInt(page), pageSize: take },
+      data: {
+        items,
+        total,
+        page: parseInt(page),
+        pageSize: take,
+        notice: 'nara 데이터는 2026-03-24 기준 카탈로그 이관본이며 base_price=null (실수집 보류 중)',
+        price_available: false,
+      },
     }
   })
 
@@ -67,7 +74,16 @@ export async function materialsRoutes(app: FastifyInstance) {
         take: 5,
       }),
     ])
-    return { success: true, data: { totalMaterials, recentSyncs } }
+    const naraStatus = {
+      source:          'nara',
+      status:          'deferred',
+      reason:          '나라장터 PriceInfoService 서버 장애로 실수집 보류',
+      dataType:        'migration_from_nara_resources',
+      baseDate:        '2026-03-24',
+      priceIncluded:   false,
+      lastLiveSync:    null,
+    }
+    return { success: true, data: { totalMaterials, sourceStatus: [naraStatus], recentSyncs } }
   })
 
   // GET /api/materials/:code — 자재 상세 (코드 기준, 출처별 전체)

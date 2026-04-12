@@ -14,6 +14,10 @@ collect_materials.py — 공용 자재 데이터 수집 스크립트
   --dry-run  : DB 저장 없이 수집 건수만 확인
   --pages N  : 최대 N페이지만 수집 (테스트용)
 
+[현재 상태] nara live sync: deferred — upstream PriceInfoService outage.
+existing rows are migrated snapshot only (base_date=2026-03-24, base_price=null).
+실수집은 나라장터 복구 후 --source nara 로 수동 1회 실행 후 cron 전환.
+
 cron 예시 (월 1회 1일 03:00):
   0 3 1 * * cd ~/app/attendance/material-api && python scripts/collect_materials.py --source nara >> logs/collect.log 2>&1
 """
