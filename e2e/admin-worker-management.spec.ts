@@ -4,34 +4,57 @@
  */
 import { test, expect, type Page } from '@playwright/test'
 import * as fs from 'fs'
-import * as os from 'os'
 import * as path from 'path'
 
 const BASE = process.env.BASE_URL || 'https://attendance.haehan-ai.kr'
-const ADMIN_EMAIL = 'jay@haehan-ai.kr'
-const ADMIN_PASS  = 'Haehan2026!'
-const TOKEN_FILE  = path.join(os.tmpdir(), 'admin_token_worker_mgmt.txt')
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'jay@haehan-ai.kr'
+const ADMIN_PASS  = process.env.ADMIN_PASSWORD || 'Haehan2026!'
+// 모든 admin spec이 동일 토큰 파일 공유 → 연속 실행 시 rate limit 방지
+const TOKEN_FILE  = path.join(__dirname, '..', 'logs', '.admin-token.txt')
 
-// ── 관리자 토큰 획득 (캐시 30분) ─────────────────────────────────────────────
+// ── 관리자 토큰 획득 (JWT 만료 기반 캐시, 429 시 최대 2회 retry) ─────────────
 let _tokenCache = ''
 async function fetchAdminToken(): Promise<string> {
+  // 1) ADMIN_JWT 환경변수 우선
+  if (process.env.ADMIN_JWT) return process.env.ADMIN_JWT
+  // 2) 메모리 캐시
   if (_tokenCache) return _tokenCache
+  // 3) 파일 캐시 — JWT exp 기반 유효성 확인
   if (fs.existsSync(TOKEN_FILE)) {
-    const stat = fs.statSync(TOKEN_FILE)
-    if (Date.now() - stat.mtimeMs < 30 * 60 * 1000) {
-      _tokenCache = fs.readFileSync(TOKEN_FILE, 'utf-8').trim()
-      if (_tokenCache) return _tokenCache
+    const raw = fs.readFileSync(TOKEN_FILE, 'utf-8').trim()
+    if (raw) {
+      try {
+        const payload = JSON.parse(Buffer.from(raw.split('.')[1], 'base64').toString())
+        if (payload.exp * 1000 > Date.now() + 60_000) {
+          _tokenCache = raw
+          return _tokenCache
+        }
+      } catch { /* fall through */ }
     }
   }
-  const res = await fetch(`${BASE}/api/admin/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASS }),
-  })
+  // 4) 로그인 API 호출 (429 시 60초 대기 후 1회 재시도)
+  async function doLogin(): Promise<Response> {
+    const r = await fetch(`${BASE}/api/admin/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASS }),
+    })
+    if (r.status === 429) {
+      await new Promise(resolve => setTimeout(resolve, 62_000))
+      return fetch(`${BASE}/api/admin/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASS }),
+      })
+    }
+    return r
+  }
+  const res = await doLogin()
   const setCookie = res.headers.get('set-cookie') || ''
   const match = setCookie.match(/admin_token=([^;]+)/)
   if (!match) throw new Error(`admin 로그인 실패: ${res.status}`)
   _tokenCache = match[1]
+  fs.mkdirSync(path.dirname(TOKEN_FILE), { recursive: true })
   fs.writeFileSync(TOKEN_FILE, _tokenCache)
   return _tokenCache
 }
