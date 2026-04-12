@@ -485,6 +485,38 @@ interface CategoryTreeNode {
   subCategories: { subCategory: string; count: number }[]
 }
 
+// ── 즐겨찾기 ──────────────────────────────────────────
+interface FavoriteItem {
+  type: 'cat' | 'sub'
+  category: string
+  subCategory?: string
+}
+const FAV_KEY = 'material-catalog-favorites'
+const MAX_FAV = 10
+
+function loadFavs(): FavoriteItem[] {
+  if (typeof window === 'undefined') return []
+  try { return JSON.parse(localStorage.getItem(FAV_KEY) ?? '[]') } catch { return [] }
+}
+function saveFavs(items: FavoriteItem[]) {
+  localStorage.setItem(FAV_KEY, JSON.stringify(items))
+}
+function favId(f: Pick<FavoriteItem, 'type' | 'category' | 'subCategory'>) {
+  return f.type === 'cat' ? `cat:${f.category}` : `sub:${f.category}:${f.subCategory}`
+}
+
+// ── 최근 본 분류 ───────────────────────────────────────
+const RECENT_KEY = 'material-catalog-recents'
+const MAX_RECENT = 10
+
+function loadRecents(): FavoriteItem[] {
+  if (typeof window === 'undefined') return []
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]') } catch { return [] }
+}
+function saveRecents(items: FavoriteItem[]) {
+  localStorage.setItem(RECENT_KEY, JSON.stringify(items))
+}
+
 function CategoryTree({
   treeData,
   selectedCat,
@@ -504,34 +536,243 @@ function CategoryTree({
   onToggleExpand: (cat: string) => void
   totalCount: number
 }) {
+  const [treeSearch, setTreeSearch] = useState('')
+  const [favorites, setFavorites] = useState<FavoriteItem[]>(() => loadFavs())
+  const [recents, setRecents] = useState<FavoriteItem[]>(() => loadRecents())
+
+  const keyword = treeSearch.trim()
+
+  // ── 최근 본 분류 기록 ──────────────────────────────
+  const addRecent = (item: FavoriteItem) => {
+    setRecents(prev => {
+      const id = favId(item)
+      const filtered = prev.filter(r => favId(r) !== id)
+      const next = [item, ...filtered].slice(0, MAX_RECENT)
+      saveRecents(next)
+      return next
+    })
+  }
+
+  // ── 선택 래퍼 (recents 기록 포함) ─────────────────
+  const handleSelectCat = (cat: string) => {
+    if (cat) addRecent({ type: 'cat', category: cat })
+    onSelectCat(cat)
+  }
+  const handleSelectSub = (cat: string, sub: string) => {
+    addRecent({ type: 'sub', category: cat, subCategory: sub })
+    onSelectSub(cat, sub)
+  }
+
+  // ── 즐겨찾기 토글 ──────────────────────────────────
+  const toggleFav = (item: FavoriteItem) => {
+    setFavorites(prev => {
+      const id = favId(item)
+      const exists = prev.some(f => favId(f) === id)
+      let next: FavoriteItem[]
+      if (exists) {
+        next = prev.filter(f => favId(f) !== id)
+      } else {
+        // 최대 10개 — 오래된 것 제거
+        const trimmed = prev.length >= MAX_FAV ? prev.slice(1) : prev
+        next = [...trimmed, item]
+      }
+      saveFavs(next)
+      return next
+    })
+  }
+
+  const isFav = (item: Pick<FavoriteItem, 'type' | 'category' | 'subCategory'>) =>
+    favorites.some(f => favId(f) === favId(item))
+
+  // ── 검색 필터링 ────────────────────────────────────
+  const filteredTree = keyword === ''
+    ? treeData
+    : treeData
+        .map(node => {
+          const catMatch = node.category.includes(keyword)
+          const matchedSubs = node.subCategories.filter(s => s.subCategory.includes(keyword))
+          if (!catMatch && matchedSubs.length === 0) return null
+          return { ...node, subCategories: catMatch ? node.subCategories : matchedSubs }
+        })
+        .filter((n): n is CategoryTreeNode => n !== null)
+
+  // 검색 중이면 매칭된 category는 항상 펼침
+  const autoExpanded = keyword !== ''
+    ? new Set(filteredTree.map(n => n.category))
+    : null
+
+  const isExpanded = (cat: string) =>
+    autoExpanded ? autoExpanded.has(cat) : expandedCats.has(cat)
+
   const rootSelected = selectedCat === '' && selectedSub === ''
+
+  // ── 핀 버튼 공통 스타일 ────────────────────────────
+  const PinBtn = ({ item }: { item: FavoriteItem }) => {
+    const pinned = isFav(item)
+    return (
+      <button
+        onClick={e => { e.stopPropagation(); toggleFav(item) }}
+        className="flex-shrink-0 border-0 bg-transparent cursor-pointer text-[11px] leading-none px-1"
+        style={{ color: pinned ? '#f0b429' : 'rgba(255,255,255,0.2)', transition: 'color 0.15s' }}
+        title={pinned ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+      >
+        {pinned ? '★' : '☆'}
+      </button>
+    )
+  }
+
   return (
     <div className="flex flex-col h-full">
-      <div className="px-4 pt-5 pb-3">
+      <div className="px-4 pt-5 pb-2">
         <span className="text-[11px] font-semibold tracking-wider uppercase text-muted-brand">분류</span>
       </div>
+
+      {/* 트리 내부 검색창 */}
+      <div className="px-3 pb-2">
+        <div className="relative">
+          <input
+            type="text"
+            value={treeSearch}
+            onChange={e => setTreeSearch(e.target.value)}
+            placeholder="분류 검색..."
+            className="w-full rounded-[7px] border-0 text-[12px] px-3 py-[6px] pr-7 outline-none"
+            style={{ background: 'rgba(91,164,217,0.08)', color: 'rgba(255,255,255,0.85)' }}
+          />
+          {treeSearch && (
+            <button
+              onClick={() => setTreeSearch('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 border-0 bg-transparent cursor-pointer text-[10px] leading-none"
+              style={{ color: 'rgba(91,164,217,0.6)' }}
+              title="지우기"
+            >✕</button>
+          )}
+        </div>
+      </div>
+
+      {/* 즐겨찾기 영역 */}
+      {favorites.length > 0 && (
+        <div className="px-3 pb-2" style={{ borderBottom: '1px solid rgba(91,164,217,0.1)' }}>
+          <div className="text-[10px] font-semibold tracking-wider uppercase mb-1" style={{ color: 'rgba(91,164,217,0.5)' }}>
+            즐겨찾기
+          </div>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {favorites.map(fav => {
+              const label = fav.type === 'sub'
+                ? `${fav.category} › ${fav.subCategory}`
+                : fav.category
+              const isActive = fav.type === 'cat'
+                ? selectedCat === fav.category && selectedSub === ''
+                : selectedCat === fav.category && selectedSub === fav.subCategory
+              return (
+                <li key={favId(fav)} className="flex items-center gap-0">
+                  <button
+                    onClick={() => fav.type === 'cat'
+                      ? handleSelectCat(fav.category)
+                      : handleSelectSub(fav.category, fav.subCategory!)}
+                    className="flex-1 text-left rounded-[6px] px-2 py-[4px] text-[11px] border-0 cursor-pointer truncate transition-colors"
+                    style={{
+                      background: isActive ? 'rgba(91,164,217,0.15)' : 'transparent',
+                      color: isActive ? '#5BA4D9' : 'rgba(255,255,255,0.75)',
+                      fontWeight: isActive ? 600 : undefined,
+                    }}
+                    title={label}
+                  >
+                    {label}
+                  </button>
+                  <button
+                    onClick={() => toggleFav(fav)}
+                    className="flex-shrink-0 border-0 bg-transparent cursor-pointer text-[10px] px-1 leading-none"
+                    style={{ color: 'rgba(91,164,217,0.4)' }}
+                    title="즐겨찾기 삭제"
+                  >✕</button>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
+
+      {/* 최근 본 분류 영역 */}
+      {recents.length > 0 && (
+        <div className="px-3 pb-2" style={{ borderBottom: '1px solid rgba(91,164,217,0.1)' }}>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: 'rgba(91,164,217,0.5)' }}>
+              최근 본 분류
+            </span>
+            <button
+              onClick={() => { setRecents([]); saveRecents([]) }}
+              className="border-0 bg-transparent cursor-pointer text-[10px] leading-none"
+              style={{ color: 'rgba(91,164,217,0.35)' }}
+              title="전체 삭제"
+            >전체 삭제</button>
+          </div>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {recents.map(r => {
+              const label = r.type === 'sub'
+                ? `${r.category} › ${r.subCategory}`
+                : r.category
+              const isActive = r.type === 'cat'
+                ? selectedCat === r.category && selectedSub === ''
+                : selectedCat === r.category && selectedSub === r.subCategory
+              return (
+                <li key={favId(r)} className="flex items-center gap-0">
+                  <button
+                    onClick={() => r.type === 'cat'
+                      ? handleSelectCat(r.category)
+                      : handleSelectSub(r.category, r.subCategory!)}
+                    className="flex-1 text-left rounded-[6px] px-2 py-[4px] text-[11px] border-0 cursor-pointer truncate transition-colors"
+                    style={{
+                      background: isActive ? 'rgba(91,164,217,0.15)' : 'transparent',
+                      color: isActive ? '#5BA4D9' : 'rgba(255,255,255,0.6)',
+                      fontWeight: isActive ? 600 : undefined,
+                    }}
+                    title={label}
+                  >
+                    {label}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRecents(prev => {
+                        const next = prev.filter(x => favId(x) !== favId(r))
+                        saveRecents(next)
+                        return next
+                      })
+                    }}
+                    className="flex-shrink-0 border-0 bg-transparent cursor-pointer text-[10px] px-1 leading-none"
+                    style={{ color: 'rgba(91,164,217,0.4)' }}
+                    title="삭제"
+                  >✕</button>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
+
       <ul className="flex-1 overflow-y-auto px-2 pb-4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-        {/* 전체 */}
-        <li>
-          <button
-            onClick={() => onSelectCat('')}
-            className="w-full flex items-center justify-between px-3 py-[7px] rounded-[7px] text-left text-sm transition-colors border-0 cursor-pointer"
-            style={{
-              background: rootSelected ? 'rgba(91,164,217,0.15)' : 'transparent',
-              color:      rootSelected ? '#5BA4D9'               : undefined,
-              fontWeight: rootSelected ? 600                     : undefined,
-            }}
-          >
-            <span>전체</span>
-            {totalCount > 0 && (
-              <span className="text-[11px] text-muted-brand">{totalCount.toLocaleString()}</span>
-            )}
-          </button>
-        </li>
+        {/* 전체 — 검색 중일 때는 숨김 */}
+        {!keyword && (
+          <li>
+            <button
+              onClick={() => onSelectCat('')}
+              className="w-full flex items-center justify-between px-3 py-[7px] rounded-[7px] text-left text-sm transition-colors border-0 cursor-pointer"
+              style={{
+                background: rootSelected ? 'rgba(91,164,217,0.15)' : 'transparent',
+                color:      rootSelected ? '#5BA4D9'               : undefined,
+                fontWeight: rootSelected ? 600                     : undefined,
+              }}
+            >
+              <span>전체</span>
+              {totalCount > 0 && (
+                <span className="text-[11px] text-muted-brand">{totalCount.toLocaleString()}</span>
+              )}
+            </button>
+          </li>
+        )}
         {/* 대분류 */}
-        {treeData.map(node => {
+        {filteredTree.map(node => {
           const catActive  = selectedCat === node.category && selectedSub === ''
-          const isExpanded = expandedCats.has(node.category)
+          const expanded   = isExpanded(node.category)
           return (
             <li key={node.category}>
               <div className="flex items-center gap-0">
@@ -540,13 +781,13 @@ function CategoryTree({
                   onClick={() => onToggleExpand(node.category)}
                   className="flex-shrink-0 border-0 bg-transparent cursor-pointer px-1 py-[7px] text-[10px]"
                   style={{ color: 'rgba(91,164,217,0.5)', width: '20px', textAlign: 'center' }}
-                  title={isExpanded ? '접기' : '펼치기'}
+                  title={expanded ? '접기' : '펼치기'}
                 >
-                  {isExpanded ? '▾' : '▸'}
+                  {expanded ? '▾' : '▸'}
                 </button>
-                {/* 대분류 클릭 — 하위 전체 포함 필터 */}
+                {/* 대분류 클릭 */}
                 <button
-                  onClick={() => onSelectCat(node.category)}
+                  onClick={() => handleSelectCat(node.category)}
                   className="flex-1 flex items-center justify-between px-2 py-[7px] rounded-[7px] text-left text-sm transition-colors border-0 cursor-pointer"
                   style={{
                     background: catActive ? 'rgba(91,164,217,0.15)' : 'transparent',
@@ -557,19 +798,21 @@ function CategoryTree({
                   <span className="truncate pr-1">{node.category}</span>
                   <span className="text-[11px] text-muted-brand flex-shrink-0">{node.count.toLocaleString()}</span>
                 </button>
+                {/* 대분류 핀 버튼 */}
+                <PinBtn item={{ type: 'cat', category: node.category }} />
               </div>
               {/* 중분류 */}
-              {isExpanded && (
+              {expanded && (
                 <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                   {node.subCategories.map(sub => {
                     const subActive = selectedCat === node.category && selectedSub === sub.subCategory
                     return (
-                      <li key={sub.subCategory}>
+                      <li key={sub.subCategory} className="flex items-center gap-0">
                         <button
-                          onClick={() => onSelectSub(node.category, sub.subCategory)}
-                          className="w-full flex items-center justify-between rounded-[7px] text-left text-[12px] transition-colors border-0 cursor-pointer"
+                          onClick={() => handleSelectSub(node.category, sub.subCategory)}
+                          className="flex-1 flex items-center justify-between rounded-[7px] text-left text-[12px] transition-colors border-0 cursor-pointer"
                           style={{
-                            paddingLeft: '28px', paddingRight: '12px',
+                            paddingLeft: '28px', paddingRight: '6px',
                             paddingTop: '5px', paddingBottom: '5px',
                             background: subActive ? 'rgba(91,164,217,0.12)' : 'transparent',
                             color:      subActive ? '#5BA4D9'               : 'rgba(255,255,255,0.7)',
@@ -579,6 +822,8 @@ function CategoryTree({
                           <span className="truncate pr-1">{sub.subCategory}</span>
                           <span className="text-[11px] text-muted-brand flex-shrink-0">{sub.count.toLocaleString()}</span>
                         </button>
+                        {/* 중분류 핀 버튼 */}
+                        <PinBtn item={{ type: 'sub', category: node.category, subCategory: sub.subCategory }} />
                       </li>
                     )
                   })}
@@ -587,8 +832,10 @@ function CategoryTree({
             </li>
           )
         })}
-        {treeData.length === 0 && (
-          <li className="px-3 py-2 text-xs text-muted-brand">데이터 없음</li>
+        {filteredTree.length === 0 && (
+          <li className="px-3 py-2 text-xs text-muted-brand">
+            {keyword ? `"${keyword}" 검색 결과 없음` : '데이터 없음'}
+          </li>
         )}
       </ul>
     </div>
