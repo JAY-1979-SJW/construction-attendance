@@ -517,6 +517,25 @@ function saveRecents(items: FavoriteItem[]) {
   localStorage.setItem(RECENT_KEY, JSON.stringify(items))
 }
 
+// ── 필터 프리셋 ───────────────────────────────────────
+interface FilterPreset {
+  name: string
+  category: string
+  subCategory: string
+  q: string
+  savedAt: string
+}
+const PRESET_KEY = 'material-catalog-presets'
+const MAX_PRESET = 10
+
+function loadPresets(): FilterPreset[] {
+  if (typeof window === 'undefined') return []
+  try { return JSON.parse(localStorage.getItem(PRESET_KEY) ?? '[]') } catch { return [] }
+}
+function savePresets(items: FilterPreset[]) {
+  localStorage.setItem(PRESET_KEY, JSON.stringify(items))
+}
+
 function CategoryTree({
   treeData,
   selectedCat,
@@ -1130,6 +1149,42 @@ export default function MaterialCatalogPage() {
     syncURL('', '', '', 1, null)
   }
 
+  // ── 프리셋 ─────────────────────────────────────────
+  const [presets, setPresets]               = useState<FilterPreset[]>(() => loadPresets())
+  const [presetName, setPresetName]         = useState('')
+  const [showPresetInput, setShowPresetInput] = useState(false)
+
+  const handleSavePreset = () => {
+    const name = presetName.trim()
+    if (!name) return
+    setPresets(prev => {
+      const filtered = prev.filter(p => p.name !== name)
+      const next = [
+        { name, category, subCategory, q, savedAt: new Date().toISOString() },
+        ...filtered,
+      ].slice(0, MAX_PRESET)
+      savePresets(next)
+      return next
+    })
+    setPresetName('')
+    setShowPresetInput(false)
+  }
+
+  const handleApplyPreset = (preset: FilterPreset) => {
+    setQ(preset.q)
+    setCategory(preset.category)
+    setSubCategory(preset.subCategory)
+    setPage(1)
+    setSelectedId(null)
+    if (preset.category) setExpandedCats(prev => { const s = new Set(Array.from(prev)); s.add(preset.category); return s })
+    fetchMaterials(preset.q, preset.category, preset.subCategory, 1)
+    syncURL(preset.q, preset.category, preset.subCategory, 1, null)
+  }
+
+  const handleDeletePreset = (name: string) => {
+    setPresets(prev => { const next = prev.filter(p => p.name !== name); savePresets(next); return next })
+  }
+
   return (
     <div className="flex" style={{ marginRight: selectedId !== null ? '360px' : '0', transition: 'margin-right 0.2s' }}>
       {/* 좌측 카테고리 트리 */}
@@ -1349,6 +1404,88 @@ export default function MaterialCatalogPage() {
             className="text-[11px] border border-[rgba(91,164,217,0.22)] rounded-full px-3 py-[4px] bg-transparent cursor-pointer"
             style={{ color: 'rgba(91,164,217,0.5)' }}
           >전체 해제</button>
+          <button
+            onClick={() => { setShowPresetInput(v => !v); setPresetName('') }}
+            className="text-[11px] border border-[rgba(91,164,217,0.3)] rounded-full px-3 py-[4px] bg-transparent cursor-pointer"
+            style={{ color: '#5BA4D9' }}
+            title="현재 필터를 프리셋으로 저장"
+          >+ 저장</button>
+        </div>
+      )}
+
+      {/* 프리셋 저장 입력 */}
+      {showPresetInput && (category || subCategory || q.trim()) && (
+        <div className="flex items-center gap-2 mb-3">
+          <input
+            type="text"
+            value={presetName}
+            onChange={e => setPresetName(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handleSavePreset()
+              if (e.key === 'Escape') { setShowPresetInput(false); setPresetName('') }
+            }}
+            placeholder="프리셋 이름 입력"
+            autoFocus
+            maxLength={30}
+            className="px-3 py-[6px] border border-[rgba(91,164,217,0.35)] rounded-md text-[12px] bg-card"
+            style={{ width: '170px' }}
+          />
+          <button
+            onClick={handleSavePreset}
+            disabled={!presetName.trim()}
+            className="px-4 py-[6px] bg-brand-accent text-white border-0 rounded-md text-[12px] cursor-pointer disabled:opacity-40"
+          >저장</button>
+          <button
+            onClick={() => { setShowPresetInput(false); setPresetName('') }}
+            className="px-3 py-[6px] border border-[rgba(91,164,217,0.25)] rounded-md text-[12px] bg-transparent cursor-pointer text-muted-brand"
+          >취소</button>
+        </div>
+      )}
+
+      {/* 프리셋 목록 */}
+      {presets.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap mb-4">
+          <span className="text-[10px] font-semibold tracking-wider uppercase flex-shrink-0"
+                style={{ color: 'rgba(91,164,217,0.45)' }}>프리셋</span>
+          {presets.map(preset => {
+            const isActive =
+              preset.category === category &&
+              preset.subCategory === subCategory &&
+              preset.q === q
+            return (
+              <span
+                key={preset.name}
+                className="inline-flex items-center text-[12px] rounded-full px-3 py-[4px]"
+                style={{
+                  background: isActive ? 'rgba(91,164,217,0.2)' : 'rgba(91,164,217,0.07)',
+                  border: `1px solid ${isActive ? 'rgba(91,164,217,0.45)' : 'rgba(91,164,217,0.18)'}`,
+                  color: isActive ? '#5BA4D9' : 'rgba(255,255,255,0.7)',
+                }}
+              >
+                <button
+                  onClick={() => handleApplyPreset(preset)}
+                  className="border-0 bg-transparent cursor-pointer text-[12px] leading-none"
+                  style={{ color: 'inherit' }}
+                  title={`대분류:${preset.category || '전체'} 중분류:${preset.subCategory || '-'} 검색어:${preset.q || '-'}`}
+                >
+                  {preset.name}
+                </button>
+                <button
+                  onClick={() => handleDeletePreset(preset.name)}
+                  className="ml-2 border-0 bg-transparent cursor-pointer text-[11px] leading-none flex-shrink-0"
+                  style={{ color: 'rgba(91,164,217,0.45)' }}
+                  title="프리셋 삭제"
+                >✕</button>
+              </span>
+            )
+          })}
+          {presets.length > 1 && (
+            <button
+              onClick={() => { setPresets([]); savePresets([]) }}
+              className="text-[10px] border-0 bg-transparent cursor-pointer"
+              style={{ color: 'rgba(91,164,217,0.3)' }}
+            >전체 삭제</button>
+          )}
         </div>
       )}
 
