@@ -826,7 +826,7 @@ export default function MaterialCatalogPage() {
     setSelectedId(null)
     // 대분류 선택 시 자동 펼치기
     if (cat) setExpandedCats(prev => { const s = new Set(Array.from(prev)); s.add(cat); return s })
-    if (searched) fetchMaterials(q, cat, '', 1)
+    fetchMaterials(q, cat, '', 1)
     syncURL(q, cat, '', 1, null)
   }
 
