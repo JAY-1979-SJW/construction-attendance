@@ -10,7 +10,7 @@ services:
       COMMON_WRITER_PASSWORD: ${COMMON_WRITER_PASSWORD}
       COMMON_READER_PASSWORD: ${COMMON_READER_PASSWORD}
     ports:
-      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:5435:5432"
     volumes:
       - common_db_data:/var/lib/postgresql/data
       - ./init:/docker-entrypoint-initdb.d:ro

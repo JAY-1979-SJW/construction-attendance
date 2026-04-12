@@ -29,13 +29,13 @@ docker inspect common-db --format '{{.State.Health.Status}}'
 
 | 항목 | 값 |
 |-----|---|
-| 포트 | `127.0.0.1:5433` (서버 내부 전용) |
+| 포트 | `127.0.0.1:5435` (서버 내부 전용) |
 | DB 이름 | `common_data` |
 | 관리자 계정 | `common_admin` |
 
 ```bash
 # 로컬에서 접속 (SSH 터널 필요)
-psql -h 127.0.0.1 -p 5433 -U common_admin -d common_data
+psql -h 127.0.0.1 -p 5435 -U common_admin -d common_data
 
 # 서버에서 직접 접속
 docker exec -it common-db psql -U common_admin -d common_data
