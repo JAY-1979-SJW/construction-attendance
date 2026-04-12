@@ -76,6 +76,8 @@ def ensure_insurance_src_id(cur):
           AND constraint_type = 'UNIQUE'
     """)
     if not cur.fetchone():
+        # 혹시 남아있는 인덱스 제거 후 제약으로 재생성
+        cur.execute("DROP INDEX IF EXISTS uq_insurance_src_id")
         cur.execute("""
             ALTER TABLE insurance_rates
             ADD CONSTRAINT uq_insurance_src_id UNIQUE (src_id)
