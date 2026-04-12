@@ -40,7 +40,7 @@ except ImportError:
 
 DB_URL = os.environ.get("DATABASE_URL", "")
 
-NARA_API_URL  = "http://apis.data.go.kr/1230000/ao/PriceInfoService/getNetRsceinfoList"
+NARA_API_URL  = "https://apis.data.go.kr/1230000/ao/PriceInfoService/getNetRsceinfoList"
 NARA_NUM_ROWS = 500
 NARA_SLEEP    = 0.15   # 호출 간 대기 (초)
 BATCH_SIZE    = 500
