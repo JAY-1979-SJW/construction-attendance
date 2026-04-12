@@ -6,6 +6,7 @@ import WorkerDisclaimerBanner from '@/components/worker/WorkerDisclaimerBanner'
 import WorkerBottomNav from '@/components/worker/WorkerBottomNav'
 import WorkerTopBar from '@/components/worker/WorkerTopBar'
 import PwaInstallPrompt from '@/components/worker/PwaInstallPrompt'
+import LaborContractModal from '@/components/worker/LaborContractModal'
 
 interface TodayStatus {
   id: string
@@ -93,6 +94,10 @@ export default function AttendancePage() {
   const [eligibility, setEligibility] = useState<{ key: string; label: string; passed: boolean; message: string }[]>([])
   const [eligibilityChecked, setEligibilityChecked] = useState(false)
   // ── 직접 출근 state ───────────────────────────────────────────
+  // ── 근로계약서 팝업 ───────────────────────────────────────────
+  const [showContractModal, setShowContractModal] = useState(false)
+  const [contractAgreedAt, setContractAgreedAt]   = useState<string | null>(null)
+
   const [availableSites, setAvailableSites] = useState<AvailableSite[]>([])
   const [checkInLoading, setCheckInLoading]   = useState(false)
   const [checkOutLoading, setCheckOutLoading] = useState(false)
@@ -156,6 +161,17 @@ export default function AttendancePage() {
       setWorker(meData.data)
       setToday(todayData.data)
       setLoading(false)
+      // 근로계약서 동의 상태 조회 → 미동의 시 자동 팝업
+      fetch('/api/worker/my-contract', { credentials: 'include' })
+        .then(r => r.json())
+        .then(d => {
+          if (d.success && d.data.contract) {
+            const at = d.data.agreedAt as string | null
+            setContractAgreedAt(at)
+            if (!at) setShowContractModal(true)  // 미동의 → 자동 팝업
+          }
+        })
+        .catch(() => {})
       // 최근 7일 기록 조회
       fetch('/api/attendance/history?days=7', { credentials: 'include' })
         .then((r) => r.json())
@@ -497,6 +513,13 @@ export default function AttendancePage() {
 
   return (
     <>
+      {showContractModal && (
+        <LaborContractModal
+          agreedAt={contractAgreedAt}
+          onClose={() => setShowContractModal(false)}
+          onAgreed={(at) => { setContractAgreedAt(at); setShowContractModal(false) }}
+        />
+      )}
       <WorkerTopBar />
       <div className="mobile-content">
       {/* 법적 고지 배너 */}
@@ -515,6 +538,18 @@ export default function AttendancePage() {
         <div>
           <div className="text-lg font-bold text-title-brand">{worker?.name}</div>
           <div className="text-[13px] text-muted-brand mt-0.5">{worker?.company} · {worker?.jobTitle}</div>
+          {!isPreview && (
+            <button
+              onClick={() => setShowContractModal(true)}
+              className="mt-2 inline-flex items-center gap-1 px-3 py-1 rounded-full border-none cursor-pointer text-[12px] font-semibold"
+              style={{
+                background: contractAgreedAt ? 'rgba(46,125,50,0.1)' : 'rgba(234,88,12,0.1)',
+                color: contractAgreedAt ? '#2e7d32' : '#ea580c',
+              }}
+            >
+              {contractAgreedAt ? '✓ 근로계약서 동의완료' : '! 근로계약서 확인'}
+            </button>
+          )}
         </div>
         <button
           onClick={() => isPreview ? router.push('/login') : fetch('/api/auth/logout', { method: 'POST' }).then(() => router.push('/login'))}

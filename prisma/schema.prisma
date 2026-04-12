@@ -680,6 +680,7 @@ model Worker {
   contractWrittenDate        String?                   @map("contract_written_date")   // 근로계약서 작성일 YYYY-MM-DD
   contractIssuedYn           Boolean  @default(false)  @map("contract_issued_yn")      // 근로계약서 교부 여부
   contractAttachedYn         Boolean  @default(false)  @map("contract_attached_yn")    // 근로계약서 첨부 여부
+  laborContractAgreedAt      DateTime?                 @map("labor_contract_agreed_at") // 근로계약서 동의 일시 (모바일 팝업 동의)
   safetyEduCompletedYn       Boolean  @default(false)  @map("safety_edu_completed_yn") // 안전교육 이수 여부
   safetyEduType              String?                   @map("safety_edu_type")         // 안전교육 종류
   safetyEduDate              String?                   @map("safety_edu_date")         // 안전교육 이수일 YYYY-MM-DD
