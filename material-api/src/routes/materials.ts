@@ -24,6 +24,11 @@ interface SuggestQuery {
   category?: string
 }
 
+interface ByCodeQuery {
+  code?: string
+  source?: string
+}
+
 function csvCell(val: string | number | null | undefined): string {
   const s = val === null || val === undefined ? '' : String(val)
   if (s.includes(',') || s.includes('"') || s.includes('\n')) {
@@ -227,6 +232,31 @@ export async function materialsRoutes(app: FastifyInstance) {
     })
 
     return { success: true, data: rows.slice(0, limit) }
+  })
+
+  // GET /api/materials/by-code — code 기준 단건 조회 (code, source)
+  app.get<{ Querystring: ByCodeQuery }>('/materials/by-code', async (req, reply) => {
+    const code   = req.query.code?.trim()
+    const source = req.query.source?.trim() ?? 'nara'
+
+    if (!code) {
+      return reply.status(400).send({ success: false, message: 'code는 필수입니다.' })
+    }
+
+    const item = await prisma.material.findFirst({
+      where: { code, source },
+    })
+    if (!item) {
+      return reply.status(404).send({ success: false, message: '자재를 찾을 수 없습니다.' })
+    }
+    return {
+      success: true,
+      data: {
+        ...item,
+        price_available: item.basePrice !== null,
+        notice: 'nara 데이터는 2026-03-24 기준 카탈로그 이관본 (실수집 보류 중)',
+      },
+    }
   })
 
   // GET /api/materials/:id — 자재 단건 상세조회 (DB id 기준)
