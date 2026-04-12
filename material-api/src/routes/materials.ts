@@ -13,6 +13,19 @@ interface IdParam {
   id: string
 }
 
+interface ExportQuery {
+  q?: string
+  category?: string
+}
+
+function csvCell(val: string | number | null | undefined): string {
+  const s = val === null || val === undefined ? '' : String(val)
+  if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+    return '"' + s.replace(/"/g, '""') + '"'
+  }
+  return s
+}
+
 export async function materialsRoutes(app: FastifyInstance) {
   // GET /api/materials — 자재 목록 검색
   app.get<{ Querystring: ListQuery }>('/materials', async (req) => {
@@ -125,6 +138,51 @@ export async function materialsRoutes(app: FastifyInstance) {
         price_available:    false,
       },
     }
+  })
+
+  // GET /api/materials/export.csv — CSV 다운로드 (q, category 필터 지원)
+  app.get<{ Querystring: ExportQuery }>('/materials/export.csv', async (req, reply) => {
+    const search   = req.query.q?.trim()
+    const category = req.query.category?.trim()
+
+    const where: Record<string, unknown> = {}
+    if (search) where.OR = [
+      { name: { contains: search, mode: 'insensitive' } },
+      { code: { contains: search, mode: 'insensitive' } },
+    ]
+    if (category) where.category = category
+
+    const items = await prisma.material.findMany({
+      where,
+      orderBy: { name: 'asc' },
+      select: {
+        id: true, code: true, name: true, spec: true, unit: true,
+        category: true, subCategory: true, basePrice: true,
+        source: true, baseDate: true, updatedAt: true,
+      },
+    })
+
+    const HEADER = 'id,code,name,spec,unit,category,base_price,source,base_date,updated_at'
+    const rows = items.map(r => [
+      r.id,
+      csvCell(r.code),
+      csvCell(r.name),
+      csvCell(r.spec),
+      csvCell(r.unit),
+      csvCell(r.category),
+      r.basePrice !== null ? r.basePrice.toString() : '',
+      r.source,
+      r.baseDate.toISOString().split('T')[0],
+      r.updatedAt.toISOString(),
+    ].join(','))
+
+    const csv = '\uFEFF' + HEADER + '\n' + rows.join('\n') + '\n'  // BOM 포함(Excel 한글 호환)
+    const filename = 'materials_snapshot_2026-03-24.csv'
+
+    reply
+      .header('Content-Type', 'text/csv; charset=utf-8')
+      .header('Content-Disposition', `attachment; filename="${filename}"`)
+    return reply.send(csv)
   })
 
   // GET /api/materials/:id — 자재 단건 상세조회 (DB id 기준)
