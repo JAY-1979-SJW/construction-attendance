@@ -68,17 +68,22 @@ async function makeCtx(browser: Browser, w: number, h = 844) {
   return browser.newContext({ viewport: { width: w, height: h } })
 }
 
-// ── LC-01: 출퇴근 앱 — "근로계약서 확인" 버튼 노출 ───────────────
-test('LC-01 출퇴근 앱 — 근로계약서 버튼 390px 노출', async ({ browser }) => {
+// ── LC-01: 출퇴근 앱 — 문서 동의 버튼 또는 공통 모달 노출 ─────────
+// 근로계약서는 공통 문서 시스템에 흡수됨
+// 헤더에 "필수 문서 N건 확인" 또는 "문서 동의완료" 버튼, 또는 자동팝업 모달
+test('LC-01 출퇴근 앱 — 문서 동의 버튼/모달 390px 노출', async ({ browser }) => {
   const ctx  = await makeCtx(browser, 390)
   const page = await ctx.newPage()
   await injectWorker(page)
   await page.goto(`${BASE}/attendance`, { waitUntil: 'domcontentloaded' })
-  await page.waitForTimeout(3000)   // 세션 로드 + contract fetch 대기
+  await page.waitForTimeout(3000)   // 세션 로드 + 문서 fetch 대기
 
-  // 버튼 텍스트: "근로계약서 확인" 또는 "근로계약서 동의완료"
-  const btn = page.locator('button:has-text("근로계약서")')
-  await expect(btn.first()).toBeVisible({ timeout: 8000 })
+  // 공통 문서 버튼 (헤더) 또는 자동팝업 모달 중 하나가 노출되어야 함
+  const btn       = page.locator('button').filter({ hasText: /필수 문서|문서 동의완료/ })
+  const autoModal = page.locator('div.fixed.inset-0')
+  const isBtn     = await btn.count() > 0 && await btn.first().isVisible().catch(() => false)
+  const isModal   = await autoModal.isVisible().catch(() => false)
+  expect(isBtn || isModal, '문서 버튼 또는 자동팝업 모달이 노출되어야 함').toBe(true)
   await ctx.close()
 })
 
