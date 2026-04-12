@@ -95,6 +95,50 @@ function cleanCodes(raw: string[]): string[] {
   )]
 }
 
+// 공통: text → cleaned 코드 배열 (줄바꿈/쉼표/탭/공백 구분자)
+function parseTextToCodes(text: string): string[] {
+  return cleanCodes(text.split(/[\n\r,\t ]+/))
+}
+
+// 공통: lookup 결과 → CSV 문자열 (BOM 포함)
+type LookupItem = {
+  id: number
+  code: string
+  name: string | null
+  spec: string | null
+  unit: string | null
+  category: string | null
+  base_price: { toString(): string } | null
+  source: string
+  base_date: Date | string
+  updated_at: Date | string
+}
+function buildLookupCsv(cleaned: string[], items: LookupItem[]): string {
+  const byCode = new Map(items.map((i) => [i.code, i]))
+  const HEADER = 'input_code,found,id,code,name,spec,unit,category,base_price,source,base_date,updated_at'
+  const rows = cleaned.map((inputCode) => {
+    const r = byCode.get(inputCode)
+    if (!r) {
+      return [csvCell(inputCode), 'false', '', '', '', '', '', '', '', '', '', ''].join(',')
+    }
+    return [
+      csvCell(inputCode),
+      'true',
+      r.id,
+      csvCell(r.code),
+      csvCell(r.name),
+      csvCell(r.spec),
+      csvCell(r.unit),
+      csvCell(r.category),
+      r.base_price !== null ? String(r.base_price) : '',
+      r.source,
+      r.base_date instanceof Date ? r.base_date.toISOString().split('T')[0] : String(r.base_date),
+      r.updated_at instanceof Date ? r.updated_at.toISOString() : String(r.updated_at),
+    ].join(',')
+  })
+  return '\uFEFF' + HEADER + '\n' + rows.join('\n') + '\n'
+}
+
 export async function materialsRoutes(app: FastifyInstance) {
   // GET /api/materials — 자재 목록 검색
   app.get<{ Querystring: ListQuery }>('/materials', async (req) => {
@@ -357,7 +401,7 @@ export async function materialsRoutes(app: FastifyInstance) {
 
     // 줄바꿈 / 쉼표 / 탭 / 공백 모두 구분자로 허용
     const tokens = text.split(/[\n\r,\t ]+/)
-    const cleaned = cleanCodes(tokens)
+    const cleaned = parseTextToCodes(text)
 
     if (cleaned.length === 0) {
       return reply.status(400).send({ success: false, message: 'text에 유효한 코드가 없습니다.' })
@@ -397,38 +441,38 @@ export async function materialsRoutes(app: FastifyInstance) {
       return reply.status(400).send({ success: false, message: 'codes는 최대 100개까지 허용됩니다.' })
     }
 
-    const { items, missingCodes: missing } = await lookupByCodes(cleaned, source)
-    const byCode = new Map(items.map((i) => [i.code, i]))
-
-    const HEADER = 'input_code,found,id,code,name,spec,unit,category,base_price,source,base_date,updated_at'
-    const csvRows = cleaned.map((inputCode) => {
-      const r = byCode.get(inputCode)
-      if (!r) {
-        return [csvCell(inputCode), 'false', '', '', '', '', '', '', '', '', '', ''].join(',')
-      }
-      return [
-        csvCell(inputCode),
-        'true',
-        r.id,
-        csvCell(r.code),
-        csvCell(r.name),
-        csvCell(r.spec),
-        csvCell(r.unit),
-        csvCell(r.category),
-        r.base_price !== null ? String(r.base_price) : '',
-        r.source,
-        r.base_date instanceof Date ? r.base_date.toISOString().split('T')[0] : String(r.base_date),
-        r.updated_at instanceof Date ? r.updated_at.toISOString() : String(r.updated_at),
-      ].join(',')
-    })
-
-    void missing  // used only for CSV; suppress unused warning
-
-    const csv = '\uFEFF' + HEADER + '\n' + csvRows.join('\n') + '\n'
+    const { items } = await lookupByCodes(cleaned, source)
+    const csv = buildLookupCsv(cleaned, items)
 
     reply
       .header('Content-Type', 'text/csv; charset=utf-8')
       .header('Content-Disposition', 'attachment; filename="materials_lookup_2026-03-24.csv"')
+    return reply.send(csv)
+  })
+
+  // POST /api/materials/lookup/text/export.csv — textarea 입력 결과 CSV 다운로드
+  app.post<{ Body: LookupTextBody }>('/materials/lookup/text/export.csv', async (req, reply) => {
+    const { text, source = 'nara' } = req.body ?? {}
+
+    if (!text || typeof text !== 'string' || !text.trim()) {
+      return reply.status(400).send({ success: false, message: 'text는 필수입니다.' })
+    }
+
+    const cleaned = parseTextToCodes(text)
+
+    if (cleaned.length === 0) {
+      return reply.status(400).send({ success: false, message: 'text에 유효한 코드가 없습니다.' })
+    }
+    if (cleaned.length > 100) {
+      return reply.status(400).send({ success: false, message: 'codes는 최대 100개까지 허용됩니다.' })
+    }
+
+    const { items } = await lookupByCodes(cleaned, source)
+    const csv = buildLookupCsv(cleaned, items)
+
+    reply
+      .header('Content-Type', 'text/csv; charset=utf-8')
+      .header('Content-Disposition', 'attachment; filename="materials_lookup_text_2026-03-24.csv"')
     return reply.send(csv)
   })
 
