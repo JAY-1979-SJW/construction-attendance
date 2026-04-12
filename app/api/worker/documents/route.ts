@@ -3,7 +3,8 @@
  * 근로자 본인의 서류 목록 조회
  * - 안전서류 (SafetyDocument)
  * - 근로계약서 (WorkerContract)
- * - 약관 동의 이력 (UserConsent)
+ * - 약관 동의 이력 (UserConsent — 구 시스템)
+ * - 앱 공통 문서 동의 이력 (WorkerDocConsent — 신 시스템)
  */
 import { getWorkerSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
@@ -14,7 +15,7 @@ export async function GET() {
     const session = await getWorkerSession()
     if (!session) return unauthorized()
 
-    const [safetyDocuments, contracts, consents] = await Promise.all([
+    const [safetyDocuments, contracts, consents, docConsents] = await Promise.all([
       prisma.safetyDocument.findMany({
         where: { workerId: session.sub },
         select: {
@@ -59,9 +60,21 @@ export async function GET() {
         },
         orderBy: { agreedAt: 'desc' },
       }),
+      // 앱 공통 문서 동의 이력 (신 시스템)
+      prisma.workerDocConsent.findMany({
+        where: { workerId: session.sub },
+        select: {
+          id: true,
+          agreedAt: true,
+          consentDoc: {
+            select: { id: true, docType: true, title: true, version: true, scope: true },
+          },
+        },
+        orderBy: { agreedAt: 'desc' },
+      }),
     ])
 
-    return ok({ safetyDocuments, contracts, consents })
+    return ok({ safetyDocuments, contracts, consents, docConsents })
   } catch (err) {
     console.error('[worker/documents GET]', err)
     return internalError()

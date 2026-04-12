@@ -4431,6 +4431,7 @@ model ConsentDoc {
   siteId      String?
   title       String
   contentMd   String          @db.Text
+  version     Int             @default(1)
   isActive    Boolean         @default(true)
   isRequired  Boolean         @default(true)
   sortOrder   Int             @default(0)

@@ -97,6 +97,7 @@ export async function GET() {
       docType:    doc.docType,
       title:      doc.title,
       contentMd:  doc.contentMd,
+      version:    doc.version,
       isRequired: doc.isRequired,
       scope:      doc.scope,
       agreedAt:   doc.workerConsents[0]?.agreedAt?.toISOString() ?? null,

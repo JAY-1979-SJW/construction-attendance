@@ -38,6 +38,12 @@ interface Consent {
   policyDocument: { id: string; title: string; version: number } | null
 }
 
+interface DocConsent {
+  id: string
+  agreedAt: string
+  consentDoc: { id: string; docType: string; title: string; version: number; scope: string }
+}
+
 const DOC_TYPE_LABELS: Record<string, string> = {
   SAFETY_EDUCATION_NEW_HIRE: '신규채용 안전교육',
   SAFETY_EDUCATION_TASK_CHANGE: '작업변경 교육',
@@ -69,6 +75,21 @@ const CONSENT_LABELS: Record<string, string> = {
   MARKETING_NOTICE: '마케팅 수신',
 }
 
+const DOC_CONSENT_TYPE_LABELS: Record<string, string> = {
+  SAFETY_PLEDGE:    '안전교육 서약서',
+  PRIVACY_CONSENT:  '개인정보 수집·이용 동의서',
+  SITE_NOTICE:      '현장 유의사항',
+  TBM_CONFIRMATION: 'TBM 확인서',
+  LABOR_CONTRACT:   '근로계약서',
+  GENERAL:          '공통 문서',
+}
+
+const DOC_SCOPE_LABELS: Record<string, string> = {
+  GLOBAL:  '공통',
+  COMPANY: '업체',
+  SITE:    '현장',
+}
+
 // 만료 상태 계산
 function getExpiryInfo(doc: SafetyDoc): { label: string; color: string } | null {
   if (doc.status !== 'APPROVED') return null
@@ -85,9 +106,10 @@ type Tab = 'safety' | 'contract' | 'consent'
 
 export default function MyDocumentsPage() {
   const [tab, setTab] = useState<Tab>('safety')
-  const [safetyDocs, setSafetyDocs] = useState<SafetyDoc[]>([])
-  const [contracts, setContracts] = useState<Contract[]>([])
-  const [consents, setConsents] = useState<Consent[]>([])
+  const [safetyDocs,  setSafetyDocs]  = useState<SafetyDoc[]>([])
+  const [contracts,   setContracts]   = useState<Contract[]>([])
+  const [consents,    setConsents]    = useState<Consent[]>([])
+  const [docConsents, setDocConsents] = useState<DocConsent[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -98,16 +120,19 @@ export default function MyDocumentsPage() {
           setSafetyDocs(res.data.safetyDocuments ?? [])
           setContracts(res.data.contracts ?? [])
           setConsents(res.data.consents ?? [])
+          setDocConsents(res.data.docConsents ?? [])
         }
       })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
+  const totalConsents = docConsents.length + consents.length
+
   const tabs: { key: Tab; label: string; count: number }[] = [
-    { key: 'safety', label: '안전서류', count: safetyDocs.length },
-    { key: 'contract', label: '계약서', count: contracts.length },
-    { key: 'consent', label: '동의서', count: consents.length },
+    { key: 'safety',   label: '안전서류', count: safetyDocs.length },
+    { key: 'contract', label: '계약서',   count: contracts.length },
+    { key: 'consent',  label: '동의서',   count: totalConsents },
   ]
 
   return (
@@ -294,29 +319,62 @@ export default function MyDocumentsPage() {
               ))
             )
           ) : (
-            consents.length === 0 ? (
+            totalConsents === 0 ? (
               <EmptyState text="동의 이력이 없습니다" />
             ) : (
-              consents.map(c => (
-                <div key={c.id} className="bg-card rounded-xl p-4 shadow-sm">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-sm">
-                      {CONSENT_LABELS[c.consentType] ?? c.consentType}
-                    </span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      c.agreed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                    }`}>
-                      {c.agreed ? '동의' : '미동의'}
-                    </span>
-                  </div>
-                  {c.policyDocument && (
-                    <p className="text-xs text-gray-500">v{c.policyDocument.version}</p>
-                  )}
-                  <p className="text-xs text-gray-400 mt-1">
-                    {c.agreedAt ? c.agreedAt.slice(0, 10) : ''}
-                  </p>
-                </div>
-              ))
+              <>
+                {/* 앱 공통 문서 동의 (신 시스템) */}
+                {docConsents.length > 0 && (
+                  <>
+                    <div className="text-xs font-semibold text-gray-400 px-1 pb-1 pt-2">앱 공통 문서 동의</div>
+                    {docConsents.map(c => (
+                      <div key={c.id} className="bg-card rounded-xl p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-sm">
+                            {DOC_CONSENT_TYPE_LABELS[c.consentDoc.docType] ?? c.consentDoc.title}
+                          </span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                            동의완료
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          {c.consentDoc.title} · v{c.consentDoc.version} · {DOC_SCOPE_LABELS[c.consentDoc.scope] ?? c.consentDoc.scope}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {c.agreedAt.slice(0, 10)}
+                        </p>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {/* 서비스 약관 동의 (구 시스템) */}
+                {consents.length > 0 && (
+                  <>
+                    <div className="text-xs font-semibold text-gray-400 px-1 pb-1 pt-3">서비스 약관 동의</div>
+                    {consents.map(c => (
+                      <div key={c.id} className="bg-card rounded-xl p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-sm">
+                            {CONSENT_LABELS[c.consentType] ?? c.consentType}
+                          </span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            c.agreed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                          }`}>
+                            {c.agreed ? '동의' : '미동의'}
+                          </span>
+                        </div>
+                        {c.policyDocument && (
+                          <p className="text-xs text-gray-500">v{c.policyDocument.version}</p>
+                        )}
+                        <p className="text-xs text-gray-400 mt-1">
+                          {c.agreedAt ? c.agreedAt.slice(0, 10) : ''}
+                        </p>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </>
             )
           )}
         </div>

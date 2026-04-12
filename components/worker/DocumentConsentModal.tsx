@@ -7,6 +7,7 @@ export interface ConsentDocItem {
   docType:    string
   title:      string
   contentMd:  string
+  version?:   number
   isRequired: boolean
   scope:      string
   agreedAt:   string | null

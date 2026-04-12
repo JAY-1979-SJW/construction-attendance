@@ -13,7 +13,7 @@ export async function GET() {
   const docs = await prisma.consentDoc.findMany({
     orderBy: [{ scope: 'asc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }],
     include: {
-      company: { select: { name: true } },
+      company: { select: { companyName: true } },
       site:    { select: { name: true } },
       _count:  { select: { workerConsents: true } },
     },
@@ -37,6 +37,7 @@ export async function POST(request: Request) {
     siteId?:    string
     title:      string
     contentMd:  string
+    version?:   number
     isRequired?: boolean
     sortOrder?:  number
   }
@@ -49,12 +50,13 @@ export async function POST(request: Request) {
 
   const doc = await prisma.consentDoc.create({
     data: {
-      docType:   body.docType   as never,
-      scope:     (body.scope ?? 'GLOBAL') as never,
-      companyId: body.companyId ?? null,
-      siteId:    body.siteId    ?? null,
-      title:     body.title,
-      contentMd: body.contentMd,
+      docType:    body.docType   as never,
+      scope:      (body.scope ?? 'GLOBAL') as never,
+      companyId:  body.companyId ?? null,
+      siteId:     body.siteId    ?? null,
+      title:      body.title,
+      contentMd:  body.contentMd,
+      version:    body.version   ?? 1,
       isRequired: body.isRequired ?? true,
       sortOrder:  body.sortOrder  ?? 0,
     },
