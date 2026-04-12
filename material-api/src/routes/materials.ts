@@ -333,6 +333,70 @@ export async function materialsRoutes(app: FastifyInstance) {
     }
   })
 
+  // POST /api/materials/lookup/export.csv — 코드 목록 일괄 조회 결과 CSV 다운로드
+  app.post<{ Body: LookupBody }>('/materials/lookup/export.csv', async (req, reply) => {
+    const { codes, source = 'nara' } = req.body ?? {}
+
+    if (!Array.isArray(codes)) {
+      return reply.status(400).send({ success: false, message: 'codes는 배열이어야 합니다.' })
+    }
+
+    const cleaned = [...new Set(
+      codes
+        .map((c: unknown) => (typeof c === 'string' ? c.trim() : ''))
+        .filter((c) => c.length > 0)
+    )]
+
+    if (cleaned.length === 0) {
+      return reply.status(400).send({ success: false, message: 'codes에 유효한 값이 없습니다.' })
+    }
+    if (cleaned.length > 100) {
+      return reply.status(400).send({ success: false, message: 'codes는 최대 100개까지 허용됩니다.' })
+    }
+
+    const rows = await prisma.material.findMany({
+      where: { code: { in: cleaned }, source },
+      select: {
+        id: true, code: true, name: true, spec: true, unit: true,
+        category: true, basePrice: true, source: true, baseDate: true, updatedAt: true,
+      },
+    })
+
+    const byCode = new Map<string, typeof rows[number]>()
+    for (const r of rows) {
+      if (!byCode.has(r.code)) byCode.set(r.code, r)
+    }
+
+    const HEADER = 'input_code,found,id,code,name,spec,unit,category,base_price,source,base_date,updated_at'
+    const csvRows = cleaned.map((inputCode) => {
+      const r = byCode.get(inputCode)
+      if (!r) {
+        return [csvCell(inputCode), 'false', '', '', '', '', '', '', '', '', '', ''].join(',')
+      }
+      return [
+        csvCell(inputCode),
+        'true',
+        r.id,
+        csvCell(r.code),
+        csvCell(r.name),
+        csvCell(r.spec),
+        csvCell(r.unit),
+        csvCell(r.category),
+        r.basePrice !== null ? r.basePrice.toString() : '',
+        r.source,
+        r.baseDate.toISOString().split('T')[0],
+        r.updatedAt.toISOString(),
+      ].join(',')
+    })
+
+    const csv = '\uFEFF' + HEADER + '\n' + csvRows.join('\n') + '\n'
+
+    reply
+      .header('Content-Type', 'text/csv; charset=utf-8')
+      .header('Content-Disposition', 'attachment; filename="materials_lookup_2026-03-24.csv"')
+    return reply.send(csv)
+  })
+
   // GET /api/materials/:id — 자재 단건 상세조회 (DB id 기준)
   app.get<{ Params: IdParam }>('/materials/:id', async (req, reply) => {
     const id = parseInt(req.params.id)
