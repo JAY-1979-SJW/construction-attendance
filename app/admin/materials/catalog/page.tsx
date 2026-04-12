@@ -13,6 +13,21 @@ interface MaterialItem {
   baseDate: string
 }
 
+interface MaterialDetail {
+  id: number
+  code: string
+  name: string
+  spec: string | null
+  unit: string | null
+  category: string | null
+  source: string
+  baseDate: string
+  updatedAt: string
+  basePrice: number | null
+  price_available: boolean
+  notice: string
+}
+
 interface SyncStatus {
   source: string
   status: string
@@ -21,6 +36,106 @@ interface SyncStatus {
 }
 
 const PAGE_SIZE = 50
+
+function DetailPanel({
+  id,
+  onClose,
+}: {
+  id: number
+  onClose: () => void
+}) {
+  const [detail, setDetail]   = useState<MaterialDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError]     = useState('')
+
+  useEffect(() => {
+    setLoading(true)
+    setError('')
+    setDetail(null)
+    fetch(`/api/proxy/material-detail?id=${id}`)
+      .then(r => r.json())
+      .then(d => {
+        if (!d.success) { setError(d.message ?? '조회 실패'); return }
+        setDetail(d.data)
+      })
+      .catch(() => setError('네트워크 오류'))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  const rows: [string, string][] = detail
+    ? [
+        ['ID',        String(detail.id)],
+        ['코드',       detail.code],
+        ['자재명',     detail.name],
+        ['규격',       detail.spec ?? '-'],
+        ['단위',       detail.unit ?? '-'],
+        ['분류',       detail.category ?? '-'],
+        ['출처',       detail.source],
+        ['기준일',     detail.baseDate ? detail.baseDate.split('T')[0] : '-'],
+        ['수정일',     detail.updatedAt ? detail.updatedAt.split('T')[0] : '-'],
+        ['가격 제공',  detail.price_available ? '있음' : '없음 (실수집 보류)'],
+      ]
+    : []
+
+  return (
+    <div
+      className="fixed inset-y-0 right-0 w-[360px] bg-card shadow-2xl flex flex-col z-50"
+      style={{ borderLeft: '1px solid rgba(91,164,217,0.2)' }}
+    >
+      {/* 헤더 */}
+      <div className="flex items-center justify-between px-5 py-4"
+           style={{ borderBottom: '1px solid rgba(91,164,217,0.15)' }}>
+        <span className="font-semibold text-sm">자재 상세</span>
+        <button
+          onClick={onClose}
+          className="w-7 h-7 flex items-center justify-center rounded text-muted-brand hover:text-white hover:bg-[rgba(91,164,217,0.15)] transition-colors text-lg leading-none border-0 bg-transparent cursor-pointer"
+          aria-label="닫기"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* 본문 */}
+      <div className="flex-1 overflow-y-auto px-5 py-4">
+        {loading && (
+          <div className="py-10 text-center text-muted-brand text-sm">로딩 중...</div>
+        )}
+        {error && (
+          <div className="px-4 py-3 rounded-lg text-sm"
+               style={{ background: 'rgba(183,28,28,0.08)', border: '1px solid rgba(183,28,28,0.2)', color: '#ef5350' }}>
+            {error}
+          </div>
+        )}
+        {detail && (
+          <>
+            <table className="w-full border-collapse text-sm">
+              <tbody>
+                {rows.map(([label, value]) => (
+                  <tr key={label}>
+                    <td className="py-[7px] pr-3 text-[12px] text-muted-brand whitespace-nowrap align-top w-[80px]">
+                      {label}
+                    </td>
+                    <td className="py-[7px] text-[13px] break-all align-top">
+                      {label === '코드'
+                        ? <span className="font-mono text-[12px]">{value}</span>
+                        : value}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* notice */}
+            <div className="mt-4 px-3 py-2 rounded text-[11px] text-muted-brand"
+                 style={{ background: 'rgba(91,164,217,0.06)', border: '1px solid rgba(91,164,217,0.12)' }}>
+              {detail.notice}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function MaterialCatalogPage() {
   const [q, setQ]                   = useState('')
@@ -34,8 +149,8 @@ export default function MaterialCatalogPage() {
   const [categories, setCategories] = useState<string[]>([])
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null)
   const [searched, setSearched]     = useState(false)
+  const [selectedId, setSelectedId] = useState<number | null>(null)
 
-  // categories + sync-status 초기 로드
   useEffect(() => {
     fetch('/api/proxy/material-categories')
       .then(r => r.json())
@@ -76,12 +191,14 @@ export default function MaterialCatalogPage() {
 
   const handleSearch = () => {
     setPage(1)
+    setSelectedId(null)
     fetchMaterials(q, category, 1)
   }
 
   const handleCategoryChange = (val: string) => {
     setCategory(val)
     setPage(1)
+    setSelectedId(null)
     if (searched) fetchMaterials(q, val, 1)
   }
 
@@ -91,7 +208,7 @@ export default function MaterialCatalogPage() {
   }
 
   return (
-    <div className="p-6 max-w-[1200px]">
+    <div className="p-6" style={{ marginRight: selectedId !== null ? '360px' : '0', transition: 'margin-right 0.2s' }}>
       {/* 헤더 */}
       <div className="mb-5">
         <h1 className="text-2xl font-bold m-0 mb-1">자재 카탈로그</h1>
@@ -143,8 +260,8 @@ export default function MaterialCatalogPage() {
 
       {/* 에러 */}
       {error && (
-        <div className="mb-4 px-4 py-3 rounded-lg text-sm text-red-600"
-             style={{ background: 'rgba(183,28,28,0.08)', border: '1px solid rgba(183,28,28,0.2)' }}>
+        <div className="mb-4 px-4 py-3 rounded-lg text-sm"
+             style={{ background: 'rgba(183,28,28,0.08)', border: '1px solid rgba(183,28,28,0.2)', color: '#ef5350' }}>
           {error}
         </div>
       )}
@@ -171,34 +288,46 @@ export default function MaterialCatalogPage() {
                     </td>
                   </tr>
                 ) : (
-                  items.map(item => (
-                    <tr key={item.id} className="hover:bg-[rgba(91,164,217,0.04)] transition-colors">
-                      <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] font-mono text-[12px] text-muted-brand whitespace-nowrap">
-                        {item.code}
-                      </td>
-                      <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] font-semibold max-w-[200px] truncate" title={item.name}>
-                        {item.name}
-                      </td>
-                      <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] text-[12px] text-muted-brand max-w-[180px] truncate" title={item.spec ?? ''}>
-                        {item.spec ?? '-'}
-                      </td>
-                      <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] whitespace-nowrap">
-                        {item.unit ?? '-'}
-                      </td>
-                      <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] text-[12px] max-w-[160px] truncate" title={item.category ?? ''}>
-                        {item.category ?? '-'}
-                      </td>
-                      <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] whitespace-nowrap">
-                        <span className="text-[11px] px-2 py-[2px] rounded-[10px]"
-                              style={{ background: 'rgba(91,164,217,0.12)', color: '#5BA4D9' }}>
-                          {item.source}
-                        </span>
-                      </td>
-                      <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] text-[12px] text-muted-brand whitespace-nowrap">
-                        {item.baseDate ? item.baseDate.split('T')[0] : '-'}
-                      </td>
-                    </tr>
-                  ))
+                  items.map(item => {
+                    const isSelected = item.id === selectedId
+                    return (
+                      <tr
+                        key={item.id}
+                        onClick={() => setSelectedId(isSelected ? null : item.id)}
+                        className="cursor-pointer transition-colors"
+                        style={{
+                          background: isSelected ? 'rgba(91,164,217,0.12)' : undefined,
+                        }}
+                        onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = 'rgba(91,164,217,0.04)' }}
+                        onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = '' }}
+                      >
+                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] font-mono text-[12px] text-muted-brand whitespace-nowrap">
+                          {item.code}
+                        </td>
+                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] font-semibold max-w-[200px] truncate" title={item.name}>
+                          {item.name}
+                        </td>
+                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] text-[12px] text-muted-brand max-w-[180px] truncate" title={item.spec ?? ''}>
+                          {item.spec ?? '-'}
+                        </td>
+                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] whitespace-nowrap">
+                          {item.unit ?? '-'}
+                        </td>
+                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] text-[12px] max-w-[160px] truncate" title={item.category ?? ''}>
+                          {item.category ?? '-'}
+                        </td>
+                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] whitespace-nowrap">
+                          <span className="text-[11px] px-2 py-[2px] rounded-[10px]"
+                                style={{ background: 'rgba(91,164,217,0.12)', color: '#5BA4D9' }}>
+                            {item.source}
+                          </span>
+                        </td>
+                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] text-[12px] text-muted-brand whitespace-nowrap">
+                          {item.baseDate ? item.baseDate.split('T')[0] : '-'}
+                        </td>
+                      </tr>
+                    )
+                  })
                 )}
               </tbody>
             </table>
@@ -227,6 +356,11 @@ export default function MaterialCatalogPage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* 상세패널 */}
+      {selectedId !== null && (
+        <DetailPanel id={selectedId} onClose={() => setSelectedId(null)} />
       )}
     </div>
   )
