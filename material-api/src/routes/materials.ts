@@ -16,17 +16,18 @@ interface CodeParam {
 export async function materialsRoutes(app: FastifyInstance) {
   // GET /api/materials — 자재 목록 검색
   app.get<{ Querystring: ListQuery }>('/materials', async (req) => {
-    const { q, category, source, page = '1', pageSize = '20' } = req.query
-    const take = Math.min(100, parseInt(pageSize))
-    const skip = (Math.max(1, parseInt(page)) - 1) * take
+    const { q, category, source, page = '1', pageSize = '50' } = req.query
+    const pageNum = Math.max(1, parseInt(page))
+    const take    = Math.min(200, Math.max(1, parseInt(pageSize)))
+    const skip    = (pageNum - 1) * take
+    const search  = q?.trim()
 
     const where: Record<string, unknown> = {}
-    if (q) where.OR = [
-      { name: { contains: q, mode: 'insensitive' } },
-      { spec: { contains: q, mode: 'insensitive' } },
-      { code: { contains: q, mode: 'insensitive' } },
+    if (search) where.OR = [
+      { name: { contains: search, mode: 'insensitive' } },
+      { code: { contains: search, mode: 'insensitive' } },
     ]
-    if (category) where.category = category
+    if (category) where.category = category.trim()
     if (source)   where.source   = source
 
     const [total, items] = await Promise.all([
@@ -35,7 +36,7 @@ export async function materialsRoutes(app: FastifyInstance) {
         where,
         skip,
         take,
-        orderBy: [{ category: 'asc' }, { name: 'asc' }],
+        orderBy: { name: 'asc' },
       }),
     ])
 
@@ -44,9 +45,10 @@ export async function materialsRoutes(app: FastifyInstance) {
       data: {
         items,
         total,
-        page: parseInt(page),
-        pageSize: take,
-        notice: 'nara 데이터는 2026-03-24 기준 카탈로그 이관본이며 base_price=null (실수집 보류 중)',
+        page:       pageNum,
+        pageSize:   take,
+        totalPages: Math.ceil(total / take),
+        notice:        'nara 데이터는 2026-03-24 기준 카탈로그 이관본이며 base_price=null (실수집 보류 중)',
         price_available: false,
       },
     }
