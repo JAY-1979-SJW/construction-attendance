@@ -840,10 +840,10 @@ export default function MaterialCatalogPage() {
         <div className="mb-5">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-2">
             {[
-              { label: '총 자재 수',    value: summary.totalMaterials.toLocaleString(),     sub: null },
-              { label: '카테고리',      value: `${summary.totalCategories}개`,              sub: null },
-              { label: '가격 있음',     value: summary.priceAvailableCount.toLocaleString(), sub: null },
-              { label: '가격 없음',     value: summary.priceUnavailableCount.toLocaleString(), sub: 'price_available=false' },
+              { label: '총 자재 수',    value: (summary.totalMaterials ?? 0).toLocaleString(),     sub: null },
+              { label: '카테고리',      value: `${summary.totalCategories ?? 0}개`,              sub: null },
+              { label: '가격 있음',     value: (summary.priceAvailableCount ?? 0).toLocaleString(), sub: null },
+              { label: '가격 없음',     value: (summary.priceUnavailableCount ?? 0).toLocaleString(), sub: 'price_available=false' },
               { label: '최신 기준일',   value: summary.latestBaseDate ? summary.latestBaseDate.split('T')[0] : '-', sub: null },
               { label: 'nara 건수',     value: (summary.sourceCounts?.nara ?? 0).toLocaleString(), sub: '실수집 보류' },
             ].map(card => (
@@ -935,7 +935,7 @@ export default function MaterialCatalogPage() {
           {catalogCsvLoading ? '다운로드 중...' : '목록 CSV'}
         </button>
         {searched && (
-          <span className="text-sm text-muted-brand">총 {total.toLocaleString()}건</span>
+          <span className="text-sm text-muted-brand">총 {(total ?? 0).toLocaleString()}건</span>
         )}
       </div>
 
