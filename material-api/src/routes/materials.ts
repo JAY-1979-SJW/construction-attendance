@@ -9,8 +9,8 @@ interface ListQuery {
   pageSize?: string
 }
 
-interface CodeParam {
-  code: string
+interface IdParam {
+  id: string
 }
 
 export async function materialsRoutes(app: FastifyInstance) {
@@ -88,19 +88,23 @@ export async function materialsRoutes(app: FastifyInstance) {
     return { success: true, data: { totalMaterials, sourceStatus: [naraStatus], recentSyncs } }
   })
 
-  // GET /api/materials/:code — 자재 상세 (코드 기준, 출처별 전체)
-  app.get<{ Params: CodeParam }>('/materials/:code', async (req, reply) => {
-    const { code } = req.params
-    const items = await prisma.material.findMany({
-      where: { code },
-      orderBy: { source: 'asc' },
-    })
-    if (!items.length) {
-      return reply.status(404).send({
-        success: false,
-        message: '해당 코드의 자재를 찾을 수 없습니다.',
-      })
+  // GET /api/materials/:id — 자재 단건 상세조회 (DB id 기준)
+  app.get<{ Params: IdParam }>('/materials/:id', async (req, reply) => {
+    const id = parseInt(req.params.id)
+    if (isNaN(id)) {
+      return reply.status(400).send({ success: false, message: 'id는 정수여야 합니다.' })
     }
-    return { success: true, data: items }
+    const item = await prisma.material.findUnique({ where: { id } })
+    if (!item) {
+      return reply.status(404).send({ success: false, message: '자재를 찾을 수 없습니다.' })
+    }
+    return {
+      success: true,
+      data: {
+        ...item,
+        price_available: item.basePrice !== null,
+        notice: 'nara 데이터는 2026-03-24 기준 카탈로그 이관본 (실수집 보류 중)',
+      },
+    }
   })
 }
