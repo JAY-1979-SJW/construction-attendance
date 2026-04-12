@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   PageShell,
   StatusBadge, Btn,
@@ -27,6 +27,9 @@ interface ConsentDoc {
   site:       { name: string } | null
   _count:     { workerConsents: number }
 }
+
+interface CompanyOption { id: string; companyName: string }
+interface SiteOption    { id: string; name: string }
 
 const DOC_TYPE_OPTIONS = [
   { value: 'PRIVACY_CONSENT',  label: '개인정보 수집·이용 동의서' },
@@ -59,10 +62,26 @@ const SCOPE_LABEL: Record<string, string> = {
 
 const TABLE_HEADERS = ['유형', '범위', '제목', 'v', '필수', '동의수', '정렬', '작업']
 
+// 업체/현장 선택 드롭다운 공통 스타일
+const selectCls = 'w-full border border-brand rounded-[8px] px-3 py-2 text-[13px] outline-none focus:border-accent bg-white'
+const searchCls = 'w-full border border-brand rounded-[8px] px-3 py-2 text-[13px] outline-none focus:border-accent mb-1.5'
+
 export default function ConsentDocsPage() {
   const [docs,    setDocs]    = useState<ConsentDoc[]>([])
   const [loading, setLoading] = useState(true)
   const [toast,   setToast]   = useState<{ msg: string; variant?: 'success' | 'error' } | null>(null)
+
+  // 업체/현장 목록 (lazily loaded)
+  const [companies,        setCompanies]        = useState<CompanyOption[]>([])
+  const [sites,            setSites]            = useState<SiteOption[]>([])
+  const [loadingCompanies, setLoadingCompanies] = useState(false)
+  const [loadingSites,     setLoadingSites]     = useState(false)
+  const [companiesLoaded,  setCompaniesLoaded]  = useState(false)
+  const [sitesLoaded,      setSitesLoaded]      = useState(false)
+
+  // 드롭다운 검색 필터 (클라이언트 측)
+  const [companySearch, setCompanySearch] = useState('')
+  const [siteSearch,    setSiteSearch]    = useState('')
 
   // 생성 모달
   const [showCreate, setShowCreate] = useState(false)
@@ -99,11 +118,64 @@ export default function ConsentDocsPage() {
     }
   }
 
+  const loadCompanies = async () => {
+    if (companiesLoaded || loadingCompanies) return
+    setLoadingCompanies(true)
+    try {
+      const res = await fetch('/api/admin/companies?pageSize=200')
+      const d = await res.json()
+      if (d.success) {
+        setCompanies(d.data.items.map((c: { id: string; companyName: string }) => ({ id: c.id, companyName: c.companyName })))
+        setCompaniesLoaded(true)
+      }
+    } finally {
+      setLoadingCompanies(false)
+    }
+  }
+
+  const loadSites = async () => {
+    if (sitesLoaded || loadingSites) return
+    setLoadingSites(true)
+    try {
+      const res = await fetch('/api/admin/sites?pageSize=200')
+      const d = await res.json()
+      if (d.success) {
+        setSites(d.data.items.map((s: { id: string; name: string }) => ({ id: s.id, name: s.name })))
+        setSitesLoaded(true)
+      }
+    } finally {
+      setLoadingSites(false)
+    }
+  }
+
   useEffect(() => { load() }, [])
+
+  // scope 변경 시 필요한 목록만 로드
+  useEffect(() => {
+    if (form.scope === 'COMPANY') loadCompanies()
+    if (form.scope === 'SITE')    loadSites()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.scope])
+
+  // 검색 필터 적용
+  const filteredCompanies = useMemo(() =>
+    companies.filter(c => c.companyName.toLowerCase().includes(companySearch.toLowerCase())),
+    [companies, companySearch]
+  )
+  const filteredSites = useMemo(() =>
+    sites.filter(s => s.name.toLowerCase().includes(siteSearch.toLowerCase())),
+    [sites, siteSearch]
+  )
 
   const handleCreate = async () => {
     if (!form.title.trim() || !form.contentMd.trim()) {
       showToast('제목과 내용을 입력하세요.', 'error'); return
+    }
+    if (form.scope === 'COMPANY' && !form.companyId) {
+      showToast('업체를 선택하세요.', 'error'); return
+    }
+    if (form.scope === 'SITE' && !form.siteId) {
+      showToast('현장을 선택하세요.', 'error'); return
     }
     setSaving(true)
     try {
@@ -113,8 +185,8 @@ export default function ConsentDocsPage() {
         body: JSON.stringify({
           docType:    form.docType,
           scope:      form.scope,
-          companyId:  form.companyId || null,
-          siteId:     form.siteId    || null,
+          companyId:  form.scope === 'COMPANY' ? form.companyId : null,
+          siteId:     form.scope === 'SITE'    ? form.siteId    : null,
           title:      form.title,
           contentMd:  form.contentMd,
           isRequired: form.isRequired,
@@ -125,7 +197,7 @@ export default function ConsentDocsPage() {
       if (d.success) {
         showToast('문서를 등록했습니다.')
         setShowCreate(false)
-        setForm({ docType: 'PRIVACY_CONSENT', scope: 'GLOBAL', companyId: '', siteId: '', title: '', contentMd: '', isRequired: true, sortOrder: 0 })
+        resetCreateForm()
         load()
       } else {
         showToast(d.message ?? '등록 실패', 'error')
@@ -133,6 +205,12 @@ export default function ConsentDocsPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  const resetCreateForm = () => {
+    setForm({ docType: 'PRIVACY_CONSENT', scope: 'GLOBAL', companyId: '', siteId: '', title: '', contentMd: '', isRequired: true, sortOrder: 0 })
+    setCompanySearch('')
+    setSiteSearch('')
   }
 
   const openEdit = (doc: ConsentDoc) => {
@@ -270,7 +348,7 @@ export default function ConsentDocsPage() {
       )}
 
       {/* 생성 모달 */}
-      <Modal open={showCreate} title="문서 등록" onClose={() => setShowCreate(false)}>
+      <Modal open={showCreate} title="문서 등록" onClose={() => { setShowCreate(false); resetCreateForm() }}>
         <div className="space-y-3 p-5">
           <FormSelect
             label="문서 유형"
@@ -281,25 +359,72 @@ export default function ConsentDocsPage() {
           <FormSelect
             label="적용 범위"
             value={form.scope}
-            onChange={e => setForm(f => ({ ...f, scope: e.target.value }))}
+            onChange={e => setForm(f => ({ ...f, scope: e.target.value, companyId: '', siteId: '' }))}
             options={SCOPE_OPTIONS}
           />
+
+          {/* COMPANY 드롭다운 */}
           {form.scope === 'COMPANY' && (
-            <FormInput
-              label="업체 ID (cuid)"
-              value={form.companyId}
-              onChange={e => setForm(f => ({ ...f, companyId: e.target.value }))}
-              placeholder="cm..."
-            />
+            <div>
+              <label className="block text-[12px] font-semibold text-body-brand mb-1.5">
+                업체 선택 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className={searchCls}
+                placeholder="업체명 검색..."
+                value={companySearch}
+                onChange={e => setCompanySearch(e.target.value)}
+              />
+              <select
+                className={selectCls}
+                value={form.companyId}
+                onChange={e => setForm(f => ({ ...f, companyId: e.target.value }))}
+              >
+                <option value="">
+                  {loadingCompanies ? '불러오는 중...' : '업체를 선택하세요'}
+                </option>
+                {filteredCompanies.map(c => (
+                  <option key={c.id} value={c.id}>{c.companyName}</option>
+                ))}
+              </select>
+              {filteredCompanies.length === 0 && !loadingCompanies && companySearch && (
+                <p className="mt-1 text-[11px] text-muted2-brand">검색 결과 없음</p>
+              )}
+            </div>
           )}
+
+          {/* SITE 드롭다운 */}
           {form.scope === 'SITE' && (
-            <FormInput
-              label="현장 ID (cuid)"
-              value={form.siteId}
-              onChange={e => setForm(f => ({ ...f, siteId: e.target.value }))}
-              placeholder="cm..."
-            />
+            <div>
+              <label className="block text-[12px] font-semibold text-body-brand mb-1.5">
+                현장 선택 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className={searchCls}
+                placeholder="현장명 검색..."
+                value={siteSearch}
+                onChange={e => setSiteSearch(e.target.value)}
+              />
+              <select
+                className={selectCls}
+                value={form.siteId}
+                onChange={e => setForm(f => ({ ...f, siteId: e.target.value }))}
+              >
+                <option value="">
+                  {loadingSites ? '불러오는 중...' : '현장을 선택하세요'}
+                </option>
+                {filteredSites.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+              {filteredSites.length === 0 && !loadingSites && siteSearch && (
+                <p className="mt-1 text-[11px] text-muted2-brand">검색 결과 없음</p>
+              )}
+            </div>
           )}
+
           <FormInput
             label="제목"
             value={form.title}
@@ -337,7 +462,7 @@ export default function ConsentDocsPage() {
           </div>
         </div>
         <ModalFooter>
-          <Btn variant="ghost" onClick={() => setShowCreate(false)}>취소</Btn>
+          <Btn variant="ghost" onClick={() => { setShowCreate(false); resetCreateForm() }}>취소</Btn>
           <Btn variant="orange" onClick={handleCreate} disabled={saving}>
             {saving ? '저장 중...' : '등록'}
           </Btn>
@@ -350,7 +475,13 @@ export default function ConsentDocsPage() {
           {editDoc && (
             <div className="text-[12px] text-muted2-brand mb-1">
               유형: <strong>{DOC_TYPE_LABEL[editDoc.docType] ?? editDoc.docType}</strong> ·
-              범위: <strong>{SCOPE_LABEL[editDoc.scope] ?? editDoc.scope}</strong>
+              범위: <strong>
+                {editDoc.scope === 'COMPANY' && editDoc.company
+                  ? `업체 — ${editDoc.company.companyName}`
+                  : editDoc.scope === 'SITE' && editDoc.site
+                  ? `현장 — ${editDoc.site.name}`
+                  : SCOPE_LABEL[editDoc.scope] ?? editDoc.scope}
+              </strong>
             </div>
           )}
           <FormInput
