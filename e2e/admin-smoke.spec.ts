@@ -25,7 +25,7 @@ import * as path from 'path'
 
 const BASE = process.env.BASE_URL || 'https://attendance.haehan-ai.kr'
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'jay@haehan-ai.kr'
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin1234'
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Haehan2026!'
 const WRONG_PASSWORD = 'wrongpassword123'
 
 const TOKEN_FILE = path.join(__dirname, '..', 'logs', '.admin-token.txt')

@@ -32,24 +32,12 @@ async function fetchAdminToken(): Promise<string> {
       } catch { /* fall through */ }
     }
   }
-  // 4) 로그인 API 호출 (429 시 60초 대기 후 1회 재시도)
-  async function doLogin(): Promise<Response> {
-    const r = await fetch(`${BASE}/api/admin/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASS }),
-    })
-    if (r.status === 429) {
-      await new Promise(resolve => setTimeout(resolve, 62_000))
-      return fetch(`${BASE}/api/admin/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASS }),
-      })
-    }
-    return r
-  }
-  const res = await doLogin()
+  // 4) 로그인 API 호출 (429 즉시 throw — inline 대기 시 45s test timeout 초과)
+  const res = await fetch(`${BASE}/api/admin/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASS }),
+  })
   const setCookie = res.headers.get('set-cookie') || ''
   const match = setCookie.match(/admin_token=([^;]+)/)
   if (!match) throw new Error(`admin 로그인 실패: ${res.status}`)
