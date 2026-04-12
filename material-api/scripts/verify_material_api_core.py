@@ -22,14 +22,14 @@ results = []
 # ── 헬퍼 ─────────────────────────────────────────────────────────────────────
 
 def http_get(url, timeout=10):
-    """(status, body_bytes, headers)"""
+    """(status, body_bytes, headers_lowercase)"""
     try:
         req = urllib.request.Request(url)
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            return r.status, r.read(), dict(r.headers)
+            return r.status, r.read(), {k.lower(): v for k, v in r.headers.items()}
     except urllib.error.HTTPError as e:
         return e.code, e.read(), {}
-    except Exception as e:
+    except Exception:
         return 0, b"", {}
 
 def http_post(url, body_dict, timeout=10):
@@ -38,10 +38,10 @@ def http_post(url, body_dict, timeout=10):
                                    headers={"Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            return r.status, r.read(), dict(r.headers)
+            return r.status, r.read(), {k.lower(): v for k, v in r.headers.items()}
     except urllib.error.HTTPError as e:
         return e.code, e.read(), {}
-    except Exception as e:
+    except Exception:
         return 0, b"", {}
 
 def record(name, ok, detail):
@@ -57,10 +57,16 @@ print(f"\n{'='*70}")
 print(f"  material-api core smoke  BASE={BASE}")
 print(f"{'='*70}")
 
-# 1. GET /health
-status, body, _ = http_get(f"{BASE}/health")
-ok = status == 200
-record("GET /health", ok, f"HTTP {status}")
+# 1. GET /api/health
+status, body, _ = http_get(f"{API}/health")
+try:
+    d = json.loads(body)
+    ok = status == 200 and d.get("status") == "ok"
+    detail = f"HTTP {status} status={d.get('status')} service={d.get('service')}"
+except Exception:
+    ok = False
+    detail = f"HTTP {status} parse error"
+record("GET /api/health", ok, detail)
 
 # 2. GET /api/materials?page=1&pageSize=10
 status, body, _ = http_get(f"{API}/materials?page=1&pageSize=10")
@@ -118,7 +124,7 @@ record("POST /api/materials/lookup", ok, detail)
 status, body, headers = http_post(f"{API}/materials/lookup/export.csv",
                                    {"codes": [CODE, "NOTEXIST_ZZZ"]})
 try:
-    ctype = headers.get("Content-Type", "")
+    ctype = headers.get("content-type", "")
     bom   = body[:3] == b'\xef\xbb\xbf'
     lines = body.decode("utf-8-sig").strip().split("\n")
     header_ok = lines[0].startswith("input_code,found")
@@ -149,7 +155,7 @@ record("POST /api/materials/lookup/text", ok, detail)
 status, body, headers = http_post(f"{API}/materials/lookup/text/export.csv",
                                    {"text": f"{CODE}\n3913170620174409\nNOTEXIST_ZZZ"})
 try:
-    ctype = headers.get("Content-Type", "")
+    ctype = headers.get("content-type", "")
     bom   = body[:3] == b'\xef\xbb\xbf'
     lines = body.decode("utf-8-sig").strip().split("\n")
     header_ok = lines[0].startswith("input_code,found")
