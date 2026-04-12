@@ -211,12 +211,12 @@ DISK_CLEANUP=$(echo "$DISK_SUMMARY" | grep 'cleanup_level' | cut -d= -f2 || echo
 DISK_FINAL=$(echo "$DISK_SUMMARY" | grep '^final=' | cut -d= -f2 || echo "?")
 
 if   [ $DISK_EC -eq 2 ]; then
-  mark "disk" "FAIL" "사용률 ${DISK_USAGE_AFTER} — 정리 후에도 95% 초과"
+  mark "disk" "FAIL" "disk=${DISK_USAGE_AFTER} → FAIL (정리 후에도 95%+, 배포 중단)"
   echo "" && echo "══ 최종: FAIL — 디스크 부족, 배포 중단 ══" && exit 1
 elif [ $DISK_EC -eq 1 ]; then
-  mark "disk" "WARN" "사용률 ${DISK_USAGE_AFTER} (cleanup=${DISK_CLEANUP})"
+  mark "disk" "WARN" "disk=${DISK_USAGE_AFTER} → WARN (cleanup=${DISK_CLEANUP})"
 else
-  mark "disk" "PASS" "사용률 ${DISK_USAGE_AFTER} (cleanup=${DISK_CLEANUP})"
+  mark "disk" "PASS" "disk=${DISK_USAGE_AFTER} → PASS (cleanup=${DISK_CLEANUP})"
 fi
 
 # ──────────────────────────────────────────────────

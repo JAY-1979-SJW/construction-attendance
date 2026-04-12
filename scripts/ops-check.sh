@@ -515,12 +515,13 @@ if [ "$DOCKER_CHECKS_AVAILABLE" = true ]; then
     read -r _fs _size _used _avail pct mount <<< "$disk_line"
     [ -z "${pct:-}" ] && continue
     pct_num=${pct%\%}
-    if   [[ "$pct_num" =~ ^[0-9]+$ ]] && [ "$pct_num" -ge 92 ]; then
-      result_fail 10 "disk_${mount//\//_}" "디스크 $mount" "${pct} 사용 (${_avail} 남음)"
+    # 판정 기준: PASS 0~84% / WARN 85~94% / FAIL 95%+
+    if   [[ "$pct_num" =~ ^[0-9]+$ ]] && [ "$pct_num" -ge 95 ]; then
+      result_fail 10 "disk_${mount//\//_}" "disk $mount" "disk=${pct} → FAIL (${_avail} 남음)"
     elif [[ "$pct_num" =~ ^[0-9]+$ ]] && [ "$pct_num" -ge 85 ]; then
-      result_warn 10 "disk_${mount//\//_}" "디스크 $mount" "${pct} 사용 (${_avail} 남음)"
+      result_warn 10 "disk_${mount//\//_}" "disk $mount" "disk=${pct} → WARN (${_avail} 남음)"
     else
-      result_pass 10 "disk_${mount//\//_}" "디스크 $mount" "${pct} 사용 (${_avail} 남음)"
+      result_pass 10 "disk_${mount//\//_}" "disk $mount" "disk=${pct} → PASS (${_avail} 남음)"
     fi
   done <<< "$DISK_RAW"
   out ""
