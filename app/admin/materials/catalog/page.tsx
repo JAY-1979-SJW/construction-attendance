@@ -1102,6 +1102,34 @@ export default function MaterialCatalogPage() {
     syncURL(q, category, subCategory, next, selectedId)
   }
 
+  const handleClearSub = () => {
+    setSubCategory('')
+    setPage(1)
+    setSelectedId(null)
+    fetchMaterials(q, category, '', 1)
+    syncURL(q, category, '', 1, null)
+  }
+
+  const handleClearQ = () => {
+    setQ('')
+    closeSuggest()
+    setPage(1)
+    setSelectedId(null)
+    fetchMaterials('', category, subCategory, 1)
+    syncURL('', category, subCategory, 1, null)
+  }
+
+  const handleClearAll = () => {
+    setQ('')
+    setCategory('')
+    setSubCategory('')
+    setPage(1)
+    setSelectedId(null)
+    closeSuggest()
+    fetchMaterials('', '', '', 1)
+    syncURL('', '', '', 1, null)
+  }
+
   return (
     <div className="flex" style={{ marginRight: selectedId !== null ? '360px' : '0', transition: 'margin-right 0.2s' }}>
       {/* 좌측 카테고리 트리 */}
@@ -1276,6 +1304,53 @@ export default function MaterialCatalogPage() {
           <span className="text-sm text-muted-brand">총 {(total ?? 0).toLocaleString()}건</span>
         )}
       </div>
+
+      {/* 선택 필터 요약 바 */}
+      {(category || subCategory || q.trim()) && (
+        <div className="flex items-center gap-2 flex-wrap mb-4">
+          {category && (
+            <span className="inline-flex items-center text-[12px] rounded-full px-3 py-[4px]"
+                  style={{ background: 'rgba(91,164,217,0.12)', border: '1px solid rgba(91,164,217,0.25)', color: '#5BA4D9' }}>
+              <span className="text-muted-brand mr-1">대분류:</span>{category}
+              <button
+                onClick={() => handleCategoryChange('')}
+                className="ml-2 border-0 bg-transparent cursor-pointer text-[11px] leading-none"
+                style={{ color: 'rgba(91,164,217,0.6)' }}
+                title="대분류 해제"
+              >✕</button>
+            </span>
+          )}
+          {subCategory && (
+            <span className="inline-flex items-center text-[12px] rounded-full px-3 py-[4px]"
+                  style={{ background: 'rgba(91,164,217,0.12)', border: '1px solid rgba(91,164,217,0.25)', color: '#5BA4D9' }}>
+              <span className="text-muted-brand mr-1">중분류:</span>{subCategory}
+              <button
+                onClick={handleClearSub}
+                className="ml-2 border-0 bg-transparent cursor-pointer text-[11px] leading-none"
+                style={{ color: 'rgba(91,164,217,0.6)' }}
+                title="중분류 해제"
+              >✕</button>
+            </span>
+          )}
+          {q.trim() && (
+            <span className="inline-flex items-center text-[12px] rounded-full px-3 py-[4px]"
+                  style={{ background: 'rgba(91,164,217,0.12)', border: '1px solid rgba(91,164,217,0.25)', color: '#5BA4D9' }}>
+              <span className="text-muted-brand mr-1">검색어:</span>{q}
+              <button
+                onClick={handleClearQ}
+                className="ml-2 border-0 bg-transparent cursor-pointer text-[11px] leading-none"
+                style={{ color: 'rgba(91,164,217,0.6)' }}
+                title="검색어 해제"
+              >✕</button>
+            </span>
+          )}
+          <button
+            onClick={handleClearAll}
+            className="text-[11px] border border-[rgba(91,164,217,0.22)] rounded-full px-3 py-[4px] bg-transparent cursor-pointer"
+            style={{ color: 'rgba(91,164,217,0.5)' }}
+          >전체 해제</button>
+        </div>
+      )}
 
       {/* 목록 CSV 에러 */}
       {catalogCsvError && (
