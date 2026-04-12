@@ -29,13 +29,18 @@ export async function GET() {
 
   const workerId = session.sub
 
+  const now = new Date()
+
   // 근로자 기본 정보 + 소속 업체/현장
   const worker = await prisma.worker.findUnique({
     where: { id: workerId },
     select: {
       laborContractAgreedAt: true,
       companyAssignments: {
-        where: { isActive: true },
+        where: {
+          validFrom: { lte: now },
+          OR: [{ validTo: null }, { validTo: { gte: now } }],
+        },
         select: { companyId: true },
         take: 5,
       },
