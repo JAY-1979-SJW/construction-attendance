@@ -557,6 +557,24 @@ function clearLastState() {
   localStorage.removeItem(LAST_STATE_KEY)
 }
 
+// ── 트리 펼침/스크롤 상태 ─────────────────────────────
+const TREE_STATE_KEY = 'material-catalog-tree-state'
+interface TreeState {
+  expandedCats: string[]
+  treeScrollTop: number
+  savedAt: string
+}
+function loadTreeState(): TreeState | null {
+  if (typeof window === 'undefined') return null
+  try { return JSON.parse(localStorage.getItem(TREE_STATE_KEY) ?? 'null') } catch { return null }
+}
+function saveTreeState(state: TreeState) {
+  localStorage.setItem(TREE_STATE_KEY, JSON.stringify(state))
+}
+function clearTreeState() {
+  localStorage.removeItem(TREE_STATE_KEY)
+}
+
 function CategoryTree({
   treeData,
   selectedCat,
@@ -566,6 +584,7 @@ function CategoryTree({
   onSelectSub,
   onToggleExpand,
   totalCount,
+  onClearTreeState,
 }: {
   treeData: CategoryTreeNode[]
   selectedCat: string
@@ -575,10 +594,45 @@ function CategoryTree({
   onSelectSub: (cat: string, sub: string) => void
   onToggleExpand: (cat: string) => void
   totalCount: number
+  onClearTreeState: () => void
 }) {
   const [treeSearch, setTreeSearch] = useState('')
   const [favorites, setFavorites] = useState<FavoriteItem[]>(() => loadFavs())
   const [recents, setRecents] = useState<FavoriteItem[]>(() => loadRecents())
+
+  // 트리 스크롤 ref + 복원
+  const treeListRef = useRef<HTMLUListElement>(null)
+  const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // treeData 로드 완료 후 스크롤 복원
+  useEffect(() => {
+    if (treeData.length > 0 && treeListRef.current) {
+      const saved = loadTreeState()
+      if (saved?.treeScrollTop) {
+        treeListRef.current.scrollTop = saved.treeScrollTop
+      }
+    }
+  }, [treeData])
+
+  const handleTreeScroll = () => {
+    if (scrollTimer.current) clearTimeout(scrollTimer.current)
+    scrollTimer.current = setTimeout(() => {
+      if (treeListRef.current) {
+        const state = loadTreeState()
+        saveTreeState({
+          expandedCats: state?.expandedCats ?? [],
+          treeScrollTop: treeListRef.current.scrollTop,
+          savedAt: new Date().toISOString(),
+        })
+      }
+    }, 300)
+  }
+
+  const handleClearTree = () => {
+    clearTreeState()
+    if (treeListRef.current) treeListRef.current.scrollTop = 0
+    onClearTreeState()
+  }
 
   const keyword = treeSearch.trim()
 
@@ -663,8 +717,14 @@ function CategoryTree({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-4 pt-5 pb-2">
+      <div className="px-4 pt-5 pb-2 flex items-center justify-between">
         <span className="text-[11px] font-semibold tracking-wider uppercase text-muted-brand">분류</span>
+        <button
+          onClick={handleClearTree}
+          className="text-[10px] border-0 bg-transparent cursor-pointer leading-none"
+          style={{ color: 'rgba(91,164,217,0.3)' }}
+          title="트리 펼침 상태 + 스크롤 위치 초기화"
+        >초기화</button>
       </div>
 
       {/* 트리 내부 검색창 */}
@@ -789,7 +849,7 @@ function CategoryTree({
         </div>
       )}
 
-      <ul className="flex-1 overflow-y-auto px-2 pb-4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+      <ul ref={treeListRef} onScroll={handleTreeScroll} className="flex-1 overflow-y-auto px-2 pb-4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {/* 전체 — 검색 중일 때는 숨김 */}
         {!keyword && (
           <li>
@@ -972,12 +1032,19 @@ export default function MaterialCatalogPage() {
     const urlPage   = Math.max(1, parseInt(sp.get('page') || '1', 10) || 1)
     const rawSel    = sp.get('selectedId')
     const urlSelId  = rawSel ? (parseInt(rawSel, 10) || null) : null
+    // 트리 펼침 상태 복원 (URL/last-state 공통 기반)
+    const savedTree = loadTreeState()
+    const baseExpanded: Set<string> = savedTree?.expandedCats?.length
+      ? new Set(savedTree.expandedCats)
+      : new Set()
+
     if (urlQ || urlCat || urlSub || urlPage > 1 || urlSelId !== null) {
-      // URL 우선 — 기존 로직
+      // URL 우선 — 기존 로직 + 저장된 트리 펼침 상태 병합
       if (urlQ)             setQ(urlQ)
       if (urlCat)           setCategory(urlCat)
       if (urlSub)           setSubCategory(urlSub)
-      if (urlCat)           setExpandedCats(new Set([urlCat]))
+      if (urlCat)           baseExpanded.add(urlCat)
+      setExpandedCats(new Set(baseExpanded))
       if (urlPage > 1)      setPage(urlPage)
       if (urlSelId !== null) setSelectedId(urlSelId)
       if (urlQ || urlCat || urlSub || urlPage > 1) fetchMaterials(urlQ, urlCat, urlSub, urlPage)
@@ -988,9 +1055,13 @@ export default function MaterialCatalogPage() {
         setQ(last.q)
         setCategory(last.category)
         setSubCategory(last.subCategory)
-        if (last.category) setExpandedCats(new Set([last.category]))
+        if (last.category) baseExpanded.add(last.category)
+        setExpandedCats(new Set(baseExpanded))
         fetchMaterials(last.q, last.category, last.subCategory, 1)
         syncURL(last.q, last.category, last.subCategory, 1, null)
+      } else if (baseExpanded.size > 0) {
+        // 필터 없어도 트리 펼침 상태만 복원
+        setExpandedCats(new Set(baseExpanded))
       }
     }
   }, [fetchMaterials])
@@ -1144,6 +1215,13 @@ export default function MaterialCatalogPage() {
       const next = new Set(prev)
       if (next.has(cat)) next.delete(cat)
       else next.add(cat)
+      // 트리 펼침 상태 저장
+      const state = loadTreeState()
+      saveTreeState({
+        expandedCats: Array.from(next),
+        treeScrollTop: state?.treeScrollTop ?? 0,
+        savedAt: new Date().toISOString(),
+      })
       return next
     })
   }
@@ -1230,6 +1308,11 @@ export default function MaterialCatalogPage() {
     handleClearAll()
   }
 
+  // ── 트리 상태 초기화 ──────────────────────────────
+  const handleClearTreeState = () => {
+    setExpandedCats(new Set())
+  }
+
   return (
     <div className="flex" style={{ marginRight: selectedId !== null ? '360px' : '0', transition: 'margin-right 0.2s' }}>
       {/* 좌측 카테고리 트리 */}
@@ -1251,6 +1334,7 @@ export default function MaterialCatalogPage() {
           onSelectSub={handleSubCategoryChange}
           onToggleExpand={handleToggleExpand}
           totalCount={summary?.totalMaterials ?? 0}
+          onClearTreeState={handleClearTreeState}
         />
       </aside>
 
