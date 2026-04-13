@@ -575,6 +575,34 @@ function clearTreeState() {
   localStorage.removeItem(TREE_STATE_KEY)
 }
 
+// ── 보기 옵션 ─────────────────────────────────────────
+const VIEW_OPTS_KEY = 'material-catalog-view-opts'
+type SortDir = 'asc' | 'desc'
+type Density = 'comfortable' | 'compact'
+interface ViewOpts {
+  sortBy: string
+  sortDir: SortDir
+  pageSize: number
+  density: Density
+  savedAt: string
+}
+const VIEW_OPTS_DEFAULTS = { sortBy: '', sortDir: 'asc' as SortDir, pageSize: 50, density: 'comfortable' as Density }
+
+function loadViewOpts(): ViewOpts | null {
+  if (typeof window === 'undefined') return null
+  try { return JSON.parse(localStorage.getItem(VIEW_OPTS_KEY) ?? 'null') } catch { return null }
+}
+function saveViewOpts(opts: Omit<ViewOpts, 'savedAt'>) {
+  localStorage.setItem(VIEW_OPTS_KEY, JSON.stringify({ ...opts, savedAt: new Date().toISOString() }))
+}
+function clearViewOpts() {
+  localStorage.removeItem(VIEW_OPTS_KEY)
+}
+
+const SORTABLE_COLS: Record<string, string> = {
+  code: '코드', name: '자재명', category: '분류', baseDate: '기준일',
+}
+
 function CategoryTree({
   treeData,
   selectedCat,
@@ -971,13 +999,20 @@ export default function MaterialCatalogPage() {
   const [activeIdx, setActiveIdx]         = useState(-1)
   const [suggestError, setSuggestError]   = useState('')
 
+  // ── 보기 옵션 ──────────────────────────────��───────────
+  const [sortBy,   setSortBy]   = useState<string>(() => loadViewOpts()?.sortBy ?? VIEW_OPTS_DEFAULTS.sortBy)
+  const [sortDir,  setSortDir]  = useState<SortDir>(() => loadViewOpts()?.sortDir ?? VIEW_OPTS_DEFAULTS.sortDir)
+  const [pageSize, setPageSize] = useState<number>(() => loadViewOpts()?.pageSize ?? VIEW_OPTS_DEFAULTS.pageSize)
+  const [density,  setDensity]  = useState<Density>(() => loadViewOpts()?.density ?? VIEW_OPTS_DEFAULTS.density)
+  const pageSizeRef = useRef<number>(loadViewOpts()?.pageSize ?? VIEW_OPTS_DEFAULTS.pageSize)
+
   const suggestTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const fetchMaterials = useCallback((qVal: string, catVal: string, subCatVal: string, pageVal: number) => {
     setLoading(true)
     setError('')
-    const params = new URLSearchParams({ page: String(pageVal), pageSize: String(PAGE_SIZE) })
+    const params = new URLSearchParams({ page: String(pageVal), pageSize: String(pageSizeRef.current) })
     if (qVal.trim())   params.set('q', qVal.trim())
     if (catVal)        params.set('category', catVal)
     if (subCatVal)     params.set('subCategory', subCatVal)
@@ -1313,6 +1348,66 @@ export default function MaterialCatalogPage() {
     setExpandedCats(new Set())
   }
 
+  // ── 보기 옵션 핸들러 ──────────────────────────────
+  const handleSortChange = (col: string) => {
+    const newDir: SortDir = sortBy === col && sortDir === 'asc' ? 'desc' : 'asc'
+    setSortBy(col)
+    setSortDir(newDir)
+    saveViewOpts({ sortBy: col, sortDir: newDir, pageSize, density })
+  }
+
+  const handleSortClear = () => {
+    setSortBy('')
+    setSortDir('asc')
+    saveViewOpts({ sortBy: '', sortDir: 'asc', pageSize, density })
+  }
+
+  const handlePageSizeChange = (sz: number) => {
+    setPageSize(sz)
+    pageSizeRef.current = sz
+    saveViewOpts({ sortBy, sortDir, pageSize: sz, density })
+    setPage(1)
+    setSelectedId(null)
+    fetchMaterials(q, category, subCategory, 1)
+    syncURL(q, category, subCategory, 1, null)
+  }
+
+  const handleDensityToggle = () => {
+    const next: Density = density === 'comfortable' ? 'compact' : 'comfortable'
+    setDensity(next)
+    saveViewOpts({ sortBy, sortDir, pageSize, density: next })
+  }
+
+  const handleClearViewOpts = () => {
+    clearViewOpts()
+    setSortBy(VIEW_OPTS_DEFAULTS.sortBy)
+    setSortDir(VIEW_OPTS_DEFAULTS.sortDir)
+    setDensity(VIEW_OPTS_DEFAULTS.density)
+    const defaultPsz = VIEW_OPTS_DEFAULTS.pageSize
+    setPageSize(defaultPsz)
+    pageSizeRef.current = defaultPsz
+    setPage(1)
+    setSelectedId(null)
+    fetchMaterials(q, category, subCategory, 1)
+    syncURL(q, category, subCategory, 1, null)
+  }
+
+  // ── 정렬된 표시 목록 ──────────────────────────────
+  const displayItems = sortBy
+    ? [...items].sort((a, b) => {
+        let av = '', bv = ''
+        if (sortBy === 'code')         { av = a.code;           bv = b.code }
+        else if (sortBy === 'name')     { av = a.name;           bv = b.name }
+        else if (sortBy === 'category') { av = a.category ?? '';  bv = b.category ?? '' }
+        else if (sortBy === 'baseDate') { av = a.baseDate ?? '';  bv = b.baseDate ?? '' }
+        const cmp = av.localeCompare(bv, 'ko')
+        return sortDir === 'asc' ? cmp : -cmp
+      })
+    : items
+
+  // 밀도별 셀 패딩
+  const cellPy = density === 'compact' ? 'py-[5px]' : 'py-[9px]'
+
   return (
     <div className="flex" style={{ marginRight: selectedId !== null ? '360px' : '0', transition: 'margin-right 0.2s' }}>
       {/* 좌측 카테고리 트리 */}
@@ -1640,6 +1735,56 @@ export default function MaterialCatalogPage() {
         </div>
       )}
 
+      {/* 보기 옵션 바 */}
+      <div className="flex items-center gap-2 mb-3 flex-wrap">
+        {/* 페이지 크기 */}
+        <span className="text-[11px] text-muted-brand flex-shrink-0">표시</span>
+        {[25, 50, 100].map(sz => (
+          <button
+            key={sz}
+            onClick={() => handlePageSizeChange(sz)}
+            className="text-[11px] px-[10px] py-[4px] rounded-full border cursor-pointer bg-transparent"
+            style={{
+              borderColor: pageSize === sz ? 'rgba(91,164,217,0.6)' : 'rgba(91,164,217,0.2)',
+              color:        pageSize === sz ? '#5BA4D9'              : 'rgba(255,255,255,0.45)',
+              fontWeight:   pageSize === sz ? 600                    : undefined,
+            }}
+          >{sz}건</button>
+        ))}
+        <span style={{ color: 'rgba(91,164,217,0.2)' }}>|</span>
+        {/* 밀도 */}
+        <button
+          onClick={handleDensityToggle}
+          className="text-[11px] px-[10px] py-[4px] rounded-full border cursor-pointer bg-transparent"
+          style={{ borderColor: 'rgba(91,164,217,0.25)', color: 'rgba(255,255,255,0.5)' }}
+          title={density === 'comfortable' ? '좁게 보기로 전환' : '넓게 보기로 전환'}
+        >
+          {density === 'comfortable' ? '넓게' : '좁게'}
+        </button>
+        {/* 정렬 표시 */}
+        {sortBy && (
+          <>
+            <span style={{ color: 'rgba(91,164,217,0.2)' }}>|</span>
+            <span className="text-[11px] text-muted-brand">
+              정렬: {SORTABLE_COLS[sortBy]} {sortDir === 'asc' ? '▴' : '▾'}
+            </span>
+            <button
+              onClick={handleSortClear}
+              className="text-[11px] border-0 bg-transparent cursor-pointer"
+              style={{ color: 'rgba(91,164,217,0.45)' }}
+              title="정렬 해제"
+            >해제</button>
+          </>
+        )}
+        {/* 보기 옵션 초기화 */}
+        <button
+          onClick={handleClearViewOpts}
+          className="text-[11px] border-0 bg-transparent cursor-pointer ml-auto"
+          style={{ color: 'rgba(91,164,217,0.3)' }}
+          title="페이지 크기·정렬·밀도를 기본값으로 초기화"
+        >보기 옵션 초기화</button>
+      </div>
+
       {/* 테이블 */}
       {searched && (
         <div className="bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden">
@@ -1647,22 +1792,38 @@ export default function MaterialCatalogPage() {
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
-                  {['코드', '자재명', '규격', '단위', '분류', '출처', '기준일'].map(h => (
-                    <th key={h} className="text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap font-semibold">
-                      {h}
+                  {([
+                    { key: 'code',     label: '코드',  sortable: true },
+                    { key: 'name',     label: '자재명', sortable: true },
+                    { key: 'spec',     label: '규격',  sortable: false },
+                    { key: 'unit',     label: '단위',  sortable: false },
+                    { key: 'category', label: '분류',  sortable: true },
+                    { key: 'source',   label: '출처',  sortable: false },
+                    { key: 'baseDate', label: '기준일', sortable: true },
+                  ] as { key: string; label: string; sortable: boolean }[]).map(col => (
+                    <th
+                      key={col.key}
+                      onClick={col.sortable ? () => handleSortChange(col.key) : undefined}
+                      className={`text-left px-3 py-[10px] text-[12px] text-muted-brand border-b-2 border-[rgba(91,164,217,0.2)] whitespace-nowrap font-semibold${col.sortable ? ' cursor-pointer select-none hover:text-white' : ''}`}
+                      style={{ color: sortBy === col.key ? '#5BA4D9' : undefined }}
+                    >
+                      {col.label}
+                      {col.sortable && sortBy === col.key && (
+                        <span className="ml-1 text-[10px]">{sortDir === 'asc' ? '▴' : '▾'}</span>
+                      )}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {items.length === 0 ? (
+                {displayItems.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-3 py-10 text-center text-muted-brand">
                       검색 결과가 없습니다
                     </td>
                   </tr>
                 ) : (
-                  items.map(item => {
+                  displayItems.map(item => {
                     const isSelected = item.id === selectedId
                     return (
                       <tr
@@ -1673,28 +1834,28 @@ export default function MaterialCatalogPage() {
                         onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = 'rgba(91,164,217,0.04)' }}
                         onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = '' }}
                       >
-                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] font-mono text-[12px] text-muted-brand whitespace-nowrap">
+                        <td className={`px-3 ${cellPy} border-b border-[rgba(91,164,217,0.1)] font-mono text-[12px] text-muted-brand whitespace-nowrap`}>
                           {item.code}
                         </td>
-                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] font-semibold max-w-[200px] truncate" title={item.name}>
+                        <td className={`px-3 ${cellPy} border-b border-[rgba(91,164,217,0.1)] font-semibold max-w-[200px] truncate`} title={item.name}>
                           {item.name}
                         </td>
-                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] text-[12px] text-muted-brand max-w-[180px] truncate" title={item.spec ?? ''}>
+                        <td className={`px-3 ${cellPy} border-b border-[rgba(91,164,217,0.1)] text-[12px] text-muted-brand max-w-[180px] truncate`} title={item.spec ?? ''}>
                           {item.spec ?? '-'}
                         </td>
-                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] whitespace-nowrap">
+                        <td className={`px-3 ${cellPy} border-b border-[rgba(91,164,217,0.1)] whitespace-nowrap`}>
                           {item.unit ?? '-'}
                         </td>
-                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] text-[12px] max-w-[160px] truncate" title={item.category ?? ''}>
+                        <td className={`px-3 ${cellPy} border-b border-[rgba(91,164,217,0.1)] text-[12px] max-w-[160px] truncate`} title={item.category ?? ''}>
                           {item.category ?? '-'}
                         </td>
-                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] whitespace-nowrap">
+                        <td className={`px-3 ${cellPy} border-b border-[rgba(91,164,217,0.1)] whitespace-nowrap`}>
                           <span className="text-[11px] px-2 py-[2px] rounded-[10px]"
                                 style={{ background: 'rgba(91,164,217,0.12)', color: '#5BA4D9' }}>
                             {item.source}
                           </span>
                         </td>
-                        <td className="px-3 py-[9px] border-b border-[rgba(91,164,217,0.1)] text-[12px] text-muted-brand whitespace-nowrap">
+                        <td className={`px-3 ${cellPy} border-b border-[rgba(91,164,217,0.1)] text-[12px] text-muted-brand whitespace-nowrap`}>
                           {item.baseDate ? item.baseDate.split('T')[0] : '-'}
                         </td>
                       </tr>
