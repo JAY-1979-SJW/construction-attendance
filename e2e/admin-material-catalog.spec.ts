@@ -75,12 +75,13 @@ const MOCK_SUMMARY = {
   },
 }
 
+// material-categories-tree API 응답 형식: CategoryTreeNode { category, count, subCategories[] }
 const MOCK_CATEGORIES = {
   success: true,
   data: [
-    { category: '건자재' },
-    { category: '철강' },
-    { category: '목재' },
+    { category: '건자재', count: 100, subCategories: [{ subCategory: '시멘트류', count: 40 }, { subCategory: '골재류', count: 60 }] },
+    { category: '철강',   count: 200, subCategories: [{ subCategory: '봉형강류', count: 120 }, { subCategory: '철판류', count: 80 }] },
+    { category: '목재',   count: 50,  subCategories: [] },
   ],
 }
 
@@ -189,15 +190,13 @@ test('CAT-A 첫 진입 — 배너·요약카드·카테고리 확인', async ({ 
   // deferred 배너 (수집 보류)
   await expect(page.getByText('수집 보류', { exact: true })).toBeVisible({ timeout: 8000 })
 
-  // summary 카드
+  // summary 카드 (12,345 는 트리 전체 버튼 + 카드에 중복 노출 → first() 사용)
   await expect(page.getByText('총 자재 수')).toBeVisible({ timeout: 8000 })
-  await expect(page.getByText('12,345')).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText('12,345').first()).toBeVisible({ timeout: 5000 })
   await expect(page.getByText('카테고리').first()).toBeVisible()
 
-  // 카테고리 select 옵션 로드 확인
-  const select = page.locator('select')
-  await expect(select).toBeVisible()
-  await expect(select.locator('option', { hasText: '건자재' })).toHaveCount(1, { timeout: 5000 })
+  // 카테고리 트리 로드 확인 (select → 사이드바 트리로 전환됨)
+  await expect(page.getByRole('button', { name: /건자재/ })).toBeVisible({ timeout: 5000 })
 
   // 검색 input 존재
   await expect(page.locator('input[placeholder="코드 또는 자재명 검색"]')).toBeVisible()
@@ -262,13 +261,10 @@ test('CAT-C 카테고리+페이지 이동 — 필터→조회→다음 페이지
   await page.goto(`${BASE}/admin/materials/catalog`)
   await expect(page.locator('h1').filter({ hasText: '자재 카탈로그' })).toBeVisible({ timeout: 10000 })
 
-  // 카테고리 select에 옵션 로드 대기
-  const select = page.locator('select')
-  await expect(select.locator('option', { hasText: '건자재' })).toHaveCount(1, { timeout: 5000 })
-  await select.selectOption('건자재')
-
-  // 조회 버튼 클릭 (handleSearch → fetchMaterials → searched=true → 테이블 노출)
-  await page.getByRole('button', { name: '조회', exact: true }).click()
+  // 카테고리 트리에서 '건자재' 클릭 (select → 사이드바 트리로 전환됨)
+  // 트리 클릭 시 handleCategoryChange → fetchMaterials 자동 호출
+  await expect(page.getByRole('button', { name: /건자재/ })).toBeVisible({ timeout: 5000 })
+  await page.getByRole('button', { name: /건자재/ }).click()
 
   // 총 N건 표시 확인
   await expect(page.getByText(/총 \d+건/)).toBeVisible({ timeout: 8000 })
@@ -426,9 +422,10 @@ test('CAT-G URL 복원 — 새로고침 후 q·category·selectedId 유지', asy
   const input = page.locator('input[placeholder="코드 또는 자재명 검색"]')
   await expect(input).toHaveValue('철근', { timeout: 8000 })
 
-  // category 복원 → select 값 확인
-  const select = page.locator('select')
-  await expect(select).toHaveValue('철강', { timeout: 5000 })
+  // category 복원 → URL 파라미터로 확인 (select → 사이드바 트리로 전환됨)
+  await expect(async () => {
+    expect(page.url()).toContain('category=%EC%B2%A0%EA%B0%95')  // 철강 URL 인코딩
+  }).toPass({ timeout: 5000 })
 
   // selectedId=1001 → 상세패널 열림
   await expect(page.getByText('자재 상세')).toBeVisible({ timeout: 8000 })
@@ -437,6 +434,8 @@ test('CAT-G URL 복원 — 새로고침 후 q·category·selectedId 유지', asy
   await page.reload()
   await expect(page.locator('h1').filter({ hasText: '자재 카탈로그' })).toBeVisible({ timeout: 10000 })
   await expect(input).toHaveValue('철근', { timeout: 10000 })
-  await expect(select).toHaveValue('철강', { timeout: 5000 })
+  await expect(async () => {
+    expect(page.url()).toContain('category=%EC%B2%A0%EA%B0%95')
+  }).toPass({ timeout: 5000 })
   await expect(page.getByText('자재 상세')).toBeVisible({ timeout: 8000 })
 })

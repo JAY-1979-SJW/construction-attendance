@@ -576,6 +576,9 @@ function clearTreeState() {
 }
 
 // ── 보기 옵션 ─────────────────────────────────────────
+// 정책(고정): sortBy / sortDir / pageSize / density 는 URL query 미지원.
+// 브라우저 localStorage('material-catalog-view-opts') 전용 복원.
+// q / category / subCategory / page / selectedId 만 URL query 동기화.
 const VIEW_OPTS_KEY = 'material-catalog-view-opts'
 type SortDir = 'asc' | 'desc'
 type Density = 'comfortable' | 'compact'
