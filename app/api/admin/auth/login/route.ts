@@ -80,6 +80,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (!admin.passwordHash) {
+      return unauthorized('이메일 또는 비밀번호가 올바르지 않습니다.')
+    }
+
     const valid = await bcrypt.compare(password, admin.passwordHash)
     if (!valid) {
       writeAuditLog({

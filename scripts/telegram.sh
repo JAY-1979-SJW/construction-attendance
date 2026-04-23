@@ -146,8 +146,10 @@ cmd_check_report() {
     msg="$msg\n\n🐳 컨테이너:\n$(cat "$LOG_DIR/last_container_status.txt" | sed 's/^/  /')"
   fi
 
-  # 실패 항목
-  if [ -f "$LOG_DIR/last_failure.log" ]; then
+  # 실패 항목 — 현재 시나리오 점검이 FAIL일 때만 표시 (stale 캐시 노이즈 방지)
+  local scenario_result
+  scenario_result=$(grep "^scenario=" "$LOG_DIR/last_check_status.txt" 2>/dev/null | cut -d= -f2)
+  if [ "$scenario_result" = "FAIL" ] && [ -f "$LOG_DIR/last_failure.log" ]; then
     msg="$msg\n\n❌ 실패:\n$(head -5 "$LOG_DIR/last_failure.log" | sed 's/^/  /')"
   fi
 
