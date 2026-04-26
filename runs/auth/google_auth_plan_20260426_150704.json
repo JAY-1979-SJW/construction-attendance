@@ -1,0 +1,52 @@
+{
+  "investigation_ts": "20260426_150704",
+  "nextauth_google_provider": "already_implemented",
+  "nextauth_config_file": "lib/auth/nextauth.ts",
+  "google_provider_type": "custom_OAuthConfig (type:oauth — OIDC iss 우회)",
+  "google_scope": "openid email profile",
+  "google_env_names": [
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET"
+  ],
+  "env_example_placeholder": "already_present",
+  "server_env_production_google_keys": "present (CLIENT_ID len=72, CLIENT_SECRET len=35)",
+  "local_env_local_google_keys": "MISSING — needs to be added",
+  "complete_route": "app/api/auth/complete/route.ts",
+  "complete_provider_agnostic": true,
+  "complete_note": "Google 로그인도 email 기반으로 동일하게 처리 — 코드 수정 불필요",
+  "login_page": "app/login/page.tsx",
+  "login_kakao_section": "line 128 — KakaoSocialSection mode=login",
+  "login_google_needed": "GoogleSocialSection 추가 필요 (KakaoSocialSection 바로 아래)",
+  "register_page": "app/register/page.tsx",
+  "register_kakao_section": "line 95 — KakaoSocialSection mode=register",
+  "register_google_needed": "GoogleSocialSection mode=register 추가 필요",
+  "new_component": "components/auth/GoogleSocialSection.tsx",
+  "new_component_pattern": "KakaoSocialSection.tsx와 동일 구조 — signIn('google') 호출",
+  "existing_test": "__tests__/auth/kakao-login.test.ts",
+  "new_test": "__tests__/auth/google-login.test.ts (신규 작성)",
+  "redirect_uri": "https://attendance.haehan-ai.kr/api/auth/callback/google",
+  "authorized_js_origins": "https://attendance.haehan-ai.kr",
+  "oauth_client_type": "Web application",
+  "consent_screen_scope": "openid, email, profile (기본 — 민감/제한 scope 제외)",
+  "console_action_this_step": "없음 — 다음 단계에서 수행",
+  "env_names_decision": "GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET (Kakao와 동일 패턴, 기존 코드 일치)",
+  "implementation_files": [
+    "components/auth/GoogleSocialSection.tsx (신규)",
+    "app/login/page.tsx (KakaoSocialSection 아래 GoogleSocialSection 추가)",
+    "app/register/page.tsx (동일)",
+    "__tests__/auth/google-login.test.ts (신규)"
+  ],
+  "risk_notes": [
+    "Google keys가 로컬 .env.local에 없음 — 서버 .env.production에는 있음",
+    "서버 재빌드 필요 (컨테이너 이미지 갱신)",
+    "Google Cloud Console redirect URI 등록 확인 필요"
+  ],
+  "next_steps": [
+    "GOOGLE-AUTH-ENV: 로컬 .env.local에 GOOGLE_CLIENT_ID/SECRET 추가",
+    "GOOGLE-AUTH-1: GoogleSocialSection 컴포넌트 생성 + 로그인/가입 페이지 추가",
+    "GOOGLE-AUTH-2: 테스트 작성",
+    "GOOGLE-AUTH-LIVE: 서버 재빌드 + smoke"
+  ],
+  "raw_secret_printed": false,
+  "overall": "PASS"
+}
