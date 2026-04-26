@@ -1,0 +1,23 @@
+{
+  "login_page_reached": true,
+  "kakao_button_found": true,
+  "kakao_button_clicked": true,
+  "kauth_reached": true,
+  "kauth_url": "kauth.kakao.com/oauth/authorize",
+  "consent_skipped": true,
+  "consent_note": "existing_kakao_session_auto_authorized",
+  "callback_reached": true,
+  "callback_url": "attendance.haehan-ai.kr/api/auth/callback/kakao",
+  "complete_reached": true,
+  "complete_redirected_to": "/admin",
+  "login_success": true,
+  "final_page": "/admin (관리자 대시보드)",
+  "session_cookie_present": true,
+  "session_cookie_name": "__Secure-authjs.session-token",
+  "session_user_present": true,
+  "session_email_domain": "kakao.com",
+  "docker_rebuild_required": true,
+  "docker_rebuild_done": true,
+  "raw_secret_printed": false,
+  "overall": "PASS"
+}
