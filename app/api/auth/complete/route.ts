@@ -22,11 +22,18 @@ export const runtime = 'nodejs'
 export async function GET(req: Request) {
   const session = await auth()
 
-  if (!session?.user?.email) {
+  if (!session?.user) {
+    return NextResponse.redirect(`${BASE_URL}/login?error=no_session`)
+  }
+
+  // Kakao가 email 동의 미제공 시 kakao_id 기반 synthetic email로 fallback
+  const email = session.user.email
+    ?? (session.user.id ? `kakao_${session.user.id}@kakao.local` : null)
+
+  if (!email) {
     return NextResponse.redirect(`${BASE_URL}/login?error=no_email`)
   }
 
-  const email = session.user.email
   const name = session.user.name ?? '사용자'
 
   const ua = req.headers.get('user-agent') ?? ''

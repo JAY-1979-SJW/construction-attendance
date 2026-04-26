@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { AuthPageShell } from '@/components/auth/AuthPageShell'
 import { AuthCard, AuthBrand, AuthTitle, AuthError, AuthFooter } from '@/components/auth/AuthCard'
+import { KakaoSocialSection } from '@/components/auth/KakaoSocialSection'
 
 function PasswordInput({ value, onChange, placeholder, onKeyDown }: {
   value: string; onChange: (v: string) => void; placeholder?: string; onKeyDown?: (e: React.KeyboardEvent) => void
@@ -91,6 +92,7 @@ function RegisterContent() {
           </button>
         </div>
 
+        <KakaoSocialSection mode="register" />
         <AuthFooter links={[
           { label: '이미 계정이 있으신가요? 로그인', href: '/login' },
         ]} />
