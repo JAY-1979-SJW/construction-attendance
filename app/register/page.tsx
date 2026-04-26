@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { AuthPageShell } from '@/components/auth/AuthPageShell'
 import { AuthCard, AuthBrand, AuthTitle, AuthError, AuthFooter } from '@/components/auth/AuthCard'
 import { KakaoSocialSection } from '@/components/auth/KakaoSocialSection'
+import { GoogleSocialSection } from '@/components/auth/GoogleSocialSection'
 
 function PasswordInput({ value, onChange, placeholder, onKeyDown }: {
   value: string; onChange: (v: string) => void; placeholder?: string; onKeyDown?: (e: React.KeyboardEvent) => void
@@ -93,6 +94,7 @@ function RegisterContent() {
         </div>
 
         <KakaoSocialSection mode="register" />
+        <GoogleSocialSection mode="register" />
         <AuthFooter links={[
           { label: '이미 계정이 있으신가요? 로그인', href: '/login' },
         ]} />

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { AuthPageShell } from '@/components/auth/AuthPageShell'
 import { AuthCard, AuthBrand, AuthError, AuthFooter } from '@/components/auth/AuthCard'
 import { KakaoSocialSection } from '@/components/auth/KakaoSocialSection'
+import { GoogleSocialSection } from '@/components/auth/GoogleSocialSection'
 
 type Tab = 'phone' | 'email'
 
@@ -126,6 +127,7 @@ function LoginContent() {
               {loginSuccess && <span data-testid="login-success" aria-hidden="true" className="sr-only" />}
             </div>
             <KakaoSocialSection mode="login" />
+            <GoogleSocialSection mode="login" />
             <AuthFooter links={[
               { label: '회원가입', href: '/register' },
               { label: '메인으로 돌아가기', href: '/' },
