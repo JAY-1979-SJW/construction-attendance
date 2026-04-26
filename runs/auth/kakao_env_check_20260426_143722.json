@@ -1,0 +1,15 @@
+{
+  "KAKAO_CLIENT_ID_present": true,
+  "KAKAO_CLIENT_ID_length": 32,
+  "KAKAO_CLIENT_SECRET_present": true,
+  "KAKAO_CLIENT_SECRET_length": 32,
+  "NEXTAUTH_URL": "https://attendance.haehan-ai.kr",
+  "NEXTAUTH_URL_correct": true,
+  "NEXTAUTH_SECRET_present": true,
+  "NEXTAUTH_SECRET_length": 64,
+  "NEXTAUTH_SECRET_min32": true,
+  "calculated_redirect_uri": "https://attendance.haehan-ai.kr/api/auth/callback/kakao",
+  "redirect_uri_match": true,
+  "raw_secret_printed": false,
+  "overall": "PASS"
+}
