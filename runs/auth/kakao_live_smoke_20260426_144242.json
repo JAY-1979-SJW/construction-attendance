@@ -1,0 +1,17 @@
+{
+  "app_reachable": true,
+  "app_status": 200,
+  "login_page_ok": true,
+  "kakao_provider_registered": true,
+  "signin_kakao_status": 302,
+  "kakao_authorize_redirected": true,
+  "location_is_kakao": true,
+  "client_id_length": 32,
+  "generated_redirect_uri": "https://attendance.haehan-ai.kr/api/auth/callback/kakao",
+  "redirect_uri_match": true,
+  "expected_redirect_uri": "https://attendance.haehan-ai.kr/api/auth/callback/kakao",
+  "state_present": true,
+  "session_endpoint_ok": true,
+  "raw_secret_printed": false,
+  "overall": "PASS"
+}
