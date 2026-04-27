@@ -4453,7 +4453,7 @@ model WorkerDocConsent {
   id             String   @id @default(cuid())
   workerId       String
   consentDocId   String
-  agreedVersion  Int      @default(1)   // 동의 시점의 ConsentDoc.version
+  agreedVersion  Int      @default(1)  @map("agreed_version")  // 동의 시점의 ConsentDoc.version
   agreedAt       DateTime @default(now())
 
   worker      Worker     @relation(fields: [workerId], references: [id], onDelete: Cascade)
