@@ -8,6 +8,7 @@ import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { unauthorized, badRequest, notFound, forbidden, internalError } from '@/lib/utils/response'
+import { buildWorkerScopeWhere } from '@/lib/auth/guards'
 import { readFile } from 'fs/promises'
 import path from 'path'
 
@@ -21,6 +22,17 @@ export async function POST(req: NextRequest, { params }: Params) {
   try {
     const session = await getAdminSession()
     if (!session) return unauthorized()
+
+    // worker scope 검증 — 타사 근로자 문서 차단
+    const workerScope = await buildWorkerScopeWhere(session)
+    if (workerScope === false) return forbidden('이 근로자에 대한 접근 권한이 없습니다.')
+    if (Object.keys(workerScope).length > 0) {
+      const workerInScope = await prisma.worker.findFirst({
+        where: { id: params.id, ...workerScope },
+        select: { id: true },
+      })
+      if (!workerInScope) return forbidden('이 근로자에 대한 접근 권한이 없습니다.')
+    }
 
     const doc = await prisma.tempSensitiveDocument.findFirst({
       where: { id: params.docId, workerId: params.id },
