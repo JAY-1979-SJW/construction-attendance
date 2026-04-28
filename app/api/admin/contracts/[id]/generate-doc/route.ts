@@ -10,7 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import {
   renderDailyEmploymentContract,
   renderRegularEmploymentContract,
@@ -146,12 +146,12 @@ export async function POST(
     return NextResponse.json({ error: `문서 DB 저장 실패: ${(dbErr as Error).message}` }, { status: 500 })
   }
 
-  await writeAdminAuditLog({
-    adminId:    session.sub,
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
     actionType: 'DOCUMENT_GENERATE',
     targetType: 'GeneratedDocument',
     targetId:   doc.id,
-    description: `문서 생성: ${docType} / ${base.workerName}`,
+    summary: `문서 생성: ${docType} / ${base.workerName}`,
   })
 
   return NextResponse.json({

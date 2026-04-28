@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, requireRole } from '@/lib/auth/guards'
-import { writeAuditLog, writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { MUTATE_ALLOWED_ROLES } from '@/lib/policies/security-policy'
 
 // GET /api/admin/contracts
@@ -194,13 +194,6 @@ export async function POST(req: NextRequest) {
       worker: { select: { id: true, name: true } },
       site:   { select: { id: true, name: true } },
     },
-  })
-
-  // 레거시 로그 (기존 호환)
-  await writeAdminAuditLog({
-    adminId: session.sub, actionType: 'CONTRACT_CREATE',
-    targetType: 'WorkerContract', targetId: contract.id,
-    description: `계약 생성: ${contract.worker.name} / ${contractKind} / ${contractTemplateType}`,
   })
 
   // v2 감사 로그: 계약 생성 상세 (PDF 컨텍스트 + 현장 매칭 이력)

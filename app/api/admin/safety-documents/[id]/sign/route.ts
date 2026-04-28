@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 export async function POST(
   req: NextRequest,
@@ -37,12 +37,12 @@ export async function POST(
     },
   })
 
-  await writeAdminAuditLog({
-    adminId: session.sub,
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
     actionType: 'SAFETY_DOC_SIGN',
-    targetType: 'SafetyDocument',
-    targetId:   params.id,
-    description: `안전문서 서명 (검토요청): ${doc.documentType} / ${doc.worker.name}`,
+    targetType: 'SafetyDocument', targetId: params.id,
+    summary: `안전문서 서명 (검토요청): ${doc.documentType} / ${doc.worker.name}`,
+    afterJson: { status: 'REVIEW_REQUESTED', signedAt: now },
   })
 
   return NextResponse.json({ success: true, data: { signedAt: now, status: 'REVIEW_REQUESTED' } })

@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 const SAFETY_DOC_LABELS: Record<string, string> = {
   SAFETY_EDUCATION_NEW_HIRE: '신규채용 안전교육',
@@ -110,12 +110,12 @@ export async function POST(
     },
   })
 
-  await writeAdminAuditLog({
-    adminId: session.sub,
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
     actionType: action === 'APPROVE' ? 'SAFETY_DOC_APPROVED' : 'SAFETY_DOC_REJECTED',
-    targetType: 'SafetyDocument',
-    targetId: params.id,
-    description: `안전문서 ${action === 'APPROVE' ? '승인' : '반려'}: ${doc.documentType} / ${doc.worker.name}${rejectReason ? ` (사유: ${rejectReason})` : ''}`,
+    targetType: 'SafetyDocument', targetId: params.id,
+    summary: `안전문서 ${action === 'APPROVE' ? '승인' : '반려'}: ${doc.documentType} / ${doc.worker.name}${rejectReason ? ` (사유: ${rejectReason})` : ''}`,
+    afterJson: { status: newStatus, ...(rejectReason ? { rejectReason } : {}) },
   })
 
   return NextResponse.json({ success: true, data: { status: newStatus, reviewedAt: now } })

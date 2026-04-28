@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, requireRole, MUTATE_ROLES, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { syncContractDocumentStatus } from '@/lib/onboarding-docs'
 
 const CONTRACT_KIND_LABELS: Record<string, string> = {
@@ -125,12 +125,12 @@ export async function POST(
   // 문서 패키지 동기화
   await syncContractDocumentStatus(params.id)
 
-  await writeAdminAuditLog({
-    adminId: session.sub,
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
     actionType: action === 'APPROVE' ? 'CONTRACT_APPROVED' : 'CONTRACT_REJECTED',
     targetType: 'WorkerContract',
     targetId: params.id,
-    description: `계약서 ${action === 'APPROVE' ? '승인' : '반려'}: ${contract.worker.name}${rejectReason ? ` (사유: ${rejectReason})` : ''}`,
+    summary: `계약서 ${action === 'APPROVE' ? '승인' : '반려'}: ${contract.worker.name}${rejectReason ? ` (사유: ${rejectReason})` : ''}`,
   })
 
   return NextResponse.json({ success: true, data: { contractStatus: newStatus, reviewedAt: now } })

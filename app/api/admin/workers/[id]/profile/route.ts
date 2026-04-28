@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 // GET /api/admin/workers/[id]/profile
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -44,10 +44,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     } as never,
   })
 
-  await writeAdminAuditLog({
-    adminId: session.sub, actionType: 'WORKER_PROFILE_CREATE',
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
+    actionType: 'WORKER_PROFILE_CREATE',
     targetType: 'WorkerProfile', targetId: profile.id,
-    description: `근로자 분류 프로필 생성: ${workerClass}/${employmentMode}/${taxMode}`,
+    summary: `근로자 분류 프로필 생성: ${workerClass}/${employmentMode}/${taxMode}`,
+    afterJson: { workerClass, employmentMode, taxMode, insuranceMode, officeWorkerYn: effectiveOfficeWorkerYn },
   })
 
   return NextResponse.json({ success: true, data: profile }, { status: 201 })
@@ -85,10 +87,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     } as never,
   })
 
-  await writeAdminAuditLog({
-    adminId: session.sub, actionType: 'WORKER_PROFILE_UPDATE',
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
+    actionType: 'WORKER_PROFILE_UPDATE',
     targetType: 'WorkerProfile', targetId: updated.id,
-    description: '근로자 분류 프로필 수정',
+    summary: '근로자 분류 프로필 수정',
+    beforeJson: { workerClass: existing.workerClass, employmentMode: existing.employmentMode, taxMode: existing.taxMode, insuranceMode: existing.insuranceMode, officeWorkerYn: existing.officeWorkerYn },
+    afterJson: { workerClass: updated.workerClass, employmentMode: updated.employmentMode, taxMode: updated.taxMode, insuranceMode: updated.insuranceMode, officeWorkerYn: updated.officeWorkerYn },
   })
 
   return NextResponse.json({ success: true, data: updated })

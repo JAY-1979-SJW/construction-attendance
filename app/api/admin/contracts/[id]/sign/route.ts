@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { syncContractDocumentStatus } from '@/lib/onboarding-docs'
 
 export async function POST(
@@ -53,12 +53,12 @@ export async function POST(
   // 문서 패키지 동기화
   await syncContractDocumentStatus(params.id)
 
-  await writeAdminAuditLog({
-    adminId: session.sub,
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
     actionType: 'CONTRACT_SIGN',
     targetType: 'WorkerContract',
     targetId: params.id,
-    description: `계약서 서명 → 검토 대기: ${contract.worker.name}`,
+    summary: `계약서 서명 → 검토 대기: ${contract.worker.name}`,
   })
 
   return NextResponse.json({ success: true, data: { signedAt: now, contractStatus: 'REVIEW_REQUESTED' } })

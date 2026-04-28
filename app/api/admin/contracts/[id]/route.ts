@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 // GET /api/admin/contracts/[id]
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -77,10 +77,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     },
   })
 
-  await writeAdminAuditLog({
-    adminId: session.sub, actionType: 'CONTRACT_UPDATE',
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
+    actionType: 'CONTRACT_UPDATE',
     targetType: 'WorkerContract', targetId: params.id,
-    description: '계약 수정',
+    summary: '계약 수정',
   })
 
   return NextResponse.json({ success: true, data: updated })

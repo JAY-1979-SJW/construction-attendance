@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 export async function POST(
   req: NextRequest,
@@ -70,12 +70,12 @@ export async function POST(
     })
   })
 
-  await writeAdminAuditLog({
-    adminId: session.sub,
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
     actionType: 'CONTRACT_CHANGE_TERMS',
     targetType: 'WorkerContract',
     targetId:   params.id,
-    description: `근로조건 변경: ${contract.worker.name} / ${changes.map(c => c.field).join(', ')}`,
+    summary: `근로조건 변경: ${contract.worker.name} / ${changes.map(c => c.field).join(', ')}`,
   })
 
   return NextResponse.json({ success: true, data: { changedFields: Object.keys(updateData) } })

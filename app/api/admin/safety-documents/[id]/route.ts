@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 export async function GET(
   _req: NextRequest,
@@ -75,12 +75,13 @@ export async function PATCH(
     data: updateData,
   })
 
-  await writeAdminAuditLog({
-    adminId: session.sub,
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
     actionType: 'SAFETY_DOC_UPDATE',
-    targetType: 'SafetyDocument',
-    targetId:   params.id,
-    description: `안전문서 수정: ${doc.documentType}`,
+    targetType: 'SafetyDocument', targetId: params.id,
+    summary: `안전문서 수정: ${doc.documentType}`,
+    beforeJson: { documentType: doc.documentType, status: doc.status },
+    afterJson: updateData,
   })
 
   return NextResponse.json({ success: true, data: updated })

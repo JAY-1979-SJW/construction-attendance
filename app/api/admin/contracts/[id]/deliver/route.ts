@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 export async function POST(
   req: NextRequest,
@@ -57,12 +57,12 @@ export async function POST(
     }
   })
 
-  await writeAdminAuditLog({
-    adminId: session.sub,
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
     actionType: 'CONTRACT_DELIVER',
     targetType: 'WorkerContract',
     targetId: params.id,
-    description: `계약서 교부: ${contract.worker.name} / ${deliveredMethod || 'APP'}`,
+    summary: `계약서 교부: ${contract.worker.name} / ${deliveredMethod || 'APP'}`,
   })
 
   return NextResponse.json({ success: true, data: { deliveredAt: now, deliveredMethod } })

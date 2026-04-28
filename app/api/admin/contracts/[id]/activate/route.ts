@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 // POST /api/admin/contracts/[id]/activate
 // 기존 ACTIVE 계약 → ENDED 후 이 계약 → ACTIVE
@@ -38,10 +38,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     })
   })
 
-  await writeAdminAuditLog({
-    adminId: session.sub, actionType: 'CONTRACT_ACTIVATE',
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
+    actionType: 'CONTRACT_ACTIVATE',
     targetType: 'WorkerContract', targetId: params.id,
-    description: prevActive
+    summary: prevActive
       ? `기존 활성계약(${prevActive.id}) 종료 후 활성화`
       : '계약 활성화',
   })

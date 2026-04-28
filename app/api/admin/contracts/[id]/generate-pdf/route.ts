@@ -11,7 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { getAdminSession, canAccessSite, siteAccessDenied } from '@/lib/auth/guards'
-import { writeAdminAuditLog } from '@/lib/audit/write-audit-log'
+import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import {
   renderDailyEmploymentContract,
   renderRegularEmploymentContract,
@@ -128,12 +128,12 @@ export async function POST(
     })
   }
 
-  await writeAdminAuditLog({
-    adminId:    session.sub,
+  void writeAuditLog({
+    actorUserId: session.sub, actorType: 'ADMIN',
     actionType: 'DOCUMENT_GENERATE',
     targetType: 'WorkerContract',
     targetId:   params.id,
-    description: `계약서 PDF 생성: ${rendered.title} / ${base.workerName} / v${contract.currentVersion}`,
+    summary: `계약서 PDF 생성: ${rendered.title} / ${base.workerName} / v${contract.currentVersion}`,
   })
 
   return NextResponse.json({
