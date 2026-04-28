@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
     const status = sp.get('status')
     const type = sp.get('type')
     const workerScope = await buildWorkerScopeWhere(session)
+    if (workerScope === false) return ok({ items: [], total: 0 })
 
     const where: Record<string, unknown> = {}
     if (month) where.monthKey = month
@@ -67,6 +68,18 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) return badRequest(parsed.error.issues[0]?.message ?? '입력값 오류')
 
     const data = parsed.data
+
+    // scope 검증: workerId가 본인 접근 범위 안에 있는지 확인
+    const workerScope = await buildWorkerScopeWhere(session)
+    if (workerScope === false) return forbidden()
+    if (workerScope && typeof workerScope === 'object') {
+      const allowed = await prisma.worker.findFirst({
+        where: { id: data.workerId, ...workerScope },
+        select: { id: true },
+      })
+      if (!allowed) return forbidden()
+    }
+
     const record = await prisma.insuranceSubmissionHistory.create({
       data: {
         workerId: data.workerId,
