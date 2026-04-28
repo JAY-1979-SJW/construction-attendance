@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       const w = workerMap.get(id)
       if (!w) { failedItems.push({ id, reason: 'NOT_FOUND' }); continue }
 
-      if (w.accountStatus !== 'APPROVED' && w.accountStatus !== 'ACTIVE') {
+      if (w.accountStatus !== 'APPROVED') {
         failedItems.push({ id, reason: 'NOT_APPROVED' }); continue
       }
 
