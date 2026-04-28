@@ -7,10 +7,14 @@ const algorithm = 'HS256'
 let _secret: Uint8Array | null = null
 function getSecret(): Uint8Array {
   if (!_secret) {
-    if (!process.env.JWT_SECRET) {
+    const raw = process.env.JWT_SECRET?.trim() ?? ''
+    if (raw.length === 0) {
       throw new Error('[FATAL] JWT_SECRET 환경변수가 설정되지 않았습니다. 서버를 시작할 수 없습니다.')
     }
-    _secret = new TextEncoder().encode(process.env.JWT_SECRET)
+    if (raw.length < 32) {
+      throw new Error(`[FATAL] JWT_SECRET이 너무 짧습니다 (${raw.length}자). 최소 32자 이상이어야 합니다.`)
+    }
+    _secret = new TextEncoder().encode(raw)
   }
   return _secret
 }
