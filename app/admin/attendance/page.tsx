@@ -1019,14 +1019,16 @@ function AttendancePageInner() {
                                 className={rowBg}
                               >
                                 {/* 체크박스 (VIEWER 포함 노출, 실행 버튼에서 차단) */}
-                                <AdminTd onClick={e => e.stopPropagation()} className="w-8">
+                                <AdminTd className="w-8">
                                   {item.status === 'MISSING_CHECKOUT' && (
-                                    <input
-                                      type="checkbox"
-                                      checked={selectedIds.has(item.id)}
-                                      onChange={() => toggleSelect(item.id)}
-                                      className="w-4 h-4 cursor-pointer accent-[#DC2626]"
-                                    />
+                                    <div onClick={e => e.stopPropagation()}>
+                                      <input
+                                        type="checkbox"
+                                        checked={selectedIds.has(item.id)}
+                                        onChange={() => toggleSelect(item.id)}
+                                        className="w-4 h-4 cursor-pointer accent-[#DC2626]"
+                                      />
+                                    </div>
                                   )}
                                 </AdminTd>
                                 {/* 날짜 */}

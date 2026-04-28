@@ -388,7 +388,7 @@ function ReportsPageInner() {
                             className="w-4 h-4 accent-[#F97316] cursor-pointer" />
                           <span className="text-[12px] text-muted-brand">선택</span>
                         </div>
-                        <Btn size="sm" variant="orange" onClick={(e) => { e.stopPropagation(); openDetail(item) }}>확정</Btn>
+                        <Btn size="sm" variant="orange" onClick={() => { openDetail(item) }}>확정</Btn>
                       </MobileCardActions>
                     )}
                   </MobileCard>

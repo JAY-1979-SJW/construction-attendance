@@ -439,24 +439,25 @@ export default function RegistrationsPage() {
                 subtitle={r.phone ?? ''}
                 badge={<StatusBadge status={r.accountStatus} label={STATUS_LABEL[r.accountStatus]} />}
                 onClick={() => setSelected(r)}
-                highlighted={selected?.id === r.id}
               >
                 <MobileCardFields>
-                  <MobileCardField label="직종">{r.jobTitle}</MobileCardField>
-                  <MobileCardField label="필수서류">
+                  <MobileCardField label="직종" value={r.jobTitle} />
+                  <MobileCardField label="필수서류" value={
                     <span className={ds.requiredMet ? 'text-status-working font-medium' : 'text-status-rejected'}>
                       {ds.requiredDone}/{ds.requiredTotal}
                     </span>
-                  </MobileCardField>
-                  <MobileCardField label="가입일">{fmtDate(r.createdAt)}</MobileCardField>
+                  } />
+                  <MobileCardField label="가입일" value={fmtDate(r.createdAt)} />
                 </MobileCardFields>
                 {r.accountStatus === 'PENDING' && (
-                  <MobileCardActions onClick={e => e.stopPropagation()}>
+                  <div onClick={e => e.stopPropagation()}>
+                  <MobileCardActions>
                     <Btn variant="success" size="xs" onClick={() => approve(r.id)}
                       disabled={processing === r.id || !canApprove(r)}>승인</Btn>
                     <Btn variant="danger" size="xs"
                       onClick={() => setModalTarget({ id: r.id, action: 'reject' })}>반려</Btn>
                   </MobileCardActions>
+                  </div>
                 )}
               </MobileCard>
             )
