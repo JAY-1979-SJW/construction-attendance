@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getAdminSession, requireRole, requireFeature, MUTATE_ROLES, buildWorkerScopeWhere } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, created, badRequest, unauthorized, internalError } from '@/lib/utils/response'
+import { parsePagination } from '@/lib/utils/pagination'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 
 // ── birthDate 유효성 검증 ──────────────────────────────────────────────────
@@ -55,8 +56,7 @@ export async function GET(request: NextRequest) {
     const search     = searchParams.get('search') ?? ''
     const teamFilter = searchParams.get('team') ?? ''
     const statusFilter = searchParams.get('status') ?? ''  // 'active' | 'inactive' | ''
-    const page     = parseInt(searchParams.get('page') ?? '1', 10)
-    const pageSize = parseInt(searchParams.get('pageSize') ?? '20', 10)
+    const { page, pageSize } = parsePagination(searchParams, { page: 1, pageSize: 20 })
 
     // ── site scope 강제 ──────────────────────────────────────────────────────
     const workerScope = await buildWorkerScopeWhere(session)

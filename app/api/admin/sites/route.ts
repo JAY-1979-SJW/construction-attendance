@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getAdminSession, requireRole, requireFeature, MUTATE_ROLES, getAccessibleSiteIds } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, created, badRequest, unauthorized, internalError } from '@/lib/utils/response'
+import { parsePagination } from '@/lib/utils/pagination'
 import { generateToken } from '@/lib/utils/random'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { toKSTDateString, kstDateStringToDate } from '@/lib/utils/date'
@@ -28,8 +29,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const includeInactive = searchParams.get('includeInactive') === 'true'
     const includeStats   = searchParams.get('includeStats') === 'true'
-    const page     = parseInt(searchParams.get('page') ?? '1', 10)
-    const pageSize = parseInt(searchParams.get('pageSize') ?? '200', 10)
+    const { page, pageSize } = parsePagination(searchParams, { page: 1, pageSize: 200 })
 
     // SITE_ADMIN / COMPANY_ADMIN scope 필터
     const accessibleSiteIds = await getAccessibleSiteIds(session)

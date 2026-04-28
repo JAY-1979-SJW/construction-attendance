@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, unauthorized, internalError } from '@/lib/utils/response'
+import { parsePagination } from '@/lib/utils/pagination'
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,8 +14,7 @@ export async function GET(req: NextRequest) {
     const actedBy = searchParams.get('actedBy')
     const from = searchParams.get('from')
     const to = searchParams.get('to')
-    const page = parseInt(searchParams.get('page') ?? '1')
-    const pageSize = parseInt(searchParams.get('pageSize') ?? '50')
+    const { page, pageSize } = parsePagination(searchParams, { page: 1, pageSize: 50 })
 
     const where = {
       ...(domainType ? { domainType: domainType as never } : {}),

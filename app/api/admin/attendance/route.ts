@@ -5,6 +5,7 @@ import { getAdminSession, buildAttendanceScopeWhere, buildSiteScopeWhere, canAcc
 import { prisma } from '@/lib/db/prisma'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { ok, created, unauthorized, badRequest, conflict, internalError } from '@/lib/utils/response'
+import { parsePagination } from '@/lib/utils/pagination'
 import { kstDateStringToDate, toKSTDateString } from '@/lib/utils/date'
 
 export async function GET(request: NextRequest) {
@@ -22,8 +23,7 @@ export async function GET(request: NextRequest) {
     const workerId   = searchParams.get('workerId') || undefined
     const status     = searchParams.get('status') || undefined
     const nameSearch = searchParams.get('name') || undefined
-    const page       = parseInt(searchParams.get('page') ?? '1', 10)
-    const pageSize   = parseInt(searchParams.get('pageSize') ?? '200', 10)
+    const { page, pageSize } = parsePagination(searchParams, { page: 1, pageSize: 200 })
 
     // 날짜 범위 결정
     const resolvedDate = dateParam ?? toKSTDateString()
