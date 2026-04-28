@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, unauthorized, internalError } from '@/lib/utils/response'
+import { parsePage } from '@/lib/utils/pagination'
 
 /**
  * GET /api/admin/devices
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const workerId  = searchParams.get('workerId') ?? undefined
     const isBlockedParam = searchParams.get('isBlocked')
-    const page = parseInt(searchParams.get('page') ?? '1', 10)
+    const page = parsePage(searchParams.get('page'))
     const pageSize = 30
 
     const where = {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession, buildSiteScopeWhere, buildWorkerScopeWhere, siteAccessDenied } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { unauthorized, internalError } from '@/lib/utils/response'
+import { parsePage } from '@/lib/utils/pagination'
 
 /**
  * GET /api/admin/attendance/photos
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
     const workerId = searchParams.get('workerId') ?? undefined
     const siteId = searchParams.get('siteId') ?? undefined
     const photoType = searchParams.get('photoType') ?? undefined
-    const page = parseInt(searchParams.get('page') ?? '1', 10)
+    const page = parsePage(searchParams.get('page'))
     const pageSize = 20
 
     // site scope 검증 — 요청된 siteId 포함 범위 제한

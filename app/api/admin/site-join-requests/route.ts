@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { unauthorized } from '@/lib/utils/response'
+import { parsePage } from '@/lib/utils/pagination'
 
 /**
  * GET /api/admin/site-join-requests
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') ?? 'PENDING'
     const siteId = searchParams.get('siteId') ?? undefined
     const companyId = searchParams.get('companyId') ?? undefined
-    const page = parseInt(searchParams.get('page') ?? '1', 10)
+    const page = parsePage(searchParams.get('page'))
     const limit = Math.min(parseInt(searchParams.get('limit') ?? '30', 10), 100)
     const skip = (page - 1) * limit
 

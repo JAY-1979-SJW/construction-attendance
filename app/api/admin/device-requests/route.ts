@@ -4,6 +4,7 @@ import { getAdminSession, requireRole, MUTATE_ROLES } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { ok, badRequest, unauthorized, notFound, internalError } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
+import { parsePage } from '@/lib/utils/pagination'
 
 const actionSchema = z.object({
   requestId: z.string(),
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') ?? 'PENDING'
-    const page = parseInt(searchParams.get('page') ?? '1', 10)
+    const page = parsePage(searchParams.get('page'))
     const pageSize = 20
 
     const [total, requests] = await Promise.all([

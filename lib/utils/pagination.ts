@@ -1,5 +1,11 @@
 const MAX_PAGE_SIZE = 500
 
+/** Parses a page number string, clamping to minimum 1. Handles NaN and negative values. */
+export function parsePage(value: string | null, defaultValue = 1): number {
+  const raw = parseInt(value ?? String(defaultValue), 10)
+  return Math.max(1, isNaN(raw) ? defaultValue : raw)
+}
+
 export function parsePagination(
   searchParams: URLSearchParams,
   defaults: { page?: number; pageSize?: number } = {},
