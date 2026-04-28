@@ -24,22 +24,20 @@ export async function GET(req: NextRequest) {
     const from = new Date(Date.UTC(year, mon - 1, 1))
     const to = new Date(Date.UTC(year, mon, 0))
 
-    const siteWhere = siteId
-      ? { siteId }
-      : scope !== true ? { siteId: (scope as { siteId: unknown }).siteId } : {}
+    const siteWhere = siteId ? { siteId } : scope
 
     // 일자별 출퇴근 집계
     const logs = await prisma.attendanceLog.groupBy({
       by: ['workDate', 'status'],
       where: { workDate: { gte: from, lte: to }, ...siteWhere },
-      _count: { id: true },
+      _count: true,
     })
 
     // 일자별 작업일보 집계
     const reports = await prisma.workerDailyReport.groupBy({
       by: ['reportDate', 'status'],
       where: { reportDate: { gte: from, lte: to }, ...siteWhere },
-      _count: { id: true },
+      _count: true,
     })
 
     // 일자별 공수 집계
@@ -47,7 +45,7 @@ export async function GET(req: NextRequest) {
       by: ['workDate'],
       where: { monthKey: month, confirmationStatus: 'CONFIRMED', ...siteWhere },
       _sum: { confirmedWorkUnits: true },
-      _count: { id: true },
+      _count: true,
     })
 
     // 날짜별 맵 구성
@@ -78,26 +76,26 @@ export async function GET(req: NextRequest) {
       const dateStr = log.workDate.toISOString().slice(0, 10)
       const day = dayMap.get(dateStr)
       if (!day) continue
-      day.totalWorkers += log._count.id
-      if (log.status === 'COMPLETED') day.completed += log._count.id
-      else if (log.status === 'WORKING') day.working += log._count.id
-      else if (log.status === 'EXCEPTION') day.exception += log._count.id
+      day.totalWorkers += log._count
+      if (log.status === 'COMPLETED') day.completed += log._count
+      else if (log.status === 'WORKING') day.working += log._count
+      else if (log.status === 'EXCEPTION') day.exception += log._count
     }
 
     for (const r of reports) {
       const dateStr = r.reportDate.toISOString().slice(0, 10)
       const day = dayMap.get(dateStr)
       if (!day) continue
-      if (r.status === 'CONFIRMED') day.reportConfirmed += r._count.id
-      else day.reportWritten += r._count.id
+      if (r.status === 'CONFIRMED') day.reportConfirmed += r._count
+      else day.reportWritten += r._count
     }
 
     for (const c of confirmations) {
       const dateStr = typeof c.workDate === 'string' ? c.workDate : ''
       const day = dayMap.get(dateStr)
       if (!day) continue
-      day.confirmedUnits += Number(c._sum.confirmedWorkUnits ?? 0)
-      day.confirmedCount += c._count.id
+      day.confirmedUnits += Number(c._sum?.confirmedWorkUnits ?? 0)
+      day.confirmedCount += c._count
     }
 
     const days = Array.from(dayMap.values())
