@@ -5,6 +5,7 @@ import { signToken } from '@/lib/auth/jwt'
 import { badRequest, unauthorized, internalError } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { checkRateLimit, resetRateLimit } from '@/lib/auth/rate-limit'
+import { isSecureCookieEnv } from '@/lib/auth/cookie-secure'
 import bcrypt from 'bcryptjs'
 
 const schema = z.object({
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest) {
     })
     response.cookies.set('admin_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecureCookieEnv(),
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30, // 30일
       path: '/',
