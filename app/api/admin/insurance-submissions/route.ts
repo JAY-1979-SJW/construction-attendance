@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
       take: 500,
       include: {
         worker: { select: { id: true, name: true, jobTitle: true } },
-        company: { select: { id: true, name: true } },
+        company: { select: { id: true, companyName: true } },
       },
     })
 

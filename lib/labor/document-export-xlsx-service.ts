@@ -159,7 +159,7 @@ async function buildWageLedgerXlsx(opts: XlsxExportOptions): Promise<Buffer> {
     // 퇴직공제: 근로자별 총 지급액 × 요율 (사업주 부담)
     const ret = isLastRow ? retirementMap.get(c.workerId) : null
     const retirementAmt = (ret?.eligibleYn && retirementRate?.employerRatePct)
-      ? Math.floor(confirmations.filter(x => x.workerId === c.workerId).reduce((s, x) => s + x.confirmedTotalAmount, 0) * (retirementRate.employerRatePct / 100))
+      ? Math.floor(confirmations.filter(x => x.workerId === c.workerId).reduce((s, x) => s + Number(x.confirmedTotalAmount), 0) * (Number(retirementRate.employerRatePct) / 100))
       : 0
 
     if (isLastRow) { totalEiEmp += eiEmp; totalEiEr += eiEr; totalIa += ia; totalRetirement += retirementAmt }
