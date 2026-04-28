@@ -9,7 +9,7 @@ import { prisma } from '@/lib/db/prisma'
 import { ok, badRequest, notFound, internalError, unauthorized } from '@/lib/utils/response'
 import { writeAuditLog } from '@/lib/audit/write-audit-log'
 import { SUPER_ADMIN_ONLY_ROLES } from '@/lib/policies/security-policy'
-import { revokeUser } from '@/lib/auth/user-revocation'
+import { revokeUserTokens } from '@/lib/auth/user-revocation'
 
 const patchSchema = z.object({
   role:      z.enum(['SUPER_ADMIN', 'HQ_ADMIN', 'ADMIN', 'VIEWER', 'COMPANY_ADMIN', 'SITE_ADMIN', 'EXTERNAL_SITE_ADMIN']).optional(),
@@ -122,7 +122,7 @@ export async function PATCH(
 
     // 역할 변경 시 기존 세션 무효화 (다음 요청 시 재로그인 필요)
     if (role && role !== current.role) {
-      revokeUser(id)
+      revokeUserTokens(id)
     }
 
     await writeAuditLog({
