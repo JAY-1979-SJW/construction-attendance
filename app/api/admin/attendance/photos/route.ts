@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession, buildSiteScopeWhere, buildWorkerScopeWhere, siteAccessDenied } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
-import { unauthorized, internalError } from '@/lib/utils/response'
+import { unauthorized, internalError, badRequest } from '@/lib/utils/response'
 import { parsePage } from '@/lib/utils/pagination'
 
 /**
@@ -18,7 +18,13 @@ export async function GET(request: NextRequest) {
     const attendanceLogId = searchParams.get('attendanceLogId') ?? undefined
     const workerId = searchParams.get('workerId') ?? undefined
     const siteId = searchParams.get('siteId') ?? undefined
-    const photoType = searchParams.get('photoType') ?? undefined
+    const photoTypeRaw = searchParams.get('photoType')
+    const ALLOWED_PHOTO_TYPES = ['CHECK_IN', 'CHECK_OUT'] as const
+    type PhotoType = typeof ALLOWED_PHOTO_TYPES[number]
+    if (photoTypeRaw !== null && !(ALLOWED_PHOTO_TYPES as readonly string[]).includes(photoTypeRaw)) {
+      return badRequest('photoType은 CHECK_IN 또는 CHECK_OUT만 허용됩니다.')
+    }
+    const photoType = photoTypeRaw as PhotoType | undefined ?? undefined
     const page = parsePage(searchParams.get('page'))
     const pageSize = 20
 
@@ -52,7 +58,7 @@ export async function GET(request: NextRequest) {
       ...siteScope,
       ...(attendanceLogId ? { attendanceLogId } : {}),
       ...(workerId ? { workerId } : {}),
-      ...(photoType ? { photoType: photoType as 'CHECK_IN' | 'CHECK_OUT' } : {}),
+      ...(photoType ? { photoType } : {}),
     }
 
     const [total, photos] = await Promise.all([
