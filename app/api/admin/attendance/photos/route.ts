@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminSession } from '@/lib/auth/guards'
+import { getAdminSession, buildSiteScopeWhere, buildWorkerScopeWhere, siteAccessDenied } from '@/lib/auth/guards'
 import { prisma } from '@/lib/db/prisma'
 import { unauthorized, internalError } from '@/lib/utils/response'
 
@@ -21,10 +21,36 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') ?? '1', 10)
     const pageSize = 20
 
+    // site scope 검증 — 요청된 siteId 포함 범위 제한
+    const siteScope = await buildSiteScopeWhere(session, siteId)
+    if (siteScope === false) return siteAccessDenied()
+
+    // workerId scope 검증 — 요청된 workerId가 접근 가능 범위 안에 있는지 확인
+    if (workerId) {
+      const workerScope = await buildWorkerScopeWhere(session)
+      if (workerScope === false) return siteAccessDenied()
+      if (workerScope && typeof workerScope === 'object') {
+        const allowed = await prisma.worker.findFirst({
+          where: { id: workerId, ...workerScope },
+          select: { id: true },
+        })
+        if (!allowed) return siteAccessDenied()
+      }
+    }
+
+    // attendanceLogId scope 검증 — log가 속한 siteId가 siteScope 안에 있는지 확인
+    if (attendanceLogId && siteScope && typeof siteScope === 'object' && 'siteId' in siteScope) {
+      const log = await prisma.attendanceLog.findFirst({
+        where: { id: attendanceLogId, ...siteScope },
+        select: { id: true },
+      })
+      if (!log) return siteAccessDenied()
+    }
+
     const where = {
+      ...siteScope,
       ...(attendanceLogId ? { attendanceLogId } : {}),
       ...(workerId ? { workerId } : {}),
-      ...(siteId ? { siteId } : {}),
       ...(photoType ? { photoType: photoType as 'CHECK_IN' | 'CHECK_OUT' } : {}),
     }
 
